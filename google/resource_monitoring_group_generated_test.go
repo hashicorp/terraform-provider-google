@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringGroup_monitoringGroupBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_monitoring_group.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringGroup_monitoringGroupBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_group" "basic" {
   display_name = "tf-test MonitoringGroup%{random_suffix}"
 
@@ -58,31 +57,31 @@ resource "google_monitoring_group" "basic" {
 }
 
 func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringGroup_monitoringGroupSubgroupExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_monitoring_group.subgroup",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringGroup_monitoringGroupSubgroupExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_group" "parent" {
   display_name = "tf-test MonitoringParentGroup%{random_suffix}"
   filter       = "resource.metadata.region=\"europe-west2\""
@@ -96,6 +95,7 @@ resource "google_monitoring_group" "subgroup" {
 `, context)
 }
 
+
 func testAccCheckMonitoringGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -106,24 +106,24 @@ func testAccCheckMonitoringGroupDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isMonitoringConcurrentEditError)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isMonitoringConcurrentEditError)
+		if err == nil {
 				return fmt.Errorf("MonitoringGroup still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

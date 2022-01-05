@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketAccessControlDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckStorageBucketAccessControlDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(context),
 			},
-			{
-				ResourceName:            "google_storage_bucket_access_control.public_rule",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_storage_bucket_access_control.public_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"bucket"},
 			},
-		},
+				},
 	})
 }
 
 func testAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_storage_bucket_access_control" "public_rule" {
   bucket = google_storage_bucket.bucket.name
   role   = "READER"
@@ -63,6 +62,7 @@ resource "google_storage_bucket" "bucket" {
 `, context)
 }
 
+
 func testAccCheckStorageBucketAccessControlDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -73,24 +73,24 @@ func testAccCheckStorageBucketAccessControlDestroyProducer(t *testing.T) func(s 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("StorageBucketAccessControl still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

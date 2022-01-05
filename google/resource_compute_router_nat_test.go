@@ -27,7 +27,7 @@ func TestAccComputeRouterNat_basic(t *testing.T) {
 			},
 			{
 				// implicitly full ImportStateId
-				ResourceName:      "google_compute_router_nat.foobar",
+				ResourceName: "google_compute_router_nat.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -205,6 +205,7 @@ func TestAccComputeRouterNat_withDisabledIndependentEndpointMapping(t *testing.T
 		},
 	})
 }
+
 
 func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -595,6 +596,7 @@ resource "google_compute_router_nat" "foobar" {
 }
 `, routerName, routerName, routerName, routerName, routerName, enabled)
 }
+
 
 func testAccComputeRouterNatKeepRouter(routerName string) string {
 	return fmt.Sprintf(`

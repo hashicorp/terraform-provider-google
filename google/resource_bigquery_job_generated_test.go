@@ -15,37 +15,39 @@
 package google
 
 import (
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBigQueryJob_bigqueryJobQueryExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobQueryExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobQueryExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "foo" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
@@ -87,31 +89,31 @@ resource "google_bigquery_job" "job" {
 }
 
 func TestAccBigQueryJob_bigqueryJobQueryTableReferenceExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobQueryTableReferenceExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "query.0.default_dataset.0.dataset_id", "query.0.destination_table.0.table_id", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobQueryTableReferenceExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "foo" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
@@ -155,31 +157,31 @@ resource "google_bigquery_job" "job" {
 }
 
 func TestAccBigQueryJob_bigqueryJobLoadExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobLoadExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobLoadExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "foo" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
@@ -222,31 +224,31 @@ resource "google_bigquery_job" "job" {
 }
 
 func TestAccBigQueryJob_bigqueryJobLoadTableReferenceExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobLoadTableReferenceExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "load.0.destination_table.0.table_id", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobLoadTableReferenceExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "foo" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
@@ -287,32 +289,32 @@ resource "google_bigquery_job" "job" {
 }
 
 func TestAccBigQueryJob_bigqueryJobCopyExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobCopyExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobCopyExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "source" {
   deletion_protection = false
   count = length(google_bigquery_dataset.source)
@@ -442,32 +444,32 @@ resource "google_bigquery_job" "job" {
 }
 
 func TestAccBigQueryJob_bigqueryJobCopyTableReferenceExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobCopyTableReferenceExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "copy.0.destination_table.0.table_id", "copy.0.source_tables.0.table_id", "copy.0.source_tables.1.table_id", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobCopyTableReferenceExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "source" {
   deletion_protection = false
   count = length(google_bigquery_dataset.source)
@@ -591,31 +593,31 @@ resource "google_bigquery_job" "job" {
 }
 
 func TestAccBigQueryJob_bigqueryJobExtractExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobExtractExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobExtractExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "source-one" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.source-one.dataset_id
@@ -675,31 +677,31 @@ resource "google_bigquery_job" "job" {
 }
 
 func TestAccBigQueryJob_bigqueryJobExtractTableReferenceExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobExtractTableReferenceExample(context),
 			},
-			{
-				ResourceName:            "google_bigquery_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigquery_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"etag", "extract.0.source_table.0.table_id", "status.0.state"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigQueryJob_bigqueryJobExtractTableReferenceExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigquery_table" "source-one" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.source-one.dataset_id

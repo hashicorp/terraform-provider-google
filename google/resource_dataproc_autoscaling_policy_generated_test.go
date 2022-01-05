@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocAutoscalingPolicyDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataprocAutoscalingPolicyDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(context),
 			},
-			{
-				ResourceName:            "google_dataproc_autoscaling_policy.asp",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_dataproc_autoscaling_policy.asp",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_dataproc_cluster" "basic" {
   name     = "tf-test-dataproc-policy%{random_suffix}"
   region   = "us-central1"
@@ -81,6 +80,7 @@ resource "google_dataproc_autoscaling_policy" "asp" {
 `, context)
 }
 
+
 func testAccCheckDataprocAutoscalingPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -91,24 +91,24 @@ func testAccCheckDataprocAutoscalingPolicyDestroyProducer(t *testing.T) func(s *
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/autoscalingPolicies/{{policy_id}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/autoscalingPolicies/{{policy_id}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DataprocAutoscalingPolicy still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

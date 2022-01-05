@@ -18,22 +18,24 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
+																															func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"zip_path":      createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+	"zip_path": createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudFunctionsCloudFunctionIamBinding_basicGenerated(context),
 			},
@@ -60,16 +62,16 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"zip_path":      createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+	"zip_path": createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccCloudFunctionsCloudFunctionIamMember_basicGenerated(context),
@@ -87,16 +89,16 @@ func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
 func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"zip_path":      createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+	"zip_path": createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudFunctionsCloudFunctionIamPolicy_basicGenerated(context),
 			},
@@ -118,6 +120,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccCloudFunctionsCloudFunctionIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareConsentStore_healthcareConsentStoreBasicExample(context),
 			},
-			{
-				ResourceName:            "google_healthcare_consent_store.my-consent",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_healthcare_consent_store.my-consent",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "dataset"},
 			},
-		},
+				},
 	})
 }
 
 func testAccHealthcareConsentStore_healthcareConsentStoreBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"
@@ -63,32 +62,32 @@ resource "google_healthcare_consent_store" "my-consent" {
 }
 
 func TestAccHealthcareConsentStore_healthcareConsentStoreFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareConsentStore_healthcareConsentStoreFullExample(context),
 			},
-			{
-				ResourceName:            "google_healthcare_consent_store.my-consent",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_healthcare_consent_store.my-consent",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "dataset"},
 			},
-		},
+				},
 	})
 }
 
 func testAccHealthcareConsentStore_healthcareConsentStoreFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
@@ -110,32 +109,32 @@ resource "google_healthcare_consent_store" "my-consent" {
 }
 
 func TestAccHealthcareConsentStore_healthcareConsentStoreIamExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareConsentStore_healthcareConsentStoreIamExample(context),
 			},
-			{
-				ResourceName:            "google_healthcare_consent_store.my-consent",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_healthcare_consent_store.my-consent",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "dataset"},
 			},
-		},
+				},
 	})
 }
 
 func testAccHealthcareConsentStore_healthcareConsentStoreIamExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"
@@ -160,6 +159,7 @@ resource "google_healthcare_consent_store_iam_member" "test-iam" {
 `, context)
 }
 
+
 func testAccCheckHealthcareConsentStoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -170,24 +170,24 @@ func testAccCheckHealthcareConsentStoreDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("HealthcareConsentStore still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

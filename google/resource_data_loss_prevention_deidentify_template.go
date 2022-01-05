@@ -15,122 +15,127 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+
 func resourceDataLossPreventionDeidentifyTemplate() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceDataLossPreventionDeidentifyTemplateCreate,
-		Read:   resourceDataLossPreventionDeidentifyTemplateRead,
-		Update: resourceDataLossPreventionDeidentifyTemplateUpdate,
-		Delete: resourceDataLossPreventionDeidentifyTemplateDelete,
+    return &schema.Resource{
+        Create: resourceDataLossPreventionDeidentifyTemplateCreate,
+        Read: resourceDataLossPreventionDeidentifyTemplateRead,
+        Update: resourceDataLossPreventionDeidentifyTemplateUpdate,
+        Delete: resourceDataLossPreventionDeidentifyTemplateDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceDataLossPreventionDeidentifyTemplateImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceDataLossPreventionDeidentifyTemplateImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"deidentify_config": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `Configuration of the deidentify template`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"info_type_transformations": {
-							Type:        schema.TypeList,
-							Required:    true,
-							Description: `Specifies free-text based transformations to be applied to the dataset.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"transformations": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Description: `Transformation for each infoType. Cannot specify more than one for a given infoType.`,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"primitive_transformation": {
-													Type:        schema.TypeList,
-													Required:    true,
-													Description: `Primitive transformation to apply to the infoType.`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"character_mask_config": {
-																Type:     schema.TypeList,
-																Optional: true,
-																Description: `Partially mask a string by replacing a given number of characters with a fixed character.
+
+
+        Schema: map[string]*schema.Schema{
+"deidentify_config": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `Configuration of the deidentify template`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "info_type_transformations": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `Specifies free-text based transformations to be applied to the dataset.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "transformations": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `Transformation for each infoType. Cannot specify more than one for a given infoType.`,
+                Elem: &schema.Resource{
+        Schema: map[string]*schema.Schema{
+                      "primitive_transformation": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `Primitive transformation to apply to the infoType.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "character_mask_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Partially mask a string by replacing a given number of characters with a fixed character.
 Masking can start from the beginning or end of the string.`,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"characters_to_ignore": {
-																			Type:        schema.TypeList,
-																			Optional:    true,
-																			Description: `Characters to skip when doing de-identification of a value. These will be left alone and skipped.`,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"character_to_skip": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `Characters to not transform when masking.`,
-																					},
-																					"common_characters_to_ignore": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringInSlice([]string{"NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE", ""}, false),
-																						Description:  `Common characters to not transform when masking. Useful to avoid removing punctuation. Possible values: ["NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE"]`,
-																					},
-																				},
-																			},
-																		},
-																		"masking_character": {
-																			Type:     schema.TypeString,
-																			Optional: true,
-																			Description: `Character to use to mask the sensitive values—for example, * for an alphabetic string such as a name, or 0 for a numeric string
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "characters_to_ignore": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Characters to skip when doing de-identification of a value. These will be left alone and skipped.`,
+                Elem: &schema.Resource{
+        Schema: map[string]*schema.Schema{
+                      "character_to_skip": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Characters to not transform when masking.`,
+},
+                      "common_characters_to_ignore": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"NUMERIC","ALPHA_UPPER_CASE","ALPHA_LOWER_CASE","PUNCTUATION","WHITESPACE",""}, false),
+	Description: `Common characters to not transform when masking. Useful to avoid removing punctuation. Possible values: ["NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE"]`,
+},
+                  },
+      },
+        },
+              "masking_character": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Character to use to mask the sensitive values—for example, * for an alphabetic string such as a name, or 0 for a numeric string
 such as ZIP code or credit card number. This string must have a length of 1. If not supplied, this value defaults to * for
 strings, and 0 for digits.`,
-																		},
-																		"number_to_mask": {
-																			Type:        schema.TypeInt,
-																			Optional:    true,
-																			Description: `Number of characters to mask. If not set, all matching chars will be masked. Skipped characters do not count towards this tally.`,
-																		},
-																		"reverse_order": {
-																			Type:     schema.TypeBool,
-																			Optional: true,
-																			Description: `Mask characters in reverse order. For example, if masking_character is 0, number_to_mask is 14, and reverse_order is 'false', then the
+},
+              "number_to_mask": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Number of characters to mask. If not set, all matching chars will be masked. Skipped characters do not count towards this tally.`,
+},
+              "reverse_order": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `Mask characters in reverse order. For example, if masking_character is 0, number_to_mask is 14, and reverse_order is 'false', then the
 input string '1234-5678-9012-3456' is masked as '00000000000000-3456'.`,
-																		},
-																	},
-																},
-															},
-															"crypto_deterministic_config": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `Pseudonymization method that generates deterministic encryption for the given input. Outputs a base64 encoded representation of the encrypted output. Uses AES-SIV based on the RFC [https://tools.ietf.org/html/rfc5297](https://tools.ietf.org/html/rfc5297).`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"context": {
-																			Type:     schema.TypeList,
-																			Optional: true,
-																			Description: `A context may be used for higher security and maintaining referential integrity such that the same identifier in two different contexts will be given a distinct surrogate. The context is appended to plaintext value being encrypted. On decryption the provided context is validated against the value used during encryption. If a context was provided during encryption, same context must be provided during decryption as well.
+},
+          },
+  },
+},
+              "crypto_deterministic_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Pseudonymization method that generates deterministic encryption for the given input. Outputs a base64 encoded representation of the encrypted output. Uses AES-SIV based on the RFC [https://tools.ietf.org/html/rfc5297](https://tools.ietf.org/html/rfc5297).`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "context": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `A context may be used for higher security and maintaining referential integrity such that the same identifier in two different contexts will be given a distinct surrogate. The context is appended to plaintext value being encrypted. On decryption the provided context is validated against the value used during encryption. If a context was provided during encryption, same context must be provided during decryption as well.
 
 If the context is not set, plaintext would be used as is for encryption. If the context is set but:
 
@@ -140,85 +145,85 @@ If the context is not set, plaintext would be used as is for encryption. If the 
 plaintext would be used as is for encryption.
 
 Note that case (1) is expected when an 'InfoTypeTransformation' is applied to both structured and non-structured 'ContentItem's.`,
-																			MaxItems: 1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"name": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `Name describing the field.`,
-																					},
-																				},
-																			},
-																		},
-																		"crypto_key": {
-																			Type:        schema.TypeList,
-																			Optional:    true,
-																			Description: `The key used by the encryption function.`,
-																			MaxItems:    1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"kms_wrapped": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Kms wrapped key`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"crypto_key_name": {
-																									Type:        schema.TypeString,
-																									Required:    true,
-																									Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
-																								},
-																								"wrapped_key": {
-																									Type:     schema.TypeString,
-																									Required: true,
-																									Description: `The wrapped data crypto key.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "name": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Name describing the field.`,
+},
+          },
+  },
+},
+              "crypto_key": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The key used by the encryption function.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "kms_wrapped": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Kms wrapped key`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "crypto_key_name": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
+},
+              "wrapped_key": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The wrapped data crypto key.
 
 A base64-encoded string.`,
-																								},
-																							},
-																						},
-																					},
-																					"transient": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Transient crypto key`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"name": {
-																									Type:        schema.TypeString,
-																									Required:    true,
-																									Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
-																								},
-																							},
-																						},
-																					},
-																					"unwrapped": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Unwrapped crypto key`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"key": {
-																									Type:     schema.TypeString,
-																									Required: true,
-																									Description: `A 128/192/256 bit key.
+},
+          },
+  },
+},
+              "transient": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Transient crypto key`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "name": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
+},
+          },
+  },
+},
+              "unwrapped": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Unwrapped crypto key`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "key": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `A 128/192/256 bit key.
 
 A base64-encoded string.`,
-																								},
-																							},
-																						},
-																					},
-																				},
-																			},
-																		},
-																		"surrogate_info_type": {
-																			Type:     schema.TypeList,
-																			Optional: true,
-																			Description: `The custom info type to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom info type followed by the number of characters comprising the surrogate. The following scheme defines the format: {info type name}({surrogate character count}):{surrogate}
+},
+          },
+  },
+},
+          },
+  },
+},
+              "surrogate_info_type": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The custom info type to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom info type followed by the number of characters comprising the surrogate. The following scheme defines the format: {info type name}({surrogate character count}):{surrogate}
 
 For example, if the name of custom info type is 'MY\_TOKEN\_INFO\_TYPE' and the surrogate is 'abc', the full replacement value will be: 'MY\_TOKEN\_INFO\_TYPE(3):abc'
 
@@ -232,39 +237,39 @@ In order for inspection to work properly, the name of this info type must not oc
 *   be unable to parse the surrogate and result in an error
 
 Therefore, choose your custom info type name carefully after considering what your data looks like. One way to select a name that has a high chance of yielding reliable detection is to include one or more unicode characters that are highly improbable to exist in your data. For example, assuming your data is entered from a regular ASCII keyboard, the symbol with the hex code point 29DD might be used like so: ⧝MY\_TOKEN\_TYPE.`,
-																			MaxItems: 1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"name": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
-																					},
-																				},
-																			},
-																		},
-																	},
-																},
-															},
-															"crypto_replace_ffx_fpe_config": {
-																Type:     schema.TypeList,
-																Optional: true,
-																Description: `Replaces an identifier with a surrogate using Format Preserving Encryption (FPE) with the FFX mode of operation; however when used in the 'content.reidentify' API method, it serves the opposite function by reversing the surrogate back into the original identifier. The identifier must be encoded as ASCII. For a given crypto key and context, the same identifier will be replaced with the same surrogate. Identifiers must be at least two characters long. In the case that the identifier is the empty string, it will be skipped. See [https://cloud.google.com/dlp/docs/pseudonymization](https://cloud.google.com/dlp/docs/pseudonymization) to learn more.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "name": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
+},
+          },
+  },
+},
+          },
+  },
+},
+              "crypto_replace_ffx_fpe_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Replaces an identifier with a surrogate using Format Preserving Encryption (FPE) with the FFX mode of operation; however when used in the 'content.reidentify' API method, it serves the opposite function by reversing the surrogate back into the original identifier. The identifier must be encoded as ASCII. For a given crypto key and context, the same identifier will be replaced with the same surrogate. Identifiers must be at least two characters long. In the case that the identifier is the empty string, it will be skipped. See [https://cloud.google.com/dlp/docs/pseudonymization](https://cloud.google.com/dlp/docs/pseudonymization) to learn more.
 
 Note: We recommend using CryptoDeterministicConfig for all use cases which do not require preserving the input alphabet space and size, plus warrant referential integrity.`,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"common_alphabet": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringInSlice([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}, false),
-																			Description:  `Common alphabets. Possible values: ["FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC"]`,
-																		},
-																		"context": {
-																			Type:     schema.TypeList,
-																			Optional: true,
-																			Description: `The 'tweak', a context may be used for higher security since the same identifier in two different contexts won't be given the same surrogate. If the context is not set, a default tweak will be used.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "common_alphabet": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED","NUMERIC","HEXADECIMAL","UPPER_CASE_ALPHA_NUMERIC","ALPHA_NUMERIC",""}, false),
+	Description: `Common alphabets. Possible values: ["FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC"]`,
+},
+              "context": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The 'tweak', a context may be used for higher security since the same identifier in two different contexts won't be given the same surrogate. If the context is not set, a default tweak will be used.
 
 If the context is set but:
 
@@ -279,498 +284,520 @@ The tweak is constructed as a sequence of bytes in big endian byte order such th
 
 *   a 64 bit integer is encoded followed by a single byte of value 1
 *   a string is encoded in UTF-8 format followed by a single byte of value 2`,
-																			MaxItems: 1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"name": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `Name describing the field.`,
-																					},
-																				},
-																			},
-																		},
-																		"crypto_key": {
-																			Type:        schema.TypeList,
-																			Optional:    true,
-																			Description: `The key used by the encryption algorithm.`,
-																			MaxItems:    1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"kms_wrapped": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Kms wrapped key`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"crypto_key_name": {
-																									Type:        schema.TypeString,
-																									Required:    true,
-																									Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
-																								},
-																								"wrapped_key": {
-																									Type:     schema.TypeString,
-																									Required: true,
-																									Description: `The wrapped data crypto key.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "name": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Name describing the field.`,
+},
+          },
+  },
+},
+              "crypto_key": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The key used by the encryption algorithm.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "kms_wrapped": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Kms wrapped key`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "crypto_key_name": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
+},
+              "wrapped_key": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The wrapped data crypto key.
 
 A base64-encoded string.`,
-																								},
-																							},
-																						},
-																					},
-																					"transient": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Transient crypto key`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"name": {
-																									Type:        schema.TypeString,
-																									Required:    true,
-																									Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
-																								},
-																							},
-																						},
-																					},
-																					"unwrapped": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Unwrapped crypto key`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"key": {
-																									Type:     schema.TypeString,
-																									Required: true,
-																									Description: `A 128/192/256 bit key.
+},
+          },
+  },
+},
+              "transient": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Transient crypto key`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "name": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
+},
+          },
+  },
+},
+              "unwrapped": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Unwrapped crypto key`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "key": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `A 128/192/256 bit key.
 
 A base64-encoded string.`,
-																								},
-																							},
-																						},
-																					},
-																				},
-																			},
-																		},
-																		"custom_alphabet": {
-																			Type:     schema.TypeString,
-																			Optional: true,
-																			Description: `This is supported by mapping these to the alphanumeric characters that the FFX mode natively supports. This happens before/after encryption/decryption. Each character listed must appear only once. Number of characters must be in the range \[2, 95\]. This must be encoded as ASCII. The order of characters does not matter. The full list of allowed characters is:
+},
+          },
+  },
+},
+          },
+  },
+},
+              "custom_alphabet": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `This is supported by mapping these to the alphanumeric characters that the FFX mode natively supports. This happens before/after encryption/decryption. Each character listed must appear only once. Number of characters must be in the range \[2, 95\]. This must be encoded as ASCII. The order of characters does not matter. The full list of allowed characters is:
 
 ''0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ~'!@#$%^&*()_-+={[}]|:;"'<,>.?/''`,
-																		},
-																		"radix": {
-																			Type:        schema.TypeInt,
-																			Optional:    true,
-																			Description: `The native way to select the alphabet. Must be in the range \[2, 95\].`,
-																		},
-																		"surrogate_info_type": {
-																			Type:     schema.TypeList,
-																			Optional: true,
-																			Description: `The custom infoType to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom infoType followed by the number of characters comprising the surrogate. The following scheme defines the format: info\_type\_name(surrogate\_character\_count):surrogate
+},
+              "radix": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The native way to select the alphabet. Must be in the range \[2, 95\].`,
+},
+              "surrogate_info_type": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The custom infoType to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom infoType followed by the number of characters comprising the surrogate. The following scheme defines the format: info\_type\_name(surrogate\_character\_count):surrogate
 
 For example, if the name of custom infoType is 'MY\_TOKEN\_INFO\_TYPE' and the surrogate is 'abc', the full replacement value will be: 'MY\_TOKEN\_INFO\_TYPE(3):abc'
 
 This annotation identifies the surrogate when inspecting content using the custom infoType ['SurrogateType'](https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#surrogatetype). This facilitates reversal of the surrogate when it occurs in free text.
 
 In order for inspection to work properly, the name of this infoType must not occur naturally anywhere in your data; otherwise, inspection may find a surrogate that does not correspond to an actual identifier. Therefore, choose your custom infoType name carefully after considering what your data looks like. One way to select a name that has a high chance of yielding reliable detection is to include one or more unicode characters that are highly improbable to exist in your data. For example, assuming your data is entered from a regular ASCII keyboard, the symbol with the hex code point 29DD might be used like so: ⧝MY\_TOKEN\_TYPE`,
-																			MaxItems: 1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"name": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
-																					},
-																				},
-																			},
-																		},
-																	},
-																},
-															},
-															"replace_config": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `Replace each input value with a given value.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"new_value": {
-																			Type:        schema.TypeList,
-																			Required:    true,
-																			Description: `Replace each input value with a given value.`,
-																			MaxItems:    1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"boolean_value": {
-																						Type:        schema.TypeBool,
-																						Optional:    true,
-																						Description: `A boolean value.`,
-																					},
-																					"date_value": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Represents a whole or partial calendar date.`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"day": {
-																									Type:     schema.TypeInt,
-																									Optional: true,
-																									Description: `Day of month. Must be from 1 to 31 and valid for the year and month, or 0 if specifying a
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "name": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
+},
+          },
+  },
+},
+          },
+  },
+},
+              "replace_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Replace each input value with a given value.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "new_value": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `Replace each input value with a given value.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "boolean_value": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `A boolean value.`,
+},
+              "date_value": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Represents a whole or partial calendar date.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "day": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Day of month. Must be from 1 to 31 and valid for the year and month, or 0 if specifying a
 year by itself or a year and month where the day is not significant.`,
-																								},
-																								"month": {
-																									Type:        schema.TypeInt,
-																									Optional:    true,
-																									Description: `Month of year. Must be from 1 to 12, or 0 if specifying a year without a month and day.`,
-																								},
-																								"year": {
-																									Type:        schema.TypeInt,
-																									Optional:    true,
-																									Description: `Year of date. Must be from 1 to 9999, or 0 if specifying a date without a year.`,
-																								},
-																							},
-																						},
-																					},
-																					"day_of_week_value": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}, false),
-																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
-																					},
-																					"float_value": {
-																						Type:        schema.TypeFloat,
-																						Optional:    true,
-																						Description: `A float value.`,
-																					},
-																					"integer_value": {
-																						Type:        schema.TypeInt,
-																						Optional:    true,
-																						Description: `An integer value.`,
-																					},
-																					"string_value": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `A string value.`,
-																					},
-																					"time_value": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Represents a time of day.`,
-																						MaxItems:    1,
-																						Elem: &schema.Resource{
-																							Schema: map[string]*schema.Schema{
-																								"hours": {
-																									Type:        schema.TypeInt,
-																									Optional:    true,
-																									Description: `Hours of day in 24 hour format. Should be from 0 to 23.`,
-																								},
-																								"minutes": {
-																									Type:        schema.TypeInt,
-																									Optional:    true,
-																									Description: `Minutes of hour of day. Must be from 0 to 59.`,
-																								},
-																								"nanos": {
-																									Type:        schema.TypeInt,
-																									Optional:    true,
-																									Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
-																								},
-																								"seconds": {
-																									Type:        schema.TypeInt,
-																									Optional:    true,
-																									Description: `Seconds of minutes of the time. Must normally be from 0 to 59.`,
-																								},
-																							},
-																						},
-																					},
-																					"timestamp_value": {
-																						Type:     schema.TypeString,
-																						Optional: true,
-																						Description: `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+},
+              "month": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Month of year. Must be from 1 to 12, or 0 if specifying a year without a month and day.`,
+},
+              "year": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Year of date. Must be from 1 to 9999, or 0 if specifying a date without a year.`,
+},
+          },
+  },
+},
+              "day_of_week_value": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY",""}, false),
+	Description: `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+},
+              "float_value": {
+    Type: schema.TypeFloat,
+    Optional: true,
+	Description: `A float value.`,
+},
+              "integer_value": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `An integer value.`,
+},
+              "string_value": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `A string value.`,
+},
+              "time_value": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Represents a time of day.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "hours": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Hours of day in 24 hour format. Should be from 0 to 23.`,
+},
+              "minutes": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Minutes of hour of day. Must be from 0 to 59.`,
+},
+              "nanos": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+},
+              "seconds": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Seconds of minutes of the time. Must normally be from 0 to 59.`,
+},
+          },
+  },
+},
+              "timestamp_value": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
-																					},
-																				},
-																			},
-																		},
-																	},
-																},
-															},
-															"replace_with_info_type_config": {
-																Type:        schema.TypeBool,
-																Optional:    true,
-																Description: `Replace each matching finding with the name of the info type.`,
-															},
-														},
-													},
-												},
-												"info_types": {
-													Type:     schema.TypeList,
-													Optional: true,
-													Description: `InfoTypes to apply the transformation to. Leaving this empty will apply the transformation to apply to
+},
+          },
+  },
+},
+          },
+  },
+},
+              "replace_with_info_type_config": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `Replace each matching finding with the name of the info type.`,
+},
+          },
+  },
+},
+                      "info_types": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `InfoTypes to apply the transformation to. Leaving this empty will apply the transformation to apply to
 all findings that correspond to infoTypes that were requested in InspectConfig.`,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"name": {
-																Type:        schema.TypeString,
-																Required:    true,
-																Description: `Name of the information type.`,
-															},
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			"parent": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The parent of the template in any of the following formats:
+                Elem: &schema.Resource{
+        Schema: map[string]*schema.Schema{
+                      "name": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `Name of the information type.`,
+},
+                  },
+      },
+        },
+                  },
+      },
+        },
+          },
+  },
+},
+          },
+  },
+},
+"parent": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The parent of the template in any of the following formats:
 
 * 'projects/{{project}}'
 * 'projects/{{project}}/locations/{{location}}'
 * 'organizations/{{organization_id}}'
 * 'organizations/{{organization_id}}/locations/{{location}}'`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `A description of the template.`,
-			},
-			"display_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `User set display name of the template.`,
-			},
-			"name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The resource name of the template. Set by the server.`,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+"description": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `A description of the template.`,
+},
+"display_name": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `User set display name of the template.`,
+},
+"name": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The resource name of the template. Set by the server.`,
+},
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceDataLossPreventionDeidentifyTemplateCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	descriptionProp, err := expandDataLossPreventionDeidentifyTemplateDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	displayNameProp, err := expandDataLossPreventionDeidentifyTemplateDisplayName(d.Get("display_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
-		obj["displayName"] = displayNameProp
-	}
-	deidentifyConfigProp, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfig(d.Get("deidentify_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("deidentify_config"); !isEmptyValue(reflect.ValueOf(deidentifyConfigProp)) && (ok || !reflect.DeepEqual(v, deidentifyConfigProp)) {
-		obj["deidentifyConfig"] = deidentifyConfigProp
-	}
+    obj := make(map[string]interface{})
+        descriptionProp, err := expandDataLossPreventionDeidentifyTemplateDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+        displayNameProp, err := expandDataLossPreventionDeidentifyTemplateDisplayName(d.Get( "display_name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+        obj["displayName"] = displayNameProp
+    }
+        deidentifyConfigProp, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfig(d.Get( "deidentify_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("deidentify_config"); !isEmptyValue(reflect.ValueOf(deidentifyConfigProp)) && (ok || !reflect.DeepEqual(v, deidentifyConfigProp)) {
+        obj["deidentifyConfig"] = deidentifyConfigProp
+    }
 
-	obj, err = resourceDataLossPreventionDeidentifyTemplateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj, err = resourceDataLossPreventionDeidentifyTemplateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new DeidentifyTemplate: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Creating new DeidentifyTemplate: %#v", obj)
+    billingProject := ""
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating DeidentifyTemplate: %s", err)
-	}
-	if err := d.Set("name", flattenDataLossPreventionDeidentifyTemplateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/deidentifyTemplates/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating DeidentifyTemplate %q: %#v", d.Id(), res)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return resourceDataLossPreventionDeidentifyTemplateRead(d, meta)
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating DeidentifyTemplate: %s", err)
+    }
+                if err := d.Set("name", flattenDataLossPreventionDeidentifyTemplateName(res["name"], d, config)); err != nil {
+        return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+    }
+                                                
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{parent}}/deidentifyTemplates/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
+
+
+
+
+    log.Printf("[DEBUG] Finished creating DeidentifyTemplate %q: %#v", d.Id(), res)
+
+    return resourceDataLossPreventionDeidentifyTemplateRead(d, meta)
 }
 
+
 func resourceDataLossPreventionDeidentifyTemplateRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionDeidentifyTemplate %q", d.Id()))
-	}
 
-	if err := d.Set("name", flattenDataLossPreventionDeidentifyTemplateName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
-	}
-	if err := d.Set("description", flattenDataLossPreventionDeidentifyTemplateDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
-	}
-	if err := d.Set("display_name", flattenDataLossPreventionDeidentifyTemplateDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
-	}
-	if err := d.Set("deidentify_config", flattenDataLossPreventionDeidentifyTemplateDeidentifyConfig(res["deidentifyConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return nil
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionDeidentifyTemplate %q", d.Id()))
+    }
+
+
+
+
+    if err := d.Set("name", flattenDataLossPreventionDeidentifyTemplateName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
+    }
+    if err := d.Set("description", flattenDataLossPreventionDeidentifyTemplateDescription(res["description"], d, config)); err != nil {
+        return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
+    }
+    if err := d.Set("display_name", flattenDataLossPreventionDeidentifyTemplateDisplayName(res["displayName"], d, config)); err != nil {
+        return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
+    }
+    if err := d.Set("deidentify_config", flattenDataLossPreventionDeidentifyTemplateDeidentifyConfig(res["deidentifyConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
+    }
+
+    return nil
 }
 
 func resourceDataLossPreventionDeidentifyTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	obj := make(map[string]interface{})
-	descriptionProp, err := expandDataLossPreventionDeidentifyTemplateDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	displayNameProp, err := expandDataLossPreventionDeidentifyTemplateDisplayName(d.Get("display_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
-		obj["displayName"] = displayNameProp
-	}
-	deidentifyConfigProp, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfig(d.Get("deidentify_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("deidentify_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deidentifyConfigProp)) {
-		obj["deidentifyConfig"] = deidentifyConfigProp
-	}
 
-	obj, err = resourceDataLossPreventionDeidentifyTemplateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            descriptionProp, err := expandDataLossPreventionDeidentifyTemplateDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+            displayNameProp, err := expandDataLossPreventionDeidentifyTemplateDisplayName(d.Get( "display_name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+        obj["displayName"] = displayNameProp
+    }
+            deidentifyConfigProp, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfig(d.Get( "deidentify_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("deidentify_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deidentifyConfigProp)) {
+        obj["deidentifyConfig"] = deidentifyConfigProp
+    }
 
-	log.Printf("[DEBUG] Updating DeidentifyTemplate %q: %#v", d.Id(), obj)
-	updateMask := []string{}
+    obj, err = resourceDataLossPreventionDeidentifyTemplateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	if d.HasChange("description") {
-		updateMask = append(updateMask, "description")
-	}
 
-	if d.HasChange("display_name") {
-		updateMask = append(updateMask, "displayName")
-	}
+    url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	if d.HasChange("deidentify_config") {
-		updateMask = append(updateMask, "deidentifyConfig")
-	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
-	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
+    log.Printf("[DEBUG] Updating DeidentifyTemplate %q: %#v", d.Id(), obj)
+updateMask := []string{}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+if d.HasChange("description") {
+  updateMask = append(updateMask, "description")
+}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+if d.HasChange("display_name") {
+  updateMask = append(updateMask, "displayName")
+}
 
-	if err != nil {
-		return fmt.Errorf("Error updating DeidentifyTemplate %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating DeidentifyTemplate %q: %#v", d.Id(), res)
-	}
+if d.HasChange("deidentify_config") {
+  updateMask = append(updateMask, "deidentifyConfig")
+}
+// updateMask is a URL parameter but not present in the schema, so replaceVars
+// won't set it
+url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+if err != nil {
+  return err
+}
 
-	return resourceDataLossPreventionDeidentifyTemplateRead(d, meta)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return fmt.Errorf("Error updating DeidentifyTemplate %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating DeidentifyTemplate %q: %#v", d.Id(), res)
+    }
+
+
+    return resourceDataLossPreventionDeidentifyTemplateRead(d, meta)
 }
 
 func resourceDataLossPreventionDeidentifyTemplateDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
-	if err != nil {
-		return err
-	}
+    billingProject := ""
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting DeidentifyTemplate %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "DeidentifyTemplate")
-	}
+    url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	log.Printf("[DEBUG] Finished deleting DeidentifyTemplate %q: %#v", d.Id(), res)
-	return nil
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting DeidentifyTemplate %q", d.Id())
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "DeidentifyTemplate")
+    }
+
+
+    log.Printf("[DEBUG] Finished deleting DeidentifyTemplate %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceDataLossPreventionDeidentifyTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -809,149 +836,151 @@ func resourceDataLossPreventionDeidentifyTemplateImport(d *schema.ResourceData, 
 }
 
 func flattenDataLossPreventionDeidentifyTemplateName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
+    if v == nil {
+        return v
+    }
 	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenDataLossPreventionDeidentifyTemplateDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenDataLossPreventionDeidentifyTemplateDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["info_type_transformations"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(original["infoTypeTransformations"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["info_type_transformations"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(original["infoTypeTransformations"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["transformations"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformations(original["transformations"], d, config)
-	return []interface{}{transformed}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["transformations"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformations(original["transformations"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"info_types":               flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypes(original["infoTypes"], d, config),
-			"primitive_transformation": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformation(original["primitiveTransformation"], d, config),
-		})
-	}
-	return transformed
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed = append(transformed, map[string]interface{}{
+          "info_types": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypes(original["infoTypes"], d, config),
+          "primitive_transformation": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformation(original["primitiveTransformation"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"name": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(original["name"], d, config),
-		})
-	}
-	return transformed
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed = append(transformed, map[string]interface{}{
+          "name": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(original["name"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["replace_config"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(original["replaceConfig"], d, config)
-	transformed["replace_with_info_type_config"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(original["replaceWithInfoTypeConfig"], d, config)
-	transformed["character_mask_config"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(original["characterMaskConfig"], d, config)
-	transformed["crypto_deterministic_config"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(original["cryptoDeterministicConfig"], d, config)
-	transformed["crypto_replace_ffx_fpe_config"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(original["cryptoReplaceFfxFpeConfig"], d, config)
-	return []interface{}{transformed}
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["replace_config"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(original["replaceConfig"], d, config)
+              transformed["replace_with_info_type_config"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(original["replaceWithInfoTypeConfig"], d, config)
+              transformed["character_mask_config"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(original["characterMaskConfig"], d, config)
+              transformed["crypto_deterministic_config"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(original["cryptoDeterministicConfig"], d, config)
+              transformed["crypto_replace_ffx_fpe_config"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(original["cryptoReplaceFfxFpeConfig"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["new_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValue(original["newValue"], d, config)
-	return []interface{}{transformed}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["new_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValue(original["newValue"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["integer_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(original["integerValue"], d, config)
-	transformed["float_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueFloatValue(original["floatValue"], d, config)
-	transformed["string_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueStringValue(original["stringValue"], d, config)
-	transformed["boolean_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueBooleanValue(original["booleanValue"], d, config)
-	transformed["timestamp_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimestampValue(original["timestampValue"], d, config)
-	transformed["time_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValue(original["timeValue"], d, config)
-	transformed["date_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValue(original["dateValue"], d, config)
-	transformed["day_of_week_value"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(original["dayOfWeekValue"], d, config)
-	return []interface{}{transformed}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["integer_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(original["integerValue"], d, config)
+              transformed["float_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueFloatValue(original["floatValue"], d, config)
+              transformed["string_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueStringValue(original["stringValue"], d, config)
+              transformed["boolean_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueBooleanValue(original["booleanValue"], d, config)
+              transformed["timestamp_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimestampValue(original["timestampValue"], d, config)
+              transformed["time_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValue(original["timeValue"], d, config)
+              transformed["date_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValue(original["dateValue"], d, config)
+              transformed["day_of_week_value"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(original["dayOfWeekValue"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -968,42 +997,42 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueFloatValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueFloatValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueBooleanValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueBooleanValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["hours"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(original["hours"], d, config)
-	transformed["minutes"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(original["minutes"], d, config)
-	transformed["seconds"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(original["seconds"], d, config)
-	transformed["nanos"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(original["nanos"], d, config)
-	return []interface{}{transformed}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["hours"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(original["hours"], d, config)
+              transformed["minutes"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(original["minutes"], d, config)
+              transformed["seconds"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(original["seconds"], d, config)
+              transformed["nanos"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(original["nanos"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1020,7 +1049,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1037,7 +1066,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1054,7 +1083,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1071,24 +1100,26 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["year"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(original["year"], d, config)
-	transformed["month"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(original["month"], d, config)
-	transformed["day"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(original["day"], d, config)
-	return []interface{}{transformed}
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["year"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(original["year"], d, config)
+              transformed["month"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(original["month"], d, config)
+              transformed["day"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(original["day"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1105,7 +1136,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1122,7 +1153,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1139,38 +1170,44 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  
+
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v != nil
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["masking_character"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigMaskingCharacter(original["maskingCharacter"], d, config)
-	transformed["number_to_mask"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(original["numberToMask"], d, config)
-	transformed["reverse_order"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigReverseOrder(original["reverseOrder"], d, config)
-	transformed["characters_to_ignore"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnore(original["charactersToIgnore"], d, config)
-	return []interface{}{transformed}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["masking_character"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigMaskingCharacter(original["maskingCharacter"], d, config)
+              transformed["number_to_mask"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(original["numberToMask"], d, config)
+              transformed["reverse_order"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigReverseOrder(original["reverseOrder"], d, config)
+              transformed["characters_to_ignore"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnore(original["charactersToIgnore"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigMaskingCharacter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigMaskingCharacter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1187,302 +1224,332 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigReverseOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigReverseOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnore(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"character_to_skip":           flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["characterToSkip"], d, config),
-			"common_characters_to_ignore": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["commonCharactersToIgnore"], d, config),
-		})
-	}
-	return transformed
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnore(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed = append(transformed, map[string]interface{}{
+          "character_to_skip": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["characterToSkip"], d, config),
+          "common_characters_to_ignore": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["commonCharactersToIgnore"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["crypto_key"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(original["cryptoKey"], d, config)
-	transformed["surrogate_info_type"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(original["surrogateInfoType"], d, config)
-	transformed["context"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(original["context"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["transient"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(original["transient"], d, config)
-	transformed["unwrapped"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
-	transformed["kms_wrapped"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(original["name"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["key"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(original["key"], d, config)
-	return []interface{}{transformed}
+  
+
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["crypto_key"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(original["cryptoKey"], d, config)
+              transformed["surrogate_info_type"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(original["surrogateInfoType"], d, config)
+              transformed["context"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(original["context"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["transient"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(original["transient"], d, config)
+              transformed["unwrapped"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+              transformed["kms_wrapped"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
+        return []interface{}{transformed}
+}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(original["name"], d, config)
+        return []interface{}{transformed}
+}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["wrapped_key"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
-	transformed["crypto_key_name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
-	return []interface{}{transformed}
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["key"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["wrapped_key"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
+              transformed["crypto_key_name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
+        return []interface{}{transformed}
+}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(original["name"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(original["name"], d, config)
-	return []interface{}{transformed}
+  
+
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(original["name"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["crypto_key"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(original["cryptoKey"], d, config)
-	transformed["context"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(original["context"], d, config)
-	transformed["surrogate_info_type"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(original["surrogateInfoType"], d, config)
-	transformed["common_alphabet"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(original["commonAlphabet"], d, config)
-	transformed["custom_alphabet"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(original["customAlphabet"], d, config)
-	transformed["radix"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(original["radix"], d, config)
-	return []interface{}{transformed}
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(original["name"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["transient"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(original["transient"], d, config)
-	transformed["unwrapped"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
-	transformed["kms_wrapped"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(original["name"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["key"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(original["key"], d, config)
-	return []interface{}{transformed}
+  
+
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["crypto_key"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(original["cryptoKey"], d, config)
+              transformed["context"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(original["context"], d, config)
+              transformed["surrogate_info_type"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(original["surrogateInfoType"], d, config)
+              transformed["common_alphabet"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(original["commonAlphabet"], d, config)
+              transformed["custom_alphabet"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(original["customAlphabet"], d, config)
+              transformed["radix"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(original["radix"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["transient"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(original["transient"], d, config)
+              transformed["unwrapped"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+              transformed["kms_wrapped"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
+        return []interface{}{transformed}
+}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(original["name"], d, config)
+        return []interface{}{transformed}
+}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["wrapped_key"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
-	transformed["crypto_key_name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
-	return []interface{}{transformed}
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["key"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["wrapped_key"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
+              transformed["crypto_key_name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
+        return []interface{}{transformed}
+}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(original["name"], d, config)
-	return []interface{}{transformed}
-}
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["name"] =
-		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(original["name"], d, config)
-	return []interface{}{transformed}
+  
+
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(original["name"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["name"] =
+    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(original["name"], d, config)
+        return []interface{}{transformed}
+}
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
+}
+
+      func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1498,880 +1565,1064 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 
 	return v // let terraform core handle it otherwise
 }
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedInfoTypeTransformations, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(original["info_type_transformations"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedInfoTypeTransformations); val.IsValid() && !isEmptyValue(val) {
-		transformed["infoTypeTransformations"] = transformedInfoTypeTransformations
-	}
+      transformedInfoTypeTransformations, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(original["info_type_transformations"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedInfoTypeTransformations); val.IsValid() && !isEmptyValue(val) {
+        transformed["infoTypeTransformations"] = transformedInfoTypeTransformations      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTransformations, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformations(original["transformations"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTransformations); val.IsValid() && !isEmptyValue(val) {
-		transformed["transformations"] = transformedTransformations
-	}
+      transformedTransformations, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformations(original["transformations"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTransformations); val.IsValid() && !isEmptyValue(val) {
+        transformed["transformations"] = transformedTransformations      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedInfoTypes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypes(original["info_types"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedInfoTypes); val.IsValid() && !isEmptyValue(val) {
-			transformed["infoTypes"] = transformedInfoTypes
-		}
+      transformedInfoTypes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypes(original["info_types"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedInfoTypes); val.IsValid() && !isEmptyValue(val) {
+        transformed["infoTypes"] = transformedInfoTypes      }
 
-		transformedPrimitiveTransformation, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformation(original["primitive_transformation"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedPrimitiveTransformation); val.IsValid() && !isEmptyValue(val) {
-			transformed["primitiveTransformation"] = transformedPrimitiveTransformation
-		}
+      transformedPrimitiveTransformation, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformation(original["primitive_transformation"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedPrimitiveTransformation); val.IsValid() && !isEmptyValue(val) {
+        transformed["primitiveTransformation"] = transformedPrimitiveTransformation      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-			transformed["name"] = transformedName
-		}
+      transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedReplaceConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(original["replace_config"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedReplaceConfig); val.IsValid() && !isEmptyValue(val) {
-		transformed["replaceConfig"] = transformedReplaceConfig
-	}
+      transformedReplaceConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(original["replace_config"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedReplaceConfig); val.IsValid() && !isEmptyValue(val) {
+        transformed["replaceConfig"] = transformedReplaceConfig      }
 
-	transformedReplaceWithInfoTypeConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(original["replace_with_info_type_config"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedReplaceWithInfoTypeConfig); val.IsValid() && !isEmptyValue(val) {
-		transformed["replaceWithInfoTypeConfig"] = transformedReplaceWithInfoTypeConfig
-	}
+      transformedReplaceWithInfoTypeConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(original["replace_with_info_type_config"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedReplaceWithInfoTypeConfig); val.IsValid() && !isEmptyValue(val) {
+        transformed["replaceWithInfoTypeConfig"] = transformedReplaceWithInfoTypeConfig      }
 
-	transformedCharacterMaskConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(original["character_mask_config"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCharacterMaskConfig); val.IsValid() && !isEmptyValue(val) {
-		transformed["characterMaskConfig"] = transformedCharacterMaskConfig
-	}
+      transformedCharacterMaskConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(original["character_mask_config"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCharacterMaskConfig); val.IsValid() && !isEmptyValue(val) {
+        transformed["characterMaskConfig"] = transformedCharacterMaskConfig      }
 
-	transformedCryptoDeterministicConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(original["crypto_deterministic_config"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCryptoDeterministicConfig); val.IsValid() && !isEmptyValue(val) {
-		transformed["cryptoDeterministicConfig"] = transformedCryptoDeterministicConfig
-	}
+      transformedCryptoDeterministicConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(original["crypto_deterministic_config"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCryptoDeterministicConfig); val.IsValid() && !isEmptyValue(val) {
+        transformed["cryptoDeterministicConfig"] = transformedCryptoDeterministicConfig      }
 
-	transformedCryptoReplaceFfxFpeConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(original["crypto_replace_ffx_fpe_config"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCryptoReplaceFfxFpeConfig); val.IsValid() && !isEmptyValue(val) {
-		transformed["cryptoReplaceFfxFpeConfig"] = transformedCryptoReplaceFfxFpeConfig
-	}
+      transformedCryptoReplaceFfxFpeConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(original["crypto_replace_ffx_fpe_config"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCryptoReplaceFfxFpeConfig); val.IsValid() && !isEmptyValue(val) {
+        transformed["cryptoReplaceFfxFpeConfig"] = transformedCryptoReplaceFfxFpeConfig      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedNewValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValue(original["new_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNewValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["newValue"] = transformedNewValue
-	}
+      transformedNewValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValue(original["new_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNewValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["newValue"] = transformedNewValue      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedIntegerValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(original["integer_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedIntegerValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["integerValue"] = transformedIntegerValue
-	}
+      transformedIntegerValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(original["integer_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedIntegerValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["integerValue"] = transformedIntegerValue      }
 
-	transformedFloatValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueFloatValue(original["float_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedFloatValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["floatValue"] = transformedFloatValue
-	}
+      transformedFloatValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueFloatValue(original["float_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedFloatValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["floatValue"] = transformedFloatValue      }
 
-	transformedStringValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueStringValue(original["string_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["stringValue"] = transformedStringValue
-	}
+      transformedStringValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueStringValue(original["string_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["stringValue"] = transformedStringValue      }
 
-	transformedBooleanValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueBooleanValue(original["boolean_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedBooleanValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["booleanValue"] = transformedBooleanValue
-	}
+      transformedBooleanValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueBooleanValue(original["boolean_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedBooleanValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["booleanValue"] = transformedBooleanValue      }
 
-	transformedTimestampValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimestampValue(original["timestamp_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTimestampValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["timestampValue"] = transformedTimestampValue
-	}
+      transformedTimestampValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimestampValue(original["timestamp_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTimestampValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["timestampValue"] = transformedTimestampValue      }
 
-	transformedTimeValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValue(original["time_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTimeValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["timeValue"] = transformedTimeValue
-	}
+      transformedTimeValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValue(original["time_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTimeValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["timeValue"] = transformedTimeValue      }
 
-	transformedDateValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValue(original["date_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDateValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["dateValue"] = transformedDateValue
-	}
+      transformedDateValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValue(original["date_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDateValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["dateValue"] = transformedDateValue      }
 
-	transformedDayOfWeekValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(original["day_of_week_value"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDayOfWeekValue); val.IsValid() && !isEmptyValue(val) {
-		transformed["dayOfWeekValue"] = transformedDayOfWeekValue
-	}
+      transformedDayOfWeekValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(original["day_of_week_value"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDayOfWeekValue); val.IsValid() && !isEmptyValue(val) {
+        transformed["dayOfWeekValue"] = transformedDayOfWeekValue      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueFloatValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueStringValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueBooleanValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimestampValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedHours, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(original["hours"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !isEmptyValue(val) {
-		transformed["hours"] = transformedHours
-	}
+      transformedHours, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(original["hours"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedHours); val.IsValid() && !isEmptyValue(val) {
+        transformed["hours"] = transformedHours      }
 
-	transformedMinutes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(original["minutes"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !isEmptyValue(val) {
-		transformed["minutes"] = transformedMinutes
-	}
+      transformedMinutes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(original["minutes"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !isEmptyValue(val) {
+        transformed["minutes"] = transformedMinutes      }
 
-	transformedSeconds, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(original["seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
-		transformed["seconds"] = transformedSeconds
-	}
+      transformedSeconds, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(original["seconds"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+        transformed["seconds"] = transformedSeconds      }
 
-	transformedNanos, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(original["nanos"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
-		transformed["nanos"] = transformedNanos
-	}
+      transformedNanos, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(original["nanos"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+        transformed["nanos"] = transformedNanos      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedYear, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(original["year"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
-		transformed["year"] = transformedYear
-	}
+      transformedYear, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(original["year"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+        transformed["year"] = transformedYear      }
 
-	transformedMonth, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(original["month"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
-		transformed["month"] = transformedMonth
-	}
+      transformedMonth, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(original["month"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+        transformed["month"] = transformedMonth      }
 
-	transformedDay, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(original["day"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
-		transformed["day"] = transformedDay
-	}
+      transformedDay, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(original["day"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+        transformed["day"] = transformedDay      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
+
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == nil || !v.(bool) {
-		return nil, nil
-	}
+        return nil, nil
+    }
 
 	return struct{}{}, nil
 }
 
+
+
+
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedMaskingCharacter, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigMaskingCharacter(original["masking_character"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaskingCharacter); val.IsValid() && !isEmptyValue(val) {
-		transformed["maskingCharacter"] = transformedMaskingCharacter
-	}
+      transformedMaskingCharacter, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigMaskingCharacter(original["masking_character"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaskingCharacter); val.IsValid() && !isEmptyValue(val) {
+        transformed["maskingCharacter"] = transformedMaskingCharacter      }
 
-	transformedNumberToMask, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(original["number_to_mask"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNumberToMask); val.IsValid() && !isEmptyValue(val) {
-		transformed["numberToMask"] = transformedNumberToMask
-	}
+      transformedNumberToMask, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(original["number_to_mask"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNumberToMask); val.IsValid() && !isEmptyValue(val) {
+        transformed["numberToMask"] = transformedNumberToMask      }
 
-	transformedReverseOrder, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigReverseOrder(original["reverse_order"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedReverseOrder); val.IsValid() && !isEmptyValue(val) {
-		transformed["reverseOrder"] = transformedReverseOrder
-	}
+      transformedReverseOrder, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigReverseOrder(original["reverse_order"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedReverseOrder); val.IsValid() && !isEmptyValue(val) {
+        transformed["reverseOrder"] = transformedReverseOrder      }
 
-	transformedCharactersToIgnore, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnore(original["characters_to_ignore"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCharactersToIgnore); val.IsValid() && !isEmptyValue(val) {
-		transformed["charactersToIgnore"] = transformedCharactersToIgnore
-	}
+      transformedCharactersToIgnore, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnore(original["characters_to_ignore"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCharactersToIgnore); val.IsValid() && !isEmptyValue(val) {
+        transformed["charactersToIgnore"] = transformedCharactersToIgnore      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigMaskingCharacter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigReverseOrder(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnore(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedCharacterToSkip, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["character_to_skip"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedCharacterToSkip); val.IsValid() && !isEmptyValue(val) {
-			transformed["characterToSkip"] = transformedCharacterToSkip
-		}
+      transformedCharacterToSkip, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["character_to_skip"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCharacterToSkip); val.IsValid() && !isEmptyValue(val) {
+        transformed["characterToSkip"] = transformedCharacterToSkip      }
 
-		transformedCommonCharactersToIgnore, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["common_characters_to_ignore"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedCommonCharactersToIgnore); val.IsValid() && !isEmptyValue(val) {
-			transformed["commonCharactersToIgnore"] = transformedCommonCharactersToIgnore
-		}
+      transformedCommonCharactersToIgnore, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["common_characters_to_ignore"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCommonCharactersToIgnore); val.IsValid() && !isEmptyValue(val) {
+        transformed["commonCharactersToIgnore"] = transformedCommonCharactersToIgnore      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(original["crypto_key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
-		transformed["cryptoKey"] = transformedCryptoKey
-	}
+      transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(original["crypto_key"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
+        transformed["cryptoKey"] = transformedCryptoKey      }
 
-	transformedSurrogateInfoType, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(original["surrogate_info_type"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSurrogateInfoType); val.IsValid() && !isEmptyValue(val) {
-		transformed["surrogateInfoType"] = transformedSurrogateInfoType
-	}
+      transformedSurrogateInfoType, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(original["surrogate_info_type"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSurrogateInfoType); val.IsValid() && !isEmptyValue(val) {
+        transformed["surrogateInfoType"] = transformedSurrogateInfoType      }
 
-	transformedContext, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(original["context"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedContext); val.IsValid() && !isEmptyValue(val) {
-		transformed["context"] = transformedContext
-	}
+      transformedContext, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(original["context"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedContext); val.IsValid() && !isEmptyValue(val) {
+        transformed["context"] = transformedContext      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(original["transient"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
-		transformed["transient"] = transformedTransient
-	}
+      transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(original["transient"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
+        transformed["transient"] = transformedTransient      }
 
-	transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
-		transformed["unwrapped"] = transformedUnwrapped
-	}
+      transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
+        transformed["unwrapped"] = transformedUnwrapped      }
 
-	transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
-		transformed["kmsWrapped"] = transformedKmsWrapped
-	}
+      transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
+        transformed["kmsWrapped"] = transformedKmsWrapped      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(original["name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-		transformed["name"] = transformedName
-	}
+      transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(original["key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
-		transformed["key"] = transformedKey
-	}
+      transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+        transformed["key"] = transformedKey      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
-		transformed["wrappedKey"] = transformedWrappedKey
-	}
+      transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
+        transformed["wrappedKey"] = transformedWrappedKey      }
 
-	transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
-		transformed["cryptoKeyName"] = transformedCryptoKeyName
-	}
+      transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
+        transformed["cryptoKeyName"] = transformedCryptoKeyName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(original["name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-		transformed["name"] = transformedName
-	}
+      transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(original["name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-		transformed["name"] = transformedName
-	}
+      transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(original["crypto_key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
-		transformed["cryptoKey"] = transformedCryptoKey
-	}
+      transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(original["crypto_key"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
+        transformed["cryptoKey"] = transformedCryptoKey      }
 
-	transformedContext, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(original["context"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedContext); val.IsValid() && !isEmptyValue(val) {
-		transformed["context"] = transformedContext
-	}
+      transformedContext, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(original["context"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedContext); val.IsValid() && !isEmptyValue(val) {
+        transformed["context"] = transformedContext      }
 
-	transformedSurrogateInfoType, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(original["surrogate_info_type"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSurrogateInfoType); val.IsValid() && !isEmptyValue(val) {
-		transformed["surrogateInfoType"] = transformedSurrogateInfoType
-	}
+      transformedSurrogateInfoType, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(original["surrogate_info_type"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSurrogateInfoType); val.IsValid() && !isEmptyValue(val) {
+        transformed["surrogateInfoType"] = transformedSurrogateInfoType      }
 
-	transformedCommonAlphabet, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(original["common_alphabet"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCommonAlphabet); val.IsValid() && !isEmptyValue(val) {
-		transformed["commonAlphabet"] = transformedCommonAlphabet
-	}
+      transformedCommonAlphabet, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(original["common_alphabet"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCommonAlphabet); val.IsValid() && !isEmptyValue(val) {
+        transformed["commonAlphabet"] = transformedCommonAlphabet      }
 
-	transformedCustomAlphabet, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(original["custom_alphabet"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCustomAlphabet); val.IsValid() && !isEmptyValue(val) {
-		transformed["customAlphabet"] = transformedCustomAlphabet
-	}
+      transformedCustomAlphabet, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(original["custom_alphabet"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCustomAlphabet); val.IsValid() && !isEmptyValue(val) {
+        transformed["customAlphabet"] = transformedCustomAlphabet      }
 
-	transformedRadix, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(original["radix"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRadix); val.IsValid() && !isEmptyValue(val) {
-		transformed["radix"] = transformedRadix
-	}
+      transformedRadix, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(original["radix"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedRadix); val.IsValid() && !isEmptyValue(val) {
+        transformed["radix"] = transformedRadix      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(original["transient"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
-		transformed["transient"] = transformedTransient
-	}
+      transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(original["transient"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
+        transformed["transient"] = transformedTransient      }
 
-	transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
-		transformed["unwrapped"] = transformedUnwrapped
-	}
+      transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
+        transformed["unwrapped"] = transformedUnwrapped      }
 
-	transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
-		transformed["kmsWrapped"] = transformedKmsWrapped
-	}
+      transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
+        transformed["kmsWrapped"] = transformedKmsWrapped      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(original["name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-		transformed["name"] = transformedName
-	}
+      transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(original["key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
-		transformed["key"] = transformedKey
-	}
+      transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+        transformed["key"] = transformedKey      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
-		transformed["wrappedKey"] = transformedWrappedKey
-	}
+      transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
+        transformed["wrappedKey"] = transformedWrappedKey      }
 
-	transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
-		transformed["cryptoKeyName"] = transformedCryptoKeyName
-	}
+      transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
+        transformed["cryptoKeyName"] = transformedCryptoKeyName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(original["name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-		transformed["name"] = transformedName
-	}
+      transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(original["name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-		transformed["name"] = transformedName
-	}
+      transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
+
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
 
 func resourceDataLossPreventionDeidentifyTemplateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})

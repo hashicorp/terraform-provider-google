@@ -155,6 +155,7 @@ func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 	})
 }
 
+
 func testAccComputeHealthCheck_tcp(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {

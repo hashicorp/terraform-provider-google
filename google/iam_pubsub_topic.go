@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,22 +27,23 @@ import (
 
 var PubsubTopicIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"topic": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type PubsubTopicIamUpdater struct {
 	project string
-	topic   string
+	topic string
 	d       TerraformResourceData
 	Config  *Config
 }
@@ -57,8 +62,9 @@ func PubsubTopicIamUpdaterProducer(d TerraformResourceData, config *Config) (Res
 		values["topic"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/topics/(?P<topic>[^/]+)", "(?P<project>[^/]+)/(?P<topic>[^/]+)", "(?P<topic>[^/]+)"}, d, config, d.Get("topic").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/topics/(?P<topic>[^/]+)","(?P<project>[^/]+)/(?P<topic>[^/]+)","(?P<topic>[^/]+)"}, d, config, d.Get("topic").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +75,7 @@ func PubsubTopicIamUpdaterProducer(d TerraformResourceData, config *Config) (Res
 
 	u := &PubsubTopicIamUpdater{
 		project: values["project"],
-		topic:   values["topic"],
+		topic: values["topic"],
 		d:       d,
 		Config:  config,
 	}
@@ -89,21 +95,21 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/topics/(?P<topic>[^/]+)", "(?P<project>[^/]+)/(?P<topic>[^/]+)", "(?P<topic>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/topics/(?P<topic>[^/]+)","(?P<project>[^/]+)/(?P<topic>[^/]+)","(?P<topic>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &PubsubTopicIamUpdater{
 		project: values["project"],
-		topic:   values["topic"],
+		topic: values["topic"],
 		d:       d,
 		Config:  config,
 	}
@@ -151,6 +157,7 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -178,11 +185,11 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 
 func (u *PubsubTopicIamUpdater) qualifyTopicUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{PubsubBasePath}}%s:%s", fmt.Sprintf("projects/%s/topics/%s", u.project, u.topic), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *PubsubTopicIamUpdater) GetResourceId() string {

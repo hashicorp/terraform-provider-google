@@ -18,21 +18,23 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
+																				func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/secretmanager.secretAccessor",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/secretmanager.secretAccessor",
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSecretManagerSecretIamBinding_basicGenerated(context),
 			},
@@ -59,15 +61,15 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/secretmanager.secretAccessor",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/secretmanager.secretAccessor",
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccSecretManagerSecretIamMember_basicGenerated(context),
@@ -85,15 +87,15 @@ func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/secretmanager.secretAccessor",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/secretmanager.secretAccessor",
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSecretManagerSecretIamPolicy_basicGenerated(context),
 			},
@@ -115,6 +117,7 @@ func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccSecretManagerSecretIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

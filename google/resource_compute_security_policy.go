@@ -165,7 +165,8 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Computed:    true,
 				Description: `The URI of the created resource.`,
 			},
-		},
+
+				},
 
 		UseJSONNumber: true,
 	}
@@ -207,6 +208,7 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 	if v, ok := d.GetOk("rule"); ok {
 		securityPolicy.Rules = expandSecurityPolicyRules(v.(*schema.Set).List())
 	}
+
 
 	log.Printf("[DEBUG] SecurityPolicy insert request: %#v", securityPolicy)
 
@@ -296,8 +298,8 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			ForceSendFields: []string{"Description"},
 		}
 
-		client := config.NewComputeClient(userAgent)
-
+			client := config.NewComputeClient(userAgent)
+		
 		op, err := client.SecurityPolicies.Patch(project, sp, securityPolicy).Do()
 
 		if err != nil {
@@ -325,8 +327,8 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			priority := int64(rule.(map[string]interface{})["priority"].(int))
 			nPriorities[priority] = true
 			if !oPriorities[priority] {
-				client := config.NewComputeClient(userAgent)
-
+							client := config.NewComputeClient(userAgent)
+			
 				// If the rule is in new and its priority does not exist in old, then add it.
 				op, err := client.SecurityPolicies.AddRule(project, sp, expandSecurityPolicyRule(rule)).Do()
 
@@ -339,8 +341,8 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					return err
 				}
 			} else if !oSet.Contains(rule) {
-				client := config.NewComputeClient(userAgent)
-
+							client := config.NewComputeClient(userAgent)
+			
 				// If the rule is in new, and its priority is in old, but its hash is different than the one in old, update it.
 				op, err := client.SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).Do()
 
@@ -358,8 +360,8 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 		for _, rule := range oSet.List() {
 			priority := int64(rule.(map[string]interface{})["priority"].(int))
 			if !nPriorities[priority] {
-				client := config.NewComputeClient(userAgent)
-
+							client := config.NewComputeClient(userAgent)
+			
 				// If the rule's priority is in old but not new, remove it.
 				op, err := client.SecurityPolicies.RemoveRule(project, sp).Priority(priority).Do()
 
@@ -523,6 +525,7 @@ func flattenMatchExpr(match *compute.SecurityPolicyRuleMatcher) []map[string]int
 
 	return []map[string]interface{}{data}
 }
+
 
 func resourceSecurityPolicyStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)

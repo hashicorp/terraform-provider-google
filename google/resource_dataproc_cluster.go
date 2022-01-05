@@ -128,6 +128,7 @@ func resourceDataprocCluster() *schema.Resource {
 				Description: `The timeout duration which allows graceful decomissioning when you change the number of worker nodes directly through a terraform apply`,
 			},
 
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -537,7 +538,7 @@ by Dataproc`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 											ValidateFunc: validation.StringInSlice([]string{"COMPONENT_UNSPECIFIED", "ANACONDA", "DOCKER", "DRUID", "HBASE", "FLINK",
-												"HIVE_WEBHCAT", "JUPYTER", "KERBEROS", "PRESTO", "RANGER", "SOLR", "ZEPPELIN", "ZOOKEEPER"}, false),
+												 "HIVE_WEBHCAT", "JUPYTER", "KERBEROS", "PRESTO", "RANGER", "SOLR", "ZEPPELIN", "ZOOKEEPER"}, false),
 										},
 									},
 								},
@@ -863,6 +864,7 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 		conf.AutoscalingConfig = expandAutoscalingConfig(cfg)
 	}
 
+
 	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
 		log.Println("[INFO] got master_config")
 		conf.MasterConfig = expandInstanceGroupConfig(cfg)
@@ -1045,6 +1047,7 @@ func expandAutoscalingConfig(cfg map[string]interface{}) *dataproc.AutoscalingCo
 	return conf
 }
 
+
 func expandInitializationActions(v interface{}) []*dataproc.NodeInitializationAction {
 	actionList := v.([]interface{})
 
@@ -1202,6 +1205,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 
 		updMask = append(updMask, "config.autoscaling_config.policy_uri")
 	}
+
 
 	if len(updMask) > 0 {
 		gracefulDecommissionTimeout := d.Get("graceful_decommission_timeout").(string)
@@ -1367,6 +1371,7 @@ func flattenAutoscalingConfig(d *schema.ResourceData, ec *dataproc.AutoscalingCo
 
 	return []map[string]interface{}{data}
 }
+
 
 func flattenAccelerators(accelerators []*dataproc.AcceleratorConfig) interface{} {
 	acceleratorsTypeSet := schema.NewSet(schema.HashResource(acceleratorsSchema()), []interface{}{})

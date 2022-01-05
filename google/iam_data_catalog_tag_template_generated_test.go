@@ -18,22 +18,24 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
+																															func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"force_delete":  true,
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+	"force_delete": true,
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTagTemplateIamBinding_basicGenerated(context),
 			},
@@ -60,16 +62,16 @@ func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 func TestAccDataCatalogTagTemplateIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"force_delete":  true,
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+	"force_delete": true,
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccDataCatalogTagTemplateIamMember_basicGenerated(context),
@@ -87,16 +89,16 @@ func TestAccDataCatalogTagTemplateIamMemberGenerated(t *testing.T) {
 func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"force_delete":  true,
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+	"force_delete": true,
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTagTemplateIamPolicy_basicGenerated(context),
 			},
@@ -118,6 +120,7 @@ func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccDataCatalogTagTemplateIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

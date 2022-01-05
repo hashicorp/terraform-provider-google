@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubTopic_pubsubTopicBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_pubsub_topic.example",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubTopic_pubsubTopicBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 
@@ -62,31 +61,31 @@ resource "google_pubsub_topic" "example" {
 }
 
 func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_pubsub_topic.example",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 
@@ -100,32 +99,32 @@ resource "google_pubsub_topic" "example" {
 }
 
 func TestAccPubsubTopic_pubsubTopicSchemaSettingsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":  getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project_name": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubTopic_pubsubTopicSchemaSettingsExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_pubsub_topic.example",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubTopic_pubsubTopicSchemaSettingsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_schema" "example" {
   name = "example%{random_suffix}"
   type = "AVRO"
@@ -144,6 +143,7 @@ resource "google_pubsub_topic" "example" {
 `, context)
 }
 
+
 func testAccCheckPubsubTopicDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -154,24 +154,24 @@ func testAccCheckPubsubTopicDestroyProducer(t *testing.T) func(s *terraform.Stat
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, pubsubTopicProjectNotReady)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, pubsubTopicProjectNotReady)
+		if err == nil {
 				return fmt.Errorf("PubsubTopic still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

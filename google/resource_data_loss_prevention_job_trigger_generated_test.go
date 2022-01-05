@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(context),
 			},
-			{
-				ResourceName:            "google_data_loss_prevention_job_trigger.basic",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_loss_prevention_job_trigger.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -86,6 +85,7 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 `, context)
 }
 
+
 func testAccCheckDataLossPreventionJobTriggerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -96,24 +96,24 @@ func testAccCheckDataLossPreventionJobTriggerDestroyProducer(t *testing.T) func(
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DataLossPreventionJobTrigger still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

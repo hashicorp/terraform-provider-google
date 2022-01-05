@@ -15,44 +15,43 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccApigeeInstanceAttachment_apigeeInstanceAttachmentBasicTestExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+    				"billing_account": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckApigeeInstanceAttachmentDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckApigeeInstanceAttachmentDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeInstanceAttachment_apigeeInstanceAttachmentBasicTestExample(context),
 			},
-			{
-				ResourceName:            "google_apigee_instance_attachment.apigee_instance_attachment",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_apigee_instance_attachment.apigee_instance_attachment",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"instance_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccApigeeInstanceAttachment_apigeeInstanceAttachmentBasicTestExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -139,6 +138,7 @@ resource "google_apigee_instance_attachment" "apigee_instance_attachment_2" {
 `, context)
 }
 
+
 func testAccCheckApigeeInstanceAttachmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -149,24 +149,24 @@ func testAccCheckApigeeInstanceAttachmentDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ApigeeInstanceAttachment still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

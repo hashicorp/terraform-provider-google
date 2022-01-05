@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringMetricDescriptorDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringMetricDescriptorDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_metric_descriptor.basic",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_metric_descriptor.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"metadata", "launch_stage"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_metric_descriptor" "basic" {
   description = "Daily sales records from all branch stores."
   display_name = "tf-test-metric-descriptor%{random_suffix}"
@@ -72,32 +71,32 @@ resource "google_monitoring_metric_descriptor" "basic" {
 }
 
 func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringMetricDescriptorDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringMetricDescriptorDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_metric_descriptor.with_alert",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_metric_descriptor.with_alert",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"metadata", "launch_stage"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_metric_descriptor" "with_alert" {
   description = "Daily sales records from all branch stores."
   display_name = "tf-test-metric-descriptor%{random_suffix}"
@@ -122,6 +121,7 @@ resource "google_monitoring_alert_policy" "alert_policy" {
 `, context)
 }
 
+
 func testAccCheckMonitoringMetricDescriptorDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -132,24 +132,24 @@ func testAccCheckMonitoringMetricDescriptorDestroyProducer(t *testing.T) func(s 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isMonitoringConcurrentEditError)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isMonitoringConcurrentEditError)
+		if err == nil {
 				return fmt.Errorf("MonitoringMetricDescriptor still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

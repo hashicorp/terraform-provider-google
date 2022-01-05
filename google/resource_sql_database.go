@@ -15,402 +15,434 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceSQLDatabase() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceSQLDatabaseCreate,
-		Read:   resourceSQLDatabaseRead,
-		Update: resourceSQLDatabaseUpdate,
-		Delete: resourceSQLDatabaseDelete,
+    return &schema.Resource{
+        Create: resourceSQLDatabaseCreate,
+        Read: resourceSQLDatabaseRead,
+        Update: resourceSQLDatabaseUpdate,
+        Delete: resourceSQLDatabaseDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceSQLDatabaseImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceSQLDatabaseImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(15 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(15 * time.Minute),
+            Update: schema.DefaultTimeout(10 * time.Minute),
+            Delete: schema.DefaultTimeout(10 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"instance": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The name of the Cloud SQL instance. This does not include the project
+
+
+        Schema: map[string]*schema.Schema{
+"instance": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The name of the Cloud SQL instance. This does not include the project
 ID.`,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The name of the database in the Cloud SQL instance.
+},
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The name of the database in the Cloud SQL instance.
 This does not include the project ID or instance name.`,
-			},
-			"charset": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				DiffSuppressFunc: caseDiffSuppress,
-				Description: `The charset value. See MySQL's
+},
+"charset": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  DiffSuppressFunc: caseDiffSuppress,
+	Description: `The charset value. See MySQL's
 [Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
 and Postgres' [Character Set Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
 for more details and supported values. Postgres databases only support
 a value of 'UTF8' at creation time.`,
-			},
-			"collation": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				Description: `The collation value. See MySQL's
+},
+"collation": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+		Description: `The collation value. See MySQL's
 [Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
 and Postgres' [Collation Support](https://www.postgresql.org/docs/9.6/static/collation.html)
 for more details and supported values. Postgres databases only support
 a value of 'en_US.UTF8' at creation time.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+            "self_link": {
+                Type:     schema.TypeString,
+                Computed: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	charsetProp, err := expandSQLDatabaseCharset(d.Get("charset"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("charset"); !isEmptyValue(reflect.ValueOf(charsetProp)) && (ok || !reflect.DeepEqual(v, charsetProp)) {
-		obj["charset"] = charsetProp
-	}
-	collationProp, err := expandSQLDatabaseCollation(d.Get("collation"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("collation"); !isEmptyValue(reflect.ValueOf(collationProp)) && (ok || !reflect.DeepEqual(v, collationProp)) {
-		obj["collation"] = collationProp
-	}
-	nameProp, err := expandSQLDatabaseName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	instanceProp, err := expandSQLDatabaseInstance(d.Get("instance"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(instanceProp)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
-		obj["instance"] = instanceProp
-	}
+    obj := make(map[string]interface{})
+        charsetProp, err := expandSQLDatabaseCharset(d.Get( "charset" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("charset"); !isEmptyValue(reflect.ValueOf(charsetProp)) && (ok || !reflect.DeepEqual(v, charsetProp)) {
+        obj["charset"] = charsetProp
+    }
+        collationProp, err := expandSQLDatabaseCollation(d.Get( "collation" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("collation"); !isEmptyValue(reflect.ValueOf(collationProp)) && (ok || !reflect.DeepEqual(v, collationProp)) {
+        obj["collation"] = collationProp
+    }
+        nameProp, err := expandSQLDatabaseName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        instanceProp, err := expandSQLDatabaseInstance(d.Get( "instance" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(instanceProp)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
+        obj["instance"] = instanceProp
+    }
 
-	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases")
-	if err != nil {
-		return err
-	}
+    lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	log.Printf("[DEBUG] Creating new Database: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases")
+    if err != nil {
+        return err
+    }
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+    log.Printf("[DEBUG] Creating new Database: %#v", obj)
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating Database: %s", err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = sqlAdminOperationWaitTime(
-		config, res, project, "Creating Database", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating Database: %s", err)
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Database: %s", err)
-	}
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
+    err = sqlAdminOperationWaitTime(
+    config, res,  project,  "Creating Database", userAgent,
+        d.Timeout(schema.TimeoutCreate))
 
-	return resourceSQLDatabaseRead(d, meta)
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create Database: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
+
+    return resourceSQLDatabaseRead(d, meta)
 }
 
+
 func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(transformSQLDatabaseReadError(err), d, fmt.Sprintf("SQLDatabase %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(transformSQLDatabaseReadError(err), d, fmt.Sprintf("SQLDatabase %q", d.Id()))
+    }
 
-	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+
+
+    if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+    if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+    if err := d.Set("name", flattenSQLDatabaseName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+    if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+    if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+
+    return nil
 }
 
 func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	charsetProp, err := expandSQLDatabaseCharset(d.Get("charset"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("charset"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, charsetProp)) {
-		obj["charset"] = charsetProp
-	}
-	collationProp, err := expandSQLDatabaseCollation(d.Get("collation"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("collation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, collationProp)) {
-		obj["collation"] = collationProp
-	}
-	nameProp, err := expandSQLDatabaseName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	instanceProp, err := expandSQLDatabaseInstance(d.Get("instance"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
-		obj["instance"] = instanceProp
-	}
 
-	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    obj := make(map[string]interface{})
+            charsetProp, err := expandSQLDatabaseCharset(d.Get( "charset" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("charset"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, charsetProp)) {
+        obj["charset"] = charsetProp
+    }
+            collationProp, err := expandSQLDatabaseCollation(d.Get( "collation" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("collation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, collationProp)) {
+        obj["collation"] = collationProp
+    }
+            nameProp, err := expandSQLDatabaseName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+            instanceProp, err := expandSQLDatabaseInstance(d.Get( "instance" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
+        obj["instance"] = instanceProp
+    }
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Updating Database %q: %#v", d.Id(), obj)
+    lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    log.Printf("[DEBUG] Updating Database %q: %#v", d.Id(), obj)
 
-	if err != nil {
-		return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = sqlAdminOperationWaitTime(
-		config, res, project, "Updating Database", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+    res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
+    }
 
-	return resourceSQLDatabaseRead(d, meta)
+    err = sqlAdminOperationWaitTime(
+        config, res,  project,  "Updating Database", userAgent,
+        d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return err
+    }
+
+    return resourceSQLDatabaseRead(d, meta)
 }
 
 func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-	if err != nil {
-		return err
-	}
+    lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting Database %q", d.Id())
+    url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting Database %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "Database")
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = sqlAdminOperationWaitTime(
-		config, res, project, "Deleting Database", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "Database")
+    }
 
-	if err != nil {
-		return err
-	}
+    err = sqlAdminOperationWaitTime(
+        config, res,  project,  "Deleting Database", userAgent,
+        d.Timeout(schema.TimeoutDelete))
 
-	log.Printf("[DEBUG] Finished deleting Database %q: %#v", d.Id(), res)
-	return nil
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting Database %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
-		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
-		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+        "instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
+        "(?P<instance>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenSQLDatabaseCharset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenSQLDatabaseCollation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenSQLDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenSQLDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandSQLDatabaseCharset(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandSQLDatabaseCollation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandSQLDatabaseName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
 func expandSQLDatabaseInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

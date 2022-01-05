@@ -23,17 +23,17 @@ func TestAccDialogflowCXVersion_update(t *testing.T) {
 				Config: testAccDialogflowCXVersion_basic(context),
 			},
 			{
-				ResourceName:      "google_dialogflow_cx_version.version1",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dialogflow_cx_version.version1",
+				ImportState:             true,
+				ImportStateVerify:       true,
 			},
 			{
 				Config: testAccDialogflowCXVersion_full(context),
 			},
 			{
-				ResourceName:      "google_dialogflow_cx_version.version1",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dialogflow_cx_version.version1",
+				ImportState:             true,
+				ImportStateVerify:       true,
 			},
 		},
 	})

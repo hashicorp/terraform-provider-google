@@ -15,38 +15,40 @@
 package google
 
 import (
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(context),
 			},
-			{
-				ResourceName:            "google_app_engine_service_split_traffic.liveapp",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_app_engine_service_split_traffic.liveapp",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"split", "migrate_traffic"},
 			},
-		},
+				},
 	})
 }
 
 func testAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_storage_bucket" "bucket" {
 	name     = "tf-test-appengine-static-content%{random_suffix}"
   location = "US"

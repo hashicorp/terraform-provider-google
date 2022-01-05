@@ -219,7 +219,7 @@ func TestAccComputeDisk_timeout(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config:      testAccComputeDisk_timeout(diskName),
 				ExpectError: regexp.MustCompile("timeout"),
 			},
@@ -269,7 +269,7 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
 			},
 			{
@@ -277,7 +277,7 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "name"),
 			},
 			{
@@ -300,7 +300,7 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -357,7 +357,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 			},
 			{
@@ -369,7 +369,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 			// listed as attached to the disk; the instance is created after the
 			// disk. and the disk's properties aren't refreshed unless there's
 			// another step
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 			},
 			{
@@ -395,7 +395,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
 			},
 			{
@@ -407,7 +407,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 			// listed as attached to the disk; the instance is created after the
 			// disk. and the disk's properties aren't refreshed unless there's
 			// another step
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
 			},
 			{
@@ -416,7 +416,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			// Change the disk name to recreate the instances
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
 			},
 			{
@@ -425,7 +425,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			// Add the extra step like before
-			{
+			resource.TestStep{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
 			},
 			{
@@ -436,6 +436,8 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 		},
 	})
 }
+
+
 
 func testAccCheckComputeDiskExists(t *testing.T, n, p string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {

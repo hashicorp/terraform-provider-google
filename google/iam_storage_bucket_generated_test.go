@@ -18,22 +18,24 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
+	func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/storage.objectViewer",
-		"admin_role":    "roles/storage.admin",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/storage.objectViewer",
+	"admin_role": "roles/storage.admin",
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamBinding_basicGenerated(context),
 			},
@@ -60,16 +62,16 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/storage.objectViewer",
-		"admin_role":    "roles/storage.admin",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/storage.objectViewer",
+	"admin_role": "roles/storage.admin",
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccStorageBucketIamMember_basicGenerated(context),
@@ -89,17 +91,17 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 
 	// This may skip test, so do it first
 	sa := getTestServiceAccountFromEnv(t)
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/storage.objectViewer",
-		"admin_role":    "roles/storage.admin",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/storage.objectViewer",
+	"admin_role": "roles/storage.admin",
+}
 	context["service_account"] = sa
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamPolicy_basicGenerated(context),
 			},
@@ -121,6 +123,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccStorageBucketIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

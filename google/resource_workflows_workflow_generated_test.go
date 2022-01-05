@@ -15,35 +15,34 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccWorkflowsWorkflow_workflowBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckWorkflowsWorkflowDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckWorkflowsWorkflowDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccWorkflowsWorkflow_workflowBasicExample(context),
 			},
-		},
+				},
 	})
 }
 
 func testAccWorkflowsWorkflow_workflowBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "tf-test-my-account%{random_suffix}"
   display_name = "Test Service Account"
@@ -85,6 +84,7 @@ EOF
 `, context)
 }
 
+
 func testAccCheckWorkflowsWorkflowDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -95,24 +95,24 @@ func testAccCheckWorkflowsWorkflowDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("WorkflowsWorkflow still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

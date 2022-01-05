@@ -125,8 +125,8 @@ func TestAccCloudIdentityGroupMembership_import(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

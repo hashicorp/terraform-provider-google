@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDialogflowCXEntityType_dialogflowcxEntityTypeFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDialogflowCXEntityTypeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDialogflowCXEntityTypeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDialogflowCXEntityType_dialogflowcxEntityTypeFullExample(context),
 			},
-			{
-				ResourceName:            "google_dialogflow_cx_entity_type.basic_entity_type",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_dialogflow_cx_entity_type.basic_entity_type",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent", "language_code"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDialogflowCXEntityType_dialogflowcxEntityTypeFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
   display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
   location = "global"
@@ -83,6 +82,7 @@ resource "google_dialogflow_cx_entity_type" "basic_entity_type" {
 `, context)
 }
 
+
 func testAccCheckDialogflowCXEntityTypeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -93,24 +93,24 @@ func testAccCheckDialogflowCXEntityTypeDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DialogflowCXEntityType still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_binary_authorization_attestor.attestor",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
@@ -87,6 +86,7 @@ resource "google_container_analysis_note" "note" {
 `, context)
 }
 
+
 func testAccCheckBinaryAuthorizationAttestorDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -97,24 +97,24 @@ func testAccCheckBinaryAuthorizationAttestorDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("BinaryAuthorizationAttestor still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

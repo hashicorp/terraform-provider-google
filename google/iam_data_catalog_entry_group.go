@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var DataCatalogEntryGroupIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"region": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"entry_group": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type DataCatalogEntryGroupIamUpdater struct {
-	project    string
-	region     string
+	project string
+	region string
 	entryGroup string
-	d          TerraformResourceData
-	Config     *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func DataCatalogEntryGroupIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func DataCatalogEntryGroupIamUpdaterProducer(d TerraformResourceData, config *Co
 		values["entry_group"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<entry_group>[^/]+)"}, d, config, d.Get("entry_group").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)","(?P<region>[^/]+)/(?P<entry_group>[^/]+)","(?P<entry_group>[^/]+)"}, d, config, d.Get("entry_group").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func DataCatalogEntryGroupIamUpdaterProducer(d TerraformResourceData, config *Co
 	}
 
 	u := &DataCatalogEntryGroupIamUpdater{
-		project:    values["project"],
-		region:     values["region"],
+		project: values["project"],
+		region: values["region"],
 		entryGroup: values["entry_group"],
-		d:          d,
-		Config:     config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func DataCatalogEntryGroupIdParseFunc(d *schema.ResourceData, config *Config) er
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	region, _ := getRegion(d, config)
 	if region != "" {
-		values["region"] = region
-	}
+		values["region"] = region	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<entry_group>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)","(?P<region>[^/]+)/(?P<entry_group>[^/]+)","(?P<entry_group>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &DataCatalogEntryGroupIamUpdater{
-		project:    values["project"],
-		region:     values["region"],
+		project: values["project"],
+		region: values["region"],
 		entryGroup: values["entry_group"],
-		d:          d,
-		Config:     config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("entry_group", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting entry_group: %s", err)
@@ -175,6 +180,7 @@ func (u *DataCatalogEntryGroupIamUpdater) SetResourceIamPolicy(policy *cloudreso
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *DataCatalogEntryGroupIamUpdater) SetResourceIamPolicy(policy *cloudreso
 
 func (u *DataCatalogEntryGroupIamUpdater) qualifyEntryGroupUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataCatalogBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", u.project, u.region, u.entryGroup), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *DataCatalogEntryGroupIamUpdater) GetResourceId() string {

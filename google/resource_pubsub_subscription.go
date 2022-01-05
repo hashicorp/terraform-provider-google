@@ -15,16 +15,17 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
+
 
 func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.ResourceData) bool {
 	trimmedNew := strings.TrimLeft(new, "0")
@@ -38,42 +39,46 @@ func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.Res
 	return trimmedNew == trimmedOld
 }
 
+
+
 func resourcePubsubSubscription() *schema.Resource {
-	return &schema.Resource{
-		Create: resourcePubsubSubscriptionCreate,
-		Read:   resourcePubsubSubscriptionRead,
-		Update: resourcePubsubSubscriptionUpdate,
-		Delete: resourcePubsubSubscriptionDelete,
+    return &schema.Resource{
+        Create: resourcePubsubSubscriptionCreate,
+        Read: resourcePubsubSubscriptionRead,
+        Update: resourcePubsubSubscriptionUpdate,
+        Delete: resourcePubsubSubscriptionDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourcePubsubSubscriptionImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourcePubsubSubscriptionImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(6 * time.Minute),
+            Update: schema.DefaultTimeout(6 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Name of the subscription.`,
-			},
-			"topic": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `A reference to a Topic resource.`,
-			},
-			"ack_deadline_seconds": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-				Description: `This value is the maximum time after a subscriber receives a message
+
+
+        Schema: map[string]*schema.Schema{
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Name of the subscription.`,
+},
+"topic": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `A reference to a Topic resource.`,
+},
+"ack_deadline_seconds": {
+    Type: schema.TypeInt,
+  	Computed: true,
+	Optional: true,
+		Description: `This value is the maximum time after a subscriber receives a message
 before the subscriber should acknowledge the message. After message
 delivery but before the ack deadline expires and before the message is
 acknowledged, it is an outstanding message and will not be delivered
@@ -91,11 +96,11 @@ for the call to the push endpoint.
 
 If the subscriber never acknowledges the message, the Pub/Sub system
 will eventually redeliver the message.`,
-			},
-			"dead_letter_policy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `A policy that specifies the conditions for dead lettering messages in
+},
+"dead_letter_policy": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `A policy that specifies the conditions for dead lettering messages in
 this subscription. If dead_letter_policy is not set, dead lettering
 is disabled.
 
@@ -103,13 +108,13 @@ The Cloud Pub/Sub service account associated with this subscription's
 parent project (i.e.,
 service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
 permission to Acknowledge() messages on this subscription.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"dead_letter_topic": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `The name of the topic to which dead letter messages should be published.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "dead_letter_topic": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `The name of the topic to which dead letter messages should be published.
 Format is 'projects/{project}/topics/{topic}'.
 
 The Cloud Pub/Sub service account associated with the enclosing subscription's
@@ -120,11 +125,11 @@ permission to Publish() to this topic.
 The operation will fail if the topic does not exist.
 Users should ensure that there is a subscription attached to this topic
 since messages published to a topic with no subscriptions are lost.`,
-						},
-						"max_delivery_attempts": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The maximum number of delivery attempts for any message. The value must be
+},
+              "max_delivery_attempts": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The maximum number of delivery attempts for any message. The value must be
 between 5 and 100.
 
 The number of delivery attempts is defined as 1 + (the sum of number of 
@@ -136,64 +141,64 @@ client libraries may automatically extend ack_deadlines.
 This field will be honored on a best effort basis.
 
 If this parameter is 0, a default value of 5 is used.`,
-						},
-					},
-				},
-			},
-			"enable_message_ordering": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Description: `If 'true', messages published with the same orderingKey in PubsubMessage will be delivered to
+},
+          },
+  },
+},
+"enable_message_ordering": {
+    Type: schema.TypeBool,
+    Optional: true,
+  ForceNew: true,
+	Description: `If 'true', messages published with the same orderingKey in PubsubMessage will be delivered to
 the subscribers in the order in which they are received by the Pub/Sub system. Otherwise, they
 may be delivered in any order.`,
-			},
-			"expiration_policy": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				Description: `A policy that specifies the conditions for this subscription's expiration.
+},
+"expiration_policy": {
+    Type: schema.TypeList,
+  	Computed: true,
+	Optional: true,
+		Description: `A policy that specifies the conditions for this subscription's expiration.
 A subscription is considered active as long as any connected subscriber
 is successfully consuming messages from the subscription or is issuing
 operations on the subscription. If expirationPolicy is not set, a default
 policy with ttl of 31 days will be used.  If it is set but ttl is "", the
 resource never expires.  The minimum allowed value for expirationPolicy.ttl
 is 1 day.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"ttl": {
-							Type:             schema.TypeString,
-							Required:         true,
-							DiffSuppressFunc: comparePubsubSubscriptionExpirationPolicy,
-							Description: `Specifies the "time-to-live" duration for an associated resource. The
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "ttl": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: comparePubsubSubscriptionExpirationPolicy,
+	Description: `Specifies the "time-to-live" duration for an associated resource. The
 resource expires if it is not active for a period of ttl.
 If ttl is not set, the associated resource never expires.
 A duration in seconds with up to nine fractional digits, terminated by 's'.
 Example - "3.5s".`,
-						},
-					},
-				},
-			},
-			"filter": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Description: `The subscription only delivers the messages that match the filter. 
+},
+          },
+  },
+},
+"filter": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	Description: `The subscription only delivers the messages that match the filter. 
 Pub/Sub automatically acknowledges the messages that don't match the filter. You can filter messages
 by their attributes. The maximum length of a filter is 256 bytes. After creating the subscription, 
 you can't modify the filter.`,
-			},
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `A set of key/value label pairs to assign to this Subscription.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-			"message_retention_duration": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `How long to retain unacknowledged messages in the subscription's
+},
+"labels": {
+    Type: schema.TypeMap,
+    Optional: true,
+	Description: `A set of key/value label pairs to assign to this Subscription.`,
+  Elem: &schema.Schema{Type: schema.TypeString},
+},
+"message_retention_duration": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `How long to retain unacknowledged messages in the subscription's
 backlog, from the moment a message is published. If
 retainAckedMessages is true, then this also configures the retention
 of acknowledged messages, and thus configures how far back in time a
@@ -202,29 +207,29 @@ than 7 days ('"604800s"') or less than 10 minutes ('"600s"').
 
 A duration in seconds with up to nine fractional digits, terminated
 by 's'. Example: '"600.5s"'.`,
-				Default: "604800s",
-			},
-			"push_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `If push delivery is used with this subscription, this field is used to
+    Default: "604800s",
+},
+"push_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `If push delivery is used with this subscription, this field is used to
 configure it. An empty pushConfig signifies that the subscriber will
 pull and ack messages using API methods.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"push_endpoint": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `A URL locating the endpoint to which messages should be pushed.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "push_endpoint": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `A URL locating the endpoint to which messages should be pushed.
 For example, a Webhook endpoint might use
 "https://example.com/push".`,
-						},
-						"attributes": {
-							Type:             schema.TypeMap,
-							Optional:         true,
-							DiffSuppressFunc: ignoreMissingKeyInMap("x-goog-version"),
-							Description: `Endpoint configuration attributes.
+},
+              "attributes": {
+    Type: schema.TypeMap,
+    Optional: true,
+  DiffSuppressFunc: ignoreMissingKeyInMap("x-goog-version"),
+	Description: `Endpoint configuration attributes.
 
 Every endpoint has a set of API supported attributes that can
 be used to control different aspects of the message delivery.
@@ -247,578 +252,600 @@ The possible values for this attribute are:
 
 - v1beta1: uses the push format defined in the v1beta1 Pub/Sub API.
 - v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.`,
-							Elem: &schema.Schema{Type: schema.TypeString},
-						},
-						"oidc_token": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `If specified, Pub/Sub will generate and attach an OIDC JWT token as
+  Elem: &schema.Schema{Type: schema.TypeString},
+},
+              "oidc_token": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `If specified, Pub/Sub will generate and attach an OIDC JWT token as
 an Authorization header in the HTTP request for every pushed message.`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"service_account_email": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: `Service account email to be used for generating the OIDC token.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "service_account_email": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `Service account email to be used for generating the OIDC token.
 The caller (for subscriptions.create, subscriptions.patch, and
 subscriptions.modifyPushConfig RPCs) must have the
 iam.serviceAccounts.actAs permission for the service account.`,
-									},
-									"audience": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `Audience to be used when generating OIDC token. The audience claim
+},
+              "audience": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Audience to be used when generating OIDC token. The audience claim
 identifies the recipients that the JWT is intended for. The audience
 value is a single case-sensitive string. Having multiple values (array)
 for the audience field is not supported. More info about the OIDC JWT
 token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
 Note: if not specified, the Push endpoint URL will be used.`,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			"retain_acked_messages": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Description: `Indicates whether to retain acknowledged messages. If 'true', then
+},
+          },
+  },
+},
+          },
+  },
+},
+"retain_acked_messages": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `Indicates whether to retain acknowledged messages. If 'true', then
 messages are not expunged from the subscription's backlog, even if
 they are acknowledged, until they fall out of the
 messageRetentionDuration window.`,
-			},
-			"retry_policy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `A policy that specifies how Pub/Sub retries message delivery for this subscription.
+},
+"retry_policy": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `A policy that specifies how Pub/Sub retries message delivery for this subscription.
 
 If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. 
 RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded events for a given message`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"maximum_backoff": {
-							Type:             schema.TypeString,
-							Computed:         true,
-							Optional:         true,
-							DiffSuppressFunc: durationDiffSuppress,
-							Description: `The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds. 
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "maximum_backoff": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  DiffSuppressFunc: durationDiffSuppress,
+	Description: `The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds. 
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
-						},
-						"minimum_backoff": {
-							Type:             schema.TypeString,
-							Computed:         true,
-							Optional:         true,
-							DiffSuppressFunc: durationDiffSuppress,
-							Description: `The minimum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 10 seconds.
+},
+              "minimum_backoff": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  DiffSuppressFunc: durationDiffSuppress,
+	Description: `The minimum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 10 seconds.
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
-						},
-					},
-				},
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+          },
+  },
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
 
+
+
 func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandPubsubSubscriptionName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	topicProp, err := expandPubsubSubscriptionTopic(d.Get("topic"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("topic"); !isEmptyValue(reflect.ValueOf(topicProp)) && (ok || !reflect.DeepEqual(v, topicProp)) {
-		obj["topic"] = topicProp
-	}
-	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("push_config"); !isEmptyValue(reflect.ValueOf(pushConfigProp)) && (ok || !reflect.DeepEqual(v, pushConfigProp)) {
-		obj["pushConfig"] = pushConfigProp
-	}
-	ackDeadlineSecondsProp, err := expandPubsubSubscriptionAckDeadlineSeconds(d.Get("ack_deadline_seconds"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(ackDeadlineSecondsProp)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
-		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
-	}
-	messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get("message_retention_duration"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(messageRetentionDurationProp)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
-		obj["messageRetentionDuration"] = messageRetentionDurationProp
-	}
-	retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get("retain_acked_messages"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(retainAckedMessagesProp)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
-		obj["retainAckedMessages"] = retainAckedMessagesProp
-	}
-	expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get("expiration_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
-		obj["expirationPolicy"] = expirationPolicyProp
-	}
-	filterProp, err := expandPubsubSubscriptionFilter(d.Get("filter"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("filter"); !isEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
-		obj["filter"] = filterProp
-	}
-	deadLetterPolicyProp, err := expandPubsubSubscriptionDeadLetterPolicy(d.Get("dead_letter_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
-		obj["deadLetterPolicy"] = deadLetterPolicyProp
-	}
-	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(retryPolicyProp)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
-		obj["retryPolicy"] = retryPolicyProp
-	}
-	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_message_ordering"); !isEmptyValue(reflect.ValueOf(enableMessageOrderingProp)) && (ok || !reflect.DeepEqual(v, enableMessageOrderingProp)) {
-		obj["enableMessageOrdering"] = enableMessageOrderingProp
-	}
+    obj := make(map[string]interface{})
+        nameProp, err := expandPubsubSubscriptionName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        topicProp, err := expandPubsubSubscriptionTopic(d.Get( "topic" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("topic"); !isEmptyValue(reflect.ValueOf(topicProp)) && (ok || !reflect.DeepEqual(v, topicProp)) {
+        obj["topic"] = topicProp
+    }
+        labelsProp, err := expandPubsubSubscriptionLabels(d.Get( "labels" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+        obj["labels"] = labelsProp
+    }
+        pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get( "push_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("push_config"); !isEmptyValue(reflect.ValueOf(pushConfigProp)) && (ok || !reflect.DeepEqual(v, pushConfigProp)) {
+        obj["pushConfig"] = pushConfigProp
+    }
+        ackDeadlineSecondsProp, err := expandPubsubSubscriptionAckDeadlineSeconds(d.Get( "ack_deadline_seconds" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(ackDeadlineSecondsProp)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
+        obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
+    }
+        messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get( "message_retention_duration" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(messageRetentionDurationProp)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
+        obj["messageRetentionDuration"] = messageRetentionDurationProp
+    }
+        retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get( "retain_acked_messages" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(retainAckedMessagesProp)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
+        obj["retainAckedMessages"] = retainAckedMessagesProp
+    }
+        expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get( "expiration_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
+        obj["expirationPolicy"] = expirationPolicyProp
+    }
+        filterProp, err := expandPubsubSubscriptionFilter(d.Get( "filter" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("filter"); !isEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
+        obj["filter"] = filterProp
+    }
+        deadLetterPolicyProp, err := expandPubsubSubscriptionDeadLetterPolicy(d.Get( "dead_letter_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
+        obj["deadLetterPolicy"] = deadLetterPolicyProp
+    }
+        retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get( "retry_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(retryPolicyProp)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+        obj["retryPolicy"] = retryPolicyProp
+    }
+        enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get( "enable_message_ordering" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("enable_message_ordering"); !isEmptyValue(reflect.ValueOf(enableMessageOrderingProp)) && (ok || !reflect.DeepEqual(v, enableMessageOrderingProp)) {
+        obj["enableMessageOrdering"] = enableMessageOrderingProp
+    }
 
-	obj, err = resourcePubsubSubscriptionEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj, err = resourcePubsubSubscriptionEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Subscription: %s", err)
-	}
-	billingProject = project
+    log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Subscription: %s", err)
+    }
+    billingProject = project
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating Subscription: %s", err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate), 1)
-	if err != nil {
-		log.Printf("[ERROR] Unable to confirm eventually consistent Subscription %q finished updating: %q", d.Id(), err)
-	}
+    res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating Subscription: %s", err)
+    }
+                                                                                                                                                    
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Subscription %q: %#v", d.Id(), res)
 
-	return resourcePubsubSubscriptionRead(d, meta)
+
+    err = PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate), 1)
+    if err != nil {
+        log.Printf("[ERROR] Unable to confirm eventually consistent Subscription %q finished updating: %q", d.Id(), err)
+    }
+
+
+    log.Printf("[DEBUG] Finished creating Subscription %q: %#v", d.Id(), res)
+
+    return resourcePubsubSubscriptionRead(d, meta)
 }
 
 func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
-	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+    return func() (map[string]interface{}, error) {
+        config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
-		if err != nil {
-			return nil, err
-		}
+        url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
+        if err != nil {
+            return nil, err
+        }
 
-		billingProject := ""
+        billingProject := ""
 
-		project, err := getProject(d, config)
-		if err != nil {
-			return nil, fmt.Errorf("Error fetching project for Subscription: %s", err)
-		}
-		billingProject = project
+        project, err := getProject(d, config)
+        if err != nil {
+            return nil, fmt.Errorf("Error fetching project for Subscription: %s", err)
+        }
+        billingProject = project
 
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
 
-		userAgent, err := generateUserAgentString(d, config.userAgent)
-		if err != nil {
-			return nil, err
-		}
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
 
-		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-		if err != nil {
-			return res, err
-		}
-		return res, nil
-	}
+        userAgent, err := generateUserAgentString(d, config.userAgent)
+        if err != nil {
+            return nil, err
+        }
+
+        res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+        if err != nil {
+            return res, err
+        }
+                return res, nil
+    }
 }
 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Subscription: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Subscription: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("PubsubSubscription %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("PubsubSubscription %q", d.Id()))
+    }
 
-	if err := d.Set("name", flattenPubsubSubscriptionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("topic", flattenPubsubSubscriptionTopic(res["topic"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("labels", flattenPubsubSubscriptionLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("filter", flattenPubsubSubscriptionFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("dead_letter_policy", flattenPubsubSubscriptionDeadLetterPolicy(res["deadLetterPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("retry_policy", flattenPubsubSubscriptionRetryPolicy(res["retryPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
-	if err := d.Set("enable_message_ordering", flattenPubsubSubscriptionEnableMessageOrdering(res["enableMessageOrdering"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Subscription: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+
+
+    if err := d.Set("name", flattenPubsubSubscriptionName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("topic", flattenPubsubSubscriptionTopic(res["topic"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("labels", flattenPubsubSubscriptionLabels(res["labels"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("filter", flattenPubsubSubscriptionFilter(res["filter"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("dead_letter_policy", flattenPubsubSubscriptionDeadLetterPolicy(res["deadLetterPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("retry_policy", flattenPubsubSubscriptionRetryPolicy(res["retryPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+    if err := d.Set("enable_message_ordering", flattenPubsubSubscriptionEnableMessageOrdering(res["enableMessageOrdering"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Subscription: %s", err)
+    }
+
+    return nil
 }
 
 func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Subscription: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Subscription: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("push_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pushConfigProp)) {
-		obj["pushConfig"] = pushConfigProp
-	}
-	ackDeadlineSecondsProp, err := expandPubsubSubscriptionAckDeadlineSeconds(d.Get("ack_deadline_seconds"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
-		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
-	}
-	messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get("message_retention_duration"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
-		obj["messageRetentionDuration"] = messageRetentionDurationProp
-	}
-	retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get("retain_acked_messages"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
-		obj["retainAckedMessages"] = retainAckedMessagesProp
-	}
-	expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get("expiration_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
-		obj["expirationPolicy"] = expirationPolicyProp
-	}
-	deadLetterPolicyProp, err := expandPubsubSubscriptionDeadLetterPolicy(d.Get("dead_letter_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
-		obj["deadLetterPolicy"] = deadLetterPolicyProp
-	}
-	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
-		obj["retryPolicy"] = retryPolicyProp
-	}
 
-	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            labelsProp, err := expandPubsubSubscriptionLabels(d.Get( "labels" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+        obj["labels"] = labelsProp
+    }
+            pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get( "push_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("push_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pushConfigProp)) {
+        obj["pushConfig"] = pushConfigProp
+    }
+            ackDeadlineSecondsProp, err := expandPubsubSubscriptionAckDeadlineSeconds(d.Get( "ack_deadline_seconds" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
+        obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
+    }
+            messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get( "message_retention_duration" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
+        obj["messageRetentionDuration"] = messageRetentionDurationProp
+    }
+            retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get( "retain_acked_messages" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
+        obj["retainAckedMessages"] = retainAckedMessagesProp
+    }
+            expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get( "expiration_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
+        obj["expirationPolicy"] = expirationPolicyProp
+    }
+            deadLetterPolicyProp, err := expandPubsubSubscriptionDeadLetterPolicy(d.Get( "dead_letter_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
+        obj["deadLetterPolicy"] = deadLetterPolicyProp
+    }
+            retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get( "retry_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+        obj["retryPolicy"] = retryPolicyProp
+    }
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
-	if err != nil {
-		return err
-	}
+    obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	log.Printf("[DEBUG] Updating Subscription %q: %#v", d.Id(), obj)
-	updateMask := []string{}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
+    url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	if d.HasChange("push_config") {
-		updateMask = append(updateMask, "pushConfig")
-	}
+    log.Printf("[DEBUG] Updating Subscription %q: %#v", d.Id(), obj)
+updateMask := []string{}
 
-	if d.HasChange("ack_deadline_seconds") {
-		updateMask = append(updateMask, "ackDeadlineSeconds")
-	}
+if d.HasChange("labels") {
+  updateMask = append(updateMask, "labels")
+}
 
-	if d.HasChange("message_retention_duration") {
-		updateMask = append(updateMask, "messageRetentionDuration")
-	}
+if d.HasChange("push_config") {
+  updateMask = append(updateMask, "pushConfig")
+}
 
-	if d.HasChange("retain_acked_messages") {
-		updateMask = append(updateMask, "retainAckedMessages")
-	}
+if d.HasChange("ack_deadline_seconds") {
+  updateMask = append(updateMask, "ackDeadlineSeconds")
+}
 
-	if d.HasChange("expiration_policy") {
-		updateMask = append(updateMask, "expirationPolicy")
-	}
+if d.HasChange("message_retention_duration") {
+  updateMask = append(updateMask, "messageRetentionDuration")
+}
 
-	if d.HasChange("dead_letter_policy") {
-		updateMask = append(updateMask, "deadLetterPolicy")
-	}
+if d.HasChange("retain_acked_messages") {
+  updateMask = append(updateMask, "retainAckedMessages")
+}
 
-	if d.HasChange("retry_policy") {
-		updateMask = append(updateMask, "retryPolicy")
-	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
-	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
+if d.HasChange("expiration_policy") {
+  updateMask = append(updateMask, "expirationPolicy")
+}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+if d.HasChange("dead_letter_policy") {
+  updateMask = append(updateMask, "deadLetterPolicy")
+}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+if d.HasChange("retry_policy") {
+  updateMask = append(updateMask, "retryPolicy")
+}
+// updateMask is a URL parameter but not present in the schema, so replaceVars
+// won't set it
+url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+if err != nil {
+  return err
+}
 
-	if err != nil {
-		return fmt.Errorf("Error updating Subscription %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating Subscription %q: %#v", d.Id(), res)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return resourcePubsubSubscriptionRead(d, meta)
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return fmt.Errorf("Error updating Subscription %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating Subscription %q: %#v", d.Id(), res)
+    }
+
+
+    return resourcePubsubSubscriptionRead(d, meta)
 }
 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Subscription: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Subscription: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting Subscription %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "Subscription")
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting Subscription %q", d.Id())
 
-	log.Printf("[DEBUG] Finished deleting Subscription %q: %#v", d.Id(), res)
-	return nil
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "Subscription")
+    }
+
+
+    log.Printf("[DEBUG] Finished deleting Subscription %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourcePubsubSubscriptionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/subscriptions/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/subscriptions/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenPubsubSubscriptionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
+    if v == nil {
+        return v
+    }
 	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["oidc_token"] =
-		flattenPubsubSubscriptionPushConfigOidcToken(original["oidcToken"], d, config)
-	transformed["push_endpoint"] =
-		flattenPubsubSubscriptionPushConfigPushEndpoint(original["pushEndpoint"], d, config)
-	transformed["attributes"] =
-		flattenPubsubSubscriptionPushConfigAttributes(original["attributes"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["oidc_token"] =
+    flattenPubsubSubscriptionPushConfigOidcToken(original["oidcToken"], d, config)
+              transformed["push_endpoint"] =
+    flattenPubsubSubscriptionPushConfigPushEndpoint(original["pushEndpoint"], d, config)
+              transformed["attributes"] =
+    flattenPubsubSubscriptionPushConfigAttributes(original["attributes"], d, config)
+        return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionPushConfigOidcToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["service_account_email"] =
-		flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
-	transformed["audience"] =
-		flattenPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
-	return []interface{}{transformed}
+      func flattenPubsubSubscriptionPushConfigOidcToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["service_account_email"] =
+    flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
+              transformed["audience"] =
+    flattenPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
+        return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+      func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
+}
+
+  
 
 func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
@@ -838,51 +865,53 @@ func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.Resour
 }
 
 func flattenPubsubSubscriptionMessageRetentionDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenPubsubSubscriptionRetainAckedMessages(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenPubsubSubscriptionExpirationPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["ttl"] =
-		flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    transformed := make(map[string]interface{})
+          transformed["ttl"] =
+    flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
+        return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
+  
+
 func flattenPubsubSubscriptionFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenPubsubSubscriptionDeadLetterPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["dead_letter_topic"] =
-		flattenPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(original["deadLetterTopic"], d, config)
-	transformed["max_delivery_attempts"] =
-		flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(original["maxDeliveryAttempts"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["dead_letter_topic"] =
+    flattenPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(original["deadLetterTopic"], d, config)
+              transformed["max_delivery_attempts"] =
+    flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(original["maxDeliveryAttempts"], d, config)
+        return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -899,42 +928,49 @@ func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
+  
+
 func flattenPubsubSubscriptionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["minimum_backoff"] =
-		flattenPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimumBackoff"], d, config)
-	transformed["maximum_backoff"] =
-		flattenPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximumBackoff"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["minimum_backoff"] =
+    flattenPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimumBackoff"], d, config)
+              transformed["maximum_backoff"] =
+    flattenPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximumBackoff"], d, config)
+        return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenPubsubSubscriptionEnableMessageOrdering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
 
 func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
 }
 
+
 func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	project, err := getProject(d, config)
-	if err != nil {
-		return "", err
-	}
+        project, err := getProject(d, config)
+        if err != nil {
+                return "", err
+        }
 
 	topic := d.Get("topic").(string)
 
@@ -942,7 +978,7 @@ func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, confi
 	match := re.FindStringSubmatch(topic)
 	if len(match) == 3 {
 		return topic, nil
-	} else {
+        } else {
 		// If no full topic given, we expand it to a full topic on the same project
 		fullTopic := fmt.Sprintf("projects/%s/topics/%s", project, topic)
 		if err := d.Set("topic", fullTopic); err != nil {
@@ -952,222 +988,273 @@ func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, confi
 	}
 }
 
+
+
 func expandPubsubSubscriptionLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+  if v == nil {
+    return map[string]string{}, nil
+  }
+  m := make(map[string]string)
+  for k, val := range v.(map[string]interface{}) {
+    m[k] = val.(string)
+  }
+  return m, nil
 }
+
+
 
 func expandPubsubSubscriptionPushConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedOidcToken, err := expandPubsubSubscriptionPushConfigOidcToken(original["oidc_token"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedOidcToken); val.IsValid() && !isEmptyValue(val) {
-		transformed["oidcToken"] = transformedOidcToken
-	}
+      transformedOidcToken, err := expandPubsubSubscriptionPushConfigOidcToken(original["oidc_token"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedOidcToken); val.IsValid() && !isEmptyValue(val) {
+        transformed["oidcToken"] = transformedOidcToken      }
 
-	transformedPushEndpoint, err := expandPubsubSubscriptionPushConfigPushEndpoint(original["push_endpoint"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPushEndpoint); val.IsValid() && !isEmptyValue(val) {
-		transformed["pushEndpoint"] = transformedPushEndpoint
-	}
+      transformedPushEndpoint, err := expandPubsubSubscriptionPushConfigPushEndpoint(original["push_endpoint"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedPushEndpoint); val.IsValid() && !isEmptyValue(val) {
+        transformed["pushEndpoint"] = transformedPushEndpoint      }
 
-	transformedAttributes, err := expandPubsubSubscriptionPushConfigAttributes(original["attributes"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAttributes); val.IsValid() && !isEmptyValue(val) {
-		transformed["attributes"] = transformedAttributes
-	}
+      transformedAttributes, err := expandPubsubSubscriptionPushConfigAttributes(original["attributes"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedAttributes); val.IsValid() && !isEmptyValue(val) {
+        transformed["attributes"] = transformedAttributes      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandPubsubSubscriptionPushConfigOidcToken(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedServiceAccountEmail, err := expandPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["service_account_email"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
-		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
-	}
+      transformedServiceAccountEmail, err := expandPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["service_account_email"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+        transformed["serviceAccountEmail"] = transformedServiceAccountEmail      }
 
-	transformedAudience, err := expandPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAudience); val.IsValid() && !isEmptyValue(val) {
-		transformed["audience"] = transformedAudience
-	}
+      transformedAudience, err := expandPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedAudience); val.IsValid() && !isEmptyValue(val) {
+        transformed["audience"] = transformedAudience      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+  if v == nil {
+    return map[string]string{}, nil
+  }
+  m := make(map[string]string)
+  for k, val := range v.(map[string]interface{}) {
+    m[k] = val.(string)
+  }
+  return m, nil
 }
+
+
 
 func expandPubsubSubscriptionAckDeadlineSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandPubsubSubscriptionMessageRetentionDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandPubsubSubscriptionRetainAckedMessages(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandPubsubSubscriptionExpirationPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 {
-		return nil, nil
-	}
+  l := v.([]interface{})
+  if len(l) == 0 {
+    return nil, nil
+  }
 
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  if l[0] == nil {
+    transformed := make(map[string]interface{})
+    return transformed, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTtl, err := expandPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
-		transformed["ttl"] = transformedTtl
-	}
+      transformedTtl, err := expandPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
+        transformed["ttl"] = transformedTtl      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandPubsubSubscriptionExpirationPolicyTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandPubsubSubscriptionFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandPubsubSubscriptionDeadLetterPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedDeadLetterTopic, err := expandPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(original["dead_letter_topic"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDeadLetterTopic); val.IsValid() && !isEmptyValue(val) {
-		transformed["deadLetterTopic"] = transformedDeadLetterTopic
-	}
+      transformedDeadLetterTopic, err := expandPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(original["dead_letter_topic"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDeadLetterTopic); val.IsValid() && !isEmptyValue(val) {
+        transformed["deadLetterTopic"] = transformedDeadLetterTopic      }
 
-	transformedMaxDeliveryAttempts, err := expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(original["max_delivery_attempts"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxDeliveryAttempts); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxDeliveryAttempts"] = transformedMaxDeliveryAttempts
-	}
+      transformedMaxDeliveryAttempts, err := expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(original["max_delivery_attempts"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxDeliveryAttempts); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxDeliveryAttempts"] = transformedMaxDeliveryAttempts      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandPubsubSubscriptionRetryPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedMinimumBackoff, err := expandPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimum_backoff"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMinimumBackoff); val.IsValid() && !isEmptyValue(val) {
-		transformed["minimumBackoff"] = transformedMinimumBackoff
-	}
+      transformedMinimumBackoff, err := expandPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimum_backoff"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMinimumBackoff); val.IsValid() && !isEmptyValue(val) {
+        transformed["minimumBackoff"] = transformedMinimumBackoff      }
 
-	transformedMaximumBackoff, err := expandPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximum_backoff"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaximumBackoff); val.IsValid() && !isEmptyValue(val) {
-		transformed["maximumBackoff"] = transformedMaximumBackoff
-	}
+      transformedMaximumBackoff, err := expandPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximum_backoff"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaximumBackoff); val.IsValid() && !isEmptyValue(val) {
+        transformed["maximumBackoff"] = transformedMaximumBackoff      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandPubsubSubscriptionEnableMessageOrdering(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
 func resourcePubsubSubscriptionEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	delete(obj, "name")
-	return obj, nil
+delete(obj, "name")
+return obj, nil
 }
 
 func resourcePubsubSubscriptionUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
 	newObj["subscription"] = obj
-	return newObj, nil
+return newObj, nil
 }

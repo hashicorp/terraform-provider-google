@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslPolicy_sslPolicyBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_ssl_policy.prod-ssl-policy",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeSslPolicy_sslPolicyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_ssl_policy" "prod-ssl-policy" {
   name    = "tf-test-production-ssl-policy%{random_suffix}"
   profile = "MODERN"
@@ -69,6 +68,7 @@ resource "google_compute_ssl_policy" "custom-ssl-policy" {
 `, context)
 }
 
+
 func testAccCheckComputeSslPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -79,24 +79,24 @@ func testAccCheckComputeSslPolicyDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeSslPolicy still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

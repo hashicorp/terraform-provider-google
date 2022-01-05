@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckActiveDirectoryDomainDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckActiveDirectoryDomainDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(context),
 			},
-			{
-				ResourceName:            "google_active_directory_domain.ad-domain",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_active_directory_domain.ad-domain",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"domain_name"},
 			},
-		},
+				},
 	})
 }
 
 func testAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_active_directory_domain" "ad-domain" {
   domain_name       = "tfgen%{random_suffix}.org.com"
   locations         = ["us-central1"]
@@ -57,6 +56,7 @@ resource "google_active_directory_domain" "ad-domain" {
 }
 `, context)
 }
+
 
 func testAccCheckActiveDirectoryDomainDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -68,24 +68,24 @@ func testAccCheckActiveDirectoryDomainDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ActiveDirectoryBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ActiveDirectoryBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ActiveDirectoryDomain still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

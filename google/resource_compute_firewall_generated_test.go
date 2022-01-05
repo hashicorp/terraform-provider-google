@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_firewallBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_firewall.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_firewall.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeFirewall_firewallBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_firewall" "default" {
   name    = "tf-test-test-firewall%{random_suffix}"
   network = google_compute_network.default.name
@@ -73,33 +72,33 @@ resource "google_compute_network" "default" {
 }
 
 func TestAccComputeFirewall_firewallWithTargetTagsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_firewallWithTargetTagsExample(context),
 			},
-			{
-				ResourceName:            "google_compute_firewall.rules",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_firewall.rules",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeFirewall_firewallWithTargetTagsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_firewall" "rules" {
   project     = "%{project}"
   name        = "tf-test-my-firewall-rule%{random_suffix}"
@@ -117,6 +116,7 @@ resource "google_compute_firewall" "rules" {
 `, context)
 }
 
+
 func testAccCheckComputeFirewallDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -127,24 +127,24 @@ func testAccCheckComputeFirewallDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeFirewall still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

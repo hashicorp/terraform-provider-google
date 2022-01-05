@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestInstancesExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestInstancesExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_network_management_connectivity_test.instance-test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestInstancesExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_network_management_connectivity_test" "instance-test" {
   name = "tf-test-conn-test-instances%{random_suffix}"
   source {
@@ -108,31 +107,31 @@ data "google_compute_image" "debian_9" {
 }
 
 func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestAddressesExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestAddressesExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_network_management_connectivity_test.address-test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestAddressesExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_network_management_connectivity_test" "address-test" {
   name = "tf-test-conn-test-addr%{random_suffix}"
   source {
@@ -180,6 +179,7 @@ resource "google_compute_address" "dest-addr" {
 `, context)
 }
 
+
 func testAccCheckNetworkManagementConnectivityTestDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -190,24 +190,24 @@ func testAccCheckNetworkManagementConnectivityTestDestroyProducer(t *testing.T) 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("NetworkManagementConnectivityTest still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

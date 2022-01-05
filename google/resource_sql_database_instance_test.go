@@ -106,7 +106,7 @@ func testSweepDatabases(region string) error {
 				return nil
 			}
 
-			err = sqlAdminOperationWaitTime(config, op, config.Project, "Stop Replica", config.userAgent, 10*time.Minute)
+			err = sqlAdminOperationWaitTime(config, op, config.Project, "Stop Replica", config.userAgent, 10 * time.Minute)
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
@@ -138,7 +138,7 @@ func testSweepDatabases(region string) error {
 				return nil
 			}
 
-			err = sqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.userAgent, 10*time.Minute)
+			err = sqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.userAgent, 10 * time.Minute)
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("SQL instance not found")
@@ -163,13 +163,13 @@ func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testGoogleSqlDatabaseInstance_basic2,
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -186,15 +186,15 @@ func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_basic3, databaseName),
 				Check: testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -217,9 +217,9 @@ func TestAccSqlDatabaseInstance_basicMSSQL(t *testing.T) {
 					testGoogleSqlDatabaseInstance_basic_mssql, databaseName, rootPassword),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
 			},
 		},
@@ -240,16 +240,16 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testGoogleSqlDatabaseInstanceConfig_withoutReplica(databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
+			resource.TestStep{
 				PreConfig: func() {
 					// Add a root user
 					config := googleProviderConfig(t)
@@ -263,7 +263,7 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
 					}
-					err = sqlAdminOperationWaitTime(config, op, config.Project, "Waiting for user to insert", config.userAgent, 10*time.Minute)
+					err = sqlAdminOperationWaitTime(config, op, config.Project, "Waiting for user to insert", config.userAgent, 10 * time.Minute)
 					if err != nil {
 						t.Errorf("Error while waiting for user insert operation to complete: %s", err.Error())
 					}
@@ -285,14 +285,14 @@ func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_settings, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -362,23 +362,23 @@ func TestAccSqlDatabaseInstance_replica(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_replica, databaseID, databaseID, databaseID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance_master",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance_master",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
+			resource.TestStep{
 				ResourceName:            "google_sql_database_instance.replica1",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
 			},
-			{
+			resource.TestStep{
 				ResourceName:            "google_sql_database_instance.replica2",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -399,20 +399,20 @@ func TestAccSqlDatabaseInstance_slave(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_slave, masterID, slaveID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance_master",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance_master",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance_slave",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance_slave",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -429,14 +429,14 @@ func TestAccSqlDatabaseInstance_highAvailability(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_highAvailability, instanceID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -453,14 +453,14 @@ func TestAccSqlDatabaseInstance_diskspecs(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_diskspecs, masterID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -477,14 +477,14 @@ func TestAccSqlDatabaseInstance_maintenance(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_maintenance, masterID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -501,24 +501,24 @@ func TestAccSqlDatabaseInstance_settings_upgrade(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_basic3, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_settings, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -535,24 +535,24 @@ func TestAccSqlDatabaseInstance_settingsDowngrade(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_settings, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_basic3, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -570,34 +570,34 @@ func TestAccSqlDatabaseInstance_authNets(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_authNets_step1, databaseID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_authNets_step2, databaseID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_authNets_step1, databaseID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -616,14 +616,14 @@ func TestAccSqlDatabaseInstance_multipleOperations(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_multipleOperations, databaseID, instanceID, userID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -640,25 +640,25 @@ func TestAccSqlDatabaseInstance_basic_with_user_labels(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_basic_with_user_labels, databaseName),
 				Check: testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_basic_with_user_labels_update, databaseName),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -681,9 +681,9 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withoutAllocatedIpRange(t *te
 				Config: testAccSqlDatabaseInstance_withPrivateNetwork_withoutAllocatedIpRange(databaseName, networkName, addressName),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -706,14 +706,15 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(t *testi
 				Config: testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(databaseName, networkName, addressName),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
 }
+
 
 func TestAccSqlDatabaseInstance_createFromBackup(t *testing.T) {
 	// Sqladmin client
@@ -889,9 +890,9 @@ func TestAccSqlDatabaseInstance_BackupRetention(t *testing.T) {
 				Config: testGoogleSqlDatabaseInstance_BackupRetention(masterID),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -912,18 +913,18 @@ func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, true),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
@@ -940,14 +941,14 @@ func TestAccSqlDatabaseInstance_insights(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_insights, masterID),
 			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+			resource.TestStep{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},

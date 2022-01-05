@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
+	context := map[string]interface{} {
+					"deletion_protection": false,
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSQLDatabaseDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckSQLDatabaseDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSQLDatabase_sqlDatabaseBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_sql_database.database",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccSQLDatabase_sqlDatabaseBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_sql_database" "database" {
   name     = "tf-test-my-database%{random_suffix}"
   instance = google_sql_database_instance.instance.name
@@ -68,6 +67,7 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
+
 func testAccCheckSQLDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -78,24 +78,24 @@ func testAccCheckSQLDatabaseDestroyProducer(t *testing.T) func(s *terraform.Stat
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("SQLDatabase still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOSLoginSSHPublicKeyDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckOSLoginSSHPublicKeyDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(context),
 			},
-			{
-				ResourceName:            "google_os_login_ssh_public_key.cache",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_os_login_ssh_public_key.cache",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"user", "project"},
 			},
-		},
+				},
 	})
 }
 
 func testAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_client_openid_userinfo" "me" {
 }
 
@@ -59,6 +58,7 @@ resource "google_os_login_ssh_public_key" "cache" {
 }
 `, context)
 }
+
 
 func testAccCheckOSLoginSSHPublicKeyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -70,24 +70,24 @@ func testAccCheckOSLoginSSHPublicKeyDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("OSLoginSSHPublicKey still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

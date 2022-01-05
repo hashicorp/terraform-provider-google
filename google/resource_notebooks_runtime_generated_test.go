@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNotebooksRuntime_notebookRuntimeBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeBasicExample(context),
 			},
-			{
-				ResourceName:            "google_notebooks_runtime.runtime",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_notebooks_runtime.runtime",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNotebooksRuntime_notebookRuntimeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"
@@ -73,32 +72,32 @@ resource "google_notebooks_runtime" "runtime" {
 }
 
 func TestAccNotebooksRuntime_notebookRuntimeBasicGpuExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeBasicGpuExample(context),
 			},
-			{
-				ResourceName:            "google_notebooks_runtime.runtime_gpu",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_notebooks_runtime.runtime_gpu",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNotebooksRuntime_notebookRuntimeBasicGpuExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_notebooks_runtime" "runtime_gpu" {
   name = "tf-test-notebooks-runtime-gpu%{random_suffix}"
   location = "us-central1"
@@ -129,32 +128,32 @@ resource "google_notebooks_runtime" "runtime_gpu" {
 }
 
 func TestAccNotebooksRuntime_notebookRuntimeBasicContainerExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeBasicContainerExample(context),
 			},
-			{
-				ResourceName:            "google_notebooks_runtime.runtime_container",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_notebooks_runtime.runtime_container",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNotebooksRuntime_notebookRuntimeBasicContainerExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_notebooks_runtime" "runtime_container" {
   name = "tf-test-notebooks-runtime-container%{random_suffix}"
   location = "us-central1"
@@ -185,6 +184,7 @@ resource "google_notebooks_runtime" "runtime_container" {
 `, context)
 }
 
+
 func testAccCheckNotebooksRuntimeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -195,24 +195,24 @@ func testAccCheckNotebooksRuntimeDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("NotebooksRuntime still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

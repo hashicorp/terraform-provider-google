@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeImage_imageBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImage_imageBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_image.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_image.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"raw_disk", "source_disk", "source_image", "source_snapshot"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeImage_imageBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -61,32 +60,32 @@ resource "google_compute_image" "example" {
 }
 
 func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImage_imageGuestOsExample(context),
 			},
-			{
-				ResourceName:            "google_compute_image.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_image.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"raw_disk", "source_disk", "source_image", "source_snapshot"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeImage_imageGuestOsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -105,6 +104,7 @@ resource "google_compute_image" "example" {
 `, context)
 }
 
+
 func testAccCheckComputeImageDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -115,24 +115,24 @@ func testAccCheckComputeImageDestroyProducer(t *testing.T) func(s *terraform.Sta
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeImage still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

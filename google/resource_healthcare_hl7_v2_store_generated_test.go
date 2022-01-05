@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHealthcareHl7V2StoreDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckHealthcareHl7V2StoreDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(context),
 			},
-			{
-				ResourceName:            "google_healthcare_hl7_v2_store.store",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_healthcare_hl7_v2_store.store",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"self_link", "dataset"},
 			},
-		},
+				},
 	})
 }
 
 func testAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_healthcare_hl7_v2_store" "store" {
   name    = "tf-test-example-hl7-v2-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id
@@ -74,6 +73,7 @@ resource "google_healthcare_dataset" "dataset" {
 `, context)
 }
 
+
 func testAccCheckHealthcareHl7V2StoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -84,24 +84,24 @@ func testAccCheckHealthcareHl7V2StoreDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("HealthcareHl7V2Store still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

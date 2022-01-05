@@ -113,6 +113,8 @@ func TestAccHealthcareHl7V2Store_basic(t *testing.T) {
 	})
 }
 
+
+
 func testGoogleHealthcareHl7V2Store_basic(hl7_v2StoreName, datasetName string) string {
 	return fmt.Sprintf(`
 resource "google_healthcare_hl7_v2_store" "default" {
@@ -157,6 +159,7 @@ resource "google_pubsub_topic" "topic" {
 }
 `, hl7_v2StoreName, datasetName, pubsubTopic)
 }
+
 
 func testAccCheckGoogleHealthcareHl7V2StoreUpdate(t *testing.T, pubsubTopic string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {

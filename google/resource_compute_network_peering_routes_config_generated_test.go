@@ -15,37 +15,39 @@
 package google
 
 import (
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_network_peering_routes_config.peering_primary_routes",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_network_peering_routes_config.peering_primary_routes",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_network_peering_routes_config" "peering_primary_routes" {
   peering = google_compute_network_peering.peering_primary.name
   network = google_compute_network.network_primary.name
@@ -82,31 +84,31 @@ resource "google_compute_network" "network_secondary" {
 }
 
 func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(context),
 			},
-			{
-				ResourceName:            "google_compute_network_peering_routes_config.peering_gke_routes",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_network_peering_routes_config.peering_gke_routes",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_network_peering_routes_config" "peering_gke_routes" {
   peering = google_container_cluster.private_cluster.private_cluster_config[0].peering_name
   network = google_compute_network.container_network.name

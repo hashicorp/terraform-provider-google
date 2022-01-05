@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudAssetProjectFeed_cloudAssetProjectFeedExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudAssetProjectFeedDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudAssetProjectFeedDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudAssetProjectFeed_cloudAssetProjectFeedExample(context),
 			},
-			{
-				ResourceName:            "google_cloud_asset_project_feed.project_feed",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloud_asset_project_feed.project_feed",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"billing_project", "feed_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudAssetProjectFeed_cloudAssetProjectFeedExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 # Create a feed that sends notifications about network resource updates.
 resource "google_cloud_asset_project_feed" "project_feed" {
   project          = "%{project}"
@@ -92,6 +91,7 @@ data "google_project" "project" {
 `, context)
 }
 
+
 func testAccCheckCloudAssetProjectFeedDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -102,24 +102,24 @@ func testAccCheckCloudAssetProjectFeedDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudAssetBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{CloudAssetBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("CloudAssetProjectFeed still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

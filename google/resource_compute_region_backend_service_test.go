@@ -20,7 +20,7 @@ func TestAccComputeRegionBackendService_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionBackendService_basic(serviceName, checkName),
 			},
 			{
@@ -28,7 +28,7 @@ func TestAccComputeRegionBackendService_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionBackendService_basicModified(
 					serviceName, checkName, extraCheckName),
 			},
@@ -42,92 +42,92 @@ func TestAccComputeRegionBackendService_basic(t *testing.T) {
 }
 
 func TestAccComputeRegionBackendService_withBackendInternal(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	igName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	itName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionBackendService_withInvalidInternalBackend(
-					serviceName, igName, itName, checkName),
-				ExpectError: regexp.MustCompile(`capacity_scaler" cannot be set for non-managed backend service`),
-			},
-			{
-				Config: testAccComputeRegionBackendService_withBackend(
-					serviceName, igName, itName, checkName, 10),
-			},
-			{
-				ResourceName:      "google_compute_region_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccComputeRegionBackendService_withBackend(
-					serviceName, igName, itName, checkName, 20),
-			},
-			{
-				ResourceName:      "google_compute_region_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
+  serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+  igName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+  itName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+  checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+  vcrTest(t, resource.TestCase{
+    PreCheck:     func() { testAccPreCheck(t) },
+    Providers:    testAccProviders,
+    CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+    Steps: []resource.TestStep{
+      {
+        Config: testAccComputeRegionBackendService_withInvalidInternalBackend(
+          serviceName, igName, itName, checkName),
+        ExpectError: regexp.MustCompile(`capacity_scaler" cannot be set for non-managed backend service`),
+      },
+      {
+        Config: testAccComputeRegionBackendService_withBackend(
+          serviceName, igName, itName, checkName, 10),
+      },
+      {
+        ResourceName:      "google_compute_region_backend_service.lipsum",
+        ImportState:       true,
+        ImportStateVerify: true,
+      },
+      {
+        Config: testAccComputeRegionBackendService_withBackend(
+          serviceName, igName, itName, checkName, 20),
+      },
+      {
+        ResourceName:      "google_compute_region_backend_service.lipsum",
+        ImportState:       true,
+        ImportStateVerify: true,
+      },
+    },
+  })
 }
 
 func TestAccComputeRegionBackendService_withBackendInternalManaged(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	igmName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	hcName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionBackendService_internalManagedMultipleBackends(serviceName, igmName, hcName),
-			},
-			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
+  serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+  igmName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+  hcName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+  vcrTest(t, resource.TestCase{
+    PreCheck:     func() { testAccPreCheck(t) },
+    Providers:    testAccProviders,
+    CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+    Steps: []resource.TestStep{
+      {
+        Config: testAccComputeRegionBackendService_internalManagedMultipleBackends(serviceName, igmName, hcName),
+      },
+      {
+        ResourceName:      "google_compute_region_backend_service.default",
+        ImportState:       true,
+        ImportStateVerify: true,
+      },
+    },
+  })
 }
 
 func TestAccComputeRegionBackendService_withBackendMultiNic(t *testing.T) {
-	t.Parallel()
+        t.Parallel()
 
-	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	net1Name := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	net2Name := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	igName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	itName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionBackendService_withBackendMultiNic(
-					serviceName, net1Name, net2Name, igName, itName, checkName, 10),
-			},
-			{
-				ResourceName:      "google_compute_region_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
+        serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+        net1Name := fmt.Sprintf("tf-test-%s", randString(t, 10))
+        net2Name := fmt.Sprintf("tf-test-%s", randString(t, 10))
+        igName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+        itName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+        checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+        vcrTest(t, resource.TestCase{
+                PreCheck:     func() { testAccPreCheck(t) },
+                Providers:    testAccProviders,
+                CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+                Steps: []resource.TestStep{
+                        resource.TestStep{
+                                Config: testAccComputeRegionBackendService_withBackendMultiNic(
+                                        serviceName, net1Name, net2Name, igName, itName, checkName, 10),
+                        },
+                        {
+                                ResourceName:      "google_compute_region_backend_service.lipsum",
+                                ImportState:       true,
+                                ImportStateVerify: true,
+                        },
+                },
+        })
 }
 
 func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testing.T) {
@@ -141,7 +141,7 @@ func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testi
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName, 10),
 			},
 			{
@@ -149,7 +149,7 @@ func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testi
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionBackendService_basic(serviceName, checkName),
 			},
 			{
@@ -192,6 +192,7 @@ func TestAccComputeRegionBackendService_ilbUpdateBasic(t *testing.T) {
 	})
 }
 
+
 func TestAccComputeRegionBackendService_withBackendAndIAP(t *testing.T) {
 	backendName := fmt.Sprintf("foo-%s", randString(t, 10))
 	checkName := fmt.Sprintf("bar-%s", randString(t, 10))
@@ -205,10 +206,10 @@ func TestAccComputeRegionBackendService_withBackendAndIAP(t *testing.T) {
 				Config: testAccComputeRegionBackendService_ilbBasicwithIAP(backendName, checkName),
 			},
 			{
-				ResourceName:            "google_compute_region_backend_service.foobar",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+        ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 			{
 				Config: testAccComputeRegionBackendService_ilbBasic(backendName, checkName),
@@ -282,6 +283,8 @@ resource "google_compute_health_check" "health_check" {
 }
 `, serviceName, checkName)
 }
+
+
 
 func testAccComputeRegionBackendService_basic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
@@ -394,8 +397,8 @@ resource "google_compute_health_check" "default" {
 }
 
 func testAccComputeRegionBackendService_withBackendMultiNic(
-	serviceName, net1Name, net2Name, igName, itName, checkName string, timeout int64) string {
-	return fmt.Sprintf(`
+        serviceName, net1Name, net2Name, igName, itName, checkName string, timeout int64) string {
+        return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
   project = "debian-cloud"
@@ -486,8 +489,8 @@ resource "google_compute_health_check" "default" {
 }
 
 func testAccComputeRegionBackendService_withInvalidInternalBackend(
-	serviceName, igName, itName, checkName string) string {
-	return fmt.Sprintf(`
+  serviceName, igName, itName, checkName string) string {
+  return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
   project = "debian-cloud"
@@ -547,7 +550,7 @@ resource "google_compute_health_check" "default" {
 }
 
 func testAccComputeRegionBackendService_internalManagedMultipleBackends(serviceName, igmName, hcName string) string {
-	return fmt.Sprintf(`
+  return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "default" {
   name        = "%s"
   load_balancing_scheme = "INTERNAL_MANAGED"

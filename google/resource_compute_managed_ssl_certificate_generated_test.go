@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeManagedSslCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeManagedSslCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeManagedSslCertificate_managedSslCertificateBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_managed_ssl_certificate.default",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeManagedSslCertificate_managedSslCertificateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_managed_ssl_certificate" "default" {
   name = "tf-test-test-cert%{random_suffix}"
 
@@ -124,35 +123,35 @@ resource "google_dns_record_set" "set" {
 
 func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+						ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
-			"time":   {},
+			"time": {},
 		},
-		CheckDestroy: testAccCheckComputeManagedSslCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+						CheckDestroy: testAccCheckComputeManagedSslCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_managed_ssl_certificate.cert",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // This example allows the list of managed domains to be modified and will
 // recreate the ssl certificate and update the target https proxy correctly
 
@@ -222,6 +221,7 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+
 func testAccCheckComputeManagedSslCertificateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -232,24 +232,24 @@ func testAccCheckComputeManagedSslCertificateDestroyProducer(t *testing.T) func(
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeManagedSslCertificate still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

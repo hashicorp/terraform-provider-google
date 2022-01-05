@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var DataCatalogTagTemplateIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"region": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"tag_template": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type DataCatalogTagTemplateIamUpdater struct {
-	project     string
-	region      string
+	project string
+	region string
 	tagTemplate string
-	d           TerraformResourceData
-	Config      *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func DataCatalogTagTemplateIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func DataCatalogTagTemplateIamUpdaterProducer(d TerraformResourceData, config *C
 		values["tag_template"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<tag_template>[^/]+)"}, d, config, d.Get("tag_template").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)","(?P<region>[^/]+)/(?P<tag_template>[^/]+)","(?P<tag_template>[^/]+)"}, d, config, d.Get("tag_template").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func DataCatalogTagTemplateIamUpdaterProducer(d TerraformResourceData, config *C
 	}
 
 	u := &DataCatalogTagTemplateIamUpdater{
-		project:     values["project"],
-		region:      values["region"],
+		project: values["project"],
+		region: values["region"],
 		tagTemplate: values["tag_template"],
-		d:           d,
-		Config:      config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func DataCatalogTagTemplateIdParseFunc(d *schema.ResourceData, config *Config) e
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	region, _ := getRegion(d, config)
 	if region != "" {
-		values["region"] = region
-	}
+		values["region"] = region	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<tag_template>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)","(?P<region>[^/]+)/(?P<tag_template>[^/]+)","(?P<tag_template>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &DataCatalogTagTemplateIamUpdater{
-		project:     values["project"],
-		region:      values["region"],
+		project: values["project"],
+		region: values["region"],
 		tagTemplate: values["tag_template"],
-		d:           d,
-		Config:      config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("tag_template", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting tag_template: %s", err)
@@ -175,6 +180,7 @@ func (u *DataCatalogTagTemplateIamUpdater) SetResourceIamPolicy(policy *cloudres
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *DataCatalogTagTemplateIamUpdater) SetResourceIamPolicy(policy *cloudres
 
 func (u *DataCatalogTagTemplateIamUpdater) qualifyTagTemplateUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataCatalogBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", u.project, u.region, u.tagTemplate), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *DataCatalogTagTemplateIamUpdater) GetResourceId() string {

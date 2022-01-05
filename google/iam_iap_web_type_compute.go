@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,12 +28,13 @@ import (
 var IapWebTypeComputeIamSchema = map[string]*schema.Schema{
 	"project": {
 		Type:             schema.TypeString,
-		Computed:         true,
-		Optional:         true,
+		Computed: true,
+		Optional: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
+
 
 type IapWebTypeComputeIamUpdater struct {
 	project string
@@ -49,7 +54,7 @@ func IapWebTypeComputeIamUpdaterProducer(d TerraformResourceData, config *Config
 	values["project"] = project
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute", "(?P<project>[^/]+)"}, d, config, d.Get("project").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute","(?P<project>[^/]+)"}, d, config, d.Get("project").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -76,16 +81,16 @@ func IapWebTypeComputeIdParseFunc(d *schema.ResourceData, config *Config) error 
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute", "(?P<project>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute","(?P<project>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &IapWebTypeComputeIamUpdater{
@@ -113,7 +118,7 @@ func (u *IapWebTypeComputeIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 	var obj map[string]interface{}
 	obj = map[string]interface{}{
 		"options": map[string]interface{}{
-			"requestedPolicyVersion": iamPolicyVersion,
+			"requestedPolicyVersion":  iamPolicyVersion ,
 		},
 	}
 
@@ -142,6 +147,7 @@ func (u *IapWebTypeComputeIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -169,11 +175,11 @@ func (u *IapWebTypeComputeIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *IapWebTypeComputeIamUpdater) qualifyWebTypeComputeUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/compute", u.project), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *IapWebTypeComputeIamUpdater) GetResourceId() string {

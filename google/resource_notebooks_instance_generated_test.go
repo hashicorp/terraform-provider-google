@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksInstance_notebookInstanceBasicExample(context),
 			},
-			{
-				ResourceName:            "google_notebooks_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_notebooks_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNotebooksInstance_notebookInstanceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-west1-a"
@@ -63,32 +62,32 @@ resource "google_notebooks_instance" "instance" {
 }
 
 func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksInstance_notebookInstanceBasicContainerExample(context),
 			},
-			{
-				ResourceName:            "google_notebooks_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_notebooks_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNotebooksInstance_notebookInstanceBasicContainerExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-west1-a"
@@ -106,32 +105,32 @@ resource "google_notebooks_instance" "instance" {
 }
 
 func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksInstance_notebookInstanceBasicGpuExample(context),
 			},
-			{
-				ResourceName:            "google_notebooks_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_notebooks_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNotebooksInstance_notebookInstanceBasicGpuExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-west1-a"
@@ -151,33 +150,33 @@ resource "google_notebooks_instance" "instance" {
 }
 
 func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"service_account": getTestServiceAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+	context := map[string]interface{} {
+    			"service_account": getTestServiceAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksInstance_notebookInstanceFullExample(context),
 			},
-			{
-				ResourceName:            "google_notebooks_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_notebooks_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNotebooksInstance_notebookInstanceFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-central1-a"
@@ -221,6 +220,7 @@ data "google_compute_subnetwork" "my_subnetwork" {
 `, context)
 }
 
+
 func testAccCheckNotebooksInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -231,24 +231,24 @@ func testAccCheckNotebooksInstanceDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("NotebooksInstance still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

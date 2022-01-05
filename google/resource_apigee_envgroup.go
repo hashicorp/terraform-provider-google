@@ -15,322 +15,357 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceApigeeEnvgroup() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceApigeeEnvgroupCreate,
-		Read:   resourceApigeeEnvgroupRead,
-		Update: resourceApigeeEnvgroupUpdate,
-		Delete: resourceApigeeEnvgroupDelete,
+    return &schema.Resource{
+        Create: resourceApigeeEnvgroupCreate,
+        Read: resourceApigeeEnvgroupRead,
+        Update: resourceApigeeEnvgroupUpdate,
+        Delete: resourceApigeeEnvgroupDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceApigeeEnvgroupImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceApigeeEnvgroupImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(30 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(30 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The resource ID of the environment group.`,
-			},
-			"org_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The Apigee Organization associated with the Apigee environment group,
+
+
+        Schema: map[string]*schema.Schema{
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The resource ID of the environment group.`,
+},
+"org_id": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The Apigee Organization associated with the Apigee environment group,
 in the format 'organizations/{{org_name}}'.`,
-			},
-			"hostnames": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Hostnames of the environment group.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+"hostnames": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Hostnames of the environment group.`,
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+    },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandApigeeEnvgroupName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	hostnamesProp, err := expandApigeeEnvgroupHostnames(d.Get("hostnames"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("hostnames"); !isEmptyValue(reflect.ValueOf(hostnamesProp)) && (ok || !reflect.DeepEqual(v, hostnamesProp)) {
-		obj["hostnames"] = hostnamesProp
-	}
+    obj := make(map[string]interface{})
+        nameProp, err := expandApigeeEnvgroupName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        hostnamesProp, err := expandApigeeEnvgroupHostnames(d.Get( "hostnames" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("hostnames"); !isEmptyValue(reflect.ValueOf(hostnamesProp)) && (ok || !reflect.DeepEqual(v, hostnamesProp)) {
+        obj["hostnames"] = hostnamesProp
+    }
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new Envgroup: %#v", obj)
-	billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating Envgroup: %s", err)
-	}
+    log.Printf("[DEBUG] Creating new Envgroup: %#v", obj)
+    billingProject := ""
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = apigeeOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating Envgroup", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Envgroup: %s", err)
-	}
 
-	if err := d.Set("name", flattenApigeeEnvgroupName(opRes["name"], d, config)); err != nil {
-		return err
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating Envgroup: %s", err)
+    }
 
-	log.Printf("[DEBUG] Finished creating Envgroup %q: %#v", d.Id(), res)
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceApigeeEnvgroupRead(d, meta)
+    // Use the resource in the operation response to populate
+    // identity fields and d.Id() before read
+    var opRes map[string]interface{}
+    err = apigeeOperationWaitTimeWithResponse(
+    config, res, &opRes,  "Creating Envgroup", userAgent,
+        d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create Envgroup: %s", err)
+    }
+
+
+            if err := d.Set("name", flattenApigeeEnvgroupName(opRes["name"], d, config)); err != nil {
+        return err
+    }
+                
+    // This may have caused the ID to update - update it if so.
+    id, err = replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
+
+    
+
+
+    log.Printf("[DEBUG] Finished creating Envgroup %q: %#v", d.Id(), res)
+
+    return resourceApigeeEnvgroupRead(d, meta)
 }
 
+
 func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvgroup %q", d.Id()))
-	}
 
-	if err := d.Set("name", flattenApigeeEnvgroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Envgroup: %s", err)
-	}
-	if err := d.Set("hostnames", flattenApigeeEnvgroupHostnames(res["hostnames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Envgroup: %s", err)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return nil
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvgroup %q", d.Id()))
+    }
+
+
+
+
+    if err := d.Set("name", flattenApigeeEnvgroupName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Envgroup: %s", err)
+    }
+    if err := d.Set("hostnames", flattenApigeeEnvgroupHostnames(res["hostnames"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Envgroup: %s", err)
+    }
+
+    return nil
 }
 
 func resourceApigeeEnvgroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	obj := make(map[string]interface{})
-	hostnamesProp, err := expandApigeeEnvgroupHostnames(d.Get("hostnames"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("hostnames"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hostnamesProp)) {
-		obj["hostnames"] = hostnamesProp
-	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Updating Envgroup %q: %#v", d.Id(), obj)
-	updateMask := []string{}
+    obj := make(map[string]interface{})
+            hostnamesProp, err := expandApigeeEnvgroupHostnames(d.Get( "hostnames" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("hostnames"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hostnamesProp)) {
+        obj["hostnames"] = hostnamesProp
+    }
 
-	if d.HasChange("hostnames") {
-		updateMask = append(updateMask, "hostnames")
-	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
-	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return fmt.Errorf("Error updating Envgroup %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating Envgroup %q: %#v", d.Id(), res)
-	}
+    log.Printf("[DEBUG] Updating Envgroup %q: %#v", d.Id(), obj)
+updateMask := []string{}
 
-	err = apigeeOperationWaitTime(
-		config, res, "Updating Envgroup", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+if d.HasChange("hostnames") {
+  updateMask = append(updateMask, "hostnames")
+}
+// updateMask is a URL parameter but not present in the schema, so replaceVars
+// won't set it
+url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+if err != nil {
+  return err
+}
 
-	if err != nil {
-		return err
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return resourceApigeeEnvgroupRead(d, meta)
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return fmt.Errorf("Error updating Envgroup %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating Envgroup %q: %#v", d.Id(), res)
+    }
+
+    err = apigeeOperationWaitTime(
+        config, res,  "Updating Envgroup", userAgent,
+        d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return err
+    }
+
+    return resourceApigeeEnvgroupRead(d, meta)
 }
 
 func resourceApigeeEnvgroupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
-	if err != nil {
-		return err
-	}
+    billingProject := ""
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting Envgroup %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "Envgroup")
-	}
+    url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	err = apigeeOperationWaitTime(
-		config, res, "Deleting Envgroup", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting Envgroup %q", d.Id())
 
-	if err != nil {
-		return err
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	log.Printf("[DEBUG] Finished deleting Envgroup %q: %#v", d.Id(), res)
-	return nil
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "Envgroup")
+    }
+
+    err = apigeeOperationWaitTime(
+        config, res,  "Deleting Envgroup", userAgent,
+        d.Timeout(schema.TimeoutDelete))
+
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting Envgroup %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceApigeeEnvgroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+config := meta.(*Config)
 
-	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
-		return nil, err
+// current import_formats cannot import fields with forward slashes in their value
+if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	return nil, err
+}
+
+nameParts := strings.Split(d.Get("name").(string), "/")
+if len(nameParts) == 4 {
+	// `organizations/{{org_name}}/envgroups/{{name}}`
+	orgId := fmt.Sprintf("organizations/%s", nameParts[1])
+	if err := d.Set("org_id", orgId); err != nil {
+		return nil, fmt.Errorf("Error setting org_id: %s", err)
 	}
-
-	nameParts := strings.Split(d.Get("name").(string), "/")
-	if len(nameParts) == 4 {
-		// `organizations/{{org_name}}/envgroups/{{name}}`
-		orgId := fmt.Sprintf("organizations/%s", nameParts[1])
-		if err := d.Set("org_id", orgId); err != nil {
-			return nil, fmt.Errorf("Error setting org_id: %s", err)
-		}
-		if err := d.Set("name", nameParts[3]); err != nil {
-			return nil, fmt.Errorf("Error setting name: %s", err)
-		}
-	} else if len(nameParts) == 3 {
-		// `organizations/{{org_name}}/{{name}}`
-		orgId := fmt.Sprintf("organizations/%s", nameParts[1])
-		if err := d.Set("org_id", orgId); err != nil {
-			return nil, fmt.Errorf("Error setting org_id: %s", err)
-		}
-		if err := d.Set("name", nameParts[2]); err != nil {
-			return nil, fmt.Errorf("Error setting name: %s", err)
-		}
-	} else {
-		return nil, fmt.Errorf(
-			"Saw %s when the name is expected to have shape %s or %s",
-			d.Get("name"),
-			"organizations/{{org_name}}/envgroups/{{name}}",
-			"organizations/{{org_name}}/{{name}}")
+	if err := d.Set("name", nameParts[3]); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
 	}
-
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+} else if len(nameParts) == 3 {
+	// `organizations/{{org_name}}/{{name}}`
+	orgId := fmt.Sprintf("organizations/%s", nameParts[1])
+	if err := d.Set("org_id", orgId); err != nil {
+		return nil, fmt.Errorf("Error setting org_id: %s", err)
 	}
-	d.SetId(id)
+	if err := d.Set("name", nameParts[2]); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
+} else {
+	return nil, fmt.Errorf(
+		"Saw %s when the name is expected to have shape %s or %s",
+		d.Get("name"),
+		"organizations/{{org_name}}/envgroups/{{name}}",
+		"organizations/{{org_name}}/{{name}}")
+}
 
-	return []*schema.ResourceData{d}, nil
+// Replace import id for the resource id
+id, err := replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
+if err != nil {
+	return nil, fmt.Errorf("Error constructing id: %s", err)
+}
+d.SetId(id)
+
+return []*schema.ResourceData{d}, nil
 }
 
 func flattenApigeeEnvgroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenApigeeEnvgroupHostnames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandApigeeEnvgroupName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
 func expandApigeeEnvgroupHostnames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

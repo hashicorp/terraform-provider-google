@@ -18,6 +18,7 @@ import (
 
 const resourceDataflowJobGoogleProvidedLabelPrefix = "labels.goog-dataflow-provided"
 
+
 var dataflowTerminalStatesMap = map[string]struct{}{
 	"JOB_STATE_DONE":      {},
 	"JOB_STATE_FAILED":    {},

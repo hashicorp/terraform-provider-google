@@ -15,517 +15,547 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceComputeTargetHttpsProxy() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceComputeTargetHttpsProxyCreate,
-		Read:   resourceComputeTargetHttpsProxyRead,
-		Update: resourceComputeTargetHttpsProxyUpdate,
-		Delete: resourceComputeTargetHttpsProxyDelete,
+    return &schema.Resource{
+        Create: resourceComputeTargetHttpsProxyCreate,
+        Read: resourceComputeTargetHttpsProxyRead,
+        Update: resourceComputeTargetHttpsProxyUpdate,
+        Delete: resourceComputeTargetHttpsProxyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceComputeTargetHttpsProxyImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceComputeTargetHttpsProxyImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Name of the resource. Provided by the client when the resource is
+
+
+        Schema: map[string]*schema.Schema{
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
 the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
-			},
-			"ssl_certificates": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `A list of SslCertificate resources that are used to authenticate
+},
+"ssl_certificates": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `A list of SslCertificate resources that are used to authenticate
 connections between users and the load balancer. At least one SSL
 certificate must be specified.`,
-				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					DiffSuppressFunc: compareSelfLinkOrResourceName,
-				},
-			},
-			"url_map": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `A reference to the UrlMap resource that defines the mapping from URL
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+            DiffSuppressFunc: compareSelfLinkOrResourceName,
+          },
+    },
+"url_map": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `A reference to the UrlMap resource that defines the mapping from URL
 to the BackendService.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `An optional description of this resource.`,
-			},
-			"proxy_bind": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `This field only applies when the forwarding rule that references
+},
+"description": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	Description: `An optional description of this resource.`,
+},
+"proxy_bind": {
+    Type: schema.TypeBool,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+	Description: `This field only applies when the forwarding rule that references
 this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
-			},
-			"quic_override": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "ENABLE", "DISABLE", ""}, false),
-				Description: `Specifies the QUIC override policy for this resource. This determines
+},
+"quic_override": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"NONE","ENABLE","DISABLE",""}, false),
+	Description: `Specifies the QUIC override policy for this resource. This determines
 whether the load balancer will attempt to negotiate QUIC with clients
 or not. Can specify one of NONE, ENABLE, or DISABLE. If NONE is
 specified, uses the QUIC policy with no user overrides, which is
 equivalent to DISABLE. Default value: "NONE" Possible values: ["NONE", "ENABLE", "DISABLE"]`,
-				Default: "NONE",
-			},
-			"ssl_policy": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `A reference to the SslPolicy resource that will be associated with
+    Default: "NONE",
+},
+"ssl_policy": {
+    Type: schema.TypeString,
+    Optional: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `A reference to the SslPolicy resource that will be associated with
 the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
 resource will not have any SSL policy configured.`,
-			},
-			"creation_timestamp": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Creation timestamp in RFC3339 text format.`,
-			},
-			"proxy_id": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The unique identifier for the resource.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+"creation_timestamp": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Creation timestamp in RFC3339 text format.`,
+},
+"proxy_id": {
+    Type: schema.TypeInt,
+    Computed: true,
+	Description: `The unique identifier for the resource.`,
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+            "self_link": {
+                Type:     schema.TypeString,
+                Computed: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	descriptionProp, err := expandComputeTargetHttpsProxyDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	nameProp, err := expandComputeTargetHttpsProxyName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get("quic_override"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(quicOverrideProp)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
-		obj["quicOverride"] = quicOverrideProp
-	}
-	sslCertificatesProp, err := expandComputeTargetHttpsProxySslCertificates(d.Get("ssl_certificates"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(sslCertificatesProp)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
-		obj["sslCertificates"] = sslCertificatesProp
-	}
-	sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(sslPolicyProp)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
-		obj["sslPolicy"] = sslPolicyProp
-	}
-	urlMapProp, err := expandComputeTargetHttpsProxyUrlMap(d.Get("url_map"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
-		obj["urlMap"] = urlMapProp
-	}
-	proxyBindProp, err := expandComputeTargetHttpsProxyProxyBind(d.Get("proxy_bind"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
-		obj["proxyBind"] = proxyBindProp
-	}
+    obj := make(map[string]interface{})
+        descriptionProp, err := expandComputeTargetHttpsProxyDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+        nameProp, err := expandComputeTargetHttpsProxyName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get( "quic_override" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(quicOverrideProp)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
+        obj["quicOverride"] = quicOverrideProp
+    }
+        sslCertificatesProp, err := expandComputeTargetHttpsProxySslCertificates(d.Get( "ssl_certificates" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(sslCertificatesProp)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
+        obj["sslCertificates"] = sslCertificatesProp
+    }
+        sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get( "ssl_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(sslPolicyProp)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+        obj["sslPolicy"] = sslPolicyProp
+    }
+        urlMapProp, err := expandComputeTargetHttpsProxyUrlMap(d.Get( "url_map" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+        obj["urlMap"] = urlMapProp
+    }
+        proxyBindProp, err := expandComputeTargetHttpsProxyProxyBind(d.Get( "proxy_bind" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+        obj["proxyBind"] = proxyBindProp
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new TargetHttpsProxy: %#v", obj)
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
-	}
-	billingProject = project
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Creating new TargetHttpsProxy: %#v", obj)
+    billingProject := ""
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating TargetHttpsProxy: %s", err)
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
+    }
+    billingProject = project
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpsProxies/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	err = computeOperationWaitTime(
-		config, res, project, "Creating TargetHttpsProxy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create TargetHttpsProxy: %s", err)
-	}
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating TargetHttpsProxy: %s", err)
+    }
 
-	log.Printf("[DEBUG] Finished creating TargetHttpsProxy %q: %#v", d.Id(), res)
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpsProxies/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceComputeTargetHttpsProxyRead(d, meta)
+    err = computeOperationWaitTime(
+    config, res,  project,  "Creating TargetHttpsProxy", userAgent,
+        d.Timeout(schema.TimeoutCreate))
+
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create TargetHttpsProxy: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating TargetHttpsProxy %q: %#v", d.Id(), res)
+
+    return resourceComputeTargetHttpsProxyRead(d, meta)
 }
 
+
 func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetHttpsProxy %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetHttpsProxy %q", d.Id()))
+    }
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetHttpsProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeTargetHttpsProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("proxy_id", flattenComputeTargetHttpsProxyProxyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeTargetHttpsProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("quic_override", flattenComputeTargetHttpsProxyQuicOverride(res["quicOverride"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("ssl_certificates", flattenComputeTargetHttpsProxySslCertificates(res["sslCertificates"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("ssl_policy", flattenComputeTargetHttpsProxySslPolicy(res["sslPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("url_map", flattenComputeTargetHttpsProxyUrlMap(res["urlMap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("proxy_bind", flattenComputeTargetHttpsProxyProxyBind(res["proxyBind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+
+
+    if err := d.Set("creation_timestamp", flattenComputeTargetHttpsProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("description", flattenComputeTargetHttpsProxyDescription(res["description"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("proxy_id", flattenComputeTargetHttpsProxyProxyId(res["id"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("name", flattenComputeTargetHttpsProxyName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("quic_override", flattenComputeTargetHttpsProxyQuicOverride(res["quicOverride"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("ssl_certificates", flattenComputeTargetHttpsProxySslCertificates(res["sslCertificates"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("ssl_policy", flattenComputeTargetHttpsProxySslPolicy(res["sslPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("url_map", flattenComputeTargetHttpsProxyUrlMap(res["urlMap"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("proxy_bind", flattenComputeTargetHttpsProxyProxyBind(res["proxyBind"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+    if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+        return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+    }
+
+    return nil
 }
 
 func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
+
+    billingProject := ""
+
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
+    }
+    billingProject = project
+
+
+    d.Partial(true)
+
+if d.HasChange("quic_override") {
+        obj := make(map[string]interface{})
+
+                quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get( "quic_override" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
+            obj["quicOverride"] = quicOverrideProp
+        }
+
+
+
+        url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setQuicOverride")
+        if err != nil {
+            return err
+        }
+
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
+
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
 	}
 
-	billingProject := ""
+        err = computeOperationWaitTime(
+            config, res,  project,  "Updating TargetHttpsProxy", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
+if d.HasChange("ssl_certificates") {
+        obj := make(map[string]interface{})
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
-	}
-	billingProject = project
+                sslCertificatesProp, err := expandComputeTargetHttpsProxySslCertificates(d.Get( "ssl_certificates" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
+            obj["sslCertificates"] = sslCertificatesProp
+        }
 
-	d.Partial(true)
 
-	if d.HasChange("quic_override") {
-		obj := make(map[string]interface{})
 
-		quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get("quic_override"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
-			obj["quicOverride"] = quicOverrideProp
-		}
+        url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setSslCertificates")
+        if err != nil {
+            return err
+        }
 
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setQuicOverride")
-		if err != nil {
-			return err
-		}
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
 
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetHttpsProxy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("ssl_certificates") {
-		obj := make(map[string]interface{})
-
-		sslCertificatesProp, err := expandComputeTargetHttpsProxySslCertificates(d.Get("ssl_certificates"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
-			obj["sslCertificates"] = sslCertificatesProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setSslCertificates")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetHttpsProxy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("ssl_policy") {
-		obj := make(map[string]interface{})
-
-		sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
-			obj["sslPolicy"] = sslPolicyProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setSslPolicy")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetHttpsProxy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("url_map") {
-		obj := make(map[string]interface{})
-
-		urlMapProp, err := expandComputeTargetHttpsProxyUrlMap(d.Get("url_map"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
-			obj["urlMap"] = urlMapProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setUrlMap")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetHttpsProxy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
 	}
 
-	d.Partial(false)
+        err = computeOperationWaitTime(
+            config, res,  project,  "Updating TargetHttpsProxy", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
+if d.HasChange("ssl_policy") {
+        obj := make(map[string]interface{})
 
-	return resourceComputeTargetHttpsProxyRead(d, meta)
+                sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get( "ssl_policy" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+            obj["sslPolicy"] = sslPolicyProp
+        }
+
+
+
+        url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setSslPolicy")
+        if err != nil {
+            return err
+        }
+
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
+
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
+	}
+
+        err = computeOperationWaitTime(
+            config, res,  project,  "Updating TargetHttpsProxy", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
+if d.HasChange("url_map") {
+        obj := make(map[string]interface{})
+
+                urlMapProp, err := expandComputeTargetHttpsProxyUrlMap(d.Get( "url_map" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+            obj["urlMap"] = urlMapProp
+        }
+
+
+
+        url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setUrlMap")
+        if err != nil {
+            return err
+        }
+
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
+
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
+	}
+
+        err = computeOperationWaitTime(
+            config, res,  project,  "Updating TargetHttpsProxy", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
+
+  d.Partial(false)
+
+    return resourceComputeTargetHttpsProxyRead(d, meta)
 }
 
 func resourceComputeTargetHttpsProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpsProxy: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting TargetHttpsProxy %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "TargetHttpsProxy")
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting TargetHttpsProxy %q", d.Id())
 
-	err = computeOperationWaitTime(
-		config, res, project, "Deleting TargetHttpsProxy", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return err
-	}
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "TargetHttpsProxy")
+    }
 
-	log.Printf("[DEBUG] Finished deleting TargetHttpsProxy %q: %#v", d.Id(), res)
-	return nil
+    err = computeOperationWaitTime(
+        config, res,  project,  "Deleting TargetHttpsProxy", userAgent,
+        d.Timeout(schema.TimeoutDelete))
+
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting TargetHttpsProxy %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceComputeTargetHttpsProxyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/global/targetHttpsProxies/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/global/targetHttpsProxies/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpsProxies/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpsProxies/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenComputeTargetHttpsProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetHttpsProxyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetHttpsProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -546,86 +576,100 @@ func flattenComputeTargetHttpsProxyProxyId(v interface{}, d *schema.ResourceData
 }
 
 func flattenComputeTargetHttpsProxyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetHttpsProxyQuicOverride(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
-		return "NONE"
-	}
+		return "NONE"	}
 
 	return v
 }
 
 func flattenComputeTargetHttpsProxySslCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+  if v == nil {
+    return v
+  }
+  return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
 func flattenComputeTargetHttpsProxySslPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeTargetHttpsProxyUrlMap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeTargetHttpsProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandComputeTargetHttpsProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetHttpsProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetHttpsProxyQuicOverride(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetHttpsProxySslCertificates(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			return nil, fmt.Errorf("Invalid value for ssl_certificates: nil")
-		}
-		f, err := parseGlobalFieldValue("sslCertificates", raw.(string), "project", d, config, true)
-		if err != nil {
-			return nil, fmt.Errorf("Invalid value for ssl_certificates: %s", err)
-		}
-		req = append(req, f.RelativeLink())
-	}
-	return req, nil
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      return nil, fmt.Errorf("Invalid value for ssl_certificates: nil")
+    }
+    f, err := parseGlobalFieldValue("sslCertificates", raw.(string), "project", d, config, true)
+    if err != nil {
+      return nil, fmt.Errorf("Invalid value for ssl_certificates: %s", err)
+    }
+    req = append(req, f.RelativeLink())
+  }
+  return req, nil
 }
+
+
 
 func expandComputeTargetHttpsProxySslPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("sslPolicies", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for ssl_policy: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("sslPolicies", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for ssl_policy: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
+
+
 
 func expandComputeTargetHttpsProxyUrlMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for url_map: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
 
+
+
 func expandComputeTargetHttpsProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

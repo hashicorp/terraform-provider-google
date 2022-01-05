@@ -15,357 +15,382 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceComputeTargetHttpProxy() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceComputeTargetHttpProxyCreate,
-		Read:   resourceComputeTargetHttpProxyRead,
-		Update: resourceComputeTargetHttpProxyUpdate,
-		Delete: resourceComputeTargetHttpProxyDelete,
+    return &schema.Resource{
+        Create: resourceComputeTargetHttpProxyCreate,
+        Read: resourceComputeTargetHttpProxyRead,
+        Update: resourceComputeTargetHttpProxyUpdate,
+        Delete: resourceComputeTargetHttpProxyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceComputeTargetHttpProxyImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceComputeTargetHttpProxyImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Name of the resource. Provided by the client when the resource is
+
+
+        Schema: map[string]*schema.Schema{
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
 the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
-			},
-			"url_map": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `A reference to the UrlMap resource that defines the mapping from URL
+},
+"url_map": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `A reference to the UrlMap resource that defines the mapping from URL
 to the BackendService.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `An optional description of this resource.`,
-			},
-			"proxy_bind": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `This field only applies when the forwarding rule that references
+},
+"description": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	Description: `An optional description of this resource.`,
+},
+"proxy_bind": {
+    Type: schema.TypeBool,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+	Description: `This field only applies when the forwarding rule that references
 this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
-			},
-			"creation_timestamp": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Creation timestamp in RFC3339 text format.`,
-			},
-			"proxy_id": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The unique identifier for the resource.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+"creation_timestamp": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Creation timestamp in RFC3339 text format.`,
+},
+"proxy_id": {
+    Type: schema.TypeInt,
+    Computed: true,
+	Description: `The unique identifier for the resource.`,
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+            "self_link": {
+                Type:     schema.TypeString,
+                Computed: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	descriptionProp, err := expandComputeTargetHttpProxyDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	nameProp, err := expandComputeTargetHttpProxyName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	urlMapProp, err := expandComputeTargetHttpProxyUrlMap(d.Get("url_map"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
-		obj["urlMap"] = urlMapProp
-	}
-	proxyBindProp, err := expandComputeTargetHttpProxyProxyBind(d.Get("proxy_bind"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
-		obj["proxyBind"] = proxyBindProp
-	}
+    obj := make(map[string]interface{})
+        descriptionProp, err := expandComputeTargetHttpProxyDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+        nameProp, err := expandComputeTargetHttpProxyName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        urlMapProp, err := expandComputeTargetHttpProxyUrlMap(d.Get( "url_map" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+        obj["urlMap"] = urlMapProp
+    }
+        proxyBindProp, err := expandComputeTargetHttpProxyProxyBind(d.Get( "proxy_bind" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+        obj["proxyBind"] = proxyBindProp
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new TargetHttpProxy: %#v", obj)
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
-	}
-	billingProject = project
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Creating new TargetHttpProxy: %#v", obj)
+    billingProject := ""
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating TargetHttpProxy: %s", err)
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
+    }
+    billingProject = project
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	err = computeOperationWaitTime(
-		config, res, project, "Creating TargetHttpProxy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create TargetHttpProxy: %s", err)
-	}
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating TargetHttpProxy: %s", err)
+    }
 
-	log.Printf("[DEBUG] Finished creating TargetHttpProxy %q: %#v", d.Id(), res)
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceComputeTargetHttpProxyRead(d, meta)
+    err = computeOperationWaitTime(
+    config, res,  project,  "Creating TargetHttpProxy", userAgent,
+        d.Timeout(schema.TimeoutCreate))
+
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create TargetHttpProxy: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating TargetHttpProxy %q: %#v", d.Id(), res)
+
+    return resourceComputeTargetHttpProxyRead(d, meta)
 }
 
+
 func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetHttpProxy %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetHttpProxy %q", d.Id()))
+    }
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeTargetHttpProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("proxy_bind", flattenComputeTargetHttpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+
+
+    if err := d.Set("creation_timestamp", flattenComputeTargetHttpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+    if err := d.Set("description", flattenComputeTargetHttpProxyDescription(res["description"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+    if err := d.Set("proxy_id", flattenComputeTargetHttpProxyProxyId(res["id"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+    if err := d.Set("name", flattenComputeTargetHttpProxyName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+    if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+    if err := d.Set("proxy_bind", flattenComputeTargetHttpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+    if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+        return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+    }
+
+    return nil
 }
 
 func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
+
+    billingProject := ""
+
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
+    }
+    billingProject = project
+
+
+    d.Partial(true)
+
+if d.HasChange("url_map") {
+        obj := make(map[string]interface{})
+
+                urlMapProp, err := expandComputeTargetHttpProxyUrlMap(d.Get( "url_map" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+            obj["urlMap"] = urlMapProp
+        }
+
+
+
+        url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
+        if err != nil {
+            return err
+        }
+
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
+
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating TargetHttpProxy %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating TargetHttpProxy %q: %#v", d.Id(), res)
 	}
 
-	billingProject := ""
+        err = computeOperationWaitTime(
+            config, res,  project,  "Updating TargetHttpProxy", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
-	}
-	billingProject = project
+  d.Partial(false)
 
-	d.Partial(true)
-
-	if d.HasChange("url_map") {
-		obj := make(map[string]interface{})
-
-		urlMapProp, err := expandComputeTargetHttpProxyUrlMap(d.Get("url_map"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
-			obj["urlMap"] = urlMapProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpProxy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating TargetHttpProxy %q: %#v", d.Id(), res)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetHttpProxy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-
-	d.Partial(false)
-
-	return resourceComputeTargetHttpProxyRead(d, meta)
+    return resourceComputeTargetHttpProxyRead(d, meta)
 }
 
 func resourceComputeTargetHttpProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetHttpProxy: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting TargetHttpProxy %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "TargetHttpProxy")
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting TargetHttpProxy %q", d.Id())
 
-	err = computeOperationWaitTime(
-		config, res, project, "Deleting TargetHttpProxy", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return err
-	}
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "TargetHttpProxy")
+    }
 
-	log.Printf("[DEBUG] Finished deleting TargetHttpProxy %q: %#v", d.Id(), res)
-	return nil
+    err = computeOperationWaitTime(
+        config, res,  project,  "Deleting TargetHttpProxy", userAgent,
+        d.Timeout(schema.TimeoutDelete))
+
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting TargetHttpProxy %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceComputeTargetHttpProxyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/global/targetHttpProxies/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/global/targetHttpProxies/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenComputeTargetHttpProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetHttpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetHttpProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -386,36 +411,45 @@ func flattenComputeTargetHttpProxyProxyId(v interface{}, d *schema.ResourceData,
 }
 
 func flattenComputeTargetHttpProxyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeTargetHttpProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandComputeTargetHttpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetHttpProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetHttpProxyUrlMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for url_map: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
 
+
+
 func expandComputeTargetHttpProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

@@ -15,63 +15,69 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"regexp"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+
 func resourceCloudIdentityGroupMembership() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceCloudIdentityGroupMembershipCreate,
-		Read:   resourceCloudIdentityGroupMembershipRead,
-		Update: resourceCloudIdentityGroupMembershipUpdate,
-		Delete: resourceCloudIdentityGroupMembershipDelete,
+    return &schema.Resource{
+        Create: resourceCloudIdentityGroupMembershipCreate,
+        Read: resourceCloudIdentityGroupMembershipRead,
+        Update: resourceCloudIdentityGroupMembershipUpdate,
+        Delete: resourceCloudIdentityGroupMembershipDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceCloudIdentityGroupMembershipImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceCloudIdentityGroupMembershipImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"group": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `The name of the Group to create this membership in.`,
-			},
-			"roles": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Description: `The MembershipRoles that apply to the Membership.
+
+
+        Schema: map[string]*schema.Schema{
+"group": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The name of the Group to create this membership in.`,
+},
+"roles": {
+    Type: schema.TypeSet,
+    Required: true,
+	Description: `The MembershipRoles that apply to the Membership.
 Must not contain duplicate MembershipRoles with the same name.`,
-				Elem: cloudidentityGroupMembershipRolesSchema(),
-				// Default schema.HashSchema is used.
-			},
-			"preferred_member_key": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `EntityKey of the member.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							Description: `The ID of the entity.
+                Elem: cloudidentityGroupMembershipRolesSchema(),
+                // Default schema.HashSchema is used.
+      },
+"preferred_member_key": {
+    Type: schema.TypeList,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+	Description: `EntityKey of the member.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "id": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The ID of the entity.
 
 For Google-managed entities, the id must be the email address of an existing
 group or user.
@@ -80,12 +86,12 @@ For external-identity-mapped entities, the id must be a string conforming
 to the Identity Source's requirements.
 
 Must be unique within a namespace.`,
-						},
-						"namespace": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Description: `The namespace in which the entity exists.
+},
+              "namespace": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	Description: `The namespace in which the entity exists.
 
 If not specified, the EntityKey represents a Google-managed entity
 such as a Google user or a Google Group.
@@ -93,262 +99,283 @@ such as a Google user or a Google Group.
 If specified, the EntityKey represents an external-identity-mapped group.
 The namespace must correspond to an identity source created in Admin Console
 and must be in the form of 'identitysources/{identity_source_id}'.`,
-						},
-					},
-				},
-				ExactlyOneOf: []string{"preferred_member_key"},
-			},
-			"create_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The time when the Membership was created.`,
-			},
-			"name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The resource name of the Membership, of the form groups/{group_id}/memberships/{membership_id}.`,
-			},
-			"type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The type of the membership.`,
-			},
-			"update_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The time when the Membership was last updated.`,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+          },
+  },
+    ExactlyOneOf: []string{"preferred_member_key"},
+},
+"create_time": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The time when the Membership was created.`,
+},
+"name": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The resource name of the Membership, of the form groups/{group_id}/memberships/{membership_id}.`,
+},
+"type": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The type of the membership.`,
+},
+"update_time": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The time when the Membership was last updated.`,
+},
+        },
+        UseJSONNumber: true,
+    }
 }
 
 func cloudidentityGroupMembershipRolesSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"OWNER", "MANAGER", "MEMBER"}, false),
-				Description:  `The name of the MembershipRole. Must be one of OWNER, MANAGER, MEMBER. Possible values: ["OWNER", "MANAGER", "MEMBER"]`,
-			},
-		},
+                      "name": {
+    Type: schema.TypeString,
+    Required: true,
+	ValidateFunc: validation.StringInSlice([]string{"OWNER","MANAGER","MEMBER"}, false),
+	Description: `The name of the MembershipRole. Must be one of OWNER, MANAGER, MEMBER. Possible values: ["OWNER", "MANAGER", "MEMBER"]`,
+},
+          		},
 	}
 }
+
+
 
 func resourceCloudIdentityGroupMembershipCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	preferredMemberKeyProp, err := expandCloudIdentityGroupMembershipPreferredMemberKey(d.Get("preferred_member_key"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("preferred_member_key"); !isEmptyValue(reflect.ValueOf(preferredMemberKeyProp)) && (ok || !reflect.DeepEqual(v, preferredMemberKeyProp)) {
-		obj["preferredMemberKey"] = preferredMemberKeyProp
-	}
-	rolesProp, err := expandCloudIdentityGroupMembershipRoles(d.Get("roles"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("roles"); !isEmptyValue(reflect.ValueOf(rolesProp)) && (ok || !reflect.DeepEqual(v, rolesProp)) {
-		obj["roles"] = rolesProp
-	}
+    obj := make(map[string]interface{})
+        preferredMemberKeyProp, err := expandCloudIdentityGroupMembershipPreferredMemberKey(d.Get( "preferred_member_key" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("preferred_member_key"); !isEmptyValue(reflect.ValueOf(preferredMemberKeyProp)) && (ok || !reflect.DeepEqual(v, preferredMemberKeyProp)) {
+        obj["preferredMemberKey"] = preferredMemberKeyProp
+    }
+        rolesProp, err := expandCloudIdentityGroupMembershipRoles(d.Get( "roles" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("roles"); !isEmptyValue(reflect.ValueOf(rolesProp)) && (ok || !reflect.DeepEqual(v, rolesProp)) {
+        obj["roles"] = rolesProp
+    }
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{group}}/memberships")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new GroupMembership: %#v", obj)
-	billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{group}}/memberships")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating GroupMembership: %s", err)
-	}
-	if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
+    log.Printf("[DEBUG] Creating new GroupMembership: %#v", obj)
+    billingProject := ""
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	// `name` is autogenerated from the api so needs to be set post-create
-	name, ok := res["name"]
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating GroupMembership: %s", err)
+    }
+                if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
+        return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+    }
+                                                                        
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
+
+
+// `name` is autogenerated from the api so needs to be set post-create
+name, ok := res["name"]
+if !ok {
+	respBody, ok := res["response"]
 	if !ok {
-		respBody, ok := res["response"]
-		if !ok {
-			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
-		}
-
-		name, ok = respBody.(map[string]interface{})["name"]
-		if !ok {
-			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
-		}
+		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	if err := d.Set("name", name.(string)); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+
+	name, ok = respBody.(map[string]interface{})["name"]
+	if !ok {
+		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	d.SetId(name.(string))
+}
+if err := d.Set("name", name.(string)); err != nil {
+	return fmt.Errorf("Error setting name: %s", err)
+}
+d.SetId(name.(string))
 
-	log.Printf("[DEBUG] Finished creating GroupMembership %q: %#v", d.Id(), res)
 
-	return resourceCloudIdentityGroupMembershipRead(d, meta)
+    log.Printf("[DEBUG] Finished creating GroupMembership %q: %#v", d.Id(), res)
+
+    return resourceCloudIdentityGroupMembershipRead(d, meta)
 }
 
+
 func resourceCloudIdentityGroupMembershipRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("CloudIdentityGroupMembership %q", d.Id()))
-	}
 
-	if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("preferred_member_key", flattenCloudIdentityGroupMembershipPreferredMemberKey(res["preferredMemberKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("create_time", flattenCloudIdentityGroupMembershipCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("update_time", flattenCloudIdentityGroupMembershipUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("roles", flattenCloudIdentityGroupMembershipRoles(res["roles"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
-	if err := d.Set("type", flattenCloudIdentityGroupMembershipType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading GroupMembership: %s", err)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return nil
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("CloudIdentityGroupMembership %q", d.Id()))
+    }
+
+
+
+
+    if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading GroupMembership: %s", err)
+    }
+    if err := d.Set("preferred_member_key", flattenCloudIdentityGroupMembershipPreferredMemberKey(res["preferredMemberKey"], d, config)); err != nil {
+        return fmt.Errorf("Error reading GroupMembership: %s", err)
+    }
+    if err := d.Set("create_time", flattenCloudIdentityGroupMembershipCreateTime(res["createTime"], d, config)); err != nil {
+        return fmt.Errorf("Error reading GroupMembership: %s", err)
+    }
+    if err := d.Set("update_time", flattenCloudIdentityGroupMembershipUpdateTime(res["updateTime"], d, config)); err != nil {
+        return fmt.Errorf("Error reading GroupMembership: %s", err)
+    }
+    if err := d.Set("roles", flattenCloudIdentityGroupMembershipRoles(res["roles"], d, config)); err != nil {
+        return fmt.Errorf("Error reading GroupMembership: %s", err)
+    }
+    if err := d.Set("type", flattenCloudIdentityGroupMembershipType(res["type"], d, config)); err != nil {
+        return fmt.Errorf("Error reading GroupMembership: %s", err)
+    }
+
+    return nil
 }
 
 func resourceCloudIdentityGroupMembershipUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
+
+    billingProject := ""
+
+
+
+    d.Partial(true)
+
+if d.HasChange("roles") {
+        obj := make(map[string]interface{})
+
+                rolesProp, err := expandCloudIdentityGroupMembershipRoles(d.Get( "roles" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("roles"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rolesProp)) {
+            obj["roles"] = rolesProp
+        }
+
+    obj, err = resourceCloudIdentityGroupMembershipUpdateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
+
+
+        url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}:modifyMembershipRoles")
+        if err != nil {
+            return err
+        }
+
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
+
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating GroupMembership %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating GroupMembership %q: %#v", d.Id(), res)
 	}
 
-	billingProject := ""
+    }
 
-	d.Partial(true)
+  d.Partial(false)
 
-	if d.HasChange("roles") {
-		obj := make(map[string]interface{})
-
-		rolesProp, err := expandCloudIdentityGroupMembershipRoles(d.Get("roles"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("roles"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rolesProp)) {
-			obj["roles"] = rolesProp
-		}
-
-		obj, err = resourceCloudIdentityGroupMembershipUpdateEncoder(d, meta, obj)
-		if err != nil {
-			return err
-		}
-
-		url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}:modifyMembershipRoles")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating GroupMembership %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating GroupMembership %q: %#v", d.Id(), res)
-		}
-
-	}
-
-	d.Partial(false)
-
-	return resourceCloudIdentityGroupMembershipRead(d, meta)
+    return resourceCloudIdentityGroupMembershipRead(d, meta)
 }
 
 func resourceCloudIdentityGroupMembershipDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
-	if err != nil {
-		return err
-	}
+    billingProject := ""
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting GroupMembership %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "GroupMembership")
-	}
+    url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+    if err != nil {
+        return err
+    }
 
-	log.Printf("[DEBUG] Finished deleting GroupMembership %q: %#v", d.Id(), res)
-	return nil
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting GroupMembership %q", d.Id())
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "GroupMembership")
+    }
+
+
+    log.Printf("[DEBUG] Finished deleting GroupMembership %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceCloudIdentityGroupMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"(?P<name>.+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "(?P<name>.+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
 	// Configure "group" property, which does not appear in the response body.
 	group := regexp.MustCompile(`groups/[^/]+`).FindString(id)
@@ -356,130 +383,151 @@ func resourceCloudIdentityGroupMembershipImport(d *schema.ResourceData, meta int
 		return nil, fmt.Errorf("Error setting group property: %s", err)
 	}
 
-	return []*schema.ResourceData{d}, nil
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenCloudIdentityGroupMembershipName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenCloudIdentityGroupMembershipPreferredMemberKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["id"] =
-		flattenCloudIdentityGroupMembershipPreferredMemberKeyId(original["id"], d, config)
-	transformed["namespace"] =
-		flattenCloudIdentityGroupMembershipPreferredMemberKeyNamespace(original["namespace"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["id"] =
+    flattenCloudIdentityGroupMembershipPreferredMemberKeyId(original["id"], d, config)
+              transformed["namespace"] =
+    flattenCloudIdentityGroupMembershipPreferredMemberKeyNamespace(original["namespace"], d, config)
+        return []interface{}{transformed}
 }
-func flattenCloudIdentityGroupMembershipPreferredMemberKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenCloudIdentityGroupMembershipPreferredMemberKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenCloudIdentityGroupMembershipPreferredMemberKeyNamespace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenCloudIdentityGroupMembershipPreferredMemberKeyNamespace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenCloudIdentityGroupMembershipCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenCloudIdentityGroupMembershipUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenCloudIdentityGroupMembershipRoles(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(cloudidentityGroupMembershipRolesSchema()), []interface{}{})
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed.Add(map[string]interface{}{
-			"name": flattenCloudIdentityGroupMembershipRolesName(original["name"], d, config),
-		})
-	}
-	return transformed
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := schema.NewSet(schema.HashResource(cloudidentityGroupMembershipRolesSchema()), []interface{}{})
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed.Add(map[string]interface{}{
+          "name": flattenCloudIdentityGroupMembershipRolesName(original["name"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenCloudIdentityGroupMembershipRolesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenCloudIdentityGroupMembershipRolesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenCloudIdentityGroupMembershipType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandCloudIdentityGroupMembershipPreferredMemberKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedId, err := expandCloudIdentityGroupMembershipPreferredMemberKeyId(original["id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !isEmptyValue(val) {
-		transformed["id"] = transformedId
-	}
+      transformedId, err := expandCloudIdentityGroupMembershipPreferredMemberKeyId(original["id"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedId); val.IsValid() && !isEmptyValue(val) {
+        transformed["id"] = transformedId      }
 
-	transformedNamespace, err := expandCloudIdentityGroupMembershipPreferredMemberKeyNamespace(original["namespace"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !isEmptyValue(val) {
-		transformed["namespace"] = transformedNamespace
-	}
+      transformedNamespace, err := expandCloudIdentityGroupMembershipPreferredMemberKeyNamespace(original["namespace"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !isEmptyValue(val) {
+        transformed["namespace"] = transformedNamespace      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandCloudIdentityGroupMembershipPreferredMemberKeyId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandCloudIdentityGroupMembershipPreferredMemberKeyNamespace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandCloudIdentityGroupMembershipRoles(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  v = v.(*schema.Set).List()
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedName, err := expandCloudIdentityGroupMembershipRolesName(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-			transformed["name"] = transformedName
-		}
+      transformedName, err := expandCloudIdentityGroupMembershipRolesName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandCloudIdentityGroupMembershipRolesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func resourceCloudIdentityGroupMembershipUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Return object for modifyMembershipRoles (we build request object from scratch, without using `obj`)

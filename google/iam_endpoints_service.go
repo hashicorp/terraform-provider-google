@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,16 +28,17 @@ import (
 var ServiceManagementServiceIamSchema = map[string]*schema.Schema{
 	"service_name": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type ServiceManagementServiceIamUpdater struct {
 	serviceName string
-	d           TerraformResourceData
-	Config      *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -43,8 +48,9 @@ func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config 
 		values["serviceName"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"services/(?P<serviceName>[^/]+)", "(?P<serviceName>[^/]+)"}, d, config, d.Get("service_name").(string))
+	m, err := getImportIdQualifiers([]string{"services/(?P<serviceName>[^/]+)","(?P<serviceName>[^/]+)"}, d, config, d.Get("service_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +61,8 @@ func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config 
 
 	u := &ServiceManagementServiceIamUpdater{
 		serviceName: values["serviceName"],
-		d:           d,
-		Config:      config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("service_name", u.GetResourceId()); err != nil {
@@ -69,19 +75,20 @@ func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config 
 func ServiceManagementServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"services/(?P<serviceName>[^/]+)", "(?P<serviceName>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"services/(?P<serviceName>[^/]+)","(?P<serviceName>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &ServiceManagementServiceIamUpdater{
 		serviceName: values["serviceName"],
-		d:           d,
-		Config:      config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("service_name", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting service_name: %s", err)
@@ -123,6 +130,7 @@ func (u *ServiceManagementServiceIamUpdater) SetResourceIamPolicy(policy *cloudr
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -146,11 +154,11 @@ func (u *ServiceManagementServiceIamUpdater) SetResourceIamPolicy(policy *cloudr
 
 func (u *ServiceManagementServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ServiceManagementBasePath}}%s:%s", fmt.Sprintf("services/%s", u.serviceName), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *ServiceManagementServiceIamUpdater) GetResourceId() string {

@@ -14,61 +14,61 @@
 package google
 
 import (
-	"encoding/json"
-	"fmt"
-	"time"
+  "fmt"
 )
 
 type WorkflowsOperationWaiter struct {
-	Config    *Config
-	UserAgent string
-	Project   string
-	CommonOperationWaiter
+  Config    *Config
+  UserAgent string
+  Project string
+  CommonOperationWaiter
 }
 
 func (w *WorkflowsOperationWaiter) QueryOp() (interface{}, error) {
-	if w == nil {
-		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
-	}
-	// Returns the proper get.
-	url := fmt.Sprintf("https://workflows.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
+  if w == nil {
+    return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+  }
+  // Returns the proper get.
+  url := fmt.Sprintf("https://workflows.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+  return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createWorkflowsWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*WorkflowsOperationWaiter, error) {
-	w := &WorkflowsOperationWaiter{
-		Config:    config,
-		UserAgent: userAgent,
-		Project:   project,
-	}
-	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
-		return nil, err
-	}
-	return w, nil
+
+
+func createWorkflowsWaiter(config *Config, op map[string]interface{},  project,  activity, userAgent string) (*WorkflowsOperationWaiter, error) {
+  w := &WorkflowsOperationWaiter{
+    Config:    config,
+    UserAgent: userAgent,
+    Project: project,
+  }
+  if err := w.CommonOperationWaiter.SetOp(op); err != nil {
+    return nil, err
+  }
+  return w, nil
 }
 
 // nolint: deadcode,unused
 func workflowsOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
-	w, err := createWorkflowsWaiter(config, op, project, activity, userAgent)
-	if err != nil {
-		return err
-	}
-	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
-		return err
-	}
-	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
+  w, err := createWorkflowsWaiter(config, op,  project,  activity, userAgent)
+  if err != nil {
+      return err
+  }
+  if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+      return err
+  }
+  return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func workflowsOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
-	if val, ok := op["name"]; !ok || val == "" {
-		// This was a synchronous call - there is no operation to wait for.
-		return nil
-	}
-	w, err := createWorkflowsWaiter(config, op, project, activity, userAgent)
-	if err != nil {
-		// If w is nil, the op was synchronous.
-		return err
-	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+func workflowsOperationWaitTime(config *Config, op map[string]interface{},  project, activity, userAgent string, timeout time.Duration) error {
+  if val, ok := op["name"]; !ok || val == "" {
+    // This was a synchronous call - there is no operation to wait for.
+    return nil
+  }
+  w, err := createWorkflowsWaiter(config, op,  project,  activity, userAgent)
+  if err != nil {
+      // If w is nil, the op was synchronous.
+      return err
+  }
+  return OperationWait(w, activity, timeout, config.PollInterval)
 }

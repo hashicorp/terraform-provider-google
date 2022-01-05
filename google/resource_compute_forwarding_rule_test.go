@@ -18,18 +18,18 @@ func TestAccComputeForwardingRule_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeForwardingRule_basic(poolName, ruleName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeForwardingRule_update(poolName, ruleName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -52,19 +52,19 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName, addressRefFieldID),
 			},
-			{
+			resource.TestStep{
 				ResourceName:            "google_compute_forwarding_rule.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ip_address"}, // ignore ip_address because we've specified it by ID
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName, addressRefFieldRaw),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -84,11 +84,11 @@ func TestAccComputeForwardingRule_networkTier(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeForwardingRule_networkTier(poolName, ruleName),
 			},
 
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

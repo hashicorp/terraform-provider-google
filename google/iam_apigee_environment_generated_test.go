@@ -18,23 +18,26 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
+		func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix":   randString(t, 10),
-		"role":            "roles/viewer",
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"org_id": getTestOrgFromEnv(t),
+				"billing_account": getTestBillingAccountFromEnv(t),
+	
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvironmentIamBinding_basicGenerated(context),
 			},
@@ -61,17 +64,18 @@ func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix":   randString(t, 10),
-		"role":            "roles/viewer",
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"org_id": getTestOrgFromEnv(t),
+				"billing_account": getTestBillingAccountFromEnv(t),
+	
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccApigeeEnvironmentIamMember_basicGenerated(context),
@@ -89,17 +93,18 @@ func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix":   randString(t, 10),
-		"role":            "roles/viewer",
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"org_id": getTestOrgFromEnv(t),
+				"billing_account": getTestBillingAccountFromEnv(t),
+	
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvironmentIamPolicy_basicGenerated(context),
 			},
@@ -121,6 +126,7 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccApigeeEnvironmentIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

@@ -15,36 +15,38 @@
 package google
 
 import (
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+								Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_app_engine_service_network_settings.liveapp",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_storage_bucket" "bucket" {
 	name     = "tf-test-appengine-static-content%{random_suffix}"
   location = "US"

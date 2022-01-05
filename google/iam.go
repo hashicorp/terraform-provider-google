@@ -204,7 +204,7 @@ func (k conditionKey) Empty() bool {
 }
 
 func (k conditionKey) String() string {
-	return fmt.Sprintf("%s/%s/%s", k.Title, k.Description, k.Expression)
+	return fmt.Sprintf("%s/%s/%s",  k.Title, k.Description, k.Expression)
 }
 
 type iamBindingKey struct {
@@ -459,6 +459,6 @@ func IamWithDeprecationMessage(message string) func(s *IamSettings) {
 	}
 }
 
-func IamWithGAResourceDeprecation() func(s *IamSettings) {
-	return IamWithDeprecationMessage("This resource has been deprecated in the google (GA) provider, and will only be available in the google-beta provider in a future release.")
-}
+func IamWithGAResourceDeprecation() func (s *IamSettings) {
+		return IamWithDeprecationMessage("This resource has been deprecated in the google (GA) provider, and will only be available in the google-beta provider in a future release.")
+	}

@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"billing_acct": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetBasicExample(context),
 			},
-			{
-				ResourceName:            "google_billing_budget.budget",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBillingBudget_billingBudgetBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -72,33 +71,33 @@ resource "google_billing_budget" "budget" {
 }
 
 func TestAccBillingBudget_billingBudgetLastperiodExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"billing_acct": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetLastperiodExample(context),
 			},
-			{
-				ResourceName:            "google_billing_budget.budget",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBillingBudget_billingBudgetLastperiodExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -129,33 +128,33 @@ resource "google_billing_budget" "budget" {
 }
 
 func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"billing_acct": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetFilterExample(context),
 			},
-			{
-				ResourceName:            "google_billing_budget.budget",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBillingBudget_billingBudgetFilterExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -192,33 +191,33 @@ resource "google_billing_budget" "budget" {
 }
 
 func TestAccBillingBudget_billingBudgetNotifyExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"billing_acct": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetNotifyExample(context),
 			},
-			{
-				ResourceName:            "google_billing_budget.budget",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBillingBudget_billingBudgetNotifyExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -268,6 +267,7 @@ resource "google_monitoring_notification_channel" "notification_channel" {
 `, context)
 }
 
+
 func testAccCheckBillingBudgetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -278,24 +278,24 @@ func testAccCheckBillingBudgetDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("BillingBudget still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

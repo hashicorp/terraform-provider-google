@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingMetric_loggingMetricBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_logging_metric.logging_metric",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccLoggingMetric_loggingMetricBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
   name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
@@ -85,31 +84,31 @@ resource "google_logging_metric" "logging_metric" {
 }
 
 func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingMetric_loggingMetricCounterBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_logging_metric.logging_metric",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccLoggingMetric_loggingMetricCounterBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
   name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
@@ -122,31 +121,31 @@ resource "google_logging_metric" "logging_metric" {
 }
 
 func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingMetric_loggingMetricCounterLabelsExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_logging_metric.logging_metric",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccLoggingMetric_loggingMetricCounterLabelsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
   name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
@@ -166,6 +165,7 @@ resource "google_logging_metric" "logging_metric" {
 `, context)
 }
 
+
 func testAccCheckLoggingMetricDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -176,24 +176,24 @@ func testAccCheckLoggingMetricDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("LoggingMetric still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

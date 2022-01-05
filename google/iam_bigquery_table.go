@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,30 +27,31 @@ import (
 
 var BigQueryTableIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"dataset_id": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Required: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"table_id": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type BigQueryTableIamUpdater struct {
-	project   string
+	project string
 	datasetId string
-	tableId   string
-	d         TerraformResourceData
-	Config    *Config
+	tableId string
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func BigQueryTableIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -67,8 +72,9 @@ func BigQueryTableIamUpdaterProducer(d TerraformResourceData, config *Config) (R
 		values["table_id"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)", "(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<table_id>[^/]+)"}, d, config, d.Get("table_id").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)","(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)","(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)","(?P<table_id>[^/]+)"}, d, config, d.Get("table_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -78,11 +84,11 @@ func BigQueryTableIamUpdaterProducer(d TerraformResourceData, config *Config) (R
 	}
 
 	u := &BigQueryTableIamUpdater{
-		project:   values["project"],
+		project: values["project"],
 		datasetId: values["dataset_id"],
-		tableId:   values["table_id"],
-		d:         d,
-		Config:    config,
+		tableId: values["table_id"],
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -103,24 +109,24 @@ func BigQueryTableIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)", "(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<table_id>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)","(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)","(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)","(?P<table_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &BigQueryTableIamUpdater{
-		project:   values["project"],
+		project: values["project"],
 		datasetId: values["dataset_id"],
-		tableId:   values["table_id"],
-		d:         d,
-		Config:    config,
+		tableId: values["table_id"],
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("table_id", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting table_id: %s", err)
@@ -142,7 +148,7 @@ func (u *BigQueryTableIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 	var obj map[string]interface{}
 	obj = map[string]interface{}{
 		"options": map[string]interface{}{
-			"requestedPolicyVersion": 1,
+			"requestedPolicyVersion":  1 ,
 		},
 	}
 
@@ -171,8 +177,8 @@ func (u *BigQueryTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return err
 	}
 
-	// This is an override of the existing version that might have been set in the resource_iam_member|policy|binding code
-	json["version"] = 1
+        // This is an override of the existing version that might have been set in the resource_iam_member|policy|binding code
+        json["version"] = 1
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -200,11 +206,11 @@ func (u *BigQueryTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *BigQueryTableIamUpdater) qualifyTableUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{BigQueryBasePath}}%s:%s", fmt.Sprintf("projects/%s/datasets/%s/tables/%s", u.project, u.datasetId, u.tableId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *BigQueryTableIamUpdater) GetResourceId() string {

@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeAddress_addressBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_address.ip_address",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_address.ip_address",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeAddress_addressBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_address" "ip_address" {
   name = "tf-test-my-address%{random_suffix}"
 }
@@ -57,32 +56,32 @@ resource "google_compute_address" "ip_address" {
 }
 
 func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithSubnetworkExample(context),
 			},
-			{
-				ResourceName:            "google_compute_address.internal_with_subnet_and_address",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeAddress_addressWithSubnetworkExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_network" "default" {
   name = "tf-test-my-network%{random_suffix}"
 }
@@ -105,32 +104,32 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 }
 
 func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithGceEndpointExample(context),
 			},
-			{
-				ResourceName:            "google_compute_address.internal_with_gce_endpoint",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_address.internal_with_gce_endpoint",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeAddress_addressWithGceEndpointExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_address" "internal_with_gce_endpoint" {
   name         = "tf-test-my-internal-address-%{random_suffix}"
   address_type = "INTERNAL"
@@ -140,32 +139,32 @@ resource "google_compute_address" "internal_with_gce_endpoint" {
 }
 
 func TestAccComputeAddress_addressWithSharedLoadbalancerVipExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithSharedLoadbalancerVipExample(context),
 			},
-			{
-				ResourceName:            "google_compute_address.internal_with_shared_loadbalancer_vip",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_address.internal_with_shared_loadbalancer_vip",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeAddress_addressWithSharedLoadbalancerVipExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_address" "internal_with_shared_loadbalancer_vip" {
   name         = "tf-test-my-internal-address%{random_suffix}"
   address_type = "INTERNAL"
@@ -175,32 +174,32 @@ resource "google_compute_address" "internal_with_shared_loadbalancer_vip" {
 }
 
 func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_instanceWithIpExample(context),
 			},
-			{
-				ResourceName:            "google_compute_address.static",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_address.static",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeAddress_instanceWithIpExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_address" "static" {
   name = "tf-test-ipv4-address%{random_suffix}"
 }
@@ -232,32 +231,32 @@ resource "google_compute_instance" "instance_with_ip" {
 }
 
 func TestAccComputeAddress_computeAddressIpsecInterconnectExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_computeAddressIpsecInterconnectExample(context),
 			},
-			{
-				ResourceName:            "google_compute_address.ipsec-interconnect-address",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_address.ipsec-interconnect-address",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeAddress_computeAddressIpsecInterconnectExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_address" "ipsec-interconnect-address" {
   name          = "tf-test-test-address%{random_suffix}"
   address_type  = "INTERNAL"
@@ -274,6 +273,7 @@ resource "google_compute_network" "network" {
 `, context)
 }
 
+
 func testAccCheckComputeAddressDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -284,24 +284,24 @@ func testAccCheckComputeAddressDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeAddress still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

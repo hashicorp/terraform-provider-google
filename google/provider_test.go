@@ -75,6 +75,7 @@ var custIdEnvVars = []string{
 	"GOOGLE_CUST_ID",
 }
 
+
 // This value is the username of an identity account within the GOOGLE_ORG_DOMAIN workspace.
 // For example in the org example.com with a user "foo@example.com", this would be set to "foo".
 // See https://admin.google.com/ac/users when logged into an org admin for a list.
@@ -102,7 +103,7 @@ var configs map[string]*Config
 
 // A source for a given VCR test with the value that seeded it
 type VcrSource struct {
-	seed   int64
+	seed int64
 	source rand.Source
 }
 
@@ -116,10 +117,10 @@ func init() {
 	configs = make(map[string]*Config)
 	sources = make(map[string]VcrSource)
 	testAccProvider = Provider()
-	testAccProviders = map[string]*schema.Provider{
+		testAccProviders = map[string]*schema.Provider{
 		"google": testAccProvider,
 	}
-}
+	}
 
 // Returns a cached config if VCR testing is enabled. This enables us to use a single HTTP transport
 // for a given test, allowing for recording of HTTP interactions.
@@ -250,7 +251,7 @@ func getTestAccProviders(testName string) map[string]*schema.Provider {
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
 	}
 	return map[string]*schema.Provider{
-		"google":      prov,
+		"google": prov,
 		"google-beta": prov,
 	}
 }

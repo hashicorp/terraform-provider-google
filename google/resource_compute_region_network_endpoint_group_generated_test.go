@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunctionsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"zip_path":      createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"zip_path": createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunctionsExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_network_endpoint_group.function_neg",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_network_endpoint_group.function_neg",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunctionsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // Cloud Functions Example
 resource "google_compute_region_network_endpoint_group" "function_neg" {
   name                  = "tf-test-function-neg%{random_suffix}"
@@ -88,32 +87,32 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrunExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrunExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_network_endpoint_group.cloudrun_neg",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_network_endpoint_group.cloudrun_neg",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrunExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // Cloud Run Example
 resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
   name                  = "tf-test-cloudrun-neg%{random_suffix}"
@@ -145,32 +144,32 @@ resource "google_cloud_run_service" "cloudrun_neg" {
 }
 
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_network_endpoint_group.appengine_neg",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_network_endpoint_group.appengine_neg",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // App Engine Example
 resource "google_compute_region_network_endpoint_group" "appengine_neg" {
   name                  = "tf-test-appengine-neg%{random_suffix}"
@@ -244,6 +243,7 @@ resource "google_storage_bucket_object" "appengine_neg" {
 `, context)
 }
 
+
 func testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -254,24 +254,24 @@ func testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t *testing.T) 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeRegionNetworkEndpointGroup still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

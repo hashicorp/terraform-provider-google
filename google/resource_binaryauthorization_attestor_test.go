@@ -13,33 +13,33 @@ func TestSignatureAlgorithmDiffSuppress(t *testing.T) {
 		ExpectDiffSuppress bool
 	}{
 		"ECDSA_P256 equivalent": {
-			Old:                "ECDSA_P256_SHA256",
-			New:                "EC_SIGN_P256_SHA256",
+			Old:                  "ECDSA_P256_SHA256",
+			New:                  "EC_SIGN_P256_SHA256",
 			ExpectDiffSuppress: true,
 		},
 		"ECDSA_P384 equivalent": {
-			Old:                "ECDSA_P384_SHA384",
-			New:                "EC_SIGN_P384_SHA384",
+			Old:                  "ECDSA_P384_SHA384",
+			New:                  "EC_SIGN_P384_SHA384",
 			ExpectDiffSuppress: true,
 		},
 		"ECDSA_P521 equivalent": {
-			Old:                "ECDSA_P521_SHA512",
-			New:                "EC_SIGN_P521_SHA512",
+			Old:                  "ECDSA_P521_SHA512",
+			New:                  "EC_SIGN_P521_SHA512",
 			ExpectDiffSuppress: true,
 		},
 		"not equivalent 1": {
-			Old:                "ECDSA_P256",
-			New:                "EC_SIGN_P384_SHA384",
+			Old:                  "ECDSA_P256",
+			New:                  "EC_SIGN_P384_SHA384",
 			ExpectDiffSuppress: false,
 		},
 		"not equivalent 2": {
-			Old:                "ECDSA_P384_SHA384",
-			New:                "EC_SIGN_P521_SHA512",
+			Old:                  "ECDSA_P384_SHA384",
+			New:                  "EC_SIGN_P521_SHA512",
 			ExpectDiffSuppress: false,
 		},
 		"not equivalent 3": {
-			Old:                "ECDSA_P521_SHA512",
-			New:                "EC_SIGN_P256_SHA256",
+			Old:                  "ECDSA_P521_SHA512",
+			New:                  "EC_SIGN_P256_SHA256",
 			ExpectDiffSuppress: false,
 		},
 	}
@@ -125,7 +125,7 @@ func TestAccBinaryAuthorizationAttestor_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccBinaryAuthorizationAttestorBasic(name),
 			},
 			{

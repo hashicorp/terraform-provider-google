@@ -19,19 +19,19 @@ func TestAccComputeBackendService_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_basic(serviceName, checkName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_basicModified(
 					serviceName, checkName, extraCheckName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -52,20 +52,20 @@ func TestAccComputeBackendService_withBackend(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 20),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -84,26 +84,26 @@ func TestAccComputeBackendService_withBackendAndMaxUtilization(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 			},
-			{
-				ResourceName:      "google_compute_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
+			resource.TestStep{
+				ResourceName:            "google_compute_backend_service.lipsum",
+				ImportState:             true,
+				ImportStateVerify:       true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withBackendAndMaxUtilization(
 					serviceName, igName, itName, checkName, 10),
-				PlanOnly:           true,
+				PlanOnly: true,
 				ExpectNonEmptyPlan: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withBackendAndMaxUtilization(
 					serviceName, igName, itName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -122,21 +122,21 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withBackendAndIAP(
 					serviceName, igName, itName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:            "google_compute_backend_service.lipsum",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withBackend(
 					serviceName, igName, itName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -156,20 +156,20 @@ func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "initial-description", "GENERATED_COOKIE"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "updated-description", "GENERATED_COOKIE"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -189,10 +189,10 @@ func TestAccComputeBackendService_withConnectionDraining(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withConnectionDraining(serviceName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -212,18 +212,18 @@ func TestAccComputeBackendService_withConnectionDrainingAndUpdate(t *testing.T) 
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withConnectionDraining(serviceName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_basic(serviceName, checkName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -243,10 +243,10 @@ func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withHttpsHealthCheck(serviceName, checkName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -254,6 +254,7 @@ func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
 		},
 	})
 }
+
 
 func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 	t.Parallel()
@@ -298,11 +299,11 @@ func TestAccComputeBackendService_withCDNEnabled(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withCDNEnabled(
 					serviceName, checkName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -322,20 +323,20 @@ func TestAccComputeBackendService_withSessionAffinity(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "description", "CLIENT_IP"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withSessionAffinity(
 					serviceName, checkName, "description", "GENERATED_COOKIE"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -355,11 +356,11 @@ func TestAccComputeBackendService_withAffinityCookieTtlSec(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withAffinityCookieTtlSec(
 					serviceName, checkName, "description", "GENERATED_COOKIE", 300),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -381,20 +382,20 @@ func TestAccComputeBackendService_withMaxConnections(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withMaxConnections(
 					serviceName, igName, itName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withMaxConnections(
 					serviceName, igName, itName, checkName, 20),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -416,20 +417,20 @@ func TestAccComputeBackendService_withMaxConnectionsPerInstance(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withMaxConnectionsPerInstance(
 					serviceName, igName, itName, checkName, 10),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withMaxConnectionsPerInstance(
 					serviceName, igName, itName, checkName, 20),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.lipsum",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -523,18 +524,18 @@ func TestAccComputeBackendService_withCustomHeaders(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_withCustomHeaders(serviceName, checkName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeBackendService_basic(serviceName, checkName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -657,6 +658,8 @@ func TestAccComputeBackendService_trafficDirectorUpdateBasic(t *testing.T) {
 	})
 }
 
+
+
 func testAccComputeBackendService_trafficDirectorBasic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -713,6 +716,8 @@ resource "google_compute_health_check" "health_check" {
 }
 `, serviceName, checkName)
 }
+
+
 
 func testAccComputeBackendService_basic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
@@ -1018,6 +1023,7 @@ resource "google_compute_https_health_check" "zero" {
 `, serviceName, checkName)
 }
 
+
 func testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, polLink string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -1153,6 +1159,7 @@ resource "google_compute_health_check" "default" {
 }
 `, serviceName, maxConnectionsPerInstance, igName, itName, checkName)
 }
+
 
 func testAccComputeBackendService_withMaxConnectionsPerEndpoint(
 	service, instance, neg, network, check string, maxConnections int64) string {
@@ -1332,6 +1339,7 @@ resource "google_compute_http_health_check" "zero" {
 }
 `, serviceName, checkName)
 }
+
 
 func testAccComputeBackendService_internalLoadBalancing(fr, proxy, backend, hc, urlmap string) string {
 	return fmt.Sprintf(`

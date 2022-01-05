@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPubsubSubscription_pubsubSubscriptionPushExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_pubsubSubscriptionPushExample(context),
 			},
-			{
-				ResourceName:            "google_pubsub_subscription.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_pubsub_subscription.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"topic"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubSubscription_pubsubSubscriptionPushExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 }
@@ -76,32 +75,32 @@ resource "google_pubsub_subscription" "example" {
 }
 
 func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_pubsubSubscriptionPullExample(context),
 			},
-			{
-				ResourceName:            "google_pubsub_subscription.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_pubsub_subscription.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"topic"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubSubscription_pubsubSubscriptionPullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 }
@@ -133,32 +132,32 @@ resource "google_pubsub_subscription" "example" {
 }
 
 func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context),
 			},
-			{
-				ResourceName:            "google_pubsub_subscription.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_pubsub_subscription.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"topic"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 }
@@ -179,6 +178,7 @@ resource "google_pubsub_subscription" "example" {
 `, context)
 }
 
+
 func testAccCheckPubsubSubscriptionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -189,24 +189,24 @@ func testAccCheckPubsubSubscriptionDestroyProducer(t *testing.T) func(s *terrafo
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("PubsubSubscription still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

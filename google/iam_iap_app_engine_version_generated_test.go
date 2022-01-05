@@ -18,21 +18,23 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
+																						func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/iap.httpsResourceAccessor",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/iap.httpsResourceAccessor",
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamBinding_basicGenerated(context),
 			},
@@ -59,15 +61,15 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/iap.httpsResourceAccessor",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/iap.httpsResourceAccessor",
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccIapAppEngineVersionIamMember_basicGenerated(context),
@@ -85,15 +87,15 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/iap.httpsResourceAccessor",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/iap.httpsResourceAccessor",
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamPolicy_basicGenerated(context),
 			},
@@ -115,6 +117,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccIapAppEngineVersionIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

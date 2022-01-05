@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataCatalogEntry_dataCatalogEntryBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogEntryDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogEntryDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogEntry_dataCatalogEntryBasicExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_entry.basic_entry",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_entry.basic_entry",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"entry_group", "entry_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogEntry_dataCatalogEntryBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -65,32 +64,32 @@ resource "google_data_catalog_entry_group" "entry_group" {
 }
 
 func TestAccDataCatalogEntry_dataCatalogEntryFilesetExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogEntryDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogEntryDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogEntry_dataCatalogEntryFilesetExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_entry.basic_entry",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_entry.basic_entry",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"entry_group", "entry_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogEntry_dataCatalogEntryFilesetExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -109,32 +108,32 @@ resource "google_data_catalog_entry_group" "entry_group" {
 }
 
 func TestAccDataCatalogEntry_dataCatalogEntryFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogEntryDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogEntryDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogEntry_dataCatalogEntryFullExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_entry.basic_entry",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_entry.basic_entry",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"entry_group", "entry_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogEntry_dataCatalogEntryFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -192,6 +191,7 @@ resource "google_data_catalog_entry_group" "entry_group" {
 `, context)
 }
 
+
 func testAccCheckDataCatalogEntryDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -202,24 +202,24 @@ func testAccCheckDataCatalogEntryDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DataCatalogEntry still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

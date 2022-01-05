@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(context),
 			},
-			{
-				ResourceName:            "google_os_config_patch_deployment.patch",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_os_config_patch_deployment.patch",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
   patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
 
@@ -65,32 +64,32 @@ resource "google_os_config_patch_deployment" "patch" {
 }
 
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(context),
 			},
-			{
-				ResourceName:            "google_os_config_patch_deployment.patch",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_os_config_patch_deployment.patch",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
   patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
 
@@ -115,32 +114,32 @@ resource "google_os_config_patch_deployment" "patch" {
 }
 
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(context),
 			},
-			{
-				ResourceName:            "google_os_config_patch_deployment.patch",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_os_config_patch_deployment.patch",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
   project = "debian-cloud"
@@ -204,32 +203,32 @@ resource "google_os_config_patch_deployment" "patch" {
 }
 
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(context),
 			},
-			{
-				ResourceName:            "google_os_config_patch_deployment.patch",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_os_config_patch_deployment.patch",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
   patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
 
@@ -337,6 +336,7 @@ resource "google_os_config_patch_deployment" "patch" {
 `, context)
 }
 
+
 func testAccCheckOSConfigPatchDeploymentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -347,24 +347,24 @@ func testAccCheckOSConfigPatchDeploymentDestroyProducer(t *testing.T) func(s *te
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{OSConfigBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{OSConfigBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("OSConfigPatchDeployment still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

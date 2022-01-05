@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var ComputeInstanceIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"zone": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"instance_name": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type ComputeInstanceIamUpdater struct {
-	project      string
-	zone         string
+	project string
+	zone string
 	instanceName string
-	d            TerraformResourceData
-	Config       *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func ComputeInstanceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func ComputeInstanceIamUpdaterProducer(d TerraformResourceData, config *Config) 
 		values["instance_name"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Get("instance_name").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)","(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)","(?P<zone>[^/]+)/(?P<instance_name>[^/]+)","(?P<instance_name>[^/]+)"}, d, config, d.Get("instance_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func ComputeInstanceIamUpdaterProducer(d TerraformResourceData, config *Config) 
 	}
 
 	u := &ComputeInstanceIamUpdater{
-		project:      values["project"],
-		zone:         values["zone"],
+		project: values["project"],
+		zone: values["zone"],
 		instanceName: values["instance_name"],
-		d:            d,
-		Config:       config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func ComputeInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	zone, _ := getZone(d, config)
 	if zone != "" {
-		values["zone"] = zone
-	}
+		values["zone"] = zone	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)","(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)","(?P<zone>[^/]+)/(?P<instance_name>[^/]+)","(?P<instance_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &ComputeInstanceIamUpdater{
-		project:      values["project"],
-		zone:         values["zone"],
+		project: values["project"],
+		zone: values["zone"],
 		instanceName: values["instance_name"],
-		d:            d,
-		Config:       config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("instance_name", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting instance_name: %s", err)
@@ -149,7 +154,7 @@ func (u *ComputeInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 	var obj map[string]interface{}
-	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", iamPolicyVersion)})
+	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d",  iamPolicyVersion )})
 	if err != nil {
 		return nil, err
 	}
@@ -179,6 +184,7 @@ func (u *ComputeInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -206,11 +212,11 @@ func (u *ComputeInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *ComputeInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/zones/%s/instances/%s", u.project, u.zone, u.instanceName), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *ComputeInstanceIamUpdater) GetResourceId() string {

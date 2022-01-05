@@ -75,21 +75,21 @@ func resourceContainerNodePool() *schema.Resource {
 }
 
 var schemaNodePool = map[string]*schema.Schema{
-	"autoscaling": {
+	"autoscaling": &schema.Schema{
 		Type:        schema.TypeList,
 		Optional:    true,
 		MaxItems:    1,
 		Description: `Configuration required by cluster autoscaler to adjust the size of the node pool to the current cluster usage.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"min_node_count": {
+				"min_node_count": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(0),
 					Description:  `Minimum number of nodes in the NodePool. Must be >=0 and <= max_node_count.`,
 				},
 
-				"max_node_count": {
+				"max_node_count": &schema.Schema{
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(1),
@@ -99,7 +99,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
-	"max_pods_per_node": {
+	"max_pods_per_node": &schema.Schema{
 		Type:        schema.TypeInt,
 		Optional:    true,
 		ForceNew:    true,
@@ -140,7 +140,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
-	"initial_node_count": {
+	"initial_node_count": &schema.Schema{
 		Type:        schema.TypeInt,
 		Optional:    true,
 		ForceNew:    true,
@@ -187,7 +187,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
-	"name": {
+	"name": &schema.Schema{
 		Type:        schema.TypeString,
 		Optional:    true,
 		Computed:    true,
@@ -195,7 +195,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		Description: `The name of the node pool. If left blank, Terraform will auto-generate a unique name.`,
 	},
 
-	"name_prefix": {
+	"name_prefix": &schema.Schema{
 		Type:        schema.TypeString,
 		Optional:    true,
 		Computed:    true,
@@ -219,6 +219,8 @@ var schemaNodePool = map[string]*schema.Schema{
 		Computed:    true,
 		Description: `The Kubernetes version for the nodes in this pool. Note that if this field and auto_upgrade are both specified, they will fight each other for what the node version should be, so setting both is highly discouraged. While a fuzzy version can be specified, it's recommended that you specify explicit versions as Terraform will see spurious diffs when fuzzy versions are used. See the google_container_engine_versions data source's version_prefix field to approximate fuzzy versions in a Terraform-compatible way.`,
 	},
+
+
 }
 
 type NodePoolInformation struct {
@@ -542,6 +544,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	mutexKV.Lock(nodePoolInfo.lockKey())
 	defer mutexKV.Unlock(nodePoolInfo.lockKey())
 
+
 	timeout := d.Timeout(schema.TimeoutDelete)
 	startTime := time.Now()
 
@@ -772,15 +775,15 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 		nodeCount = size / len(igmUrls)
 	}
 	nodePool := map[string]interface{}{
-		"name":                        np.Name,
-		"name_prefix":                 d.Get(prefix + "name_prefix"),
-		"initial_node_count":          np.InitialNodeCount,
-		"node_locations":              schema.NewSet(schema.HashString, convertStringArrToInterface(np.Locations)),
-		"node_count":                  nodeCount,
-		"node_config":                 flattenNodeConfig(np.Config),
-		"instance_group_urls":         igmUrls,
+		"name":                np.Name,
+		"name_prefix":         d.Get(prefix + "name_prefix"),
+		"initial_node_count":  np.InitialNodeCount,
+		"node_locations":      schema.NewSet(schema.HashString, convertStringArrToInterface(np.Locations)),
+		"node_count":          nodeCount,
+		"node_config":         flattenNodeConfig(np.Config),
+		"instance_group_urls": igmUrls,
 		"managed_instance_group_urls": managedIgmUrls,
-		"version":                     np.Version,
+		"version":             np.Version,
 	}
 
 	if np.Autoscaling != nil {
@@ -820,6 +823,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 
 	return nodePool, nil
 }
+
 
 func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *NodePoolInformation, prefix string, timeout time.Duration) error {
 	config := meta.(*Config)
@@ -923,7 +927,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				req.ForceSendFields = []string{"WorkloadMetadataConfig"}
 			}
 			updateF := func() error {
-				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name),req)
 				if config.UserProjectOverride {
 					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 				}
@@ -957,7 +961,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			NodeCount: newSize,
 		}
 		updateF := func() error {
-			clusterNodePoolsSetSizeCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(name), req)
+			clusterNodePoolsSetSizeCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(name),req)
 			if config.UserProjectOverride {
 				clusterNodePoolsSetSizeCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
@@ -995,7 +999,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		updateF := func() error {
-			clusterNodePoolsSetManagementCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(name), req)
+			clusterNodePoolsSetManagementCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(name),req)
 			if config.UserProjectOverride {
 				clusterNodePoolsSetManagementCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
@@ -1025,7 +1029,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			NodeVersion: d.Get(prefix + "version").(string),
 		}
 		updateF := func() error {
-			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name),req)
 			if config.UserProjectOverride {
 				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
@@ -1054,7 +1058,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			Locations: convertStringSet(d.Get(prefix + "node_locations").(*schema.Set)),
 		}
 		updateF := func() error {
-			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name),req)
 			if config.UserProjectOverride {
 				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
@@ -1087,7 +1091,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			UpgradeSettings: upgradeSettings,
 		}
 		updateF := func() error {
-			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name),req)
 			if config.UserProjectOverride {
 				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}

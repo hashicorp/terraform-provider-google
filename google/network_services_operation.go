@@ -14,48 +14,50 @@
 package google
 
 import (
-	"fmt"
-	"time"
+  "fmt"
 )
 
 type NetworkServicesOperationWaiter struct {
-	Config    *Config
-	UserAgent string
-	Project   string
-	CommonOperationWaiter
+  Config    *Config
+  UserAgent string
+  Project string
+  CommonOperationWaiter
 }
 
 func (w *NetworkServicesOperationWaiter) QueryOp() (interface{}, error) {
-	if w == nil {
-		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
-	}
-	// Returns the proper get.
-	url := fmt.Sprintf("https://networkservices.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
+  if w == nil {
+    return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+  }
+  // Returns the proper get.
+  url := fmt.Sprintf("https://networkservices.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+  return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createNetworkServicesWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*NetworkServicesOperationWaiter, error) {
-	w := &NetworkServicesOperationWaiter{
-		Config:    config,
-		UserAgent: userAgent,
-		Project:   project,
-	}
-	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
-		return nil, err
-	}
-	return w, nil
+
+
+func createNetworkServicesWaiter(config *Config, op map[string]interface{},  project,  activity, userAgent string) (*NetworkServicesOperationWaiter, error) {
+  w := &NetworkServicesOperationWaiter{
+    Config:    config,
+    UserAgent: userAgent,
+    Project: project,
+  }
+  if err := w.CommonOperationWaiter.SetOp(op); err != nil {
+    return nil, err
+  }
+  return w, nil
 }
 
-func networkServicesOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
-	if val, ok := op["name"]; !ok || val == "" {
-		// This was a synchronous call - there is no operation to wait for.
-		return nil
-	}
-	w, err := createNetworkServicesWaiter(config, op, project, activity, userAgent)
-	if err != nil {
-		// If w is nil, the op was synchronous.
-		return err
-	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+
+func networkServicesOperationWaitTime(config *Config, op map[string]interface{},  project, activity, userAgent string, timeout time.Duration) error {
+  if val, ok := op["name"]; !ok || val == "" {
+    // This was a synchronous call - there is no operation to wait for.
+    return nil
+  }
+  w, err := createNetworkServicesWaiter(config, op,  project,  activity, userAgent)
+  if err != nil {
+      // If w is nil, the op was synchronous.
+      return err
+  }
+  return OperationWait(w, activity, timeout, config.PollInterval)
 }

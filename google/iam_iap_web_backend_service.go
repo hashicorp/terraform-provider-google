@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,24 +27,25 @@ import (
 
 var IapWebBackendServiceIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"web_backend_service": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type IapWebBackendServiceIamUpdater struct {
-	project           string
+	project string
 	webBackendService string
-	d                 TerraformResourceData
-	Config            *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func IapWebBackendServiceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -57,8 +62,9 @@ func IapWebBackendServiceIamUpdaterProducer(d TerraformResourceData, config *Con
 		values["web_backend_service"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Get("web_backend_service").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)","(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)","(?P<web_backend_service>[^/]+)"}, d, config, d.Get("web_backend_service").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +74,10 @@ func IapWebBackendServiceIamUpdaterProducer(d TerraformResourceData, config *Con
 	}
 
 	u := &IapWebBackendServiceIamUpdater{
-		project:           values["project"],
+		project: values["project"],
 		webBackendService: values["web_backend_service"],
-		d:                 d,
-		Config:            config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -89,23 +95,23 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) err
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)","(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)","(?P<web_backend_service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &IapWebBackendServiceIamUpdater{
-		project:           values["project"],
+		project: values["project"],
 		webBackendService: values["web_backend_service"],
-		d:                 d,
-		Config:            config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("web_backend_service", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting web_backend_service: %s", err)
@@ -127,7 +133,7 @@ func (u *IapWebBackendServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcem
 	var obj map[string]interface{}
 	obj = map[string]interface{}{
 		"options": map[string]interface{}{
-			"requestedPolicyVersion": iamPolicyVersion,
+			"requestedPolicyVersion":  iamPolicyVersion ,
 		},
 	}
 
@@ -156,6 +162,7 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -183,11 +190,11 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 
 func (u *IapWebBackendServiceIamUpdater) qualifyWebBackendServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *IapWebBackendServiceIamUpdater) GetResourceId() string {

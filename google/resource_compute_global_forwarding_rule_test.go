@@ -27,27 +27,27 @@ func TestAccComputeGlobalForwardingRule_updateTarget(t *testing.T) {
 				Config: testAccComputeGlobalForwardingRule_httpProxy(fr, "proxy", proxy, proxyUpdated, backend, hc, urlmap),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
-						"google_compute_global_forwarding_rule.forwarding_rule", "target", regexp.MustCompile(proxy+"$")),
+						"google_compute_global_forwarding_rule.forwarding_rule", "target", regexp.MustCompile(proxy + "$")),
 				),
 			},
 			{
-				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"port_range", "target"},
+				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+                                ImportStateVerifyIgnore: []string{"port_range", "target"},
 			},
 			{
 				Config: testAccComputeGlobalForwardingRule_httpProxy(fr, "proxy2", proxy, proxyUpdated, backend, hc, urlmap),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
-						"google_compute_global_forwarding_rule.forwarding_rule", "target", regexp.MustCompile(proxyUpdated+"$")),
+						"google_compute_global_forwarding_rule.forwarding_rule", "target", regexp.MustCompile(proxyUpdated + "$")),
 				),
 			},
 			{
-				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"port_range", "target"},
+				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+                                ImportStateVerifyIgnore: []string{"port_range", "target"},
 			},
 		},
 	})
@@ -75,14 +75,16 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"port_range", "target"},
+				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+                                ImportStateVerifyIgnore: []string{"port_range", "target"},
 			},
 		},
 	})
 }
+
+
 
 func testAccComputeGlobalForwardingRule_httpProxy(fr, targetProxy, proxy, proxy2, backend, hc, urlmap string) string {
 	return fmt.Sprintf(`
@@ -141,6 +143,8 @@ resource "google_compute_url_map" "url_map" {
 }
 `, fr, targetProxy, proxy, proxy2, backend, hc, urlmap)
 }
+
+
 
 func testAccComputeGlobalForwardingRule_ipv6(fr, proxy, backend, hc, urlmap string) string {
 	return fmt.Sprintf(`

@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var ComputeSubnetworkIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"region": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"subnetwork": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type ComputeSubnetworkIamUpdater struct {
-	project    string
-	region     string
+	project string
+	region string
 	subnetwork string
-	d          TerraformResourceData
-	Config     *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func ComputeSubnetworkIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func ComputeSubnetworkIamUpdaterProducer(d TerraformResourceData, config *Config
 		values["subnetwork"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<subnetwork>[^/]+)"}, d, config, d.Get("subnetwork").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)","(?P<region>[^/]+)/(?P<subnetwork>[^/]+)","(?P<subnetwork>[^/]+)"}, d, config, d.Get("subnetwork").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func ComputeSubnetworkIamUpdaterProducer(d TerraformResourceData, config *Config
 	}
 
 	u := &ComputeSubnetworkIamUpdater{
-		project:    values["project"],
-		region:     values["region"],
+		project: values["project"],
+		region: values["region"],
 		subnetwork: values["subnetwork"],
-		d:          d,
-		Config:     config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func ComputeSubnetworkIdParseFunc(d *schema.ResourceData, config *Config) error 
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	region, _ := getRegion(d, config)
 	if region != "" {
-		values["region"] = region
-	}
+		values["region"] = region	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<subnetwork>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)","(?P<region>[^/]+)/(?P<subnetwork>[^/]+)","(?P<subnetwork>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &ComputeSubnetworkIamUpdater{
-		project:    values["project"],
-		region:     values["region"],
+		project: values["project"],
+		region: values["region"],
 		subnetwork: values["subnetwork"],
-		d:          d,
-		Config:     config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("subnetwork", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting subnetwork: %s", err)
@@ -149,7 +154,7 @@ func (u *ComputeSubnetworkIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 		return nil, err
 	}
 	var obj map[string]interface{}
-	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", iamPolicyVersion)})
+	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d",  iamPolicyVersion )})
 	if err != nil {
 		return nil, err
 	}
@@ -179,6 +184,7 @@ func (u *ComputeSubnetworkIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -206,11 +212,11 @@ func (u *ComputeSubnetworkIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *ComputeSubnetworkIamUpdater) qualifySubnetworkUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", u.project, u.region, u.subnetwork), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *ComputeSubnetworkIamUpdater) GetResourceId() string {

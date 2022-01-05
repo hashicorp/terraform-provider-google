@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAnalysisNote_containerAnalysisNoteBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_container_analysis_note.note",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccContainerAnalysisNote_containerAnalysisNoteBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
   attestation_authority {
@@ -61,31 +60,31 @@ resource "google_container_analysis_note" "note" {
 }
 
 func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_container_analysis_note.note",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
 
@@ -111,6 +110,7 @@ resource "google_container_analysis_note" "note" {
 `, context)
 }
 
+
 func testAccCheckContainerAnalysisNoteDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -121,24 +121,24 @@ func testAccCheckContainerAnalysisNoteDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ContainerAnalysisNote still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

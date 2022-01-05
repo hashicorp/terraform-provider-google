@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheKeysetDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNetworkServicesEdgeCacheKeysetDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetBasicExample(context),
 			},
-			{
-				ResourceName:            "google_network_services_edge_cache_keyset.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_network_services_edge_cache_keyset.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 
 resource "google_network_services_edge_cache_keyset" "default" {
   name                 = "default%{random_suffix}"
@@ -66,6 +65,7 @@ resource "google_network_services_edge_cache_keyset" "default" {
 `, context)
 }
 
+
 func testAccCheckNetworkServicesEdgeCacheKeysetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -76,24 +76,24 @@ func testAccCheckNetworkServicesEdgeCacheKeysetDestroyProducer(t *testing.T) fun
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheKeysets/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheKeysets/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("NetworkServicesEdgeCacheKeyset still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringNotificationChannelDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringNotificationChannelDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringNotificationChannel_notificationChannelBasicExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_notification_channel.basic",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_notification_channel.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"sensitive_labels"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringNotificationChannel_notificationChannelBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_notification_channel" "basic" {
   display_name = "Test Notification Channel%{random_suffix}"
   type         = "email"
@@ -59,6 +58,7 @@ resource "google_monitoring_notification_channel" "basic" {
 }
 `, context)
 }
+
 
 func testAccCheckMonitoringNotificationChannelDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -70,24 +70,24 @@ func testAccCheckMonitoringNotificationChannelDestroyProducer(t *testing.T) func
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isMonitoringConcurrentEditError)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isMonitoringConcurrentEditError)
+		if err == nil {
 				return fmt.Errorf("MonitoringNotificationChannel still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(context),
 			},
-			{
-				ResourceName:            "google_data_loss_prevention_stored_info_type.basic",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_loss_prevention_stored_info_type.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_loss_prevention_stored_info_type" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -65,33 +64,33 @@ resource "google_data_loss_prevention_stored_info_type" "basic" {
 }
 
 func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(context),
 			},
-			{
-				ResourceName:            "google_data_loss_prevention_stored_info_type.dictionary",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_loss_prevention_stored_info_type.dictionary",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_loss_prevention_stored_info_type" "dictionary" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -107,33 +106,33 @@ resource "google_data_loss_prevention_stored_info_type" "dictionary" {
 }
 
 func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDictionaryExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDictionaryExample(context),
 			},
-			{
-				ResourceName:            "google_data_loss_prevention_stored_info_type.large",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_loss_prevention_stored_info_type.large",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDictionaryExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_loss_prevention_stored_info_type" "large" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -163,6 +162,7 @@ resource "google_storage_bucket_object" "object" {
 `, context)
 }
 
+
 func testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -173,24 +173,24 @@ func testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t *testing.T) f
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DataLossPreventionStoredInfoType still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

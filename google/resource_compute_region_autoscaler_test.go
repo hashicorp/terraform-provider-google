@@ -18,7 +18,7 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionAutoscaler_basic(itName, tpName, igmName, autoscalerName),
 			},
 			{
@@ -26,7 +26,7 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionAutoscaler_update(itName, tpName, igmName, autoscalerName),
 			},
 			{
@@ -51,10 +51,10 @@ func TestAccComputeRegionAutoscaler_scaleDownControl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionAutoscaler_scaleDownControl(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -76,10 +76,10 @@ func TestAccComputeRegionAutoscaler_scalingSchedule(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionAutoscaler_scalingSchedule(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -101,10 +101,10 @@ func TestAccComputeRegionAutoscaler_scaleInControl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeRegionAutoscaler_scaleInControl(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

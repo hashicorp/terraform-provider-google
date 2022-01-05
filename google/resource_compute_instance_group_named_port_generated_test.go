@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupNamedPortDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeInstanceGroupNamedPortDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(context),
 			},
-			{
-				ResourceName:            "google_compute_instance_group_named_port.my_port",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_instance_group_named_port.my_port",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"group", "zone"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_instance_group_named_port" "my_port" {
   group = google_container_cluster.my_cluster.node_pool[0].instance_group_urls[0]
   zone = "us-central1-a"
@@ -95,6 +94,7 @@ resource "google_container_cluster" "my_cluster" {
 `, context)
 }
 
+
 func testAccCheckComputeInstanceGroupNamedPortDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -105,24 +105,24 @@ func testAccCheckComputeInstanceGroupNamedPortDestroyProducer(t *testing.T) func
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeInstanceGroupNamedPort still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

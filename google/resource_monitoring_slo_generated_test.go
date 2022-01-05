@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloAppengineExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_slo.appeng_slo",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_slo.appeng_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringSlo_monitoringSloAppengineExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_monitoring_app_engine_service" "default" {
   module_id = "default"
 }
@@ -73,33 +72,33 @@ resource "google_monitoring_slo" "appeng_slo" {
 }
 
 func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloRequestBasedExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_slo.request_based_slo",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_slo.request_based_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringSlo_monitoringSloRequestBasedExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-request-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -126,32 +125,32 @@ resource "google_monitoring_slo" "request_based_slo" {
 }
 
 func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_slo.windows_based",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_slo.windows_based",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -176,32 +175,32 @@ resource "google_monitoring_slo" "windows_based" {
 }
 
 func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_slo.windows_based",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_slo.windows_based",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -232,32 +231,32 @@ resource "google_monitoring_slo" "windows_based" {
 }
 
 func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_slo.windows_based",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_slo.windows_based",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -288,32 +287,32 @@ resource "google_monitoring_slo" "windows_based" {
 }
 
 func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context),
 			},
-			{
-				ResourceName:            "google_monitoring_slo.windows_based",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_monitoring_slo.windows_based",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -350,6 +349,7 @@ resource "google_monitoring_slo" "windows_based" {
 `, context)
 }
 
+
 func testAccCheckMonitoringSloDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -360,24 +360,24 @@ func testAccCheckMonitoringSloDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("MonitoringSlo still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

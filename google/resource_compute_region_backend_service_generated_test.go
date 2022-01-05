@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_backend_service.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   name                            = "tf-test-region-service%{random_suffix}"
   region                          = "us-central1"
@@ -71,32 +70,32 @@ resource "google_compute_health_check" "default" {
 }
 
 func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_backend_service.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "tf-test-region-service%{random_suffix}"
@@ -116,32 +115,32 @@ resource "google_compute_health_check" "health_check" {
 }
 
 func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_backend_service.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "tf-test-region-service%{random_suffix}"
@@ -177,32 +176,32 @@ resource "google_compute_health_check" "health_check" {
 }
 
 func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceBalancingModeExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_backend_service.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceBalancingModeExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   load_balancing_scheme = "INTERNAL_MANAGED"
 
@@ -277,6 +276,7 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+
 func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -287,24 +287,24 @@ func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeRegionBackendService still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

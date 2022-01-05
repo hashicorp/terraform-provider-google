@@ -176,11 +176,11 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Description: `Whether to wait for all instances to be created/updated before returning. Note that if this is set to true and the operation does not succeed, Terraform will continue trying until it times out.`,
 			},
 			"wait_for_instances_status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "STABLE",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "STABLE",
 				ValidateFunc: validation.StringInSlice([]string{"STABLE", "UPDATED"}, false),
-				Description:  `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
+				Description: `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
 			},
 
 			"auto_healing_policies": {
@@ -282,7 +282,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 							Description:   `The maximum number of instances(calculated as percentage) that can be unavailable during the update process. Conflicts with max_unavailable_fixed. Percent value is only allowed for regional managed instance groups with size at least 10.`,
 						},
 
-						"instance_redistribution_type": {
+												"instance_redistribution_type": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							ValidateFunc:     validation.StringInSlice([]string{"PROACTIVE", "NONE", ""}, false),

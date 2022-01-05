@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
-	neturl "net/url"
 	"testing"
+	neturl "net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
 
 func init() {
 	resource.AddTestSweepers("gcp_access_context_manager_policy", &resource.Sweeper{

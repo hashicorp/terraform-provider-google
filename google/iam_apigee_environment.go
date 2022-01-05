@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,23 +27,24 @@ import (
 
 var ApigeeEnvironmentIamSchema = map[string]*schema.Schema{
 	"org_id": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Required: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"env_id": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type ApigeeEnvironmentIamUpdater struct {
-	orgId  string
-	envId  string
-	d      TerraformResourceData
-	Config *Config
+	orgId string
+	envId string
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -53,8 +58,9 @@ func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *Config
 		values["env_id"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)", "(?P<env_id>[^/]+)"}, d, config, d.Get("env_id").(string))
+	m, err := getImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)","(?P<env_id>[^/]+)"}, d, config, d.Get("env_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -64,10 +70,10 @@ func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *Config
 	}
 
 	u := &ApigeeEnvironmentIamUpdater{
-		orgId:  values["org_id"],
-		envId:  values["env_id"],
-		d:      d,
-		Config: config,
+		orgId: values["org_id"],
+		envId: values["env_id"],
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("org_id", u.orgId); err != nil {
@@ -83,20 +89,21 @@ func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *Config
 func ApigeeEnvironmentIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)", "(?P<env_id>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)","(?P<env_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &ApigeeEnvironmentIamUpdater{
-		orgId:  values["org_id"],
-		envId:  values["env_id"],
-		d:      d,
-		Config: config,
+		orgId: values["org_id"],
+		envId: values["env_id"],
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("env_id", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting env_id: %s", err)
@@ -138,6 +145,7 @@ func (u *ApigeeEnvironmentIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -161,11 +169,11 @@ func (u *ApigeeEnvironmentIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *ApigeeEnvironmentIamUpdater) qualifyEnvironmentUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ApigeeBasePath}}%s:%s", fmt.Sprintf("%s/environments/%s", u.orgId, u.envId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *ApigeeEnvironmentIamUpdater) GetResourceId() string {

@@ -93,6 +93,7 @@ func (u *DataprocJobIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Po
 		return nil, err
 	}
 
+
 	p, err := u.Config.NewDataprocClient(userAgent).Projects.Regions.Jobs.GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)

@@ -17,18 +17,18 @@ func TestAccDNSPolicy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccDnsPolicy_privateUpdate(policySuffix, "true", "172.16.1.10", "172.16.1.30", "network-1"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_policy.example-policy",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccDnsPolicy_privateUpdate(policySuffix, "false", "172.16.1.20", "172.16.1.40", "network-2"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_policy.example-policy",
 				ImportState:       true,
 				ImportStateVerify: true,

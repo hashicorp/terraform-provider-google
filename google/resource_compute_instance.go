@@ -356,7 +356,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", ""}, false),
-							Description:  `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
+							Description: `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
 						},
 
 						"ipv6_access_type": {
@@ -388,9 +388,9 @@ func resourceComputeInstance() *schema.Resource {
 										Description: `The first IPv6 address of the external IPv6 range associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.`,
 									},
 									"external_ipv6_prefix_length": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The prefix length of the external IPv6 range.`,
+										Type:         schema.TypeString,
+										Computed:     true,
+										Description:  `The prefix length of the external IPv6 range.`,
 									},
 								},
 							},
@@ -699,16 +699,16 @@ func resourceComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_nested_virtualization": {
-							Type:         schema.TypeBool,
-							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core"},
-							Description:  `Whether to enable nested virtualization or not.`,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization","advanced_machine_features.0.threads_per_core"},
+							Description: `Whether to enable nested virtualization or not.`,
 						},
 						"threads_per_core": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core"},
-							Description:  `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization","advanced_machine_features.0.threads_per_core"},
+							Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
 						},
 					},
 				},
@@ -1814,6 +1814,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 	}
+
 
 	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config") || len(updatesToNIWhileStopped) > 0 || bootRequiredSchedulingChange || d.HasChange("advanced_machine_features")
 

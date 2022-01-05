@@ -15,416 +15,435 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceComputeRegionPerInstanceConfig() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceComputeRegionPerInstanceConfigCreate,
-		Read:   resourceComputeRegionPerInstanceConfigRead,
-		Update: resourceComputeRegionPerInstanceConfigUpdate,
-		Delete: resourceComputeRegionPerInstanceConfigDelete,
+    return &schema.Resource{
+        Create: resourceComputeRegionPerInstanceConfigCreate,
+        Read: resourceComputeRegionPerInstanceConfigRead,
+        Update: resourceComputeRegionPerInstanceConfigUpdate,
+        Delete: resourceComputeRegionPerInstanceConfigDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceComputeRegionPerInstanceConfigImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceComputeRegionPerInstanceConfigImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(15 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(15 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(15 * time.Minute),
+            Update: schema.DefaultTimeout(6 * time.Minute),
+            Delete: schema.DefaultTimeout(15 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name for this per-instance config and its corresponding instance.`,
-			},
-			"region_instance_group_manager": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `The region instance group manager this instance config is part of.`,
-			},
-			"preserved_state": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `The preserved state for this instance.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"disk": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: `Stateful disks for the instance.`,
-							Elem:        computeRegionPerInstanceConfigPreservedStateDiskSchema(),
-							// Default schema.HashSchema is used.
-						},
-						"metadata": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Description: `Preserved metadata defined for this instance. This is a list of key->value pairs.`,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-			"region": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `Region where the containing instance group manager is located`,
-			},
-			"minimal_action": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "NONE",
-			},
-			"most_disruptive_allowed_action": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "REPLACE",
-			},
-			"remove_instance_state_on_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+
+
+        Schema: map[string]*schema.Schema{
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The name for this per-instance config and its corresponding instance.`,
+},
+"region_instance_group_manager": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The region instance group manager this instance config is part of.`,
+},
+"preserved_state": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The preserved state for this instance.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "disk": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `Stateful disks for the instance.`,
+                Elem: computeRegionPerInstanceConfigPreservedStateDiskSchema(),
+                // Default schema.HashSchema is used.
+      },
+              "metadata": {
+    Type: schema.TypeMap,
+    Optional: true,
+	Description: `Preserved metadata defined for this instance. This is a list of key->value pairs.`,
+  Elem: &schema.Schema{Type: schema.TypeString},
+},
+          },
+  },
+},
+"region": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `Region where the containing instance group manager is located`,
+},
+            "minimal_action": {
+              Type: schema.TypeString,
+              Optional: true,
+              Default:  "NONE",
+            },
+            "most_disruptive_allowed_action": {
+              Type: schema.TypeString,
+              Optional: true,
+              Default:  "REPLACE",
+            },
+            "remove_instance_state_on_destroy": {
+              Type: schema.TypeBool,
+              Optional: true,
+              Default:  false,
+            },
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func computeRegionPerInstanceConfigPreservedStateDiskSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"device_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `A unique device name that is reflected into the /dev/ tree of a Linux operating system running within the instance.`,
-			},
-			"source": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: `The URI of an existing persistent disk to attach under the specified device-name in the format
+                      "device_name": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `A unique device name that is reflected into the /dev/ tree of a Linux operating system running within the instance.`,
+},
+                      "source": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The URI of an existing persistent disk to attach under the specified device-name in the format
 'projects/project-id/zones/zone/disks/disk-name'.`,
-			},
-			"delete_rule": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NEVER", "ON_PERMANENT_INSTANCE_DELETION", ""}, false),
-				Description: `A value that prescribes what should happen to the stateful disk when the VM instance is deleted.
+},
+                      "delete_rule": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"NEVER","ON_PERMANENT_INSTANCE_DELETION",""}, false),
+	Description: `A value that prescribes what should happen to the stateful disk when the VM instance is deleted.
 The available options are 'NEVER' and 'ON_PERMANENT_INSTANCE_DELETION'.
 'NEVER' - detach the disk when the VM is deleted, but do not delete the disk.
 'ON_PERMANENT_INSTANCE_DELETION' will delete the stateful disk when the VM is permanently
 deleted from the instance group. Default value: "NEVER" Possible values: ["NEVER", "ON_PERMANENT_INSTANCE_DELETION"]`,
-				Default: "NEVER",
-			},
-			"mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"READ_ONLY", "READ_WRITE", ""}, false),
-				Description:  `The mode of the disk. Default value: "READ_WRITE" Possible values: ["READ_ONLY", "READ_WRITE"]`,
-				Default:      "READ_WRITE",
-			},
-		},
+    Default: "NEVER",
+},
+                      "mode": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"READ_ONLY","READ_WRITE",""}, false),
+	Description: `The mode of the disk. Default value: "READ_WRITE" Possible values: ["READ_ONLY", "READ_WRITE"]`,
+    Default: "READ_WRITE",
+},
+          		},
 	}
 }
+
+
 
 func resourceComputeRegionPerInstanceConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandNestedComputeRegionPerInstanceConfigName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	preservedStateProp, err := expandNestedComputeRegionPerInstanceConfigPreservedState(d.Get("preserved_state"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("preserved_state"); !isEmptyValue(reflect.ValueOf(preservedStateProp)) && (ok || !reflect.DeepEqual(v, preservedStateProp)) {
-		obj["preservedState"] = preservedStateProp
-	}
+    obj := make(map[string]interface{})
+        nameProp, err := expandNestedComputeRegionPerInstanceConfigName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        preservedStateProp, err := expandNestedComputeRegionPerInstanceConfigPreservedState(d.Get( "preserved_state" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("preserved_state"); !isEmptyValue(reflect.ValueOf(preservedStateProp)) && (ok || !reflect.DeepEqual(v, preservedStateProp)) {
+        obj["preservedState"] = preservedStateProp
+    }
 
-	obj, err = resourceComputeRegionPerInstanceConfigEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj, err = resourceComputeRegionPerInstanceConfigEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/createInstances")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/createInstances")
+    if err != nil {
+        return err
+    }
 
-	log.Printf("[DEBUG] Creating new RegionPerInstanceConfig: %#v", obj)
-	billingProject := ""
+    log.Printf("[DEBUG] Creating new RegionPerInstanceConfig: %#v", obj)
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating RegionPerInstanceConfig: %s", err)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating RegionPerInstanceConfig: %s", err)
+    }
 
-	err = computeOperationWaitTime(
-		config, res, project, "Creating RegionPerInstanceConfig", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionPerInstanceConfig: %s", err)
-	}
+    err = computeOperationWaitTime(
+    config, res,  project,  "Creating RegionPerInstanceConfig", userAgent,
+        d.Timeout(schema.TimeoutCreate))
 
-	log.Printf("[DEBUG] Finished creating RegionPerInstanceConfig %q: %#v", d.Id(), res)
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create RegionPerInstanceConfig: %s", err)
+    }
 
-	return resourceComputeRegionPerInstanceConfigRead(d, meta)
+
+
+
+    log.Printf("[DEBUG] Finished creating RegionPerInstanceConfig %q: %#v", d.Id(), res)
+
+    return resourceComputeRegionPerInstanceConfigRead(d, meta)
 }
 
+
 func resourceComputeRegionPerInstanceConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listPerInstanceConfigs")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listPerInstanceConfigs")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "POST", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionPerInstanceConfig %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	res, err = flattenNestedComputeRegionPerInstanceConfig(d, meta, res)
-	if err != nil {
-		return err
-	}
+    res, err := sendRequest(config, "POST", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionPerInstanceConfig %q", d.Id()))
+    }
 
-	if res == nil {
-		// Object isn't there any more - remove it from the state.
-		log.Printf("[DEBUG] Removing ComputeRegionPerInstanceConfig because it couldn't be matched.")
-		d.SetId("")
-		return nil
-	}
+    res, err = flattenNestedComputeRegionPerInstanceConfig(d, meta, res)
+    if err != nil {
+        return err
+    }
 
-	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOkExists("minimal_action"); !ok {
-		if err := d.Set("minimal_action", "NONE"); err != nil {
-			return fmt.Errorf("Error setting minimal_action: %s", err)
-		}
-	}
-	if _, ok := d.GetOkExists("most_disruptive_allowed_action"); !ok {
-		if err := d.Set("most_disruptive_allowed_action", "REPLACE"); err != nil {
-			return fmt.Errorf("Error setting most_disruptive_allowed_action: %s", err)
-		}
-	}
-	if _, ok := d.GetOkExists("remove_instance_state_on_destroy"); !ok {
-		if err := d.Set("remove_instance_state_on_destroy", false); err != nil {
-			return fmt.Errorf("Error setting remove_instance_state_on_destroy: %s", err)
-		}
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
-	}
+    if res == nil {
+        // Object isn't there any more - remove it from the state.
+        log.Printf("[DEBUG] Removing ComputeRegionPerInstanceConfig because it couldn't be matched.")
+        d.SetId("")
+        return nil
+    }
 
-	region, err := getRegion(d, config)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("region", region); err != nil {
-		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
-	}
 
-	if err := d.Set("name", flattenNestedComputeRegionPerInstanceConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
-	}
-	if err := d.Set("preserved_state", flattenNestedComputeRegionPerInstanceConfigPreservedState(res["preservedState"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
-	}
+  // Explicitly set virtual fields to default values if unset
+    if _, ok := d.GetOkExists("minimal_action"); !ok {
+      if err := d.Set("minimal_action", "NONE"); err != nil {
+      	return fmt.Errorf("Error setting minimal_action: %s", err)
+      }
+    }
+    if _, ok := d.GetOkExists("most_disruptive_allowed_action"); !ok {
+      if err := d.Set("most_disruptive_allowed_action", "REPLACE"); err != nil {
+      	return fmt.Errorf("Error setting most_disruptive_allowed_action: %s", err)
+      }
+    }
+    if _, ok := d.GetOkExists("remove_instance_state_on_destroy"); !ok {
+      if err := d.Set("remove_instance_state_on_destroy", false); err != nil {
+      	return fmt.Errorf("Error setting remove_instance_state_on_destroy: %s", err)
+      }
+    }
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
+    }
 
-	return nil
+    region, err := getRegion(d, config)
+    if err != nil {
+        return err
+    }
+    if err := d.Set("region", region); err != nil {
+        return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
+    }
+
+    if err := d.Set("name", flattenNestedComputeRegionPerInstanceConfigName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
+    }
+    if err := d.Set("preserved_state", flattenNestedComputeRegionPerInstanceConfigPreservedState(res["preservedState"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
+    }
+
+    return nil
 }
 
 func resourceComputeRegionPerInstanceConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandNestedComputeRegionPerInstanceConfigName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	preservedStateProp, err := expandNestedComputeRegionPerInstanceConfigPreservedState(d.Get("preserved_state"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("preserved_state"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, preservedStateProp)) {
-		obj["preservedState"] = preservedStateProp
-	}
 
-	obj, err = resourceComputeRegionPerInstanceConfigUpdateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            nameProp, err := expandNestedComputeRegionPerInstanceConfigName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+            preservedStateProp, err := expandNestedComputeRegionPerInstanceConfigPreservedState(d.Get( "preserved_state" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("preserved_state"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, preservedStateProp)) {
+        obj["preservedState"] = preservedStateProp
+    }
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    obj, err = resourceComputeRegionPerInstanceConfigUpdateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/updatePerInstanceConfigs")
-	if err != nil {
-		return err
-	}
+    lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	log.Printf("[DEBUG] Updating RegionPerInstanceConfig %q: %#v", d.Id(), obj)
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/updatePerInstanceConfigs")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Updating RegionPerInstanceConfig %q: %#v", d.Id(), obj)
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return fmt.Errorf("Error updating RegionPerInstanceConfig %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating RegionPerInstanceConfig %q: %#v", d.Id(), res)
-	}
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
-	err = computeOperationWaitTime(
-		config, res, project, "Updating RegionPerInstanceConfig", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+    if err != nil {
+        return fmt.Errorf("Error updating RegionPerInstanceConfig %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating RegionPerInstanceConfig %q: %#v", d.Id(), res)
+    }
 
-	if err != nil {
-		return err
-	}
+    err = computeOperationWaitTime(
+        config, res,  project,  "Updating RegionPerInstanceConfig", userAgent,
+        d.Timeout(schema.TimeoutUpdate))
 
-	// Instance name in applyUpdatesToInstances request must include zone
-	instanceName, err := findInstanceName(d, config)
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return err
+    }
 
-	obj = make(map[string]interface{})
-	obj["instances"] = []string{instanceName}
+// Instance name in applyUpdatesToInstances request must include zone
+instanceName, err := findInstanceName(d, config)
+if err != nil {
+	return err
+}
 
-	minAction := d.Get("minimal_action")
-	if minAction == "" {
-		minAction = "NONE"
-	}
-	obj["minimalAction"] = minAction
+obj = make(map[string]interface{})
+obj["instances"] = []string{instanceName}
 
-	mostDisruptiveAction := d.Get("most_disruptive_action_allowed")
-	if mostDisruptiveAction != "" {
-		mostDisruptiveAction = "REPLACE"
-	}
-	obj["mostDisruptiveActionAllowed"] = mostDisruptiveAction
+minAction := d.Get("minimal_action")
+if minAction == "" {
+	minAction = "NONE"
+}
+obj["minimalAction"] = minAction
 
-	url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/applyUpdatesToInstances")
-	if err != nil {
-		return err
-	}
+mostDisruptiveAction := d.Get("most_disruptive_action_allowed")
+if mostDisruptiveAction != "" {
+	mostDisruptiveAction = "REPLACE"
+}
+obj["mostDisruptiveActionAllowed"] = mostDisruptiveAction
 
-	log.Printf("[DEBUG] Applying updates to PerInstanceConfig %q: %#v", d.Id(), obj)
-	res, err = sendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/applyUpdatesToInstances")
+if err != nil {
+	return err
+}
 
-	if err != nil {
-		return fmt.Errorf("Error updating PerInstanceConfig %q: %s", d.Id(), err)
-	}
+log.Printf("[DEBUG] Applying updates to PerInstanceConfig %q: %#v", d.Id(), obj)
+res, err = sendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
-	err = computeOperationWaitTime(
-		config, res, project, "Applying update to PerInstanceConfig", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+if err != nil {
+	return fmt.Errorf("Error updating PerInstanceConfig %q: %s", d.Id(), err)
+}
 
-	if err != nil {
-		return err
-	}
-	return resourceComputeRegionPerInstanceConfigRead(d, meta)
+err = computeOperationWaitTime(
+	config, res, project, "Applying update to PerInstanceConfig", userAgent,
+	d.Timeout(schema.TimeoutUpdate))
+
+if err != nil {
+	return err
+}
+    return resourceComputeRegionPerInstanceConfigRead(d, meta)
 }
 
 func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -498,7 +517,7 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 		err = PollingWaitTime(resourceComputeRegionPerInstanceConfigPollRead(d, meta), PollCheckInstanceConfigDeleted, "Deleting RegionPerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1)
 		if err != nil {
 			return fmt.Errorf("Error waiting for delete on RegionPerInstanceConfig %q: %s", d.Id(), err)
-		}
+		}	
 	}
 
 	log.Printf("[DEBUG] Finished deleting RegionPerInstanceConfig %q: %#v", d.Id(), res)
@@ -506,61 +525,61 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 }
 
 func resourceComputeRegionPerInstanceConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/instanceGroupManagers/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
-		"(?P<region>[^/]+)/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
-		"(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/instanceGroupManagers/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
+        "(?P<region>[^/]+)/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
+        "(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	// Explicitly set virtual fields to default values on import
-	if err := d.Set("minimal_action", "NONE"); err != nil {
-		return nil, fmt.Errorf("Error setting minimal_action: %s", err)
-	}
-	if err := d.Set("most_disruptive_allowed_action", "REPLACE"); err != nil {
-		return nil, fmt.Errorf("Error setting most_disruptive_allowed_action: %s", err)
-	}
-	if err := d.Set("remove_instance_state_on_destroy", false); err != nil {
-		return nil, fmt.Errorf("Error setting remove_instance_state_on_destroy: %s", err)
-	}
-
-	return []*schema.ResourceData{d}, nil
+    // Explicitly set virtual fields to default values on import
+    if err := d.Set("minimal_action", "NONE"); err != nil {
+    	return nil, fmt.Errorf("Error setting minimal_action: %s", err)
+    }
+      if err := d.Set("most_disruptive_allowed_action", "REPLACE"); err != nil {
+    	return nil, fmt.Errorf("Error setting most_disruptive_allowed_action: %s", err)
+    }
+      if err := d.Set("remove_instance_state_on_destroy", false); err != nil {
+    	return nil, fmt.Errorf("Error setting remove_instance_state_on_destroy: %s", err)
+    }
+  
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenNestedComputeRegionPerInstanceConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenNestedComputeRegionPerInstanceConfigPreservedState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["metadata"] =
-		flattenNestedComputeRegionPerInstanceConfigPreservedStateMetadata(original["metadata"], d, config)
-	transformed["disk"] =
-		flattenNestedComputeRegionPerInstanceConfigPreservedStateDisk(original["disks"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["metadata"] =
+    flattenNestedComputeRegionPerInstanceConfigPreservedStateMetadata(original["metadata"], d, config)
+              transformed["disk"] =
+    flattenNestedComputeRegionPerInstanceConfigPreservedStateDisk(original["disks"], d, config)
+        return []interface{}{transformed}
 }
-func flattenNestedComputeRegionPerInstanceConfigPreservedStateMetadata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenNestedComputeRegionPerInstanceConfigPreservedStateMetadata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenNestedComputeRegionPerInstanceConfigPreservedStateDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenNestedComputeRegionPerInstanceConfigPreservedStateDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -575,53 +594,64 @@ func flattenNestedComputeRegionPerInstanceConfigPreservedStateDisk(v interface{}
 		transformed = append(transformed, map[string]interface{}{
 			"device_name": devName,
 			"delete_rule": diskObj["autoDelete"],
-			"source":      source,
-			"mode":        diskObj["mode"],
+			"source": source,
+			"mode": diskObj["mode"],
 		})
 	}
 	return transformed
 }
 
+  
+
+
+
+
 func expandNestedComputeRegionPerInstanceConfigName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRegionPerInstanceConfigPreservedState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedMetadata, err := expandNestedComputeRegionPerInstanceConfigPreservedStateMetadata(original["metadata"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMetadata); val.IsValid() && !isEmptyValue(val) {
-		transformed["metadata"] = transformedMetadata
-	}
+      transformedMetadata, err := expandNestedComputeRegionPerInstanceConfigPreservedStateMetadata(original["metadata"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMetadata); val.IsValid() && !isEmptyValue(val) {
+        transformed["metadata"] = transformedMetadata      }
 
-	transformedDisk, err := expandNestedComputeRegionPerInstanceConfigPreservedStateDisk(original["disk"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDisk); val.IsValid() && !isEmptyValue(val) {
-		transformed["disks"] = transformedDisk
-	}
+      transformedDisk, err := expandNestedComputeRegionPerInstanceConfigPreservedStateDisk(original["disk"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDisk); val.IsValid() && !isEmptyValue(val) {
+        transformed["disks"] = transformedDisk      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandNestedComputeRegionPerInstanceConfigPreservedStateMetadata(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+  if v == nil {
+    return map[string]string{}, nil
+  }
+  m := make(map[string]string)
+  for k, val := range v.(map[string]interface{}) {
+    m[k] = val.(string)
+  }
+  return m, nil
 }
+
 
 func expandNestedComputeRegionPerInstanceConfigPreservedStateDisk(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == nil {
@@ -653,69 +683,71 @@ func expandNestedComputeRegionPerInstanceConfigPreservedStateDisk(v interface{},
 	return req, nil
 }
 
+
 func resourceComputeRegionPerInstanceConfigEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	wrappedReq := map[string]interface{}{
-		"instances": []interface{}{obj},
-	}
-	return wrappedReq, nil
+wrappedReq := map[string]interface{}{
+	"instances": []interface{}{obj},
+}
+return wrappedReq, nil
 }
 
 func resourceComputeRegionPerInstanceConfigUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// updates and creates use different wrapping object names
-	wrappedReq := map[string]interface{}{
-		"perInstanceConfigs": []interface{}{obj},
-	}
-	return wrappedReq, nil
+// updates and creates use different wrapping object names
+wrappedReq := map[string]interface{}{
+	"perInstanceConfigs": []interface{}{obj},
+}
+return wrappedReq, nil
 }
 
 func flattenNestedComputeRegionPerInstanceConfig(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	var v interface{}
-	var ok bool
+  var v interface{}
+  var ok bool
 
-	v, ok = res["items"]
-	if !ok || v == nil {
-		return nil, nil
-	}
+    v, ok = res["items"]
+  if !ok || v == nil {
+    return nil,nil
+  }
 
-	switch v.(type) {
-	case []interface{}:
-		break
-	case map[string]interface{}:
-		// Construct list out of single nested resource
-		v = []interface{}{v}
-	default:
-		return nil, fmt.Errorf("expected list or map for value items. Actual value: %v", v)
-	}
+  switch v.(type) {
+  case []interface{}:
+    break
+  case map[string]interface{}:
+    // Construct list out of single nested resource
+    v = []interface{}{v}
+  default:
+    return nil, fmt.Errorf("expected list or map for value items. Actual value: %v", v)
+  }
 
-	_, item, err := resourceComputeRegionPerInstanceConfigFindNestedObjectInList(d, meta, v.([]interface{}))
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
+  _, item, err := resourceComputeRegionPerInstanceConfigFindNestedObjectInList(d, meta, v.([]interface{}))
+  if err != nil {
+    return nil, err
+  } 
+  return item, nil
 }
 
 func resourceComputeRegionPerInstanceConfigFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandNestedComputeRegionPerInstanceConfigName(d.Get("name"), d, meta.(*Config))
-	if err != nil {
-		return -1, nil, err
-	}
-	expectedFlattenedName := flattenNestedComputeRegionPerInstanceConfigName(expectedName, d, meta.(*Config))
-
-	// Search list for this resource.
-	for idx, itemRaw := range items {
-		if itemRaw == nil {
-			continue
-		}
-		item := itemRaw.(map[string]interface{})
-
-		itemName := flattenNestedComputeRegionPerInstanceConfigName(item["name"], d, meta.(*Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
-			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
-			continue
-		}
-		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
-		return idx, item, nil
-	}
-	return -1, nil, nil
+      expectedName, err := expandNestedComputeRegionPerInstanceConfigName(d.Get("name"), d, meta.(*Config))
+  if err != nil {
+    return -1, nil, err
+  }
+    expectedFlattenedName := flattenNestedComputeRegionPerInstanceConfigName(expectedName, d, meta.(*Config))
+  
+  // Search list for this resource.
+  for idx, itemRaw := range items {
+    if itemRaw == nil {
+      continue
+    }
+        item := itemRaw.(map[string]interface{})
+    
+    
+        itemName := flattenNestedComputeRegionPerInstanceConfigName(item["name"], d, meta.(*Config))
+    // isEmptyValue check so that if one is nil and the other is "", that's considered a match
+    if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+      log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
+      continue
+    }
+        log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
+    return idx, item, nil
+  }
+  return -1, nil, nil
 }

@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var PrivatecaCaPoolIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"location": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"ca_pool": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type PrivatecaCaPoolIamUpdater struct {
-	project  string
+	project string
 	location string
-	caPool   string
-	d        TerraformResourceData
-	Config   *Config
+	caPool string
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func PrivatecaCaPoolIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func PrivatecaCaPoolIamUpdaterProducer(d TerraformResourceData, config *Config) 
 		values["ca_pool"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)", "(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Get("ca_pool").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)","(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)","(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Get("ca_pool").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func PrivatecaCaPoolIamUpdaterProducer(d TerraformResourceData, config *Config) 
 	}
 
 	u := &PrivatecaCaPoolIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		location: values["location"],
-		caPool:   values["ca_pool"],
-		d:        d,
-		Config:   config,
+		caPool: values["ca_pool"],
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func PrivatecaCaPoolIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	location, _ := getLocation(d, config)
 	if location != "" {
-		values["location"] = location
-	}
+		values["location"] = location	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)", "(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)","(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)","(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &PrivatecaCaPoolIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		location: values["location"],
-		caPool:   values["ca_pool"],
-		d:        d,
-		Config:   config,
+		caPool: values["ca_pool"],
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("ca_pool", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting ca_pool: %s", err)
@@ -175,6 +180,7 @@ func (u *PrivatecaCaPoolIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *PrivatecaCaPoolIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *PrivatecaCaPoolIamUpdater) qualifyCaPoolUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{PrivatecaBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/caPools/%s", u.project, u.location, u.caPool), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *PrivatecaCaPoolIamUpdater) GetResourceId() string {

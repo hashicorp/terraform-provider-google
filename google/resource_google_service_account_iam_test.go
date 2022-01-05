@@ -225,6 +225,7 @@ func TestAccServiceAccountIamPolicy_withCondition(t *testing.T) {
 	})
 }
 
+
 // Ensure that our tests only create the expected number of bindings.
 // The content of the binding is tested in the import tests.
 func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindings int) resource.TestCheckFunc {

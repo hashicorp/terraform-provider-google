@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,7 +28,7 @@ import (
 var StorageBucketIamSchema = map[string]*schema.Schema{
 	"bucket": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: StorageBucketDiffSuppress,
 	},
@@ -36,8 +40,8 @@ func StorageBucketDiffSuppress(_, old, new string, _ *schema.ResourceData) bool 
 
 type StorageBucketIamUpdater struct {
 	bucket string
-	d      TerraformResourceData
-	Config *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -47,8 +51,9 @@ func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *Config) (R
 		values["bucket"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)", "(?P<bucket>[^/]+)"}, d, config, d.Get("bucket").(string))
+	m, err := getImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)","(?P<bucket>[^/]+)"}, d, config, d.Get("bucket").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +64,8 @@ func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *Config) (R
 
 	u := &StorageBucketIamUpdater{
 		bucket: values["bucket"],
-		d:      d,
-		Config: config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("bucket", u.GetResourceId()); err != nil {
@@ -73,19 +78,20 @@ func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *Config) (R
 func StorageBucketIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)", "(?P<bucket>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)","(?P<bucket>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &StorageBucketIamUpdater{
 		bucket: values["bucket"],
-		d:      d,
-		Config: config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("bucket", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting bucket: %s", err)
@@ -101,7 +107,7 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 	}
 
 	var obj map[string]interface{}
-	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", iamPolicyVersion)})
+	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d",  iamPolicyVersion )})
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +137,7 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return err
 	}
 
+
 	obj := json
 
 	url, err := u.qualifyBucketUrl("iam")
@@ -153,11 +160,11 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *StorageBucketIamUpdater) qualifyBucketUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{StorageBasePath}}%s/%s", fmt.Sprintf("b/%s", u.bucket), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *StorageBucketIamUpdater) GetResourceId() string {

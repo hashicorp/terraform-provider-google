@@ -15,45 +15,52 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+
 func resourceStorageBucketAccessControl() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceStorageBucketAccessControlCreate,
-		Read:   resourceStorageBucketAccessControlRead,
-		Update: resourceStorageBucketAccessControlUpdate,
-		Delete: resourceStorageBucketAccessControlDelete,
+    return &schema.Resource{
+        Create: resourceStorageBucketAccessControlCreate,
+        Read: resourceStorageBucketAccessControlRead,
+        Update: resourceStorageBucketAccessControlUpdate,
+        Delete: resourceStorageBucketAccessControlDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceStorageBucketAccessControlImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceStorageBucketAccessControlImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"bucket": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `The name of the bucket.`,
-			},
-			"entity": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The entity holding the permission, in one of the following forms:
+
+
+        Schema: map[string]*schema.Schema{
+"bucket": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The name of the bucket.`,
+},
+"entity": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The entity holding the permission, in one of the following forms:
   user-userId
   user-email
   group-groupId
@@ -68,281 +75,308 @@ Examples:
   group-example@googlegroups.com.
   To refer to all members of the Google Apps for Business domain
   example.com, the entity would be domain-example.com.`,
-			},
-			"role": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"OWNER", "READER", "WRITER", ""}, false),
-				Description:  `The access permission for the entity. Possible values: ["OWNER", "READER", "WRITER"]`,
-			},
-			"domain": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The domain associated with the entity.`,
-			},
-			"email": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The email address associated with the entity.`,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+"role": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"OWNER","READER","WRITER",""}, false),
+	Description: `The access permission for the entity. Possible values: ["OWNER", "READER", "WRITER"]`,
+},
+"domain": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The domain associated with the entity.`,
+},
+"email": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The email address associated with the entity.`,
+},
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceStorageBucketAccessControlCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	bucketProp, err := expandStorageBucketAccessControlBucket(d.Get("bucket"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("bucket"); !isEmptyValue(reflect.ValueOf(bucketProp)) && (ok || !reflect.DeepEqual(v, bucketProp)) {
-		obj["bucket"] = bucketProp
-	}
-	entityProp, err := expandStorageBucketAccessControlEntity(d.Get("entity"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("entity"); !isEmptyValue(reflect.ValueOf(entityProp)) && (ok || !reflect.DeepEqual(v, entityProp)) {
-		obj["entity"] = entityProp
-	}
-	roleProp, err := expandStorageBucketAccessControlRole(d.Get("role"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
-		obj["role"] = roleProp
-	}
+    obj := make(map[string]interface{})
+        bucketProp, err := expandStorageBucketAccessControlBucket(d.Get( "bucket" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("bucket"); !isEmptyValue(reflect.ValueOf(bucketProp)) && (ok || !reflect.DeepEqual(v, bucketProp)) {
+        obj["bucket"] = bucketProp
+    }
+        entityProp, err := expandStorageBucketAccessControlEntity(d.Get( "entity" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("entity"); !isEmptyValue(reflect.ValueOf(entityProp)) && (ok || !reflect.DeepEqual(v, entityProp)) {
+        obj["entity"] = entityProp
+    }
+        roleProp, err := expandStorageBucketAccessControlRole(d.Get( "role" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+        obj["role"] = roleProp
+    }
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl")
-	if err != nil {
-		return err
-	}
+    lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	log.Printf("[DEBUG] Creating new BucketAccessControl: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Creating new BucketAccessControl: %#v", obj)
+    billingProject := ""
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating BucketAccessControl: %s", err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating BucketAccessControl %q: %#v", d.Id(), res)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return resourceStorageBucketAccessControlRead(d, meta)
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating BucketAccessControl: %s", err)
+    }
+                                                                
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
+
+
+
+
+    log.Printf("[DEBUG] Finished creating BucketAccessControl %q: %#v", d.Id(), res)
+
+    return resourceStorageBucketAccessControlRead(d, meta)
 }
 
+
 func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("StorageBucketAccessControl %q", d.Id()))
-	}
 
-	if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
-	if err := d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return nil
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("StorageBucketAccessControl %q", d.Id()))
+    }
+
+
+
+
+    if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d, config)); err != nil {
+        return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+    }
+    if err := d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d, config)); err != nil {
+        return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+    }
+    if err := d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d, config)); err != nil {
+        return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+    }
+    if err := d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d, config)); err != nil {
+        return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+    }
+    if err := d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d, config)); err != nil {
+        return fmt.Errorf("Error reading BucketAccessControl: %s", err)
+    }
+
+    return nil
 }
 
 func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	obj := make(map[string]interface{})
-	bucketProp, err := expandStorageBucketAccessControlBucket(d.Get("bucket"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("bucket"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bucketProp)) {
-		obj["bucket"] = bucketProp
-	}
-	entityProp, err := expandStorageBucketAccessControlEntity(d.Get("entity"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("entity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entityProp)) {
-		obj["entity"] = entityProp
-	}
-	roleProp, err := expandStorageBucketAccessControlRole(d.Get("role"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roleProp)) {
-		obj["role"] = roleProp
-	}
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            bucketProp, err := expandStorageBucketAccessControlBucket(d.Get( "bucket" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("bucket"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bucketProp)) {
+        obj["bucket"] = bucketProp
+    }
+            entityProp, err := expandStorageBucketAccessControlEntity(d.Get( "entity" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("entity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entityProp)) {
+        obj["entity"] = entityProp
+    }
+            roleProp, err := expandStorageBucketAccessControlRole(d.Get( "role" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+        obj["role"] = roleProp
+    }
 
-	log.Printf("[DEBUG] Updating BucketAccessControl %q: %#v", d.Id(), obj)
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return fmt.Errorf("Error updating BucketAccessControl %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating BucketAccessControl %q: %#v", d.Id(), res)
-	}
+    log.Printf("[DEBUG] Updating BucketAccessControl %q: %#v", d.Id(), obj)
 
-	return resourceStorageBucketAccessControlRead(d, meta)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return fmt.Errorf("Error updating BucketAccessControl %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating BucketAccessControl %q: %#v", d.Id(), res)
+    }
+
+
+    return resourceStorageBucketAccessControlRead(d, meta)
 }
 
 func resourceStorageBucketAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
-	if err != nil {
-		return err
-	}
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting BucketAccessControl %q", d.Id())
+    lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "BucketAccessControl")
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting BucketAccessControl %q", d.Id())
 
-	log.Printf("[DEBUG] Finished deleting BucketAccessControl %q: %#v", d.Id(), res)
-	return nil
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "BucketAccessControl")
+    }
+
+
+    log.Printf("[DEBUG] Finished deleting BucketAccessControl %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceStorageBucketAccessControlImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"(?P<bucket>[^/]+)/(?P<entity>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "(?P<bucket>[^/]+)/(?P<entity>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenStorageBucketAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenStorageBucketAccessControlDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenStorageBucketAccessControlEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenStorageBucketAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenStorageBucketAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
 
 func expandStorageBucketAccessControlBucket(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
+
+
 func expandStorageBucketAccessControlEntity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
 func expandStorageBucketAccessControlRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

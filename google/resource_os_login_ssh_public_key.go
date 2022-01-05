@@ -15,302 +15,339 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+
 func resourceOSLoginSSHPublicKey() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceOSLoginSSHPublicKeyCreate,
-		Read:   resourceOSLoginSSHPublicKeyRead,
-		Update: resourceOSLoginSSHPublicKeyUpdate,
-		Delete: resourceOSLoginSSHPublicKeyDelete,
+    return &schema.Resource{
+        Create: resourceOSLoginSSHPublicKeyCreate,
+        Read: resourceOSLoginSSHPublicKeyRead,
+        Update: resourceOSLoginSSHPublicKeyUpdate,
+        Delete: resourceOSLoginSSHPublicKeyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceOSLoginSSHPublicKeyImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceOSLoginSSHPublicKeyImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"key": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Public key text in SSH format, defined by RFC4253 section 6.6.`,
-			},
-			"user": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The user email.`,
-			},
-			"expiration_time_usec": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `An expiration time in microseconds since epoch.`,
-			},
-			"project": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The project ID of the Google Cloud Platform project.`,
-			},
-			"fingerprint": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The SHA-256 fingerprint of the SSH public key.`,
-			},
-		},
-		UseJSONNumber: true,
-	}
+
+
+        Schema: map[string]*schema.Schema{
+"key": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Public key text in SSH format, defined by RFC4253 section 6.6.`,
+},
+"user": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The user email.`,
+},
+"expiration_time_usec": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `An expiration time in microseconds since epoch.`,
+},
+"project": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	Description: `The project ID of the Google Cloud Platform project.`,
+},
+"fingerprint": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `The SHA-256 fingerprint of the SSH public key.`,
+},
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
+
+    obj := make(map[string]interface{})
+        keyProp, err := expandOSLoginSSHPublicKeyKey(d.Get( "key" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("key"); !isEmptyValue(reflect.ValueOf(keyProp)) && (ok || !reflect.DeepEqual(v, keyProp)) {
+        obj["key"] = keyProp
+    }
+        expirationTimeUsecProp, err := expandOSLoginSSHPublicKeyExpirationTimeUsec(d.Get( "expiration_time_usec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("expiration_time_usec"); !isEmptyValue(reflect.ValueOf(expirationTimeUsecProp)) && (ok || !reflect.DeepEqual(v, expirationTimeUsecProp)) {
+        obj["expirationTimeUsec"] = expirationTimeUsecProp
+    }
+
+
+
+    url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}:importSshPublicKey")
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Creating new SSHPublicKey: %#v", obj)
+    billingProject := ""
+
+
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+// Don't use `getProject()` because we only want to set the project in the URL
+// if the user set it explicitly on the resource.
+if p, ok := d.GetOk("project"); ok {
+	url, err = addQueryParams(url, map[string]string{"projectId": p.(string)})
 	if err != nil {
 		return err
 	}
+}
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating SSHPublicKey: %s", err)
+    }
+                                        
+    // Store the ID now
+    id, err := replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	obj := make(map[string]interface{})
-	keyProp, err := expandOSLoginSSHPublicKeyKey(d.Get("key"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("key"); !isEmptyValue(reflect.ValueOf(keyProp)) && (ok || !reflect.DeepEqual(v, keyProp)) {
-		obj["key"] = keyProp
-	}
-	expirationTimeUsecProp, err := expandOSLoginSSHPublicKeyExpirationTimeUsec(d.Get("expiration_time_usec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("expiration_time_usec"); !isEmptyValue(reflect.ValueOf(expirationTimeUsecProp)) && (ok || !reflect.DeepEqual(v, expirationTimeUsecProp)) {
-		obj["expirationTimeUsec"] = expirationTimeUsecProp
-	}
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}:importSshPublicKey")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new SSHPublicKey: %#v", obj)
-	billingProject := ""
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	// Don't use `getProject()` because we only want to set the project in the URL
-	// if the user set it explicitly on the resource.
-	if p, ok := d.GetOk("project"); ok {
-		url, err = addQueryParams(url, map[string]string{"projectId": p.(string)})
-		if err != nil {
-			return err
-		}
-	}
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating SSHPublicKey: %s", err)
-	}
-
-	// Store the ID now
-	id, err := replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
-
-	loginProfile, ok := res["loginProfile"]
-	if !ok {
-		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
-	}
-
-	// `fingerprint` is autogenerated from the api so needs to be set post-create
-	sshPublicKeys := loginProfile.(map[string]interface{})["sshPublicKeys"]
-	for _, sshPublicKey := range sshPublicKeys.(map[string]interface{}) {
-		if sshPublicKey.(map[string]interface{})["key"].(string) == d.Get("key") {
-			if err := d.Set("fingerprint", sshPublicKey.(map[string]interface{})["fingerprint"].(string)); err != nil {
-				return fmt.Errorf("Error setting fingerprint: %s", err)
-			}
-			break
-		}
-	}
-
-	// Store the ID now
-	id, err = replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
-
-	log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
-
-	return resourceOSLoginSSHPublicKeyRead(d, meta)
+loginProfile, ok := res["loginProfile"]
+if !ok {
+  return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 }
 
+// `fingerprint` is autogenerated from the api so needs to be set post-create
+sshPublicKeys := loginProfile.(map[string]interface{})["sshPublicKeys"]
+for _,sshPublicKey := range sshPublicKeys.(map[string]interface{}) {
+  if sshPublicKey.(map[string]interface{})["key"].(string)== d.Get("key") {
+    if err := d.Set("fingerprint", sshPublicKey.(map[string]interface{})["fingerprint"].(string)); err != nil {
+    	return fmt.Errorf("Error setting fingerprint: %s", err)
+    }
+    break
+  }
+}
+
+// Store the ID now
+id, err = replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
+if err != nil {
+	return fmt.Errorf("Error constructing id: %s", err)
+}
+d.SetId(id)
+
+
+    log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
+
+    return resourceOSLoginSSHPublicKeyRead(d, meta)
+}
+
+
 func resourceOSLoginSSHPublicKeyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("OSLoginSSHPublicKey %q", d.Id()))
-	}
 
-	if err := d.Set("key", flattenOSLoginSSHPublicKeyKey(res["key"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
-	}
-	if err := d.Set("expiration_time_usec", flattenOSLoginSSHPublicKeyExpirationTimeUsec(res["expirationTimeUsec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenOSLoginSSHPublicKeyFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return nil
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("OSLoginSSHPublicKey %q", d.Id()))
+    }
+
+
+
+
+    if err := d.Set("key", flattenOSLoginSSHPublicKeyKey(res["key"], d, config)); err != nil {
+        return fmt.Errorf("Error reading SSHPublicKey: %s", err)
+    }
+    if err := d.Set("expiration_time_usec", flattenOSLoginSSHPublicKeyExpirationTimeUsec(res["expirationTimeUsec"], d, config)); err != nil {
+        return fmt.Errorf("Error reading SSHPublicKey: %s", err)
+    }
+    if err := d.Set("fingerprint", flattenOSLoginSSHPublicKeyFingerprint(res["fingerprint"], d, config)); err != nil {
+        return fmt.Errorf("Error reading SSHPublicKey: %s", err)
+    }
+
+    return nil
 }
 
 func resourceOSLoginSSHPublicKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	obj := make(map[string]interface{})
-	expirationTimeUsecProp, err := expandOSLoginSSHPublicKeyExpirationTimeUsec(d.Get("expiration_time_usec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("expiration_time_usec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expirationTimeUsecProp)) {
-		obj["expirationTimeUsec"] = expirationTimeUsecProp
-	}
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Updating SSHPublicKey %q: %#v", d.Id(), obj)
-	updateMask := []string{}
+    obj := make(map[string]interface{})
+            expirationTimeUsecProp, err := expandOSLoginSSHPublicKeyExpirationTimeUsec(d.Get( "expiration_time_usec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("expiration_time_usec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expirationTimeUsecProp)) {
+        obj["expirationTimeUsec"] = expirationTimeUsecProp
+    }
 
-	if d.HasChange("expiration_time_usec") {
-		updateMask = append(updateMask, "expirationTimeUsec")
-	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
-	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return fmt.Errorf("Error updating SSHPublicKey %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating SSHPublicKey %q: %#v", d.Id(), res)
-	}
+    log.Printf("[DEBUG] Updating SSHPublicKey %q: %#v", d.Id(), obj)
+updateMask := []string{}
 
-	return resourceOSLoginSSHPublicKeyRead(d, meta)
+if d.HasChange("expiration_time_usec") {
+  updateMask = append(updateMask, "expirationTimeUsec")
+}
+// updateMask is a URL parameter but not present in the schema, so replaceVars
+// won't set it
+url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+if err != nil {
+  return err
+}
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return fmt.Errorf("Error updating SSHPublicKey %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating SSHPublicKey %q: %#v", d.Id(), res)
+    }
+
+
+    return resourceOSLoginSSHPublicKeyRead(d, meta)
 }
 
 func resourceOSLoginSSHPublicKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
-	if err != nil {
-		return err
-	}
+    billingProject := ""
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting SSHPublicKey %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "SSHPublicKey")
-	}
+    url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	log.Printf("[DEBUG] Finished deleting SSHPublicKey %q: %#v", d.Id(), res)
-	return nil
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting SSHPublicKey %q", d.Id())
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "SSHPublicKey")
+    }
+
+
+    log.Printf("[DEBUG] Finished deleting SSHPublicKey %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceOSLoginSSHPublicKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"users/(?P<user>[^/]+)/sshPublicKeys/(?P<fingerprint>[^/]+)",
-		"(?P<user>[^/]+)/(?P<fingerprint>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "users/(?P<user>[^/]+)/sshPublicKeys/(?P<fingerprint>[^/]+)",
+        "(?P<user>[^/]+)/(?P<fingerprint>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenOSLoginSSHPublicKeyKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenOSLoginSSHPublicKeyExpirationTimeUsec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenOSLoginSSHPublicKeyFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandOSLoginSSHPublicKeyKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
 func expandOSLoginSSHPublicKeyExpirationTimeUsec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

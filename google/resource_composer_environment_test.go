@@ -29,9 +29,9 @@ func TestComposerImageVersionDiffSuppress(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		name     string
-		old      string
-		new      string
+		name string
+		old string
+		new string
 		expected bool
 	}{
 		{"matches", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1.10.0", true},
@@ -291,72 +291,74 @@ func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
 }
 
 func TestAccComposerEnvironment_withEncryptionConfig(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	kms := BootstrapKMSKeyInLocation(t, "us-central1")
-	pid := getTestProjectFromEnv()
-	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
-	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
-	subnetwork := network + "-1"
+  kms := BootstrapKMSKeyInLocation(t, "us-central1")
+  pid := getTestProjectFromEnv()
+  envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+  network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
+  subnetwork := network + "-1"
 
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComposerEnvironment_encryptionCfg(pid, envName, kms.CryptoKey.Name, network, subnetwork),
-			},
-			{
-				ResourceName:      "google_composer_environment.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			// This is a terrible clean-up step in order to get destroy to succeed,
-			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
-			{
-				PlanOnly:           true,
-				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_encryptionCfg(pid, envName, kms.CryptoKey.Name, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
-			},
-		},
-	})
+  vcrTest(t, resource.TestCase{
+    PreCheck:     func() { testAccPreCheck(t) },
+    Providers:    testAccProviders,
+    CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+    Steps: []resource.TestStep{
+      {
+        Config: testAccComposerEnvironment_encryptionCfg(pid, envName, kms.CryptoKey.Name, network, subnetwork),
+      },
+      {
+        ResourceName:      "google_composer_environment.test",
+        ImportState:       true,
+        ImportStateVerify: true,
+      },
+      // This is a terrible clean-up step in order to get destroy to succeed,
+      // due to dangling firewall rules left by the Composer Environment blocking network deletion.
+      // TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+      {
+        PlanOnly:           true,
+        ExpectNonEmptyPlan: false,
+        Config:             testAccComposerEnvironment_encryptionCfg(pid, envName, kms.CryptoKey.Name, network, subnetwork),
+        Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+      },
+    },
+  })
 }
+
 
 func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
-	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
-	subnetwork := network + "-1"
+  envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+  network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
+  subnetwork := network + "-1"
 
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
-			},
-			{
-				ResourceName:      "google_composer_environment.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			// This is a terrible clean-up step in order to get destroy to succeed,
-			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
-			{
-				PlanOnly:           true,
-				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_composerV2(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
-			},
-		},
-	})
+  vcrTest(t, resource.TestCase{
+    PreCheck:     func() { testAccPreCheck(t) },
+    Providers:    testAccProviders,
+    CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+    Steps: []resource.TestStep{
+      {
+        Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
+      },
+      {
+        ResourceName:      "google_composer_environment.test",
+        ImportState:       true,
+        ImportStateVerify: true,
+      },
+      // This is a terrible clean-up step in order to get destroy to succeed,
+      // due to dangling firewall rules left by the Composer Environment blocking network deletion.
+      // TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+      {
+        PlanOnly:           true,
+        ExpectNonEmptyPlan: false,
+        Config:             testAccComposerEnvironment_composerV2(envName, network, subnetwork),
+        Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+      },
+    },
+  })
 }
+
 
 func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 	t.Parallel()
@@ -868,7 +870,7 @@ resource "google_compute_subnetwork" "test" {
 }
 
 func testAccComposerEnvironment_encryptionCfg(pid, name, kmsKey, network, subnetwork string) string {
-	return fmt.Sprintf(`
+  return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"
 }
@@ -933,6 +935,7 @@ resource "google_compute_subnetwork" "test" {
 }
 `, pid, kmsKey, name, kmsKey, network, subnetwork)
 }
+
 
 func testAccComposerEnvironment_composerV2(envName, network, subnetwork string) string {
 	return fmt.Sprintf(`
@@ -1009,6 +1012,7 @@ resource "google_compute_subnetwork" "test" {
 `, envName, network, subnetwork)
 }
 
+
 func testAccComposerEnvironment_update(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 data "google_composer_image_versions" "all" {
@@ -1076,6 +1080,7 @@ resource "google_compute_subnetwork" "test" {
 }
 `, name, network, subnetwork)
 }
+
 
 func testAccComposerEnvironment_updateComposerV2(name, network, subnetwork string) string {
 	return fmt.Sprintf(`

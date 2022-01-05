@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,29 +27,30 @@ import (
 
 var ComputeRegionDiskIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"region": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"name": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type ComputeRegionDiskIamUpdater struct {
 	project string
-	region  string
-	name    string
+	region string
+	name string
 	d       TerraformResourceData
 	Config  *Config
 }
@@ -71,8 +76,9 @@ func ComputeRegionDiskIamUpdaterProducer(d TerraformResourceData, config *Config
 		values["name"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/disks/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config, d.Get("name").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/disks/(?P<name>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)","(?P<region>[^/]+)/(?P<name>[^/]+)","(?P<name>[^/]+)"}, d, config, d.Get("name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +89,8 @@ func ComputeRegionDiskIamUpdaterProducer(d TerraformResourceData, config *Config
 
 	u := &ComputeRegionDiskIamUpdater{
 		project: values["project"],
-		region:  values["region"],
-		name:    values["name"],
+		region: values["region"],
+		name: values["name"],
 		d:       d,
 		Config:  config,
 	}
@@ -107,27 +113,26 @@ func ComputeRegionDiskIdParseFunc(d *schema.ResourceData, config *Config) error 
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	region, _ := getRegion(d, config)
 	if region != "" {
-		values["region"] = region
-	}
+		values["region"] = region	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/disks/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/disks/(?P<name>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)","(?P<region>[^/]+)/(?P<name>[^/]+)","(?P<name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &ComputeRegionDiskIamUpdater{
 		project: values["project"],
-		region:  values["region"],
-		name:    values["name"],
+		region: values["region"],
+		name: values["name"],
 		d:       d,
 		Config:  config,
 	}
@@ -175,6 +180,7 @@ func (u *ComputeRegionDiskIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *ComputeRegionDiskIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *ComputeRegionDiskIamUpdater) qualifyRegionDiskUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/regions/%s/disks/%s", u.project, u.region, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *ComputeRegionDiskIamUpdater) GetResourceId() string {

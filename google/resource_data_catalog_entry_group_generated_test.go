@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogEntryGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogEntryGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_entry_group.basic_entry_group",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_entry_group.basic_entry_group",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region", "entry_group_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
   entry_group_id = "tf_test_my_group%{random_suffix}"
 }
@@ -57,32 +56,32 @@ resource "google_data_catalog_entry_group" "basic_entry_group" {
 }
 
 func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogEntryGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogEntryGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_entry_group.basic_entry_group",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_entry_group.basic_entry_group",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region", "entry_group_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
   entry_group_id = "tf_test_my_group%{random_suffix}"
 
@@ -91,6 +90,7 @@ resource "google_data_catalog_entry_group" "basic_entry_group" {
 }
 `, context)
 }
+
 
 func testAccCheckDataCatalogEntryGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -102,24 +102,24 @@ func testAccCheckDataCatalogEntryGroupDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DataCatalogEntryGroup still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

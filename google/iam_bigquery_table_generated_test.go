@@ -18,21 +18,23 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccBigQueryTableIamBindingGenerated(t *testing.T) {
+																					func TestAccBigQueryTableIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/bigquery.dataOwner",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/bigquery.dataOwner",
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamBinding_basicGenerated(context),
 			},
@@ -59,15 +61,15 @@ func TestAccBigQueryTableIamBindingGenerated(t *testing.T) {
 func TestAccBigQueryTableIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/bigquery.dataOwner",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/bigquery.dataOwner",
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccBigQueryTableIamMember_basicGenerated(context),
@@ -85,15 +87,15 @@ func TestAccBigQueryTableIamMemberGenerated(t *testing.T) {
 func TestAccBigQueryTableIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/bigquery.dataOwner",
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/bigquery.dataOwner",
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamPolicy_basicGenerated(context),
 			},
@@ -115,6 +117,7 @@ func TestAccBigQueryTableIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccBigQueryTableIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

@@ -112,6 +112,7 @@ func computeOperationWaitTime(config *Config, res interface{}, project, activity
 	return OperationWait(w, activity, timeout, config.PollInterval)
 }
 
+
 // ComputeOperationError wraps compute.OperationError and implements the
 // error interface so it can be returned.
 type ComputeOperationError compute.OperationError

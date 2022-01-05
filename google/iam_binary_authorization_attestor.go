@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,24 +27,25 @@ import (
 
 var BinaryAuthorizationAttestorIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"attestor": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type BinaryAuthorizationAttestorIamUpdater struct {
-	project  string
+	project string
 	attestor string
-	d        TerraformResourceData
-	Config   *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func BinaryAuthorizationAttestorIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -57,8 +62,9 @@ func BinaryAuthorizationAttestorIamUpdaterProducer(d TerraformResourceData, conf
 		values["attestor"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)", "(?P<project>[^/]+)/(?P<attestor>[^/]+)", "(?P<attestor>[^/]+)"}, d, config, d.Get("attestor").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)","(?P<project>[^/]+)/(?P<attestor>[^/]+)","(?P<attestor>[^/]+)"}, d, config, d.Get("attestor").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +74,10 @@ func BinaryAuthorizationAttestorIamUpdaterProducer(d TerraformResourceData, conf
 	}
 
 	u := &BinaryAuthorizationAttestorIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		attestor: values["attestor"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -89,23 +95,23 @@ func BinaryAuthorizationAttestorIdParseFunc(d *schema.ResourceData, config *Conf
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)", "(?P<project>[^/]+)/(?P<attestor>[^/]+)", "(?P<attestor>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)","(?P<project>[^/]+)/(?P<attestor>[^/]+)","(?P<attestor>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &BinaryAuthorizationAttestorIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		attestor: values["attestor"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("attestor", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting attestor: %s", err)
@@ -151,6 +157,7 @@ func (u *BinaryAuthorizationAttestorIamUpdater) SetResourceIamPolicy(policy *clo
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -178,11 +185,11 @@ func (u *BinaryAuthorizationAttestorIamUpdater) SetResourceIamPolicy(policy *clo
 
 func (u *BinaryAuthorizationAttestorIamUpdater) qualifyAttestorUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{BinaryAuthorizationBasePath}}%s:%s", fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetResourceId() string {

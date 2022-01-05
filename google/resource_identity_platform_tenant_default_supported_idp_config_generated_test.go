@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTenantDefaultSupportedIdpConfigBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTenantDefaultSupportedIdpConfigBasicExample(context),
 			},
-			{
-				ResourceName:            "google_identity_platform_tenant_default_supported_idp_config.idp_config",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_identity_platform_tenant_default_supported_idp_config.idp_config",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"idp_id", "tenant"},
 			},
-		},
+				},
 	})
 }
 
 func testAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTenantDefaultSupportedIdpConfigBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
   display_name  = "tenant"
 }
@@ -64,6 +63,7 @@ resource "google_identity_platform_tenant_default_supported_idp_config" "idp_con
 `, context)
 }
 
+
 func testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -74,24 +74,24 @@ func testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroyProducer(
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("IdentityPlatformTenantDefaultSupportedIdpConfig still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

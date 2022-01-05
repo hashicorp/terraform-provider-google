@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var CloudRunServiceIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"location": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"service": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type CloudRunServiceIamUpdater struct {
-	project  string
+	project string
 	location string
-	service  string
-	d        TerraformResourceData
-	Config   *Config
+	service string
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func CloudRunServiceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func CloudRunServiceIamUpdaterProducer(d TerraformResourceData, config *Config) 
 		values["service"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service>[^/]+)","(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service>[^/]+)","(?P<location>[^/]+)/(?P<service>[^/]+)","(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func CloudRunServiceIamUpdaterProducer(d TerraformResourceData, config *Config) 
 	}
 
 	u := &CloudRunServiceIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		location: values["location"],
-		service:  values["service"],
-		d:        d,
-		Config:   config,
+		service: values["service"],
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func CloudRunServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	location, _ := getLocation(d, config)
 	if location != "" {
-		values["location"] = location
-	}
+		values["location"] = location	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service>[^/]+)","(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service>[^/]+)","(?P<location>[^/]+)/(?P<service>[^/]+)","(?P<service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &CloudRunServiceIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		location: values["location"],
-		service:  values["service"],
-		d:        d,
-		Config:   config,
+		service: values["service"],
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("service", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting service: %s", err)
@@ -175,6 +180,7 @@ func (u *CloudRunServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *CloudRunServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *CloudRunServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudRunBasePath}}%s:%s", fmt.Sprintf("v1/projects/%s/locations/%s/services/%s", u.project, u.location, u.service), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *CloudRunServiceIamUpdater) GetResourceId() string {

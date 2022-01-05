@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineDomainMappingDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckAppEngineDomainMappingDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(context),
 			},
-			{
-				ResourceName:            "google_app_engine_domain_mapping.domain_mapping",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_app_engine_domain_mapping.domain_mapping",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"override_strategy"},
 			},
-		},
+				},
 	})
 }
 
 func testAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_app_engine_domain_mapping" "domain_mapping" {
   domain_name = "tf-test-domain%{random_suffix}.gcp.tfacc.hashicorptest.com"
 
@@ -59,6 +58,7 @@ resource "google_app_engine_domain_mapping" "domain_mapping" {
 }
 `, context)
 }
+
 
 func testAccCheckAppEngineDomainMappingDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -70,24 +70,24 @@ func testAccCheckAppEngineDomainMappingDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("AppEngineDomainMapping still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

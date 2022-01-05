@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccHealthcareDicomStore_healthcareDicomStoreBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHealthcareDicomStoreDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckHealthcareDicomStoreDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareDicomStore_healthcareDicomStoreBasicExample(context),
 			},
-			{
-				ResourceName:            "google_healthcare_dicom_store.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_healthcare_dicom_store.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"self_link", "dataset"},
 			},
-		},
+				},
 	})
 }
 
 func testAccHealthcareDicomStore_healthcareDicomStoreBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_healthcare_dicom_store" "default" {
   name    = "tf-test-example-dicom-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id
@@ -74,6 +73,7 @@ resource "google_healthcare_dataset" "dataset" {
 `, context)
 }
 
+
 func testAccCheckHealthcareDicomStoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -84,24 +84,24 @@ func testAccCheckHealthcareDicomStoreDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/dicomStores/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/dicomStores/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("HealthcareDicomStore still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -776,6 +776,7 @@ func TestAccStorageBucket_encryption(t *testing.T) {
 	})
 }
 
+
 func TestAccStorageBucket_uniformBucketAccessOnly(t *testing.T) {
 	t.Parallel()
 
@@ -1538,6 +1539,7 @@ resource "google_storage_bucket" "bucket" {
 }
 `, bucketName, enabled)
 }
+
 
 func testAccStorageBucket_encryption(context map[string]interface{}) string {
 	return Nprintf(`

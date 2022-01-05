@@ -18,22 +18,25 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccServiceManagementServiceIamBindingGenerated(t *testing.T) {
+	func TestAccServiceManagementServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"project_name":  getTestProjectFromEnv(),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"project_name": getTestProjectFromEnv(),
+	
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccServiceManagementServiceIamBinding_basicGenerated(context),
 			},
@@ -60,16 +63,17 @@ func TestAccServiceManagementServiceIamBindingGenerated(t *testing.T) {
 func TestAccServiceManagementServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"project_name":  getTestProjectFromEnv(),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"project_name": getTestProjectFromEnv(),
+	
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccServiceManagementServiceIamMember_basicGenerated(context),
@@ -87,16 +91,17 @@ func TestAccServiceManagementServiceIamMemberGenerated(t *testing.T) {
 func TestAccServiceManagementServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"project_name":  getTestProjectFromEnv(),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"project_name": getTestProjectFromEnv(),
+	
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccServiceManagementServiceIamPolicy_basicGenerated(context),
 			},
@@ -118,6 +123,7 @@ func TestAccServiceManagementServiceIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccServiceManagementServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

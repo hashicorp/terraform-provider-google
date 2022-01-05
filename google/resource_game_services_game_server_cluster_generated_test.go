@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccGameServicesGameServerCluster_gameServiceClusterBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"agones_cluster": "bootstrapped-agones-cluster",
-		"random_suffix":  randString(t, 10),
+	context := map[string]interface{} {
+					"agones_cluster": "bootstrapped-agones-cluster",
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGameServicesGameServerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckGameServicesGameServerClusterDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccGameServicesGameServerCluster_gameServiceClusterBasicExample(context),
 			},
-			{
-				ResourceName:            "google_game_services_game_server_cluster.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_game_services_game_server_cluster.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"cluster_id", "realm_id", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccGameServicesGameServerCluster_gameServiceClusterBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_game_services_game_server_cluster" "default" {
     
   cluster_id = "%{agones_cluster}"
@@ -73,6 +72,7 @@ resource "google_game_services_realm" "default" {
 `, context)
 }
 
+
 func testAccCheckGameServicesGameServerClusterDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -83,24 +83,24 @@ func testAccCheckGameServicesGameServerClusterDestroyProducer(t *testing.T) func
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("GameServicesGameServerCluster still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

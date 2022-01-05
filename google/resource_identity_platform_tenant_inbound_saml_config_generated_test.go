@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboundSamlConfigBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"name":          "saml.tf-config-" + randString(t, 10),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"name": "saml.tf-config-" + randString(t, 10),
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIdentityPlatformTenantInboundSamlConfigDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckIdentityPlatformTenantInboundSamlConfigDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboundSamlConfigBasicExample(context),
 			},
-			{
-				ResourceName:            "google_identity_platform_tenant_inbound_saml_config.tenant_saml_config",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_identity_platform_tenant_inbound_saml_config.tenant_saml_config",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"tenant"},
 			},
-		},
+				},
 	})
 }
 
 func testAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboundSamlConfigBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
   display_name  = "tenant"
 }
@@ -76,6 +75,7 @@ resource "google_identity_platform_tenant_inbound_saml_config" "tenant_saml_conf
 `, context)
 }
 
+
 func testAccCheckIdentityPlatformTenantInboundSamlConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -86,24 +86,24 @@ func testAccCheckIdentityPlatformTenantInboundSamlConfigDestroyProducer(t *testi
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/inboundSamlConfigs/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/inboundSamlConfigs/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("IdentityPlatformTenantInboundSamlConfig still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

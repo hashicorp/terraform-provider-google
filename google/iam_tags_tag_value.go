@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,16 +28,17 @@ import (
 var TagsTagValueIamSchema = map[string]*schema.Schema{
 	"tag_value": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type TagsTagValueIamUpdater struct {
 	tagValue string
-	d        TerraformResourceData
-	Config   *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func TagsTagValueIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -43,8 +48,9 @@ func TagsTagValueIamUpdaterProducer(d TerraformResourceData, config *Config) (Re
 		values["tag_value"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)", "(?P<tag_value>[^/]+)"}, d, config, d.Get("tag_value").(string))
+	m, err := getImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)","(?P<tag_value>[^/]+)"}, d, config, d.Get("tag_value").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +61,8 @@ func TagsTagValueIamUpdaterProducer(d TerraformResourceData, config *Config) (Re
 
 	u := &TagsTagValueIamUpdater{
 		tagValue: values["tag_value"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("tag_value", u.GetResourceId()); err != nil {
@@ -69,19 +75,20 @@ func TagsTagValueIamUpdaterProducer(d TerraformResourceData, config *Config) (Re
 func TagsTagValueIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)", "(?P<tag_value>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)","(?P<tag_value>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &TagsTagValueIamUpdater{
 		tagValue: values["tag_value"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("tag_value", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting tag_value: %s", err)
@@ -123,6 +130,7 @@ func (u *TagsTagValueIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -146,11 +154,11 @@ func (u *TagsTagValueIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 
 func (u *TagsTagValueIamUpdater) qualifyTagValueUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{TagsBasePath}}%s:%s", fmt.Sprintf("tagValues/%s", u.tagValue), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *TagsTagValueIamUpdater) GetResourceId() string {

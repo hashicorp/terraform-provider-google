@@ -4,8 +4,8 @@ package google
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
 	"log"
+	"encoding/hex"
 	"net"
 	"reflect"
 	"strconv"
@@ -36,7 +36,7 @@ func ignoreMissingKeyInMap(key string) schema.SchemaDiffSuppressFunc {
 				return false
 			}
 			return oldNum+1 == newNum
-		} else if strings.HasSuffix(k, "."+key) {
+		} else if strings.HasSuffix(k, "." + key) {
 			return old == ""
 		}
 		return false
@@ -195,6 +195,7 @@ func compareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.Reso
 	// otherwise compare as self links
 	return compareSelfLinkOrResourceName("", old, new, nil)
 }
+
 
 // Use this method when subnet is optioanl and auto_create_subnetworks = true
 // API sometimes choose a subnet so the diff needs to be ignored

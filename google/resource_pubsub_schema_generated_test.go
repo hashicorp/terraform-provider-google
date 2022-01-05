@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubSchemaDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubSchemaDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSchema_pubsubSchemaBasicExample(context),
 			},
-			{
-				ResourceName:            "google_pubsub_schema.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_pubsub_schema.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"definition"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubSchema_pubsubSchemaBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_schema" "example" {
   name = "example%{random_suffix}"
   type = "AVRO"
@@ -59,33 +58,33 @@ resource "google_pubsub_schema" "example" {
 }
 
 func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":  getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project_name": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubSchemaDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubSchemaDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSchema_pubsubSchemaProtobufExample(context),
 			},
-			{
-				ResourceName:            "google_pubsub_schema.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_pubsub_schema.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"definition"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubSchema_pubsubSchemaProtobufExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_schema" "example" {
   name = "example%{random_suffix}"
   type = "PROTOCOL_BUFFER"
@@ -104,6 +103,7 @@ resource "google_pubsub_topic" "example" {
 `, context)
 }
 
+
 func testAccCheckPubsubSchemaDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -114,24 +114,24 @@ func testAccCheckPubsubSchemaDestroyProducer(t *testing.T) func(s *terraform.Sta
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("PubsubSchema still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

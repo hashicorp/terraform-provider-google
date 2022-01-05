@@ -1,3 +1,4 @@
+
 package google
 
 import (
@@ -246,6 +247,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Description: `A brief description of this resource.`,
 			},
 
+
 			"instance_description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -385,7 +387,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", ""}, false),
-							Description:  `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
+							Description: `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
 						},
 
 						"ipv6_access_type": {
@@ -419,9 +421,9 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Description: `The first IPv6 address of the external IPv6 range associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.`,
 									},
 									"external_ipv6_prefix_length": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The prefix length of the external IPv6 range.`,
+										Type:         schema.TypeString,
+										Computed:     true,
+										Description:  `The prefix length of the external IPv6 range.`,
 									},
 								},
 							},

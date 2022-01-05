@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSecurityCenterNotificationConfigDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckSecurityCenterNotificationConfigDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(context),
 			},
-			{
-				ResourceName:            "google_scc_notification_config.custom_notification_config",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_scc_notification_config.custom_notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"organization", "config_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_topic" "scc_notification" {
   name = "tf-test-my-topic%{random_suffix}"
 }
@@ -68,6 +67,7 @@ resource "google_scc_notification_config" "custom_notification_config" {
 `, context)
 }
 
+
 func testAccCheckSecurityCenterNotificationConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -78,24 +78,24 @@ func testAccCheckSecurityCenterNotificationConfigDestroyProducer(t *testing.T) f
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{SecurityCenterBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{SecurityCenterBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("SecurityCenterNotificationConfig still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_nodeGroupBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_node_group.nodes",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_node_group.nodes",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"node_template", "initial_size", "zone"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeNodeGroup_nodeGroupBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "tf-test-soletenant-tmpl%{random_suffix}"
   region    = "us-central1"
@@ -68,32 +67,32 @@ resource "google_compute_node_group" "nodes" {
 }
 
 func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(context),
 			},
-			{
-				ResourceName:            "google_compute_node_group.nodes",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_node_group.nodes",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"node_template", "initial_size", "zone"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "tf-test-soletenant-tmpl%{random_suffix}"
   region    = "us-central1"
@@ -119,6 +118,7 @@ resource "google_compute_node_group" "nodes" {
 `, context)
 }
 
+
 func testAccCheckComputeNodeGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -129,24 +129,24 @@ func testAccCheckComputeNodeGroupDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeNodeGroup still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

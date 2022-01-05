@@ -427,7 +427,7 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 				},
 			},
 			expect: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
+				iamBindingKey{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
 			},
 		},
 		{
@@ -442,7 +442,7 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 				},
 			},
 			expect: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}, "user-3": {}},
+				iamBindingKey{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}, "user-3": {}},
 			},
 		},
 		{
@@ -457,8 +457,8 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 				},
 			},
 			expect: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
-				{"role-2", conditionKey{}}: {"user-1": {}},
+				iamBindingKey{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
+				iamBindingKey{"role-2", conditionKey{}}: {"user-1": {}},
 			},
 		},
 		{
@@ -485,9 +485,9 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 				},
 			},
 			expect: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}, "user-3": {}},
-				{"role-2", conditionKey{}}: {"user-1": {}, "user-2": {}},
-				{"role-3", conditionKey{}}: {"user-3": {}},
+				iamBindingKey{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}, "user-3": {}},
+				iamBindingKey{"role-2", conditionKey{}}: {"user-1": {}, "user-2": {}},
+				iamBindingKey{"role-3", conditionKey{}}: {"user-3": {}},
 			},
 		},
 		{
@@ -518,10 +518,10 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 				},
 			},
 			expect: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"deleted:serviceAccount:user-1": {}, "user-2": {}, "serviceAccount:user-3": {}},
-				{"role-2", conditionKey{}}: {"deleted:user:user-1": {}, "user-2": {}},
-				{"role-3", conditionKey{}}: {"user-3": {}},
-				{"role-4", conditionKey{}}: {"deleted:principal:useR-1": {}},
+				iamBindingKey{"role-1", conditionKey{}}: {"deleted:serviceAccount:user-1": {}, "user-2": {}, "serviceAccount:user-3": {}},
+				iamBindingKey{"role-2", conditionKey{}}: {"deleted:user:user-1": {}, "user-2": {}},
+				iamBindingKey{"role-3", conditionKey{}}: {"user-3": {}},
+				iamBindingKey{"role-4", conditionKey{}}: {"deleted:principal:useR-1": {}},
 			},
 		},
 		{
@@ -657,7 +657,7 @@ func TestIamListFromIamBindingMap(t *testing.T) {
 		},
 		{
 			input: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
+				iamBindingKey{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
 			},
 			expect: []*cloudresourcemanager.Binding{
 				{
@@ -668,8 +668,8 @@ func TestIamListFromIamBindingMap(t *testing.T) {
 		},
 		{
 			input: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"user-1": {}},
-				{"role-2", conditionKey{}}: {"user-1": {}, "user-2": {}},
+				iamBindingKey{"role-1", conditionKey{}}: {"user-1": {}},
+				iamBindingKey{"role-2", conditionKey{}}: {"user-1": {}, "user-2": {}},
 			},
 			expect: []*cloudresourcemanager.Binding{
 				{
@@ -684,8 +684,8 @@ func TestIamListFromIamBindingMap(t *testing.T) {
 		},
 		{
 			input: map[iamBindingKey]map[string]struct{}{
-				{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
-				{"role-2", conditionKey{}}: {},
+				iamBindingKey{"role-1", conditionKey{}}: {"user-1": {}, "user-2": {}},
+				iamBindingKey{"role-2", conditionKey{}}: {},
 			},
 			expect: []*cloudresourcemanager.Binding{
 				{

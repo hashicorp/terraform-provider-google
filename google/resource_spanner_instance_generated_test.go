@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_spannerInstanceBasicExample(context),
 			},
-			{
-				ResourceName:            "google_spanner_instance.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_spanner_instance.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"config"},
 			},
-		},
+				},
 	})
 }
 
 func testAccSpannerInstance_spannerInstanceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
@@ -64,32 +63,32 @@ resource "google_spanner_instance" "example" {
 
 func TestAccSpannerInstance_spannerInstanceProcessingUnitsExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_spannerInstanceProcessingUnitsExample(context),
 			},
-			{
-				ResourceName:            "google_spanner_instance.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_spanner_instance.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"config"},
 			},
-		},
+				},
 	})
 }
 
 func testAccSpannerInstance_spannerInstanceProcessingUnitsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
@@ -103,32 +102,32 @@ resource "google_spanner_instance" "example" {
 
 func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_spannerInstanceMultiRegionalExample(context),
 			},
-			{
-				ResourceName:            "google_spanner_instance.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_spanner_instance.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"config"},
 			},
-		},
+				},
 	})
 }
 
 func testAccSpannerInstance_spannerInstanceMultiRegionalExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_spanner_instance" "example" {
   config       = "nam-eur-asia1"
   display_name = "Multi Regional Instance"
@@ -140,6 +139,7 @@ resource "google_spanner_instance" "example" {
 `, context)
 }
 
+
 func testAccCheckSpannerInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -150,24 +150,24 @@ func testAccCheckSpannerInstanceDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("SpannerInstance still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

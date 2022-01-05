@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNodeTemplateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeNodeTemplateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeTemplate_nodeTemplateBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_node_template.template",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_node_template.template",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeNodeTemplate_nodeTemplateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_node_template" "template" {
   name      = "tf-test-soletenant-tmpl%{random_suffix}"
   region    = "us-central1"
@@ -59,32 +58,32 @@ resource "google_compute_node_template" "template" {
 }
 
 func TestAccComputeNodeTemplate_nodeTemplateServerBindingExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNodeTemplateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeNodeTemplateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeTemplate_nodeTemplateServerBindingExample(context),
 			},
-			{
-				ResourceName:            "google_compute_node_template.template",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_node_template.template",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeNodeTemplate_nodeTemplateServerBindingExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_compute_node_types" "central1a" {
   zone     = "us-central1-a"
 }
@@ -105,6 +104,7 @@ resource "google_compute_node_template" "template" {
 `, context)
 }
 
+
 func testAccCheckComputeNodeTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -115,24 +115,24 @@ func testAccCheckComputeNodeTemplateDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeNodeTemplate still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

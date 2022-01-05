@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,23 +27,24 @@ import (
 
 var HealthcareConsentStoreIamSchema = map[string]*schema.Schema{
 	"dataset": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Required: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"consent_store_id": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type HealthcareConsentStoreIamUpdater struct {
-	dataset        string
+	dataset string
 	consentStoreId string
-	d              TerraformResourceData
-	Config         *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func HealthcareConsentStoreIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -53,8 +58,9 @@ func HealthcareConsentStoreIamUpdaterProducer(d TerraformResourceData, config *C
 		values["consent_store_id"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"(?P<dataset>.+)/consentStores/(?P<consent_store_id>[^/]+)", "(?P<consent_store_id>[^/]+)"}, d, config, d.Get("consent_store_id").(string))
+	m, err := getImportIdQualifiers([]string{"(?P<dataset>.+)/consentStores/(?P<consent_store_id>[^/]+)","(?P<consent_store_id>[^/]+)"}, d, config, d.Get("consent_store_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -64,10 +70,10 @@ func HealthcareConsentStoreIamUpdaterProducer(d TerraformResourceData, config *C
 	}
 
 	u := &HealthcareConsentStoreIamUpdater{
-		dataset:        values["dataset"],
+		dataset: values["dataset"],
 		consentStoreId: values["consent_store_id"],
-		d:              d,
-		Config:         config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("dataset", u.dataset); err != nil {
@@ -83,20 +89,21 @@ func HealthcareConsentStoreIamUpdaterProducer(d TerraformResourceData, config *C
 func HealthcareConsentStoreIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"(?P<dataset>.+)/consentStores/(?P<consent_store_id>[^/]+)", "(?P<consent_store_id>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"(?P<dataset>.+)/consentStores/(?P<consent_store_id>[^/]+)","(?P<consent_store_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &HealthcareConsentStoreIamUpdater{
-		dataset:        values["dataset"],
+		dataset: values["dataset"],
 		consentStoreId: values["consent_store_id"],
-		d:              d,
-		Config:         config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("consent_store_id", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting consent_store_id: %s", err)
@@ -138,6 +145,7 @@ func (u *HealthcareConsentStoreIamUpdater) SetResourceIamPolicy(policy *cloudres
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -161,11 +169,11 @@ func (u *HealthcareConsentStoreIamUpdater) SetResourceIamPolicy(policy *cloudres
 
 func (u *HealthcareConsentStoreIamUpdater) qualifyConsentStoreUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{HealthcareBasePath}}%s:%s", fmt.Sprintf("%s/consentStores/%s", u.dataset, u.consentStoreId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *HealthcareConsentStoreIamUpdater) GetResourceId() string {

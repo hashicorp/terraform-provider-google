@@ -15,44 +15,43 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccApigeeEnvironment_apigeeEnvironmentBasicTestExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+    				"billing_account": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckApigeeEnvironmentDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckApigeeEnvironmentDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvironment_apigeeEnvironmentBasicTestExample(context),
 			},
-			{
-				ResourceName:            "google_apigee_environment.apigee_environment",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_apigee_environment.apigee_environment",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"org_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccApigeeEnvironment_apigeeEnvironmentBasicTestExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -116,6 +115,7 @@ resource "google_apigee_environment" "apigee_environment" {
 `, context)
 }
 
+
 func testAccCheckApigeeEnvironmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -126,24 +126,24 @@ func testAccCheckApigeeEnvironmentDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ApigeeEnvironment still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

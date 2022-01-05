@@ -15,340 +15,371 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceAppEngineServiceNetworkSettings() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceAppEngineServiceNetworkSettingsCreate,
-		Read:   resourceAppEngineServiceNetworkSettingsRead,
-		Update: resourceAppEngineServiceNetworkSettingsUpdate,
-		Delete: resourceAppEngineServiceNetworkSettingsDelete,
+    return &schema.Resource{
+        Create: resourceAppEngineServiceNetworkSettingsCreate,
+        Read: resourceAppEngineServiceNetworkSettingsRead,
+        Update: resourceAppEngineServiceNetworkSettingsUpdate,
+        Delete: resourceAppEngineServiceNetworkSettingsDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceAppEngineServiceNetworkSettingsImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceAppEngineServiceNetworkSettingsImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"network_settings": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `Ingress settings for this service. Will apply to all versions.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"ingress_traffic_allowed": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED", "INGRESS_TRAFFIC_ALLOWED_ALL", "INGRESS_TRAFFIC_ALLOWED_INTERNAL_ONLY", "INGRESS_TRAFFIC_ALLOWED_INTERNAL_AND_LB", ""}, false),
-							Description:  `The ingress settings for version or service. Default value: "INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED" Possible values: ["INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED", "INGRESS_TRAFFIC_ALLOWED_ALL", "INGRESS_TRAFFIC_ALLOWED_INTERNAL_ONLY", "INGRESS_TRAFFIC_ALLOWED_INTERNAL_AND_LB"]`,
-							Default:      "INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED",
-						},
-					},
-				},
-			},
-			"service": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The name of the service these settings apply to.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+
+
+        Schema: map[string]*schema.Schema{
+"network_settings": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `Ingress settings for this service. Will apply to all versions.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "ingress_traffic_allowed": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED","INGRESS_TRAFFIC_ALLOWED_ALL","INGRESS_TRAFFIC_ALLOWED_INTERNAL_ONLY","INGRESS_TRAFFIC_ALLOWED_INTERNAL_AND_LB",""}, false),
+	Description: `The ingress settings for version or service. Default value: "INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED" Possible values: ["INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED", "INGRESS_TRAFFIC_ALLOWED_ALL", "INGRESS_TRAFFIC_ALLOWED_INTERNAL_ONLY", "INGRESS_TRAFFIC_ALLOWED_INTERNAL_AND_LB"]`,
+    Default: "INGRESS_TRAFFIC_ALLOWED_UNSPECIFIED",
+},
+          },
+  },
+},
+"service": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The name of the service these settings apply to.`,
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceAppEngineServiceNetworkSettingsCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("service"); !isEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
-	}
-	networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get("network_settings"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network_settings"); !isEmptyValue(reflect.ValueOf(networkSettingsProp)) && (ok || !reflect.DeepEqual(v, networkSettingsProp)) {
-		obj["networkSettings"] = networkSettingsProp
-	}
+    obj := make(map[string]interface{})
+        idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get( "service" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("service"); !isEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
+        obj["id"] = idProp
+    }
+        networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get( "network_settings" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("network_settings"); !isEmptyValue(reflect.ValueOf(networkSettingsProp)) && (ok || !reflect.DeepEqual(v, networkSettingsProp)) {
+        obj["networkSettings"] = networkSettingsProp
+    }
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}?updateMask=networkSettings")
-	if err != nil {
-		return err
-	}
+    lockName, err := replaceVars(d, config, "apps/{{project}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	log.Printf("[DEBUG] Creating new ServiceNetworkSettings: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}?updateMask=networkSettings")
+    if err != nil {
+        return err
+    }
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ServiceNetworkSettings: %s", err)
-	}
-	billingProject = project
+    log.Printf("[DEBUG] Creating new ServiceNetworkSettings: %#v", obj)
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for ServiceNetworkSettings: %s", err)
+    }
+    billingProject = project
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating ServiceNetworkSettings: %s", err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = appEngineOperationWaitTime(
-		config, res, project, "Creating ServiceNetworkSettings", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating ServiceNetworkSettings: %s", err)
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create ServiceNetworkSettings: %s", err)
-	}
+    // Store the ID now
+    id, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating ServiceNetworkSettings %q: %#v", d.Id(), res)
+    err = appEngineOperationWaitTime(
+    config, res,  project,  "Creating ServiceNetworkSettings", userAgent,
+        d.Timeout(schema.TimeoutCreate))
 
-	return resourceAppEngineServiceNetworkSettingsRead(d, meta)
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create ServiceNetworkSettings: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating ServiceNetworkSettings %q: %#v", d.Id(), res)
+
+    return resourceAppEngineServiceNetworkSettingsRead(d, meta)
 }
 
+
 func resourceAppEngineServiceNetworkSettingsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ServiceNetworkSettings: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for ServiceNetworkSettings: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineServiceNetworkSettings %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("AppEngineServiceNetworkSettings %q", d.Id()))
+    }
 
-	if err := d.Set("service", flattenAppEngineServiceNetworkSettingsService(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
-	}
-	if err := d.Set("network_settings", flattenAppEngineServiceNetworkSettingsNetworkSettings(res["networkSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
+    }
+
+
+    if err := d.Set("service", flattenAppEngineServiceNetworkSettingsService(res["id"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
+    }
+    if err := d.Set("network_settings", flattenAppEngineServiceNetworkSettingsNetworkSettings(res["networkSettings"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
+    }
+
+    return nil
 }
 
 func resourceAppEngineServiceNetworkSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ServiceNetworkSettings: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for ServiceNetworkSettings: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("service"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
-	}
-	networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get("network_settings"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network_settings"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkSettingsProp)) {
-		obj["networkSettings"] = networkSettingsProp
-	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    obj := make(map[string]interface{})
+            idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get( "service" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("service"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
+        obj["id"] = idProp
+    }
+            networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get( "network_settings" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("network_settings"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkSettingsProp)) {
+        obj["networkSettings"] = networkSettingsProp
+    }
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Updating ServiceNetworkSettings %q: %#v", d.Id(), obj)
-	updateMask := []string{}
+    lockName, err := replaceVars(d, config, "apps/{{project}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	if d.HasChange("service") {
-		updateMask = append(updateMask, "id")
-	}
+    url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}")
+    if err != nil {
+        return err
+    }
 
-	if d.HasChange("network_settings") {
-		updateMask = append(updateMask, "networkSettings")
-	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
-	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
+    log.Printf("[DEBUG] Updating ServiceNetworkSettings %q: %#v", d.Id(), obj)
+updateMask := []string{}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+if d.HasChange("service") {
+  updateMask = append(updateMask, "id")
+}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+if d.HasChange("network_settings") {
+  updateMask = append(updateMask, "networkSettings")
+}
+// updateMask is a URL parameter but not present in the schema, so replaceVars
+// won't set it
+url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+if err != nil {
+  return err
+}
 
-	if err != nil {
-		return fmt.Errorf("Error updating ServiceNetworkSettings %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating ServiceNetworkSettings %q: %#v", d.Id(), res)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = appEngineOperationWaitTime(
-		config, res, project, "Updating ServiceNetworkSettings", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return fmt.Errorf("Error updating ServiceNetworkSettings %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating ServiceNetworkSettings %q: %#v", d.Id(), res)
+    }
 
-	return resourceAppEngineServiceNetworkSettingsRead(d, meta)
+    err = appEngineOperationWaitTime(
+        config, res,  project,  "Updating ServiceNetworkSettings", userAgent,
+        d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return err
+    }
+
+    return resourceAppEngineServiceNetworkSettingsRead(d, meta)
 }
 
 func resourceAppEngineServiceNetworkSettingsDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[WARNING] AppEngine ServiceNetworkSettings resources"+
-		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
-		" state, but will still be present on Google Cloud.", d.Id())
-	d.SetId("")
+    log.Printf("[WARNING] AppEngine ServiceNetworkSettings resources" +
+    " cannot be deleted from Google Cloud. The resource %s will be removed from Terraform" +
+    " state, but will still be present on Google Cloud.", d.Id())
+    d.SetId("")
 
-	return nil
+    return nil
 }
 
 func resourceAppEngineServiceNetworkSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)",
-		"(?P<project>[^/]+)/(?P<service>[^/]+)",
-		"(?P<service>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)",
+        "(?P<project>[^/]+)/(?P<service>[^/]+)",
+        "(?P<service>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenAppEngineServiceNetworkSettingsService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenAppEngineServiceNetworkSettingsNetworkSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["ingress_traffic_allowed"] =
-		flattenAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(original["ingressTrafficAllowed"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["ingress_traffic_allowed"] =
+    flattenAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(original["ingressTrafficAllowed"], d, config)
+        return []interface{}{transformed}
 }
-func flattenAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
+
+
+
 
 func expandAppEngineServiceNetworkSettingsService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandAppEngineServiceNetworkSettingsNetworkSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedIngressTrafficAllowed, err := expandAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(original["ingress_traffic_allowed"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedIngressTrafficAllowed); val.IsValid() && !isEmptyValue(val) {
-		transformed["ingressTrafficAllowed"] = transformedIngressTrafficAllowed
-	}
+      transformedIngressTrafficAllowed, err := expandAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(original["ingress_traffic_allowed"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedIngressTrafficAllowed); val.IsValid() && !isEmptyValue(val) {
+        transformed["ingressTrafficAllowed"] = transformedIngressTrafficAllowed      }
 
-	return transformed, nil
+  return transformed, nil
 }
 
+
+
+
+
+
 func expandAppEngineServiceNetworkSettingsNetworkSettingsIngressTrafficAllowed(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

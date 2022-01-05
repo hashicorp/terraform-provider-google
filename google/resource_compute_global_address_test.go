@@ -15,10 +15,10 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeGlobalAddress_ipv6(randString(t, 10)),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_global_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -35,10 +35,10 @@ func TestAccComputeGlobalAddress_internal(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeGlobalAddress_internal(randString(t, 10), randString(t, 10)),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_global_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

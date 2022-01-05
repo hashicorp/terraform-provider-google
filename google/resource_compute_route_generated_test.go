@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRoute_routeBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRoute_routeBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_route.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_route.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRoute_routeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_route" "default" {
   name        = "tf-test-network-route%{random_suffix}"
   dest_range  = "15.0.0.0/24"
@@ -65,32 +64,32 @@ resource "google_compute_network" "default" {
 }
 
 func TestAccComputeRoute_routeIlbExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRoute_routeIlbExample(context),
 			},
-			{
-				ResourceName:            "google_compute_route.route-ilb",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_route.route-ilb",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRoute_routeIlbExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_network" "default" {
   name                    = "tf-test-compute-network%{random_suffix}"
   auto_create_subnetworks = false
@@ -140,6 +139,7 @@ resource "google_compute_route" "route-ilb" {
 `, context)
 }
 
+
 func testAccCheckComputeRouteDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -150,24 +150,24 @@ func testAccCheckComputeRouteDestroyProducer(t *testing.T) func(s *terraform.Sta
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isPeeringOperationInProgress)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isPeeringOperationInProgress)
+		if err == nil {
 				return fmt.Errorf("ComputeRoute still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

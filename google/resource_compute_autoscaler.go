@@ -15,66 +15,72 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceComputeAutoscaler() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceComputeAutoscalerCreate,
-		Read:   resourceComputeAutoscalerRead,
-		Update: resourceComputeAutoscalerUpdate,
-		Delete: resourceComputeAutoscalerDelete,
+    return &schema.Resource{
+        Create: resourceComputeAutoscalerCreate,
+        Read: resourceComputeAutoscalerRead,
+        Update: resourceComputeAutoscalerUpdate,
+        Delete: resourceComputeAutoscalerDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceComputeAutoscalerImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceComputeAutoscalerImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"autoscaling_policy": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `The configuration parameters for the autoscaling algorithm. You can
+
+
+        Schema: map[string]*schema.Schema{
+"autoscaling_policy": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `The configuration parameters for the autoscaling algorithm. You can
 define one or more of the policies for an autoscaler: cpuUtilization,
 customMetricUtilizations, and loadBalancingUtilization.
 
 If none of these are specified, the default will be to autoscale based
 on cpuUtilization to 0.6 or 60%.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"max_replicas": {
-							Type:     schema.TypeInt,
-							Required: true,
-							Description: `The maximum number of instances that the autoscaler can scale up
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "max_replicas": {
+    Type: schema.TypeInt,
+    Required: true,
+	Description: `The maximum number of instances that the autoscaler can scale up
 to. This is required when creating or updating an autoscaler. The
 maximum number of replicas should not be lower than minimal number
 of replicas.`,
-						},
-						"min_replicas": {
-							Type:     schema.TypeInt,
-							Required: true,
-							Description: `The minimum number of replicas that the autoscaler can scale down
+},
+              "min_replicas": {
+    Type: schema.TypeInt,
+    Required: true,
+	Description: `The minimum number of replicas that the autoscaler can scale down
 to. This cannot be less than 0. If not provided, autoscaler will
 choose a default value depending on maximum number of instances
 allowed.`,
-						},
-						"cooldown_period": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The number of seconds that the autoscaler should wait before it
+},
+              "cooldown_period": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The number of seconds that the autoscaler should wait before it
 starts collecting information from a new instance. This prevents
 the autoscaler from collecting information when the instance is
 initializing, during which the collected usage would not be
@@ -84,22 +90,22 @@ Virtual machine initialization times might vary because of
 numerous factors. We recommend that you test how long an
 instance may take to initialize. To do this, create an instance
 and time the startup process.`,
-							Default: 60,
-						},
-						"cpu_utilization": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Optional: true,
-							Description: `Defines the CPU utilization policy that allows the autoscaler to
+    Default: 60,
+},
+              "cpu_utilization": {
+    Type: schema.TypeList,
+  	Computed: true,
+	Optional: true,
+		Description: `Defines the CPU utilization policy that allows the autoscaler to
 scale based on the average CPU utilization of a managed instance
 group.`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"target": {
-										Type:     schema.TypeFloat,
-										Required: true,
-										Description: `The target CPU utilization that the autoscaler should maintain.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "target": {
+    Type: schema.TypeFloat,
+    Required: true,
+	Description: `The target CPU utilization that the autoscaler should maintain.
 Must be a float value in the range (0, 1]. If not specified, the
 default is 0.6.
 
@@ -112,55 +118,55 @@ If the average CPU is above the target utilization, the autoscaler
 scales up until it reaches the maximum number of instances you
 specified or until the average utilization reaches the target
 utilization.`,
-									},
-									"predictive_method": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `Indicates whether predictive autoscaling based on CPU metric is enabled. Valid values are:
+},
+              "predictive_method": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Indicates whether predictive autoscaling based on CPU metric is enabled. Valid values are:
 
 - NONE (default). No predictive method is used. The autoscaler scales the group to meet current demand based on real-time metrics.
 
 - OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability by monitoring daily and weekly load patterns and scaling out ahead of anticipated demand.`,
-										Default: "NONE",
-									},
-								},
-							},
-						},
-						"load_balancing_utilization": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `Configuration parameters of autoscaling based on a load balancer.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"target": {
-										Type:     schema.TypeFloat,
-										Required: true,
-										Description: `Fraction of backend capacity utilization (set in HTTP(s) load
+    Default: "NONE",
+},
+          },
+  },
+},
+              "load_balancing_utilization": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Configuration parameters of autoscaling based on a load balancer.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "target": {
+    Type: schema.TypeFloat,
+    Required: true,
+	Description: `Fraction of backend capacity utilization (set in HTTP(s) load
 balancing configuration) that autoscaler should maintain. Must
 be a positive float value. If not defined, the default is 0.8.`,
-									},
-								},
-							},
-						},
-						"metric": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `Configuration parameters of autoscaling based on a custom metric.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: `The identifier (type) of the Stackdriver Monitoring metric.
+},
+          },
+  },
+},
+              "metric": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Configuration parameters of autoscaling based on a custom metric.`,
+                Elem: &schema.Resource{
+        Schema: map[string]*schema.Schema{
+                      "name": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The identifier (type) of the Stackdriver Monitoring metric.
 The metric cannot have negative values.
 
 The metric must have a value type of INT64 or DOUBLE.`,
-									},
-									"target": {
-										Type:     schema.TypeFloat,
-										Optional: true,
-										Description: `The target value of the metric that autoscaler should
+},
+                      "target": {
+    Type: schema.TypeFloat,
+    Optional: true,
+	Description: `The target value of the metric that autoscaler should
 maintain. This must be a positive value. A utilization
 metric scales number of virtual machines handling requests
 to increase or decrease proportionally to the metric.
@@ -169,495 +175,513 @@ For example, a good metric to use as a utilizationTarget is
 www.googleapis.com/compute/instance/network/received_bytes_count.
 The autoscaler will work to keep this value constant for each
 of the instances.`,
-									},
-									"type": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE", ""}, false),
-										Description: `Defines how target utilization value is expressed for a
+},
+                      "type": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"GAUGE","DELTA_PER_SECOND","DELTA_PER_MINUTE",""}, false),
+	Description: `Defines how target utilization value is expressed for a
 Stackdriver Monitoring metric. Possible values: ["GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE"]`,
-									},
-								},
-							},
-						},
-						"mode": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OFF", "ONLY_UP", "ON", ""}, false),
-							Description:  `Defines operating mode for this policy. Default value: "ON" Possible values: ["OFF", "ONLY_UP", "ON"]`,
-							Default:      "ON",
-						},
-						"scale_in_control": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Defines scale in controls to reduce the risk of response latency
+},
+                  },
+      },
+        },
+              "mode": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"OFF","ONLY_UP","ON",""}, false),
+	Description: `Defines operating mode for this policy. Default value: "ON" Possible values: ["OFF", "ONLY_UP", "ON"]`,
+    Default: "ON",
+},
+              "scale_in_control": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Defines scale in controls to reduce the risk of response latency
 and outages due to abrupt scale-in events`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"max_scaled_in_replicas": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `A nested object resource`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"fixed": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Description: `Specifies a fixed number of VM instances. This must be a positive
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "max_scaled_in_replicas": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `A nested object resource`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "fixed": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Specifies a fixed number of VM instances. This must be a positive
 integer.`,
-													AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
-												},
-												"percent": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Description: `Specifies a percentage of instances between 0 to 100%, inclusive.
+    AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
+},
+              "percent": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Specifies a percentage of instances between 0 to 100%, inclusive.
 For example, specify 80 for 80%.`,
-													AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
-												},
-											},
-										},
-										AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
-									},
-									"time_window_sec": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Description: `How long back autoscaling should look when computing recommendations
+    AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
+},
+          },
+  },
+    AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
+},
+              "time_window_sec": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `How long back autoscaling should look when computing recommendations
 to include directives regarding slower scale down, as described above.`,
-										AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
-									},
-								},
-							},
-						},
-						"scaling_schedules": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: `Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"duration_sec": {
-										Type:        schema.TypeInt,
-										Required:    true,
-										Description: `The duration of time intervals (in seconds) for which this scaling schedule will be running. The minimum allowed value is 300.`,
-									},
-									"min_required_replicas": {
-										Type:        schema.TypeInt,
-										Required:    true,
-										Description: `Minimum number of VM instances that autoscaler will recommend in time intervals starting according to schedule.`,
-									},
-									"schedule": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `The start timestamps of time intervals when this scaling schedule should provide a scaling signal. This field uses the extended cron format (with an optional year field).`,
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `A description of a scaling schedule.`,
-									},
-									"disabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: `A boolean value that specifies if a scaling schedule can influence autoscaler recommendations. If set to true, then a scaling schedule has no effect.`,
-										Default:     false,
-									},
-									"time_zone": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `The time zone to be used when interpreting the schedule. The value of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
-										Default:     "UTC",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
+    AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
+},
+          },
+  },
+},
+              "scaling_schedules": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.`,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateGCPName,
-				Description: `Name of the resource. The name must be 1-63 characters long and match
+				Type:     schema.TypeString,
+				Required: true,
+											},
+							"duration_sec": {
+    Type: schema.TypeInt,
+    Required: true,
+	Description: `The duration of time intervals (in seconds) for which this scaling schedule will be running. The minimum allowed value is 300.`,
+},
+							"min_required_replicas": {
+    Type: schema.TypeInt,
+    Required: true,
+	Description: `Minimum number of VM instances that autoscaler will recommend in time intervals starting according to schedule.`,
+},
+							"schedule": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The start timestamps of time intervals when this scaling schedule should provide a scaling signal. This field uses the extended cron format (with an optional year field).`,
+},
+							"description": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `A description of a scaling schedule.`,
+},
+							"disabled": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `A boolean value that specifies if a scaling schedule can influence autoscaler recommendations. If set to true, then a scaling schedule has no effect.`,
+    Default: false,
+},
+							"time_zone": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `The time zone to be used when interpreting the schedule. The value of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
+    Default: "UTC",
+},
+					},
+	},
+	},
+          },
+  },
+},
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+		ValidateFunc: validateGCPName,
+		Description: `Name of the resource. The name must be 1-63 characters long and match
 the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
-			},
-			"target": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `URL of the managed instance group that this autoscaler will scale.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `An optional description of this resource.`,
-			},
-			"zone": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `URL of the zone where the instance group resides.`,
-			},
-			"creation_timestamp": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Creation timestamp in RFC3339 text format.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+"target": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `URL of the managed instance group that this autoscaler will scale.`,
+},
+"description": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `An optional description of this resource.`,
+},
+"zone": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `URL of the zone where the instance group resides.`,
+},
+"creation_timestamp": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Creation timestamp in RFC3339 text format.`,
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+            "self_link": {
+                Type:     schema.TypeString,
+                Computed: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandComputeAutoscalerName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	descriptionProp, err := expandComputeAutoscalerDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	autoscalingPolicyProp, err := expandComputeAutoscalerAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(autoscalingPolicyProp)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
-		obj["autoscalingPolicy"] = autoscalingPolicyProp
-	}
-	targetProp, err := expandComputeAutoscalerTarget(d.Get("target"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
-		obj["target"] = targetProp
-	}
-	zoneProp, err := expandComputeAutoscalerZone(d.Get("zone"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
-		obj["zone"] = zoneProp
-	}
+    obj := make(map[string]interface{})
+        nameProp, err := expandComputeAutoscalerName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        descriptionProp, err := expandComputeAutoscalerDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+        autoscalingPolicyProp, err := expandComputeAutoscalerAutoscalingPolicy(d.Get( "autoscaling_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(autoscalingPolicyProp)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
+        obj["autoscalingPolicy"] = autoscalingPolicyProp
+    }
+        targetProp, err := expandComputeAutoscalerTarget(d.Get( "target" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
+        obj["target"] = targetProp
+    }
+        zoneProp, err := expandComputeAutoscalerZone(d.Get( "zone" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+        obj["zone"] = zoneProp
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new Autoscaler: %#v", obj)
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
-	}
-	billingProject = project
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Creating new Autoscaler: %#v", obj)
+    billingProject := ""
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating Autoscaler: %s", err)
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
+    }
+    billingProject = project
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	err = computeOperationWaitTime(
-		config, res, project, "Creating Autoscaler", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Autoscaler: %s", err)
-	}
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating Autoscaler: %s", err)
+    }
 
-	log.Printf("[DEBUG] Finished creating Autoscaler %q: %#v", d.Id(), res)
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceComputeAutoscalerRead(d, meta)
+    err = computeOperationWaitTime(
+    config, res,  project,  "Creating Autoscaler", userAgent,
+        d.Timeout(schema.TimeoutCreate))
+
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create Autoscaler: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating Autoscaler %q: %#v", d.Id(), res)
+
+    return resourceComputeAutoscalerRead(d, meta)
 }
 
+
 func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeAutoscaler %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ComputeAutoscaler %q", d.Id()))
+    }
 
-	if err := d.Set("creation_timestamp", flattenComputeAutoscalerCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("name", flattenComputeAutoscalerName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("description", flattenComputeAutoscalerDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("autoscaling_policy", flattenComputeAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("target", flattenComputeAutoscalerTarget(res["target"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("zone", flattenComputeAutoscalerZone(res["zone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Autoscaler: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+
+
+    if err := d.Set("creation_timestamp", flattenComputeAutoscalerCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+    if err := d.Set("name", flattenComputeAutoscalerName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+    if err := d.Set("description", flattenComputeAutoscalerDescription(res["description"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+    if err := d.Set("autoscaling_policy", flattenComputeAutoscalerAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+    if err := d.Set("target", flattenComputeAutoscalerTarget(res["target"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+    if err := d.Set("zone", flattenComputeAutoscalerZone(res["zone"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+    if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+        return fmt.Errorf("Error reading Autoscaler: %s", err)
+    }
+
+    return nil
 }
 
 func resourceComputeAutoscalerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandComputeAutoscalerName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	descriptionProp, err := expandComputeAutoscalerDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	autoscalingPolicyProp, err := expandComputeAutoscalerAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
-		obj["autoscalingPolicy"] = autoscalingPolicyProp
-	}
-	targetProp, err := expandComputeAutoscalerTarget(d.Get("target"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
-		obj["target"] = targetProp
-	}
-	zoneProp, err := expandComputeAutoscalerZone(d.Get("zone"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
-		obj["zone"] = zoneProp
-	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers?autoscaler={{name}}")
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            nameProp, err := expandComputeAutoscalerName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+            descriptionProp, err := expandComputeAutoscalerDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+            autoscalingPolicyProp, err := expandComputeAutoscalerAutoscalingPolicy(d.Get( "autoscaling_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
+        obj["autoscalingPolicy"] = autoscalingPolicyProp
+    }
+            targetProp, err := expandComputeAutoscalerTarget(d.Get( "target" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
+        obj["target"] = targetProp
+    }
+            zoneProp, err := expandComputeAutoscalerZone(d.Get( "zone" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+        obj["zone"] = zoneProp
+    }
 
-	log.Printf("[DEBUG] Updating Autoscaler %q: %#v", d.Id(), obj)
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers?autoscaler={{name}}")
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return fmt.Errorf("Error updating Autoscaler %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating Autoscaler %q: %#v", d.Id(), res)
-	}
+    log.Printf("[DEBUG] Updating Autoscaler %q: %#v", d.Id(), obj)
 
-	err = computeOperationWaitTime(
-		config, res, project, "Updating Autoscaler", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return err
-	}
+    res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
-	return resourceComputeAutoscalerRead(d, meta)
+    if err != nil {
+        return fmt.Errorf("Error updating Autoscaler %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating Autoscaler %q: %#v", d.Id(), res)
+    }
+
+    err = computeOperationWaitTime(
+        config, res,  project,  "Updating Autoscaler", userAgent,
+        d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return err
+    }
+
+    return resourceComputeAutoscalerRead(d, meta)
 }
 
 func resourceComputeAutoscalerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Autoscaler: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting Autoscaler %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "Autoscaler")
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting Autoscaler %q", d.Id())
 
-	err = computeOperationWaitTime(
-		config, res, project, "Deleting Autoscaler", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return err
-	}
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "Autoscaler")
+    }
 
-	log.Printf("[DEBUG] Finished deleting Autoscaler %q: %#v", d.Id(), res)
-	return nil
+    err = computeOperationWaitTime(
+        config, res,  project,  "Deleting Autoscaler", userAgent,
+        d.Timeout(schema.TimeoutDelete))
+
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting Autoscaler %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceComputeAutoscalerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/autoscalers/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
-		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/autoscalers/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
+        "(?P<zone>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenComputeAutoscalerCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeAutoscalerName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeAutoscalerDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeAutoscalerAutoscalingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["min_replicas"] =
-		flattenComputeAutoscalerAutoscalingPolicyMinReplicas(original["minNumReplicas"], d, config)
-	transformed["max_replicas"] =
-		flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(original["maxNumReplicas"], d, config)
-	transformed["cooldown_period"] =
-		flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["coolDownPeriodSec"], d, config)
-	transformed["mode"] =
-		flattenComputeAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
-	transformed["scale_in_control"] =
-		flattenComputeAutoscalerAutoscalingPolicyScaleInControl(original["scaleInControl"], d, config)
-	transformed["cpu_utilization"] =
-		flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpuUtilization"], d, config)
-	transformed["metric"] =
-		flattenComputeAutoscalerAutoscalingPolicyMetric(original["customMetricUtilizations"], d, config)
-	transformed["load_balancing_utilization"] =
-		flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["loadBalancingUtilization"], d, config)
-	transformed["scaling_schedules"] =
-		flattenComputeAutoscalerAutoscalingPolicyScalingSchedules(original["scalingSchedules"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["min_replicas"] =
+    flattenComputeAutoscalerAutoscalingPolicyMinReplicas(original["minNumReplicas"], d, config)
+              transformed["max_replicas"] =
+    flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(original["maxNumReplicas"], d, config)
+              transformed["cooldown_period"] =
+    flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["coolDownPeriodSec"], d, config)
+              transformed["mode"] =
+    flattenComputeAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
+              transformed["scale_in_control"] =
+    flattenComputeAutoscalerAutoscalingPolicyScaleInControl(original["scaleInControl"], d, config)
+              transformed["cpu_utilization"] =
+    flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpuUtilization"], d, config)
+              transformed["metric"] =
+    flattenComputeAutoscalerAutoscalingPolicyMetric(original["customMetricUtilizations"], d, config)
+              transformed["load_balancing_utilization"] =
+    flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["loadBalancingUtilization"], d, config)
+              transformed["scaling_schedules"] =
+    flattenComputeAutoscalerAutoscalingPolicyScalingSchedules(original["scalingSchedules"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -674,7 +698,7 @@ func flattenComputeAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d *sche
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -691,7 +715,7 @@ func flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d *sche
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -708,41 +732,41 @@ func flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["max_scaled_in_replicas"] =
-		flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(original["maxScaledInReplicas"], d, config)
-	transformed["time_window_sec"] =
-		flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(original["timeWindowSec"], d, config)
-	return []interface{}{transformed}
+      func flattenComputeAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["max_scaled_in_replicas"] =
+    flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(original["maxScaledInReplicas"], d, config)
+              transformed["time_window_sec"] =
+    flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(original["timeWindowSec"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["fixed"] =
-		flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(original["fixed"], d, config)
-	transformed["percent"] =
-		flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(original["percent"], d, config)
-	return []interface{}{transformed}
+      func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["fixed"] =
+    flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(original["fixed"], d, config)
+              transformed["percent"] =
+    flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(original["percent"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -759,7 +783,7 @@ func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasF
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -776,7 +800,9 @@ func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasP
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  
+
+      func flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -793,103 +819,110 @@ func flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v inte
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["target"] =
-		flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["utilizationTarget"], d, config)
-	transformed["predictive_method"] =
-		flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictiveMethod"], d, config)
-	return []interface{}{transformed}
+  
+
+      func flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["target"] =
+    flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["utilizationTarget"], d, config)
+              transformed["predictive_method"] =
+    flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictiveMethod"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
-		return "NONE"
-	}
+		return "NONE"	}
 
 	return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyMetric(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"name":   flattenComputeAutoscalerAutoscalingPolicyMetricName(original["metric"], d, config),
-			"target": flattenComputeAutoscalerAutoscalingPolicyMetricTarget(original["utilizationTarget"], d, config),
-			"type":   flattenComputeAutoscalerAutoscalingPolicyMetricType(original["utilizationTargetType"], d, config),
-		})
-	}
-	return transformed
+  
+
+      func flattenComputeAutoscalerAutoscalingPolicyMetric(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed = append(transformed, map[string]interface{}{
+          "name": flattenComputeAutoscalerAutoscalingPolicyMetricName(original["metric"], d, config),
+          "target": flattenComputeAutoscalerAutoscalingPolicyMetricTarget(original["utilizationTarget"], d, config),
+          "type": flattenComputeAutoscalerAutoscalingPolicyMetricType(original["utilizationTargetType"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenComputeAutoscalerAutoscalingPolicyMetricName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyMetricName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyMetricTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyMetricTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyMetricType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyMetricType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["target"] =
-		flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["utilizationTarget"], d, config)
-	return []interface{}{transformed}
+  
+
+      func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["target"] =
+    flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["utilizationTarget"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScalingSchedules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.(map[string]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for k, raw := range l {
-		original := raw.(map[string]interface{})
-		transformed = append(transformed, map[string]interface{}{
-			"name":                  k,
-			"min_required_replicas": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(original["minRequiredReplicas"], d, config),
-			"schedule":              flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(original["schedule"], d, config),
-			"time_zone":             flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(original["timeZone"], d, config),
-			"duration_sec":          flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(original["durationSec"], d, config),
-			"disabled":              flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(original["disabled"], d, config),
-			"description":           flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(original["description"], d, config),
-		})
-	}
-	return transformed
+  
+
+      func flattenComputeAutoscalerAutoscalingPolicyScalingSchedules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.(map[string]interface{})
+  transformed := make([]interface{}, 0, len(l))
+  for k, raw := range l {
+    original := raw.(map[string]interface{})
+    transformed = append(transformed, map[string]interface{}{
+      "name": k,
+          "min_required_replicas": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(original["minRequiredReplicas"], d, config),
+          "schedule": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(original["schedule"], d, config),
+          "time_zone": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(original["timeZone"], d, config),
+          "duration_sec": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(original["durationSec"], d, config),
+          "disabled": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(original["disabled"], d, config),
+          "description": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(original["description"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -906,15 +939,15 @@ func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplica
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -931,401 +964,480 @@ func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v inte
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
+
+  
 
 func flattenComputeAutoscalerTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeAutoscalerZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
+
+
+
 
 func expandComputeAutoscalerName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeAutoscalerDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeAutoscalerAutoscalingPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedMinReplicas, err := expandComputeAutoscalerAutoscalingPolicyMinReplicas(original["min_replicas"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["minNumReplicas"] = transformedMinReplicas
-	}
+      transformedMinReplicas, err := expandComputeAutoscalerAutoscalingPolicyMinReplicas(original["min_replicas"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["minNumReplicas"] = transformedMinReplicas      }
 
-	transformedMaxReplicas, err := expandComputeAutoscalerAutoscalingPolicyMaxReplicas(original["max_replicas"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxReplicas); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxNumReplicas"] = transformedMaxReplicas
-	}
+      transformedMaxReplicas, err := expandComputeAutoscalerAutoscalingPolicyMaxReplicas(original["max_replicas"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxReplicas); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxNumReplicas"] = transformedMaxReplicas      }
 
-	transformedCooldownPeriod, err := expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["cooldown_period"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCooldownPeriod); val.IsValid() && !isEmptyValue(val) {
-		transformed["coolDownPeriodSec"] = transformedCooldownPeriod
-	}
+      transformedCooldownPeriod, err := expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["cooldown_period"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCooldownPeriod); val.IsValid() && !isEmptyValue(val) {
+        transformed["coolDownPeriodSec"] = transformedCooldownPeriod      }
 
-	transformedMode, err := expandComputeAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !isEmptyValue(val) {
-		transformed["mode"] = transformedMode
-	}
+      transformedMode, err := expandComputeAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMode); val.IsValid() && !isEmptyValue(val) {
+        transformed["mode"] = transformedMode      }
 
-	transformedScaleInControl, err := expandComputeAutoscalerAutoscalingPolicyScaleInControl(original["scale_in_control"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedScaleInControl); val.IsValid() && !isEmptyValue(val) {
-		transformed["scaleInControl"] = transformedScaleInControl
-	}
+      transformedScaleInControl, err := expandComputeAutoscalerAutoscalingPolicyScaleInControl(original["scale_in_control"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedScaleInControl); val.IsValid() && !isEmptyValue(val) {
+        transformed["scaleInControl"] = transformedScaleInControl      }
 
-	transformedCpuUtilization, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpu_utilization"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCpuUtilization); val.IsValid() && !isEmptyValue(val) {
-		transformed["cpuUtilization"] = transformedCpuUtilization
-	}
+      transformedCpuUtilization, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpu_utilization"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCpuUtilization); val.IsValid() && !isEmptyValue(val) {
+        transformed["cpuUtilization"] = transformedCpuUtilization      }
 
-	transformedMetric, err := expandComputeAutoscalerAutoscalingPolicyMetric(original["metric"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMetric); val.IsValid() && !isEmptyValue(val) {
-		transformed["customMetricUtilizations"] = transformedMetric
-	}
+      transformedMetric, err := expandComputeAutoscalerAutoscalingPolicyMetric(original["metric"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMetric); val.IsValid() && !isEmptyValue(val) {
+        transformed["customMetricUtilizations"] = transformedMetric      }
 
-	transformedLoadBalancingUtilization, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["load_balancing_utilization"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedLoadBalancingUtilization); val.IsValid() && !isEmptyValue(val) {
-		transformed["loadBalancingUtilization"] = transformedLoadBalancingUtilization
-	}
+      transformedLoadBalancingUtilization, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["load_balancing_utilization"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedLoadBalancingUtilization); val.IsValid() && !isEmptyValue(val) {
+        transformed["loadBalancingUtilization"] = transformedLoadBalancingUtilization      }
 
-	transformedScalingSchedules, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedules(original["scaling_schedules"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedScalingSchedules); val.IsValid() && !isEmptyValue(val) {
-		transformed["scalingSchedules"] = transformedScalingSchedules
-	}
+      transformedScalingSchedules, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedules(original["scaling_schedules"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedScalingSchedules); val.IsValid() && !isEmptyValue(val) {
+        transformed["scalingSchedules"] = transformedScalingSchedules      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedMaxScaledInReplicas, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(original["max_scaled_in_replicas"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxScaledInReplicas); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxScaledInReplicas"] = transformedMaxScaledInReplicas
-	}
+      transformedMaxScaledInReplicas, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(original["max_scaled_in_replicas"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxScaledInReplicas); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxScaledInReplicas"] = transformedMaxScaledInReplicas      }
 
-	transformedTimeWindowSec, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(original["time_window_sec"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTimeWindowSec); val.IsValid() && !isEmptyValue(val) {
-		transformed["timeWindowSec"] = transformedTimeWindowSec
-	}
+      transformedTimeWindowSec, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(original["time_window_sec"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTimeWindowSec); val.IsValid() && !isEmptyValue(val) {
+        transformed["timeWindowSec"] = transformedTimeWindowSec      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedFixed, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(original["fixed"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedFixed); val.IsValid() && !isEmptyValue(val) {
-		transformed["fixed"] = transformedFixed
-	}
+      transformedFixed, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(original["fixed"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedFixed); val.IsValid() && !isEmptyValue(val) {
+        transformed["fixed"] = transformedFixed      }
 
-	transformedPercent, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(original["percent"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !isEmptyValue(val) {
-		transformed["percent"] = transformedPercent
-	}
+      transformedPercent, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(original["percent"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !isEmptyValue(val) {
+        transformed["percent"] = transformedPercent      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["target"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
-		transformed["utilizationTarget"] = transformedTarget
-	}
+      transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["target"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
+        transformed["utilizationTarget"] = transformedTarget      }
 
-	transformedPredictiveMethod, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictive_method"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPredictiveMethod); val.IsValid() && !isEmptyValue(val) {
-		transformed["predictiveMethod"] = transformedPredictiveMethod
-	}
+      transformedPredictiveMethod, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictive_method"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedPredictiveMethod); val.IsValid() && !isEmptyValue(val) {
+        transformed["predictiveMethod"] = transformedPredictiveMethod      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyMetric(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedName, err := expandComputeAutoscalerAutoscalingPolicyMetricName(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-			transformed["metric"] = transformedName
-		}
+      transformedName, err := expandComputeAutoscalerAutoscalingPolicyMetricName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["metric"] = transformedName      }
 
-		transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyMetricTarget(original["target"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
-			transformed["utilizationTarget"] = transformedTarget
-		}
+      transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyMetricTarget(original["target"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
+        transformed["utilizationTarget"] = transformedTarget      }
 
-		transformedType, err := expandComputeAutoscalerAutoscalingPolicyMetricType(original["type"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
-			transformed["utilizationTargetType"] = transformedType
-		}
+      transformedType, err := expandComputeAutoscalerAutoscalingPolicyMetricType(original["type"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+        transformed["utilizationTargetType"] = transformedType      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyMetricName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyMetricTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyMetricType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["target"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
-		transformed["utilizationTarget"] = transformedTarget
-	}
+      transformedTarget, err := expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["target"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
+        transformed["utilizationTarget"] = transformedTarget      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScalingSchedules(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
-	if v == nil {
-		return map[string]interface{}{}, nil
-	}
-	m := make(map[string]interface{})
-	for _, raw := range v.(*schema.Set).List() {
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  if v == nil {
+    return map[string]interface{}{}, nil
+  }
+  m := make(map[string]interface{})
+  for _, raw := range v.(*schema.Set).List() {
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedMinRequiredReplicas, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(original["min_required_replicas"], d, config)
-		if err != nil {
-			return nil, err
-		} else {
-			transformed["minRequiredReplicas"] = transformedMinRequiredReplicas
-		}
+    transformedMinRequiredReplicas, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(original["min_required_replicas"], d, config)
+    if err != nil {
+      return nil, err
+        } else {
+      transformed["minRequiredReplicas"] = transformedMinRequiredReplicas        }
 
-		transformedSchedule, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(original["schedule"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !isEmptyValue(val) {
-			transformed["schedule"] = transformedSchedule
-		}
+    transformedSchedule, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(original["schedule"], d, config)
+    if err != nil {
+      return nil, err
+        } else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !isEmptyValue(val) {
+      transformed["schedule"] = transformedSchedule        }
 
-		transformedTimeZone, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(original["time_zone"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedTimeZone); val.IsValid() && !isEmptyValue(val) {
-			transformed["timeZone"] = transformedTimeZone
-		}
+    transformedTimeZone, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(original["time_zone"], d, config)
+    if err != nil {
+      return nil, err
+        } else if val := reflect.ValueOf(transformedTimeZone); val.IsValid() && !isEmptyValue(val) {
+      transformed["timeZone"] = transformedTimeZone        }
 
-		transformedDurationSec, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(original["duration_sec"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDurationSec); val.IsValid() && !isEmptyValue(val) {
-			transformed["durationSec"] = transformedDurationSec
-		}
+    transformedDurationSec, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(original["duration_sec"], d, config)
+    if err != nil {
+      return nil, err
+        } else if val := reflect.ValueOf(transformedDurationSec); val.IsValid() && !isEmptyValue(val) {
+      transformed["durationSec"] = transformedDurationSec        }
 
-		transformedDisabled, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(original["disabled"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !isEmptyValue(val) {
-			transformed["disabled"] = transformedDisabled
-		}
+    transformedDisabled, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(original["disabled"], d, config)
+    if err != nil {
+      return nil, err
+        } else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !isEmptyValue(val) {
+      transformed["disabled"] = transformedDisabled        }
 
-		transformedDescription, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(original["description"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
-			transformed["description"] = transformedDescription
-		}
+    transformedDescription, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(original["description"], d, config)
+    if err != nil {
+      return nil, err
+        } else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+      transformed["description"] = transformedDescription        }
 
-		transformedName, err := expandString(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		}
-		m[transformedName] = transformed
-	}
-	return m, nil
+
+    transformedName, err := expandString(original["name"], d, config)
+    if err != nil {
+      return nil, err
+    }
+    m[transformedName] = transformed
+  }
+  return m, nil
 }
+
+
+
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
+
 func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
 func expandComputeAutoscalerTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	if v == nil || v.(string) == "" {
-		return "", nil
-	}
-	f, err := parseZonalFieldValue("instanceGroupManagers", v.(string), "project", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for target: %s", err)
-	}
+  if v == nil || v.(string) == "" {
+    return "", nil
+  }
+  f, err := parseZonalFieldValue("instanceGroupManagers", v.(string), "project", "zone", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for target: %s", err)
+  }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+f.RelativeLink())
-	if err != nil {
-		return nil, err
-	}
+  url, err := replaceVars(d, config, "{{ComputeBasePath}}"+f.RelativeLink())
+  if err != nil {
+    return nil, err
+  }
 
-	return url, nil
+  return url, nil
 }
 
+
+
 func expandComputeAutoscalerZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for zone: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for zone: %s", err)
+  }
+  return f.RelativeLink(), nil
 }

@@ -29,8 +29,8 @@ var (
 				// Despite being the only entry in a nested block, this should be kept
 				// Optional. Expressing the parent with no entries and omitting the
 				// parent entirely are semantically different.
-				Optional:    true,
-				Elem:        cidrBlockConfig,
+				Optional: true,
+				Elem:     cidrBlockConfig,
 				Description: `External networks that can access the Kubernetes cluster master through HTTPS.`,
 			},
 		},
@@ -41,11 +41,11 @@ var (
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsCIDRNetwork(0, 32),
-				Description:  `External network that can access Kubernetes master through HTTPS. Must be specified in CIDR notation.`,
+				Description: `External network that can access Kubernetes master through HTTPS. Must be specified in CIDR notation.`,
 			},
 			"display_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
+				Type:     schema.TypeString,
+				Optional: true,
 				Description: `Field for users to identify CIDR blocks.`,
 			},
 		},
@@ -59,7 +59,7 @@ var (
 		"addons_config.0.horizontal_pod_autoscaling",
 		"addons_config.0.network_policy_config",
 		"addons_config.0.cloudrun_config",
-	}
+		}
 
 	forceNewClusterNodeConfigFields = []string{
 		"workload_metadata_config",
@@ -92,18 +92,19 @@ func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool 
 	return false
 }
 
+
 func resourceContainerCluster() *schema.Resource {
 	return &schema.Resource{
 		UseJSONNumber: true,
-		Create:        resourceContainerClusterCreate,
-		Read:          resourceContainerClusterRead,
-		Update:        resourceContainerClusterUpdate,
-		Delete:        resourceContainerClusterDelete,
+		Create: resourceContainerClusterCreate,
+		Read:   resourceContainerClusterRead,
+		Update: resourceContainerClusterUpdate,
+		Delete: resourceContainerClusterDelete,
 
 		CustomizeDiff: customdiff.All(
 			resourceNodeConfigEmptyGuestAccelerator,
 			containerClusterPrivateClusterConfigCustomDiff,
-			containerClusterAutopilotCustomizeDiff,
+						containerClusterAutopilotCustomizeDiff,
 			containerClusterNodeVersionRemoveDefaultCustomizeDiff,
 		),
 
@@ -212,12 +213,12 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 						"network_policy_config": {
-							Type:          schema.TypeList,
-							Optional:      true,
-							Computed:      true,
-							AtLeastOneOf:  addonsConfigKeys,
-							MaxItems:      1,
-							Description:   `Whether we should enable the network policy addon for the master. This must be enabled in order to enable network policy for the nodes. To enable this, you must also define a network_policy block, otherwise nothing will happen. It can only be disabled if the nodes already do not have network policies enabled. Defaults to disabled; set disabled = false to enable.`,
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `Whether we should enable the network policy addon for the master. This must be enabled in order to enable network policy for the nodes. To enable this, you must also define a network_policy block, otherwise nothing will happen. It can only be disabled if the nodes already do not have network policies enabled. Defaults to disabled; set disabled = false to enable.`,
 							ConflictsWith: []string{"enable_autopilot"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -249,7 +250,7 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
-					},
+											},
 				},
 			},
 
@@ -258,9 +259,9 @@ func resourceContainerCluster() *schema.Resource {
 				MaxItems: 1,
 				// This field is Optional + Computed because we automatically set the
 				// enabled value to false if the block is not returned in API responses.
-				Optional:      true,
-				Computed:      true,
-				Description:   `Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to automatically adjust the size of the cluster and create/delete node pools based on the current needs of the cluster's workload. See the guide to using Node Auto-Provisioning for more details.`,
+				Optional:    true,
+				Computed:    true,
+				Description: `Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to automatically adjust the size of the cluster and create/delete node pools based on the current needs of the cluster's workload. See the guide to using Node Auto-Provisioning for more details.`,
 				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -315,10 +316,10 @@ func resourceContainerCluster() *schema.Resource {
 										Default:     "default",
 										Description: `The Google Cloud Platform Service Account to be used by the node VMs.`,
 									},
-								},
+																	},
 							},
 						},
-					},
+											},
 				},
 			},
 
@@ -340,10 +341,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_binary_authorization": {
-				Default:       false,
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Description:   `Enable Binary Authorization for this cluster. If enabled, all container images will be validated by Google Binary Authorization.`,
+				Default:     false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enable Binary Authorization for this cluster. If enabled, all container images will be validated by Google Binary Authorization.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
@@ -370,10 +371,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_shielded_nodes": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Default:       true,
-				Description:   `Enable Shielded Nodes features on all nodes in this cluster. Defaults to true.`,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Enable Shielded Nodes features on all nodes in this cluster. Defaults to true.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
@@ -386,12 +387,12 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"authenticator_groups_config": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				MaxItems:      1,
-				Description:   `Configuration for the Google Groups for GKE feature.`,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Description: `Configuration for the Google Groups for GKE feature.`,
 				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -425,7 +426,7 @@ func resourceContainerCluster() *schema.Resource {
 							Required:    true,
 							Description: `GKE components exposing logs. Valid values include SYSTEM_COMPONENTS and WORKLOADS.`,
 							Elem: &schema.Schema{
-								Type:         schema.TypeString,
+								Type: schema.TypeString,
 								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS", "WORKLOADS"}, false),
 							},
 						},
@@ -509,8 +510,8 @@ func resourceContainerCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"exclusion_name": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:         schema.TypeString,
+										Required:     true,
 									},
 									"start_time": {
 										Type:         schema.TypeString,
@@ -529,6 +530,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+
 			"monitoring_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -542,13 +544,14 @@ func resourceContainerCluster() *schema.Resource {
 							Required:    true,
 							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS.`,
 							Elem: &schema.Schema{
-								Type:         schema.TypeString,
+								Type: schema.TypeString,
 								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS"}, false),
 							},
 						},
 					},
 				},
 			},
+
 
 			"confidential_nodes": {
 				Type:        schema.TypeList,
@@ -578,11 +581,11 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"client_certificate_config": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Whether client certificate authorization is enabled for this cluster.`,
+							Type:         schema.TypeList,
+							MaxItems:     1,
+							Required:     true,
+							ForceNew:     true,
+							Description:  `Whether client certificate authorization is enabled for this cluster.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"issue_client_certificate": {
@@ -649,11 +652,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"network_policy": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Computed:      true,
-				MaxItems:      1,
-				Description:   `Configuration options for the NetworkPolicy feature.`,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `Configuration options for the NetworkPolicy feature.`,
 				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -684,7 +687,7 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: schemaNodePool,
 				},
-				Description:   `List of node pools associated with this cluster. See google_container_node_pool for schema. Warning: node pools defined inside a cluster can't be changed (or added/removed) after cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability to say "these are the only node pools associated with this cluster", use the google_container_node_pool resource instead of this property.`,
+				Description: `List of node pools associated with this cluster. See google_container_node_pool for schema. Warning: node pools defined inside a cluster can't be changed (or added/removed) after cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability to say "these are the only node pools associated with this cluster", use the google_container_node_pool resource instead of this property.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
@@ -694,6 +697,7 @@ func resourceContainerCluster() *schema.Resource {
 				Computed:    true,
 				Description: `The Kubernetes version on the nodes. Must either be unset or set to the same value as min_master_version on create. Defaults to the default version set by GKE which is not necessarily the latest version. This only affects nodes in the default node pool. While a fuzzy version can be specified, it's recommended that you specify explicit versions as Terraform will see spurious diffs when fuzzy versions are used. See the google_container_engine_versions data source's version_prefix field to approximate fuzzy versions in a Terraform-compatible way. To update nodes in other node pools, use the version attribute on the node pool.`,
 			},
+
 
 			"project": {
 				Type:        schema.TypeString,
@@ -799,9 +803,9 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"remove_default_node_pool": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Description:   `If true, deletes the default node pool upon cluster creation. If you're using google_container_node_pool resources with no default node pool, this should be set to true, alongside setting initial_node_count to at least 1.`,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, deletes the default node pool upon cluster creation. If you're using google_container_node_pool resources with no default node pool, this should be set to true, alongside setting initial_node_count to at least 1.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
@@ -851,10 +855,10 @@ func resourceContainerCluster() *schema.Resource {
 							Description: `The external IP address of this cluster's master endpoint.`,
 						},
 						"master_global_access_config": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Computed:    true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
 							Description: "Controls cluster master global access settings.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -884,11 +888,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"default_max_pods_per_node": {
-				Type:          schema.TypeInt,
-				Optional:      true,
-				ForceNew:      true,
-				Computed:      true,
-				Description:   `The default maximum number of pods per node in this cluster. This doesn't work on "routes-based" clusters, clusters that don't have IP Aliasing enabled.`,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The default maximum number of pods per node in this cluster. This doesn't work on "routes-based" clusters, clusters that don't have IP Aliasing enabled.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
@@ -914,42 +918,43 @@ func resourceContainerCluster() *schema.Resource {
 				// Computed is unsafe to remove- this API may return `"workloadIdentityConfig": {},` or omit the key entirely
 				// and both will be valid. Note that we don't handle the case where the API returns nothing & the user has defined
 				// workload_identity_config today.
-				Computed:      true,
-				Description:   `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
+				Computed: true,
+				Description: `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
 				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"workload_pool": {
-							Type:        schema.TypeString,
-							Optional:    true,
+							Type:     schema.TypeString,
+							Optional: true,
 							Description: "The workload pool to attach all Kubernetes service accounts to.",
 						},
 					},
 				},
 			},
 
-			"database_encryption": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Computed:    true,
-				Description: `Application-layer Secrets Encryption settings. The object format is {state = string, key_name = string}. Valid values of state are: "ENCRYPTED"; "DECRYPTED". key_name is the name of a CloudKMS key.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"state": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ENCRYPTED", "DECRYPTED"}, false),
-							Description:  `ENCRYPTED or DECRYPTED.`,
-						},
-						"key_name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The key to use to encrypt/decrypt secrets.`,
-						},
-					},
-				},
-			},
+
+      "database_encryption": {
+        Type:        schema.TypeList,
+        MaxItems:    1,
+        Optional:    true,
+        Computed:    true,
+        Description: `Application-layer Secrets Encryption settings. The object format is {state = string, key_name = string}. Valid values of state are: "ENCRYPTED"; "DECRYPTED". key_name is the name of a CloudKMS key.`,
+        Elem: &schema.Resource{
+          Schema: map[string]*schema.Schema{
+            "state": {
+              Type:         schema.TypeString,
+              Required:     true,
+              ValidateFunc: validation.StringInSlice([]string{"ENCRYPTED", "DECRYPTED"}, false),
+              Description:  `ENCRYPTED or DECRYPTED.`,
+            },
+            "key_name": {
+              Type:        schema.TypeString,
+              Optional:    true,
+              Description: `The key to use to encrypt/decrypt secrets.`,
+            },
+          },
+        },
+      },
 
 			"release_channel": {
 				Type:        schema.TypeList,
@@ -960,10 +965,10 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"channel": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
-							Description: `The selected release channel. Accepted values are:
+							Type:             schema.TypeString,
+							Required:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
+							Description:      `The selected release channel. Accepted values are:
 * UNSPECIFIED: Not set.
 * RAPID: Weekly upgrade cadence; Early testers and developers who requires new features.
 * REGULAR: Multiple per month upgrade cadence; Production users who need features not yet offered in the Stable channel.
@@ -979,17 +984,18 @@ func resourceContainerCluster() *schema.Resource {
 				Description: `The IP address range of the Cloud TPUs in this cluster, in CIDR notation (e.g. 1.2.3.4/29).`,
 			},
 
+
 			"default_snat_status": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Computed:    true,
+				Type: schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
 				Description: `Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
+				Elem: &schema.Resource {
+					Schema: map[string]*schema.Schema {
 						"disabled": {
-							Type:        schema.TypeBool,
-							Required:    true,
+							Type: schema.TypeBool,
+							Required: true,
 							Description: `When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic.`,
 						},
 					},
@@ -1006,17 +1012,17 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_intranode_visibility": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Computed:      true,
-				Description:   `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
-				ConflictsWith: []string{"enable_autopilot"},
+			   Type: schema.TypeBool,
+			   Optional: true,
+			   Computed: true,
+			   Description: `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
+			   ConflictsWith: []string{"enable_autopilot"},
 			},
 			"private_ipv6_google_access": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The desired state of IPv6 connectivity to Google Services. By default, no private IPv6 access to or from Google Services (all access will be via IPv4).`,
-				Computed:    true,
+			   Type: schema.TypeString,
+			   Optional: true,
+			   Description: `The desired state of IPv6 connectivity to Google Services. By default, no private IPv6 access to or from Google Services (all access will be via IPv4).`,
+			   Computed: true,
 			},
 
 			"resource_usage_export_config": {
@@ -1153,13 +1159,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_legacy_abac").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
-		LoggingService:        d.Get("logging_service").(string),
-		MonitoringService:     d.Get("monitoring_service").(string),
-		NetworkPolicy:         expandNetworkPolicy(d.Get("network_policy")),
-		AddonsConfig:          expandClusterAddonsConfig(d.Get("addons_config")),
-		EnableKubernetesAlpha: d.Get("enable_kubernetes_alpha").(bool),
-		IpAllocationPolicy:    ipAllocationBlock,
-		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
+		LoggingService:          d.Get("logging_service").(string),
+		MonitoringService:       d.Get("monitoring_service").(string),
+		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
+		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
+		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
+		IpAllocationPolicy:      ipAllocationBlock,
+		Autoscaling:             expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization: &container.BinaryAuthorization{
 			Enabled:         d.Get("enable_binary_authorization").(bool),
 			ForceSendFields: []string{"Enabled"},
@@ -1168,20 +1174,20 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_autopilot").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
-		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
-		EnableTpu:      d.Get("enable_tpu").(bool),
+		ReleaseChannel:          expandReleaseChannel(d.Get("release_channel")),
+		EnableTpu:               d.Get("enable_tpu").(bool),
 		NetworkConfig: &container.NetworkConfig{
 			EnableIntraNodeVisibility: d.Get("enable_intranode_visibility").(bool),
 			DefaultSnatStatus:         expandDefaultSnatStatus(d.Get("default_snat_status")),
-			DatapathProvider:          d.Get("datapath_provider").(string),
+		    DatapathProvider:          d.Get("datapath_provider").(string),
 			PrivateIpv6GoogleAccess:   d.Get("private_ipv6_google_access").(string),
-		},
-		MasterAuth:        expandMasterAuth(d.Get("master_auth")),
+							    },
+		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ConfidentialNodes: expandConfidentialNodes(d.Get("confidential_nodes")),
-		ResourceLabels:    expandStringMap(d, "resource_labels"),
+		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
 
-	v := d.Get("enable_shielded_nodes")
+	v:= d.Get("enable_shielded_nodes")
 	cluster.ShieldedNodes = &container.ShieldedNodes{
 		Enabled:         v.(bool),
 		ForceSendFields: []string{"Enabled"},
@@ -1583,9 +1589,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+
 	if err := d.Set("database_encryption", flattenDatabaseEncryption(cluster.DatabaseEncryption)); err != nil {
 		return err
 	}
+
 
 	if err := d.Set("resource_labels", cluster.ResourceLabels); err != nil {
 		return fmt.Errorf("Error setting resource_labels: %s", err)
@@ -1842,6 +1850,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] GKE cluster %s Private IPv6 Google Access has been updated", d.Id())
 	}
+
 
 	if d.HasChange("default_snat_status") {
 		req := &container.UpdateClusterRequest{
@@ -2159,6 +2168,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+
 	if d.HasChange("vertical_pod_autoscaling") {
 		if ac, ok := d.GetOk("vertical_pod_autoscaling"); ok {
 			req := &container.UpdateClusterRequest{
@@ -2204,6 +2214,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s database encryption config has been updated", d.Id())
 	}
 
+
 	if d.HasChange("workload_identity_config") {
 		// Because GKE uses a non-RESTful update function, when removing the
 		// feature you need to specify a fairly full request body or it fails:
@@ -2212,8 +2223,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		if v, ok := d.GetOk("workload_identity_config"); !ok {
 			req.Update = &container.ClusterUpdate{
 				DesiredWorkloadIdentityConfig: &container.WorkloadIdentityConfig{
-					WorkloadPool:    "",
-					ForceSendFields: []string{"WorkloadPool"},
+					WorkloadPool: "",
+					ForceSendFields:   []string{"WorkloadPool"},
 				},
 			}
 		} else {
@@ -2230,6 +2241,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] GKE cluster %s workload identity config has been updated", d.Id())
 	}
+
 
 	if d.HasChange("logging_config") {
 		req := &container.UpdateClusterRequest{
@@ -2337,6 +2349,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.Partial(false)
+
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return err
@@ -2542,6 +2555,7 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+
 	return ac
 }
 
@@ -2567,7 +2581,7 @@ func expandIPAllocationPolicy(configured interface{}, networkingMode string) (*c
 		ClusterSecondaryRangeName:  config["cluster_secondary_range_name"].(string),
 		ServicesSecondaryRangeName: config["services_secondary_range_name"].(string),
 		ForceSendFields:            []string{"UseIpAliases"},
-		UseRoutes:                  networkingMode == "ROUTES",
+		UseRoutes:              networkingMode == "ROUTES",
 	}, nil
 }
 
@@ -2699,9 +2713,9 @@ func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *c
 		}
 	}
 	return &container.ClusterAutoscaling{
-		EnableNodeAutoprovisioning:       config["enabled"].(bool),
-		ResourceLimits:                   resourceLimits,
-		AutoprovisioningNodePoolDefaults: expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d),
+		EnableNodeAutoprovisioning: config["enabled"].(bool),
+		ResourceLimits:             resourceLimits,
+				AutoprovisioningNodePoolDefaults: expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d),
 	}
 }
 
@@ -2733,6 +2747,7 @@ func expandAuthenticatorGroupsConfig(configured interface{}) *container.Authenti
 	}
 	return result
 }
+
 
 func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
 	l := configured.([]interface{})
@@ -2831,8 +2846,8 @@ func expandPrivateClusterConfigMasterGlobalAccessConfig(configured interface{}) 
 	}
 	config := l[0].(map[string]interface{})
 	return &container.PrivateClusterMasterGlobalAccessConfig{
-		Enabled:         config["enabled"].(bool),
-		ForceSendFields: []string{"Enabled"},
+		Enabled: config["enabled"].(bool),
+		ForceSendFields:       []string{"Enabled"},
 	}
 }
 
@@ -2900,6 +2915,8 @@ func expandWorkloadIdentityConfig(configured interface{}) *container.WorkloadIde
 	return v
 }
 
+
+
 func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint {
 	if v == nil {
 		return nil
@@ -2939,6 +2956,7 @@ func expandResourceUsageExportConfig(configured interface{}) *container.Resource
 	return result
 }
 
+
 func expandContainerClusterLoggingConfig(configured interface{}) *container.LoggingConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2966,6 +2984,7 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 		},
 	}
 }
+
 
 func flattenConfidentialNodes(c *container.ConfidentialNodes) []map[string]interface{} {
 	result := []map[string]interface{}{}
@@ -3114,6 +3133,7 @@ func flattenReleaseChannel(c *container.ReleaseChannel) []map[string]interface{}
 	return result
 }
 
+
 func flattenDefaultSnatStatus(c *container.DefaultSnatStatus) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
@@ -3136,6 +3156,7 @@ func flattenWorkloadIdentityConfig(c *container.WorkloadIdentityConfig, d *schem
 	}
 }
 
+
 func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, config *Config) ([]map[string]interface{}, error) {
 	// If IP aliasing isn't enabled, none of the values in this block can be set.
 	if c == nil || c.IpAllocationPolicy == nil || !c.IpAllocationPolicy.UseIpAliases {
@@ -3144,9 +3165,9 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 		}
 		return nil, nil
 	}
-	if err := d.Set("networking_mode", "VPC_NATIVE"); err != nil {
-		return nil, fmt.Errorf("Error setting networking_mode: %s", err)
-	}
+		if err := d.Set("networking_mode", "VPC_NATIVE"); err != nil {
+			return nil, fmt.Errorf("Error setting networking_mode: %s", err)
+		}
 
 	p := c.IpAllocationPolicy
 	return []map[string]interface{}{
@@ -3168,8 +3189,8 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 	if mp.Window.MaintenanceExclusions != nil {
 		for wName, window := range mp.Window.MaintenanceExclusions {
 			exclusions = append(exclusions, map[string]interface{}{
-				"start_time":     window.StartTime,
-				"end_time":       window.EndTime,
+				"start_time":  window.StartTime,
+				"end_time":    window.EndTime,
 				"exclusion_name": wName,
 			})
 		}
@@ -3253,7 +3274,7 @@ func flattenClusterAutoscaling(a *container.ClusterAutoscaling) []map[string]int
 	} else {
 		r["enabled"] = false
 	}
-
+	
 	return []map[string]interface{}{r}
 }
 
@@ -3261,7 +3282,7 @@ func flattenAutoProvisioningDefaults(a *container.AutoprovisioningNodePoolDefaul
 	r := make(map[string]interface{})
 	r["oauth_scopes"] = a.OauthScopes
 	r["service_account"] = a.ServiceAccount
-
+	
 	return []map[string]interface{}{r}
 }
 
@@ -3282,6 +3303,7 @@ func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworks
 	}
 	return []map[string]interface{}{result}
 }
+
 
 func flattenResourceUsageExportConfig(c *container.ResourceUsageExportConfig) []map[string]interface{} {
 	if c == nil {
@@ -3316,6 +3338,7 @@ func flattenDatabaseEncryption(c *container.DatabaseEncryption) []map[string]int
 	}
 }
 
+
 func flattenContainerClusterLoggingConfig(c *container.LoggingConfig) []map[string]interface{} {
 	if c == nil {
 		return nil
@@ -3323,7 +3346,7 @@ func flattenContainerClusterLoggingConfig(c *container.LoggingConfig) []map[stri
 
 	return []map[string]interface{}{
 		{
-			"enable_components": c.ComponentConfig.EnableComponents,
+			"enable_components":        c.ComponentConfig.EnableComponents,
 		},
 	}
 }
@@ -3335,7 +3358,7 @@ func flattenMonitoringConfig(c *container.MonitoringConfig) []map[string]interfa
 
 	return []map[string]interface{}{
 		{
-			"enable_components": c.ComponentConfig.EnableComponents,
+			"enable_components":        c.ComponentConfig.EnableComponents,
 		},
 	}
 }

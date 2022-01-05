@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccEssentialContactsContact_essentialContactExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEssentialContactsContactDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckEssentialContactsContactDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccEssentialContactsContact_essentialContactExample(context),
 			},
-			{
-				ResourceName:            "google_essential_contacts_contact.contact",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_essential_contacts_contact.contact",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccEssentialContactsContact_essentialContactExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_project" "project" {
 }
 
@@ -62,6 +61,7 @@ resource "google_essential_contacts_contact" "contact" {
 `, context)
 }
 
+
 func testAccCheckEssentialContactsContactDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -72,24 +72,24 @@ func testAccCheckEssentialContactsContactDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{EssentialContactsBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{EssentialContactsBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("EssentialContactsContact still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

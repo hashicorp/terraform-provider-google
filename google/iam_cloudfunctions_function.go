@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var CloudFunctionsCloudFunctionIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"region": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"cloud_function": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type CloudFunctionsCloudFunctionIamUpdater struct {
-	project       string
-	region        string
+	project string
+	region string
 	cloudFunction string
-	d             TerraformResourceData
-	Config        *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func CloudFunctionsCloudFunctionIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d TerraformResourceData, conf
 		values["cloud_function"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Get("cloud_function").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)","(?P<region>[^/]+)/(?P<cloud_function>[^/]+)","(?P<cloud_function>[^/]+)"}, d, config, d.Get("cloud_function").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d TerraformResourceData, conf
 	}
 
 	u := &CloudFunctionsCloudFunctionIamUpdater{
-		project:       values["project"],
-		region:        values["region"],
+		project: values["project"],
+		region: values["region"],
 		cloudFunction: values["cloud_function"],
-		d:             d,
-		Config:        config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Conf
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	region, _ := getRegion(d, config)
 	if region != "" {
-		values["region"] = region
-	}
+		values["region"] = region	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)","(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)","(?P<region>[^/]+)/(?P<cloud_function>[^/]+)","(?P<cloud_function>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &CloudFunctionsCloudFunctionIamUpdater{
-		project:       values["project"],
-		region:        values["region"],
+		project: values["project"],
+		region: values["region"],
 		cloudFunction: values["cloud_function"],
-		d:             d,
-		Config:        config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("cloud_function", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting cloud_function: %s", err)
@@ -175,6 +180,7 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) SetResourceIamPolicy(policy *clo
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) SetResourceIamPolicy(policy *clo
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) qualifyCloudFunctionUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudFunctionsBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.region, u.cloudFunction), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) GetResourceId() string {

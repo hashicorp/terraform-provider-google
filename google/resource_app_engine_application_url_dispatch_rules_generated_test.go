@@ -15,40 +15,39 @@
 package google
 
 import (
-	"log"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_app_engine_application_url_dispatch_rules.web_service",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_app_engine_application_url_dispatch_rules" "web_service" {
   dispatch_rules {
     domain  = "*"
@@ -98,6 +97,7 @@ resource "google_storage_bucket_object" "object" {
 `, context)
 }
 
+
 func testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -109,7 +109,7 @@ func testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t *testing.
 			}
 
 			log.Printf("[DEBUG] Ignoring destroy during test")
-		}
+				}
 
 		return nil
 	}

@@ -740,6 +740,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+
 	if res.Billing == nil {
 		if err := d.Set("requester_pays", nil); err != nil {
 			return fmt.Errorf("Error setting requester_pays: %s", err)
@@ -1131,6 +1132,7 @@ func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfigurat
 			ForceSendFields: []string{"Enabled"},
 		},
 	}
+
 
 	return cfg
 }

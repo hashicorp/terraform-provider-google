@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpConfigBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"name":          "oidc.oauth-idp-config-" + randString(t, 10),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"name": "oidc.oauth-idp-config-" + randString(t, 10),
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIdentityPlatformTenantOauthIdpConfigDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckIdentityPlatformTenantOauthIdpConfigDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpConfigBasicExample(context),
 			},
-			{
-				ResourceName:            "google_identity_platform_tenant_oauth_idp_config.tenant_oauth_idp_config",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_identity_platform_tenant_oauth_idp_config.tenant_oauth_idp_config",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"tenant"},
 			},
-		},
+				},
 	})
 }
 
 func testAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpConfigBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
   display_name  = "tenant"
 }
@@ -67,6 +66,7 @@ resource "google_identity_platform_tenant_oauth_idp_config" "tenant_oauth_idp_co
 `, context)
 }
 
+
 func testAccCheckIdentityPlatformTenantOauthIdpConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -77,24 +77,24 @@ func testAccCheckIdentityPlatformTenantOauthIdpConfigDestroyProducer(t *testing.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("IdentityPlatformTenantOauthIdpConfig still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

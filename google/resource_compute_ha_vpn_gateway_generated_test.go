@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeHaVpnGateway_haVpnGatewayBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHaVpnGateway_haVpnGatewayBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_ha_vpn_gateway.ha_gateway1",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_ha_vpn_gateway.ha_gateway1",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeHaVpnGateway_haVpnGatewayBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
   region   = "us-central1"
   name     = "tf-test-ha-vpn-1%{random_suffix}"
@@ -65,32 +64,32 @@ resource "google_compute_network" "network1" {
 
 func TestAccComputeHaVpnGateway_haVpnGatewayGcpToGcpExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHaVpnGateway_haVpnGatewayGcpToGcpExample(context),
 			},
-			{
-				ResourceName:            "google_compute_ha_vpn_gateway.ha_gateway1",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_ha_vpn_gateway.ha_gateway1",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeHaVpnGateway_haVpnGatewayGcpToGcpExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
   region   = "us-central1"
   name     = "tf-test-ha-vpn-1%{random_suffix}"
@@ -274,32 +273,32 @@ resource "google_compute_router_peer" "router2_peer2" {
 }
 
 func TestAccComputeHaVpnGateway_computeHaVpnGatewayEncryptedInterconnectExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHaVpnGateway_computeHaVpnGatewayEncryptedInterconnectExample(context),
 			},
-			{
-				ResourceName:            "google_compute_ha_vpn_gateway.vpn-gateway",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_ha_vpn_gateway.vpn-gateway",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeHaVpnGateway_computeHaVpnGatewayEncryptedInterconnectExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_ha_vpn_gateway" "vpn-gateway" {
   name           = "tf-test-test-ha-vpngw%{random_suffix}"
   network        = google_compute_network.network.id
@@ -369,6 +368,7 @@ resource "google_compute_network" "network" {
 `, context)
 }
 
+
 func testAccCheckComputeHaVpnGatewayDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -379,24 +379,24 @@ func testAccCheckComputeHaVpnGatewayDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeHaVpnGateway still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

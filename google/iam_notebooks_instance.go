@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var NotebooksInstanceIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"location": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"instance_name": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type NotebooksInstanceIamUpdater struct {
-	project      string
-	location     string
+	project string
+	location string
 	instanceName string
-	d            TerraformResourceData
-	Config       *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func NotebooksInstanceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func NotebooksInstanceIamUpdaterProducer(d TerraformResourceData, config *Config
 		values["instance_name"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<instance_name>[^/]+)", "(?P<location>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Get("instance_name").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/instances/(?P<instance_name>[^/]+)","(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<instance_name>[^/]+)","(?P<location>[^/]+)/(?P<instance_name>[^/]+)","(?P<instance_name>[^/]+)"}, d, config, d.Get("instance_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func NotebooksInstanceIamUpdaterProducer(d TerraformResourceData, config *Config
 	}
 
 	u := &NotebooksInstanceIamUpdater{
-		project:      values["project"],
-		location:     values["location"],
+		project: values["project"],
+		location: values["location"],
 		instanceName: values["instance_name"],
-		d:            d,
-		Config:       config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func NotebooksInstanceIdParseFunc(d *schema.ResourceData, config *Config) error 
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	location, _ := getLocation(d, config)
 	if location != "" {
-		values["location"] = location
-	}
+		values["location"] = location	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<instance_name>[^/]+)", "(?P<location>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/instances/(?P<instance_name>[^/]+)","(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<instance_name>[^/]+)","(?P<location>[^/]+)/(?P<instance_name>[^/]+)","(?P<instance_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &NotebooksInstanceIamUpdater{
-		project:      values["project"],
-		location:     values["location"],
+		project: values["project"],
+		location: values["location"],
 		instanceName: values["instance_name"],
-		d:            d,
-		Config:       config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("instance_name", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting instance_name: %s", err)
@@ -175,6 +180,7 @@ func (u *NotebooksInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *NotebooksInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *NotebooksInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{NotebooksBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.location, u.instanceName), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *NotebooksInstanceIamUpdater) GetResourceId() string {

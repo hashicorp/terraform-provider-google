@@ -23,17 +23,17 @@ func TestAccDialogflowCXAgent_update(t *testing.T) {
 				Config: testAccDialogflowCXAgent_basic(context),
 			},
 			{
-				ResourceName:      "google_dialogflow_cx_agent.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dialogflow_cx_agent.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
 			},
 			{
 				Config: testAccDialogflowCXAgent_full(context),
 			},
 			{
-				ResourceName:      "google_dialogflow_cx_agent.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dialogflow_cx_agent.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
 			},
 		},
 	})

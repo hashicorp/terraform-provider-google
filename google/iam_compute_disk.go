@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,29 +27,30 @@ import (
 
 var ComputeDiskIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"zone": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"name": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type ComputeDiskIamUpdater struct {
 	project string
-	zone    string
-	name    string
+	zone string
+	name string
 	d       TerraformResourceData
 	Config  *Config
 }
@@ -71,8 +76,9 @@ func ComputeDiskIamUpdaterProducer(d TerraformResourceData, config *Config) (Res
 		values["name"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/disks/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config, d.Get("name").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/disks/(?P<name>[^/]+)","(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)","(?P<zone>[^/]+)/(?P<name>[^/]+)","(?P<name>[^/]+)"}, d, config, d.Get("name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +89,8 @@ func ComputeDiskIamUpdaterProducer(d TerraformResourceData, config *Config) (Res
 
 	u := &ComputeDiskIamUpdater{
 		project: values["project"],
-		zone:    values["zone"],
-		name:    values["name"],
+		zone: values["zone"],
+		name: values["name"],
 		d:       d,
 		Config:  config,
 	}
@@ -107,27 +113,26 @@ func ComputeDiskIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	zone, _ := getZone(d, config)
 	if zone != "" {
-		values["zone"] = zone
-	}
+		values["zone"] = zone	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/disks/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/disks/(?P<name>[^/]+)","(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)","(?P<zone>[^/]+)/(?P<name>[^/]+)","(?P<name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &ComputeDiskIamUpdater{
 		project: values["project"],
-		zone:    values["zone"],
-		name:    values["name"],
+		zone: values["zone"],
+		name: values["name"],
 		d:       d,
 		Config:  config,
 	}
@@ -175,6 +180,7 @@ func (u *ComputeDiskIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -202,11 +208,11 @@ func (u *ComputeDiskIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 
 func (u *ComputeDiskIamUpdater) qualifyDiskUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/zones/%s/disks/%s", u.project, u.zone, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *ComputeDiskIamUpdater) GetResourceId() string {

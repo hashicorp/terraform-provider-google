@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubLiteTopicDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPubsubLiteTopicDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubLiteTopic_pubsubLiteTopicBasicExample(context),
 			},
-			{
-				ResourceName:            "google_pubsub_lite_topic.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_pubsub_lite_topic.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region", "zone", "name"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPubsubLiteTopic_pubsubLiteTopicBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_lite_reservation" "example" {
   name = "tf-test-example-reservation%{random_suffix}"
   project = data.google_project.project.number
@@ -82,6 +81,7 @@ data "google_project" "project" {
 `, context)
 }
 
+
 func testAccCheckPubsubLiteTopicDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -92,24 +92,24 @@ func testAccCheckPubsubLiteTopicDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("PubsubLiteTopic still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

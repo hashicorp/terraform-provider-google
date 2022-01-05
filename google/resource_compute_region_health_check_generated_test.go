@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckTcpExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckTcpExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.tcp-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.tcp-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckTcpExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "tcp-region-health-check" {
   name     = "tf-test-tcp-region-health-check%{random_suffix}"
 
@@ -64,32 +63,32 @@ resource "google_compute_region_health_check" "tcp-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.tcp-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.tcp-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "tcp-region-health-check" {
   name        = "tf-test-tcp-region-health-check%{random_suffix}"
   description = "Health check via tcp"
@@ -111,32 +110,32 @@ resource "google_compute_region_health_check" "tcp-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckSslExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckSslExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.ssl-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.ssl-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckSslExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "ssl-region-health-check" {
   name     = "tf-test-ssl-region-health-check%{random_suffix}"
 
@@ -151,32 +150,32 @@ resource "google_compute_region_health_check" "ssl-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.ssl-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.ssl-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "ssl-region-health-check" {
   name        = "tf-test-ssl-region-health-check%{random_suffix}"
   description = "Health check via ssl"
@@ -198,32 +197,32 @@ resource "google_compute_region_health_check" "ssl-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckHttpExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.http-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.http-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "http-region-health-check" {
   name     = "tf-test-http-region-health-check%{random_suffix}"
 
@@ -238,32 +237,32 @@ resource "google_compute_region_health_check" "http-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.http-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.http-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "http-region-health-check" {
   name        = "tf-test-http-region-health-check%{random_suffix}"
   description = "Health check via http"
@@ -286,32 +285,32 @@ resource "google_compute_region_health_check" "http-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.https-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.https-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "https-region-health-check" {
   name     = "tf-test-https-region-health-check%{random_suffix}"
 
@@ -326,32 +325,32 @@ resource "google_compute_region_health_check" "https-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.https-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.https-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "https-region-health-check" {
   name        = "tf-test-https-region-health-check%{random_suffix}"
   description = "Health check via https"
@@ -374,32 +373,32 @@ resource "google_compute_region_health_check" "https-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.http2-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.http2-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "http2-region-health-check" {
   name     = "tf-test-http2-region-health-check%{random_suffix}"
 
@@ -414,32 +413,32 @@ resource "google_compute_region_health_check" "http2-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.http2-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.http2-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "http2-region-health-check" {
   name        = "tf-test-http2-region-health-check%{random_suffix}"
   description = "Health check via http2"
@@ -462,32 +461,32 @@ resource "google_compute_region_health_check" "http2-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.grpc-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.grpc-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "grpc-region-health-check" {
   name = "tf-test-grpc-region-health-check%{random_suffix}"
 
@@ -502,32 +501,32 @@ resource "google_compute_region_health_check" "grpc-region-health-check" {
 }
 
 func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(context),
 			},
-			{
-				ResourceName:            "google_compute_region_health_check.grpc-region-health-check",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_region_health_check.grpc-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_region_health_check" "grpc-region-health-check" {
   name = "tf-test-grpc-region-health-check%{random_suffix}"
 
@@ -543,6 +542,7 @@ resource "google_compute_region_health_check" "grpc-region-health-check" {
 `, context)
 }
 
+
 func testAccCheckComputeRegionHealthCheckDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -553,24 +553,24 @@ func testAccCheckComputeRegionHealthCheckDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/healthChecks/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/healthChecks/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeRegionHealthCheck still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -15,43 +15,42 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+					"pool": "static-ca-pool",
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateConfigExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_certificate.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_certificate.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_certificate_authority" "test-ca" {
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
   location = "us-central1"
@@ -135,34 +134,34 @@ resource "google_privateca_certificate" "default" {
 }
 
 func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+					"pool": "static-ca-pool",
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_certificate.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_certificate.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_certificate_template" "template" {
   location    = "us-central1"
   name = "tf-test-my-certificate-template%{random_suffix}"
@@ -288,34 +287,34 @@ resource "google_privateca_certificate" "default" {
 }
 
 func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+					"pool": "static-ca-pool",
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateCsrExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_certificate.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_certificate.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateCsrExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_certificate_authority" "test-ca" {
   pool = "%{pool}"
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
@@ -365,34 +364,34 @@ resource "google_privateca_certificate" "default" {
 }
 
 func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+					"pool": "static-ca-pool",
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_certificate.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_certificate.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_certificate_authority" "authority" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
@@ -476,6 +475,7 @@ resource "google_privateca_certificate" "default" {
 `, context)
 }
 
+
 func testAccCheckPrivatecaCertificateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -488,23 +488,24 @@ func testAccCheckPrivatecaCertificateDestroyProducer(t *testing.T) func(s *terra
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+url, err := replaceVarsForTest(config, rs, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 
-			if err != nil {
-				return err
-			}
+if err != nil {
+	return err
+}
 
-			res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
-			if err != nil {
-				return err
-			}
+res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+if err != nil {
+	return err
+}
 
-			if _, ok := res["revocationDetails"]; !ok {
-				return fmt.Errorf("CertificateAuthority.Certificate Revocation expected %s got %s, want revocationDetails.revocationTime", url, s)
-			}
 
-			return nil
-		}
+if _, ok := res["revocationDetails"]; !ok {
+    return fmt.Errorf("CertificateAuthority.Certificate Revocation expected %s got %s, want revocationDetails.revocationTime", url, s)
+}
+
+return nil
+				}
 
 		return nil
 	}

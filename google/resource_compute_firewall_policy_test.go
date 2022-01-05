@@ -48,7 +48,7 @@ func TestAccComputeFirewallPolicy_update(t *testing.T) {
 }
 
 func testAccComputeFirewallPolicy_basic(org, policyName, folderName string) string {
-	return fmt.Sprintf(`
+  return fmt.Sprintf(`
 resource "google_folder" "folder" {
   display_name = "%s"
   parent       = "%s"
@@ -63,7 +63,7 @@ resource "google_compute_firewall_policy" "default" {
 }
 
 func testAccComputeFirewallPolicy_update(org, policyName, folderName string) string {
-	return fmt.Sprintf(`
+  return fmt.Sprintf(`
 resource "google_folder" "folder" {
   display_name = "%s"
   parent       = "%s"

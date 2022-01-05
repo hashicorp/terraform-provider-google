@@ -18,22 +18,25 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccCloudRunServiceIamBindingGenerated(t *testing.T) {
+																															func TestAccCloudRunServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"project":       getTestProjectFromEnv(),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"project": getTestProjectFromEnv(),
+	
+}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunServiceIamBinding_basicGenerated(context),
 			},
@@ -60,16 +63,17 @@ func TestAccCloudRunServiceIamBindingGenerated(t *testing.T) {
 func TestAccCloudRunServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"project":       getTestProjectFromEnv(),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"project": getTestProjectFromEnv(),
+	
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccCloudRunServiceIamMember_basicGenerated(context),
@@ -87,16 +91,17 @@ func TestAccCloudRunServiceIamMemberGenerated(t *testing.T) {
 func TestAccCloudRunServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
-		"project":       getTestProjectFromEnv(),
-	}
+context := map[string]interface{}{
+	"random_suffix": randString(t, 10),
+	"role":          "roles/viewer",
+			"project": getTestProjectFromEnv(),
+	
+}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		Steps: []resource.TestStep{
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunServiceIamPolicy_basicGenerated(context),
 			},
@@ -118,6 +123,7 @@ func TestAccCloudRunServiceIamPolicyGenerated(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccCloudRunServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`

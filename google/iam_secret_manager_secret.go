@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,24 +27,25 @@ import (
 
 var SecretManagerSecretIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"secret_id": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type SecretManagerSecretIamUpdater struct {
-	project  string
+	project string
 	secretId string
-	d        TerraformResourceData
-	Config   *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func SecretManagerSecretIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -57,8 +62,9 @@ func SecretManagerSecretIamUpdaterProducer(d TerraformResourceData, config *Conf
 		values["secret_id"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)", "(?P<project>[^/]+)/(?P<secret_id>[^/]+)", "(?P<secret_id>[^/]+)"}, d, config, d.Get("secret_id").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)","(?P<project>[^/]+)/(?P<secret_id>[^/]+)","(?P<secret_id>[^/]+)"}, d, config, d.Get("secret_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +74,10 @@ func SecretManagerSecretIamUpdaterProducer(d TerraformResourceData, config *Conf
 	}
 
 	u := &SecretManagerSecretIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		secretId: values["secret_id"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -89,23 +95,23 @@ func SecretManagerSecretIdParseFunc(d *schema.ResourceData, config *Config) erro
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)", "(?P<project>[^/]+)/(?P<secret_id>[^/]+)", "(?P<secret_id>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)","(?P<project>[^/]+)/(?P<secret_id>[^/]+)","(?P<secret_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &SecretManagerSecretIamUpdater{
-		project:  values["project"],
+		project: values["project"],
 		secretId: values["secret_id"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("secret_id", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting secret_id: %s", err)
@@ -151,6 +157,7 @@ func (u *SecretManagerSecretIamUpdater) SetResourceIamPolicy(policy *cloudresour
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -178,11 +185,11 @@ func (u *SecretManagerSecretIamUpdater) SetResourceIamPolicy(policy *cloudresour
 
 func (u *SecretManagerSecretIamUpdater) qualifySecretUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{SecretManagerBasePath}}%s:%s", fmt.Sprintf("projects/%s/secrets/%s", u.project, u.secretId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *SecretManagerSecretIamUpdater) GetResourceId() string {

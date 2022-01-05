@@ -15,367 +15,386 @@
 package google
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"reflect"
-	"regexp"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+
 func resourceKMSCryptoKey() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceKMSCryptoKeyCreate,
-		Read:   resourceKMSCryptoKeyRead,
-		Update: resourceKMSCryptoKeyUpdate,
-		Delete: resourceKMSCryptoKeyDelete,
+    return &schema.Resource{
+        Create: resourceKMSCryptoKeyCreate,
+        Read: resourceKMSCryptoKeyRead,
+        Update: resourceKMSCryptoKeyUpdate,
+        Delete: resourceKMSCryptoKeyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceKMSCryptoKeyImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceKMSCryptoKeyImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		SchemaVersion: 1,
-		StateUpgraders: []schema.StateUpgrader{
-			{
-				Type:    resourceKMSCryptoKeyResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceKMSCryptoKeyUpgradeV0,
-				Version: 0,
-			},
-		},
+        SchemaVersion: 1,
+        StateUpgraders: []schema.StateUpgrader{
+            {
+                Type: resourceKMSCryptoKeyResourceV0().CoreConfigSchema().ImpliedType(),
+                Upgrade: resourceKMSCryptoKeyUpgradeV0,
+                Version: 0,
+            },
+        },
 
-		Schema: map[string]*schema.Schema{
-			"key_ring": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: kmsCryptoKeyRingsEquivalent,
-				Description: `The KeyRing that this key belongs to.
+
+        Schema: map[string]*schema.Schema{
+"key_ring": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+  DiffSuppressFunc: kmsCryptoKeyRingsEquivalent,
+	Description: `The KeyRing that this key belongs to.
 Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''.`,
-			},
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The resource name for the CryptoKey.`,
-			},
-			"destroy_scheduled_duration": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
+},
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The resource name for the CryptoKey.`,
+},
+"destroy_scheduled_duration": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+	Description: `The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
 If not specified at creation time, the default duration is 24 hours.`,
-			},
-			"import_only": {
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Whether this key may contain imported versions only.`,
-			},
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Labels with user-defined metadata to apply to this resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-			"purpose": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT", ""}, false),
-				Description: `The immutable purpose of this CryptoKey. See the
+},
+"import_only": {
+    Type: schema.TypeBool,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+	Description: `Whether this key may contain imported versions only.`,
+},
+"labels": {
+    Type: schema.TypeMap,
+    Optional: true,
+	Description: `Labels with user-defined metadata to apply to this resource.`,
+  Elem: &schema.Schema{Type: schema.TypeString},
+},
+"purpose": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	ValidateFunc: validation.StringInSlice([]string{"ENCRYPT_DECRYPT","ASYMMETRIC_SIGN","ASYMMETRIC_DECRYPT",""}, false),
+	Description: `The immutable purpose of this CryptoKey. See the
 [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
 for possible inputs. Default value: "ENCRYPT_DECRYPT" Possible values: ["ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT"]`,
-				Default: "ENCRYPT_DECRYPT",
-			},
-			"rotation_period": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: orEmpty(validateKmsCryptoKeyRotationPeriod),
-				Description: `Every time this period passes, generate a new CryptoKeyVersion and set it as the primary.
+    Default: "ENCRYPT_DECRYPT",
+},
+"rotation_period": {
+    Type: schema.TypeString,
+    Optional: true,
+		ValidateFunc: orEmpty(validateKmsCryptoKeyRotationPeriod),
+		Description: `Every time this period passes, generate a new CryptoKeyVersion and set it as the primary.
 The first rotation will take place after the specified period. The rotation period has
 the format of a decimal number with up to 9 fractional digits, followed by the
 letter 's' (seconds). It must be greater than a day (ie, 86400).`,
-			},
-			"skip_initial_version_creation": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
+},
+"skip_initial_version_creation": {
+    Type: schema.TypeBool,
+    Optional: true,
+  ForceNew: true,
+	Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
 You must use the 'google_kms_key_ring_import_job' resource to import the CryptoKeyVersion.`,
-			},
-			"version_template": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: `A template describing settings for new crypto key versions.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"algorithm": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `The algorithm to use when creating a version based on this template.
+},
+"version_template": {
+    Type: schema.TypeList,
+  	Computed: true,
+	Optional: true,
+		Description: `A template describing settings for new crypto key versions.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "algorithm": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `The algorithm to use when creating a version based on this template.
 See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v1/CryptoKeyVersionAlgorithm) for possible inputs.`,
-						},
-						"protection_level": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL". Defaults to "SOFTWARE".`,
-							Default:     "SOFTWARE",
-						},
-					},
-				},
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+              "protection_level": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	Description: `The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL". Defaults to "SOFTWARE".`,
+    Default: "SOFTWARE",
+},
+          },
+  },
+},
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	labelsProp, err := expandKMSCryptoKeyLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	purposeProp, err := expandKMSCryptoKeyPurpose(d.Get("purpose"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("purpose"); !isEmptyValue(reflect.ValueOf(purposeProp)) && (ok || !reflect.DeepEqual(v, purposeProp)) {
-		obj["purpose"] = purposeProp
-	}
-	rotationPeriodProp, err := expandKMSCryptoKeyRotationPeriod(d.Get("rotation_period"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("rotation_period"); !isEmptyValue(reflect.ValueOf(rotationPeriodProp)) && (ok || !reflect.DeepEqual(v, rotationPeriodProp)) {
-		obj["rotationPeriod"] = rotationPeriodProp
-	}
-	versionTemplateProp, err := expandKMSCryptoKeyVersionTemplate(d.Get("version_template"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("version_template"); !isEmptyValue(reflect.ValueOf(versionTemplateProp)) && (ok || !reflect.DeepEqual(v, versionTemplateProp)) {
-		obj["versionTemplate"] = versionTemplateProp
-	}
-	destroyScheduledDurationProp, err := expandKMSCryptoKeyDestroyScheduledDuration(d.Get("destroy_scheduled_duration"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("destroy_scheduled_duration"); !isEmptyValue(reflect.ValueOf(destroyScheduledDurationProp)) && (ok || !reflect.DeepEqual(v, destroyScheduledDurationProp)) {
-		obj["destroyScheduledDuration"] = destroyScheduledDurationProp
-	}
-	importOnlyProp, err := expandKMSCryptoKeyImportOnly(d.Get("import_only"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("import_only"); !isEmptyValue(reflect.ValueOf(importOnlyProp)) && (ok || !reflect.DeepEqual(v, importOnlyProp)) {
-		obj["importOnly"] = importOnlyProp
-	}
+    obj := make(map[string]interface{})
+        labelsProp, err := expandKMSCryptoKeyLabels(d.Get( "labels" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+        obj["labels"] = labelsProp
+    }
+        purposeProp, err := expandKMSCryptoKeyPurpose(d.Get( "purpose" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("purpose"); !isEmptyValue(reflect.ValueOf(purposeProp)) && (ok || !reflect.DeepEqual(v, purposeProp)) {
+        obj["purpose"] = purposeProp
+    }
+        rotationPeriodProp, err := expandKMSCryptoKeyRotationPeriod(d.Get( "rotation_period" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("rotation_period"); !isEmptyValue(reflect.ValueOf(rotationPeriodProp)) && (ok || !reflect.DeepEqual(v, rotationPeriodProp)) {
+        obj["rotationPeriod"] = rotationPeriodProp
+    }
+        versionTemplateProp, err := expandKMSCryptoKeyVersionTemplate(d.Get( "version_template" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("version_template"); !isEmptyValue(reflect.ValueOf(versionTemplateProp)) && (ok || !reflect.DeepEqual(v, versionTemplateProp)) {
+        obj["versionTemplate"] = versionTemplateProp
+    }
+        destroyScheduledDurationProp, err := expandKMSCryptoKeyDestroyScheduledDuration(d.Get( "destroy_scheduled_duration" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("destroy_scheduled_duration"); !isEmptyValue(reflect.ValueOf(destroyScheduledDurationProp)) && (ok || !reflect.DeepEqual(v, destroyScheduledDurationProp)) {
+        obj["destroyScheduledDuration"] = destroyScheduledDurationProp
+    }
+        importOnlyProp, err := expandKMSCryptoKeyImportOnly(d.Get( "import_only" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("import_only"); !isEmptyValue(reflect.ValueOf(importOnlyProp)) && (ok || !reflect.DeepEqual(v, importOnlyProp)) {
+        obj["importOnly"] = importOnlyProp
+    }
 
-	obj, err = resourceKMSCryptoKeyEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj, err = resourceKMSCryptoKeyEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}&skipInitialVersionCreation={{skip_initial_version_creation}}")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new CryptoKey: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}&skipInitialVersionCreation={{skip_initial_version_creation}}")
+    if err != nil {
+        return err
+    }
 
-	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		billingProject = parts[1]
-	}
+    log.Printf("[DEBUG] Creating new CryptoKey: %#v", obj)
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating CryptoKey: %s", err)
-	}
+    if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
+        billingProject = parts[1]
+    }
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	log.Printf("[DEBUG] Finished creating CryptoKey %q: %#v", d.Id(), res)
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating CryptoKey: %s", err)
+    }
+                                                                            
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceKMSCryptoKeyRead(d, meta)
+
+
+
+    log.Printf("[DEBUG] Finished creating CryptoKey %q: %#v", d.Id(), res)
+
+    return resourceKMSCryptoKeyRead(d, meta)
 }
 
+
 func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		billingProject = parts[1]
-	}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
+        billingProject = parts[1]
+    }
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("KMSCryptoKey %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	res, err = resourceKMSCryptoKeyDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("KMSCryptoKey %q", d.Id()))
+    }
 
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing KMSCryptoKey because it no longer exists.")
-		d.SetId("")
-		return nil
-	}
 
-	if err := d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("rotation_period", flattenKMSCryptoKeyRotationPeriod(res["rotationPeriod"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("destroy_scheduled_duration", flattenKMSCryptoKeyDestroyScheduledDuration(res["destroyScheduledDuration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
-	if err := d.Set("import_only", flattenKMSCryptoKeyImportOnly(res["importOnly"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CryptoKey: %s", err)
-	}
+    res, err = resourceKMSCryptoKeyDecoder(d, meta, res)
+    if err != nil {
+        return err
+    }
 
-	return nil
+    if res == nil {
+        // Decoding the object has resulted in it being gone. It may be marked deleted
+        log.Printf("[DEBUG] Removing KMSCryptoKey because it no longer exists.")
+        d.SetId("")
+        return nil
+    }
+
+
+
+    if err := d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d, config)); err != nil {
+        return fmt.Errorf("Error reading CryptoKey: %s", err)
+    }
+    if err := d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d, config)); err != nil {
+        return fmt.Errorf("Error reading CryptoKey: %s", err)
+    }
+    if err := d.Set("rotation_period", flattenKMSCryptoKeyRotationPeriod(res["rotationPeriod"], d, config)); err != nil {
+        return fmt.Errorf("Error reading CryptoKey: %s", err)
+    }
+    if err := d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d, config)); err != nil {
+        return fmt.Errorf("Error reading CryptoKey: %s", err)
+    }
+    if err := d.Set("destroy_scheduled_duration", flattenKMSCryptoKeyDestroyScheduledDuration(res["destroyScheduledDuration"], d, config)); err != nil {
+        return fmt.Errorf("Error reading CryptoKey: %s", err)
+    }
+    if err := d.Set("import_only", flattenKMSCryptoKeyImportOnly(res["importOnly"], d, config)); err != nil {
+        return fmt.Errorf("Error reading CryptoKey: %s", err)
+    }
+
+    return nil
 }
 
 func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	obj := make(map[string]interface{})
-	labelsProp, err := expandKMSCryptoKeyLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	rotationPeriodProp, err := expandKMSCryptoKeyRotationPeriod(d.Get("rotation_period"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("rotation_period"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rotationPeriodProp)) {
-		obj["rotationPeriod"] = rotationPeriodProp
-	}
-	versionTemplateProp, err := expandKMSCryptoKeyVersionTemplate(d.Get("version_template"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("version_template"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionTemplateProp)) {
-		obj["versionTemplate"] = versionTemplateProp
-	}
 
-	obj, err = resourceKMSCryptoKeyUpdateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            labelsProp, err := expandKMSCryptoKeyLabels(d.Get( "labels" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+        obj["labels"] = labelsProp
+    }
+            rotationPeriodProp, err := expandKMSCryptoKeyRotationPeriod(d.Get( "rotation_period" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("rotation_period"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rotationPeriodProp)) {
+        obj["rotationPeriod"] = rotationPeriodProp
+    }
+            versionTemplateProp, err := expandKMSCryptoKeyVersionTemplate(d.Get( "version_template" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("version_template"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionTemplateProp)) {
+        obj["versionTemplate"] = versionTemplateProp
+    }
 
-	log.Printf("[DEBUG] Updating CryptoKey %q: %#v", d.Id(), obj)
-	updateMask := []string{}
+    obj, err = resourceKMSCryptoKeyUpdateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
 
-	if d.HasChange("rotation_period") {
-		updateMask = append(updateMask, "rotationPeriod",
-			"nextRotationTime")
-	}
+    url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	if d.HasChange("version_template") {
-		updateMask = append(updateMask, "versionTemplate.algorithm")
-	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
-	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
-	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		billingProject = parts[1]
-	}
+    log.Printf("[DEBUG] Updating CryptoKey %q: %#v", d.Id(), obj)
+updateMask := []string{}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+if d.HasChange("labels") {
+  updateMask = append(updateMask, "labels")
+}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+if d.HasChange("rotation_period") {
+  updateMask = append(updateMask, "rotationPeriod",
+"nextRotationTime")
+}
 
-	if err != nil {
-		return fmt.Errorf("Error updating CryptoKey %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating CryptoKey %q: %#v", d.Id(), res)
-	}
+if d.HasChange("version_template") {
+  updateMask = append(updateMask, "versionTemplate.algorithm")
+}
+// updateMask is a URL parameter but not present in the schema, so replaceVars
+// won't set it
+url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+if err != nil {
+  return err
+}
+     if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
+        billingProject = parts[1]
+    }
 
-	return resourceKMSCryptoKeyRead(d, meta)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return fmt.Errorf("Error updating CryptoKey %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating CryptoKey %q: %#v", d.Id(), res)
+    }
+
+
+    return resourceKMSCryptoKeyRead(d, meta)
 }
 
 func resourceKMSCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
@@ -428,108 +447,130 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 }
 
 func flattenKMSCryptoKeyLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenKMSCryptoKeyPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenKMSCryptoKeyRotationPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenKMSCryptoKeyVersionTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["algorithm"] =
-		flattenKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d, config)
-	transformed["protection_level"] =
-		flattenKMSCryptoKeyVersionTemplateProtectionLevel(original["protectionLevel"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["algorithm"] =
+    flattenKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d, config)
+              transformed["protection_level"] =
+    flattenKMSCryptoKeyVersionTemplateProtectionLevel(original["protectionLevel"], d, config)
+        return []interface{}{transformed}
 }
-func flattenKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenKMSCryptoKeyDestroyScheduledDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenKMSCryptoKeyImportOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandKMSCryptoKeyLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+  if v == nil {
+    return map[string]string{}, nil
+  }
+  m := make(map[string]string)
+  for k, val := range v.(map[string]interface{}) {
+    m[k] = val.(string)
+  }
+  return m, nil
 }
+
+
 
 func expandKMSCryptoKeyPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandKMSCryptoKeyRotationPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandKMSCryptoKeyVersionTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedAlgorithm, err := expandKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
-		transformed["algorithm"] = transformedAlgorithm
-	}
+      transformedAlgorithm, err := expandKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
+        transformed["algorithm"] = transformedAlgorithm      }
 
-	transformedProtectionLevel, err := expandKMSCryptoKeyVersionTemplateProtectionLevel(original["protection_level"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedProtectionLevel); val.IsValid() && !isEmptyValue(val) {
-		transformed["protectionLevel"] = transformedProtectionLevel
-	}
+      transformedProtectionLevel, err := expandKMSCryptoKeyVersionTemplateProtectionLevel(original["protection_level"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedProtectionLevel); val.IsValid() && !isEmptyValue(val) {
+        transformed["protectionLevel"] = transformedProtectionLevel      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandKMSCryptoKeyDestroyScheduledDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
 func expandKMSCryptoKeyImportOnly(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
 
 func resourceKMSCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// if rotationPeriod is set, nextRotationTime must also be set.
@@ -555,20 +596,21 @@ func resourceKMSCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj m
 }
 
 func resourceKMSCryptoKeyUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// if rotationPeriod is changed, nextRotationTime must also be set.
-	if d.HasChange("rotation_period") && d.Get("rotation_period") != "" {
-		rotationPeriod := d.Get("rotation_period").(string)
-		nextRotation, err := kmsCryptoKeyNextRotation(time.Now(), rotationPeriod)
+        // if rotationPeriod is changed, nextRotationTime must also be set.
+	if d.HasChange("rotation_period") && d.Get("rotation_period") != "" {		
+ 		rotationPeriod := d.Get("rotation_period").(string)		
+ 		nextRotation, err := kmsCryptoKeyNextRotation(time.Now(), rotationPeriod)		
 
-		if err != nil {
-			return nil, fmt.Errorf("Error setting CryptoKey rotation period: %s", err.Error())
-		}
+  		if err != nil {		
+ 			return nil, fmt.Errorf("Error setting CryptoKey rotation period: %s", err.Error())		
+ 		}		
 
-		obj["nextRotationTime"] = nextRotation
-	}
+                obj["nextRotationTime"] = nextRotation 
+ 	}
 
-	return obj, nil
+        return obj, nil
 }
+
 
 func resourceKMSCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	// Modify the name to be the user specified form.
@@ -576,8 +618,9 @@ func resourceKMSCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res m
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
 	res["name"] = d.Get("name").(string)
-	return res, nil
+return res, nil
 }
+
 
 func resourceKMSCryptoKeyResourceV0() *schema.Resource {
 	return &schema.Resource{
@@ -587,19 +630,19 @@ func resourceKMSCryptoKeyResourceV0() *schema.Resource {
 				Required: true,
 			},
 			"key_ring": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
 			},
 			"rotation_period": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
 			},
 			"version_template": {
 				Type:     schema.TypeList,
 				Optional: true,
 			},
 			"self_link": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
 			},
 		},
 	}

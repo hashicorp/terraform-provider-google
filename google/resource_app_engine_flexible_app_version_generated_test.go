@@ -15,43 +15,42 @@
 package google
 
 import (
-	"log"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+    				"billing_account": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineFlexibleAppVersionDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckAppEngineFlexibleAppVersionDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(context),
 			},
-			{
-				ResourceName:            "google_app_engine_flexible_app_version.myapp_v1",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_app_engine_flexible_app_version.myapp_v1",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"beta_settings", "env_variables", "entrypoint", "service", "noop_on_destroy", "deployment.0.zip"},
 			},
-		},
+				},
 	})
 }
 
 func testAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_project" "my_project" {
   name = "tf-test-appeng-flex%{random_suffix}"
   project_id = "tf-test-appeng-flex%{random_suffix}"
@@ -141,6 +140,7 @@ resource "google_storage_bucket_object" "object" {
 `, context)
 }
 
+
 func testAccCheckAppEngineFlexibleAppVersionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -152,7 +152,7 @@ func testAccCheckAppEngineFlexibleAppVersionDestroyProducer(t *testing.T) func(s
 			}
 
 			log.Printf("[DEBUG] Ignoring destroy during test")
-		}
+				}
 
 		return nil
 	}

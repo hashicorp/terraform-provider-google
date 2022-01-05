@@ -36,6 +36,7 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 	return op, nil
 }
 
+
 func deploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	op := &compute.Operation{}
 	err := Convert(resp, op)

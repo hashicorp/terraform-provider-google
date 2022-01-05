@@ -15,45 +15,44 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+						ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
-			"time":   {},
+			"time": {},
 		},
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
-		Steps: []resource.TestStep{
+						CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZoneBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_dns_managed_zone.example-zone",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccDNSManagedZone_dnsManagedZoneBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_dns_managed_zone" "example-zone" {
   name        = "example-zone"
   dns_name    = "example-${random_id.rnd.hex}.com."
@@ -70,31 +69,31 @@ resource "random_id" "rnd" {
 }
 
 func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_dns_managed_zone.private-zone",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccDNSManagedZone_dnsManagedZonePrivateExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_dns_managed_zone" "private-zone" {
   name        = "tf-test-private-zone%{random_suffix}"
   dns_name    = "private.example.com."
@@ -128,31 +127,31 @@ resource "google_compute_network" "network-2" {
 }
 
 func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_dns_managed_zone.peering-zone",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_dns_managed_zone" "peering-zone" {
   name        = "tf-test-peering-zone%{random_suffix}"
   dns_name    = "peering.example.com."
@@ -185,6 +184,7 @@ resource "google_compute_network" "network-target" {
 `, context)
 }
 
+
 func testAccCheckDNSManagedZoneDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -195,24 +195,24 @@ func testAccCheckDNSManagedZoneDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DNSManagedZone still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

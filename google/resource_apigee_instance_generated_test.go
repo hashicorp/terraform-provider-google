@@ -15,44 +15,43 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+    				"billing_account": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeInstance_apigeeInstanceBasicTestExample(context),
 			},
-			{
-				ResourceName:            "google_apigee_instance.apigee_instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_apigee_instance.apigee_instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"org_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccApigeeInstance_apigeeInstanceBasicTestExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -117,34 +116,34 @@ resource "google_apigee_instance" "apigee_instance" {
 
 func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+    				"billing_account": getTestBillingAccountFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeInstance_apigeeInstanceCidrRangeTestExample(context),
 			},
-			{
-				ResourceName:            "google_apigee_instance.apigee_instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_apigee_instance.apigee_instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"org_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccApigeeInstance_apigeeInstanceCidrRangeTestExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -208,6 +207,7 @@ resource "google_apigee_instance" "apigee_instance" {
 `, context)
 }
 
+
 func testAccCheckApigeeInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -218,24 +218,24 @@ func testAccCheckApigeeInstanceDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ApigeeInstance still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

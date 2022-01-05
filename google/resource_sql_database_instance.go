@@ -80,7 +80,7 @@ var (
 		"settings.0.insights_config.0.query_string_length",
 		"settings.0.insights_config.0.record_application_tags",
 		"settings.0.insights_config.0.record_client_address",
-	}
+  }
 )
 
 func resourceSqlDatabaseInstance() *schema.Resource {
@@ -121,11 +121,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Description: `Used to block Terraform from deleting a SQL Instance.`,
 			},
 			"settings": {
-				Type:         schema.TypeList,
+				Type:     schema.TypeList,
 				Optional:     true,
 				Computed:     true,
 				AtLeastOneOf: []string{"settings", "clone"},
-				MaxItems:     1,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
@@ -139,17 +139,17 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
 						},
 						"activation_policy": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "ALWAYS",
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "ALWAYS",
 							Description: `This specifies when the instance should be active. Can be either ALWAYS, NEVER or ON_DEMAND.`,
 						},
 						"availability_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
+							Type:             schema.TypeString,
+							Optional:         true,
 							Default:      "ZONAL",
 							ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
-							Description: `The availability type of the Cloud SQL instance, high availability
+							Description:  `The availability type of the Cloud SQL instance, high availability
 (REGIONAL) or single zone (ZONAL). For MySQL instances, ensure that
 settings.backup_configuration.enabled and
 settings.backup_configuration.binary_log_enabled are both set to true.`,
@@ -209,15 +209,15 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"retained_backups": {
-													Type:        schema.TypeInt,
-													Required:    true,
-													Description: `Number of backups to retain.`,
+													Type:         schema.TypeInt,
+													Required:     true,
+													Description:  `Number of backups to retain.`,
 												},
 												"retention_unit": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Default:     "COUNT",
-													Description: `The unit that 'retainedBackups' represents. Defaults to COUNT`,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "COUNT",
+													Description:  `The unit that 'retainedBackups' represents. Defaults to COUNT`,
 												},
 											},
 										},
@@ -226,9 +226,9 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							},
 						},
 						"collation": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The name of server instance collation.`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Description:      `The name of server instance collation.`,
 						},
 						"database_flags": {
 							Type:     schema.TypeList,
@@ -249,16 +249,16 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							},
 						},
 						"disk_autoresize": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     true,
-							Description: `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
+							Type:             schema.TypeBool,
+							Optional:         true,
+							Default:          true,
+							Description:      `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
 						},
 						"disk_autoresize_limit": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Default:     0,
-							Description: `The maximum size, in GB, to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.`,
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Default:          0,
+							Description:      `The maximum size, in GB, to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.`,
 						},
 						"disk_size": {
 							Type:     schema.TypeInt,
@@ -268,9 +268,9 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.`,
 						},
 						"disk_type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "PD_SSD",
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: "PD_SSD",
 							Description: `The type of data disk: PD_SSD or PD_HDD.`,
 						},
 						"ip_configuration": {
@@ -435,6 +435,8 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				ForceNew:    true,
 				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
+
+
 
 			"root_password": {
 				Type:        schema.TypeString,
@@ -603,29 +605,29 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cert": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The CA Certificate used to connect to the SQL Instance via SSL.`,
+							Type:         schema.TypeString,
+							Computed:     true,
+							Description:  `The CA Certificate used to connect to the SQL Instance via SSL.`,
 						},
 						"common_name": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The CN valid for the CA Cert.`,
+							Type:         schema.TypeString,
+							Computed:     true,
+							Description:   `The CN valid for the CA Cert.`,
 						},
 						"create_time": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Creation time of the CA Cert.`,
+							Type:         schema.TypeString,
+							Computed:     true,
+							Description:  `Creation time of the CA Cert.`,
 						},
 						"expiration_time": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Expiration time of the CA Cert.`,
+							Type:         schema.TypeString,
+							Computed:     true,
+							Description:  `Expiration time of the CA Cert.`,
 						},
 						"sha1_fingerprint": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `SHA Fingerprint of the CA Cert.`,
+							Type:         schema.TypeString,
+							Computed:     true,
+							Description:  `SHA Fingerprint of the CA Cert.`,
 						},
 					},
 				},
@@ -665,12 +667,12 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				},
 			},
 			"clone": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				Computed:     false,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    false,
 				AtLeastOneOf: []string{"settings", "clone"},
-				Description:  `Configuration for creating a new instance as a clone of another instance.`,
-				MaxItems:     1,
+				Description: `Configuration for creating a new instance as a clone of another instance.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source_instance_name": {
@@ -682,7 +684,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Type:             schema.TypeString,
 							Optional:         true,
 							DiffSuppressFunc: timestampDiffSuppress(time.RFC3339Nano),
-							Description:      `The timestamp of the point in time that should be restored.`,
+							Description:  `The timestamp of the point in time that should be restored.`,
 						},
 					},
 				},
@@ -776,7 +778,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
 
-	s, ok := d.GetOk("settings")
+    s, ok := d.GetOk("settings")
 	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}))
 	if ok {
 		instance.Settings = desiredSettings
@@ -794,7 +796,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		mutexKV.Lock(instanceMutexKey(project, instance.MasterInstanceName))
 		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
-
+    
 	var patchData *sqladmin.DatabaseInstance
 
 	// BinaryLogging can be enabled on replica instances but only after creation.
@@ -929,22 +931,22 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}) *sqladmin.Setti
 	_settings := configured[0].(map[string]interface{})
 	settings := &sqladmin.Settings{
 		// Version is unset in Create but is set during update
-		SettingsVersion:     int64(_settings["version"].(int)),
-		Tier:                _settings["tier"].(string),
-		ForceSendFields:     []string{"StorageAutoResize"},
-		ActivationPolicy:    _settings["activation_policy"].(string),
-		AvailabilityType:    _settings["availability_type"].(string),
-		Collation:           _settings["collation"].(string),
-		DataDiskSizeGb:      int64(_settings["disk_size"].(int)),
-		DataDiskType:        _settings["disk_type"].(string),
-		PricingPlan:         _settings["pricing_plan"].(string),
-		UserLabels:          convertStringMap(_settings["user_labels"].(map[string]interface{})),
-		BackupConfiguration: expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
-		DatabaseFlags:       expandDatabaseFlags(_settings["database_flags"].([]interface{})),
-		IpConfiguration:     expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
-		LocationPreference:  expandLocationPreference(_settings["location_preference"].([]interface{})),
-		MaintenanceWindow:   expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
-		InsightsConfig:      expandInsightsConfig(_settings["insights_config"].([]interface{})),
+		SettingsVersion:             int64(_settings["version"].(int)),
+		Tier:                        _settings["tier"].(string),
+		ForceSendFields:             []string{"StorageAutoResize"},
+		ActivationPolicy:            _settings["activation_policy"].(string),
+		AvailabilityType:            _settings["availability_type"].(string),
+		Collation:                   _settings["collation"].(string),
+		DataDiskSizeGb:              int64(_settings["disk_size"].(int)),
+		DataDiskType:                _settings["disk_type"].(string),
+		PricingPlan:                 _settings["pricing_plan"].(string),
+		UserLabels:                  convertStringMap(_settings["user_labels"].(map[string]interface{})),
+		BackupConfiguration:         expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
+		DatabaseFlags:               expandDatabaseFlags(_settings["database_flags"].([]interface{})),
+		IpConfiguration:             expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
+		LocationPreference:          expandLocationPreference(_settings["location_preference"].([]interface{})),
+		MaintenanceWindow:           expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
+		InsightsConfig:              expandInsightsConfig(_settings["insights_config"].([]interface{})),
 	}
 
 	resize := _settings["disk_autoresize"].(bool)
@@ -1145,7 +1147,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
-
+    
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration, d)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
 	}
@@ -1277,7 +1279,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	err = retryTimeDuration(func() (rerr error) {
 		op, rerr = config.NewSqlAdminClient(userAgent).Instances.Delete(project, d.Get("name").(string)).Do()
 		if rerr != nil {
-			return rerr
+		  return rerr
 		}
 		err = sqlAdminOperationWaitTime(config, op, project, "Delete Instance", userAgent, d.Timeout(schema.TimeoutDelete))
 		if err != nil {
@@ -1316,15 +1318,15 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 
 func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	data := map[string]interface{}{
-		"version":           settings.SettingsVersion,
-		"tier":              settings.Tier,
-		"activation_policy": settings.ActivationPolicy,
-		"availability_type": settings.AvailabilityType,
-		"collation":         settings.Collation,
-		"disk_type":         settings.DataDiskType,
-		"disk_size":         settings.DataDiskSizeGb,
-		"pricing_plan":      settings.PricingPlan,
-		"user_labels":       settings.UserLabels,
+		"version":                     settings.SettingsVersion,
+		"tier":                        settings.Tier,
+		"activation_policy":           settings.ActivationPolicy,
+		"availability_type":           settings.AvailabilityType,
+		"collation":                   settings.Collation,
+		"disk_type":                   settings.DataDiskType,
+		"disk_size":                   settings.DataDiskSizeGb,
+		"pricing_plan":                settings.PricingPlan,
+		"user_labels":                 settings.UserLabels,
 	}
 
 	if settings.BackupConfiguration != nil {
@@ -1386,6 +1388,7 @@ func flattenBackupRetentionSettings(b *sqladmin.BackupRetentionSettings) []map[s
 		},
 	}
 }
+
 
 func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]interface{} {
 	flags := make([]map[string]interface{}, 0, len(databaseFlags))
@@ -1539,32 +1542,32 @@ func sqlDatabaseIsMaster(d *schema.ResourceData) bool {
 }
 
 func sqlDatabaseInstanceServiceNetworkPrecheck(d *schema.ResourceData, config *Config, userAgent, network string) error {
-	log.Printf("[DEBUG] checking network %q for at least one service networking connection", network)
-	// This call requires projects.get permissions, which may not have been granted to the Terraform actor,
-	// particularly in shared VPC setups. Most will! But it's not strictly required.
-	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
-	if err != nil {
-		var gerr *googleapi.Error
-		if errors.As(err, &gerr) {
-			log.Printf("[DEBUG] retrieved googleapi error while creating sn name for %q. precheck skipped. code %v and message: %s", network, gerr.Code, gerr.Body)
+		log.Printf("[DEBUG] checking network %q for at least one service networking connection", network)
+		// This call requires projects.get permissions, which may not have been granted to the Terraform actor,
+		// particularly in shared VPC setups. Most will! But it's not strictly required.
+		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
+		if err != nil {
+			var gerr *googleapi.Error
+			if errors.As(err, &gerr) {
+				log.Printf("[DEBUG] retrieved googleapi error while creating sn name for %q. precheck skipped. code %v and message: %s", network, gerr.Code, gerr.Body)
+				return nil
+			}
+
+			return err
+		}
+
+		response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").Network(serviceNetworkingNetworkName).Do()
+		if err != nil {
+			// It is possible that the actor creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
+			log.Printf("[WARNING] Failed to list Service Networking of the project. Skipped Service Networking precheck.")
 			return nil
 		}
 
-		return err
-	}
+		if len(response.Connections) < 1 {
+			return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
+		}
 
-	response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").Network(serviceNetworkingNetworkName).Do()
-	if err != nil {
-		// It is possible that the actor creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
-		log.Printf("[WARNING] Failed to list Service Networking of the project. Skipped Service Networking precheck.")
 		return nil
-	}
-
-	if len(response.Connections) < 1 {
-		return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
-	}
-
-	return nil
 }
 
 func expandRestoreBackupContext(configured []interface{}) *sqladmin.RestoreBackupContext {

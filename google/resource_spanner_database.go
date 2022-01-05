@@ -15,13 +15,15 @@
 package google
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"reflect"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
 // customizeDiff func for additional checks on google_spanner_database properties:
@@ -56,512 +58,547 @@ func resourceSpannerDBDdlCustomDiff(_ context.Context, diff *schema.ResourceDiff
 	return resourceSpannerDBDdlCustomDiffFunc(diff)
 }
 
+
+    
 func resourceSpannerDatabase() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceSpannerDatabaseCreate,
-		Read:   resourceSpannerDatabaseRead,
-		Update: resourceSpannerDatabaseUpdate,
-		Delete: resourceSpannerDatabaseDelete,
+    return &schema.Resource{
+        Create: resourceSpannerDatabaseCreate,
+        Read: resourceSpannerDatabaseRead,
+        Update: resourceSpannerDatabaseUpdate,
+        Delete: resourceSpannerDatabaseDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceSpannerDatabaseImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceSpannerDatabaseImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		CustomizeDiff: resourceSpannerDBDdlCustomDiff,
 
-		Schema: map[string]*schema.Schema{
-			"instance": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `The instance to create the database on.`,
-			},
-			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateRegexp(`^[a-z][a-z0-9_\-]*[a-z0-9]$`),
-				Description: `A unique identifier for the database, which cannot be changed after
+CustomizeDiff: resourceSpannerDBDdlCustomDiff,
+
+        Schema: map[string]*schema.Schema{
+"instance": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The instance to create the database on.`,
+},
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	  ValidateFunc: validateRegexp(`^[a-z][a-z0-9_\-]*[a-z0-9]$`),
+		Description: `A unique identifier for the database, which cannot be changed after
 the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].`,
-			},
-			"ddl": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `An optional list of DDL statements to run inside the newly created
+},
+"ddl": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `An optional list of DDL statements to run inside the newly created
 database. Statements can create tables, indexes, etc. These statements
 execute atomically with the creation of the database: if there is an
 error in any statement, the database is not created.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"encryption_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Encryption configuration for the database`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"kms_key_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							Description: `Fully qualified name of the KMS key to use to encrypt this database. This key must exist
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+    },
+"encryption_config": {
+    Type: schema.TypeList,
+    Optional: true,
+  ForceNew: true,
+	Description: `Encryption configuration for the database`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "kms_key_name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Fully qualified name of the KMS key to use to encrypt this database. This key must exist
 in the same location as the Spanner Database.`,
-						},
-					},
-				},
-			},
-			"state": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `An explanation of the status of the database.`,
-			},
-			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+          },
+  },
+},
+"state": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `An explanation of the status of the database.`,
+},
+            "deletion_protection": {
+              Type: schema.TypeBool,
+              Optional: true,
+              Default:  true,
+            },
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandSpannerDatabaseName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(extraStatementsProp)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
-		obj["extraStatements"] = extraStatementsProp
-	}
-	encryptionConfigProp, err := expandSpannerDatabaseEncryptionConfig(d.Get("encryption_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
-		obj["encryptionConfig"] = encryptionConfigProp
-	}
-	instanceProp, err := expandSpannerDatabaseInstance(d.Get("instance"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(instanceProp)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
-		obj["instance"] = instanceProp
-	}
+    obj := make(map[string]interface{})
+        nameProp, err := expandSpannerDatabaseName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get( "ddl" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(extraStatementsProp)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
+        obj["extraStatements"] = extraStatementsProp
+    }
+        encryptionConfigProp, err := expandSpannerDatabaseEncryptionConfig(d.Get( "encryption_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+        obj["encryptionConfig"] = encryptionConfigProp
+    }
+        instanceProp, err := expandSpannerDatabaseInstance(d.Get( "instance" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(instanceProp)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
+        obj["instance"] = instanceProp
+    }
 
-	obj, err = resourceSpannerDatabaseEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj, err = resourceSpannerDatabaseEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new Database: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases")
+    if err != nil {
+        return err
+    }
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+    log.Printf("[DEBUG] Creating new Database: %#v", obj)
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating Database: %s", err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{instance}}/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = spannerOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Database", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Database: %s", err)
-	}
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating Database: %s", err)
+    }
 
-	opRes, err = resourceSpannerDatabaseDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{instance}}/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	if err := d.Set("name", flattenSpannerDatabaseName(opRes["name"], d, config)); err != nil {
-		return err
-	}
+    // Use the resource in the operation response to populate
+    // identity fields and d.Id() before read
+    var opRes map[string]interface{}
+    err = spannerOperationWaitTimeWithResponse(
+    config, res, &opRes,  project,  "Creating Database", userAgent,
+        d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create Database: %s", err)
+    }
 
-	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{instance}}/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    opRes, err = resourceSpannerDatabaseDecoder(d, meta, opRes)
+    if err != nil {
+        return fmt.Errorf("Error decoding response from operation: %s", err)
+    }
+    if opRes == nil {
+        return fmt.Errorf("Error decoding response from operation, could not find object")
+    }
 
-	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
+            if err := d.Set("name", flattenSpannerDatabaseName(opRes["name"], d, config)); err != nil {
+        return err
+    }
+                                        
+    // This may have caused the ID to update - update it if so.
+    id, err = replaceVars(d, config, "{{instance}}/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceSpannerDatabaseRead(d, meta)
+    
+
+
+    log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
+
+    return resourceSpannerDatabaseRead(d, meta)
 }
 
+
 func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SpannerDatabase %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	res, err = resourceSpannerDatabaseDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("SpannerDatabase %q", d.Id()))
+    }
 
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing SpannerDatabase because it no longer exists.")
-		d.SetId("")
-		return nil
-	}
 
-	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOkExists("deletion_protection"); !ok {
-		if err := d.Set("deletion_protection", true); err != nil {
-			return fmt.Errorf("Error setting deletion_protection: %s", err)
-		}
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
+    res, err = resourceSpannerDatabaseDecoder(d, meta, res)
+    if err != nil {
+        return err
+    }
 
-	if err := d.Set("name", flattenSpannerDatabaseName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("encryption_config", flattenSpannerDatabaseEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
-	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
-	}
+    if res == nil {
+        // Decoding the object has resulted in it being gone. It may be marked deleted
+        log.Printf("[DEBUG] Removing SpannerDatabase because it no longer exists.")
+        d.SetId("")
+        return nil
+    }
 
-	return nil
+  // Explicitly set virtual fields to default values if unset
+    if _, ok := d.GetOkExists("deletion_protection"); !ok {
+      if err := d.Set("deletion_protection", true); err != nil {
+      	return fmt.Errorf("Error setting deletion_protection: %s", err)
+      }
+    }
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+
+
+    if err := d.Set("name", flattenSpannerDatabaseName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+    if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+    if err := d.Set("encryption_config", flattenSpannerDatabaseEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+    if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Database: %s", err)
+    }
+
+    return nil
 }
 
 func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
+
+    billingProject := ""
+
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
+
+
+    d.Partial(true)
+
+if d.HasChange("ddl") {
+        obj := make(map[string]interface{})
+
+                extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get( "ddl" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
+            obj["extraStatements"] = extraStatementsProp
+        }
+
+    obj, err = resourceSpannerDatabaseUpdateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
+
+
+        url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
+        if err != nil {
+            return err
+        }
+
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
+
+        res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
 	}
 
-	billingProject := ""
+        err = spannerOperationWaitTime(
+            config, res,  project,  "Updating Database", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+  d.Partial(false)
 
-	d.Partial(true)
-
-	if d.HasChange("ddl") {
-		obj := make(map[string]interface{})
-
-		extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
-			obj["extraStatements"] = extraStatementsProp
-		}
-
-		obj, err = resourceSpannerDatabaseUpdateEncoder(d, meta, obj)
-		if err != nil {
-			return err
-		}
-
-		url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
-		}
-
-		err = spannerOperationWaitTime(
-			config, res, project, "Updating Database", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-
-	d.Partial(false)
-
-	return resourceSpannerDatabaseRead(d, meta)
+    return resourceSpannerDatabaseRead(d, meta)
 }
 
 func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for Database: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	if d.Get("deletion_protection").(bool) {
-		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
-	}
-	log.Printf("[DEBUG] Deleting Database %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "Database")
-	}
+    var obj map[string]interface{}
+if d.Get("deletion_protection").(bool) {
+	return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
+}
+    log.Printf("[DEBUG] Deleting Database %q", d.Id())
 
-	err = spannerOperationWaitTime(
-		config, res, project, "Deleting Database", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return err
-	}
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "Database")
+    }
 
-	log.Printf("[DEBUG] Finished deleting Database %q: %#v", d.Id(), res)
-	return nil
+    err = spannerOperationWaitTime(
+        config, res,  project,  "Deleting Database", userAgent,
+        d.Timeout(schema.TimeoutDelete))
+
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting Database %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
-		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
-		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+        "instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
+        "(?P<instance>[^/]+)/(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{instance}}/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "{{instance}}/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	// Explicitly set virtual fields to default values on import
-	if err := d.Set("deletion_protection", true); err != nil {
-		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
-	}
-
-	return []*schema.ResourceData{d}, nil
+    // Explicitly set virtual fields to default values on import
+    if err := d.Set("deletion_protection", true); err != nil {
+    	return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+    }
+  
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
+    if v == nil {
+        return v
+    }
 	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenSpannerDatabaseEncryptionConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["kms_key_name"] =
-		flattenSpannerDatabaseEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["kms_key_name"] =
+    flattenSpannerDatabaseEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+        return []interface{}{transformed}
 }
-func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
+
+
+
 
 func expandSpannerDatabaseName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandSpannerDatabaseDdl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandSpannerDatabaseEncryptionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedKmsKeyName, err := expandSpannerDatabaseEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
-		transformed["kmsKeyName"] = transformedKmsKeyName
-	}
+      transformedKmsKeyName, err := expandSpannerDatabaseEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+        transformed["kmsKeyName"] = transformedKmsKeyName      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("instances", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for instance: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("instances", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for instance: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
 
+
 func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	obj["createStatement"] = fmt.Sprintf("CREATE DATABASE `%s`", obj["name"])
-	delete(obj, "name")
-	delete(obj, "instance")
-	return obj, nil
+obj["createStatement"] = fmt.Sprintf("CREATE DATABASE `%s`", obj["name"])
+delete(obj, "name")
+delete(obj, "instance")
+return obj, nil
 }
 
 func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	old, new := d.GetChange("ddl")
-	oldDdls := old.([]interface{})
-	newDdls := new.([]interface{})
-	updateDdls := []string{}
+old, new := d.GetChange("ddl")
+oldDdls := old.([]interface{})
+newDdls := new.([]interface{})
+updateDdls := []string{}
 
-	//Only new ddl statments to be add to update call
-	for i := len(oldDdls); i < len(newDdls); i++ {
-		updateDdls = append(updateDdls, newDdls[i].(string))
-	}
-
-	obj["statements"] = updateDdls
-	delete(obj, "name")
-	delete(obj, "instance")
-	delete(obj, "extraStatements")
-	return obj, nil
+//Only new ddl statments to be add to update call
+for i := len(oldDdls); i < len(newDdls); i++ {
+    updateDdls = append(updateDdls, newDdls[i].(string))
 }
 
+obj["statements"] = updateDdls
+delete(obj, "name")
+delete(obj, "instance")
+delete(obj, "extraStatements")
+return obj, nil
+}
+
+
 func resourceSpannerDatabaseDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	config := meta.(*Config)
-	d.SetId(res["name"].(string))
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
-		return nil, err
-	}
-	res["project"] = d.Get("project").(string)
-	res["instance"] = d.Get("instance").(string)
-	res["name"] = d.Get("name").(string)
-	id, err := replaceVars(d, config, "{{instance}}/{{name}}")
-	if err != nil {
-		return nil, err
-	}
-	d.SetId(id)
-	return res, nil
+config := meta.(*Config)
+d.SetId(res["name"].(string))
+if err := parseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
+	return nil, err
+}
+res["project"] = d.Get("project").(string)
+res["instance"] = d.Get("instance").(string)
+res["name"] = d.Get("name").(string)
+id, err := replaceVars(d, config, "{{instance}}/{{name}}")
+if err != nil {
+	return nil, err
+}
+d.SetId(id)
+return res, nil
 }

@@ -49,18 +49,18 @@ func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-1", "network-2"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_managed_zone.private",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-2", "network-3"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_managed_zone.private",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -79,18 +79,18 @@ func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccDnsManagedZone_dnssec_on(zoneSuffix),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_managed_zone.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccDnsManagedZone_dnssec_off(zoneSuffix),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_managed_zone.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -109,10 +109,10 @@ func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccDnsManagedZone_dnssec_empty(zoneSuffix),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_managed_zone.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -131,18 +131,18 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccDnsManagedZone_privateForwardingUpdate(zoneSuffix, "172.16.1.10", "172.16.1.20", "default", "private"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_managed_zone.private",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccDnsManagedZone_privateForwardingUpdate(zoneSuffix, "172.16.1.10", "192.168.1.1", "private", "default"),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_dns_managed_zone.private",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -150,6 +150,7 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 		},
 	})
 }
+
 
 func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 	//t.Parallel()
@@ -377,6 +378,7 @@ resource "google_compute_network" "network-1" {
 }
 `, suffix, first_nameserver, first_forwarding_path, second_nameserver, second_forwarding_path, suffix)
 }
+
 
 func TestDnsManagedZoneImport_parseImportId(t *testing.T) {
 	zoneRegexes := []string{

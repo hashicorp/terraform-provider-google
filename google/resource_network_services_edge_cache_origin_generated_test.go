@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(context),
 			},
-			{
-				ResourceName:            "google_network_services_edge_cache_origin.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_network_services_edge_cache_origin.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"timeout", "name", "timeout"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_network_services_edge_cache_origin" "default" {
   name                 = "tf-test-my-origin%{random_suffix}"
   origin_address       = "gs://media-edge-default"
@@ -59,32 +58,32 @@ resource "google_network_services_edge_cache_origin" "default" {
 }
 
 func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(context),
 			},
-			{
-				ResourceName:            "google_network_services_edge_cache_origin.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_network_services_edge_cache_origin.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"timeout", "name", "timeout"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 
 resource "google_network_services_edge_cache_origin" "fallback" {
   name                 = "tf-test-my-fallback%{random_suffix}"
@@ -123,6 +122,7 @@ resource "google_network_services_edge_cache_origin" "default" {
 `, context)
 }
 
+
 func testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -133,24 +133,24 @@ func testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t *testing.T) fun
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("NetworkServicesEdgeCacheOrigin still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

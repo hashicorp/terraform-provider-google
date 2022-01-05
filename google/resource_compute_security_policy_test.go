@@ -53,6 +53,7 @@ func TestAccComputeSecurityPolicy_withRule(t *testing.T) {
 	})
 }
 
+
 func TestAccComputeSecurityPolicy_update(t *testing.T) {
 	t.Parallel()
 
@@ -73,7 +74,7 @@ func TestAccComputeSecurityPolicy_update(t *testing.T) {
 			},
 
 			{
-				Config:      testAccComputeSecurityPolicy_updateSamePriority(spName),
+				Config: testAccComputeSecurityPolicy_updateSamePriority(spName),
 				ExpectError: regexp.MustCompile("Two rules have the same priority, please update one of the priorities to be different."),
 			},
 
@@ -97,6 +98,7 @@ func TestAccComputeSecurityPolicy_update(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccCheckComputeSecurityPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {

@@ -20,22 +20,23 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeAutoscaler_basic(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
+			resource.TestStep{
 				Config: testAccComputeAutoscaler_update(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+
 		},
 	})
 }
@@ -53,10 +54,10 @@ func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeAutoscaler_multicondition(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -78,10 +79,10 @@ func TestAccComputeAutoscaler_scaleDownControl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeAutoscaler_scaleDownControl(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -103,10 +104,10 @@ func TestAccComputeAutoscaler_scalingSchedule(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeAutoscaler_scalingSchedule(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -128,10 +129,10 @@ func TestAccComputeAutoscaler_scaleInControl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeAutoscaler_scaleInControl(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -153,10 +154,10 @@ func TestAccComputeAutoscaler_scaleInControlFixed(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccComputeAutoscaler_scaleInControlFixed(itName, tpName, igmName, autoscalerName),
 			},
-			{
+			resource.TestStep{
 				ResourceName:      "google_compute_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,

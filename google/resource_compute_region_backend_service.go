@@ -15,16 +15,15 @@
 package google
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/api/googleapi"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
 // Fields in "backends" that are not allowed for non-managed backend services
@@ -116,189 +115,192 @@ func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, m
 	}
 }
 
+
+    
 func resourceComputeRegionBackendService() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceComputeRegionBackendServiceCreate,
-		Read:   resourceComputeRegionBackendServiceRead,
-		Update: resourceComputeRegionBackendServiceUpdate,
-		Delete: resourceComputeRegionBackendServiceDelete,
+    return &schema.Resource{
+        Create: resourceComputeRegionBackendServiceCreate,
+        Read: resourceComputeRegionBackendServiceRead,
+        Update: resourceComputeRegionBackendServiceUpdate,
+        Delete: resourceComputeRegionBackendServiceDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceComputeRegionBackendServiceImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceComputeRegionBackendServiceImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		SchemaVersion: 1,
-		MigrateState:  migrateStateNoop,
-		CustomizeDiff: customDiffRegionBackendService,
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Name of the resource. Provided by the client when the resource is
+SchemaVersion: 1,
+MigrateState:  migrateStateNoop,
+CustomizeDiff: customDiffRegionBackendService,
+
+        Schema: map[string]*schema.Schema{
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
 the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
-			},
-			"affinity_cookie_ttl_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `Lifetime of cookies in seconds if session_affinity is
+},
+"affinity_cookie_ttl_sec": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Lifetime of cookies in seconds if session_affinity is
 GENERATED_COOKIE. If set to 0, the cookie is non-persistent and lasts
 only until the end of the browser session (or equivalent). The
 maximum allowed value for TTL is one day.
 
 When the load balancing scheme is INTERNAL, this field is not used.`,
-			},
-			"backend": {
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Description: `The set of backends that serve this RegionBackendService.`,
-				Elem:        computeRegionBackendServiceBackendSchema(),
-				Set:         resourceGoogleComputeBackendServiceBackendHash,
-			},
-			"cdn_policy": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: `Cloud CDN configuration for this BackendService.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"cache_key_policy": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `The CacheKeyPolicy for this CdnPolicy.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"include_host": {
-										Type:         schema.TypeBool,
-										Optional:     true,
-										Description:  `If true requests to different hosts will be cached separately.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
-									},
-									"include_protocol": {
-										Type:         schema.TypeBool,
-										Optional:     true,
-										Description:  `If true, http and https requests will be cached separately.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
-									},
-									"include_query_string": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Description: `If true, include query string parameters in the cache key
+},
+"backend": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `The set of backends that serve this RegionBackendService.`,
+                Elem: computeRegionBackendServiceBackendSchema(),
+                Set: resourceGoogleComputeBackendServiceBackendHash,
+      },
+"cdn_policy": {
+    Type: schema.TypeList,
+  	Computed: true,
+	Optional: true,
+		Description: `Cloud CDN configuration for this BackendService.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "cache_key_policy": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The CacheKeyPolicy for this CdnPolicy.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "include_host": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `If true requests to different hosts will be cached separately.`,
+    AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+},
+              "include_protocol": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `If true, http and https requests will be cached separately.`,
+    AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+},
+              "include_query_string": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `If true, include query string parameters in the cache key
 according to query_string_whitelist and
 query_string_blacklist. If neither is set, the entire query
 string will be included.
 
 If false, the query string will be excluded from the cache
 key entirely.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
-									},
-									"query_string_blacklist": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Description: `Names of query string parameters to exclude in cache keys.
+    AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+},
+              "query_string_blacklist": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `Names of query string parameters to exclude in cache keys.
 
 All other parameters will be included. Either specify
 query_string_whitelist or query_string_blacklist, not both.
 '&' and '=' will be percent encoded and not treated as
 delimiters.`,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-										Set:          schema.HashString,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
-									},
-									"query_string_whitelist": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Description: `Names of query string parameters to include in cache keys.
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+            Set: schema.HashString,
+          AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+},
+              "query_string_whitelist": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `Names of query string parameters to include in cache keys.
 
 All other parameters will be excluded. Either specify
 query_string_whitelist or query_string_blacklist, not both.
 '&' and '=' will be percent encoded and not treated as
 delimiters.`,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-										Set:          schema.HashString,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
-									},
-								},
-							},
-							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
-						},
-						"cache_mode": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC", ""}, false),
-							Description: `Specifies the cache setting for all responses from this backend.
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+            Set: schema.HashString,
+          AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+},
+          },
+  },
+    AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
+},
+              "cache_mode": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+		ValidateFunc: validation.StringInSlice([]string{"USE_ORIGIN_HEADERS","FORCE_CACHE_ALL","CACHE_ALL_STATIC",""}, false),
+	Description: `Specifies the cache setting for all responses from this backend.
 The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC Possible values: ["USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"]`,
-						},
-						"client_ttl": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Optional:    true,
-							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
-						},
-						"default_ttl": {
-							Type:     schema.TypeInt,
-							Computed: true,
-							Optional: true,
-							Description: `Specifies the default TTL for cached content served by this origin for responses
+},
+              "client_ttl": {
+    Type: schema.TypeInt,
+  	Computed: true,
+	Optional: true,
+		Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+},
+              "default_ttl": {
+    Type: schema.TypeInt,
+  	Computed: true,
+	Optional: true,
+		Description: `Specifies the default TTL for cached content served by this origin for responses
 that do not have an existing valid TTL (max-age or s-max-age).`,
-						},
-						"max_ttl": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Optional:    true,
-							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
-						},
-						"negative_caching": {
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Optional:    true,
-							Description: `Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.`,
-						},
-						"negative_caching_policy": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
+},
+              "max_ttl": {
+    Type: schema.TypeInt,
+  	Computed: true,
+	Optional: true,
+		Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+},
+              "negative_caching": {
+    Type: schema.TypeBool,
+  	Computed: true,
+	Optional: true,
+		Description: `Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.`,
+},
+              "negative_caching_policy": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
 Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"code": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Description: `The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
+                Elem: &schema.Resource{
+        Schema: map[string]*schema.Schema{
+                      "code": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
 can be specified as values, and you cannot specify a status code more than once.`,
-									},
-								},
-							},
-						},
-						"serve_while_stale": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Optional:    true,
-							Description: `Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.`,
-						},
-						"signed_url_cache_max_age_sec": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `Maximum number of seconds the response to a signed URL request
+},
+                  },
+      },
+        },
+              "serve_while_stale": {
+    Type: schema.TypeInt,
+  	Computed: true,
+	Optional: true,
+		Description: `Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.`,
+},
+              "signed_url_cache_max_age_sec": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Maximum number of seconds the response to a signed URL request
 will be considered fresh, defaults to 1hr (3600s). After this
 time period, the response will be revalidated before
 being served.
@@ -308,77 +310,77 @@ internally behave as though all responses from this backend had a
 "Cache-Control: public, max-age=[TTL]" header, regardless of any
 existing Cache-Control header. The actual headers served in
 responses will not be altered.`,
-							Default:      3600,
-							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
-						},
-					},
-				},
-			},
-			"circuit_breakers": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `Settings controlling the volume of connections to a backend service. This field
+    Default: 3600,
+    AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
+},
+          },
+  },
+},
+"circuit_breakers": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Settings controlling the volume of connections to a backend service. This field
 is applicable only when the 'load_balancing_scheme' is set to INTERNAL_MANAGED
 and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"max_connections": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The maximum number of connections to the backend cluster.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "max_connections": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The maximum number of connections to the backend cluster.
 Defaults to 1024.`,
-							Default:      1024,
-							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
-						},
-						"max_pending_requests": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The maximum number of pending requests to the backend cluster.
+    Default: 1024,
+    AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+},
+              "max_pending_requests": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The maximum number of pending requests to the backend cluster.
 Defaults to 1024.`,
-							Default:      1024,
-							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
-						},
-						"max_requests": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The maximum number of parallel requests to the backend cluster.
+    Default: 1024,
+    AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+},
+              "max_requests": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The maximum number of parallel requests to the backend cluster.
 Defaults to 1024.`,
-							Default:      1024,
-							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
-						},
-						"max_requests_per_connection": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `Maximum requests for a single backend connection. This parameter
+    Default: 1024,
+    AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+},
+              "max_requests_per_connection": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Maximum requests for a single backend connection. This parameter
 is respected by both the HTTP/1.1 and HTTP/2 implementations. If
 not specified, there is no limit. Setting this parameter to 1
 will effectively disable keep alive.`,
-							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
-						},
-						"max_retries": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The maximum number of parallel retries to the backend cluster.
+    AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+},
+              "max_retries": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The maximum number of parallel retries to the backend cluster.
 Defaults to 3.`,
-							Default:      3,
-							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
-						},
-					},
-				},
-			},
+    Default: 3,
+    AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+},
+          },
+  },
+},
 			"connection_draining_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `Time for which instance will be drained (not accept new
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Time for which instance will be drained (not accept new
 connections, but still work to finish started).`,
-				Default: 0,
-			},
-
-			"consistent_hash": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `Consistent Hash-based load balancing can be used to provide soft session
+    Default: 0,
+},
+	
+"consistent_hash": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Consistent Hash-based load balancing can be used to provide soft session
 affinity based on HTTP headers, cookies or other properties. This load balancing
 policy is applicable only for HTTP connections. The affinity to a particular
 destination host will be lost when one or more hosts are added/removed from the
@@ -388,103 +390,103 @@ This field only applies when all of the following are true -
   * 'load_balancing_scheme' is set to INTERNAL_MANAGED
   * 'protocol' is set to HTTP, HTTPS, or HTTP2
   * 'locality_lb_policy' is set to MAGLEV or RING_HASH`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"http_cookie": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Hash is based on HTTP Cookie. This field describes a HTTP cookie
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "http_cookie": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Hash is based on HTTP Cookie. This field describes a HTTP cookie
 that will be used as the hash key for the consistent hash load
 balancer. If the cookie is not present, it will be generated.
 This field is applicable if the sessionAffinity is set to HTTP_COOKIE.`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `Name of the cookie.`,
-										AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
-									},
-									"path": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `Path to set for the cookie.`,
-										AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
-									},
-									"ttl": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Lifetime of the cookie.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"seconds": {
-													Type:     schema.TypeInt,
-													Required: true,
-													Description: `Span of time at a resolution of a second.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "name": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Name of the cookie.`,
+    AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
+},
+              "path": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Path to set for the cookie.`,
+    AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
+},
+              "ttl": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Lifetime of the cookie.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "seconds": {
+    Type: schema.TypeInt,
+    Required: true,
+	Description: `Span of time at a resolution of a second.
 Must be from 0 to 315,576,000,000 inclusive.`,
-												},
-												"nanos": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Description: `Span of time that's a fraction of a second at nanosecond
+},
+              "nanos": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Span of time that's a fraction of a second at nanosecond
 resolution. Durations less than one second are represented
 with a 0 seconds field and a positive nanos field. Must
 be from 0 to 999,999,999 inclusive.`,
-												},
-											},
-										},
-										AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
-									},
-								},
-							},
-							AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
-						},
-						"http_header_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `The hash based on the value of the specified header field.
+},
+          },
+  },
+    AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
+},
+          },
+  },
+    AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
+},
+              "http_header_name": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `The hash based on the value of the specified header field.
 This field is applicable if the sessionAffinity is set to HEADER_FIELD.`,
-							AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
-						},
-						"minimum_ring_size": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The minimum number of virtual nodes to use for the hash ring.
+    AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
+},
+              "minimum_ring_size": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The minimum number of virtual nodes to use for the hash ring.
 Larger ring sizes result in more granular load
 distributions. If the number of hosts in the load balancing pool
 is larger than the ring size, each host will be assigned a single
 virtual node.
 Defaults to 1024.`,
-							Default:      1024,
-							AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
-						},
-					},
-				},
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `An optional description of this resource.`,
-			},
-			"enable_cdn": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `If true, enable Cloud CDN for this RegionBackendService.`,
-			},
-			"failover_policy": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Policy for failovers.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"disable_connection_drain_on_failover": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Description: `On failover or failback, this field indicates whether connection drain
+    Default: 1024,
+    AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
+},
+          },
+  },
+},
+"description": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `An optional description of this resource.`,
+},
+"enable_cdn": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `If true, enable Cloud CDN for this RegionBackendService.`,
+},
+"failover_policy": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Policy for failovers.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "disable_connection_drain_on_failover": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `On failover or failback, this field indicates whether connection drain
 will be honored. Setting this to true has the following effect: connections
 to the old active pool are not drained. Connections to the new active pool
 use the timeout of 10 min (currently fixed). Setting to false has the
@@ -492,21 +494,21 @@ following effect: both old and new connections will have a drain timeout
 of 10 min.
 This can be set to true only if the protocol is TCP.
 The default is false.`,
-							AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
-						},
-						"drop_traffic_if_unhealthy": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Description: `This option is used only when no healthy VMs are detected in the primary
+    AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
+},
+              "drop_traffic_if_unhealthy": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `This option is used only when no healthy VMs are detected in the primary
 and backup instance groups. When set to true, traffic is dropped. When
 set to false, new connections are sent across all VMs in the primary group.
 The default is false.`,
-							AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
-						},
-						"failover_ratio": {
-							Type:     schema.TypeFloat,
-							Optional: true,
-							Description: `The value of the field must be in [0, 1]. If the ratio of the healthy
+    AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
+},
+              "failover_ratio": {
+    Type: schema.TypeFloat,
+    Optional: true,
+	Description: `The value of the field must be in [0, 1]. If the ratio of the healthy
 VMs in the primary backend is at or below this number, traffic arriving
 at the load-balanced IP will be directed to the failover backend.
 In case where 'failoverRatio' is not set or all the VMs in the backup
@@ -514,69 +516,69 @@ backend are unhealthy, the traffic will be directed back to the primary
 backend in the "force" mode, where traffic will be spread to the healthy
 VMs with the best effort, or to all VMs when no VM is healthy.
 This field is only used with l4 load balancing.`,
-							AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
-						},
-					},
-				},
-			},
-			"health_checks": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Description: `The set of URLs to HealthCheck resources for health checking
+    AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
+},
+          },
+  },
+},
+"health_checks": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `The set of URLs to HealthCheck resources for health checking
 this RegionBackendService. Currently at most one health
 check can be specified.
 
 A health check must be specified unless the backend service uses an internet
 or serverless NEG as a backend.`,
-				MinItems: 1,
-				MaxItems: 1,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Set: selfLinkRelativePathHash,
-			},
-			"iap": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Settings for enabling Cloud Identity Aware Proxy`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"oauth2_client_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `OAuth2 Client ID for IAP`,
-						},
-						"oauth2_client_secret": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `OAuth2 Client Secret for IAP`,
-							Sensitive:   true,
-						},
-						"oauth2_client_secret_sha256": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `OAuth2 Client Secret SHA-256 for IAP`,
-							Sensitive:   true,
-						},
-					},
-				},
-			},
-			"load_balancing_scheme": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED", ""}, false),
-				Description: `Indicates what kind of load balancing this regional backend service
+        MinItems: 1,
+          MaxItems: 1,
+          Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+            Set: selfLinkRelativePathHash,
+      },
+"iap": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Settings for enabling Cloud Identity Aware Proxy`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "oauth2_client_id": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `OAuth2 Client ID for IAP`,
+},
+              "oauth2_client_secret": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `OAuth2 Client Secret for IAP`,
+    Sensitive: true,
+},
+              "oauth2_client_secret_sha256": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `OAuth2 Client Secret SHA-256 for IAP`,
+    Sensitive: true,
+},
+          },
+  },
+},
+"load_balancing_scheme": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	ValidateFunc: validation.StringInSlice([]string{"EXTERNAL","EXTERNAL_MANAGED","INTERNAL","INTERNAL_MANAGED",""}, false),
+	Description: `Indicates what kind of load balancing this regional backend service
 will be used for. A backend service created for one type of load
 balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED"]`,
-				Default: "INTERNAL",
-			},
-			"locality_lb_policy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", ""}, false),
-				Description: `The load balancing algorithm used within the scope of the locality.
+    Default: "INTERNAL",
+},
+"locality_lb_policy": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN","LEAST_REQUEST","RING_HASH","RANDOM","ORIGINAL_DESTINATION","MAGLEV",""}, false),
+	Description: `The load balancing algorithm used within the scope of the locality.
 The possible values are -
 
 * ROUND_ROBIN - This is a simple policy in which each healthy backend
@@ -605,269 +607,269 @@ The possible values are -
 
 This field is applicable only when the 'load_balancing_scheme' is set to
 INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
-			},
-			"log_config": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				Description: `This field denotes the logging options for the load balancer traffic served by this backend service.
+},
+"log_config": {
+    Type: schema.TypeList,
+  	Computed: true,
+	Optional: true,
+		Description: `This field denotes the logging options for the load balancer traffic served by this backend service.
 If logging is enabled, logs will be exported to Stackdriver.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enable": {
-							Type:         schema.TypeBool,
-							Optional:     true,
-							Description:  `Whether to enable logging for the load balancer traffic served by this backend service.`,
-							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
-						},
-						"sample_rate": {
-							Type:             schema.TypeFloat,
-							Optional:         true,
-							DiffSuppressFunc: suppressWhenDisabled,
-							Description: `This field can only be specified if logging is enabled for this backend service. The value of
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "enable": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `Whether to enable logging for the load balancer traffic served by this backend service.`,
+    AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
+},
+              "sample_rate": {
+    Type: schema.TypeFloat,
+    Optional: true,
+  DiffSuppressFunc: suppressWhenDisabled,
+	Description: `This field can only be specified if logging is enabled for this backend service. The value of
 the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
 where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
 The default value is 1.0.`,
-							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
-						},
-					},
-				},
-			},
-			"network": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `The URL of the network to which this backend service belongs.
+    AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
+},
+          },
+  },
+},
+"network": {
+    Type: schema.TypeString,
+    Optional: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The URL of the network to which this backend service belongs.
 This field can only be specified when the load balancing scheme is set to INTERNAL.`,
-			},
-			"outlier_detection": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
+},
+"outlier_detection": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
 This field is applicable only when the 'load_balancing_scheme' is set
 to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"base_ejection_time": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `The base time that a host is ejected for. The real time is equal to the base
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "base_ejection_time": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The base time that a host is ejected for. The real time is equal to the base
 time multiplied by the number of times the host has been ejected. Defaults to
 30000ms or 30s.`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"seconds": {
-										Type:     schema.TypeInt,
-										Required: true,
-										Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "seconds": {
+    Type: schema.TypeInt,
+    Required: true,
+	Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
 inclusive.`,
-									},
-									"nanos": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations
+},
+              "nanos": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations
 less than one second are represented with a 0 'seconds' field and a positive
 'nanos' field. Must be from 0 to 999,999,999 inclusive.`,
-									},
-								},
-							},
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"consecutive_errors": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `Number of errors before a host is ejected from the connection pool. When the
+},
+          },
+  },
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "consecutive_errors": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Number of errors before a host is ejected from the connection pool. When the
 backend host is accessed over HTTP, a 5xx return code qualifies as an error.
 Defaults to 5.`,
-							Default:      5,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"consecutive_gateway_failure": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The number of consecutive gateway failures (502, 503, 504 status or connection
+    Default: 5,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "consecutive_gateway_failure": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The number of consecutive gateway failures (502, 503, 504 status or connection
 errors that are mapped to one of those status codes) before a consecutive
 gateway failure ejection occurs. Defaults to 5.`,
-							Default:      5,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"enforcing_consecutive_errors": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The percentage chance that a host will be actually ejected when an outlier
+    Default: 5,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "enforcing_consecutive_errors": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The percentage chance that a host will be actually ejected when an outlier
 status is detected through consecutive 5xx. This setting can be used to disable
 ejection or to ramp it up slowly. Defaults to 100.`,
-							Default:      100,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"enforcing_consecutive_gateway_failure": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The percentage chance that a host will be actually ejected when an outlier
+    Default: 100,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "enforcing_consecutive_gateway_failure": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The percentage chance that a host will be actually ejected when an outlier
 status is detected through consecutive gateway failures. This setting can be
 used to disable ejection or to ramp it up slowly. Defaults to 0.`,
-							Default:      0,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"enforcing_success_rate": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The percentage chance that a host will be actually ejected when an outlier
+    Default: 0,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "enforcing_success_rate": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The percentage chance that a host will be actually ejected when an outlier
 status is detected through success rate statistics. This setting can be used to
 disable ejection or to ramp it up slowly. Defaults to 100.`,
-							Default:      100,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"interval": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Time interval between ejection sweep analysis. This can result in both new
+    Default: 100,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "interval": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Time interval between ejection sweep analysis. This can result in both new
 ejections as well as hosts being returned to service. Defaults to 10 seconds.`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"seconds": {
-										Type:     schema.TypeInt,
-										Required: true,
-										Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "seconds": {
+    Type: schema.TypeInt,
+    Required: true,
+	Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
 inclusive.`,
-									},
-									"nanos": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations
+},
+              "nanos": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations
 less than one second are represented with a 0 'seconds' field and a positive
 'nanos' field. Must be from 0 to 999,999,999 inclusive.`,
-									},
-								},
-							},
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"max_ejection_percent": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `Maximum percentage of hosts in the load balancing pool for the backend service
+},
+          },
+  },
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "max_ejection_percent": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Maximum percentage of hosts in the load balancing pool for the backend service
 that can be ejected. Defaults to 10%.`,
-							Default:      10,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"success_rate_minimum_hosts": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The number of hosts in a cluster that must have enough request volume to detect
+    Default: 10,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "success_rate_minimum_hosts": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The number of hosts in a cluster that must have enough request volume to detect
 success rate outliers. If the number of hosts is less than this setting, outlier
 detection via success rate statistics is not performed for any host in the
 cluster. Defaults to 5.`,
-							Default:      5,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"success_rate_request_volume": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `The minimum number of total requests that must be collected in one interval (as
+    Default: 5,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "success_rate_request_volume": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The minimum number of total requests that must be collected in one interval (as
 defined by the interval duration above) to include this host in success rate
 based outlier detection. If the volume is lower than this setting, outlier
 detection via success rate statistics is not performed for that host. Defaults
 to 100.`,
-							Default:      100,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-						"success_rate_stdev_factor": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: `This factor is used to determine the ejection threshold for success rate outlier
+    Default: 100,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+              "success_rate_stdev_factor": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `This factor is used to determine the ejection threshold for success rate outlier
 ejection. The ejection threshold is the difference between the mean success
 rate, and the product of this factor and the standard deviation of the mean
 success rate: mean - (stdev * success_rate_stdev_factor). This factor is divided
 by a thousand to get a double. That is, if the desired factor is 1.9, the
 runtime value should be 1900. Defaults to 1900.`,
-							Default:      1900,
-							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
-						},
-					},
-				},
-			},
-			"port_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				Description: `A named port on a backend instance group representing the port for
+    Default: 1900,
+    AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+},
+          },
+  },
+},
+"port_name": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+		Description: `A named port on a backend instance group representing the port for
 communication to the backend VMs in that group. Required when the
 loadBalancingScheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED
 and the backends are instance groups. The named port must be defined on each
 backend instance group. This parameter has no meaning if the backends are NEGs. API sets a
 default of "http" if not given.
 Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP Load Balancing).`,
-			},
-			"protocol": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED", ""}, false),
-				Description: `The protocol this RegionBackendService uses to communicate with backends.
+},
+"protocol": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+		ValidateFunc: validation.StringInSlice([]string{"HTTP","HTTPS","HTTP2","SSL","TCP","UDP","GRPC","UNSPECIFIED",""}, false),
+	Description: `The protocol this RegionBackendService uses to communicate with backends.
 The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
 types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED"]`,
-			},
-			"region": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `The Region in which the created backend service should reside.
+},
+"region": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The Region in which the created backend service should reside.
 If it is not provided, the provider region is used.`,
-			},
-			"session_affinity": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION", ""}, false),
-				Description: `Type of session affinity to use. The default is NONE. Session affinity is
+},
+"session_affinity": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+		ValidateFunc: validation.StringInSlice([]string{"NONE","CLIENT_IP","CLIENT_IP_PORT_PROTO","CLIENT_IP_PROTO","GENERATED_COOKIE","HEADER_FIELD","HTTP_COOKIE","CLIENT_IP_NO_DESTINATION",""}, false),
+	Description: `Type of session affinity to use. The default is NONE. Session affinity is
 not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION"]`,
-			},
-			"timeout_sec": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-				Description: `How many seconds to wait for the backend before considering it a
+},
+"timeout_sec": {
+    Type: schema.TypeInt,
+  	Computed: true,
+	Optional: true,
+		Description: `How many seconds to wait for the backend before considering it a
 failed request. Default is 30 seconds. Valid range is [1, 86400].`,
-			},
-			"creation_timestamp": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Creation timestamp in RFC3339 text format.`,
-			},
-			"fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Description: `Fingerprint of this resource. A hash of the contents stored in this
+},
+"creation_timestamp": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Creation timestamp in RFC3339 text format.`,
+},
+"fingerprint": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Fingerprint of this resource. A hash of the contents stored in this
 object. This field is used in optimistic locking.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+            "self_link": {
+                Type:     schema.TypeString,
+                Computed: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
 
 func computeRegionBackendServiceBackendSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"group": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
-				Description: `The fully-qualified URL of an Instance Group or Network Endpoint
+                      "group": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkRelativePaths,
+	Description: `The fully-qualified URL of an Instance Group or Network Endpoint
 Group resource. In case of instance group this defines the list
 of instances that serve traffic. Member virtual machine
 instances from each instance group must live in the same zone as
@@ -887,18 +889,18 @@ are supported.
 Note that you must specify an Instance Group or Network Endpoint
 Group resource using the fully-qualified URL, rather than a
 partial URL.`,
-			},
-			"balancing_mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"UTILIZATION", "RATE", "CONNECTION", ""}, false),
-				Description:  `Specifies the balancing mode for this backend. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
-				Default:      "CONNECTION",
-			},
-			"capacity_scaler": {
-				Type:     schema.TypeFloat,
-				Optional: true,
-				Description: `A multiplier applied to the group's maximum servicing capacity
+},
+                      "balancing_mode": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"UTILIZATION","RATE","CONNECTION",""}, false),
+	Description: `Specifies the balancing mode for this backend. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+    Default: "CONNECTION",
+},
+                      "capacity_scaler": {
+    Type: schema.TypeFloat,
+    Optional: true,
+	Description: `A multiplier applied to the group's maximum servicing capacity
 (based on UTILIZATION, RATE or CONNECTION).
 
 ~>**NOTE**: This field cannot be set for
@@ -908,35 +910,35 @@ capacity_scaler for all backends must be non-zero.
 
 A setting of 0 means the group is completely drained, offering
 0% of its available Capacity. Valid range is [0.0,1.0].`,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `An optional description of this resource.
+},
+                      "description": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `An optional description of this resource.
 Provide this property when you create the resource.`,
-			},
-			"failover": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-				Description: `This field designates whether this is a failover backend. More
+},
+                      "failover": {
+    Type: schema.TypeBool,
+  	Computed: true,
+	Optional: true,
+		Description: `This field designates whether this is a failover backend. More
 than one failover backend can be configured for a given RegionBackendService.`,
-			},
-			"max_connections": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `The max number of simultaneous connections for the group. Can
+},
+                      "max_connections": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The max number of simultaneous connections for the group. Can
 be used with either CONNECTION or UTILIZATION balancing modes.
 Cannot be set for INTERNAL backend services.
 
 For CONNECTION mode, either maxConnections or one
 of maxConnectionsPerInstance or maxConnectionsPerEndpoint,
 as appropriate for group type, must be set.`,
-			},
-			"max_connections_per_endpoint": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `The max number of simultaneous connections that a single backend
+},
+                      "max_connections_per_endpoint": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The max number of simultaneous connections that a single backend
 network endpoint can handle. Cannot be set
 for INTERNAL backend services.
 
@@ -944,11 +946,11 @@ This is used to calculate the capacity of the group. Can be
 used in either CONNECTION or UTILIZATION balancing modes. For
 CONNECTION mode, either maxConnections or
 maxConnectionsPerEndpoint must be set.`,
-			},
-			"max_connections_per_instance": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `The max number of simultaneous connections that a single
+},
+                      "max_connections_per_instance": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The max number of simultaneous connections that a single
 backend instance can handle. Cannot be set for INTERNAL backend
 services.
 
@@ -956,637 +958,653 @@ This is used to calculate the capacity of the group.
 Can be used in either CONNECTION or UTILIZATION balancing modes.
 For CONNECTION mode, either maxConnections or
 maxConnectionsPerInstance must be set.`,
-			},
-			"max_rate": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `The max requests per second (RPS) of the group. Cannot be set
+},
+                      "max_rate": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `The max requests per second (RPS) of the group. Cannot be set
 for INTERNAL backend services.
 
 Can be used with either RATE or UTILIZATION balancing modes,
 but required if RATE mode. Either maxRate or one
 of maxRatePerInstance or maxRatePerEndpoint, as appropriate for
 group type, must be set.`,
-			},
-			"max_rate_per_endpoint": {
-				Type:     schema.TypeFloat,
-				Optional: true,
-				Description: `The max requests per second (RPS) that a single backend network
+},
+                      "max_rate_per_endpoint": {
+    Type: schema.TypeFloat,
+    Optional: true,
+	Description: `The max requests per second (RPS) that a single backend network
 endpoint can handle. This is used to calculate the capacity of
 the group. Can be used in either balancing mode. For RATE mode,
 either maxRate or maxRatePerEndpoint must be set. Cannot be set
 for INTERNAL backend services.`,
-			},
-			"max_rate_per_instance": {
-				Type:     schema.TypeFloat,
-				Optional: true,
-				Description: `The max requests per second (RPS) that a single backend
+},
+                      "max_rate_per_instance": {
+    Type: schema.TypeFloat,
+    Optional: true,
+	Description: `The max requests per second (RPS) that a single backend
 instance can handle. This is used to calculate the capacity of
 the group. Can be used in either balancing mode. For RATE mode,
 either maxRate or maxRatePerInstance must be set. Cannot be set
 for INTERNAL backend services.`,
-			},
-			"max_utilization": {
-				Type:     schema.TypeFloat,
-				Optional: true,
-				Description: `Used when balancingMode is UTILIZATION. This ratio defines the
+},
+                      "max_utilization": {
+    Type: schema.TypeFloat,
+    Optional: true,
+	Description: `Used when balancingMode is UTILIZATION. This ratio defines the
 CPU utilization target for the group. Valid range is [0.0, 1.0].
 Cannot be set for INTERNAL backend services.`,
-			},
-		},
+},
+          		},
 	}
 }
+
+
 
 func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !isEmptyValue(reflect.ValueOf(affinityCookieTtlSecProp)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
-		obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
-	}
-	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(backendsProp)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
-		obj["backends"] = backendsProp
-	}
-	circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get("circuit_breakers"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("circuit_breakers"); !isEmptyValue(reflect.ValueOf(circuitBreakersProp)) && (ok || !reflect.DeepEqual(v, circuitBreakersProp)) {
-		obj["circuitBreakers"] = circuitBreakersProp
-	}
-	consistentHashProp, err := expandComputeRegionBackendServiceConsistentHash(d.Get("consistent_hash"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(consistentHashProp)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
-		obj["consistentHash"] = consistentHashProp
-	}
-	cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get("cdn_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(cdnPolicyProp)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
-		obj["cdnPolicy"] = cdnPolicyProp
-	}
-	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
-	if err != nil {
-		return err
-	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
-		obj["connectionDraining"] = connectionDrainingProp
-	}
-	descriptionProp, err := expandComputeRegionBackendServiceDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	failoverPolicyProp, err := expandComputeRegionBackendServiceFailoverPolicy(d.Get("failover_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(failoverPolicyProp)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
-		obj["failoverPolicy"] = failoverPolicyProp
-	}
-	enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get("enable_cdn"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(enableCDNProp)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
-		obj["enableCDN"] = enableCDNProp
-	}
-	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(fingerprintProp)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
-		obj["fingerprint"] = fingerprintProp
-	}
-	healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get("health_checks"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(healthChecksProp)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
-		obj["healthChecks"] = healthChecksProp
-	}
-	iapProp, err := expandComputeRegionBackendServiceIap(d.Get("iap"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
-		obj["iap"] = iapProp
-	}
-	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
-		obj["loadBalancingScheme"] = loadBalancingSchemeProp
-	}
-	localityLbPolicyProp, err := expandComputeRegionBackendServiceLocalityLbPolicy(d.Get("locality_lb_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("locality_lb_policy"); !isEmptyValue(reflect.ValueOf(localityLbPolicyProp)) && (ok || !reflect.DeepEqual(v, localityLbPolicyProp)) {
-		obj["localityLbPolicy"] = localityLbPolicyProp
-	}
-	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("outlier_detection"); !isEmptyValue(reflect.ValueOf(outlierDetectionProp)) && (ok || !reflect.DeepEqual(v, outlierDetectionProp)) {
-		obj["outlierDetection"] = outlierDetectionProp
-	}
-	portNameProp, err := expandComputeRegionBackendServicePortName(d.Get("port_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("port_name"); !isEmptyValue(reflect.ValueOf(portNameProp)) && (ok || !reflect.DeepEqual(v, portNameProp)) {
-		obj["portName"] = portNameProp
-	}
-	protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get("protocol"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("protocol"); !isEmptyValue(reflect.ValueOf(protocolProp)) && (ok || !reflect.DeepEqual(v, protocolProp)) {
-		obj["protocol"] = protocolProp
-	}
-	sessionAffinityProp, err := expandComputeRegionBackendServiceSessionAffinity(d.Get("session_affinity"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("session_affinity"); !isEmptyValue(reflect.ValueOf(sessionAffinityProp)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
-		obj["sessionAffinity"] = sessionAffinityProp
-	}
-	timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get("timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(timeoutSecProp)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
-		obj["timeoutSec"] = timeoutSecProp
-	}
-	logConfigProp, err := expandComputeRegionBackendServiceLogConfig(d.Get("log_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
-		obj["logConfig"] = logConfigProp
-	}
-	networkProp, err := expandComputeRegionBackendServiceNetwork(d.Get("network"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
-	}
-	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
-		obj["region"] = regionProp
-	}
+    obj := make(map[string]interface{})
+        affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get( "affinity_cookie_ttl_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !isEmptyValue(reflect.ValueOf(affinityCookieTtlSecProp)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
+        obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
+    }
+        backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get( "backend" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(backendsProp)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
+        obj["backends"] = backendsProp
+    }
+        circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get( "circuit_breakers" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("circuit_breakers"); !isEmptyValue(reflect.ValueOf(circuitBreakersProp)) && (ok || !reflect.DeepEqual(v, circuitBreakersProp)) {
+        obj["circuitBreakers"] = circuitBreakersProp
+    }
+        consistentHashProp, err := expandComputeRegionBackendServiceConsistentHash(d.Get( "consistent_hash" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(consistentHashProp)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
+        obj["consistentHash"] = consistentHashProp
+    }
+        cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get( "cdn_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(cdnPolicyProp)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
+        obj["cdnPolicy"] = cdnPolicyProp
+    }
+        connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
+    if err != nil {
+        return err
+    } else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
+        obj["connectionDraining"] = connectionDrainingProp
+    }
+        descriptionProp, err := expandComputeRegionBackendServiceDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+        failoverPolicyProp, err := expandComputeRegionBackendServiceFailoverPolicy(d.Get( "failover_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(failoverPolicyProp)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
+        obj["failoverPolicy"] = failoverPolicyProp
+    }
+        enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get( "enable_cdn" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(enableCDNProp)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
+        obj["enableCDN"] = enableCDNProp
+    }
+        fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get( "fingerprint" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(fingerprintProp)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+        obj["fingerprint"] = fingerprintProp
+    }
+        healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get( "health_checks" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(healthChecksProp)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
+        obj["healthChecks"] = healthChecksProp
+    }
+        iapProp, err := expandComputeRegionBackendServiceIap(d.Get( "iap" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
+        obj["iap"] = iapProp
+    }
+        loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get( "load_balancing_scheme" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+        obj["loadBalancingScheme"] = loadBalancingSchemeProp
+    }
+        localityLbPolicyProp, err := expandComputeRegionBackendServiceLocalityLbPolicy(d.Get( "locality_lb_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("locality_lb_policy"); !isEmptyValue(reflect.ValueOf(localityLbPolicyProp)) && (ok || !reflect.DeepEqual(v, localityLbPolicyProp)) {
+        obj["localityLbPolicy"] = localityLbPolicyProp
+    }
+        nameProp, err := expandComputeRegionBackendServiceName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get( "outlier_detection" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("outlier_detection"); !isEmptyValue(reflect.ValueOf(outlierDetectionProp)) && (ok || !reflect.DeepEqual(v, outlierDetectionProp)) {
+        obj["outlierDetection"] = outlierDetectionProp
+    }
+        portNameProp, err := expandComputeRegionBackendServicePortName(d.Get( "port_name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("port_name"); !isEmptyValue(reflect.ValueOf(portNameProp)) && (ok || !reflect.DeepEqual(v, portNameProp)) {
+        obj["portName"] = portNameProp
+    }
+        protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get( "protocol" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("protocol"); !isEmptyValue(reflect.ValueOf(protocolProp)) && (ok || !reflect.DeepEqual(v, protocolProp)) {
+        obj["protocol"] = protocolProp
+    }
+        sessionAffinityProp, err := expandComputeRegionBackendServiceSessionAffinity(d.Get( "session_affinity" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("session_affinity"); !isEmptyValue(reflect.ValueOf(sessionAffinityProp)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
+        obj["sessionAffinity"] = sessionAffinityProp
+    }
+        timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get( "timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(timeoutSecProp)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
+        obj["timeoutSec"] = timeoutSecProp
+    }
+        logConfigProp, err := expandComputeRegionBackendServiceLogConfig(d.Get( "log_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+        obj["logConfig"] = logConfigProp
+    }
+        networkProp, err := expandComputeRegionBackendServiceNetwork(d.Get( "network" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+        obj["network"] = networkProp
+    }
+        regionProp, err := expandComputeRegionBackendServiceRegion(d.Get( "region" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+        obj["region"] = regionProp
+    }
 
-	obj, err = resourceComputeRegionBackendServiceEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj, err = resourceComputeRegionBackendServiceEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new RegionBackendService: %#v", obj)
-	billingProject := ""
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices")
+    if err != nil {
+        return err
+    }
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
-	}
-	billingProject = project
+    log.Printf("[DEBUG] Creating new RegionBackendService: %#v", obj)
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
+    }
+    billingProject = project
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating RegionBackendService: %s", err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = computeOperationWaitTime(
-		config, res, project, "Creating RegionBackendService", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating RegionBackendService: %s", err)
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RegionBackendService: %s", err)
-	}
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating RegionBackendService %q: %#v", d.Id(), res)
+    err = computeOperationWaitTime(
+    config, res,  project,  "Creating RegionBackendService", userAgent,
+        d.Timeout(schema.TimeoutCreate))
 
-	return resourceComputeRegionBackendServiceRead(d, meta)
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create RegionBackendService: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating RegionBackendService %q: %#v", d.Id(), res)
+
+    return resourceComputeRegionBackendServiceRead(d, meta)
 }
 
+
 func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionBackendService %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	res, err = resourceComputeRegionBackendServiceDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionBackendService %q", d.Id()))
+    }
 
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing ComputeRegionBackendService because it no longer exists.")
-		d.SetId("")
-		return nil
-	}
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
+    res, err = resourceComputeRegionBackendServiceDecoder(d, meta, res)
+    if err != nil {
+        return err
+    }
 
-	if err := d.Set("affinity_cookie_ttl_sec", flattenComputeRegionBackendServiceAffinityCookieTtlSec(res["affinityCookieTtlSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("backend", flattenComputeRegionBackendServiceBackend(res["backends"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("circuit_breakers", flattenComputeRegionBackendServiceCircuitBreakers(res["circuitBreakers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("consistent_hash", flattenComputeRegionBackendServiceConsistentHash(res["consistentHash"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("cdn_policy", flattenComputeRegionBackendServiceCdnPolicy(res["cdnPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	// Terraform must set the top level schema field, but since this object contains collapsed properties
-	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenComputeRegionBackendServiceConnectionDraining(res["connectionDraining"], d, config); flattenedProp != nil {
-		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+    if res == nil {
+        // Decoding the object has resulted in it being gone. It may be marked deleted
+        log.Printf("[DEBUG] Removing ComputeRegionBackendService because it no longer exists.")
+        d.SetId("")
+        return nil
+    }
+
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+
+
+    if err := d.Set("affinity_cookie_ttl_sec", flattenComputeRegionBackendServiceAffinityCookieTtlSec(res["affinityCookieTtlSec"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("backend", flattenComputeRegionBackendServiceBackend(res["backends"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("circuit_breakers", flattenComputeRegionBackendServiceCircuitBreakers(res["circuitBreakers"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("consistent_hash", flattenComputeRegionBackendServiceConsistentHash(res["consistentHash"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("cdn_policy", flattenComputeRegionBackendServiceCdnPolicy(res["cdnPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+// Terraform must set the top level schema field, but since this object contains collapsed properties
+// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+    if flattenedProp := flattenComputeRegionBackendServiceConnectionDraining(res["connectionDraining"], d, config); flattenedProp != nil {
+        if gerr, ok := flattenedProp.(*googleapi.Error); ok {
 			return fmt.Errorf("Error reading RegionBackendService: %s", gerr)
 		}
-		casted := flattenedProp.([]interface{})[0]
-		if casted != nil {
-			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
-			}
-		}
-	}
-	if err := d.Set("creation_timestamp", flattenComputeRegionBackendServiceCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionBackendServiceDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("failover_policy", flattenComputeRegionBackendServiceFailoverPolicy(res["failoverPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("enable_cdn", flattenComputeRegionBackendServiceEnableCDN(res["enableCDN"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("health_checks", flattenComputeRegionBackendServiceHealthChecks(res["healthChecks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("iap", flattenComputeRegionBackendServiceIap(res["iap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("locality_lb_policy", flattenComputeRegionBackendServiceLocalityLbPolicy(res["localityLbPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("name", flattenComputeRegionBackendServiceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("outlier_detection", flattenComputeRegionBackendServiceOutlierDetection(res["outlierDetection"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("port_name", flattenComputeRegionBackendServicePortName(res["portName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("protocol", flattenComputeRegionBackendServiceProtocol(res["protocol"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("session_affinity", flattenComputeRegionBackendServiceSessionAffinity(res["sessionAffinity"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("timeout_sec", flattenComputeRegionBackendServiceTimeoutSec(res["timeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("log_config", flattenComputeRegionBackendServiceLogConfig(res["logConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("network", flattenComputeRegionBackendServiceNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionBackendServiceRegion(res["region"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
+        casted := flattenedProp.([]interface{})[0]
+        if casted != nil {
+            for k, v := range casted.(map[string]interface{}) {
+                if err := d.Set(k, v); err != nil {
+                	return fmt.Errorf("Error setting %s: %s", k, err)
+                }
+            }
+        }
+    }
+    if err := d.Set("creation_timestamp", flattenComputeRegionBackendServiceCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("description", flattenComputeRegionBackendServiceDescription(res["description"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("failover_policy", flattenComputeRegionBackendServiceFailoverPolicy(res["failoverPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("enable_cdn", flattenComputeRegionBackendServiceEnableCDN(res["enableCDN"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("fingerprint", flattenComputeRegionBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("health_checks", flattenComputeRegionBackendServiceHealthChecks(res["healthChecks"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("iap", flattenComputeRegionBackendServiceIap(res["iap"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("locality_lb_policy", flattenComputeRegionBackendServiceLocalityLbPolicy(res["localityLbPolicy"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("name", flattenComputeRegionBackendServiceName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("outlier_detection", flattenComputeRegionBackendServiceOutlierDetection(res["outlierDetection"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("port_name", flattenComputeRegionBackendServicePortName(res["portName"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("protocol", flattenComputeRegionBackendServiceProtocol(res["protocol"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("session_affinity", flattenComputeRegionBackendServiceSessionAffinity(res["sessionAffinity"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("timeout_sec", flattenComputeRegionBackendServiceTimeoutSec(res["timeoutSec"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("log_config", flattenComputeRegionBackendServiceLogConfig(res["logConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("network", flattenComputeRegionBackendServiceNetwork(res["network"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("region", flattenComputeRegionBackendServiceRegion(res["region"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
+    if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+        return fmt.Errorf("Error reading RegionBackendService: %s", err)
+    }
 
-	return nil
+    return nil
 }
 
 func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
-		obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
-	}
-	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
-		obj["backends"] = backendsProp
-	}
-	circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get("circuit_breakers"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("circuit_breakers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, circuitBreakersProp)) {
-		obj["circuitBreakers"] = circuitBreakersProp
-	}
-	consistentHashProp, err := expandComputeRegionBackendServiceConsistentHash(d.Get("consistent_hash"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
-		obj["consistentHash"] = consistentHashProp
-	}
-	cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get("cdn_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
-		obj["cdnPolicy"] = cdnPolicyProp
-	}
-	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
-	if err != nil {
-		return err
-	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
-		obj["connectionDraining"] = connectionDrainingProp
-	}
-	descriptionProp, err := expandComputeRegionBackendServiceDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	failoverPolicyProp, err := expandComputeRegionBackendServiceFailoverPolicy(d.Get("failover_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
-		obj["failoverPolicy"] = failoverPolicyProp
-	}
-	enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get("enable_cdn"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
-		obj["enableCDN"] = enableCDNProp
-	}
-	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
-		obj["fingerprint"] = fingerprintProp
-	}
-	healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get("health_checks"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
-		obj["healthChecks"] = healthChecksProp
-	}
-	iapProp, err := expandComputeRegionBackendServiceIap(d.Get("iap"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
-		obj["iap"] = iapProp
-	}
-	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
-		obj["loadBalancingScheme"] = loadBalancingSchemeProp
-	}
-	localityLbPolicyProp, err := expandComputeRegionBackendServiceLocalityLbPolicy(d.Get("locality_lb_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("locality_lb_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, localityLbPolicyProp)) {
-		obj["localityLbPolicy"] = localityLbPolicyProp
-	}
-	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("outlier_detection"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, outlierDetectionProp)) {
-		obj["outlierDetection"] = outlierDetectionProp
-	}
-	portNameProp, err := expandComputeRegionBackendServicePortName(d.Get("port_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("port_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, portNameProp)) {
-		obj["portName"] = portNameProp
-	}
-	protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get("protocol"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("protocol"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, protocolProp)) {
-		obj["protocol"] = protocolProp
-	}
-	sessionAffinityProp, err := expandComputeRegionBackendServiceSessionAffinity(d.Get("session_affinity"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("session_affinity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
-		obj["sessionAffinity"] = sessionAffinityProp
-	}
-	timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get("timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
-		obj["timeoutSec"] = timeoutSecProp
-	}
-	logConfigProp, err := expandComputeRegionBackendServiceLogConfig(d.Get("log_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
-		obj["logConfig"] = logConfigProp
-	}
-	networkProp, err := expandComputeRegionBackendServiceNetwork(d.Get("network"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
-	}
-	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
-		obj["region"] = regionProp
-	}
 
-	obj, err = resourceComputeRegionBackendServiceEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get( "affinity_cookie_ttl_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
+        obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
+    }
+            backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get( "backend" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
+        obj["backends"] = backendsProp
+    }
+            circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get( "circuit_breakers" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("circuit_breakers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, circuitBreakersProp)) {
+        obj["circuitBreakers"] = circuitBreakersProp
+    }
+            consistentHashProp, err := expandComputeRegionBackendServiceConsistentHash(d.Get( "consistent_hash" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
+        obj["consistentHash"] = consistentHashProp
+    }
+            cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get( "cdn_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
+        obj["cdnPolicy"] = cdnPolicyProp
+    }
+            connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
+    if err != nil {
+        return err
+    } else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
+        obj["connectionDraining"] = connectionDrainingProp
+    }
+            descriptionProp, err := expandComputeRegionBackendServiceDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+            failoverPolicyProp, err := expandComputeRegionBackendServiceFailoverPolicy(d.Get( "failover_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
+        obj["failoverPolicy"] = failoverPolicyProp
+    }
+            enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get( "enable_cdn" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
+        obj["enableCDN"] = enableCDNProp
+    }
+            fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get( "fingerprint" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+        obj["fingerprint"] = fingerprintProp
+    }
+            healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get( "health_checks" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
+        obj["healthChecks"] = healthChecksProp
+    }
+            iapProp, err := expandComputeRegionBackendServiceIap(d.Get( "iap" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
+        obj["iap"] = iapProp
+    }
+            loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get( "load_balancing_scheme" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+        obj["loadBalancingScheme"] = loadBalancingSchemeProp
+    }
+            localityLbPolicyProp, err := expandComputeRegionBackendServiceLocalityLbPolicy(d.Get( "locality_lb_policy" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("locality_lb_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, localityLbPolicyProp)) {
+        obj["localityLbPolicy"] = localityLbPolicyProp
+    }
+            nameProp, err := expandComputeRegionBackendServiceName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+            outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get( "outlier_detection" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("outlier_detection"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, outlierDetectionProp)) {
+        obj["outlierDetection"] = outlierDetectionProp
+    }
+            portNameProp, err := expandComputeRegionBackendServicePortName(d.Get( "port_name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("port_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, portNameProp)) {
+        obj["portName"] = portNameProp
+    }
+            protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get( "protocol" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("protocol"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, protocolProp)) {
+        obj["protocol"] = protocolProp
+    }
+            sessionAffinityProp, err := expandComputeRegionBackendServiceSessionAffinity(d.Get( "session_affinity" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("session_affinity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
+        obj["sessionAffinity"] = sessionAffinityProp
+    }
+            timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get( "timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
+        obj["timeoutSec"] = timeoutSecProp
+    }
+            logConfigProp, err := expandComputeRegionBackendServiceLogConfig(d.Get( "log_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+        obj["logConfig"] = logConfigProp
+    }
+            networkProp, err := expandComputeRegionBackendServiceNetwork(d.Get( "network" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+        obj["network"] = networkProp
+    }
+            regionProp, err := expandComputeRegionBackendServiceRegion(d.Get( "region" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+        obj["region"] = regionProp
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
-	if err != nil {
-		return err
-	}
+    obj, err = resourceComputeRegionBackendServiceEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	log.Printf("[DEBUG] Updating RegionBackendService %q: %#v", d.Id(), obj)
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    log.Printf("[DEBUG] Updating RegionBackendService %q: %#v", d.Id(), obj)
 
-	if err != nil {
-		return fmt.Errorf("Error updating RegionBackendService %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating RegionBackendService %q: %#v", d.Id(), res)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = computeOperationWaitTime(
-		config, res, project, "Updating RegionBackendService", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+    res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return fmt.Errorf("Error updating RegionBackendService %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating RegionBackendService %q: %#v", d.Id(), res)
+    }
 
-	return resourceComputeRegionBackendServiceRead(d, meta)
+    err = computeOperationWaitTime(
+        config, res,  project,  "Updating RegionBackendService", userAgent,
+        d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return err
+    }
+
+    return resourceComputeRegionBackendServiceRead(d, meta)
 }
 
 func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting RegionBackendService %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "RegionBackendService")
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting RegionBackendService %q", d.Id())
 
-	err = computeOperationWaitTime(
-		config, res, project, "Deleting RegionBackendService", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return err
-	}
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "RegionBackendService")
+    }
 
-	log.Printf("[DEBUG] Finished deleting RegionBackendService %q: %#v", d.Id(), res)
-	return nil
+    err = computeOperationWaitTime(
+        config, res,  project,  "Deleting RegionBackendService", userAgent,
+        d.Timeout(schema.TimeoutDelete))
+
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting RegionBackendService %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceComputeRegionBackendServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/backendServices/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
-		"(?P<region>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/backendServices/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+        "(?P<region>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1607,50 +1625,51 @@ func flattenComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d *sc
 }
 
 func flattenComputeRegionBackendServiceBackend(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := schema.NewSet(resourceGoogleComputeBackendServiceBackendHash, []interface{}{})
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed.Add(map[string]interface{}{
-			"balancing_mode":               flattenComputeRegionBackendServiceBackendBalancingMode(original["balancingMode"], d, config),
-			"capacity_scaler":              flattenComputeRegionBackendServiceBackendCapacityScaler(original["capacityScaler"], d, config),
-			"description":                  flattenComputeRegionBackendServiceBackendDescription(original["description"], d, config),
-			"failover":                     flattenComputeRegionBackendServiceBackendFailover(original["failover"], d, config),
-			"group":                        flattenComputeRegionBackendServiceBackendGroup(original["group"], d, config),
-			"max_connections":              flattenComputeRegionBackendServiceBackendMaxConnections(original["maxConnections"], d, config),
-			"max_connections_per_instance": flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(original["maxConnectionsPerInstance"], d, config),
-			"max_connections_per_endpoint": flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(original["maxConnectionsPerEndpoint"], d, config),
-			"max_rate":                     flattenComputeRegionBackendServiceBackendMaxRate(original["maxRate"], d, config),
-			"max_rate_per_instance":        flattenComputeRegionBackendServiceBackendMaxRatePerInstance(original["maxRatePerInstance"], d, config),
-			"max_rate_per_endpoint":        flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(original["maxRatePerEndpoint"], d, config),
-			"max_utilization":              flattenComputeRegionBackendServiceBackendMaxUtilization(original["maxUtilization"], d, config),
-		})
-	}
-	return transformed
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := schema.NewSet(resourceGoogleComputeBackendServiceBackendHash, []interface{}{})
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed.Add(map[string]interface{}{
+          "balancing_mode": flattenComputeRegionBackendServiceBackendBalancingMode(original["balancingMode"], d, config),
+          "capacity_scaler": flattenComputeRegionBackendServiceBackendCapacityScaler(original["capacityScaler"], d, config),
+          "description": flattenComputeRegionBackendServiceBackendDescription(original["description"], d, config),
+          "failover": flattenComputeRegionBackendServiceBackendFailover(original["failover"], d, config),
+          "group": flattenComputeRegionBackendServiceBackendGroup(original["group"], d, config),
+          "max_connections": flattenComputeRegionBackendServiceBackendMaxConnections(original["maxConnections"], d, config),
+          "max_connections_per_instance": flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(original["maxConnectionsPerInstance"], d, config),
+          "max_connections_per_endpoint": flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(original["maxConnectionsPerEndpoint"], d, config),
+          "max_rate": flattenComputeRegionBackendServiceBackendMaxRate(original["maxRate"], d, config),
+          "max_rate_per_instance": flattenComputeRegionBackendServiceBackendMaxRatePerInstance(original["maxRatePerInstance"], d, config),
+          "max_rate_per_endpoint": flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(original["maxRatePerEndpoint"], d, config),
+          "max_utilization": flattenComputeRegionBackendServiceBackendMaxUtilization(original["maxUtilization"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenComputeRegionBackendServiceBackendBalancingMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceBackendCapacityScaler(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceBackendBalancingMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceBackendDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceBackendCapacityScaler(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceBackendFailover(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceBackendDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
+      func flattenComputeRegionBackendServiceBackendFailover(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
+}
+
+      
 func flattenComputeRegionBackendServiceBackendGroup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -1658,7 +1677,7 @@ func flattenComputeRegionBackendServiceBackendGroup(v interface{}, d *schema.Res
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRegionBackendServiceBackendMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceBackendMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1675,7 +1694,7 @@ func flattenComputeRegionBackendServiceBackendMaxConnections(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1692,7 +1711,7 @@ func flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interf
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1709,7 +1728,7 @@ func flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interf
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceBackendMaxRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceBackendMaxRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1726,40 +1745,42 @@ func flattenComputeRegionBackendServiceBackendMaxRate(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceBackendMaxRatePerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceBackendMaxRatePerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenComputeRegionBackendServiceCircuitBreakers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["max_requests_per_connection"] =
-		flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(original["maxRequestsPerConnection"], d, config)
-	transformed["max_connections"] =
-		flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(original["maxConnections"], d, config)
-	transformed["max_pending_requests"] =
-		flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(original["maxPendingRequests"], d, config)
-	transformed["max_requests"] =
-		flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(original["maxRequests"], d, config)
-	transformed["max_retries"] =
-		flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(original["maxRetries"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["max_requests_per_connection"] =
+    flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(original["maxRequestsPerConnection"], d, config)
+              transformed["max_connections"] =
+    flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(original["maxConnections"], d, config)
+              transformed["max_pending_requests"] =
+    flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(original["maxPendingRequests"], d, config)
+              transformed["max_requests"] =
+    flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(original["maxRequests"], d, config)
+              transformed["max_retries"] =
+    flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(original["maxRetries"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1776,7 +1797,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1793,7 +1814,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1810,7 +1831,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v inter
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1827,7 +1848,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1843,57 +1864,59 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(v interface{}, 
 
 	return v // let terraform core handle it otherwise
 }
+
+  
 
 func flattenComputeRegionBackendServiceConsistentHash(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["http_cookie"] =
-		flattenComputeRegionBackendServiceConsistentHashHttpCookie(original["httpCookie"], d, config)
-	transformed["http_header_name"] =
-		flattenComputeRegionBackendServiceConsistentHashHttpHeaderName(original["httpHeaderName"], d, config)
-	transformed["minimum_ring_size"] =
-		flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(original["minimumRingSize"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["http_cookie"] =
+    flattenComputeRegionBackendServiceConsistentHashHttpCookie(original["httpCookie"], d, config)
+              transformed["http_header_name"] =
+    flattenComputeRegionBackendServiceConsistentHashHttpHeaderName(original["httpHeaderName"], d, config)
+              transformed["minimum_ring_size"] =
+    flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(original["minimumRingSize"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceConsistentHashHttpCookie(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["ttl"] =
-		flattenComputeRegionBackendServiceConsistentHashHttpCookieTtl(original["ttl"], d, config)
-	transformed["name"] =
-		flattenComputeRegionBackendServiceConsistentHashHttpCookieName(original["name"], d, config)
-	transformed["path"] =
-		flattenComputeRegionBackendServiceConsistentHashHttpCookiePath(original["path"], d, config)
-	return []interface{}{transformed}
+      func flattenComputeRegionBackendServiceConsistentHashHttpCookie(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["ttl"] =
+    flattenComputeRegionBackendServiceConsistentHashHttpCookieTtl(original["ttl"], d, config)
+              transformed["name"] =
+    flattenComputeRegionBackendServiceConsistentHashHttpCookieName(original["name"], d, config)
+              transformed["path"] =
+    flattenComputeRegionBackendServiceConsistentHashHttpCookiePath(original["path"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["seconds"] =
-		flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(original["seconds"], d, config)
-	transformed["nanos"] =
-		flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(original["nanos"], d, config)
-	return []interface{}{transformed}
+      func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["seconds"] =
+    flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(original["seconds"], d, config)
+              transformed["nanos"] =
+    flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(original["nanos"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1910,7 +1933,7 @@ func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v inte
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1927,19 +1950,23 @@ func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(v interf
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceConsistentHashHttpCookieName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenComputeRegionBackendServiceConsistentHashHttpCookieName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceConsistentHashHttpCookiePath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceConsistentHashHttpCookiePath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceConsistentHashHttpHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenComputeRegionBackendServiceConsistentHashHttpHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1955,84 +1982,88 @@ func flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface
 
 	return v // let terraform core handle it otherwise
 }
+
+  
 
 func flattenComputeRegionBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["cache_key_policy"] =
-		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
-	transformed["signed_url_cache_max_age_sec"] =
-		flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
-	transformed["default_ttl"] =
-		flattenComputeRegionBackendServiceCdnPolicyDefaultTtl(original["defaultTtl"], d, config)
-	transformed["max_ttl"] =
-		flattenComputeRegionBackendServiceCdnPolicyMaxTtl(original["maxTtl"], d, config)
-	transformed["client_ttl"] =
-		flattenComputeRegionBackendServiceCdnPolicyClientTtl(original["clientTtl"], d, config)
-	transformed["negative_caching"] =
-		flattenComputeRegionBackendServiceCdnPolicyNegativeCaching(original["negativeCaching"], d, config)
-	transformed["negative_caching_policy"] =
-		flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(original["negativeCachingPolicy"], d, config)
-	transformed["cache_mode"] =
-		flattenComputeRegionBackendServiceCdnPolicyCacheMode(original["cacheMode"], d, config)
-	transformed["serve_while_stale"] =
-		flattenComputeRegionBackendServiceCdnPolicyServeWhileStale(original["serveWhileStale"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["cache_key_policy"] =
+    flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
+              transformed["signed_url_cache_max_age_sec"] =
+    flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
+              transformed["default_ttl"] =
+    flattenComputeRegionBackendServiceCdnPolicyDefaultTtl(original["defaultTtl"], d, config)
+              transformed["max_ttl"] =
+    flattenComputeRegionBackendServiceCdnPolicyMaxTtl(original["maxTtl"], d, config)
+              transformed["client_ttl"] =
+    flattenComputeRegionBackendServiceCdnPolicyClientTtl(original["clientTtl"], d, config)
+              transformed["negative_caching"] =
+    flattenComputeRegionBackendServiceCdnPolicyNegativeCaching(original["negativeCaching"], d, config)
+              transformed["negative_caching_policy"] =
+    flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(original["negativeCachingPolicy"], d, config)
+              transformed["cache_mode"] =
+    flattenComputeRegionBackendServiceCdnPolicyCacheMode(original["cacheMode"], d, config)
+              transformed["serve_while_stale"] =
+    flattenComputeRegionBackendServiceCdnPolicyServeWhileStale(original["serveWhileStale"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["include_host"] =
-		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["includeHost"], d, config)
-	transformed["include_protocol"] =
-		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["includeProtocol"], d, config)
-	transformed["include_query_string"] =
-		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["includeQueryString"], d, config)
-	transformed["query_string_blacklist"] =
-		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d, config)
-	transformed["query_string_whitelist"] =
-		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
-	return []interface{}{transformed}
+      func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["include_host"] =
+    flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["includeHost"], d, config)
+              transformed["include_protocol"] =
+    flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["includeProtocol"], d, config)
+              transformed["include_query_string"] =
+    flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["includeQueryString"], d, config)
+              transformed["query_string_blacklist"] =
+    flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d, config)
+              transformed["query_string_whitelist"] =
+    flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+      func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
-}
+      func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+    return schema.NewSet(schema.HashString, v.([]interface{}))
+  }
 
-func flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+    return schema.NewSet(schema.HashString, v.([]interface{}))
+  }
+
+  
+
+      func flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2049,7 +2080,7 @@ func flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interf
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyDefaultTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCdnPolicyDefaultTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2066,7 +2097,7 @@ func flattenComputeRegionBackendServiceCdnPolicyDefaultTtl(v interface{}, d *sch
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyMaxTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCdnPolicyMaxTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2083,7 +2114,7 @@ func flattenComputeRegionBackendServiceCdnPolicyMaxTtl(v interface{}, d *schema.
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyClientTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCdnPolicyClientTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2100,29 +2131,29 @@ func flattenComputeRegionBackendServiceCdnPolicyClientTtl(v interface{}, d *sche
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyNegativeCaching(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceCdnPolicyNegativeCaching(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"code": flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config),
-		})
-	}
-	return transformed
+      func flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed = append(transformed, map[string]interface{}{
+          "code": flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2139,11 +2170,13 @@ func flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(v inte
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyCacheMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  
+
+      func flattenComputeRegionBackendServiceCdnPolicyCacheMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceCdnPolicyServeWhileStale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceCdnPolicyServeWhileStale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2159,21 +2192,23 @@ func flattenComputeRegionBackendServiceCdnPolicyServeWhileStale(v interface{}, d
 
 	return v // let terraform core handle it otherwise
 }
+
+  
 
 func flattenComputeRegionBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["connection_draining_timeout_sec"] =
-		flattenComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(original["drainingTimeoutSec"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["connection_draining_timeout_sec"] =
+    flattenComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(original["drainingTimeoutSec"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2190,50 +2225,55 @@ func flattenComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeo
 	return v // let terraform core handle it otherwise
 }
 
+  
+
 func flattenComputeRegionBackendServiceCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceFailoverPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["disable_connection_drain_on_failover"] =
-		flattenComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disableConnectionDrainOnFailover"], d, config)
-	transformed["drop_traffic_if_unhealthy"] =
-		flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(original["dropTrafficIfUnhealthy"], d, config)
-	transformed["failover_ratio"] =
-		flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(original["failoverRatio"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["disable_connection_drain_on_failover"] =
+    flattenComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disableConnectionDrainOnFailover"], d, config)
+              transformed["drop_traffic_if_unhealthy"] =
+    flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(original["dropTrafficIfUnhealthy"], d, config)
+              transformed["failover_ratio"] =
+    flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(original["failoverRatio"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+      func flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
+}
+
+  
 
 func flattenComputeRegionBackendServiceEnableCDN(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
 
 func flattenComputeRegionBackendServiceHealthChecks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
@@ -2243,95 +2283,97 @@ func flattenComputeRegionBackendServiceHealthChecks(v interface{}, d *schema.Res
 }
 
 func flattenComputeRegionBackendServiceIap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["oauth2_client_id"] =
-		flattenComputeRegionBackendServiceIapOauth2ClientId(original["oauth2ClientId"], d, config)
-	transformed["oauth2_client_secret"] =
-		flattenComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2ClientSecret"], d, config)
-	transformed["oauth2_client_secret_sha256"] =
-		flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["oauth2_client_id"] =
+    flattenComputeRegionBackendServiceIapOauth2ClientId(original["oauth2ClientId"], d, config)
+              transformed["oauth2_client_secret"] =
+    flattenComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2ClientSecret"], d, config)
+              transformed["oauth2_client_secret_sha256"] =
+    flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return d.Get("iap.0.oauth2_client_secret")
 }
 
-func flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
+  
+
 func flattenComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceLocalityLbPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceOutlierDetection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["base_ejection_time"] =
-		flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(original["baseEjectionTime"], d, config)
-	transformed["consecutive_errors"] =
-		flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(original["consecutiveErrors"], d, config)
-	transformed["consecutive_gateway_failure"] =
-		flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(original["consecutiveGatewayFailure"], d, config)
-	transformed["enforcing_consecutive_errors"] =
-		flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(original["enforcingConsecutiveErrors"], d, config)
-	transformed["enforcing_consecutive_gateway_failure"] =
-		flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(original["enforcingConsecutiveGatewayFailure"], d, config)
-	transformed["enforcing_success_rate"] =
-		flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(original["enforcingSuccessRate"], d, config)
-	transformed["interval"] =
-		flattenComputeRegionBackendServiceOutlierDetectionInterval(original["interval"], d, config)
-	transformed["max_ejection_percent"] =
-		flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(original["maxEjectionPercent"], d, config)
-	transformed["success_rate_minimum_hosts"] =
-		flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(original["successRateMinimumHosts"], d, config)
-	transformed["success_rate_request_volume"] =
-		flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(original["successRateRequestVolume"], d, config)
-	transformed["success_rate_stdev_factor"] =
-		flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(original["successRateStdevFactor"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["base_ejection_time"] =
+    flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(original["baseEjectionTime"], d, config)
+              transformed["consecutive_errors"] =
+    flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(original["consecutiveErrors"], d, config)
+              transformed["consecutive_gateway_failure"] =
+    flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(original["consecutiveGatewayFailure"], d, config)
+              transformed["enforcing_consecutive_errors"] =
+    flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(original["enforcingConsecutiveErrors"], d, config)
+              transformed["enforcing_consecutive_gateway_failure"] =
+    flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(original["enforcingConsecutiveGatewayFailure"], d, config)
+              transformed["enforcing_success_rate"] =
+    flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(original["enforcingSuccessRate"], d, config)
+              transformed["interval"] =
+    flattenComputeRegionBackendServiceOutlierDetectionInterval(original["interval"], d, config)
+              transformed["max_ejection_percent"] =
+    flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(original["maxEjectionPercent"], d, config)
+              transformed["success_rate_minimum_hosts"] =
+    flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(original["successRateMinimumHosts"], d, config)
+              transformed["success_rate_request_volume"] =
+    flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(original["successRateRequestVolume"], d, config)
+              transformed["success_rate_stdev_factor"] =
+    flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(original["successRateStdevFactor"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["seconds"] =
-		flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(original["seconds"], d, config)
-	transformed["nanos"] =
-		flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(original["nanos"], d, config)
-	return []interface{}{transformed}
+      func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["seconds"] =
+    flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(original["seconds"], d, config)
+              transformed["nanos"] =
+    flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(original["nanos"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2348,7 +2390,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2365,7 +2407,9 @@ func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v i
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  
+
+      func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2382,7 +2426,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v inter
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2399,7 +2443,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2416,7 +2460,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveError
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2433,7 +2477,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatew
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2450,22 +2494,22 @@ func flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(v in
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["seconds"] =
-		flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(original["seconds"], d, config)
-	transformed["nanos"] =
-		flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(original["nanos"], d, config)
-	return []interface{}{transformed}
+      func flattenComputeRegionBackendServiceOutlierDetectionInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["seconds"] =
+    flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(original["seconds"], d, config)
+              transformed["nanos"] =
+    flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(original["nanos"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2482,7 +2526,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interfa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2499,7 +2543,9 @@ func flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  
+
+      func flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2516,7 +2562,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v inte
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2533,7 +2579,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2550,7 +2596,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2566,17 +2612,19 @@ func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(v 
 
 	return v // let terraform core handle it otherwise
 }
+
+  
 
 func flattenComputeRegionBackendServicePortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceSessionAffinity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -2597,1052 +2645,1262 @@ func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.Resou
 }
 
 func flattenComputeRegionBackendServiceLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["enable"] =
-		flattenComputeRegionBackendServiceLogConfigEnable(original["enable"], d, config)
-	transformed["sample_rate"] =
-		flattenComputeRegionBackendServiceLogConfigSampleRate(original["sampleRate"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["enable"] =
+    flattenComputeRegionBackendServiceLogConfigEnable(original["enable"], d, config)
+              transformed["sample_rate"] =
+    flattenComputeRegionBackendServiceLogConfigSampleRate(original["sampleRate"], d, config)
+        return []interface{}{transformed}
 }
-func flattenComputeRegionBackendServiceLogConfigEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceLogConfigEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenComputeRegionBackendServiceLogConfigSampleRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenComputeRegionBackendServiceLogConfigSampleRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenComputeRegionBackendServiceNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRegionBackendServiceRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
+    if v == nil {
+        return v
+    }
 	return NameFromSelfLinkStateFunc(v)
 }
 
+
+
+
 func expandComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  v = v.(*schema.Set).List()
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedBalancingMode, err := expandComputeRegionBackendServiceBackendBalancingMode(original["balancing_mode"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedBalancingMode); val.IsValid() && !isEmptyValue(val) {
-			transformed["balancingMode"] = transformedBalancingMode
-		}
+      transformedBalancingMode, err := expandComputeRegionBackendServiceBackendBalancingMode(original["balancing_mode"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedBalancingMode); val.IsValid() && !isEmptyValue(val) {
+        transformed["balancingMode"] = transformedBalancingMode      }
 
-		transformedCapacityScaler, err := expandComputeRegionBackendServiceBackendCapacityScaler(original["capacity_scaler"], d, config)
-		if err != nil {
-			return nil, err
-		} else {
-			transformed["capacityScaler"] = transformedCapacityScaler
-		}
+      transformedCapacityScaler, err := expandComputeRegionBackendServiceBackendCapacityScaler(original["capacity_scaler"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["capacityScaler"] = transformedCapacityScaler      }
 
-		transformedDescription, err := expandComputeRegionBackendServiceBackendDescription(original["description"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
-			transformed["description"] = transformedDescription
-		}
+      transformedDescription, err := expandComputeRegionBackendServiceBackendDescription(original["description"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+        transformed["description"] = transformedDescription      }
 
-		transformedFailover, err := expandComputeRegionBackendServiceBackendFailover(original["failover"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedFailover); val.IsValid() && !isEmptyValue(val) {
-			transformed["failover"] = transformedFailover
-		}
+      transformedFailover, err := expandComputeRegionBackendServiceBackendFailover(original["failover"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedFailover); val.IsValid() && !isEmptyValue(val) {
+        transformed["failover"] = transformedFailover      }
 
-		transformedGroup, err := expandComputeRegionBackendServiceBackendGroup(original["group"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedGroup); val.IsValid() && !isEmptyValue(val) {
-			transformed["group"] = transformedGroup
-		}
+      transformedGroup, err := expandComputeRegionBackendServiceBackendGroup(original["group"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedGroup); val.IsValid() && !isEmptyValue(val) {
+        transformed["group"] = transformedGroup      }
 
-		transformedMaxConnections, err := expandComputeRegionBackendServiceBackendMaxConnections(original["max_connections"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedMaxConnections); val.IsValid() && !isEmptyValue(val) {
-			transformed["maxConnections"] = transformedMaxConnections
-		}
+      transformedMaxConnections, err := expandComputeRegionBackendServiceBackendMaxConnections(original["max_connections"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxConnections); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxConnections"] = transformedMaxConnections      }
 
-		transformedMaxConnectionsPerInstance, err := expandComputeRegionBackendServiceBackendMaxConnectionsPerInstance(original["max_connections_per_instance"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedMaxConnectionsPerInstance); val.IsValid() && !isEmptyValue(val) {
-			transformed["maxConnectionsPerInstance"] = transformedMaxConnectionsPerInstance
-		}
+      transformedMaxConnectionsPerInstance, err := expandComputeRegionBackendServiceBackendMaxConnectionsPerInstance(original["max_connections_per_instance"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxConnectionsPerInstance); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxConnectionsPerInstance"] = transformedMaxConnectionsPerInstance      }
 
-		transformedMaxConnectionsPerEndpoint, err := expandComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(original["max_connections_per_endpoint"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedMaxConnectionsPerEndpoint); val.IsValid() && !isEmptyValue(val) {
-			transformed["maxConnectionsPerEndpoint"] = transformedMaxConnectionsPerEndpoint
-		}
+      transformedMaxConnectionsPerEndpoint, err := expandComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(original["max_connections_per_endpoint"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxConnectionsPerEndpoint); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxConnectionsPerEndpoint"] = transformedMaxConnectionsPerEndpoint      }
 
-		transformedMaxRate, err := expandComputeRegionBackendServiceBackendMaxRate(original["max_rate"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedMaxRate); val.IsValid() && !isEmptyValue(val) {
-			transformed["maxRate"] = transformedMaxRate
-		}
+      transformedMaxRate, err := expandComputeRegionBackendServiceBackendMaxRate(original["max_rate"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxRate); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxRate"] = transformedMaxRate      }
 
-		transformedMaxRatePerInstance, err := expandComputeRegionBackendServiceBackendMaxRatePerInstance(original["max_rate_per_instance"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedMaxRatePerInstance); val.IsValid() && !isEmptyValue(val) {
-			transformed["maxRatePerInstance"] = transformedMaxRatePerInstance
-		}
+      transformedMaxRatePerInstance, err := expandComputeRegionBackendServiceBackendMaxRatePerInstance(original["max_rate_per_instance"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxRatePerInstance); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxRatePerInstance"] = transformedMaxRatePerInstance      }
 
-		transformedMaxRatePerEndpoint, err := expandComputeRegionBackendServiceBackendMaxRatePerEndpoint(original["max_rate_per_endpoint"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedMaxRatePerEndpoint); val.IsValid() && !isEmptyValue(val) {
-			transformed["maxRatePerEndpoint"] = transformedMaxRatePerEndpoint
-		}
+      transformedMaxRatePerEndpoint, err := expandComputeRegionBackendServiceBackendMaxRatePerEndpoint(original["max_rate_per_endpoint"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxRatePerEndpoint); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxRatePerEndpoint"] = transformedMaxRatePerEndpoint      }
 
-		transformedMaxUtilization, err := expandComputeRegionBackendServiceBackendMaxUtilization(original["max_utilization"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedMaxUtilization); val.IsValid() && !isEmptyValue(val) {
-			transformed["maxUtilization"] = transformedMaxUtilization
-		}
+      transformedMaxUtilization, err := expandComputeRegionBackendServiceBackendMaxUtilization(original["max_utilization"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxUtilization); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxUtilization"] = transformedMaxUtilization      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceBackendBalancingMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendCapacityScaler(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendFailover(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendGroup(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendMaxConnections(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendMaxRate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendMaxRatePerInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendMaxRatePerEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceCircuitBreakers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedMaxRequestsPerConnection, err := expandComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(original["max_requests_per_connection"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxRequestsPerConnection); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxRequestsPerConnection"] = transformedMaxRequestsPerConnection
-	}
+      transformedMaxRequestsPerConnection, err := expandComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(original["max_requests_per_connection"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxRequestsPerConnection); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxRequestsPerConnection"] = transformedMaxRequestsPerConnection      }
 
-	transformedMaxConnections, err := expandComputeRegionBackendServiceCircuitBreakersMaxConnections(original["max_connections"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxConnections); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxConnections"] = transformedMaxConnections
-	}
+      transformedMaxConnections, err := expandComputeRegionBackendServiceCircuitBreakersMaxConnections(original["max_connections"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxConnections); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxConnections"] = transformedMaxConnections      }
 
-	transformedMaxPendingRequests, err := expandComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(original["max_pending_requests"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxPendingRequests); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxPendingRequests"] = transformedMaxPendingRequests
-	}
+      transformedMaxPendingRequests, err := expandComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(original["max_pending_requests"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxPendingRequests); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxPendingRequests"] = transformedMaxPendingRequests      }
 
-	transformedMaxRequests, err := expandComputeRegionBackendServiceCircuitBreakersMaxRequests(original["max_requests"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxRequests); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxRequests"] = transformedMaxRequests
-	}
+      transformedMaxRequests, err := expandComputeRegionBackendServiceCircuitBreakersMaxRequests(original["max_requests"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxRequests); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxRequests"] = transformedMaxRequests      }
 
-	transformedMaxRetries, err := expandComputeRegionBackendServiceCircuitBreakersMaxRetries(original["max_retries"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxRetries); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxRetries"] = transformedMaxRetries
-	}
+      transformedMaxRetries, err := expandComputeRegionBackendServiceCircuitBreakersMaxRetries(original["max_retries"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxRetries); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxRetries"] = transformedMaxRetries      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCircuitBreakersMaxRetries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceConsistentHash(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedHttpCookie, err := expandComputeRegionBackendServiceConsistentHashHttpCookie(original["http_cookie"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedHttpCookie); val.IsValid() && !isEmptyValue(val) {
-		transformed["httpCookie"] = transformedHttpCookie
-	}
+      transformedHttpCookie, err := expandComputeRegionBackendServiceConsistentHashHttpCookie(original["http_cookie"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedHttpCookie); val.IsValid() && !isEmptyValue(val) {
+        transformed["httpCookie"] = transformedHttpCookie      }
 
-	transformedHttpHeaderName, err := expandComputeRegionBackendServiceConsistentHashHttpHeaderName(original["http_header_name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedHttpHeaderName); val.IsValid() && !isEmptyValue(val) {
-		transformed["httpHeaderName"] = transformedHttpHeaderName
-	}
+      transformedHttpHeaderName, err := expandComputeRegionBackendServiceConsistentHashHttpHeaderName(original["http_header_name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedHttpHeaderName); val.IsValid() && !isEmptyValue(val) {
+        transformed["httpHeaderName"] = transformedHttpHeaderName      }
 
-	transformedMinimumRingSize, err := expandComputeRegionBackendServiceConsistentHashMinimumRingSize(original["minimum_ring_size"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMinimumRingSize); val.IsValid() && !isEmptyValue(val) {
-		transformed["minimumRingSize"] = transformedMinimumRingSize
-	}
+      transformedMinimumRingSize, err := expandComputeRegionBackendServiceConsistentHashMinimumRingSize(original["minimum_ring_size"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMinimumRingSize); val.IsValid() && !isEmptyValue(val) {
+        transformed["minimumRingSize"] = transformedMinimumRingSize      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashHttpCookie(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTtl, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtl(original["ttl"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
-		transformed["ttl"] = transformedTtl
-	}
+      transformedTtl, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtl(original["ttl"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
+        transformed["ttl"] = transformedTtl      }
 
-	transformedName, err := expandComputeRegionBackendServiceConsistentHashHttpCookieName(original["name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-		transformed["name"] = transformedName
-	}
+      transformedName, err := expandComputeRegionBackendServiceConsistentHashHttpCookieName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-	transformedPath, err := expandComputeRegionBackendServiceConsistentHashHttpCookiePath(original["path"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
-		transformed["path"] = transformedPath
-	}
+      transformedPath, err := expandComputeRegionBackendServiceConsistentHashHttpCookiePath(original["path"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+        transformed["path"] = transformedPath      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashHttpCookieTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedSeconds, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(original["seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
-		transformed["seconds"] = transformedSeconds
-	}
+      transformedSeconds, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(original["seconds"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+        transformed["seconds"] = transformedSeconds      }
 
-	transformedNanos, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(original["nanos"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
-		transformed["nanos"] = transformedNanos
-	}
+      transformedNanos, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(original["nanos"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+        transformed["nanos"] = transformedNanos      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashHttpCookieName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashHttpCookiePath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashHttpHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceCdnPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedCacheKeyPolicy, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cache_key_policy"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !isEmptyValue(val) {
-		transformed["cacheKeyPolicy"] = transformedCacheKeyPolicy
-	}
+      transformedCacheKeyPolicy, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cache_key_policy"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !isEmptyValue(val) {
+        transformed["cacheKeyPolicy"] = transformedCacheKeyPolicy      }
 
-	transformedSignedUrlCacheMaxAgeSec, err := expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signed_url_cache_max_age_sec"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSignedUrlCacheMaxAgeSec); val.IsValid() && !isEmptyValue(val) {
-		transformed["signedUrlCacheMaxAgeSec"] = transformedSignedUrlCacheMaxAgeSec
-	}
+      transformedSignedUrlCacheMaxAgeSec, err := expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signed_url_cache_max_age_sec"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSignedUrlCacheMaxAgeSec); val.IsValid() && !isEmptyValue(val) {
+        transformed["signedUrlCacheMaxAgeSec"] = transformedSignedUrlCacheMaxAgeSec      }
 
-	transformedDefaultTtl, err := expandComputeRegionBackendServiceCdnPolicyDefaultTtl(original["default_ttl"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDefaultTtl); val.IsValid() && !isEmptyValue(val) {
-		transformed["defaultTtl"] = transformedDefaultTtl
-	}
+      transformedDefaultTtl, err := expandComputeRegionBackendServiceCdnPolicyDefaultTtl(original["default_ttl"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDefaultTtl); val.IsValid() && !isEmptyValue(val) {
+        transformed["defaultTtl"] = transformedDefaultTtl      }
 
-	transformedMaxTtl, err := expandComputeRegionBackendServiceCdnPolicyMaxTtl(original["max_ttl"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxTtl); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxTtl"] = transformedMaxTtl
-	}
+      transformedMaxTtl, err := expandComputeRegionBackendServiceCdnPolicyMaxTtl(original["max_ttl"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxTtl); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxTtl"] = transformedMaxTtl      }
 
-	transformedClientTtl, err := expandComputeRegionBackendServiceCdnPolicyClientTtl(original["client_ttl"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedClientTtl); val.IsValid() && !isEmptyValue(val) {
-		transformed["clientTtl"] = transformedClientTtl
-	}
+      transformedClientTtl, err := expandComputeRegionBackendServiceCdnPolicyClientTtl(original["client_ttl"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedClientTtl); val.IsValid() && !isEmptyValue(val) {
+        transformed["clientTtl"] = transformedClientTtl      }
 
-	transformedNegativeCaching, err := expandComputeRegionBackendServiceCdnPolicyNegativeCaching(original["negative_caching"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["negativeCaching"] = transformedNegativeCaching
-	}
+      transformedNegativeCaching, err := expandComputeRegionBackendServiceCdnPolicyNegativeCaching(original["negative_caching"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["negativeCaching"] = transformedNegativeCaching      }
 
-	transformedNegativeCachingPolicy, err := expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(original["negative_caching_policy"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNegativeCachingPolicy); val.IsValid() && !isEmptyValue(val) {
-		transformed["negativeCachingPolicy"] = transformedNegativeCachingPolicy
-	}
+      transformedNegativeCachingPolicy, err := expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(original["negative_caching_policy"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNegativeCachingPolicy); val.IsValid() && !isEmptyValue(val) {
+        transformed["negativeCachingPolicy"] = transformedNegativeCachingPolicy      }
 
-	transformedCacheMode, err := expandComputeRegionBackendServiceCdnPolicyCacheMode(original["cache_mode"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCacheMode); val.IsValid() && !isEmptyValue(val) {
-		transformed["cacheMode"] = transformedCacheMode
-	}
+      transformedCacheMode, err := expandComputeRegionBackendServiceCdnPolicyCacheMode(original["cache_mode"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCacheMode); val.IsValid() && !isEmptyValue(val) {
+        transformed["cacheMode"] = transformedCacheMode      }
 
-	transformedServeWhileStale, err := expandComputeRegionBackendServiceCdnPolicyServeWhileStale(original["serve_while_stale"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["serveWhileStale"] = transformedServeWhileStale
-	}
+      transformedServeWhileStale, err := expandComputeRegionBackendServiceCdnPolicyServeWhileStale(original["serve_while_stale"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["serveWhileStale"] = transformedServeWhileStale      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedIncludeHost, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["include_host"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["includeHost"] = transformedIncludeHost
-	}
+      transformedIncludeHost, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["include_host"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["includeHost"] = transformedIncludeHost      }
 
-	transformedIncludeProtocol, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["include_protocol"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["includeProtocol"] = transformedIncludeProtocol
-	}
+      transformedIncludeProtocol, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["include_protocol"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["includeProtocol"] = transformedIncludeProtocol      }
 
-	transformedIncludeQueryString, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["include_query_string"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["includeQueryString"] = transformedIncludeQueryString
-	}
+      transformedIncludeQueryString, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["include_query_string"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["includeQueryString"] = transformedIncludeQueryString      }
 
-	transformedQueryStringBlacklist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["query_string_blacklist"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["queryStringBlacklist"] = transformedQueryStringBlacklist
-	}
+      transformedQueryStringBlacklist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["query_string_blacklist"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["queryStringBlacklist"] = transformedQueryStringBlacklist      }
 
-	transformedQueryStringWhitelist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["query_string_whitelist"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
-	}
+      transformedQueryStringWhitelist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["query_string_whitelist"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["queryStringWhitelist"] = transformedQueryStringWhitelist      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	return v, nil
+  v = v.(*schema.Set).List()
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	return v, nil
+  v = v.(*schema.Set).List()
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyDefaultTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyMaxTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyClientTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyNegativeCaching(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedCode, err := expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedCode); val.IsValid() && !isEmptyValue(val) {
-			transformed["code"] = transformedCode
-		}
+      transformedCode, err := expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedCode); val.IsValid() && !isEmptyValue(val) {
+        transformed["code"] = transformedCode      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyCacheMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceCdnPolicyServeWhileStale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceConnectionDraining(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	transformed := make(map[string]interface{})
-	transformedConnectionDrainingTimeoutSec, err := expandComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(d.Get("connection_draining_timeout_sec"), d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["drainingTimeoutSec"] = transformedConnectionDrainingTimeoutSec
-	}
+  transformed := make(map[string]interface{})
+    transformedConnectionDrainingTimeoutSec, err := expandComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(d.Get( "connection_draining_timeout_sec" ), d, config)
+  if err != nil {
+    return nil, err
+  } else {
+    transformed["drainingTimeoutSec"] = transformedConnectionDrainingTimeoutSec  }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceFailoverPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedDisableConnectionDrainOnFailover, err := expandComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disable_connection_drain_on_failover"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["disableConnectionDrainOnFailover"] = transformedDisableConnectionDrainOnFailover
-	}
+      transformedDisableConnectionDrainOnFailover, err := expandComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disable_connection_drain_on_failover"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["disableConnectionDrainOnFailover"] = transformedDisableConnectionDrainOnFailover      }
 
-	transformedDropTrafficIfUnhealthy, err := expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(original["drop_traffic_if_unhealthy"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["dropTrafficIfUnhealthy"] = transformedDropTrafficIfUnhealthy
-	}
+      transformedDropTrafficIfUnhealthy, err := expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(original["drop_traffic_if_unhealthy"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["dropTrafficIfUnhealthy"] = transformedDropTrafficIfUnhealthy      }
 
-	transformedFailoverRatio, err := expandComputeRegionBackendServiceFailoverPolicyFailoverRatio(original["failover_ratio"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedFailoverRatio); val.IsValid() && !isEmptyValue(val) {
-		transformed["failoverRatio"] = transformedFailoverRatio
-	}
+      transformedFailoverRatio, err := expandComputeRegionBackendServiceFailoverPolicyFailoverRatio(original["failover_ratio"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedFailoverRatio); val.IsValid() && !isEmptyValue(val) {
+        transformed["failoverRatio"] = transformedFailoverRatio      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceEnableCDN(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceHealthChecks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	return v, nil
+  v = v.(*schema.Set).List()
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceIap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedOauth2ClientId, err := expandComputeRegionBackendServiceIapOauth2ClientId(original["oauth2_client_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedOauth2ClientId); val.IsValid() && !isEmptyValue(val) {
-		transformed["oauth2ClientId"] = transformedOauth2ClientId
-	}
+      transformedOauth2ClientId, err := expandComputeRegionBackendServiceIapOauth2ClientId(original["oauth2_client_id"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedOauth2ClientId); val.IsValid() && !isEmptyValue(val) {
+        transformed["oauth2ClientId"] = transformedOauth2ClientId      }
 
-	transformedOauth2ClientSecret, err := expandComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2_client_secret"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["oauth2ClientSecret"] = transformedOauth2ClientSecret
-	}
+      transformedOauth2ClientSecret, err := expandComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2_client_secret"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["oauth2ClientSecret"] = transformedOauth2ClientSecret      }
 
-	transformedOauth2ClientSecretSha256, err := expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2_client_secret_sha256"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedOauth2ClientSecretSha256); val.IsValid() && !isEmptyValue(val) {
-		transformed["oauth2ClientSecretSha256"] = transformedOauth2ClientSecretSha256
-	}
+      transformedOauth2ClientSecretSha256, err := expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2_client_secret_sha256"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedOauth2ClientSecretSha256); val.IsValid() && !isEmptyValue(val) {
+        transformed["oauth2ClientSecretSha256"] = transformedOauth2ClientSecretSha256      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceIapOauth2ClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceLocalityLbPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceOutlierDetection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedBaseEjectionTime, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(original["base_ejection_time"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedBaseEjectionTime); val.IsValid() && !isEmptyValue(val) {
-		transformed["baseEjectionTime"] = transformedBaseEjectionTime
-	}
+      transformedBaseEjectionTime, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(original["base_ejection_time"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedBaseEjectionTime); val.IsValid() && !isEmptyValue(val) {
+        transformed["baseEjectionTime"] = transformedBaseEjectionTime      }
 
-	transformedConsecutiveErrors, err := expandComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(original["consecutive_errors"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedConsecutiveErrors); val.IsValid() && !isEmptyValue(val) {
-		transformed["consecutiveErrors"] = transformedConsecutiveErrors
-	}
+      transformedConsecutiveErrors, err := expandComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(original["consecutive_errors"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedConsecutiveErrors); val.IsValid() && !isEmptyValue(val) {
+        transformed["consecutiveErrors"] = transformedConsecutiveErrors      }
 
-	transformedConsecutiveGatewayFailure, err := expandComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(original["consecutive_gateway_failure"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedConsecutiveGatewayFailure); val.IsValid() && !isEmptyValue(val) {
-		transformed["consecutiveGatewayFailure"] = transformedConsecutiveGatewayFailure
-	}
+      transformedConsecutiveGatewayFailure, err := expandComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(original["consecutive_gateway_failure"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedConsecutiveGatewayFailure); val.IsValid() && !isEmptyValue(val) {
+        transformed["consecutiveGatewayFailure"] = transformedConsecutiveGatewayFailure      }
 
-	transformedEnforcingConsecutiveErrors, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(original["enforcing_consecutive_errors"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedEnforcingConsecutiveErrors); val.IsValid() && !isEmptyValue(val) {
-		transformed["enforcingConsecutiveErrors"] = transformedEnforcingConsecutiveErrors
-	}
+      transformedEnforcingConsecutiveErrors, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(original["enforcing_consecutive_errors"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedEnforcingConsecutiveErrors); val.IsValid() && !isEmptyValue(val) {
+        transformed["enforcingConsecutiveErrors"] = transformedEnforcingConsecutiveErrors      }
 
-	transformedEnforcingConsecutiveGatewayFailure, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(original["enforcing_consecutive_gateway_failure"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedEnforcingConsecutiveGatewayFailure); val.IsValid() && !isEmptyValue(val) {
-		transformed["enforcingConsecutiveGatewayFailure"] = transformedEnforcingConsecutiveGatewayFailure
-	}
+      transformedEnforcingConsecutiveGatewayFailure, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(original["enforcing_consecutive_gateway_failure"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedEnforcingConsecutiveGatewayFailure); val.IsValid() && !isEmptyValue(val) {
+        transformed["enforcingConsecutiveGatewayFailure"] = transformedEnforcingConsecutiveGatewayFailure      }
 
-	transformedEnforcingSuccessRate, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(original["enforcing_success_rate"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedEnforcingSuccessRate); val.IsValid() && !isEmptyValue(val) {
-		transformed["enforcingSuccessRate"] = transformedEnforcingSuccessRate
-	}
+      transformedEnforcingSuccessRate, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(original["enforcing_success_rate"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedEnforcingSuccessRate); val.IsValid() && !isEmptyValue(val) {
+        transformed["enforcingSuccessRate"] = transformedEnforcingSuccessRate      }
 
-	transformedInterval, err := expandComputeRegionBackendServiceOutlierDetectionInterval(original["interval"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedInterval); val.IsValid() && !isEmptyValue(val) {
-		transformed["interval"] = transformedInterval
-	}
+      transformedInterval, err := expandComputeRegionBackendServiceOutlierDetectionInterval(original["interval"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedInterval); val.IsValid() && !isEmptyValue(val) {
+        transformed["interval"] = transformedInterval      }
 
-	transformedMaxEjectionPercent, err := expandComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(original["max_ejection_percent"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxEjectionPercent); val.IsValid() && !isEmptyValue(val) {
-		transformed["maxEjectionPercent"] = transformedMaxEjectionPercent
-	}
+      transformedMaxEjectionPercent, err := expandComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(original["max_ejection_percent"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedMaxEjectionPercent); val.IsValid() && !isEmptyValue(val) {
+        transformed["maxEjectionPercent"] = transformedMaxEjectionPercent      }
 
-	transformedSuccessRateMinimumHosts, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(original["success_rate_minimum_hosts"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSuccessRateMinimumHosts); val.IsValid() && !isEmptyValue(val) {
-		transformed["successRateMinimumHosts"] = transformedSuccessRateMinimumHosts
-	}
+      transformedSuccessRateMinimumHosts, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(original["success_rate_minimum_hosts"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSuccessRateMinimumHosts); val.IsValid() && !isEmptyValue(val) {
+        transformed["successRateMinimumHosts"] = transformedSuccessRateMinimumHosts      }
 
-	transformedSuccessRateRequestVolume, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(original["success_rate_request_volume"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSuccessRateRequestVolume); val.IsValid() && !isEmptyValue(val) {
-		transformed["successRateRequestVolume"] = transformedSuccessRateRequestVolume
-	}
+      transformedSuccessRateRequestVolume, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(original["success_rate_request_volume"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSuccessRateRequestVolume); val.IsValid() && !isEmptyValue(val) {
+        transformed["successRateRequestVolume"] = transformedSuccessRateRequestVolume      }
 
-	transformedSuccessRateStdevFactor, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(original["success_rate_stdev_factor"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSuccessRateStdevFactor); val.IsValid() && !isEmptyValue(val) {
-		transformed["successRateStdevFactor"] = transformedSuccessRateStdevFactor
-	}
+      transformedSuccessRateStdevFactor, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(original["success_rate_stdev_factor"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSuccessRateStdevFactor); val.IsValid() && !isEmptyValue(val) {
+        transformed["successRateStdevFactor"] = transformedSuccessRateStdevFactor      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedSeconds, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(original["seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
-		transformed["seconds"] = transformedSeconds
-	}
+      transformedSeconds, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(original["seconds"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+        transformed["seconds"] = transformedSeconds      }
 
-	transformedNanos, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(original["nanos"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
-		transformed["nanos"] = transformedNanos
-	}
+      transformedNanos, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(original["nanos"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+        transformed["nanos"] = transformedNanos      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionInterval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedSeconds, err := expandComputeRegionBackendServiceOutlierDetectionIntervalSeconds(original["seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
-		transformed["seconds"] = transformedSeconds
-	}
+      transformedSeconds, err := expandComputeRegionBackendServiceOutlierDetectionIntervalSeconds(original["seconds"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+        transformed["seconds"] = transformedSeconds      }
 
-	transformedNanos, err := expandComputeRegionBackendServiceOutlierDetectionIntervalNanos(original["nanos"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
-		transformed["nanos"] = transformedNanos
-	}
+      transformedNanos, err := expandComputeRegionBackendServiceOutlierDetectionIntervalNanos(original["nanos"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+        transformed["nanos"] = transformedNanos      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServicePortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceSessionAffinity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedEnable, err := expandComputeRegionBackendServiceLogConfigEnable(original["enable"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["enable"] = transformedEnable
-	}
+      transformedEnable, err := expandComputeRegionBackendServiceLogConfigEnable(original["enable"], d, config)
+      if err != nil {
+        return nil, err
+      } else {
+        transformed["enable"] = transformedEnable      }
 
-	transformedSampleRate, err := expandComputeRegionBackendServiceLogConfigSampleRate(original["sample_rate"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSampleRate); val.IsValid() && !isEmptyValue(val) {
-		transformed["sampleRate"] = transformedSampleRate
-	}
+      transformedSampleRate, err := expandComputeRegionBackendServiceLogConfigSampleRate(original["sample_rate"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSampleRate); val.IsValid() && !isEmptyValue(val) {
+        transformed["sampleRate"] = transformedSampleRate      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandComputeRegionBackendServiceLogConfigEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandComputeRegionBackendServiceLogConfigSampleRate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeRegionBackendServiceNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for network: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for network: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
+
+
 
 func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for region: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
 
+
 func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// The RegionBackendService API's Update / PUT API is badly formed and behaves like
-	// a PATCH field for at least IAP. When sent a `null` `iap` field, the API
-	// doesn't disable an existing field. To work around this, we need to emulate
-	// the old Terraform behaviour of always sending the block (at both update and
-	// create), and force sending each subfield as empty when the block isn't
-	// present in config.
+// The RegionBackendService API's Update / PUT API is badly formed and behaves like
+// a PATCH field for at least IAP. When sent a `null` `iap` field, the API
+// doesn't disable an existing field. To work around this, we need to emulate
+// the old Terraform behaviour of always sending the block (at both update and
+// create), and force sending each subfield as empty when the block isn't
+// present in config.
 
-	iapVal := obj["iap"]
-	if iapVal == nil {
-		data := map[string]interface{}{}
-		data["enabled"] = false
-		data["oauth2ClientId"] = ""
-		data["oauth2ClientSecret"] = ""
-		obj["iap"] = data
-	} else {
-		iap := iapVal.(map[string]interface{})
-		iap["enabled"] = true
-		obj["iap"] = iap
-	}
+iapVal := obj["iap"]
+if iapVal == nil {
+	data := map[string]interface{}{}
+	data["enabled"] = false
+	data["oauth2ClientId"] = ""
+	data["oauth2ClientSecret"] = ""
+	obj["iap"] = data
+} else {
+	iap := iapVal.(map[string]interface{})
+	iap["enabled"] = true
+	obj["iap"] = iap
+}
 
-	if d.Get("load_balancing_scheme").(string) == "EXTERNAL_MANAGED" || d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
-		return obj, nil
-	}
-
-	backendServiceOnlyManagedApiFieldNames := []string{
-		"capacityScaler",
-		"maxConnections",
-		"maxConnectionsPerInstance",
-		"maxConnectionsPerEndpoint",
-		"maxRate",
-		"maxRatePerInstance",
-		"maxRatePerEndpoint",
-		"maxUtilization",
-	}
-
-	var backends []interface{}
-	if lsV := obj["backends"]; lsV != nil {
-		backends = lsV.([]interface{})
-	}
-	for idx, v := range backends {
-		if v == nil {
-			continue
-		}
-		backend := v.(map[string]interface{})
-		// Remove fields from backends that cannot be sent for non-managed
-		// backend services
-		for _, k := range backendServiceOnlyManagedApiFieldNames {
-			log.Printf("[DEBUG] Removing field %q for request for non-managed backend service %s", k, d.Get("name"))
-			delete(backend, k)
-		}
-		backends[idx] = backend
-	}
-
-	obj["backends"] = backends
+if d.Get("load_balancing_scheme").(string) == "EXTERNAL_MANAGED" || d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
 	return obj, nil
 }
 
+backendServiceOnlyManagedApiFieldNames := []string{
+	"capacityScaler",
+	"maxConnections",
+	"maxConnectionsPerInstance",
+	"maxConnectionsPerEndpoint",
+	"maxRate",
+	"maxRatePerInstance",
+	"maxRatePerEndpoint",
+	"maxUtilization",
+}
+
+var backends []interface{}
+if lsV := obj["backends"]; lsV != nil {
+	backends = lsV.([]interface{})
+}
+for idx, v := range backends {
+	if v == nil {
+		continue
+	}
+	backend := v.(map[string]interface{})
+	// Remove fields from backends that cannot be sent for non-managed
+	// backend services
+	for _, k := range backendServiceOnlyManagedApiFieldNames {
+		log.Printf("[DEBUG] Removing field %q for request for non-managed backend service %s", k, d.Get("name"))
+		delete(backend, k)
+	}
+	backends[idx] = backend
+}
+
+obj["backends"] = backends
+return obj, nil
+}
+
+
+
 func resourceComputeRegionBackendServiceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// We need to pretend IAP isn't there if it's disabled for Terraform to maintain
-	// BC behaviour with the handwritten resource.
-	v, ok := res["iap"]
-	if !ok || v == nil {
-		delete(res, "iap")
-		return res, nil
-	}
-	m := v.(map[string]interface{})
-	if ok && m["enabled"] == false {
-		delete(res, "iap")
-	}
-
-	// Requests with consistentHash will error for specific values of
-	// localityLbPolicy. However, the API will not remove it if the backend
-	// service is updated to from supporting to non-supporting localityLbPolicy
-	// (e.g. RING_HASH to RANDOM), which causes an error on subsequent update.
-	// In order to prevent errors, we ignore any consistentHash returned
-	// from the API when the localityLbPolicy doesn't support it.
-	if v, ok := res["localityLbPolicy"]; ok {
-		lbPolicy := v.(string)
-		if lbPolicy != "MAGLEV" && lbPolicy != "RING_HASH" {
-			delete(res, "consistentHash")
-		}
-	}
-
+// We need to pretend IAP isn't there if it's disabled for Terraform to maintain
+// BC behaviour with the handwritten resource.
+v, ok :=  res["iap"]
+if !ok || v == nil {
+	delete(res, "iap")
 	return res, nil
+}
+m := v.(map[string]interface{})
+if ok && m["enabled"] == false {
+	delete(res, "iap")
+}
+
+// Requests with consistentHash will error for specific values of
+// localityLbPolicy. However, the API will not remove it if the backend
+// service is updated to from supporting to non-supporting localityLbPolicy
+// (e.g. RING_HASH to RANDOM), which causes an error on subsequent update.
+// In order to prevent errors, we ignore any consistentHash returned
+// from the API when the localityLbPolicy doesn't support it.
+if v, ok :=  res["localityLbPolicy"]; ok {
+	lbPolicy := v.(string)
+	if lbPolicy != "MAGLEV" && lbPolicy != "RING_HASH" {
+		delete(res, "consistentHash")
+	}
+}
+
+return res, nil
 }

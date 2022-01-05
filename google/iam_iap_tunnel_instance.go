@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,31 +27,32 @@ import (
 
 var IapTunnelInstanceIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"zone": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"instance": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type IapTunnelInstanceIamUpdater struct {
-	project  string
-	zone     string
+	project string
+	zone string
 	instance string
-	d        TerraformResourceData
-	Config   *Config
+	d       TerraformResourceData
+	Config  *Config
 }
 
 func IapTunnelInstanceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -71,8 +76,9 @@ func IapTunnelInstanceIamUpdaterProducer(d TerraformResourceData, config *Config
 		values["instance"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Get("instance").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)","projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)","(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)","(?P<zone>[^/]+)/(?P<instance>[^/]+)","(?P<instance>[^/]+)"}, d, config, d.Get("instance").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +88,11 @@ func IapTunnelInstanceIamUpdaterProducer(d TerraformResourceData, config *Config
 	}
 
 	u := &IapTunnelInstanceIamUpdater{
-		project:  values["project"],
-		zone:     values["zone"],
+		project: values["project"],
+		zone: values["zone"],
 		instance: values["instance"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 
 	if err := d.Set("project", u.project); err != nil {
@@ -107,29 +113,28 @@ func IapTunnelInstanceIdParseFunc(d *schema.ResourceData, config *Config) error 
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
 	zone, _ := getZone(d, config)
 	if zone != "" {
-		values["zone"] = zone
-	}
+		values["zone"] = zone	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)","projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)","(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)","(?P<zone>[^/]+)/(?P<instance>[^/]+)","(?P<instance>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &IapTunnelInstanceIamUpdater{
-		project:  values["project"],
-		zone:     values["zone"],
+		project: values["project"],
+		zone: values["zone"],
 		instance: values["instance"],
-		d:        d,
-		Config:   config,
+		d:       d,
+		Config:  config,
 	}
 	if err := d.Set("instance", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting instance: %s", err)
@@ -151,7 +156,7 @@ func (u *IapTunnelInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 	var obj map[string]interface{}
 	obj = map[string]interface{}{
 		"options": map[string]interface{}{
-			"requestedPolicyVersion": iamPolicyVersion,
+			"requestedPolicyVersion":  iamPolicyVersion ,
 		},
 	}
 
@@ -180,6 +185,7 @@ func (u *IapTunnelInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -207,11 +213,11 @@ func (u *IapTunnelInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *IapTunnelInstanceIamUpdater) qualifyTunnelInstanceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_tunnel/zones/%s/instances/%s", u.project, u.zone, u.instance), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *IapTunnelInstanceIamUpdater) GetResourceId() string {

@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_subnetworkBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeSubnetwork_subnetworkBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -69,32 +68,32 @@ resource "google_compute_network" "custom-test" {
 }
 
 func TestAccComputeSubnetwork_subnetworkLoggingConfigExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_subnetworkLoggingConfigExample(context),
 			},
-			{
-				ResourceName:            "google_compute_subnetwork.subnet-with-logging",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_subnetwork.subnet-with-logging",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeSubnetwork_subnetworkLoggingConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "tf-test-log-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -116,32 +115,32 @@ resource "google_compute_network" "custom-test" {
 }
 
 func TestAccComputeSubnetwork_subnetworkIpv6Example(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_subnetworkIpv6Example(context),
 			},
-			{
-				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_subnetwork.subnetwork-ipv6",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeSubnetwork_subnetworkIpv6Example(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_subnetwork" "subnetwork-ipv6" {
   name          = "tf-test-ipv6-test-subnetwork%{random_suffix}"
   
@@ -161,6 +160,7 @@ resource "google_compute_network" "custom-test" {
 `, context)
 }
 
+
 func testAccCheckComputeSubnetworkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -171,24 +171,24 @@ func testAccCheckComputeSubnetworkDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeSubnetwork still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

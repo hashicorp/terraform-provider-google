@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,27 +27,28 @@ import (
 
 var IapAppEngineServiceIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"app_id": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Required: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"service": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type IapAppEngineServiceIamUpdater struct {
 	project string
-	appId   string
+	appId string
 	service string
 	d       TerraformResourceData
 	Config  *Config
@@ -67,8 +72,9 @@ func IapAppEngineServiceIamUpdaterProducer(d TerraformResourceData, config *Conf
 		values["service"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)","(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)","(?P<appId>[^/]+)/(?P<service>[^/]+)","(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +85,7 @@ func IapAppEngineServiceIamUpdaterProducer(d TerraformResourceData, config *Conf
 
 	u := &IapAppEngineServiceIamUpdater{
 		project: values["project"],
-		appId:   values["appId"],
+		appId: values["appId"],
 		service: values["service"],
 		d:       d,
 		Config:  config,
@@ -103,21 +109,21 @@ func IapAppEngineServiceIdParseFunc(d *schema.ResourceData, config *Config) erro
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)","(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)","(?P<appId>[^/]+)/(?P<service>[^/]+)","(?P<service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &IapAppEngineServiceIamUpdater{
 		project: values["project"],
-		appId:   values["appId"],
+		appId: values["appId"],
 		service: values["service"],
 		d:       d,
 		Config:  config,
@@ -142,7 +148,7 @@ func (u *IapAppEngineServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 	var obj map[string]interface{}
 	obj = map[string]interface{}{
 		"options": map[string]interface{}{
-			"requestedPolicyVersion": iamPolicyVersion,
+			"requestedPolicyVersion":  iamPolicyVersion ,
 		},
 	}
 
@@ -171,6 +177,7 @@ func (u *IapAppEngineServiceIamUpdater) SetResourceIamPolicy(policy *cloudresour
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -198,11 +205,11 @@ func (u *IapAppEngineServiceIamUpdater) SetResourceIamPolicy(policy *cloudresour
 
 func (u *IapAppEngineServiceIamUpdater) qualifyAppEngineServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s", u.project, u.appId, u.service), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *IapAppEngineServiceIamUpdater) GetResourceId() string {

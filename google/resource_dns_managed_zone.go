@@ -15,744 +15,770 @@
 package google
 
 import (
-	"bytes"
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/api/dns/v1"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+
 func resourceDNSManagedZone() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceDNSManagedZoneCreate,
-		Read:   resourceDNSManagedZoneRead,
-		Update: resourceDNSManagedZoneUpdate,
-		Delete: resourceDNSManagedZoneDelete,
+    return &schema.Resource{
+        Create: resourceDNSManagedZoneCreate,
+        Read: resourceDNSManagedZoneRead,
+        Update: resourceDNSManagedZoneUpdate,
+        Delete: resourceDNSManagedZoneDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceDNSManagedZoneImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceDNSManagedZoneImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"dns_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The DNS name of this managed zone, for instance "example.com.".`,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `User assigned name for this resource.
+
+
+        Schema: map[string]*schema.Schema{
+"dns_name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `The DNS name of this managed zone, for instance "example.com.".`,
+},
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `User assigned name for this resource.
 Must be unique within the project.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `A textual description field. Defaults to 'Managed by Terraform'.`,
-				Default:     "Managed by Terraform",
-			},
-			"dnssec_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `DNSSEC configuration`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"default_key_specs": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Optional: true,
-							Description: `Specifies parameters that will be used for generating initial DnsKeys
+},
+"description": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `A textual description field. Defaults to 'Managed by Terraform'.`,
+    Default: "Managed by Terraform",
+},
+"dnssec_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `DNSSEC configuration`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "default_key_specs": {
+    Type: schema.TypeList,
+  	Computed: true,
+	Optional: true,
+		Description: `Specifies parameters that will be used for generating initial DnsKeys
 for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
 you must also provide one for the other.
 default_key_specs can only be updated when the state is 'off'.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"algorithm": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
-										Description:  `String mnemonic specifying the DNSSEC algorithm of this key Possible values: ["ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512"]`,
-									},
-									"key_length": {
-										Type:        schema.TypeInt,
-										Optional:    true,
-										Description: `Length of the keys in bits`,
-									},
-									"key_type": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"keySigning", "zoneSigning", ""}, false),
-										Description: `Specifies whether this is a key signing key (KSK) or a zone
+                Elem: &schema.Resource{
+        Schema: map[string]*schema.Schema{
+                      "algorithm": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256","ecdsap384sha384","rsasha1","rsasha256","rsasha512",""}, false),
+	Description: `String mnemonic specifying the DNSSEC algorithm of this key Possible values: ["ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512"]`,
+},
+                      "key_length": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Length of the keys in bits`,
+},
+                      "key_type": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"keySigning","zoneSigning",""}, false),
+	Description: `Specifies whether this is a key signing key (KSK) or a zone
 signing key (ZSK). Key signing keys have the Secure Entry
 Point flag set and, when active, will only be used to sign
 resource record sets of type DNSKEY. Zone signing keys do
 not have the Secure Entry Point flag set and will be used
 to sign all other types of resource record sets. Possible values: ["keySigning", "zoneSigning"]`,
-									},
-									"kind": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Identifies what kind of resource this is`,
-										Default:     "dns#dnsKeySpec",
-									},
-								},
-							},
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
-						},
-						"kind": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Description:  `Identifies what kind of resource this is`,
-							Default:      "dns#managedZoneDnsSecConfig",
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
-						},
-						"non_existence": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
-							Description: `Specifies the mechanism used to provide authenticated denial-of-existence responses.
+},
+                      "kind": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Identifies what kind of resource this is`,
+    Default: "dns#dnsKeySpec",
+},
+                  },
+      },
+            AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+},
+              "kind": {
+    Type: schema.TypeString,
+    Optional: true,
+	Description: `Identifies what kind of resource this is`,
+    Default: "dns#managedZoneDnsSecConfig",
+    AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+},
+              "non_existence": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+		ValidateFunc: validation.StringInSlice([]string{"nsec","nsec3",""}, false),
+	Description: `Specifies the mechanism used to provide authenticated denial-of-existence responses.
 non_existence can only be updated when the state is 'off'. Possible values: ["nsec", "nsec3"]`,
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
-						},
-						"state": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
-							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in Possible values: ["off", "on", "transfer"]`,
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
-						},
-					},
-				},
-			},
-			"forwarding_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `The presence for this field indicates that outbound forwarding is enabled
+    AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+},
+              "state": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"off","on","transfer",""}, false),
+	Description: `Specifies whether DNSSEC is enabled, and what mode it is in Possible values: ["off", "on", "transfer"]`,
+    AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+},
+          },
+  },
+},
+"forwarding_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The presence for this field indicates that outbound forwarding is enabled
 for this zone. The value of this field contains the set of destinations
 to forward to.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"target_name_servers": {
-							Type:     schema.TypeSet,
-							Required: true,
-							Description: `List of target name servers to forward to. Cloud DNS will
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "target_name_servers": {
+    Type: schema.TypeSet,
+    Required: true,
+	Description: `List of target name servers to forward to. Cloud DNS will
 select the best available name server if more than
 one target is given.`,
-							Elem: dnsManagedZoneForwardingConfigTargetNameServersSchema(),
-							Set: func(v interface{}) int {
-								raw := v.(map[string]interface{})
-								if address, ok := raw["ipv4_address"]; ok {
-									hashcode(address.(string))
-								}
-								var buf bytes.Buffer
-								schema.SerializeResourceForHash(&buf, raw, dnsManagedZoneForwardingConfigTargetNameServersSchema())
-								return hashcode(buf.String())
-							},
-						},
-					},
-				},
-			},
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `A set of key/value label pairs to assign to this ManagedZone.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-			"peering_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `The presence of this field indicates that DNS Peering is enabled for this
+                Elem: dnsManagedZoneForwardingConfigTargetNameServersSchema(),
+                Set: func(v interface{}) int {
+  raw := v.(map[string]interface{})
+  if address, ok := raw["ipv4_address"]; ok {
+    hashcode(address.(string))
+  }
+  var buf bytes.Buffer
+  schema.SerializeResourceForHash(&buf, raw, dnsManagedZoneForwardingConfigTargetNameServersSchema())
+  return hashcode(buf.String())
+},
+      },
+          },
+  },
+},
+"labels": {
+    Type: schema.TypeMap,
+    Optional: true,
+	Description: `A set of key/value label pairs to assign to this ManagedZone.`,
+  Elem: &schema.Schema{Type: schema.TypeString},
+},
+"peering_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `The presence of this field indicates that DNS Peering is enabled for this
 zone. The value of this field contains the network to peer with.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"target_network": {
-							Type:        schema.TypeList,
-							Required:    true,
-							Description: `The network with which to peer.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"network_url": {
-										Type:             schema.TypeString,
-										Required:         true,
-										DiffSuppressFunc: compareSelfLinkOrResourceName,
-										Description: `The id or fully qualified URL of the VPC network to forward queries to.
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "target_network": {
+    Type: schema.TypeList,
+    Required: true,
+	Description: `The network with which to peer.`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "network_url": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The id or fully qualified URL of the VPC network to forward queries to.
 This should be formatted like 'projects/{project}/global/networks/{network}' or
 'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			"private_visibility_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `For privately visible zones, the set of Virtual Private Cloud
+},
+          },
+  },
+},
+          },
+  },
+},
+"private_visibility_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `For privately visible zones, the set of Virtual Private Cloud
 resources that the zone is visible from.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"networks": {
-							Type:     schema.TypeSet,
-							Required: true,
-							Description: `The list of VPC networks that can see this zone. Until the provider updates to use the Terraform 0.12 SDK in a future release, you
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "networks": {
+    Type: schema.TypeSet,
+    Required: true,
+	Description: `The list of VPC networks that can see this zone. Until the provider updates to use the Terraform 0.12 SDK in a future release, you
 may experience issues with this resource while updating. If you've defined a 'networks' block and
 add another 'networks' block while keeping the old block, Terraform will see an incorrect diff
 and apply an incorrect update to the resource. If you encounter this issue, remove all 'networks'
 blocks in an update and then apply another update adding all of them back simultaneously.`,
-							Elem: dnsManagedZonePrivateVisibilityConfigNetworksSchema(),
-							Set: func(v interface{}) int {
-								if v == nil {
-									return 0
-								}
-								raw := v.(map[string]interface{})
-								if url, ok := raw["network_url"]; ok {
-									return selfLinkNameHash(url)
-								}
-								var buf bytes.Buffer
-								schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
-								return hashcode(buf.String())
-							},
-						},
-					},
-				},
-			},
-			"visibility": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"private", "public", ""}, false),
-				DiffSuppressFunc: caseDiffSuppress,
-				Description: `The zone's visibility: public zones are exposed to the Internet,
+                Elem: dnsManagedZonePrivateVisibilityConfigNetworksSchema(),
+                Set: func(v interface{}) int {
+  if v == nil {
+    return 0
+  }
+  raw := v.(map[string]interface{})
+  if url, ok := raw["network_url"]; ok {
+    return selfLinkNameHash(url)
+  }
+  var buf bytes.Buffer
+  schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
+  return hashcode(buf.String())
+},
+      },
+          },
+  },
+},
+"visibility": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	ValidateFunc: validation.StringInSlice([]string{"private","public",""}, false),
+  DiffSuppressFunc: caseDiffSuppress,
+	Description: `The zone's visibility: public zones are exposed to the Internet,
 while private zones are visible only to Virtual Private Cloud resources. Default value: "public" Possible values: ["private", "public"]`,
-				Default: "public",
-			},
-			"name_servers": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Description: `Delegate your managed_zone to these virtual name servers;
+    Default: "public",
+},
+"name_servers": {
+    Type: schema.TypeList,
+    Computed: true,
+	Description: `Delegate your managed_zone to these virtual name servers;
 defined by the server`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+    },
+            "force_destroy": {
+              Type: schema.TypeBool,
+              Optional: true,
+              Default:  false,
+            },
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func dnsManagedZonePrivateVisibilityConfigNetworksSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"network_url": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `The id or fully qualified URL of the VPC network to bind to.
+                      "network_url": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The id or fully qualified URL of the VPC network to bind to.
 This should be formatted like 'projects/{project}/global/networks/{network}' or
 'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
-			},
-		},
+},
+          		},
 	}
 }
+
+
 
 func dnsManagedZoneForwardingConfigTargetNameServersSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"ipv4_address": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `IPv4 address of a target name server.`,
-			},
-			"forwarding_path": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"default", "private", ""}, false),
-				Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
+                      "ipv4_address": {
+    Type: schema.TypeString,
+    Required: true,
+	Description: `IPv4 address of a target name server.`,
+},
+                      "forwarding_path": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"default","private",""}, false),
+	Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
 decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
 to the Internet. When set to 'private', Cloud DNS will always send queries through VPC for this target Possible values: ["default", "private"]`,
-			},
-		},
+},
+          		},
 	}
 }
+
+
 
 func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	descriptionProp, err := expandDNSManagedZoneDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	dnsNameProp, err := expandDNSManagedZoneDnsName(d.Get("dns_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("dns_name"); !isEmptyValue(reflect.ValueOf(dnsNameProp)) && (ok || !reflect.DeepEqual(v, dnsNameProp)) {
-		obj["dnsName"] = dnsNameProp
-	}
-	dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(dnssecConfigProp)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
-		obj["dnssecConfig"] = dnssecConfigProp
-	}
-	nameProp, err := expandDNSManagedZoneName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	visibilityProp, err := expandDNSManagedZoneVisibility(d.Get("visibility"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("visibility"); !isEmptyValue(reflect.ValueOf(visibilityProp)) && (ok || !reflect.DeepEqual(v, visibilityProp)) {
-		obj["visibility"] = visibilityProp
-	}
-	privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("private_visibility_config"); ok || !reflect.DeepEqual(v, privateVisibilityConfigProp) {
-		obj["privateVisibilityConfig"] = privateVisibilityConfigProp
-	}
-	forwardingConfigProp, err := expandDNSManagedZoneForwardingConfig(d.Get("forwarding_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("forwarding_config"); !isEmptyValue(reflect.ValueOf(forwardingConfigProp)) && (ok || !reflect.DeepEqual(v, forwardingConfigProp)) {
-		obj["forwardingConfig"] = forwardingConfigProp
-	}
-	peeringConfigProp, err := expandDNSManagedZonePeeringConfig(d.Get("peering_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("peering_config"); !isEmptyValue(reflect.ValueOf(peeringConfigProp)) && (ok || !reflect.DeepEqual(v, peeringConfigProp)) {
-		obj["peeringConfig"] = peeringConfigProp
-	}
+    obj := make(map[string]interface{})
+        descriptionProp, err := expandDNSManagedZoneDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+        dnsNameProp, err := expandDNSManagedZoneDnsName(d.Get( "dns_name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("dns_name"); !isEmptyValue(reflect.ValueOf(dnsNameProp)) && (ok || !reflect.DeepEqual(v, dnsNameProp)) {
+        obj["dnsName"] = dnsNameProp
+    }
+        dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get( "dnssec_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(dnssecConfigProp)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
+        obj["dnssecConfig"] = dnssecConfigProp
+    }
+        nameProp, err := expandDNSManagedZoneName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        labelsProp, err := expandDNSManagedZoneLabels(d.Get( "labels" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+        obj["labels"] = labelsProp
+    }
+        visibilityProp, err := expandDNSManagedZoneVisibility(d.Get( "visibility" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("visibility"); !isEmptyValue(reflect.ValueOf(visibilityProp)) && (ok || !reflect.DeepEqual(v, visibilityProp)) {
+        obj["visibility"] = visibilityProp
+    }
+        privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get( "private_visibility_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("private_visibility_config"); ok || !reflect.DeepEqual(v, privateVisibilityConfigProp) {
+        obj["privateVisibilityConfig"] = privateVisibilityConfigProp
+    }
+        forwardingConfigProp, err := expandDNSManagedZoneForwardingConfig(d.Get( "forwarding_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("forwarding_config"); !isEmptyValue(reflect.ValueOf(forwardingConfigProp)) && (ok || !reflect.DeepEqual(v, forwardingConfigProp)) {
+        obj["forwardingConfig"] = forwardingConfigProp
+    }
+        peeringConfigProp, err := expandDNSManagedZonePeeringConfig(d.Get( "peering_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("peering_config"); !isEmptyValue(reflect.ValueOf(peeringConfigProp)) && (ok || !reflect.DeepEqual(v, peeringConfigProp)) {
+        obj["peeringConfig"] = peeringConfigProp
+    }
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new ManagedZone: %#v", obj)
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
-	}
-	billingProject = project
+    url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Creating new ManagedZone: %#v", obj)
+    billingProject := ""
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating ManagedZone: %s", err)
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
+    }
+    billingProject = project
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return resourceDNSManagedZoneRead(d, meta)
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating ManagedZone: %s", err)
+    }
+                                                                                                                            
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
+
+
+
+
+    log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
+
+    return resourceDNSManagedZoneRead(d, meta)
 }
 
+
 func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DNSManagedZone %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOkExists("force_destroy"); !ok {
-		if err := d.Set("force_destroy", false); err != nil {
-			return fmt.Errorf("Error setting force_destroy: %s", err)
-		}
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("DNSManagedZone %q", d.Id()))
+    }
 
-	if err := d.Set("description", flattenDNSManagedZoneDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("dns_name", flattenDNSManagedZoneDnsName(res["dnsName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("dnssec_config", flattenDNSManagedZoneDnssecConfig(res["dnssecConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("name", flattenDNSManagedZoneName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("name_servers", flattenDNSManagedZoneNameServers(res["nameServers"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("labels", flattenDNSManagedZoneLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("visibility", flattenDNSManagedZoneVisibility(res["visibility"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("private_visibility_config", flattenDNSManagedZonePrivateVisibilityConfig(res["privateVisibilityConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("forwarding_config", flattenDNSManagedZoneForwardingConfig(res["forwardingConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
-	if err := d.Set("peering_config", flattenDNSManagedZonePeeringConfig(res["peeringConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ManagedZone: %s", err)
-	}
 
-	return nil
+  // Explicitly set virtual fields to default values if unset
+    if _, ok := d.GetOkExists("force_destroy"); !ok {
+      if err := d.Set("force_destroy", false); err != nil {
+      	return fmt.Errorf("Error setting force_destroy: %s", err)
+      }
+    }
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+
+
+    if err := d.Set("description", flattenDNSManagedZoneDescription(res["description"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("dns_name", flattenDNSManagedZoneDnsName(res["dnsName"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("dnssec_config", flattenDNSManagedZoneDnssecConfig(res["dnssecConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("name", flattenDNSManagedZoneName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("name_servers", flattenDNSManagedZoneNameServers(res["nameServers"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("labels", flattenDNSManagedZoneLabels(res["labels"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("visibility", flattenDNSManagedZoneVisibility(res["visibility"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("private_visibility_config", flattenDNSManagedZonePrivateVisibilityConfig(res["privateVisibilityConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("forwarding_config", flattenDNSManagedZoneForwardingConfig(res["forwardingConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+    if err := d.Set("peering_config", flattenDNSManagedZonePeeringConfig(res["peeringConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading ManagedZone: %s", err)
+    }
+
+    return nil
 }
 
 func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	descriptionProp, err := expandDNSManagedZoneDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
-		obj["dnssecConfig"] = dnssecConfigProp
-	}
-	labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("private_visibility_config"); ok || !reflect.DeepEqual(v, privateVisibilityConfigProp) {
-		obj["privateVisibilityConfig"] = privateVisibilityConfigProp
-	}
-	forwardingConfigProp, err := expandDNSManagedZoneForwardingConfig(d.Get("forwarding_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("forwarding_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardingConfigProp)) {
-		obj["forwardingConfig"] = forwardingConfigProp
-	}
-	peeringConfigProp, err := expandDNSManagedZonePeeringConfig(d.Get("peering_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("peering_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peeringConfigProp)) {
-		obj["peeringConfig"] = peeringConfigProp
-	}
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
-	if err != nil {
-		return err
-	}
+    obj := make(map[string]interface{})
+            descriptionProp, err := expandDNSManagedZoneDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+            dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get( "dnssec_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
+        obj["dnssecConfig"] = dnssecConfigProp
+    }
+            labelsProp, err := expandDNSManagedZoneLabels(d.Get( "labels" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+        obj["labels"] = labelsProp
+    }
+            privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get( "private_visibility_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("private_visibility_config"); ok || !reflect.DeepEqual(v, privateVisibilityConfigProp) {
+        obj["privateVisibilityConfig"] = privateVisibilityConfigProp
+    }
+            forwardingConfigProp, err := expandDNSManagedZoneForwardingConfig(d.Get( "forwarding_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("forwarding_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardingConfigProp)) {
+        obj["forwardingConfig"] = forwardingConfigProp
+    }
+            peeringConfigProp, err := expandDNSManagedZonePeeringConfig(d.Get( "peering_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("peering_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peeringConfigProp)) {
+        obj["peeringConfig"] = peeringConfigProp
+    }
 
-	log.Printf("[DEBUG] Updating ManagedZone %q: %#v", d.Id(), obj)
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating ManagedZone %q: %#v", d.Id(), res)
-	}
+    log.Printf("[DEBUG] Updating ManagedZone %q: %#v", d.Id(), obj)
 
-	return resourceDNSManagedZoneRead(d, meta)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating ManagedZone %q: %#v", d.Id(), res)
+    }
+
+
+    return resourceDNSManagedZoneRead(d, meta)
 }
 
 func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	if d.Get("force_destroy").(bool) {
-		zone := d.Get("name").(string)
-		token := ""
-		for paginate := true; paginate; {
-			var resp *dns.ResourceRecordSetsListResponse
-			if token == "" {
-				resp, err = config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).Do()
-				if err != nil {
-					return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
-				}
-			} else {
-				resp, err = config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).PageToken(token).Do()
-				if err != nil {
-					return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
-				}
+
+    url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+    if err != nil {
+        return err
+    }
+
+    var obj map[string]interface{}
+if d.Get("force_destroy").(bool) {
+	zone := d.Get("name").(string)
+	token := ""
+	for paginate := true; paginate; {
+		var resp *dns.ResourceRecordSetsListResponse
+		if token == "" {
+			resp, err = config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).Do()
+			if err != nil {
+				return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
+			}
+		} else {
+			resp, err = config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).PageToken(token).Do()
+			if err != nil {
+				return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
+			}
+		}
+
+		for _, rr := range resp.Rrsets {
+			// Build the change
+			chg := &dns.Change{
+				Deletions: []*dns.ResourceRecordSet{
+					{
+						Name:    rr.Name,
+						Type:    rr.Type,
+						Ttl:     rr.Ttl,
+						Rrdatas: rr.Rrdatas,
+					},
+				},
 			}
 
-			for _, rr := range resp.Rrsets {
-				// Build the change
-				chg := &dns.Change{
-					Deletions: []*dns.ResourceRecordSet{
-						{
-							Name:    rr.Name,
-							Type:    rr.Type,
-							Ttl:     rr.Ttl,
-							Rrdatas: rr.Rrdatas,
-						},
-					},
+			if rr.Type == "NS" {
+				mz, err := config.NewDnsClient(userAgent).ManagedZones.Get(project, zone).Do()
+				if err != nil {
+					return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
 				}
+				domain := mz.DnsName
 
-				if rr.Type == "NS" {
-					mz, err := config.NewDnsClient(userAgent).ManagedZones.Get(project, zone).Do()
-					if err != nil {
-						return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
-					}
-					domain := mz.DnsName
-
-					if domain == rr.Name {
-						log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
-						continue
-					}
-				}
-
-				if rr.Type == "SOA" {
-					log.Println("[DEBUG] SOA records can't be deleted due to API restrictions, so they're being left in place.")
+				if domain == rr.Name {
+					log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
 					continue
 				}
-
-				log.Printf("[DEBUG] DNS Record delete request via MZ: %#v", chg)
-				chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
-				if err != nil {
-					return fmt.Errorf("Unable to delete ResourceRecordSets: %s", err)
-				}
-
-				w := &DnsChangeWaiter{
-					Service:     config.NewDnsClient(userAgent),
-					Change:      chg,
-					Project:     project,
-					ManagedZone: zone,
-				}
-				_, err = w.Conf().WaitForState()
-				if err != nil {
-					return fmt.Errorf("Error waiting for Google DNS change: %s", err)
-				}
 			}
 
-			token = resp.NextPageToken
-			paginate = token != ""
+			if rr.Type == "SOA" {
+				log.Println("[DEBUG] SOA records can't be deleted due to API restrictions, so they're being left in place.")
+				continue
+			}
+
+			log.Printf("[DEBUG] DNS Record delete request via MZ: %#v", chg)
+			chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
+			if err != nil {
+				return fmt.Errorf("Unable to delete ResourceRecordSets: %s", err)
+			}
+
+			w := &DnsChangeWaiter{
+				Service:     config.NewDnsClient(userAgent),
+				Change:      chg,
+				Project:     project,
+				ManagedZone: zone,
+			}
+			_, err = w.Conf().WaitForState()
+			if err != nil {
+				return fmt.Errorf("Error waiting for Google DNS change: %s", err)
+			}
 		}
-	}
-	log.Printf("[DEBUG] Deleting ManagedZone %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
+		token = resp.NextPageToken
+		paginate = token != ""
 	}
+}
+    log.Printf("[DEBUG] Deleting ManagedZone %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "ManagedZone")
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	log.Printf("[DEBUG] Finished deleting ManagedZone %q: %#v", d.Id(), res)
-	return nil
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "ManagedZone")
+    }
+
+
+    log.Printf("[DEBUG] Finished deleting ManagedZone %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceDNSManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/managedZones/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/managedZones/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	// Explicitly set virtual fields to default values on import
-	if err := d.Set("force_destroy", false); err != nil {
-		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
-	}
-
-	return []*schema.ResourceData{d}, nil
+    // Explicitly set virtual fields to default values on import
+    if err := d.Set("force_destroy", false); err != nil {
+    	return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+    }
+  
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenDNSManagedZoneDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenDNSManagedZoneDnsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenDNSManagedZoneDnssecConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["kind"] =
-		flattenDNSManagedZoneDnssecConfigKind(original["kind"], d, config)
-	transformed["non_existence"] =
-		flattenDNSManagedZoneDnssecConfigNonExistence(original["nonExistence"], d, config)
-	transformed["state"] =
-		flattenDNSManagedZoneDnssecConfigState(original["state"], d, config)
-	transformed["default_key_specs"] =
-		flattenDNSManagedZoneDnssecConfigDefaultKeySpecs(original["defaultKeySpecs"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["kind"] =
+    flattenDNSManagedZoneDnssecConfigKind(original["kind"], d, config)
+              transformed["non_existence"] =
+    flattenDNSManagedZoneDnssecConfigNonExistence(original["nonExistence"], d, config)
+              transformed["state"] =
+    flattenDNSManagedZoneDnssecConfigState(original["state"], d, config)
+              transformed["default_key_specs"] =
+    flattenDNSManagedZoneDnssecConfigDefaultKeySpecs(original["defaultKeySpecs"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDNSManagedZoneDnssecConfigKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenDNSManagedZoneDnssecConfigNonExistence(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZoneDnssecConfigKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDNSManagedZoneDnssecConfigState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZoneDnssecConfigNonExistence(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDNSManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"algorithm":  flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config),
-			"key_length": flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["keyLength"], d, config),
-			"key_type":   flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["keyType"], d, config),
-			"kind":       flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZoneDnssecConfigState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+      func flattenDNSManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed = append(transformed, map[string]interface{}{
+          "algorithm": flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config),
+          "key_length": flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["keyLength"], d, config),
+          "key_type": flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["keyType"], d, config),
+          "kind": flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config),
+        })
+  }
+  return transformed
+}
+      func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
+}
+
+      func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -769,294 +795,342 @@ func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d 
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
+
+  
 
 func flattenDNSManagedZoneName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenDNSManagedZoneNameServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenDNSManagedZoneLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenDNSManagedZoneVisibility(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
-		return "public"
-	}
+		return "public"	}
 
 	return v
 }
 
 func flattenDNSManagedZonePrivateVisibilityConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["networks"] =
-		flattenDNSManagedZonePrivateVisibilityConfigNetworks(original["networks"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["networks"] =
+    flattenDNSManagedZonePrivateVisibilityConfigNetworks(original["networks"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDNSManagedZonePrivateVisibilityConfigNetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := schema.NewSet(func(v interface{}) int {
-		if v == nil {
-			return 0
-		}
-		raw := v.(map[string]interface{})
-		if url, ok := raw["network_url"]; ok {
-			return selfLinkNameHash(url)
-		}
-		var buf bytes.Buffer
-		schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
-		return hashcode(buf.String())
-	}, []interface{}{})
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed.Add(map[string]interface{}{
-			"network_url": flattenDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(original["networkUrl"], d, config),
-		})
-	}
-	return transformed
+      func flattenDNSManagedZonePrivateVisibilityConfigNetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := schema.NewSet(func(v interface{}) int {
+  if v == nil {
+    return 0
+  }
+  raw := v.(map[string]interface{})
+  if url, ok := raw["network_url"]; ok {
+    return selfLinkNameHash(url)
+  }
+  var buf bytes.Buffer
+  schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
+  return hashcode(buf.String())
+}, []interface{}{})
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed.Add(map[string]interface{}{
+          "network_url": flattenDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(original["networkUrl"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
+
+  
 
 func flattenDNSManagedZoneForwardingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["target_name_servers"] =
-		flattenDNSManagedZoneForwardingConfigTargetNameServers(original["targetNameServers"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["target_name_servers"] =
+    flattenDNSManagedZoneForwardingConfigTargetNameServers(original["targetNameServers"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := schema.NewSet(func(v interface{}) int {
-		raw := v.(map[string]interface{})
-		if address, ok := raw["ipv4_address"]; ok {
-			hashcode(address.(string))
-		}
-		var buf bytes.Buffer
-		schema.SerializeResourceForHash(&buf, raw, dnsManagedZoneForwardingConfigTargetNameServersSchema())
-		return hashcode(buf.String())
-	}, []interface{}{})
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed.Add(map[string]interface{}{
-			"ipv4_address":    flattenDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(original["ipv4Address"], d, config),
-			"forwarding_path": flattenDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(original["forwardingPath"], d, config),
-		})
-	}
-	return transformed
+      func flattenDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := schema.NewSet(func(v interface{}) int {
+  raw := v.(map[string]interface{})
+  if address, ok := raw["ipv4_address"]; ok {
+    hashcode(address.(string))
+  }
+  var buf bytes.Buffer
+  schema.SerializeResourceForHash(&buf, raw, dnsManagedZoneForwardingConfigTargetNameServersSchema())
+  return hashcode(buf.String())
+}, []interface{}{})
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed.Add(map[string]interface{}{
+          "ipv4_address": flattenDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(original["ipv4Address"], d, config),
+          "forwarding_path": flattenDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(original["forwardingPath"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
+
+  
 
 func flattenDNSManagedZonePeeringConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["target_network"] =
-		flattenDNSManagedZonePeeringConfigTargetNetwork(original["targetNetwork"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["target_network"] =
+    flattenDNSManagedZonePeeringConfigTargetNetwork(original["targetNetwork"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDNSManagedZonePeeringConfigTargetNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["network_url"] =
-		flattenDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(original["networkUrl"], d, config)
-	return []interface{}{transformed}
+      func flattenDNSManagedZonePeeringConfigTargetNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["network_url"] =
+    flattenDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(original["networkUrl"], d, config)
+        return []interface{}{transformed}
 }
-func flattenDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
+
+  
+
+
+
 
 func expandDNSManagedZoneDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandDNSManagedZoneDnsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandDNSManagedZoneDnssecConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedKind, err := expandDNSManagedZoneDnssecConfigKind(original["kind"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
-		transformed["kind"] = transformedKind
-	}
+      transformedKind, err := expandDNSManagedZoneDnssecConfigKind(original["kind"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
+        transformed["kind"] = transformedKind      }
 
-	transformedNonExistence, err := expandDNSManagedZoneDnssecConfigNonExistence(original["non_existence"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNonExistence); val.IsValid() && !isEmptyValue(val) {
-		transformed["nonExistence"] = transformedNonExistence
-	}
+      transformedNonExistence, err := expandDNSManagedZoneDnssecConfigNonExistence(original["non_existence"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNonExistence); val.IsValid() && !isEmptyValue(val) {
+        transformed["nonExistence"] = transformedNonExistence      }
 
-	transformedState, err := expandDNSManagedZoneDnssecConfigState(original["state"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
-		transformed["state"] = transformedState
-	}
+      transformedState, err := expandDNSManagedZoneDnssecConfigState(original["state"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
+        transformed["state"] = transformedState      }
 
-	transformedDefaultKeySpecs, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecs(original["default_key_specs"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDefaultKeySpecs); val.IsValid() && !isEmptyValue(val) {
-		transformed["defaultKeySpecs"] = transformedDefaultKeySpecs
-	}
+      transformedDefaultKeySpecs, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecs(original["default_key_specs"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedDefaultKeySpecs); val.IsValid() && !isEmptyValue(val) {
+        transformed["defaultKeySpecs"] = transformedDefaultKeySpecs      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDNSManagedZoneDnssecConfigKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDNSManagedZoneDnssecConfigNonExistence(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDNSManagedZoneDnssecConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDNSManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedAlgorithm, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
-			transformed["algorithm"] = transformedAlgorithm
-		}
+      transformedAlgorithm, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
+        transformed["algorithm"] = transformedAlgorithm      }
 
-		transformedKeyLength, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["key_length"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedKeyLength); val.IsValid() && !isEmptyValue(val) {
-			transformed["keyLength"] = transformedKeyLength
-		}
+      transformedKeyLength, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["key_length"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKeyLength); val.IsValid() && !isEmptyValue(val) {
+        transformed["keyLength"] = transformedKeyLength      }
 
-		transformedKeyType, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["key_type"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedKeyType); val.IsValid() && !isEmptyValue(val) {
-			transformed["keyType"] = transformedKeyType
-		}
+      transformedKeyType, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["key_type"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKeyType); val.IsValid() && !isEmptyValue(val) {
+        transformed["keyType"] = transformedKeyType      }
 
-		transformedKind, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
-			transformed["kind"] = transformedKind
-		}
+      transformedKind, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
+        transformed["kind"] = transformedKind      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDNSManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandDNSManagedZoneName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandDNSManagedZoneLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+  if v == nil {
+    return map[string]string{}, nil
+  }
+  m := make(map[string]string)
+  for k, val := range v.(map[string]interface{}) {
+    m[k] = val.(string)
+  }
+  return m, nil
 }
 
+
+
 func expandDNSManagedZoneVisibility(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
 func expandDNSManagedZonePrivateVisibilityConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1118,110 +1192,130 @@ func expandDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}
 	return ConvertSelfLinkToV1(url), nil
 }
 
+
+
 func expandDNSManagedZoneForwardingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTargetNameServers, err := expandDNSManagedZoneForwardingConfigTargetNameServers(original["target_name_servers"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTargetNameServers); val.IsValid() && !isEmptyValue(val) {
-		transformed["targetNameServers"] = transformedTargetNameServers
-	}
+      transformedTargetNameServers, err := expandDNSManagedZoneForwardingConfigTargetNameServers(original["target_name_servers"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTargetNameServers); val.IsValid() && !isEmptyValue(val) {
+        transformed["targetNameServers"] = transformedTargetNameServers      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  v = v.(*schema.Set).List()
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedIpv4Address, err := expandDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(original["ipv4_address"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedIpv4Address); val.IsValid() && !isEmptyValue(val) {
-			transformed["ipv4Address"] = transformedIpv4Address
-		}
+      transformedIpv4Address, err := expandDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(original["ipv4_address"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedIpv4Address); val.IsValid() && !isEmptyValue(val) {
+        transformed["ipv4Address"] = transformedIpv4Address      }
 
-		transformedForwardingPath, err := expandDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(original["forwarding_path"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedForwardingPath); val.IsValid() && !isEmptyValue(val) {
-			transformed["forwardingPath"] = transformedForwardingPath
-		}
+      transformedForwardingPath, err := expandDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(original["forwarding_path"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedForwardingPath); val.IsValid() && !isEmptyValue(val) {
+        transformed["forwardingPath"] = transformedForwardingPath      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandDNSManagedZonePeeringConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedTargetNetwork, err := expandDNSManagedZonePeeringConfigTargetNetwork(original["target_network"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTargetNetwork); val.IsValid() && !isEmptyValue(val) {
-		transformed["targetNetwork"] = transformedTargetNetwork
-	}
+      transformedTargetNetwork, err := expandDNSManagedZonePeeringConfigTargetNetwork(original["target_network"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedTargetNetwork); val.IsValid() && !isEmptyValue(val) {
+        transformed["targetNetwork"] = transformedTargetNetwork      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandDNSManagedZonePeeringConfigTargetNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedNetworkUrl, err := expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(original["network_url"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedNetworkUrl); val.IsValid() && !isEmptyValue(val) {
-		transformed["networkUrl"] = transformedNetworkUrl
-	}
+      transformedNetworkUrl, err := expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(original["network_url"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedNetworkUrl); val.IsValid() && !isEmptyValue(val) {
+        transformed["networkUrl"] = transformedNetworkUrl      }
 
-	return transformed, nil
+  return transformed, nil
 }
 
+
+
+
 func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	if v == nil || v.(string) == "" {
-		return "", nil
-	} else if strings.HasPrefix(v.(string), "https://") {
-		return v, nil
-	}
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
-	if err != nil {
-		return "", err
-	}
-	return ConvertSelfLinkToV1(url), nil
+  if v == nil || v.(string) == "" {
+    return "", nil
+  } else if strings.HasPrefix(v.(string), "https://") {
+    return v, nil
+  }
+  url, err := replaceVars(d, config, "{{ComputeBasePath}}" + v.(string))
+  if err != nil {
+    return "", err
+  }
+  return ConvertSelfLinkToV1(url), nil
 }

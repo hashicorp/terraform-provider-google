@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_backend_bucket.image_backend",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeBackendBucket_backendBucketBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
@@ -64,31 +63,31 @@ resource "google_storage_bucket" "image_bucket" {
 }
 
 func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketFullExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_backend_bucket.image_backend_full",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeBackendBucket_backendBucketFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_backend_bucket" "image_backend_full" {
   name        = "tf-test-image-backend-bucket-full%{random_suffix}"
   description = "Contains beautiful beta mages"
@@ -114,6 +113,7 @@ resource "google_storage_bucket" "image_backend_full" {
 `, context)
 }
 
+
 func testAccCheckComputeBackendBucketDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -124,24 +124,24 @@ func testAccCheckComputeBackendBucketDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeBackendBucket still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

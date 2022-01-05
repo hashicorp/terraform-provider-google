@@ -15,43 +15,42 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"org_domain": getTestOrgDomainFromEnv(t),
+    				"cust_id": getTestCustIdFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIdentityGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudIdentityGroupDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context),
 			},
-			{
-				ResourceName:            "google_cloud_identity_group.cloud_identity_group_basic",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloud_identity_group.cloud_identity_group_basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"initial_group_config"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
   display_name         = "tf-test-my-identity-group%{random_suffix}"
   initial_group_config = "WITH_INITIAL_OWNER"
@@ -69,6 +68,7 @@ resource "google_cloud_identity_group" "cloud_identity_group_basic" {
 `, context)
 }
 
+
 func testAccCheckCloudIdentityGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -79,24 +79,24 @@ func testAccCheckCloudIdentityGroupDestroyProducer(t *testing.T) func(s *terrafo
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudIdentityBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{CloudIdentityBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("CloudIdentityGroup still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

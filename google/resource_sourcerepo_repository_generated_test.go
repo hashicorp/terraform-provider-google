@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSourceRepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepository_sourcerepoRepositoryBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_sourcerepo_repository.my-repo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccSourceRepoRepository_sourcerepoRepositoryBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
   name = "my/repository%{random_suffix}"
 }
@@ -56,31 +55,31 @@ resource "google_sourcerepo_repository" "my-repo" {
 }
 
 func TestAccSourceRepoRepository_sourcerepoRepositoryFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepository_sourcerepoRepositoryFullExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_sourcerepo_repository.my-repo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccSourceRepoRepository_sourcerepoRepositoryFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "tf-test-my-account%{random_suffix}"
   display_name = "Test Service Account"
@@ -101,6 +100,7 @@ resource "google_sourcerepo_repository" "my-repo" {
 `, context)
 }
 
+
 func testAccCheckSourceRepoRepositoryDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -111,24 +111,24 @@ func testAccCheckSourceRepoRepositoryDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("SourceRepoRepository still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

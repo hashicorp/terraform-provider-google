@@ -15,223 +15,252 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+
 func resourceIapClient() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceIapClientCreate,
-		Read:   resourceIapClientRead,
-		Delete: resourceIapClientDelete,
+    return &schema.Resource{
+        Create: resourceIapClientCreate,
+        Read: resourceIapClientRead,
+        Delete: resourceIapClientDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceIapClientImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceIapClientImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"brand": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Identifier of the brand to which this client
+
+
+        Schema: map[string]*schema.Schema{
+"brand": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Identifier of the brand to which this client
 is attached to. The format is
 'projects/{project_number}/brands/{brand_id}/identityAwareProxyClients/{client_id}'.`,
-			},
-			"display_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Human-friendly name given to the OAuth client.`,
-			},
-			"client_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Output only. Unique identifier of the OAuth client.`,
-			},
-			"secret": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Output only. Client secret of the OAuth client.`,
-				Sensitive:   true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+},
+"display_name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Human-friendly name given to the OAuth client.`,
+},
+"client_id": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Output only. Unique identifier of the OAuth client.`,
+},
+"secret": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Output only. Client secret of the OAuth client.`,
+    Sensitive: true,
+},
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	displayNameProp, err := expandIapClientDisplayName(d.Get("display_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
-		obj["displayName"] = displayNameProp
-	}
+    obj := make(map[string]interface{})
+        displayNameProp, err := expandIapClientDisplayName(d.Get( "display_name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+        obj["displayName"] = displayNameProp
+    }
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new Client: %#v", obj)
-	billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), iapClient409Operation)
-	if err != nil {
-		return fmt.Errorf("Error creating Client: %s", err)
-	}
+    log.Printf("[DEBUG] Creating new Client: %#v", obj)
+    billingProject := ""
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{brand}}/identityAwareProxyClients/{{client_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	brand := d.Get("brand")
-	clientId := flattenIapClientClientId(res["name"], d, config)
 
-	if err := d.Set("client_id", clientId); err != nil {
-		return fmt.Errorf("Error setting client_id: %s", err)
-	}
-	d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), iapClient409Operation)
+    if err != nil {
+        return fmt.Errorf("Error creating Client: %s", err)
+    }
+                                        
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{brand}}/identityAwareProxyClients/{{client_id}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceIapClientRead(d, meta)
+
+brand := d.Get("brand")
+clientId := flattenIapClientClientId(res["name"], d, config)
+
+if err := d.Set("client_id", clientId); err != nil {
+	return fmt.Errorf("Error setting client_id: %s", err)
 }
+d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
+
+
+    log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
+
+    return resourceIapClientRead(d, meta)
+}
+
 
 func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, iapClient409Operation)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
-	}
 
-	if err := d.Set("secret", flattenIapClientSecret(res["secret"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Client: %s", err)
-	}
-	if err := d.Set("display_name", flattenIapClientDisplayName(res["displayName"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Client: %s", err)
-	}
-	if err := d.Set("client_id", flattenIapClientClientId(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Client: %s", err)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	return nil
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, iapClient409Operation)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
+    }
+
+
+
+
+    if err := d.Set("secret", flattenIapClientSecret(res["secret"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Client: %s", err)
+    }
+    if err := d.Set("display_name", flattenIapClientDisplayName(res["displayName"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Client: %s", err)
+    }
+    if err := d.Set("client_id", flattenIapClientClientId(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading Client: %s", err)
+    }
+
+    return nil
 }
 
+
 func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
-	if err != nil {
-		return err
-	}
+    billingProject := ""
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting Client %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), iapClient409Operation)
-	if err != nil {
-		return handleNotFoundError(err, d, "Client")
-	}
+    url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
+    if err != nil {
+        return err
+    }
 
-	log.Printf("[DEBUG] Finished deleting Client %q: %#v", d.Id(), res)
-	return nil
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting Client %q", d.Id())
+
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
+
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), iapClient409Operation)
+    if err != nil {
+        return handleNotFoundError(err, d, "Client")
+    }
+
+
+    log.Printf("[DEBUG] Finished deleting Client %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceIapClientImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+config := meta.(*Config)
 
-	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<brand>.+)"}, d, config); err != nil {
-		return nil, err
-	}
+// current import_formats can't import fields with forward slashes in their value
+if err := parseImportId([]string{"(?P<brand>.+)"}, d, config); err != nil {
+	return nil, err
+}
 
-	nameParts := strings.Split(d.Get("brand").(string), "/")
-	if len(nameParts) != 6 {
-		return nil, fmt.Errorf(
+nameParts := strings.Split(d.Get("brand").(string), "/")
+if len(nameParts) != 6 {
+	return nil, fmt.Errorf(
 			"Saw %s when the name is expected to have shape %s",
 			d.Get("brand").(string),
 			"projects/{{project_number}}/brands/{{brand_id}}/identityAwareProxyClients/{{client_id}}",
 		)
-	}
+}
 
-	if err := d.Set("brand", fmt.Sprintf("projects/%s/brands/%s", nameParts[1], nameParts[3])); err != nil {
-		return nil, fmt.Errorf("Error setting brand: %s", err)
-	}
-	if err := d.Set("client_id", nameParts[5]); err != nil {
-		return nil, fmt.Errorf("Error setting client_id: %s", err)
-	}
-	return []*schema.ResourceData{d}, nil
+if err := d.Set("brand", fmt.Sprintf("projects/%s/brands/%s", nameParts[1], nameParts[3])); err != nil {
+	return nil, fmt.Errorf("Error setting brand: %s", err)
+}
+if err := d.Set("client_id", nameParts[5]); err != nil {
+	return nil, fmt.Errorf("Error setting client_id: %s", err)
+}
+return []*schema.ResourceData{d}, nil
 }
 
 func flattenIapClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenIapClientDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenIapClientClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
+    if v == nil {
+        return v
+    }
 	return NameFromSelfLinkStateFunc(v)
 }
 
+
+
+
 func expandIapClientDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

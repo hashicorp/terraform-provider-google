@@ -15,43 +15,42 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccMemcacheInstance_memcacheInstanceBasicExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"network_name":  BootstrapSharedTestNetwork(t, "memcache-private"),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"network_name": BootstrapSharedTestNetwork(t, "memcache-private"),
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMemcacheInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckMemcacheInstanceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccMemcacheInstance_memcacheInstanceBasicExample(context),
 			},
-			{
-				ResourceName:            "google_memcache_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_memcache_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccMemcacheInstance_memcacheInstanceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // This example assumes this network already exists.
 // The API creates a tenant network per network authorized for a
 // Redis instance and that network is not deleted when the user-created
@@ -92,6 +91,7 @@ resource "google_memcache_instance" "instance" {
 `, context)
 }
 
+
 func testAccCheckMemcacheInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -102,24 +102,24 @@ func testAccCheckMemcacheInstanceDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("MemcacheInstance still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

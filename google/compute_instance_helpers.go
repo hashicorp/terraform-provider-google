@@ -1,4 +1,4 @@
-//
+// 
 package google
 
 import (
@@ -190,16 +190,16 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 		region = subnet.Region
 
 		flattened[i] = map[string]interface{}{
-			"network_ip":         iface.NetworkIP,
-			"network":            ConvertSelfLinkToV1(iface.Network),
-			"subnetwork":         ConvertSelfLinkToV1(iface.Subnetwork),
-			"subnetwork_project": subnet.Project,
-			"access_config":      ac,
-			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
-			"nic_type":           iface.NicType,
-			"stack_type":         iface.StackType,
+			"network_ip":          iface.NetworkIP,
+			"network":             ConvertSelfLinkToV1(iface.Network),
+			"subnetwork":          ConvertSelfLinkToV1(iface.Subnetwork),
+			"subnetwork_project":  subnet.Project,
+			"access_config":       ac,
+			"alias_ip_range":      flattenAliasIpRange(iface.AliasIpRanges),
+			"nic_type":            iface.NicType,
+			"stack_type":          iface.StackType,
 			"ipv6_access_config": flattenIpv6AccessConfigs(iface.Ipv6AccessConfigs),
-			"queue_count":        iface.QueueCount,
+			"queue_count":         iface.QueueCount,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the

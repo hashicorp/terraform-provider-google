@@ -15,408 +15,434 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
+
+
+    
 func resourceComputeTargetTcpProxy() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceComputeTargetTcpProxyCreate,
-		Read:   resourceComputeTargetTcpProxyRead,
-		Update: resourceComputeTargetTcpProxyUpdate,
-		Delete: resourceComputeTargetTcpProxyDelete,
+    return &schema.Resource{
+        Create: resourceComputeTargetTcpProxyCreate,
+        Read: resourceComputeTargetTcpProxyRead,
+        Update: resourceComputeTargetTcpProxyUpdate,
+        Delete: resourceComputeTargetTcpProxyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceComputeTargetTcpProxyImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceComputeTargetTcpProxyImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(4 * time.Minute),
+            Update: schema.DefaultTimeout(4 * time.Minute),
+            Delete: schema.DefaultTimeout(4 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"backend_service": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `A reference to the BackendService resource.`,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Name of the resource. Provided by the client when the resource is
+
+
+        Schema: map[string]*schema.Schema{
+"backend_service": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `A reference to the BackendService resource.`,
+},
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+	Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
 the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `An optional description of this resource.`,
-			},
-			"proxy_bind": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `This field only applies when the forwarding rule that references
+},
+"description": {
+    Type: schema.TypeString,
+    Optional: true,
+  ForceNew: true,
+	Description: `An optional description of this resource.`,
+},
+"proxy_bind": {
+    Type: schema.TypeBool,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+	Description: `This field only applies when the forwarding rule that references
 this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
-			},
-			"proxy_header": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
-				Description: `Specifies the type of proxy header to append before sending data to
+},
+"proxy_header": {
+    Type: schema.TypeString,
+    Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{"NONE","PROXY_V1",""}, false),
+	Description: `Specifies the type of proxy header to append before sending data to
 the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
-				Default: "NONE",
-			},
-			"creation_timestamp": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Creation timestamp in RFC3339 text format.`,
-			},
-			"proxy_id": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The unique identifier for the resource.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+    Default: "NONE",
+},
+"creation_timestamp": {
+    Type: schema.TypeString,
+    Computed: true,
+	Description: `Creation timestamp in RFC3339 text format.`,
+},
+"proxy_id": {
+    Type: schema.TypeInt,
+    Computed: true,
+	Description: `The unique identifier for the resource.`,
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+            "self_link": {
+                Type:     schema.TypeString,
+                Computed: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
+
+
 
 func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	descriptionProp, err := expandComputeTargetTcpProxyDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	nameProp, err := expandComputeTargetTcpProxyName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	proxyHeaderProp, err := expandComputeTargetTcpProxyProxyHeader(d.Get("proxy_header"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(proxyHeaderProp)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
-		obj["proxyHeader"] = proxyHeaderProp
-	}
-	serviceProp, err := expandComputeTargetTcpProxyBackendService(d.Get("backend_service"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
-		obj["service"] = serviceProp
-	}
-	proxyBindProp, err := expandComputeTargetTcpProxyProxyBind(d.Get("proxy_bind"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
-		obj["proxyBind"] = proxyBindProp
-	}
+    obj := make(map[string]interface{})
+        descriptionProp, err := expandComputeTargetTcpProxyDescription(d.Get( "description" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+        obj["description"] = descriptionProp
+    }
+        nameProp, err := expandComputeTargetTcpProxyName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        proxyHeaderProp, err := expandComputeTargetTcpProxyProxyHeader(d.Get( "proxy_header" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(proxyHeaderProp)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
+        obj["proxyHeader"] = proxyHeaderProp
+    }
+        serviceProp, err := expandComputeTargetTcpProxyBackendService(d.Get( "backend_service" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+        obj["service"] = serviceProp
+    }
+        proxyBindProp, err := expandComputeTargetTcpProxyProxyBind(d.Get( "proxy_bind" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+        obj["proxyBind"] = proxyBindProp
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Creating new TargetTcpProxy: %#v", obj)
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
-	}
-	billingProject = project
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Creating new TargetTcpProxy: %#v", obj)
+    billingProject := ""
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating TargetTcpProxy: %s", err)
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
+    }
+    billingProject = project
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetTcpProxies/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
-	err = computeOperationWaitTime(
-		config, res, project, "Creating TargetTcpProxy", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create TargetTcpProxy: %s", err)
-	}
+    res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating TargetTcpProxy: %s", err)
+    }
 
-	log.Printf("[DEBUG] Finished creating TargetTcpProxy %q: %#v", d.Id(), res)
+    // Store the ID now
+    id, err := replaceVars(d, config, "projects/{{project}}/global/targetTcpProxies/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return resourceComputeTargetTcpProxyRead(d, meta)
+    err = computeOperationWaitTime(
+    config, res,  project,  "Creating TargetTcpProxy", userAgent,
+        d.Timeout(schema.TimeoutCreate))
+
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create TargetTcpProxy: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating TargetTcpProxy %q: %#v", d.Id(), res)
+
+    return resourceComputeTargetTcpProxyRead(d, meta)
 }
 
+
 func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetTcpProxy %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetTcpProxy %q", d.Id()))
+    }
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetTcpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
-	if err := d.Set("description", flattenComputeTargetTcpProxyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
-	if err := d.Set("proxy_id", flattenComputeTargetTcpProxyProxyId(res["id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
-	if err := d.Set("name", flattenComputeTargetTcpProxyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
-	if err := d.Set("proxy_header", flattenComputeTargetTcpProxyProxyHeader(res["proxyHeader"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
-	if err := d.Set("backend_service", flattenComputeTargetTcpProxyBackendService(res["service"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
-	if err := d.Set("proxy_bind", flattenComputeTargetTcpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+
+
+    if err := d.Set("creation_timestamp", flattenComputeTargetTcpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+    if err := d.Set("description", flattenComputeTargetTcpProxyDescription(res["description"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+    if err := d.Set("proxy_id", flattenComputeTargetTcpProxyProxyId(res["id"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+    if err := d.Set("name", flattenComputeTargetTcpProxyName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+    if err := d.Set("proxy_header", flattenComputeTargetTcpProxyProxyHeader(res["proxyHeader"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+    if err := d.Set("backend_service", flattenComputeTargetTcpProxyBackendService(res["service"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+    if err := d.Set("proxy_bind", flattenComputeTargetTcpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+    if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+        return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+    }
+
+    return nil
 }
 
 func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
+
+    billingProject := ""
+
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
+    }
+    billingProject = project
+
+
+    d.Partial(true)
+
+if d.HasChange("proxy_header") {
+        obj := make(map[string]interface{})
+
+                proxyHeaderProp, err := expandComputeTargetTcpProxyProxyHeader(d.Get( "proxy_header" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
+            obj["proxyHeader"] = proxyHeaderProp
+        }
+
+
+
+        url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}/setProxyHeader")
+        if err != nil {
+            return err
+        }
+
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
+
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating TargetTcpProxy %q: %#v", d.Id(), res)
 	}
 
-	billingProject := ""
+        err = computeOperationWaitTime(
+            config, res,  project,  "Updating TargetTcpProxy", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
+if d.HasChange("backend_service") {
+        obj := make(map[string]interface{})
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
-	}
-	billingProject = project
+                serviceProp, err := expandComputeTargetTcpProxyBackendService(d.Get( "backend_service" ), d, config)
+        if err != nil {
+            return err
+        } else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+            obj["service"] = serviceProp
+        }
 
-	d.Partial(true)
 
-	if d.HasChange("proxy_header") {
-		obj := make(map[string]interface{})
 
-		proxyHeaderProp, err := expandComputeTargetTcpProxyProxyHeader(d.Get("proxy_header"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
-			obj["proxyHeader"] = proxyHeaderProp
-		}
+        url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}/setBackendService")
+        if err != nil {
+            return err
+        }
 
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}/setProxyHeader")
-		if err != nil {
-			return err
-		}
+        // err == nil indicates that the billing_project value was found
+        if bp, err := getBillingProject(d, config); err == nil {
+        billingProject = bp
+        }
 
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating TargetTcpProxy %q: %#v", d.Id(), res)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetTcpProxy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-	if d.HasChange("backend_service") {
-		obj := make(map[string]interface{})
-
-		serviceProp, err := expandComputeTargetTcpProxyBackendService(d.Get("backend_service"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
-			obj["service"] = serviceProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}/setBackendService")
-		if err != nil {
-			return err
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating TargetTcpProxy %q: %#v", d.Id(), res)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetTcpProxy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
+        res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
+        } else {
+	    log.Printf("[DEBUG] Finished updating TargetTcpProxy %q: %#v", d.Id(), res)
 	}
 
-	d.Partial(false)
+        err = computeOperationWaitTime(
+            config, res,  project,  "Updating TargetTcpProxy", userAgent,
+            d.Timeout(schema.TimeoutUpdate))
+        if err != nil {
+            return err
+        }
+    }
 
-	return resourceComputeTargetTcpProxyRead(d, meta)
+  d.Partial(false)
+
+    return resourceComputeTargetTcpProxyRead(d, meta)
 }
 
 func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
-	if err != nil {
-		return err
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
+    }
+    billingProject = project
 
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting TargetTcpProxy %q", d.Id())
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
+    if err != nil {
+        return err
+    }
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "TargetTcpProxy")
-	}
+    var obj map[string]interface{}
+    log.Printf("[DEBUG] Deleting TargetTcpProxy %q", d.Id())
 
-	err = computeOperationWaitTime(
-		config, res, project, "Deleting TargetTcpProxy", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	if err != nil {
-		return err
-	}
+    res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "TargetTcpProxy")
+    }
 
-	log.Printf("[DEBUG] Finished deleting TargetTcpProxy %q: %#v", d.Id(), res)
-	return nil
+    err = computeOperationWaitTime(
+        config, res,  project,  "Deleting TargetTcpProxy", userAgent,
+        d.Timeout(schema.TimeoutDelete))
+
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting TargetTcpProxy %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceComputeTargetTcpProxyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/global/targetTcpProxies/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/global/targetTcpProxies/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<name>[^/]+)",
+        "(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetTcpProxies/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "projects/{{project}}/global/targetTcpProxies/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenComputeTargetTcpProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetTcpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetTcpProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -437,44 +463,55 @@ func flattenComputeTargetTcpProxyProxyId(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenComputeTargetTcpProxyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetTcpProxyProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenComputeTargetTcpProxyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeTargetTcpProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandComputeTargetTcpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetTcpProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetTcpProxyProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandComputeTargetTcpProxyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
 
+
+
 func expandComputeTargetTcpProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }

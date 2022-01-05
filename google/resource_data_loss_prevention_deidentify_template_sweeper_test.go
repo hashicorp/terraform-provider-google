@@ -15,13 +15,14 @@
 package google
 
 import (
-	"context"
-	"log"
-	"strings"
-	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "fmt"
+  "testing"
+  "strings"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
 
 func init() {
 	resource.AddTestSweepers("DataLossPreventionDeidentifyTemplate", &resource.Sweeper{
@@ -33,7 +34,7 @@ func init() {
 // At the time of writing, the CI only passes us-central1 as the region
 func testSweepDataLossPreventionDeidentifyTemplate(region string) error {
 	resourceName := "DataLossPreventionDeidentifyTemplate"
-	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s",resourceName)
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -53,15 +54,15 @@ func testSweepDataLossPreventionDeidentifyTemplate(region string) error {
 	// Setup variables to replace in list template
 	d := &ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
-			"project":         config.Project,
-			"region":          region,
-			"location":        region,
-			"zone":            "-",
-			"billing_account": billingId,
+			"project":config.Project,
+			"region":region,
+			"location":region,
+			"zone":"-",
+			"billing_account":billingId,
 		},
 	}
 
-	listTemplate := strings.Split("https://dlp.googleapis.com/v2/{{parent}}/deidentifyTemplates", "?")[0]
+	listTemplate := strings.Split("https://dlp.googleapis.com/v2/{{parent}}/deidentifyTemplates","?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -79,33 +80,33 @@ func testSweepDataLossPreventionDeidentifyTemplate(region string) error {
 		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
 		return nil
 	}
-
+	
 	rl := resourceList.([]interface{})
-
+	
 	log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", len(rl), resourceName)
 	// Keep count of items that aren't sweepable for logging.
 	nonPrefixCount := 0
 	for _, ri := range rl {
 		obj := ri.(map[string]interface{})
-		if obj["name"] == nil {
+				if obj["name"] == nil {
 			log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
 			return nil
 		}
 
 		name := GetResourceNameFromSelfLink(obj["name"].(string))
-		// Skip resources that shouldn't be sweeped
+				// Skip resources that shouldn't be sweeped
 		if !isSweepableTestResource(name) {
 			nonPrefixCount++
 			continue
 		}
 
 		deleteTemplate := "https://dlp.googleapis.com/v2/{{parent}}/deidentifyTemplates/{{name}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+				deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil
 		}
-		deleteUrl = deleteUrl + name
+		deleteUrl = deleteUrl+name
 
 		// Don't wait on operations as we may have a lot to delete
 		_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, config.userAgent, nil)

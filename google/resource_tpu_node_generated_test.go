@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccTPUNode_tpuNodeBasicExample(context),
 			},
-			{
-				ResourceName:            "google_tpu_node.tpu",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_tpu_node.tpu",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"zone"},
 			},
-		},
+				},
 	})
 }
 
 func testAccTPUNode_tpuNodeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 
 data "google_tpu_tensorflow_versions" "available" {
 }
@@ -66,32 +65,32 @@ resource "google_tpu_node" "tpu" {
 }
 
 func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccTPUNode_tpuNodeFullExample(context),
 			},
-			{
-				ResourceName:            "google_tpu_node.tpu",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_tpu_node.tpu",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"zone"},
 			},
-		},
+				},
 	})
 }
 
 func testAccTPUNode_tpuNodeFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_tpu_tensorflow_versions" "available" {
 }
 
@@ -137,6 +136,7 @@ resource "google_service_networking_connection" "private_service_connection" {
 `, context)
 }
 
+
 func testAccCheckTPUNodeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -147,24 +147,24 @@ func testAccCheckTPUNodeDestroyProducer(t *testing.T) func(s *terraform.State) e
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("TPUNode still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

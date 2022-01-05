@@ -145,7 +145,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"available_memory_mb", "128"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"max_instances", "10"),
-					resource.TestCheckResourceAttr(funcResourceName,
+          resource.TestCheckResourceAttr(funcResourceName,
 						"min_instances", "3"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"ingress_settings", "ALLOW_INTERNAL_ONLY"),
@@ -217,7 +217,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"timeout", "91"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"max_instances", "15"),
-					resource.TestCheckResourceAttr(funcResourceName,
+          resource.TestCheckResourceAttr(funcResourceName,
 						"min_instances", "5"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"ingress_settings", "ALLOW_ALL"),
@@ -388,7 +388,7 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 	functionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
 	networkName := fmt.Sprintf("tf-test-net-%d", randInt(t))
-	vpcConnectorName := fmt.Sprintf("tf-test-conn-%s", randString(t, 5))
+	vpcConnectorName := fmt.Sprintf("tf-test-conn-%s",  randString(t, 5))
 	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	projectNumber := os.Getenv("GOOGLE_PROJECT_NUMBER")
 	defer os.Remove(zipFilePath) // clean up
@@ -574,7 +574,7 @@ func createZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) str
 func sweepCloudFunctionSourceZipArchives(_ string) error {
 	files, err := ioutil.ReadDir(os.TempDir())
 	if err != nil {
-		log.Printf("Error reading files: %s", err)
+		log.Printf("Error reading files: %s",err)
 		return nil
 	}
 	for _, f := range files {
@@ -584,7 +584,7 @@ func sweepCloudFunctionSourceZipArchives(_ string) error {
 		if strings.HasPrefix(f.Name(), testFunctionsSourceArchivePrefix) {
 			filepath := fmt.Sprintf("%s/%s", os.TempDir(), f.Name())
 			if err := os.Remove(filepath); err != nil {
-				log.Printf("Error removing files: %s", err)
+				log.Printf("Error removing files: %s",err)
 				return nil
 			}
 			log.Printf("[INFO] cloud functions sweeper removed old file %s", filepath)

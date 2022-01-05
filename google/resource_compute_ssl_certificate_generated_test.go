@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslCertificate_sslCertificateBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_ssl_certificate.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_ssl_certificate.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"private_key", "name_prefix"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeSslCertificate_sslCertificateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "my-certificate-"
   description = "a description"
@@ -66,36 +65,36 @@ resource "google_compute_ssl_certificate" "default" {
 
 func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
+		PreCheck:     func() { testAccPreCheck(t) },
+				Providers: testAccProviders,
+						ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
-			"time":   {},
+			"time": {},
 		},
-		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+						CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslCertificate_sslCertificateRandomProviderExample(context),
 			},
-			{
-				ResourceName:            "google_compute_ssl_certificate.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_ssl_certificate.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"private_key"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeSslCertificate_sslCertificateRandomProviderExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 # You may also want to control name generation explicitly:
 resource "google_compute_ssl_certificate" "default" {
   # The name will contain 8 random hex digits,
@@ -124,32 +123,32 @@ resource "random_id" "certificate" {
 
 func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(context),
 			},
-			{
-				ResourceName:            "google_compute_ssl_certificate.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_ssl_certificate.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"private_key", "name_prefix"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // Using with Target HTTPS Proxies
 //
 // SSL certificates cannot be updated after creation. In order to apply
@@ -216,6 +215,7 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+
 func testAccCheckComputeSslCertificateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -226,24 +226,24 @@ func testAccCheckComputeSslCertificateDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeSslCertificate still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

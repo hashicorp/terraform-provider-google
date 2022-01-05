@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDatastoreIndexDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDatastoreIndexDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDatastoreIndex_datastoreIndexExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_datastore_index.default",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccDatastoreIndex_datastoreIndexExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_datastore_index" "default" {
   kind = "foo"
   properties {
@@ -63,6 +62,7 @@ resource "google_datastore_index" "default" {
 `, context)
 }
 
+
 func testAccCheckDatastoreIndexDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -73,24 +73,24 @@ func testAccCheckDatastoreIndexDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DatastoreBasePath}}projects/{{project}}/indexes/{{index_id}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DatastoreBasePath}}projects/{{project}}/indexes/{{index_id}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, datastoreIndex409Contention)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, datastoreIndex409Contention)
+		if err == nil {
 				return fmt.Errorf("DatastoreIndex still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -2791,6 +2791,7 @@ func testAccCheckComputeInstanceHasNetworkIP(instance *compute.Instance, network
 	}
 }
 
+
 func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instance.NetworkInterfaces) < 2 {
@@ -4882,6 +4883,7 @@ resource "google_compute_instance" "foobar" {
 }
 `, disk, family, family, instance)
 }
+
 
 func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {
 	return fmt.Sprintf(`

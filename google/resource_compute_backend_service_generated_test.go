@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendService_backendServiceBasicExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_backend_service.default",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeBackendService_backendServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
@@ -64,31 +63,31 @@ resource "google_compute_http_health_check" "default" {
 }
 
 func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendService_backendServiceCacheSimpleExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_backend_service.default",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeBackendService_backendServiceCacheSimpleExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
@@ -108,31 +107,31 @@ resource "google_compute_http_health_check" "default" {
 }
 
 func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendService_backendServiceCacheExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_compute_backend_service.default",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeBackendService_backendServiceCacheExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
@@ -156,6 +155,7 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+
 func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -166,24 +166,24 @@ func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeBackendService still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

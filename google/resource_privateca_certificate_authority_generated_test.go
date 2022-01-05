@@ -15,43 +15,42 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"pool_name":     BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"pool_location": "us-central1",
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"pool_name": BootstrapSharedCaPoolInLocation(t, "us-central1"),
+				"pool_location": "us-central1",
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_certificate_authority.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_certificate_authority.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
@@ -103,34 +102,34 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"pool_name":     BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"pool_location": "us-central1",
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"pool_name": BootstrapSharedCaPoolInLocation(t, "us-central1"),
+				"pool_location": "us-central1",
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_certificate_authority.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_certificate_authority.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
@@ -184,6 +183,7 @@ resource "google_privateca_certificate_authority" "default" {
 `, context)
 }
 
+
 func testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -196,20 +196,20 @@ func testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t *testing.T) func
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
-			if err != nil {
-				return err
-			}
+url, err := replaceVarsForTest(config, rs, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
+if err != nil {
+	return err
+}
 
-			res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
-			if err != nil {
-				return nil
-			}
+res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+if err != nil {
+	return nil
+}
 
-			if s := res["state"]; s != "DELETED" {
-				return fmt.Errorf("CertificateAuthority %s got %s, want DELETED", url, s)
-			}
-		}
+if s := res["state"]; s != "DELETED" {
+	return fmt.Errorf("CertificateAuthority %s got %s, want DELETED", url, s)
+}
+				}
 
 		return nil
 	}

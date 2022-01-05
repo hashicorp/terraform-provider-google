@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccGameServicesGameServerDeploymentRollout_gameServiceDeploymentRolloutBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGameServicesGameServerDeploymentRolloutDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckGameServicesGameServerDeploymentRolloutDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccGameServicesGameServerDeploymentRollout_gameServiceDeploymentRolloutBasicExample(context),
 			},
-			{
-				ResourceName:            "google_game_services_game_server_deployment_rollout.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_game_services_game_server_deployment_rollout.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"deployment_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccGameServicesGameServerDeploymentRollout_gameServiceDeploymentRolloutBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_game_services_game_server_deployment" "default" {
   deployment_id  = "tf-test-tf-test-deployment%{random_suffix}"
   description = "a deployment description"
@@ -76,6 +75,7 @@ resource "google_game_services_game_server_deployment_rollout" "default" {
 `, context)
 }
 
+
 func testAccCheckGameServicesGameServerDeploymentRolloutDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -86,24 +86,24 @@ func testAccCheckGameServicesGameServerDeploymentRolloutDestroyProducer(t *testi
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("GameServicesGameServerDeploymentRollout still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

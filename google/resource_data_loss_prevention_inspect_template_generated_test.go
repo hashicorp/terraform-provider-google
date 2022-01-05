@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(context),
 			},
-			{
-				ResourceName:            "google_data_loss_prevention_inspect_template.basic",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "basic" {
 	parent = "projects/%{project}"
 	description = "My description"
@@ -159,33 +158,33 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 }
 
 func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(context),
 			},
-			{
-				ResourceName:            "google_data_loss_prevention_inspect_template.custom",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_loss_prevention_inspect_template.custom",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "custom" {
 	parent = "projects/%{project}"
 	description = "My description"
@@ -251,6 +250,7 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 `, context)
 }
 
+
 func testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -261,24 +261,24 @@ func testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t *testing.T) 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DataLossPreventionInspectTemplate still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

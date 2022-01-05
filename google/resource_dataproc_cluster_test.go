@@ -574,6 +574,7 @@ func TestAccDataprocCluster_withOptionalComponents(t *testing.T) {
 	})
 }
 
+
 func TestAccDataprocCluster_withLabels(t *testing.T) {
 	t.Parallel()
 
@@ -628,6 +629,7 @@ func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
 		},
 	})
 }
+
 
 func TestAccDataprocCluster_KMS(t *testing.T) {
 	t.Parallel()
@@ -702,6 +704,7 @@ func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
 		},
 	})
 }
+
 
 func testAccCheckDataprocClusterDestroy(t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -1323,6 +1326,7 @@ resource "google_dataproc_cluster" "with_labels" {
 `, rnd)
 }
 
+
 func testAccDataprocCluster_withImageVersion(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_image_version" {
@@ -1352,6 +1356,7 @@ resource "google_dataproc_cluster" "with_opt_components" {
 }
 `, rnd)
 }
+
 
 func testAccDataprocCluster_withServiceAcc(sa string, rnd string) string {
 	return fmt.Sprintf(`

@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeTargetHttpProxy_targetHttpProxyBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpProxyDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeTargetHttpProxyDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetHttpProxy_targetHttpProxyBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_target_http_proxy.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_target_http_proxy.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"url_map"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeTargetHttpProxy_targetHttpProxyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_target_http_proxy" "default" {
   name    = "tf-test-test-proxy%{random_suffix}"
   url_map = google_compute_url_map.default.id
@@ -94,32 +93,32 @@ resource "google_compute_http_health_check" "default" {
 }
 
 func TestAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpProxyDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeTargetHttpProxyDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(context),
 			},
-			{
-				ResourceName:            "google_compute_target_http_proxy.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_target_http_proxy.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"url_map"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_target_http_proxy" "default" {
   name    = "tf-test-test-https-redirect-proxy%{random_suffix}"
   url_map = google_compute_url_map.default.id
@@ -135,6 +134,7 @@ resource "google_compute_url_map" "default" {
 `, context)
 }
 
+
 func testAccCheckComputeTargetHttpProxyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -145,24 +145,24 @@ func testAccCheckComputeTargetHttpProxyDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeTargetHttpProxy still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

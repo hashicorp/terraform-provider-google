@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_url_map.urlmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"default_service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeUrlMap_urlMapBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -128,32 +127,32 @@ resource "google_storage_bucket" "static" {
 }
 
 func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context),
 			},
-			{
-				ResourceName:            "google_compute_url_map.urlmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"default_service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -241,32 +240,32 @@ resource "google_compute_health_check" "default" {
 }
 
 func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context),
 			},
-			{
-				ResourceName:            "google_compute_url_map.urlmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"default_service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -325,32 +324,32 @@ resource "google_compute_health_check" "default" {
 }
 
 func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context),
 			},
-			{
-				ResourceName:            "google_compute_url_map.urlmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"default_service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -458,32 +457,32 @@ resource "google_compute_health_check" "default" {
 }
 
 func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context),
 			},
-			{
-				ResourceName:            "google_compute_url_map.urlmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"default_service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -560,32 +559,32 @@ resource "google_compute_health_check" "default" {
 }
 
 func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context),
 			},
-			{
-				ResourceName:            "google_compute_url_map.urlmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"default_service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "header-based routing example"
@@ -664,32 +663,32 @@ resource "google_compute_http_health_check" "default" {
 }
 
 func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context),
 			},
-			{
-				ResourceName:            "google_compute_url_map.urlmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"default_service"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "parameter-based routing example"
@@ -767,6 +766,7 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+
 func testAccCheckComputeUrlMapDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -777,24 +777,24 @@ func testAccCheckComputeUrlMapDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/urlMaps/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/urlMaps/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeUrlMap still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
+	context := map[string]interface{} {
+					"deletion_protection": false,
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(context),
 			},
-			{
-				ResourceName:            "google_bigtable_app_profile.ap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigtable_app_profile.ap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "tf-test-bt-instance%{random_suffix}"
   cluster {
@@ -74,33 +73,33 @@ resource "google_bigtable_app_profile" "ap" {
 }
 
 func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
+	context := map[string]interface{} {
+					"deletion_protection": false,
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(context),
 			},
-			{
-				ResourceName:            "google_bigtable_app_profile.ap",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_bigtable_app_profile.ap",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
 			},
-		},
+				},
 	})
 }
 
 func testAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "tf-test-bt-instance%{random_suffix}"
   cluster {
@@ -127,6 +126,7 @@ resource "google_bigtable_app_profile" "ap" {
 `, context)
 }
 
+
 func testAccCheckBigtableAppProfileDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -137,24 +137,24 @@ func testAccCheckBigtableAppProfileDestroyProducer(t *testing.T) func(s *terrafo
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("BigtableAppProfile still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

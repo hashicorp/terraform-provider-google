@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDialogflowCXAgent_dialogflowcxAgentFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDialogflowCXAgentDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDialogflowCXAgentDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDialogflowCXAgent_dialogflowcxAgentFullExample(context),
 			},
-			{
-				ResourceName:            "google_dialogflow_cx_agent.full_agent",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_dialogflow_cx_agent.full_agent",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDialogflowCXAgent_dialogflowcxAgentFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_dialogflow_cx_agent" "full_agent" {
   display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
   location = "global"
@@ -67,6 +66,7 @@ resource "google_dialogflow_cx_agent" "full_agent" {
 `, context)
 }
 
+
 func testAccCheckDialogflowCXAgentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -77,24 +77,24 @@ func testAccCheckDialogflowCXAgentDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DialogflowCXAgent still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

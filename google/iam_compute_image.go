@@ -15,6 +15,10 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,22 +27,23 @@ import (
 
 var ComputeImageIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
+		Type:             schema.TypeString,
 		Computed: true,
 		Optional: true,
-		ForceNew: true,
+		ForceNew:         true,
 	},
 	"image": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Required: true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
+
 type ComputeImageIamUpdater struct {
 	project string
-	image   string
+	image string
 	d       TerraformResourceData
 	Config  *Config
 }
@@ -57,8 +62,9 @@ func ComputeImageIamUpdaterProducer(d TerraformResourceData, config *Config) (Re
 		values["image"] = v.(string)
 	}
 
+
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)", "(?P<project>[^/]+)/(?P<image>[^/]+)", "(?P<image>[^/]+)"}, d, config, d.Get("image").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)","(?P<project>[^/]+)/(?P<image>[^/]+)","(?P<image>[^/]+)"}, d, config, d.Get("image").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +75,7 @@ func ComputeImageIamUpdaterProducer(d TerraformResourceData, config *Config) (Re
 
 	u := &ComputeImageIamUpdater{
 		project: values["project"],
-		image:   values["image"],
+		image: values["image"],
 		d:       d,
 		Config:  config,
 	}
@@ -89,21 +95,21 @@ func ComputeImageIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
-	}
+		values["project"] = project	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)", "(?P<project>[^/]+)/(?P<image>[^/]+)", "(?P<image>[^/]+)"}, d, config, d.Id())
+
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)","(?P<project>[^/]+)/(?P<image>[^/]+)","(?P<image>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
 
 	for k, v := range m {
-		values[k] = v
+    values[k] = v
 	}
 
 	u := &ComputeImageIamUpdater{
 		project: values["project"],
-		image:   values["image"],
+		image: values["image"],
 		d:       d,
 		Config:  config,
 	}
@@ -125,7 +131,7 @@ func (u *ComputeImageIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 		return nil, err
 	}
 	var obj map[string]interface{}
-	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", iamPolicyVersion)})
+	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d",  iamPolicyVersion )})
 	if err != nil {
 		return nil, err
 	}
@@ -155,6 +161,7 @@ func (u *ComputeImageIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 		return err
 	}
 
+
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
@@ -182,11 +189,11 @@ func (u *ComputeImageIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 
 func (u *ComputeImageIamUpdater) qualifyImageUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/global/images/%s", u.project, u.image), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
-	if err != nil {
-		return "", err
-	}
-	return url, nil
+  url, err := replaceVars(u.d, u.Config, urlTemplate)
+  if err != nil {
+      return "", err
+  }
+  return url, nil
 }
 
 func (u *ComputeImageIamUpdater) GetResourceId() string {

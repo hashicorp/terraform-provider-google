@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGKEHubMembershipDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckGKEHubMembershipDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccGKEHubMembership_gkehubMembershipBasicExample(context),
 			},
-			{
-				ResourceName:            "google_gke_hub_membership.membership",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_gke_hub_membership.membership",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"membership_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccGKEHubMembership_gkehubMembershipBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
@@ -68,33 +67,33 @@ resource "google_gke_hub_membership" "membership" {
 }
 
 func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGKEHubMembershipDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckGKEHubMembershipDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccGKEHubMembership_gkehubMembershipIssuerExample(context),
 			},
-			{
-				ResourceName:            "google_gke_hub_membership.membership",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_gke_hub_membership.membership",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"membership_id"},
 			},
-		},
+				},
 	})
 }
 
 func testAccGKEHubMembership_gkehubMembershipIssuerExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
@@ -118,6 +117,7 @@ resource "google_gke_hub_membership" "membership" {
 `, context)
 }
 
+
 func testAccCheckGKEHubMembershipDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -128,24 +128,24 @@ func testAccCheckGKEHubMembershipDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{GKEHubBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{GKEHubBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("GKEHubMembership still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

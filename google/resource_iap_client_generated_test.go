@@ -15,43 +15,42 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccIapClient_iapClientExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":        getTestOrgFromEnv(t),
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"org_id": getTestOrgFromEnv(t),
+    				"org_domain": getTestOrgDomainFromEnv(t),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIapClientDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckIapClientDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccIapClient_iapClientExample(context),
 			},
-			{
-				ResourceName:            "google_iap_client.project_client",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_iap_client.project_client",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"brand"},
 			},
-		},
+				},
 	})
 }
 
 func testAccIapClient_iapClientExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_project" "project" {
   project_id = "tf-test%{random_suffix}"
   name       = "tf-test%{random_suffix}"
@@ -76,6 +75,7 @@ resource "google_iap_client" "project_client" {
 `, context)
 }
 
+
 func testAccCheckIapClientDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -86,24 +86,24 @@ func testAccCheckIapClientDestroyProducer(t *testing.T) func(s *terraform.State)
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, iapClient409Operation)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, iapClient409Operation)
+		if err == nil {
 				return fmt.Errorf("IapClient still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

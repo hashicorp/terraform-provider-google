@@ -15,40 +15,39 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_cloudbuild_trigger.filename-trigger",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_cloudbuild_trigger" "filename-trigger" {
   trigger_template {
     branch_name = "master"
@@ -66,31 +65,31 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
 }
 
 func TestAccCloudBuildTrigger_cloudbuildTriggerBuildExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_cloudbuildTriggerBuildExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_cloudbuild_trigger.build-trigger",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerBuildExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_cloudbuild_trigger" "build-trigger" {
   trigger_template {
     branch_name = "master"
@@ -160,31 +159,31 @@ resource "google_cloudbuild_trigger" "build-trigger" {
 }
 
 func TestAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(context),
 			},
-			{
+					{
 				ResourceName:      "google_cloudbuild_trigger.service-account-trigger",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_project" "project" {}
 
 resource "google_cloudbuild_trigger" "service-account-trigger" {
@@ -219,6 +218,7 @@ resource "google_project_iam_member" "logs_writer" {
 `, context)
 }
 
+
 func testAccCheckCloudBuildTriggerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -229,24 +229,24 @@ func testAccCheckCloudBuildTriggerDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("CloudBuildTrigger still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

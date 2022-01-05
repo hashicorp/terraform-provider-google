@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobPubsubExample(context),
 			},
-			{
-				ResourceName:            "google_cloud_scheduler_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloud_scheduler_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudSchedulerJob_schedulerJobPubsubExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_pubsub_topic" "topic" {
   name = "tf-test-job-topic%{random_suffix}"
 }
@@ -69,32 +68,32 @@ resource "google_cloud_scheduler_job" "job" {
 }
 
 func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobHttpExample(context),
 			},
-			{
-				ResourceName:            "google_cloud_scheduler_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloud_scheduler_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudSchedulerJob_schedulerJobHttpExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   name             = "tf-test-test-job%{random_suffix}"
   description      = "test http job"
@@ -116,32 +115,32 @@ resource "google_cloud_scheduler_job" "job" {
 }
 
 func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobAppEngineExample(context),
 			},
-			{
-				ResourceName:            "google_cloud_scheduler_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloud_scheduler_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudSchedulerJob_schedulerJobAppEngineExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   name             = "tf-test-test-job%{random_suffix}"
   schedule         = "*/4 * * * *"
@@ -172,34 +171,34 @@ resource "google_cloud_scheduler_job" "job" {
 }
 
 func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":  getTestProjectFromEnv(),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project_name": getTestProjectFromEnv(),
+    				"region": getTestRegionFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobOauthExample(context),
 			},
-			{
-				ResourceName:            "google_cloud_scheduler_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloud_scheduler_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudSchedulerJob_schedulerJobOauthExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_compute_default_service_account" "default" {
 }
 
@@ -223,32 +222,32 @@ resource "google_cloud_scheduler_job" "job" {
 }
 
 func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobOidcExample(context),
 			},
-			{
-				ResourceName:            "google_cloud_scheduler_job.job",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloud_scheduler_job.job",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudSchedulerJob_schedulerJobOidcExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 data "google_compute_default_service_account" "default" {
 }
 
@@ -271,6 +270,7 @@ resource "google_cloud_scheduler_job" "job" {
 `, context)
 }
 
+
 func testAccCheckCloudSchedulerJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -281,24 +281,24 @@ func testAccCheckCloudSchedulerJobDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("CloudSchedulerJob still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

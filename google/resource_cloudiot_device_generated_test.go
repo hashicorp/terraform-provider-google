@@ -15,43 +15,42 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudIotDevice_cloudiotDeviceBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+    				"region": getTestRegionFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIotDevice_cloudiotDeviceBasicExample(context),
 			},
-			{
-				ResourceName:            "google_cloudiot_device.test-device",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloudiot_device.test-device",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"registry"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudIotDevice_cloudiotDeviceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_cloudiot_registry" "registry" {
   name     = "tf-test-cloudiot-device-registry%{random_suffix}"
 }
@@ -64,34 +63,34 @@ resource "google_cloudiot_device" "test-device" {
 }
 
 func TestAccCloudIotDevice_cloudiotDeviceFullExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+    			"project": getTestProjectFromEnv(),
+    				"region": getTestRegionFromEnv(),
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIotDevice_cloudiotDeviceFullExample(context),
 			},
-			{
-				ResourceName:            "google_cloudiot_device.test-device",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_cloudiot_device.test-device",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"registry"},
 			},
-		},
+				},
 	})
 }
 
 func testAccCloudIotDevice_cloudiotDeviceFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_cloudiot_registry" "registry" {
   name     = "tf-test-cloudiot-device-registry%{random_suffix}"
 }
@@ -122,6 +121,7 @@ resource "google_cloudiot_device" "test-device" {
 `, context)
 }
 
+
 func testAccCheckCloudIotDeviceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -132,24 +132,24 @@ func testAccCheckCloudIotDeviceDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("CloudIotDevice still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

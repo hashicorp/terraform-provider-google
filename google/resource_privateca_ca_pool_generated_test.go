@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPrivatecaCaPool_privatecaCapoolBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCaPoolDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCaPoolDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCaPool_privatecaCapoolBasicExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_ca_pool.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_ca_pool.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-pool%{random_suffix}"
   location = "us-central1"
@@ -66,32 +65,32 @@ resource "google_privateca_ca_pool" "default" {
 }
 
 func TestAccPrivatecaCaPool_privatecaCapoolAllFieldsExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCaPoolDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckPrivatecaCaPoolDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCaPool_privatecaCapoolAllFieldsExample(context),
 			},
-			{
-				ResourceName:            "google_privateca_ca_pool.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_privateca_ca_pool.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name", "location"},
 			},
-		},
+				},
 	})
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolAllFieldsExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-pool%{random_suffix}"
   location = "us-central1"
@@ -172,6 +171,7 @@ resource "google_privateca_ca_pool" "default" {
 `, context)
 }
 
+
 func testAccCheckPrivatecaCaPoolDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -182,24 +182,24 @@ func testAccCheckPrivatecaCaPoolDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("PrivatecaCaPool still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

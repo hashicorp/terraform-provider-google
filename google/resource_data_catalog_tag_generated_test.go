@@ -15,42 +15,41 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataCatalogTag_dataCatalogEntryTagBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"force_delete": true,
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTag_dataCatalogEntryTagBasicExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_tag.basic_tag",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_tag.basic_tag",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogTag_dataCatalogEntryTagBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -119,33 +118,33 @@ resource "google_data_catalog_tag" "basic_tag" {
 }
 
 func TestAccDataCatalogTag_dataCatalogEntryGroupTagExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"force_delete": true,
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTag_dataCatalogEntryGroupTagExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_tag.entry_group_tag",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_tag.entry_group_tag",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogTag_dataCatalogEntryGroupTagExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry" "first_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_first_entry%{random_suffix}"
@@ -223,33 +222,33 @@ resource "google_data_catalog_tag" "entry_group_tag" {
 
 func TestAccDataCatalogTag_dataCatalogEntryTagFullExample(t *testing.T) {
 	skipIfVcr(t)
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"force_delete": true,
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTag_dataCatalogEntryTagFullExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_tag.basic_tag",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_tag.basic_tag",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogTag_dataCatalogEntryTagFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -386,33 +385,33 @@ resource "google_data_catalog_tag" "second-tag" {
 }
 
 func TestAccDataCatalogTag_dataCatalogEntryTagFalseExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+					"force_delete": true,
+					"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTag_dataCatalogEntryTagFalseExample(context),
 			},
-			{
-				ResourceName:            "google_data_catalog_tag.basic_tag",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_data_catalog_tag.basic_tag",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
-		},
+				},
 	})
 }
 
 func testAccDataCatalogTag_dataCatalogEntryTagFalseExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -480,6 +479,7 @@ resource "google_data_catalog_tag" "basic_tag" {
 `, context)
 }
 
+
 func testAccCheckDataCatalogTagDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -490,24 +490,24 @@ func testAccCheckDataCatalogTagDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{parent}}/tags")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{parent}}/tags")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("DataCatalogTag still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

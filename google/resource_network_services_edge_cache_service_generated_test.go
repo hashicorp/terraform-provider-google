@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(context),
 			},
-			{
-				ResourceName:            "google_network_services_edge_cache_service.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_network_services_edge_cache_service.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_storage_bucket" "dest" {
   name          = "tf-test-my-bucket%{random_suffix}"
   location      = "US"
@@ -104,32 +103,32 @@ resource "google_network_services_edge_cache_service" "instance" {
 }
 
 func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvancedExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvancedExample(context),
 			},
-			{
-				ResourceName:            "google_network_services_edge_cache_service.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_network_services_edge_cache_service.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"name"},
 			},
-		},
+				},
 	})
 }
 
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvancedExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_storage_bucket" "dest" {
   name          = "tf-test-my-bucket%{random_suffix}"
   location      = "US"
@@ -315,6 +314,7 @@ resource "google_network_services_edge_cache_service" "instance" {
 `, context)
 }
 
+
 func testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -325,24 +325,24 @@ func testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t *testing.T) fu
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("NetworkServicesEdgeCacheService still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

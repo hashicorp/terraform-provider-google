@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(context),
 			},
-			{
-				ResourceName:            "google_compute_forwarding_rule.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_forwarding_rule.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
   name                  = "tf-test-website-forwarding-rule%{random_suffix}"
@@ -88,32 +87,32 @@ resource "google_compute_subnetwork" "default" {
 }
 
 func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_forwardingRuleBasicExample(context),
 			},
-			{
-				ResourceName:            "google_compute_forwarding_rule.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_forwarding_rule.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region", "port_range", "target"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeForwardingRule_forwardingRuleBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
   name       = "tf-test-website-forwarding-rule%{random_suffix}"
   target     = google_compute_target_pool.default.id
@@ -127,32 +126,32 @@ resource "google_compute_target_pool" "default" {
 }
 
 func TestAccComputeForwardingRule_forwardingRuleInternallbExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_forwardingRuleInternallbExample(context),
 			},
-			{
-				ResourceName:            "google_compute_forwarding_rule.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_compute_forwarding_rule.default",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region", "port_range", "target"},
 			},
-		},
+				},
 	})
 }
 
 func testAccComputeForwardingRule_forwardingRuleInternallbExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
   name   = "tf-test-website-forwarding-rule%{random_suffix}"
@@ -195,6 +194,7 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+
 func testAccCheckComputeForwardingRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -205,24 +205,24 @@ func testAccCheckComputeForwardingRuleDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("ComputeForwardingRule still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

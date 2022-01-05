@@ -15,41 +15,40 @@
 package google
 
 import (
-	"fmt"
-	"strings"
-	"testing"
+  "fmt"
+  "testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
-	t.Parallel()
+  t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+	context := map[string]interface{} {
+				"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCAccessConnectorDestroyProducer(t),
-		Steps: []resource.TestStep{
+				Providers: testAccProviders,
+								CheckDestroy: testAccCheckVPCAccessConnectorDestroyProducer(t),
+				Steps: []resource.TestStep{
 			{
 				Config: testAccVPCAccessConnector_vpcAccessConnectorExample(context),
 			},
-			{
-				ResourceName:            "google_vpc_access_connector.connector",
-				ImportState:             true,
-				ImportStateVerify:       true,
+					{
+				ResourceName:      "google_vpc_access_connector.connector",
+				ImportState:       true,
+				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"self_link", "region"},
 			},
-		},
+				},
 	})
 }
 
 func testAccVPCAccessConnector_vpcAccessConnectorExample(context map[string]interface{}) string {
-	return Nprintf(`
+  return Nprintf(`
 resource "google_vpc_access_connector" "connector" {
   name          = "tf-test-vpc-con%{random_suffix}"
   ip_cidr_range = "10.8.0.0/28"
@@ -57,6 +56,7 @@ resource "google_vpc_access_connector" "connector" {
 }
 `, context)
 }
+
 
 func testAccCheckVPCAccessConnectorDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -68,24 +68,24 @@ func testAccCheckVPCAccessConnectorDestroyProducer(t *testing.T) func(s *terrafo
 				continue
 			}
 
-			config := googleProviderConfig(t)
+				config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
-			if err != nil {
-				return err
-			}
+		url, err := replaceVarsForTest(config, rs, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
+		if err != nil {
+			return err
+		}
 
-			billingProject := ""
+		billingProject := ""
 
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
-			if err == nil {
+		_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+		if err == nil {
 				return fmt.Errorf("VPCAccessConnector still exists at %s", url)
 			}
-		}
+				}
 
 		return nil
 	}

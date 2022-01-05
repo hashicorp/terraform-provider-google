@@ -15,17 +15,15 @@
 package google
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"reflect"
-	"strconv"
-	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/api/googleapi"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+  "github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
 func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
@@ -101,7 +99,7 @@ func computeRouterNatSubnetworkHash(v interface{}) int {
 			secondaryIpRangeHash += schema.HashString(secondaryIp.(string))
 		}
 	}
-
+	
 	return schema.HashString(NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
 }
 
@@ -114,54 +112,57 @@ func computeRouterNatIPsHash(v interface{}) int {
 	return schema.HashString(GetResourceNameFromSelfLink(val))
 }
 
+
+    
 func resourceComputeRouterNat() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceComputeRouterNatCreate,
-		Read:   resourceComputeRouterNatRead,
-		Update: resourceComputeRouterNatUpdate,
-		Delete: resourceComputeRouterNatDelete,
+    return &schema.Resource{
+        Create: resourceComputeRouterNatCreate,
+        Read: resourceComputeRouterNatRead,
+        Update: resourceComputeRouterNatUpdate,
+        Delete: resourceComputeRouterNatDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceComputeRouterNatImport,
-		},
+        Importer: &schema.ResourceImporter{
+            State: resourceComputeRouterNatImport,
+        },
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout {
+            Create: schema.DefaultTimeout(10 * time.Minute),
+            Update: schema.DefaultTimeout(10 * time.Minute),
+            Delete: schema.DefaultTimeout(10 * time.Minute),
+        },
 
-		CustomizeDiff: resourceComputeRouterNatDrainNatIpsCustomDiff,
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateRFC1035Name(2, 63),
-				Description: `Name of the NAT service. The name must be 1-63 characters long and
+CustomizeDiff: resourceComputeRouterNatDrainNatIpsCustomDiff,
+
+        Schema: map[string]*schema.Schema{
+"name": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+		ValidateFunc: validateRFC1035Name(2, 63),
+		Description: `Name of the NAT service. The name must be 1-63 characters long and
 comply with RFC1035.`,
-			},
-			"nat_ip_allocate_option": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY", "AUTO_ONLY"}, false),
-				Description: `How external IPs should be allocated for this NAT. Valid values are
+},
+"nat_ip_allocate_option": {
+    Type: schema.TypeString,
+    Required: true,
+	ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY","AUTO_ONLY"}, false),
+	Description: `How external IPs should be allocated for this NAT. Valid values are
 'AUTO_ONLY' for only allowing NAT IPs allocated by Google Cloud
 Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible values: ["MANUAL_ONLY", "AUTO_ONLY"]`,
-			},
-			"router": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `The name of the Cloud Router in which this NAT will be configured.`,
-			},
-			"source_subnetwork_ip_ranges_to_nat": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"}, false),
-				Description: `How NAT should be configured per Subnetwork.
+},
+"router": {
+    Type: schema.TypeString,
+    Required: true,
+  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `The name of the Cloud Router in which this NAT will be configured.`,
+},
+"source_subnetwork_ip_ranges_to_nat": {
+    Type: schema.TypeString,
+    Required: true,
+	ValidateFunc: validation.StringInSlice([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES","ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES","LIST_OF_SUBNETWORKS"}, false),
+	Description: `How NAT should be configured per Subnetwork.
 If 'ALL_SUBNETWORKS_ALL_IP_RANGES', all of the
 IP ranges in every Subnetwork are allowed to Nat.
 If 'ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES', all of the primary IP
@@ -171,663 +172,680 @@ ranges in every Subnetwork are allowed to Nat.
 contains ALL_SUBNETWORKS_ALL_IP_RANGES or
 ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
 other RouterNat section in any Router for this network in this region. Possible values: ["ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"]`,
-			},
-			"drain_nat_ips": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Description: `A list of URLs of the IP resources to be drained. These IPs must be
+},
+"drain_nat_ips": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `A list of URLs of the IP resources to be drained. These IPs must be
 valid static external IPs that have been assigned to the NAT.`,
-				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					DiffSuppressFunc: compareSelfLinkOrResourceName,
-				},
-				// Default schema.HashSchema is used.
-			},
-			"enable_endpoint_independent_mapping": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Description: `Specifies if endpoint independent mapping is enabled. This is enabled by default. For more information
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+            DiffSuppressFunc: compareSelfLinkOrResourceName,
+          },
+            // Default schema.HashSchema is used.
+      },
+"enable_endpoint_independent_mapping": {
+    Type: schema.TypeBool,
+    Optional: true,
+	Description: `Specifies if endpoint independent mapping is enabled. This is enabled by default. For more information
 see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
-				Default: true,
-			},
-			"icmp_idle_timeout_sec": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: `Timeout (in seconds) for ICMP connections. Defaults to 30s if not set.`,
-				Default:     30,
-			},
-			"log_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Configuration for logging on NAT`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enable": {
-							Type:        schema.TypeBool,
-							Required:    true,
-							Description: `Indicates whether or not to export logs.`,
-						},
-						"filter": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
-							Description:  `Specifies the desired filtering of logs on this NAT. Possible values: ["ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"]`,
-						},
-					},
-				},
-			},
-			"min_ports_per_vm": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: `Minimum number of ports allocated to a VM from this NAT.`,
-			},
-			"nat_ips": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Description: `Self-links of NAT IPs. Only valid if natIpAllocateOption
+    Default: true,
+},
+"icmp_idle_timeout_sec": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Timeout (in seconds) for ICMP connections. Defaults to 30s if not set.`,
+    Default: 30,
+},
+"log_config": {
+    Type: schema.TypeList,
+    Optional: true,
+	Description: `Configuration for logging on NAT`,
+    MaxItems: 1,
+    Elem: &schema.Resource{
+    Schema: map[string]*schema.Schema{
+              "enable": {
+    Type: schema.TypeBool,
+    Required: true,
+	Description: `Indicates whether or not to export logs.`,
+},
+              "filter": {
+    Type: schema.TypeString,
+    Required: true,
+	ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY","TRANSLATIONS_ONLY","ALL"}, false),
+	Description: `Specifies the desired filtering of logs on this NAT. Possible values: ["ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"]`,
+},
+          },
+  },
+},
+"min_ports_per_vm": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Minimum number of ports allocated to a VM from this NAT.`,
+},
+"nat_ips": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `Self-links of NAT IPs. Only valid if natIpAllocateOption
 is set to MANUAL_ONLY.`,
-				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					DiffSuppressFunc: compareSelfLinkOrResourceName,
-				},
-				Set: computeRouterNatIPsHash,
-			},
-			"region": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `Region where the router and NAT reside.`,
-			},
-			"subnetwork": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Description: `One or more subnetwork NAT configurations. Only used if
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+            DiffSuppressFunc: compareSelfLinkOrResourceName,
+          },
+            Set: computeRouterNatIPsHash,
+      },
+"region": {
+    Type: schema.TypeString,
+  	Computed: true,
+	Optional: true,
+	  ForceNew: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `Region where the router and NAT reside.`,
+},
+"subnetwork": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `One or more subnetwork NAT configurations. Only used if
 'source_subnetwork_ip_ranges_to_nat' is set to 'LIST_OF_SUBNETWORKS'`,
-				Elem: computeRouterNatSubnetworkSchema(),
-				Set:  computeRouterNatSubnetworkHash,
-			},
-			"tcp_established_idle_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `Timeout (in seconds) for TCP established connections.
+                Elem: computeRouterNatSubnetworkSchema(),
+                Set: computeRouterNatSubnetworkHash,
+      },
+"tcp_established_idle_timeout_sec": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Timeout (in seconds) for TCP established connections.
 Defaults to 1200s if not set.`,
-				Default: 1200,
-			},
-			"tcp_transitory_idle_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: `Timeout (in seconds) for TCP transitory connections.
+    Default: 1200,
+},
+"tcp_transitory_idle_timeout_sec": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Timeout (in seconds) for TCP transitory connections.
 Defaults to 30s if not set.`,
-				Default: 30,
-			},
-			"udp_idle_timeout_sec": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: `Timeout (in seconds) for UDP connections. Defaults to 30s if not set.`,
-				Default:     30,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-		},
-		UseJSONNumber: true,
-	}
+    Default: 30,
+},
+"udp_idle_timeout_sec": {
+    Type: schema.TypeInt,
+    Optional: true,
+	Description: `Timeout (in seconds) for UDP connections. Defaults to 30s if not set.`,
+    Default: 30,
+},
+            "project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+        },
+        UseJSONNumber: true,
+    }
 }
 
 func computeRouterNatSubnetworkSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `Self-link of subnetwork to NAT`,
-			},
-			"source_ip_ranges_to_nat": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Description: `List of options for which source IPs in the subnetwork
+                      "name": {
+    Type: schema.TypeString,
+    Required: true,
+  DiffSuppressFunc: compareSelfLinkOrResourceName,
+	Description: `Self-link of subnetwork to NAT`,
+},
+                      "source_ip_ranges_to_nat": {
+    Type: schema.TypeSet,
+    Required: true,
+	Description: `List of options for which source IPs in the subnetwork
 should have NAT enabled. Supported values include:
 'ALL_IP_RANGES', 'LIST_OF_SECONDARY_IP_RANGES',
 'PRIMARY_IP_RANGE'.`,
-				MinItems: 1,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Set: schema.HashString,
-			},
-			"secondary_ip_range_names": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Description: `List of the secondary ranges of the subnetwork that are allowed
+        MinItems: 1,
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+            Set: schema.HashString,
+      },
+                      "secondary_ip_range_names": {
+    Type: schema.TypeSet,
+    Optional: true,
+	Description: `List of the secondary ranges of the subnetwork that are allowed
 to use NAT. This can be populated only if
 'LIST_OF_SECONDARY_IP_RANGES' is one of the values in
 sourceIpRangesToNat`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Set: schema.HashString,
-			},
-		},
+            Elem: &schema.Schema{
+        Type: schema.TypeString,
+      },
+            Set: schema.HashString,
+      },
+          		},
 	}
 }
+
+
 
 func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	obj := make(map[string]interface{})
-	nameProp, err := expandNestedComputeRouterNatName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	natIpAllocateOptionProp, err := expandNestedComputeRouterNatNatIpAllocateOption(d.Get("nat_ip_allocate_option"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !isEmptyValue(reflect.ValueOf(natIpAllocateOptionProp)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
-		obj["natIpAllocateOption"] = natIpAllocateOptionProp
-	}
-	natIpsProp, err := expandNestedComputeRouterNatNatIps(d.Get("nat_ips"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("nat_ips"); ok || !reflect.DeepEqual(v, natIpsProp) {
-		obj["natIps"] = natIpsProp
-	}
-	drainNatIpsProp, err := expandNestedComputeRouterNatDrainNatIps(d.Get("drain_nat_ips"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("drain_nat_ips"); ok || !reflect.DeepEqual(v, drainNatIpsProp) {
-		obj["drainNatIps"] = drainNatIpsProp
-	}
-	sourceSubnetworkIpRangesToNatProp, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get("source_subnetwork_ip_ranges_to_nat"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !isEmptyValue(reflect.ValueOf(sourceSubnetworkIpRangesToNatProp)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
-		obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
-	}
-	subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworksProp) {
-		obj["subnetworks"] = subnetworksProp
-	}
-	minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get("min_ports_per_vm"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(minPortsPerVmProp)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
-		obj["minPortsPerVm"] = minPortsPerVmProp
-	}
-	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(udpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
-		obj["udpIdleTimeoutSec"] = udpIdleTimeoutSecProp
-	}
-	icmpIdleTimeoutSecProp, err := expandNestedComputeRouterNatIcmpIdleTimeoutSec(d.Get("icmp_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(icmpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
-		obj["icmpIdleTimeoutSec"] = icmpIdleTimeoutSecProp
-	}
-	tcpEstablishedIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(d.Get("tcp_established_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpEstablishedIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
-		obj["tcpEstablishedIdleTimeoutSec"] = tcpEstablishedIdleTimeoutSecProp
-	}
-	tcpTransitoryIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(d.Get("tcp_transitory_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpTransitoryIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
-		obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
-	}
-	logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get("log_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
-		obj["logConfig"] = logConfigProp
-	}
-	enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get("enable_endpoint_independent_mapping"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
-		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
-	}
+    obj := make(map[string]interface{})
+        nameProp, err := expandNestedComputeRouterNatName(d.Get( "name" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+        obj["name"] = nameProp
+    }
+        natIpAllocateOptionProp, err := expandNestedComputeRouterNatNatIpAllocateOption(d.Get( "nat_ip_allocate_option" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !isEmptyValue(reflect.ValueOf(natIpAllocateOptionProp)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
+        obj["natIpAllocateOption"] = natIpAllocateOptionProp
+    }
+        natIpsProp, err := expandNestedComputeRouterNatNatIps(d.Get( "nat_ips" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("nat_ips"); ok || !reflect.DeepEqual(v, natIpsProp) {
+        obj["natIps"] = natIpsProp
+    }
+        drainNatIpsProp, err := expandNestedComputeRouterNatDrainNatIps(d.Get( "drain_nat_ips" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("drain_nat_ips"); ok || !reflect.DeepEqual(v, drainNatIpsProp) {
+        obj["drainNatIps"] = drainNatIpsProp
+    }
+        sourceSubnetworkIpRangesToNatProp, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get( "source_subnetwork_ip_ranges_to_nat" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !isEmptyValue(reflect.ValueOf(sourceSubnetworkIpRangesToNatProp)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
+        obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
+    }
+        subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get( "subnetwork" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworksProp) {
+        obj["subnetworks"] = subnetworksProp
+    }
+        minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get( "min_ports_per_vm" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(minPortsPerVmProp)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
+        obj["minPortsPerVm"] = minPortsPerVmProp
+    }
+        udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get( "udp_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(udpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
+        obj["udpIdleTimeoutSec"] = udpIdleTimeoutSecProp
+    }
+        icmpIdleTimeoutSecProp, err := expandNestedComputeRouterNatIcmpIdleTimeoutSec(d.Get( "icmp_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(icmpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
+        obj["icmpIdleTimeoutSec"] = icmpIdleTimeoutSecProp
+    }
+        tcpEstablishedIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(d.Get( "tcp_established_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpEstablishedIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
+        obj["tcpEstablishedIdleTimeoutSec"] = tcpEstablishedIdleTimeoutSecProp
+    }
+        tcpTransitoryIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(d.Get( "tcp_transitory_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpTransitoryIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
+        obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
+    }
+        logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get( "log_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
+        obj["logConfig"] = logConfigProp
+    }
+        enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get( "enable_endpoint_independent_mapping" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
+        obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
+    }
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
-	if err != nil {
-		return err
-	}
+    lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	log.Printf("[DEBUG] Creating new RouterNat: %#v", obj)
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+    if err != nil {
+        return err
+    }
 
-	obj, err = resourceComputeRouterNatPatchCreateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-	billingProject := ""
+    log.Printf("[DEBUG] Creating new RouterNat: %#v", obj)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
-	}
-	billingProject = project
+    obj, err = resourceComputeRouterNatPatchCreateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
+    billingProject := ""
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RouterNat: %s", err)
+    }
+    billingProject = project
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error creating RouterNat: %s", err)
-	}
 
-	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = computeOperationWaitTime(
-		config, res, project, "Creating RouterNat", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+    if err != nil {
+        return fmt.Errorf("Error creating RouterNat: %s", err)
+    }
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create RouterNat: %s", err)
-	}
+    // Store the ID now
+    id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+    if err != nil {
+        return fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating RouterNat %q: %#v", d.Id(), res)
+    err = computeOperationWaitTime(
+    config, res,  project,  "Creating RouterNat", userAgent,
+        d.Timeout(schema.TimeoutCreate))
 
-	return resourceComputeRouterNatRead(d, meta)
+    if err != nil {
+        // The resource didn't actually create
+        d.SetId("")
+        return fmt.Errorf("Error waiting to create RouterNat: %s", err)
+    }
+
+
+
+
+    log.Printf("[DEBUG] Finished creating RouterNat %q: %#v", d.Id(), res)
+
+    return resourceComputeRouterNatRead(d, meta)
 }
 
+
 func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+        return err
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+    if err != nil {
+        return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RouterNat: %s", err)
+    }
+    billingProject = project
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouterNat %q", d.Id()))
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	res, err = flattenNestedComputeRouterNat(d, meta, res)
-	if err != nil {
-		return err
-	}
+    res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+    if err != nil {
+        return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouterNat %q", d.Id()))
+    }
 
-	if res == nil {
-		// Object isn't there any more - remove it from the state.
-		log.Printf("[DEBUG] Removing ComputeRouterNat because it couldn't be matched.")
-		d.SetId("")
-		return nil
-	}
+    res, err = flattenNestedComputeRouterNat(d, meta, res)
+    if err != nil {
+        return err
+    }
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
+    if res == nil {
+        // Object isn't there any more - remove it from the state.
+        log.Printf("[DEBUG] Removing ComputeRouterNat because it couldn't be matched.")
+        d.SetId("")
+        return nil
+    }
 
-	if err := d.Set("name", flattenNestedComputeRouterNatName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("nat_ip_allocate_option", flattenNestedComputeRouterNatNatIpAllocateOption(res["natIpAllocateOption"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("nat_ips", flattenNestedComputeRouterNatNatIps(res["natIps"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("drain_nat_ips", flattenNestedComputeRouterNatDrainNatIps(res["drainNatIps"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("source_subnetwork_ip_ranges_to_nat", flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat(res["sourceSubnetworkIpRangesToNat"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("subnetwork", flattenNestedComputeRouterNatSubnetwork(res["subnetworks"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("min_ports_per_vm", flattenNestedComputeRouterNatMinPortsPerVm(res["minPortsPerVm"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("udp_idle_timeout_sec", flattenNestedComputeRouterNatUdpIdleTimeoutSec(res["udpIdleTimeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("icmp_idle_timeout_sec", flattenNestedComputeRouterNatIcmpIdleTimeoutSec(res["icmpIdleTimeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("tcp_established_idle_timeout_sec", flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(res["tcpEstablishedIdleTimeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("tcp_transitory_idle_timeout_sec", flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(res["tcpTransitoryIdleTimeoutSec"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("log_config", flattenNestedComputeRouterNatLogConfig(res["logConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
-	if err := d.Set("enable_endpoint_independent_mapping", flattenNestedComputeRouterNatEnableEndpointIndependentMapping(res["enableEndpointIndependentMapping"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
 
-	return nil
+    if err := d.Set("project", project); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+
+
+    if err := d.Set("name", flattenNestedComputeRouterNatName(res["name"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("nat_ip_allocate_option", flattenNestedComputeRouterNatNatIpAllocateOption(res["natIpAllocateOption"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("nat_ips", flattenNestedComputeRouterNatNatIps(res["natIps"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("drain_nat_ips", flattenNestedComputeRouterNatDrainNatIps(res["drainNatIps"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("source_subnetwork_ip_ranges_to_nat", flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat(res["sourceSubnetworkIpRangesToNat"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("subnetwork", flattenNestedComputeRouterNatSubnetwork(res["subnetworks"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("min_ports_per_vm", flattenNestedComputeRouterNatMinPortsPerVm(res["minPortsPerVm"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("udp_idle_timeout_sec", flattenNestedComputeRouterNatUdpIdleTimeoutSec(res["udpIdleTimeoutSec"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("icmp_idle_timeout_sec", flattenNestedComputeRouterNatIcmpIdleTimeoutSec(res["icmpIdleTimeoutSec"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("tcp_established_idle_timeout_sec", flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(res["tcpEstablishedIdleTimeoutSec"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("tcp_transitory_idle_timeout_sec", flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(res["tcpTransitoryIdleTimeoutSec"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("log_config", flattenNestedComputeRouterNatLogConfig(res["logConfig"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+    if err := d.Set("enable_endpoint_independent_mapping", flattenNestedComputeRouterNatEnableEndpointIndependentMapping(res["enableEndpointIndependentMapping"], d, config)); err != nil {
+        return fmt.Errorf("Error reading RouterNat: %s", err)
+    }
+
+    return nil
 }
 
 func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
+    billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
-	}
-	billingProject = project
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RouterNat: %s", err)
+    }
+    billingProject = project
 
-	obj := make(map[string]interface{})
-	natIpAllocateOptionProp, err := expandNestedComputeRouterNatNatIpAllocateOption(d.Get("nat_ip_allocate_option"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
-		obj["natIpAllocateOption"] = natIpAllocateOptionProp
-	}
-	natIpsProp, err := expandNestedComputeRouterNatNatIps(d.Get("nat_ips"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("nat_ips"); ok || !reflect.DeepEqual(v, natIpsProp) {
-		obj["natIps"] = natIpsProp
-	}
-	drainNatIpsProp, err := expandNestedComputeRouterNatDrainNatIps(d.Get("drain_nat_ips"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("drain_nat_ips"); ok || !reflect.DeepEqual(v, drainNatIpsProp) {
-		obj["drainNatIps"] = drainNatIpsProp
-	}
-	sourceSubnetworkIpRangesToNatProp, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get("source_subnetwork_ip_ranges_to_nat"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
-		obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
-	}
-	subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworksProp) {
-		obj["subnetworks"] = subnetworksProp
-	}
-	minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get("min_ports_per_vm"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
-		obj["minPortsPerVm"] = minPortsPerVmProp
-	}
-	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
-		obj["udpIdleTimeoutSec"] = udpIdleTimeoutSecProp
-	}
-	icmpIdleTimeoutSecProp, err := expandNestedComputeRouterNatIcmpIdleTimeoutSec(d.Get("icmp_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
-		obj["icmpIdleTimeoutSec"] = icmpIdleTimeoutSecProp
-	}
-	tcpEstablishedIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(d.Get("tcp_established_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
-		obj["tcpEstablishedIdleTimeoutSec"] = tcpEstablishedIdleTimeoutSecProp
-	}
-	tcpTransitoryIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(d.Get("tcp_transitory_idle_timeout_sec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
-		obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
-	}
-	logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get("log_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
-		obj["logConfig"] = logConfigProp
-	}
-	enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get("enable_endpoint_independent_mapping"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
-		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
-	}
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    obj := make(map[string]interface{})
+            natIpAllocateOptionProp, err := expandNestedComputeRouterNatNatIpAllocateOption(d.Get( "nat_ip_allocate_option" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
+        obj["natIpAllocateOption"] = natIpAllocateOptionProp
+    }
+            natIpsProp, err := expandNestedComputeRouterNatNatIps(d.Get( "nat_ips" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("nat_ips"); ok || !reflect.DeepEqual(v, natIpsProp) {
+        obj["natIps"] = natIpsProp
+    }
+            drainNatIpsProp, err := expandNestedComputeRouterNatDrainNatIps(d.Get( "drain_nat_ips" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("drain_nat_ips"); ok || !reflect.DeepEqual(v, drainNatIpsProp) {
+        obj["drainNatIps"] = drainNatIpsProp
+    }
+            sourceSubnetworkIpRangesToNatProp, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get( "source_subnetwork_ip_ranges_to_nat" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
+        obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
+    }
+            subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get( "subnetwork" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworksProp) {
+        obj["subnetworks"] = subnetworksProp
+    }
+            minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get( "min_ports_per_vm" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
+        obj["minPortsPerVm"] = minPortsPerVmProp
+    }
+            udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get( "udp_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
+        obj["udpIdleTimeoutSec"] = udpIdleTimeoutSecProp
+    }
+            icmpIdleTimeoutSecProp, err := expandNestedComputeRouterNatIcmpIdleTimeoutSec(d.Get( "icmp_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
+        obj["icmpIdleTimeoutSec"] = icmpIdleTimeoutSecProp
+    }
+            tcpEstablishedIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(d.Get( "tcp_established_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
+        obj["tcpEstablishedIdleTimeoutSec"] = tcpEstablishedIdleTimeoutSecProp
+    }
+            tcpTransitoryIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(d.Get( "tcp_transitory_idle_timeout_sec" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
+        obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
+    }
+            logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get( "log_config" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
+        obj["logConfig"] = logConfigProp
+    }
+            enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get( "enable_endpoint_independent_mapping" ), d, config)
+    if err != nil {
+        return err
+    } else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
+        obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
+    }
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
-	if err != nil {
-		return err
-	}
 
-	log.Printf("[DEBUG] Updating RouterNat %q: %#v", d.Id(), obj)
+    lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	obj, err = resourceComputeRouterNatPatchUpdateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+    if err != nil {
+        return err
+    }
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    log.Printf("[DEBUG] Updating RouterNat %q: %#v", d.Id(), obj)
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+    obj, err = resourceComputeRouterNatPatchUpdateEncoder(d, meta, obj)
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return fmt.Errorf("Error updating RouterNat %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating RouterNat %q: %#v", d.Id(), res)
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = computeOperationWaitTime(
-		config, res, project, "Updating RouterNat", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return fmt.Errorf("Error updating RouterNat %q: %s", d.Id(), err)
+    } else {
+	log.Printf("[DEBUG] Finished updating RouterNat %q: %#v", d.Id(), res)
+    }
 
-	return resourceComputeRouterNatRead(d, meta)
+    err = computeOperationWaitTime(
+        config, res,  project,  "Updating RouterNat", userAgent,
+        d.Timeout(schema.TimeoutUpdate))
+
+    if err != nil {
+        return err
+    }
+
+    return resourceComputeRouterNatRead(d, meta)
 }
 
 func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+    config := meta.(*Config)
+    userAgent, err := generateUserAgentString(d, config.userAgent)
+    if err != nil {
+    	return err
+    }
 
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
-	}
-	billingProject = project
+    billingProject := ""
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+    project, err := getProject(d, config)
+    if err != nil {
+        return fmt.Errorf("Error fetching project for RouterNat: %s", err)
+    }
+    billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
-	if err != nil {
-		return err
-	}
+    lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
+    if err != nil {
+        return err
+    }
+    mutexKV.Lock(lockName)
+    defer mutexKV.Unlock(lockName)
 
-	var obj map[string]interface{}
+    url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+    if err != nil {
+        return err
+    }
 
-	obj, err = resourceComputeRouterNatPatchDeleteEncoder(d, meta, obj)
-	if err != nil {
-		return handleNotFoundError(err, d, "RouterNat")
-	}
-	log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
+    var obj map[string]interface{}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+    obj, err = resourceComputeRouterNatPatchDeleteEncoder(d, meta, obj)
+    if err != nil {
+        return handleNotFoundError(err, d, "RouterNat")
+    }
+    log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "RouterNat")
-	}
+    // err == nil indicates that the billing_project value was found
+    if bp, err := getBillingProject(d, config); err == nil {
+      billingProject = bp
+    }
 
-	err = computeOperationWaitTime(
-		config, res, project, "Deleting RouterNat", userAgent,
-		d.Timeout(schema.TimeoutDelete))
+    res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+    if err != nil {
+        return handleNotFoundError(err, d, "RouterNat")
+    }
 
-	if err != nil {
-		return err
-	}
+    err = computeOperationWaitTime(
+        config, res,  project,  "Deleting RouterNat", userAgent,
+        d.Timeout(schema.TimeoutDelete))
 
-	log.Printf("[DEBUG] Finished deleting RouterNat %q: %#v", d.Id(), res)
-	return nil
+    if err != nil {
+        return err
+    }
+
+    log.Printf("[DEBUG] Finished deleting RouterNat %q: %#v", d.Id(), res)
+    return nil
 }
 
 func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<router>[^/]+)/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
-		"(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
-		"(?P<router>[^/]+)/(?P<name>[^/]+)",
-	}, d, config); err != nil {
-		return nil, err
-	}
+    config := meta.(*Config)
+    if err := parseImportId([]string{
+        "projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<router>[^/]+)/(?P<name>[^/]+)",
+        "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
+        "(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
+        "(?P<router>[^/]+)/(?P<name>[^/]+)",
+    }, d, config); err != nil {
+      return nil, err
+    }
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
+    // Replace import id for the resource id
+    id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+    if err != nil {
+        return nil, fmt.Errorf("Error constructing id: %s", err)
+    }
+    d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
+
+    return []*schema.ResourceData{d}, nil
 }
 
 func flattenNestedComputeRouterNatName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenNestedComputeRouterNatNatIpAllocateOption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenNestedComputeRouterNatNatIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+  if v == nil {
+    return v
+  }
+  return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
 func flattenNestedComputeRouterNatDrainNatIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+  if v == nil {
+    return v
+  }
+  return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
 func flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
 
 func flattenNestedComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := schema.NewSet(computeRouterNatSubnetworkHash, []interface{}{})
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed.Add(map[string]interface{}{
-			"name":                     flattenNestedComputeRouterNatSubnetworkName(original["name"], d, config),
-			"source_ip_ranges_to_nat":  flattenNestedComputeRouterNatSubnetworkSourceIpRangesToNat(original["sourceIpRangesToNat"], d, config),
-			"secondary_ip_range_names": flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(original["secondaryIpRangeNames"], d, config),
-		})
-	}
-	return transformed
+  if v == nil {
+    return v
+  }
+  l := v.([]interface{})
+  transformed := schema.NewSet(computeRouterNatSubnetworkHash, []interface{}{})
+  for _, raw := range l {
+    original := raw.(map[string]interface{})
+    if len(original) < 1 {
+      // Do not include empty json objects coming back from the api
+      continue
+    }
+    transformed.Add(map[string]interface{}{
+          "name": flattenNestedComputeRouterNatSubnetworkName(original["name"], d, config),
+          "source_ip_ranges_to_nat": flattenNestedComputeRouterNatSubnetworkSourceIpRangesToNat(original["sourceIpRangesToNat"], d, config),
+          "secondary_ip_range_names": flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(original["secondaryIpRangeNames"], d, config),
+        })
+  }
+  return transformed
 }
-func flattenNestedComputeRouterNatSubnetworkName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
-}
-
-func flattenNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+      func flattenNestedComputeRouterNatSubnetworkName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+  return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
-}
+      func flattenNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+    return schema.NewSet(schema.HashString, v.([]interface{}))
+  }
+
+      func flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  if v == nil {
+    return v
+  }
+    return schema.NewSet(schema.HashString, v.([]interface{}))
+  }
+
+  
 
 func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
@@ -848,8 +866,7 @@ func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.Resourc
 
 func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
-		return 30
-	}
+		return 30	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -862,8 +879,7 @@ func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.Res
 
 func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
-		return 30
-	}
+		return 30	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -876,8 +892,7 @@ func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.Re
 
 func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
-		return 1200
-	}
+		return 1200	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -890,8 +905,7 @@ func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d 
 
 func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
-		return 30
-	}
+		return 30	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -903,362 +917,409 @@ func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *
 }
 
 func flattenNestedComputeRouterNatLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["enable"] =
-		flattenNestedComputeRouterNatLogConfigEnable(original["enable"], d, config)
-	transformed["filter"] =
-		flattenNestedComputeRouterNatLogConfigFilter(original["filter"], d, config)
-	return []interface{}{transformed}
+  if v == nil {
+    return nil
+  }
+  original := v.(map[string]interface{})
+    if len(original) == 0 {
+    return nil
+  }
+    transformed := make(map[string]interface{})
+          transformed["enable"] =
+    flattenNestedComputeRouterNatLogConfigEnable(original["enable"], d, config)
+              transformed["filter"] =
+    flattenNestedComputeRouterNatLogConfigFilter(original["filter"], d, config)
+        return []interface{}{transformed}
 }
-func flattenNestedComputeRouterNatLogConfigEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenNestedComputeRouterNatLogConfigEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
 
-func flattenNestedComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+      func flattenNestedComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+  return v
 }
+
+  
 
 func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+  return v
 }
+
+
+
 
 func expandNestedComputeRouterNatName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatNatIpAllocateOption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatNatIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			return nil, fmt.Errorf("Invalid value for nat_ips: nil")
-		}
-		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
-		if err != nil {
-			return nil, fmt.Errorf("Invalid value for nat_ips: %s", err)
-		}
-		req = append(req, f.RelativeLink())
-	}
-	return req, nil
+  v = v.(*schema.Set).List()
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      return nil, fmt.Errorf("Invalid value for nat_ips: nil")
+    }
+    f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+    if err != nil {
+      return nil, fmt.Errorf("Invalid value for nat_ips: %s", err)
+    }
+    req = append(req, f.RelativeLink())
+  }
+  return req, nil
 }
+
+
 
 func expandNestedComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			return nil, fmt.Errorf("Invalid value for drain_nat_ips: nil")
-		}
-		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
-		if err != nil {
-			return nil, fmt.Errorf("Invalid value for drain_nat_ips: %s", err)
-		}
-		req = append(req, f.RelativeLink())
-	}
-	return req, nil
+  v = v.(*schema.Set).List()
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      return nil, fmt.Errorf("Invalid value for drain_nat_ips: nil")
+    }
+    f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+    if err != nil {
+      return nil, fmt.Errorf("Invalid value for drain_nat_ips: %s", err)
+    }
+    req = append(req, f.RelativeLink())
+  }
+  return req, nil
 }
+
+
 
 func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatSubnetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
+  v = v.(*schema.Set).List()
+  l := v.([]interface{})
+  req := make([]interface{}, 0, len(l))
+  for _, raw := range l {
+    if raw == nil {
+      continue
+    }
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-		transformedName, err := expandNestedComputeRouterNatSubnetworkName(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
-			transformed["name"] = transformedName
-		}
+      transformedName, err := expandNestedComputeRouterNatSubnetworkName(original["name"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+        transformed["name"] = transformedName      }
 
-		transformedSourceIpRangesToNat, err := expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(original["source_ip_ranges_to_nat"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedSourceIpRangesToNat); val.IsValid() && !isEmptyValue(val) {
-			transformed["sourceIpRangesToNat"] = transformedSourceIpRangesToNat
-		}
+      transformedSourceIpRangesToNat, err := expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(original["source_ip_ranges_to_nat"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSourceIpRangesToNat); val.IsValid() && !isEmptyValue(val) {
+        transformed["sourceIpRangesToNat"] = transformedSourceIpRangesToNat      }
 
-		transformedSecondaryIpRangeNames, err := expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(original["secondary_ip_range_names"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedSecondaryIpRangeNames); val.IsValid() && !isEmptyValue(val) {
-			transformed["secondaryIpRangeNames"] = transformedSecondaryIpRangeNames
-		}
+      transformedSecondaryIpRangeNames, err := expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(original["secondary_ip_range_names"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedSecondaryIpRangeNames); val.IsValid() && !isEmptyValue(val) {
+        transformed["secondaryIpRangeNames"] = transformedSecondaryIpRangeNames      }
 
-		req = append(req, transformed)
-	}
-	return req, nil
+    req = append(req, transformed)
+  }
+  return req, nil
 }
+
+
+
+
+
 
 func expandNestedComputeRouterNatSubnetworkName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for name: %s", err)
-	}
-	return f.RelativeLink(), nil
+  f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
+  if err != nil {
+    return nil, fmt.Errorf("Invalid value for name: %s", err)
+  }
+  return f.RelativeLink(), nil
 }
+
+
+
 
 func expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	return v, nil
+  v = v.(*schema.Set).List()
+  return v, nil
 }
+
+
+
 
 func expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	return v, nil
+  v = v.(*schema.Set).List()
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatMinPortsPerVm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
+  l := v.([]interface{})
+  if len(l) == 0 || l[0] == nil {
+    return nil, nil
+  }
+  raw := l[0]
+    original := raw.(map[string]interface{})
+    transformed := make(map[string]interface{})
 
-	transformedEnable, err := expandNestedComputeRouterNatLogConfigEnable(original["enable"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
-		transformed["enable"] = transformedEnable
-	}
+      transformedEnable, err := expandNestedComputeRouterNatLogConfigEnable(original["enable"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+        transformed["enable"] = transformedEnable      }
 
-	transformedFilter, err := expandNestedComputeRouterNatLogConfigFilter(original["filter"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !isEmptyValue(val) {
-		transformed["filter"] = transformedFilter
-	}
+      transformedFilter, err := expandNestedComputeRouterNatLogConfigFilter(original["filter"], d, config)
+      if err != nil {
+        return nil, err
+      } else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !isEmptyValue(val) {
+        transformed["filter"] = transformedFilter      }
 
-	return transformed, nil
+  return transformed, nil
 }
+
+
+
+
+
 
 func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
+
 
 func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
+
+
 
 func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+  return v, nil
 }
 
+
+
+
 func flattenNestedComputeRouterNat(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	var v interface{}
-	var ok bool
+  var v interface{}
+  var ok bool
 
-	v, ok = res["nats"]
-	if !ok || v == nil {
-		return nil, nil
-	}
+    v, ok = res["nats"]
+  if !ok || v == nil {
+    return nil,nil
+  }
 
-	switch v.(type) {
-	case []interface{}:
-		break
-	case map[string]interface{}:
-		// Construct list out of single nested resource
-		v = []interface{}{v}
-	default:
-		return nil, fmt.Errorf("expected list or map for value nats. Actual value: %v", v)
-	}
+  switch v.(type) {
+  case []interface{}:
+    break
+  case map[string]interface{}:
+    // Construct list out of single nested resource
+    v = []interface{}{v}
+  default:
+    return nil, fmt.Errorf("expected list or map for value nats. Actual value: %v", v)
+  }
 
-	_, item, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, v.([]interface{}))
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
+  _, item, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, v.([]interface{}))
+  if err != nil {
+    return nil, err
+  } 
+  return item, nil
 }
 
 func resourceComputeRouterNatFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandNestedComputeRouterNatName(d.Get("name"), d, meta.(*Config))
-	if err != nil {
-		return -1, nil, err
-	}
-	expectedFlattenedName := flattenNestedComputeRouterNatName(expectedName, d, meta.(*Config))
-
-	// Search list for this resource.
-	for idx, itemRaw := range items {
-		if itemRaw == nil {
-			continue
-		}
-		item := itemRaw.(map[string]interface{})
-
-		itemName := flattenNestedComputeRouterNatName(item["name"], d, meta.(*Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
-			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
-			continue
-		}
-		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
-		return idx, item, nil
-	}
-	return -1, nil, nil
+      expectedName, err := expandNestedComputeRouterNatName(d.Get("name"), d, meta.(*Config))
+  if err != nil {
+    return -1, nil, err
+  }
+    expectedFlattenedName := flattenNestedComputeRouterNatName(expectedName, d, meta.(*Config))
+  
+  // Search list for this resource.
+  for idx, itemRaw := range items {
+    if itemRaw == nil {
+      continue
+    }
+        item := itemRaw.(map[string]interface{})
+    
+    
+        itemName := flattenNestedComputeRouterNatName(item["name"], d, meta.(*Config))
+    // isEmptyValue check so that if one is nil and the other is "", that's considered a match
+    if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+      log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
+      continue
+    }
+        log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
+    return idx, item, nil
+  }
+  return -1, nil, nil
 }
 
 // PatchCreateEncoder handles creating request data to PATCH parent resource
 // with list including new object.
 func resourceComputeRouterNatPatchCreateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	currItems, err := resourceComputeRouterNatListForPatch(d, meta)
-	if err != nil {
-		return nil, err
-	}
+  currItems, err := resourceComputeRouterNatListForPatch(d, meta)
+  if err != nil {
+    return nil, err
+  }
 
-	_, found, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, currItems)
-	if err != nil {
-		return nil, err
-	}
+  _, found, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, currItems)
+  if err != nil {
+    return nil, err
+  }
 
-	// Return error if item already created.
-	if found != nil {
-		return nil, fmt.Errorf("Unable to create RouterNat, existing object already found: %+v", found)
-	}
+  // Return error if item already created.
+  if found != nil {
+    return nil, fmt.Errorf("Unable to create RouterNat, existing object already found: %+v", found)
+  }
 
-	// Return list with the resource to create appended
-	res := map[string]interface{}{
-		"nats": append(currItems, obj),
-	}
-
-	return res, nil
+  // Return list with the resource to create appended
+    res := map[string]interface{}{
+    "nats": append(currItems, obj),
+  }
+      
+  return res, nil
 }
 
 // PatchUpdateEncoder handles creating request data to PATCH parent resource
 // with list including updated object.
 func resourceComputeRouterNatPatchUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	items, err := resourceComputeRouterNatListForPatch(d, meta)
-	if err != nil {
-		return nil, err
-	}
+  items, err := resourceComputeRouterNatListForPatch(d, meta)
+  if err != nil {
+    return nil, err
+  }
 
-	idx, item, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, items)
-	if err != nil {
-		return nil, err
-	}
+  idx, item, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, items)
+  if err != nil {
+    return nil, err
+  }
 
-	// Return error if item to update does not exist.
-	if item == nil {
-		return nil, fmt.Errorf("Unable to update RouterNat %q - not found in list", d.Id())
-	}
+  // Return error if item to update does not exist.
+  if item == nil {
+    return nil, fmt.Errorf("Unable to update RouterNat %q - not found in list", d.Id())
+  }
 
-	// Merge new object into old.
-	for k, v := range obj {
-		item[k] = v
-	}
-	items[idx] = item
+  // Merge new object into old.
+  for k, v := range obj {
+    item[k] = v
+  }
+  items[idx] = item
 
-	// Return list with new item added
-	res := map[string]interface{}{
-		"nats": items,
-	}
-
-	return res, nil
+  // Return list with new item added
+  res := map[string]interface{}{
+    "nats": items,
+  }
+    
+  return res, nil
 }
 
 // PatchDeleteEncoder handles creating request data to PATCH parent resource
 // with list excluding object to delete.
 func resourceComputeRouterNatPatchDeleteEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	currItems, err := resourceComputeRouterNatListForPatch(d, meta)
-	if err != nil {
-		return nil, err
-	}
+  currItems, err := resourceComputeRouterNatListForPatch(d, meta)
+  if err != nil {
+    return nil, err
+  }
 
-	idx, item, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, currItems)
-	if err != nil {
-		return nil, err
-	}
-	if item == nil {
-		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "RouterNat not found in list",
-		}
-	}
+  idx, item, err := resourceComputeRouterNatFindNestedObjectInList(d, meta, currItems)
+  if err != nil {
+    return nil, err
+  }
+  if item == nil {
+    // Spoof 404 error for proper handling by Delete (i.e. no-op)
+    return nil, &googleapi.Error{
+      Code: 404, 
+      Message: "RouterNat not found in list",
+    }
+  }
 
-	updatedItems := append(currItems[:idx], currItems[idx+1:]...)
-	res := map[string]interface{}{
-		"nats": updatedItems,
-	}
-
-	return res, nil
+  updatedItems := append(currItems[:idx], currItems[idx+1:]...)
+  res := map[string]interface{}{
+    "nats": updatedItems,
+  }
+    
+  return res, nil
 }
 
-// ListForPatch handles making API request to get parent resource and
+// ListForPatch handles making API request to get parent resource and 
 // extracting list of objects.
 func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
-	config := meta.(*Config)
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
-	if err != nil {
-		return nil, err
-	}
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
-	}
+  config := meta.(*Config)
+  url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+  if err != nil {
+      return nil, err
+  }
+    project, err := getProject(d, config)
+  if err != nil {
+      return nil, err
+  }
+  
+  userAgent, err := generateUserAgentString(d, config.userAgent)
+  if err != nil {
+    return nil, err
+  }
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return nil, err
-	}
+  res, err := sendRequest(config, "GET", project, url, userAgent, nil)
+  if err != nil {
+    return nil, err
+  }
 
-	res, err := sendRequest(config, "GET", project, url, userAgent, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var v interface{}
-	var ok bool
-
-	v, ok = res["nats"]
-	if ok && v != nil {
-		ls, lsOk := v.([]interface{})
-		if !lsOk {
-			return nil, fmt.Errorf(`expected list for nested field "nats"`)
-		}
-		return ls, nil
-	}
-	return nil, nil
+  var v interface{}
+  var ok bool
+    
+  v, ok = res["nats"]
+  if ok && v != nil {
+    ls, lsOk := v.([]interface{})
+    if !lsOk {
+      return nil, fmt.Errorf(`expected list for nested field "nats"`)
+    }
+    return ls, nil
+  }
+  return nil, nil
 }

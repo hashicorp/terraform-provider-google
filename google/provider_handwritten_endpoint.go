@@ -78,6 +78,7 @@ var ResourceManagerV2CustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[ResourceManagerV2BasePathKey]),
 }
 
+
 var ServiceNetworkingCustomEndpointEntryKey = "service_networking_custom_endpoint"
 var ServiceNetworkingCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,

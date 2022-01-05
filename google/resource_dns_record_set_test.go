@@ -145,9 +145,9 @@ func TestAccDNSRecordSet_changeType(t *testing.T) {
 				Config: testAccDnsRecordSet_bigChange(zoneName, 600),
 			},
 			{
-				ResourceName:      "google_dns_record_set.foobar",
-				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./CNAME", getTestProjectFromEnv(), zoneName, zoneName),
-				ImportState:       true,
+				ResourceName:  "google_dns_record_set.foobar",
+				ImportStateId: fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./CNAME", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:   true,
 				ImportStateVerify: true,
 			},
 		},
