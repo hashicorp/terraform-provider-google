@@ -607,7 +607,8 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
 				Description: `Indicates whether the backend service will be used with internal or
 external load balancing. A backend service created for one type of
-load balancing cannot be used with the other. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
+load balancing cannot be used with the other. For more information, refer to
+[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"locality_lb_policy": {
@@ -615,34 +616,46 @@ load balancing cannot be used with the other. Default value: "EXTERNAL" Possible
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", ""}, false),
 				Description: `The load balancing algorithm used within the scope of the locality.
-The possible values are -
+The possible values are:
 
-* ROUND_ROBIN - This is a simple policy in which each healthy backend
-                is selected in round robin order.
+* 'ROUND_ROBIN': This is a simple policy in which each healthy backend
+                 is selected in round robin order.
 
-* LEAST_REQUEST - An O(1) algorithm which selects two random healthy
-                  hosts and picks the host which has fewer active requests.
+* 'LEAST_REQUEST': An O(1) algorithm which selects two random healthy
+                   hosts and picks the host which has fewer active requests.
 
-* RING_HASH - The ring/modulo hash load balancer implements consistent
-              hashing to backends. The algorithm has the property that the
-              addition/removal of a host from a set of N hosts only affects
-              1/N of the requests.
+* 'RING_HASH': The ring/modulo hash load balancer implements consistent
+               hashing to backends. The algorithm has the property that the
+               addition/removal of a host from a set of N hosts only affects
+               1/N of the requests.
 
-* RANDOM - The load balancer selects a random healthy host.
+* 'RANDOM': The load balancer selects a random healthy host.
 
-* ORIGINAL_DESTINATION - Backend host is selected based on the client
-                         connection metadata, i.e., connections are opened
-                         to the same address as the destination address of
-                         the incoming connection before the connection
-                         was redirected to the load balancer.
+* 'ORIGINAL_DESTINATION': Backend host is selected based on the client
+                          connection metadata, i.e., connections are opened
+                          to the same address as the destination address of
+                          the incoming connection before the connection
+                          was redirected to the load balancer.
 
-* MAGLEV - used as a drop in replacement for the ring hash load balancer.
-           Maglev is not as stable as ring hash but has faster table lookup
-           build times and host selection times. For more information about
-           Maglev, refer to https://ai.google/research/pubs/pub44824
+* 'MAGLEV': used as a drop in replacement for the ring hash load balancer.
+            Maglev is not as stable as ring hash but has faster table lookup
+            build times and host selection times. For more information about
+            Maglev, refer to https://ai.google/research/pubs/pub44824
 
-This field is applicable only when the load_balancing_scheme is set to
-INTERNAL_SELF_MANAGED. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
+
+This field is applicable to either:
+
+* A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+  and loadBalancingScheme set to INTERNAL_MANAGED.
+* A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
+
+
+If session_affinity is not NONE, and this field is not set to MAGLEV or RING_HASH,
+session affinity settings will not take effect.
+
+Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
+by a URL map that is bound to target gRPC proxy that has validate_for_proxyless
+field set to true. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
 			},
 			"log_config": {
 				Type:     schema.TypeList,
