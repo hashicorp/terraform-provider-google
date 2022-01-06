@@ -26,7 +26,7 @@ import (
 	"testing"
 )
 
-func TestAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignment(t *testing.T) {
+func TestAccOsConfigOsPolicyAssignment_FixedOsPolicyAssignment(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -38,10 +38,10 @@ func TestAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignment(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOSConfigOSPolicyAssignmentDestroyProducer(t),
+		CheckDestroy: testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignment(context),
+				Config: testAccOsConfigOsPolicyAssignment_FixedOsPolicyAssignment(context),
 			},
 			{
 				ResourceName:            "google_os_config_os_policy_assignment.primary",
@@ -50,7 +50,7 @@ func TestAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignment(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"rollout.0.min_wait_duration"},
 			},
 			{
-				Config: testAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignmentUpdate0(context),
+				Config: testAccOsConfigOsPolicyAssignment_FixedOsPolicyAssignmentUpdate0(context),
 			},
 			{
 				ResourceName:            "google_os_config_os_policy_assignment.primary",
@@ -59,7 +59,7 @@ func TestAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignment(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"rollout.0.min_wait_duration"},
 			},
 			{
-				Config: testAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignmentUpdate1(context),
+				Config: testAccOsConfigOsPolicyAssignment_FixedOsPolicyAssignmentUpdate1(context),
 			},
 			{
 				ResourceName:            "google_os_config_os_policy_assignment.primary",
@@ -70,7 +70,7 @@ func TestAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignment(t *testing.T) {
 		},
 	})
 }
-func TestAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignment(t *testing.T) {
+func TestAccOsConfigOsPolicyAssignment_PercentOsPolicyAssignment(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -82,10 +82,10 @@ func TestAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignment(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOSConfigOSPolicyAssignmentDestroyProducer(t),
+		CheckDestroy: testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignment(context),
+				Config: testAccOsConfigOsPolicyAssignment_PercentOsPolicyAssignment(context),
 			},
 			{
 				ResourceName:            "google_os_config_os_policy_assignment.primary",
@@ -94,7 +94,7 @@ func TestAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignment(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"rollout.0.min_wait_duration"},
 			},
 			{
-				Config: testAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignmentUpdate0(context),
+				Config: testAccOsConfigOsPolicyAssignment_PercentOsPolicyAssignmentUpdate0(context),
 			},
 			{
 				ResourceName:            "google_os_config_os_policy_assignment.primary",
@@ -106,7 +106,7 @@ func TestAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignment(t *testing.T) {
 	})
 }
 
-func testAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignment(context map[string]interface{}) string {
+func testAccOsConfigOsPolicyAssignment_FixedOsPolicyAssignment(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
@@ -401,7 +401,7 @@ resource "google_os_config_os_policy_assignment" "primary" {
 `, context)
 }
 
-func testAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignmentUpdate0(context map[string]interface{}) string {
+func testAccOsConfigOsPolicyAssignment_FixedOsPolicyAssignmentUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
@@ -670,7 +670,7 @@ resource "google_os_config_os_policy_assignment" "primary" {
 `, context)
 }
 
-func testAccOSConfigOSPolicyAssignment_FixedOsPolicyAssignmentUpdate1(context map[string]interface{}) string {
+func testAccOsConfigOsPolicyAssignment_FixedOsPolicyAssignmentUpdate1(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
@@ -936,7 +936,7 @@ resource "google_os_config_os_policy_assignment" "primary" {
 `, context)
 }
 
-func testAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignment(context map[string]interface{}) string {
+func testAccOsConfigOsPolicyAssignment_PercentOsPolicyAssignment(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
@@ -1202,7 +1202,7 @@ resource "google_os_config_os_policy_assignment" "primary" {
 `, context)
 }
 
-func testAccOSConfigOSPolicyAssignment_PercentOsPolicyAssignmentUpdate0(context map[string]interface{}) string {
+func testAccOsConfigOsPolicyAssignment_PercentOsPolicyAssignmentUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
@@ -1479,7 +1479,7 @@ resource "google_os_config_os_policy_assignment" "primary" {
 `, context)
 }
 
-func testAccCheckOSConfigOSPolicyAssignmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
 			if rs.Type != "rs.google_os_config_os_policy_assignment" {
@@ -1511,7 +1511,7 @@ func testAccCheckOSConfigOSPolicyAssignmentDestroyProducer(t *testing.T) func(s 
 				Uid:                dcl.StringOrNil(rs.Primary.Attributes["uid"]),
 			}
 
-			client := NewDCLOSConfigClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLOsConfigClient(config, config.userAgent, billingProject, 0)
 			_, err := client.GetOSPolicyAssignment(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_os_config_os_policy_assignment still exists %v", obj)

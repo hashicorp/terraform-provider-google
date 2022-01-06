@@ -16,12 +16,11 @@
 subcategory: "Privateca"
 layout: "google"
 page_title: "Google: google_privateca_certificate_template"
-sidebar_current: "docs-google-privateca-certificate-template"
 description: |-
 Certificate Authority Service provides reusable and parameterized templates that you can use for common certificate issuance scenarios. A certificate template represents a relatively static and well-defined certificate issuance schema within an organization.  A certificate template can essentially become a full-fledged vertical certificate issuance framework.
 ---
 
-# google\_privateca\_certificate\_template
+# google_privateca_certificate_template
 
 Certificate Authority Service provides reusable and parameterized templates that you can use for common certificate issuance scenarios. A certificate template represents a relatively static and well-defined certificate issuance schema within an organization.  A certificate template can essentially become a full-fledged vertical certificate issuance framework.
 

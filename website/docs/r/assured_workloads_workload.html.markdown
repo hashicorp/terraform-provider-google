@@ -16,12 +16,11 @@
 subcategory: "AssuredWorkloads"
 layout: "google"
 page_title: "Google: google_assured_workloads_workload"
-sidebar_current: "docs-google-assured-workloads-workload"
 description: |-
 The AssuredWorkloads Workload resource
 ---
 
-# google\_assured\_workloads\_workload
+# google_assured_workloads_workload
 
 The AssuredWorkloads Workload resource
 

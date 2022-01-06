@@ -25,14 +25,14 @@ import (
 )
 
 func init() {
-	resource.AddTestSweepers("ComputeForwarding_rule", &resource.Sweeper{
-		Name: "ComputeForwarding_rule",
-		F:    testSweepComputeForwarding_rule,
+	resource.AddTestSweepers("ComputeForwardingRule", &resource.Sweeper{
+		Name: "ComputeForwardingRule",
+		F:    testSweepComputeForwardingRule,
 	})
 }
 
-func testSweepComputeForwarding_rule(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeForwarding_rule")
+func testSweepComputeForwardingRule(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeForwardingRule")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -59,13 +59,13 @@ func testSweepComputeForwarding_rule(region string) error {
 	}
 
 	client := NewDCLComputeClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllForwardingRule(context.Background(), d["project"], d["location"], isDeletableComputeForwarding_rule)
+	err = client.DeleteAllForwardingRule(context.Background(), d["project"], d["location"], isDeletableComputeForwardingRule)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletableComputeForwarding_rule(r *compute.ForwardingRule) bool {
+func isDeletableComputeForwardingRule(r *compute.ForwardingRule) bool {
 	return isSweepableTestResource(*r.Name)
 }

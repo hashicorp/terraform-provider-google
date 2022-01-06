@@ -25,14 +25,14 @@ import (
 )
 
 func init() {
-	resource.AddTestSweepers("DataprocWorkflow_template", &resource.Sweeper{
-		Name: "DataprocWorkflow_template",
-		F:    testSweepDataprocWorkflow_template,
+	resource.AddTestSweepers("DataprocWorkflowTemplate", &resource.Sweeper{
+		Name: "DataprocWorkflowTemplate",
+		F:    testSweepDataprocWorkflowTemplate,
 	})
 }
 
-func testSweepDataprocWorkflow_template(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for DataprocWorkflow_template")
+func testSweepDataprocWorkflowTemplate(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for DataprocWorkflowTemplate")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -59,13 +59,13 @@ func testSweepDataprocWorkflow_template(region string) error {
 	}
 
 	client := NewDCLDataprocClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllWorkflowTemplate(context.Background(), d["project"], d["location"], isDeletableDataprocWorkflow_template)
+	err = client.DeleteAllWorkflowTemplate(context.Background(), d["project"], d["location"], isDeletableDataprocWorkflowTemplate)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletableDataprocWorkflow_template(r *dataproc.WorkflowTemplate) bool {
+func isDeletableDataprocWorkflowTemplate(r *dataproc.WorkflowTemplate) bool {
 	return isSweepableTestResource(*r.Name)
 }
