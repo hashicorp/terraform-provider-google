@@ -25,14 +25,14 @@ import (
 )
 
 func init() {
-	resource.AddTestSweepers("PrivatecaCertificate_template", &resource.Sweeper{
-		Name: "PrivatecaCertificate_template",
-		F:    testSweepPrivatecaCertificate_template,
+	resource.AddTestSweepers("PrivatecaCertificateTemplate", &resource.Sweeper{
+		Name: "PrivatecaCertificateTemplate",
+		F:    testSweepPrivatecaCertificateTemplate,
 	})
 }
 
-func testSweepPrivatecaCertificate_template(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for PrivatecaCertificate_template")
+func testSweepPrivatecaCertificateTemplate(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for PrivatecaCertificateTemplate")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -59,13 +59,13 @@ func testSweepPrivatecaCertificate_template(region string) error {
 	}
 
 	client := NewDCLPrivatecaClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllCertificateTemplate(context.Background(), d["project"], d["location"], isDeletablePrivatecaCertificate_template)
+	err = client.DeleteAllCertificateTemplate(context.Background(), d["project"], d["location"], isDeletablePrivatecaCertificateTemplate)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletablePrivatecaCertificate_template(r *privateca.CertificateTemplate) bool {
+func isDeletablePrivatecaCertificateTemplate(r *privateca.CertificateTemplate) bool {
 	return isSweepableTestResource(*r.Name)
 }

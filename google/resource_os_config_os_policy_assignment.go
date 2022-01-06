@@ -27,15 +27,15 @@ import (
 	osconfig "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/osconfig"
 )
 
-func resourceOSConfigOSPolicyAssignment() *schema.Resource {
+func resourceOsConfigOsPolicyAssignment() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceOSConfigOSPolicyAssignmentCreate,
-		Read:   resourceOSConfigOSPolicyAssignmentRead,
-		Update: resourceOSConfigOSPolicyAssignmentUpdate,
-		Delete: resourceOSConfigOSPolicyAssignmentDelete,
+		Create: resourceOsConfigOsPolicyAssignmentCreate,
+		Read:   resourceOsConfigOsPolicyAssignmentRead,
+		Update: resourceOsConfigOsPolicyAssignmentUpdate,
+		Delete: resourceOsConfigOsPolicyAssignmentDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceOSConfigOSPolicyAssignmentImport,
+			State: resourceOsConfigOsPolicyAssignmentImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -50,7 +50,7 @@ func resourceOSConfigOSPolicyAssignment() *schema.Resource {
 				Required:    true,
 				Description: "Required. Filter to select VMs.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentInstanceFilterSchema(),
+				Elem:        OsConfigOsPolicyAssignmentInstanceFilterSchema(),
 			},
 
 			"location": {
@@ -71,7 +71,7 @@ func resourceOSConfigOSPolicyAssignment() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				Description: "Required. List of OS policies to be applied to the VMs.",
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesSchema(),
 			},
 
 			"rollout": {
@@ -79,7 +79,7 @@ func resourceOSConfigOSPolicyAssignment() *schema.Resource {
 				Required:    true,
 				Description: "Required. Rollout to deploy the OS policy assignment. A rollout is triggered in the following situations: 1) OSPolicyAssignment is created. 2) OSPolicyAssignment is updated and the update contains changes to one of the following fields: - instance_filter - os_policies 3) OSPolicyAssignment is deleted.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentRolloutSchema(),
+				Elem:        OsConfigOsPolicyAssignmentRolloutSchema(),
 			},
 
 			"description": {
@@ -148,7 +148,7 @@ func resourceOSConfigOSPolicyAssignment() *schema.Resource {
 	}
 }
 
-func OSConfigOSPolicyAssignmentInstanceFilterSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentInstanceFilterSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"all": {
@@ -161,27 +161,27 @@ func OSConfigOSPolicyAssignmentInstanceFilterSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of label sets used for VM exclusion. If the list has more than one label set, the VM is excluded if any of the label sets are applicable for the VM.",
-				Elem:        OSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsSchema(),
+				Elem:        OsConfigOsPolicyAssignmentInstanceFilterExclusionLabelsSchema(),
 			},
 
 			"inclusion_labels": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of label sets used for VM inclusion. If the list has more than one `LabelSet`, the VM is included if any of the label sets are applicable for the VM.",
-				Elem:        OSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsSchema(),
+				Elem:        OsConfigOsPolicyAssignmentInstanceFilterInclusionLabelsSchema(),
 			},
 
 			"inventories": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of inventories to select VMs. A VM is selected if its inventory data matches at least one of the following inventories.",
-				Elem:        OSConfigOSPolicyAssignmentInstanceFilterInventoriesSchema(),
+				Elem:        OsConfigOsPolicyAssignmentInstanceFilterInventoriesSchema(),
 			},
 		},
 	}
 }
 
-func OSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentInstanceFilterExclusionLabelsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"labels": {
@@ -194,7 +194,7 @@ func OSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsSchema() *schema.Res
 	}
 }
 
-func OSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentInstanceFilterInclusionLabelsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"labels": {
@@ -207,7 +207,7 @@ func OSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsSchema() *schema.Res
 	}
 }
 
-func OSConfigOSPolicyAssignmentInstanceFilterInventoriesSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentInstanceFilterInventoriesSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"os_short_name": {
@@ -225,7 +225,7 @@ func OSConfigOSPolicyAssignmentInstanceFilterInventoriesSchema() *schema.Resourc
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -244,7 +244,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				Description: "Required. List of resource groups for the policy. For a particular VM, resource groups are evaluated in the order specified and the first resource group that is applicable is selected and the rest are ignored. If none of the resource groups are applicable for a VM, the VM is considered to be non-compliant w.r.t this policy. This behavior can be toggled by the flag `allow_no_resource_group_match`",
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsSchema(),
 			},
 
 			"allow_no_resource_group_match": {
@@ -262,27 +262,27 @@ func OSConfigOSPolicyAssignmentOSPoliciesSchema() *schema.Resource {
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"resources": {
 				Type:        schema.TypeList,
 				Required:    true,
 				Description: "Required. List of resources configured for this resource group. The resources are executed in the exact order specified here.",
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema(),
 			},
 
 			"inventory_filters": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of inventory filters for the resource group. The resources in this resource group are applied to the target VM if it satisfies at least one of the following inventory filters. For example, to apply this resource group to VMs running either `RHEL` or `CentOS` operating systems, specify 2 items for the list with following values: inventory_filters[0].os_short_name='rhel' and inventory_filters[1].os_short_name='centos' If the list is empty, this resource group will be applied to the target VM unconditionally.",
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersSchema(),
 			},
 		},
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -296,7 +296,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema() *schema
 				Optional:    true,
 				Description: "Exec resource",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecSchema(),
 			},
 
 			"file": {
@@ -304,7 +304,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema() *schema
 				Optional:    true,
 				Description: "File resource",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileSchema(),
 			},
 
 			"pkg": {
@@ -312,7 +312,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema() *schema
 				Optional:    true,
 				Description: "Package resource",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema(),
 			},
 
 			"repository": {
@@ -320,13 +320,13 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesSchema() *schema
 				Optional:    true,
 				Description: "Package repository resource",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema(),
 			},
 		},
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"validate": {
@@ -334,7 +334,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecSchema() *sc
 				Required:    true,
 				Description: "Required. What to run to validate this resource is in the desired state. An exit code of 100 indicates \"in desired state\", and exit code of 101 indicates \"not in desired state\". Any other exit code indicates a failure running validate.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentExecSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentExecSchema(),
 			},
 
 			"enforce": {
@@ -342,13 +342,13 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecSchema() *sc
 				Optional:    true,
 				Description: "Required. What to run to validate this resource is in the desired state. An exit code of 100 indicates \"in desired state\", and exit code of 101 indicates \"not in desired state\". Any other exit code indicates a failure running validate.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentExecSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentExecSchema(),
 			},
 		},
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"path": {
@@ -374,7 +374,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileSchema() *sc
 				Optional:    true,
 				Description: "Required. A deb package.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
 			},
 
 			"permissions": {
@@ -386,7 +386,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileSchema() *sc
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"desired_state": {
@@ -400,7 +400,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *sch
 				Optional:    true,
 				Description: "A package managed by Apt.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgAptSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgAptSchema(),
 			},
 
 			"deb": {
@@ -408,7 +408,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *sch
 				Optional:    true,
 				Description: "A deb package file.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSchema(),
 			},
 
 			"googet": {
@@ -416,7 +416,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *sch
 				Optional:    true,
 				Description: "A package managed by GooGet.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGoogetSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGoogetSchema(),
 			},
 
 			"msi": {
@@ -424,7 +424,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *sch
 				Optional:    true,
 				Description: "An MSI package.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema(),
 			},
 
 			"rpm": {
@@ -432,7 +432,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *sch
 				Optional:    true,
 				Description: "An rpm package file.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSchema(),
 			},
 
 			"yum": {
@@ -440,7 +440,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *sch
 				Optional:    true,
 				Description: "A package managed by YUM.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYumSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYumSchema(),
 			},
 
 			"zypper": {
@@ -448,13 +448,13 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgSchema() *sch
 				Optional:    true,
 				Description: "A package managed by Zypper.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypperSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypperSchema(),
 			},
 		},
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgAptSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgAptSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -466,7 +466,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgAptSchema() *
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"source": {
@@ -474,7 +474,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSchema() *
 				Required:    true,
 				Description: "Required. A deb package.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
 			},
 
 			"pull_deps": {
@@ -486,7 +486,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSchema() *
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGoogetSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGoogetSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -498,7 +498,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGoogetSchema(
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"source": {
@@ -506,7 +506,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema() *
 				Required:    true,
 				Description: "Required. A deb package.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
 			},
 
 			"properties": {
@@ -519,7 +519,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema() *
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"source": {
@@ -527,7 +527,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSchema() *
 				Required:    true,
 				Description: "Required. A deb package.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
 			},
 
 			"pull_deps": {
@@ -539,7 +539,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSchema() *
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYumSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYumSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -551,7 +551,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYumSchema() *
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypperSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypperSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -563,7 +563,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypperSchema(
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"apt": {
@@ -571,7 +571,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema
 				Optional:    true,
 				Description: "An Apt Repository.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryAptSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryAptSchema(),
 			},
 
 			"goo": {
@@ -579,7 +579,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema
 				Optional:    true,
 				Description: "A Goo Repository.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGooSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGooSchema(),
 			},
 
 			"yum": {
@@ -587,7 +587,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema
 				Optional:    true,
 				Description: "A Yum Repository.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYumSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYumSchema(),
 			},
 
 			"zypper": {
@@ -595,13 +595,13 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositorySchema
 				Optional:    true,
 				Description: "A Zypper Repository.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypperSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypperSchema(),
 			},
 		},
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryAptSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryAptSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"archive_type": {
@@ -638,7 +638,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryAptSch
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGooSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGooSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -656,7 +656,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGooSch
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYumSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYumSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"base_url": {
@@ -687,7 +687,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYumSch
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypperSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypperSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"base_url": {
@@ -718,7 +718,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"os_short_name": {
@@ -736,7 +736,7 @@ func OSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersSchema() 
 	}
 }
 
-func OSConfigOSPolicyAssignmentRolloutSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentRolloutSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"disruption_budget": {
@@ -744,7 +744,7 @@ func OSConfigOSPolicyAssignmentRolloutSchema() *schema.Resource {
 				Required:    true,
 				Description: "Required. The maximum number (or percentage) of VMs per zone to disrupt at any given moment.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentRolloutDisruptionBudgetSchema(),
+				Elem:        OsConfigOsPolicyAssignmentRolloutDisruptionBudgetSchema(),
 			},
 
 			"min_wait_duration": {
@@ -756,7 +756,7 @@ func OSConfigOSPolicyAssignmentRolloutSchema() *schema.Resource {
 	}
 }
 
-func OSConfigOSPolicyAssignmentRolloutDisruptionBudgetSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentRolloutDisruptionBudgetSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"fixed": {
@@ -774,7 +774,7 @@ func OSConfigOSPolicyAssignmentRolloutDisruptionBudgetSchema() *schema.Resource 
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"allow_insecure": {
@@ -788,7 +788,7 @@ func OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema() *schema.Resource {
 				Optional:    true,
 				Description: "A Cloud Storage object.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcsSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcsSchema(),
 			},
 
 			"local_path": {
@@ -802,13 +802,13 @@ func OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema() *schema.Resource {
 				Optional:    true,
 				Description: "A generic remote file.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemoteSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemoteSchema(),
 			},
 		},
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcsSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"bucket": {
@@ -832,7 +832,7 @@ func OSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcsSchema() *schema.Resourc
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemoteSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemoteSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"uri": {
@@ -850,7 +850,7 @@ func OSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemoteSchema() *schema.Reso
 	}
 }
 
-func OSConfigOSPolicyAssignmentOSPolicyAssignmentExecSchema() *schema.Resource {
+func OsConfigOsPolicyAssignmentOSPolicyAssignmentExecSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"interpreter": {
@@ -871,7 +871,7 @@ func OSConfigOSPolicyAssignmentOSPolicyAssignmentExecSchema() *schema.Resource {
 				Optional:    true,
 				Description: "Required. A deb package.",
 				MaxItems:    1,
-				Elem:        OSConfigOSPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
 			},
 
 			"output_file_path": {
@@ -889,7 +889,7 @@ func OSConfigOSPolicyAssignmentOSPolicyAssignmentExecSchema() *schema.Resource {
 	}
 }
 
-func resourceOSConfigOSPolicyAssignmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceOsConfigOsPolicyAssignmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
 	if err != nil {
@@ -897,11 +897,11 @@ func resourceOSConfigOSPolicyAssignmentCreate(d *schema.ResourceData, meta inter
 	}
 
 	obj := &osconfig.OSPolicyAssignment{
-		InstanceFilter: expandOSConfigOSPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
+		InstanceFilter: expandOsConfigOsPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		OSPolicies:     expandOSConfigOSPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
-		Rollout:        expandOSConfigOSPolicyAssignmentRollout(d.Get("rollout")),
+		OSPolicies:     expandOsConfigOsPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
+		Rollout:        expandOsConfigOsPolicyAssignmentRollout(d.Get("rollout")),
 		Description:    dcl.String(d.Get("description").(string)),
 		Project:        dcl.String(project),
 	}
@@ -921,7 +921,7 @@ func resourceOSConfigOSPolicyAssignmentCreate(d *schema.ResourceData, meta inter
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := NewDCLOsConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -940,10 +940,10 @@ func resourceOSConfigOSPolicyAssignmentCreate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished creating OSPolicyAssignment %q: %#v", d.Id(), res)
 
-	return resourceOSConfigOSPolicyAssignmentRead(d, meta)
+	return resourceOsConfigOsPolicyAssignmentRead(d, meta)
 }
 
-func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceOsConfigOsPolicyAssignmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
 	if err != nil {
@@ -951,11 +951,11 @@ func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interfa
 	}
 
 	obj := &osconfig.OSPolicyAssignment{
-		InstanceFilter: expandOSConfigOSPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
+		InstanceFilter: expandOsConfigOsPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		OSPolicies:     expandOSConfigOSPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
-		Rollout:        expandOSConfigOSPolicyAssignmentRollout(d.Get("rollout")),
+		OSPolicies:     expandOsConfigOsPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
+		Rollout:        expandOsConfigOsPolicyAssignmentRollout(d.Get("rollout")),
 		Description:    dcl.String(d.Get("description").(string)),
 		Project:        dcl.String(project),
 	}
@@ -969,7 +969,7 @@ func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interfa
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := NewDCLOsConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -978,11 +978,11 @@ func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interfa
 	}
 	res, err := client.GetOSPolicyAssignment(context.Background(), obj)
 	if err != nil {
-		resourceName := fmt.Sprintf("OSConfigOSPolicyAssignment %q", d.Id())
+		resourceName := fmt.Sprintf("OsConfigOsPolicyAssignment %q", d.Id())
 		return handleNotFoundDCLError(err, d, resourceName)
 	}
 
-	if err = d.Set("instance_filter", flattenOSConfigOSPolicyAssignmentInstanceFilter(res.InstanceFilter)); err != nil {
+	if err = d.Set("instance_filter", flattenOsConfigOsPolicyAssignmentInstanceFilter(res.InstanceFilter)); err != nil {
 		return fmt.Errorf("error setting instance_filter in state: %s", err)
 	}
 	if err = d.Set("location", res.Location); err != nil {
@@ -991,10 +991,10 @@ func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interfa
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("os_policies", flattenOSConfigOSPolicyAssignmentOSPoliciesArray(res.OSPolicies)); err != nil {
+	if err = d.Set("os_policies", flattenOsConfigOsPolicyAssignmentOSPoliciesArray(res.OSPolicies)); err != nil {
 		return fmt.Errorf("error setting os_policies in state: %s", err)
 	}
-	if err = d.Set("rollout", flattenOSConfigOSPolicyAssignmentRollout(res.Rollout)); err != nil {
+	if err = d.Set("rollout", flattenOsConfigOsPolicyAssignmentRollout(res.Rollout)); err != nil {
 		return fmt.Errorf("error setting rollout in state: %s", err)
 	}
 	if err = d.Set("description", res.Description); err != nil {
@@ -1030,7 +1030,7 @@ func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interfa
 
 	return nil
 }
-func resourceOSConfigOSPolicyAssignmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceOsConfigOsPolicyAssignmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1038,11 +1038,11 @@ func resourceOSConfigOSPolicyAssignmentUpdate(d *schema.ResourceData, meta inter
 	}
 
 	obj := &osconfig.OSPolicyAssignment{
-		InstanceFilter: expandOSConfigOSPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
+		InstanceFilter: expandOsConfigOsPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		OSPolicies:     expandOSConfigOSPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
-		Rollout:        expandOSConfigOSPolicyAssignmentRollout(d.Get("rollout")),
+		OSPolicies:     expandOsConfigOsPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
+		Rollout:        expandOsConfigOsPolicyAssignmentRollout(d.Get("rollout")),
 		Description:    dcl.String(d.Get("description").(string)),
 		Project:        dcl.String(project),
 	}
@@ -1057,7 +1057,7 @@ func resourceOSConfigOSPolicyAssignmentUpdate(d *schema.ResourceData, meta inter
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	client := NewDCLOsConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
 	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -1076,10 +1076,10 @@ func resourceOSConfigOSPolicyAssignmentUpdate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished creating OSPolicyAssignment %q: %#v", d.Id(), res)
 
-	return resourceOSConfigOSPolicyAssignmentRead(d, meta)
+	return resourceOsConfigOsPolicyAssignmentRead(d, meta)
 }
 
-func resourceOSConfigOSPolicyAssignmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceOsConfigOsPolicyAssignmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1087,11 +1087,11 @@ func resourceOSConfigOSPolicyAssignmentDelete(d *schema.ResourceData, meta inter
 	}
 
 	obj := &osconfig.OSPolicyAssignment{
-		InstanceFilter: expandOSConfigOSPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
+		InstanceFilter: expandOsConfigOsPolicyAssignmentInstanceFilter(d.Get("instance_filter")),
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		OSPolicies:     expandOSConfigOSPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
-		Rollout:        expandOSConfigOSPolicyAssignmentRollout(d.Get("rollout")),
+		OSPolicies:     expandOsConfigOsPolicyAssignmentOSPoliciesArray(d.Get("os_policies")),
+		Rollout:        expandOsConfigOsPolicyAssignmentRollout(d.Get("rollout")),
 		Description:    dcl.String(d.Get("description").(string)),
 		Project:        dcl.String(project),
 	}
@@ -1106,7 +1106,7 @@ func resourceOSConfigOSPolicyAssignmentDelete(d *schema.ResourceData, meta inter
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := NewDCLOsConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -1121,7 +1121,7 @@ func resourceOSConfigOSPolicyAssignmentDelete(d *schema.ResourceData, meta inter
 	return nil
 }
 
-func resourceOSConfigOSPolicyAssignmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceOsConfigOsPolicyAssignmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/osPolicyAssignments/(?P<name>[^/]+)",
@@ -1141,7 +1141,7 @@ func resourceOSConfigOSPolicyAssignmentImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandOSConfigOSPolicyAssignmentInstanceFilter(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilter {
+func expandOsConfigOsPolicyAssignmentInstanceFilter(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilter {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentInstanceFilter
 	}
@@ -1152,27 +1152,27 @@ func expandOSConfigOSPolicyAssignmentInstanceFilter(o interface{}) *osconfig.OSP
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentInstanceFilter{
 		All:             dcl.Bool(obj["all"].(bool)),
-		ExclusionLabels: expandOSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsArray(obj["exclusion_labels"]),
-		InclusionLabels: expandOSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsArray(obj["inclusion_labels"]),
-		Inventories:     expandOSConfigOSPolicyAssignmentInstanceFilterInventoriesArray(obj["inventories"]),
+		ExclusionLabels: expandOsConfigOsPolicyAssignmentInstanceFilterExclusionLabelsArray(obj["exclusion_labels"]),
+		InclusionLabels: expandOsConfigOsPolicyAssignmentInstanceFilterInclusionLabelsArray(obj["inclusion_labels"]),
+		Inventories:     expandOsConfigOsPolicyAssignmentInstanceFilterInventoriesArray(obj["inventories"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentInstanceFilter(obj *osconfig.OSPolicyAssignmentInstanceFilter) interface{} {
+func flattenOsConfigOsPolicyAssignmentInstanceFilter(obj *osconfig.OSPolicyAssignmentInstanceFilter) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
 		"all":              obj.All,
-		"exclusion_labels": flattenOSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsArray(obj.ExclusionLabels),
-		"inclusion_labels": flattenOSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsArray(obj.InclusionLabels),
-		"inventories":      flattenOSConfigOSPolicyAssignmentInstanceFilterInventoriesArray(obj.Inventories),
+		"exclusion_labels": flattenOsConfigOsPolicyAssignmentInstanceFilterExclusionLabelsArray(obj.ExclusionLabels),
+		"inclusion_labels": flattenOsConfigOsPolicyAssignmentInstanceFilterInclusionLabelsArray(obj.InclusionLabels),
+		"inventories":      flattenOsConfigOsPolicyAssignmentInstanceFilterInventoriesArray(obj.Inventories),
 	}
 
 	return []interface{}{transformed}
 
 }
-func expandOSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsArray(o interface{}) []osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels {
+func expandOsConfigOsPolicyAssignmentInstanceFilterExclusionLabelsArray(o interface{}) []osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels {
 	if o == nil {
 		return make([]osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels, 0)
 	}
@@ -1184,14 +1184,14 @@ func expandOSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsArray(o interf
 
 	items := make([]osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels, 0, len(objs))
 	for _, item := range objs {
-		i := expandOSConfigOSPolicyAssignmentInstanceFilterExclusionLabels(item)
+		i := expandOsConfigOsPolicyAssignmentInstanceFilterExclusionLabels(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandOSConfigOSPolicyAssignmentInstanceFilterExclusionLabels(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels {
+func expandOsConfigOsPolicyAssignmentInstanceFilterExclusionLabels(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentInstanceFilterExclusionLabels
 	}
@@ -1202,21 +1202,21 @@ func expandOSConfigOSPolicyAssignmentInstanceFilterExclusionLabels(o interface{}
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentInstanceFilterExclusionLabelsArray(objs []osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels) []interface{} {
+func flattenOsConfigOsPolicyAssignmentInstanceFilterExclusionLabelsArray(objs []osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenOSConfigOSPolicyAssignmentInstanceFilterExclusionLabels(&item)
+		i := flattenOsConfigOsPolicyAssignmentInstanceFilterExclusionLabels(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenOSConfigOSPolicyAssignmentInstanceFilterExclusionLabels(obj *osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels) interface{} {
+func flattenOsConfigOsPolicyAssignmentInstanceFilterExclusionLabels(obj *osconfig.OSPolicyAssignmentInstanceFilterExclusionLabels) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1227,7 +1227,7 @@ func flattenOSConfigOSPolicyAssignmentInstanceFilterExclusionLabels(obj *osconfi
 	return transformed
 
 }
-func expandOSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsArray(o interface{}) []osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels {
+func expandOsConfigOsPolicyAssignmentInstanceFilterInclusionLabelsArray(o interface{}) []osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels {
 	if o == nil {
 		return make([]osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels, 0)
 	}
@@ -1239,14 +1239,14 @@ func expandOSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsArray(o interf
 
 	items := make([]osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels, 0, len(objs))
 	for _, item := range objs {
-		i := expandOSConfigOSPolicyAssignmentInstanceFilterInclusionLabels(item)
+		i := expandOsConfigOsPolicyAssignmentInstanceFilterInclusionLabels(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandOSConfigOSPolicyAssignmentInstanceFilterInclusionLabels(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels {
+func expandOsConfigOsPolicyAssignmentInstanceFilterInclusionLabels(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentInstanceFilterInclusionLabels
 	}
@@ -1257,21 +1257,21 @@ func expandOSConfigOSPolicyAssignmentInstanceFilterInclusionLabels(o interface{}
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentInstanceFilterInclusionLabelsArray(objs []osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels) []interface{} {
+func flattenOsConfigOsPolicyAssignmentInstanceFilterInclusionLabelsArray(objs []osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenOSConfigOSPolicyAssignmentInstanceFilterInclusionLabels(&item)
+		i := flattenOsConfigOsPolicyAssignmentInstanceFilterInclusionLabels(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenOSConfigOSPolicyAssignmentInstanceFilterInclusionLabels(obj *osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels) interface{} {
+func flattenOsConfigOsPolicyAssignmentInstanceFilterInclusionLabels(obj *osconfig.OSPolicyAssignmentInstanceFilterInclusionLabels) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1282,7 +1282,7 @@ func flattenOSConfigOSPolicyAssignmentInstanceFilterInclusionLabels(obj *osconfi
 	return transformed
 
 }
-func expandOSConfigOSPolicyAssignmentInstanceFilterInventoriesArray(o interface{}) []osconfig.OSPolicyAssignmentInstanceFilterInventories {
+func expandOsConfigOsPolicyAssignmentInstanceFilterInventoriesArray(o interface{}) []osconfig.OSPolicyAssignmentInstanceFilterInventories {
 	if o == nil {
 		return make([]osconfig.OSPolicyAssignmentInstanceFilterInventories, 0)
 	}
@@ -1294,14 +1294,14 @@ func expandOSConfigOSPolicyAssignmentInstanceFilterInventoriesArray(o interface{
 
 	items := make([]osconfig.OSPolicyAssignmentInstanceFilterInventories, 0, len(objs))
 	for _, item := range objs {
-		i := expandOSConfigOSPolicyAssignmentInstanceFilterInventories(item)
+		i := expandOsConfigOsPolicyAssignmentInstanceFilterInventories(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandOSConfigOSPolicyAssignmentInstanceFilterInventories(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilterInventories {
+func expandOsConfigOsPolicyAssignmentInstanceFilterInventories(o interface{}) *osconfig.OSPolicyAssignmentInstanceFilterInventories {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentInstanceFilterInventories
 	}
@@ -1313,21 +1313,21 @@ func expandOSConfigOSPolicyAssignmentInstanceFilterInventories(o interface{}) *o
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentInstanceFilterInventoriesArray(objs []osconfig.OSPolicyAssignmentInstanceFilterInventories) []interface{} {
+func flattenOsConfigOsPolicyAssignmentInstanceFilterInventoriesArray(objs []osconfig.OSPolicyAssignmentInstanceFilterInventories) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenOSConfigOSPolicyAssignmentInstanceFilterInventories(&item)
+		i := flattenOsConfigOsPolicyAssignmentInstanceFilterInventories(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenOSConfigOSPolicyAssignmentInstanceFilterInventories(obj *osconfig.OSPolicyAssignmentInstanceFilterInventories) interface{} {
+func flattenOsConfigOsPolicyAssignmentInstanceFilterInventories(obj *osconfig.OSPolicyAssignmentInstanceFilterInventories) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1339,7 +1339,7 @@ func flattenOSConfigOSPolicyAssignmentInstanceFilterInventories(obj *osconfig.OS
 	return transformed
 
 }
-func expandOSConfigOSPolicyAssignmentOSPoliciesArray(o interface{}) []osconfig.OSPolicyAssignmentOSPolicies {
+func expandOsConfigOsPolicyAssignmentOSPoliciesArray(o interface{}) []osconfig.OSPolicyAssignmentOSPolicies {
 	if o == nil {
 		return make([]osconfig.OSPolicyAssignmentOSPolicies, 0)
 	}
@@ -1351,14 +1351,14 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesArray(o interface{}) []osconfig.O
 
 	items := make([]osconfig.OSPolicyAssignmentOSPolicies, 0, len(objs))
 	for _, item := range objs {
-		i := expandOSConfigOSPolicyAssignmentOSPolicies(item)
+		i := expandOsConfigOsPolicyAssignmentOSPolicies(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandOSConfigOSPolicyAssignmentOSPolicies(o interface{}) *osconfig.OSPolicyAssignmentOSPolicies {
+func expandOsConfigOsPolicyAssignmentOSPolicies(o interface{}) *osconfig.OSPolicyAssignmentOSPolicies {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPolicies
 	}
@@ -1367,34 +1367,34 @@ func expandOSConfigOSPolicyAssignmentOSPolicies(o interface{}) *osconfig.OSPolic
 	return &osconfig.OSPolicyAssignmentOSPolicies{
 		Id:                        dcl.String(obj["id"].(string)),
 		Mode:                      osconfig.OSPolicyAssignmentOSPoliciesModeEnumRef(obj["mode"].(string)),
-		ResourceGroups:            expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsArray(obj["resource_groups"]),
+		ResourceGroups:            expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsArray(obj["resource_groups"]),
 		AllowNoResourceGroupMatch: dcl.Bool(obj["allow_no_resource_group_match"].(bool)),
 		Description:               dcl.String(obj["description"].(string)),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesArray(objs []osconfig.OSPolicyAssignmentOSPolicies) []interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesArray(objs []osconfig.OSPolicyAssignmentOSPolicies) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenOSConfigOSPolicyAssignmentOSPolicies(&item)
+		i := flattenOsConfigOsPolicyAssignmentOSPolicies(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPolicies(obj *osconfig.OSPolicyAssignmentOSPolicies) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPolicies(obj *osconfig.OSPolicyAssignmentOSPolicies) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
 		"id":                            obj.Id,
 		"mode":                          obj.Mode,
-		"resource_groups":               flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsArray(obj.ResourceGroups),
+		"resource_groups":               flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsArray(obj.ResourceGroups),
 		"allow_no_resource_group_match": obj.AllowNoResourceGroupMatch,
 		"description":                   obj.Description,
 	}
@@ -1402,7 +1402,7 @@ func flattenOSConfigOSPolicyAssignmentOSPolicies(obj *osconfig.OSPolicyAssignmen
 	return transformed
 
 }
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsArray(o interface{}) []osconfig.OSPolicyAssignmentOSPoliciesResourceGroups {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsArray(o interface{}) []osconfig.OSPolicyAssignmentOSPoliciesResourceGroups {
 	if o == nil {
 		return make([]osconfig.OSPolicyAssignmentOSPoliciesResourceGroups, 0)
 	}
@@ -1414,52 +1414,52 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsArray(o interface{}
 
 	items := make([]osconfig.OSPolicyAssignmentOSPoliciesResourceGroups, 0, len(objs))
 	for _, item := range objs {
-		i := expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroups(item)
+		i := expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroups(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroups(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroups {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroups(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroups {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroups
 	}
 
 	obj := o.(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroups{
-		Resources:        expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(obj["resources"]),
-		InventoryFilters: expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(obj["inventory_filters"]),
+		Resources:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(obj["resources"]),
+		InventoryFilters: expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(obj["inventory_filters"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsArray(objs []osconfig.OSPolicyAssignmentOSPoliciesResourceGroups) []interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsArray(objs []osconfig.OSPolicyAssignmentOSPoliciesResourceGroups) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroups(&item)
+		i := flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroups(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroups(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroups) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroups(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroups) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"resources":         flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(obj.Resources),
-		"inventory_filters": flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(obj.InventoryFilters),
+		"resources":         flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(obj.Resources),
+		"inventory_filters": flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(obj.InventoryFilters),
 	}
 
 	return transformed
 
 }
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(o interface{}) []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(o interface{}) []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources {
 	if o == nil {
 		return make([]osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources, 0)
 	}
@@ -1471,14 +1471,14 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(o in
 
 	items := make([]osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources, 0, len(objs))
 	for _, item := range objs {
-		i := expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResources(item)
+		i := expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResources(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResources(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResources(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResources
 	}
@@ -1486,44 +1486,44 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResources(o interfa
 	obj := o.(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources{
 		Id:         dcl.String(obj["id"].(string)),
-		Exec:       expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(obj["exec"]),
-		File:       expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj["file"]),
-		Pkg:        expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(obj["pkg"]),
-		Repository: expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(obj["repository"]),
+		Exec:       expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(obj["exec"]),
+		File:       expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj["file"]),
+		Pkg:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(obj["pkg"]),
+		Repository: expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(obj["repository"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(objs []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources) []interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesArray(objs []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResources(&item)
+		i := flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResources(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResources(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResources(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResources) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
 		"id":         obj.Id,
-		"exec":       flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(obj.Exec),
-		"file":       flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj.File),
-		"pkg":        flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(obj.Pkg),
-		"repository": flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(obj.Repository),
+		"exec":       flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(obj.Exec),
+		"file":       flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj.File),
+		"pkg":        flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(obj.Pkg),
+		"repository": flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(obj.Repository),
 	}
 
 	return transformed
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec
 	}
@@ -1533,25 +1533,25 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(o int
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec{
-		Validate: expandOSConfigOSPolicyAssignmentOSPolicyAssignmentExec(obj["validate"]),
-		Enforce:  expandOSConfigOSPolicyAssignmentOSPolicyAssignmentExec(obj["enforce"]),
+		Validate: expandOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj["validate"]),
+		Enforce:  expandOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj["enforce"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"validate": flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentExec(obj.Validate),
-		"enforce":  flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentExec(obj.Enforce),
+		"validate": flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj.Validate),
+		"enforce":  flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj.Enforce),
 	}
 
 	return []interface{}{transformed}
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile
 	}
@@ -1564,11 +1564,11 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(o int
 		Path:    dcl.String(obj["path"].(string)),
 		State:   osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileStateEnumRef(obj["state"].(string)),
 		Content: dcl.String(obj["content"].(string)),
-		File:    expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj["file"]),
+		File:    expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["file"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1576,7 +1576,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj 
 		"path":        obj.Path,
 		"state":       obj.State,
 		"content":     obj.Content,
-		"file":        flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj.File),
+		"file":        flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.File),
 		"permissions": obj.Permissions,
 	}
 
@@ -1584,7 +1584,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj 
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg
 	}
@@ -1595,36 +1595,36 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(o inte
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg{
 		DesiredState: osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDesiredStateEnumRef(obj["desired_state"].(string)),
-		Apt:          expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(obj["apt"]),
-		Deb:          expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(obj["deb"]),
-		Googet:       expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(obj["googet"]),
-		Msi:          expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(obj["msi"]),
-		Rpm:          expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(obj["rpm"]),
-		Yum:          expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(obj["yum"]),
-		Zypper:       expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(obj["zypper"]),
+		Apt:          expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(obj["apt"]),
+		Deb:          expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(obj["deb"]),
+		Googet:       expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(obj["googet"]),
+		Msi:          expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(obj["msi"]),
+		Rpm:          expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(obj["rpm"]),
+		Yum:          expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(obj["yum"]),
+		Zypper:       expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(obj["zypper"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkg) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
 		"desired_state": obj.DesiredState,
-		"apt":           flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(obj.Apt),
-		"deb":           flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(obj.Deb),
-		"googet":        flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(obj.Googet),
-		"msi":           flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(obj.Msi),
-		"rpm":           flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(obj.Rpm),
-		"yum":           flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(obj.Yum),
-		"zypper":        flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(obj.Zypper),
+		"apt":           flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(obj.Apt),
+		"deb":           flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(obj.Deb),
+		"googet":        flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(obj.Googet),
+		"msi":           flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(obj.Msi),
+		"rpm":           flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(obj.Rpm),
+		"yum":           flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(obj.Yum),
+		"zypper":        flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(obj.Zypper),
 	}
 
 	return []interface{}{transformed}
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt
 	}
@@ -1638,7 +1638,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(o i
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1650,7 +1650,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgApt(ob
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb
 	}
@@ -1660,17 +1660,17 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(o i
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb{
-		Source:   expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
+		Source:   expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
 		PullDeps: dcl.Bool(obj["pull_deps"].(bool)),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"source":    flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
+		"source":    flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
 		"pull_deps": obj.PullDeps,
 	}
 
@@ -1678,7 +1678,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(ob
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget
 	}
@@ -1692,7 +1692,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1704,7 +1704,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgGooget
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi
 	}
@@ -1714,17 +1714,17 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(o i
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi{
-		Source:     expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
+		Source:     expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
 		Properties: expandStringArray(obj["properties"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"source":     flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
+		"source":     flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
 		"properties": obj.Properties,
 	}
 
@@ -1732,7 +1732,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(ob
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm
 	}
@@ -1742,17 +1742,17 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(o i
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm{
-		Source:   expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
+		Source:   expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
 		PullDeps: dcl.Bool(obj["pull_deps"].(bool)),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"source":    flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
+		"source":    flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
 		"pull_deps": obj.PullDeps,
 	}
 
@@ -1760,7 +1760,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(ob
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum
 	}
@@ -1774,7 +1774,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(o i
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1786,7 +1786,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgYum(ob
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper
 	}
@@ -1800,7 +1800,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1812,7 +1812,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgZypper
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository
 	}
@@ -1822,29 +1822,29 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository{
-		Apt:    expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(obj["apt"]),
-		Goo:    expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(obj["goo"]),
-		Yum:    expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(obj["yum"]),
-		Zypper: expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(obj["zypper"]),
+		Apt:    expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(obj["apt"]),
+		Goo:    expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(obj["goo"]),
+		Yum:    expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(obj["yum"]),
+		Zypper: expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(obj["zypper"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"apt":    flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(obj.Apt),
-		"goo":    flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(obj.Goo),
-		"yum":    flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(obj.Yum),
-		"zypper": flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(obj.Zypper),
+		"apt":    flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(obj.Apt),
+		"goo":    flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(obj.Goo),
+		"yum":    flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(obj.Yum),
+		"zypper": flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(obj.Zypper),
 	}
 
 	return []interface{}{transformed}
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt
 	}
@@ -1862,7 +1862,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryApt) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1878,7 +1878,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositor
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo
 	}
@@ -1893,7 +1893,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryGoo) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1906,7 +1906,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositor
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum
 	}
@@ -1923,7 +1923,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryYum) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1938,7 +1938,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositor
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper
 	}
@@ -1955,7 +1955,7 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepository
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositoryZypper) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -1969,7 +1969,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsResourcesRepositor
 	return []interface{}{transformed}
 
 }
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(o interface{}) []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(o interface{}) []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters {
 	if o == nil {
 		return make([]osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters, 0)
 	}
@@ -1981,14 +1981,14 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArr
 
 	items := make([]osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters, 0, len(objs))
 	for _, item := range objs {
-		i := expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(item)
+		i := expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters {
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters
 	}
@@ -2000,21 +2000,21 @@ func expandOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(o 
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(objs []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters) []interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFiltersArray(objs []osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(&item)
+		i := flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -2027,7 +2027,7 @@ func flattenOSConfigOSPolicyAssignmentOSPoliciesResourceGroupsInventoryFilters(o
 
 }
 
-func expandOSConfigOSPolicyAssignmentRollout(o interface{}) *osconfig.OSPolicyAssignmentRollout {
+func expandOsConfigOsPolicyAssignmentRollout(o interface{}) *osconfig.OSPolicyAssignmentRollout {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentRollout
 	}
@@ -2037,17 +2037,17 @@ func expandOSConfigOSPolicyAssignmentRollout(o interface{}) *osconfig.OSPolicyAs
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentRollout{
-		DisruptionBudget: expandOSConfigOSPolicyAssignmentRolloutDisruptionBudget(obj["disruption_budget"]),
+		DisruptionBudget: expandOsConfigOsPolicyAssignmentRolloutDisruptionBudget(obj["disruption_budget"]),
 		MinWaitDuration:  dcl.String(obj["min_wait_duration"].(string)),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentRollout(obj *osconfig.OSPolicyAssignmentRollout) interface{} {
+func flattenOsConfigOsPolicyAssignmentRollout(obj *osconfig.OSPolicyAssignmentRollout) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"disruption_budget": flattenOSConfigOSPolicyAssignmentRolloutDisruptionBudget(obj.DisruptionBudget),
+		"disruption_budget": flattenOsConfigOsPolicyAssignmentRolloutDisruptionBudget(obj.DisruptionBudget),
 		"min_wait_duration": obj.MinWaitDuration,
 	}
 
@@ -2055,7 +2055,7 @@ func flattenOSConfigOSPolicyAssignmentRollout(obj *osconfig.OSPolicyAssignmentRo
 
 }
 
-func expandOSConfigOSPolicyAssignmentRolloutDisruptionBudget(o interface{}) *osconfig.OSPolicyAssignmentRolloutDisruptionBudget {
+func expandOsConfigOsPolicyAssignmentRolloutDisruptionBudget(o interface{}) *osconfig.OSPolicyAssignmentRolloutDisruptionBudget {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentRolloutDisruptionBudget
 	}
@@ -2070,7 +2070,7 @@ func expandOSConfigOSPolicyAssignmentRolloutDisruptionBudget(o interface{}) *osc
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentRolloutDisruptionBudget(obj *osconfig.OSPolicyAssignmentRolloutDisruptionBudget) interface{} {
+func flattenOsConfigOsPolicyAssignmentRolloutDisruptionBudget(obj *osconfig.OSPolicyAssignmentRolloutDisruptionBudget) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -2083,7 +2083,7 @@ func flattenOSConfigOSPolicyAssignmentRolloutDisruptionBudget(obj *osconfig.OSPo
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(o interface{}) *osconfig.OSPolicyAssignmentFile {
+func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(o interface{}) *osconfig.OSPolicyAssignmentFile {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentFile
 	}
@@ -2094,28 +2094,28 @@ func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(o interface{}) *osco
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentFile{
 		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
-		Gcs:           expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcs(obj["gcs"]),
+		Gcs:           expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(obj["gcs"]),
 		LocalPath:     dcl.String(obj["local_path"].(string)),
-		Remote:        expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemote(obj["remote"]),
+		Remote:        expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(obj["remote"]),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj *osconfig.OSPolicyAssignmentFile) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj *osconfig.OSPolicyAssignmentFile) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
 		"allow_insecure": obj.AllowInsecure,
-		"gcs":            flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcs(obj.Gcs),
+		"gcs":            flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(obj.Gcs),
 		"local_path":     obj.LocalPath,
-		"remote":         flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemote(obj.Remote),
+		"remote":         flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(obj.Remote),
 	}
 
 	return []interface{}{transformed}
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcs(o interface{}) *osconfig.OSPolicyAssignmentFileGcs {
+func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(o interface{}) *osconfig.OSPolicyAssignmentFileGcs {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentFileGcs
 	}
@@ -2131,7 +2131,7 @@ func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcs(o interface{}) *o
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcs(obj *osconfig.OSPolicyAssignmentFileGcs) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(obj *osconfig.OSPolicyAssignmentFileGcs) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -2145,7 +2145,7 @@ func flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFileGcs(obj *osconfig.OS
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemote(o interface{}) *osconfig.OSPolicyAssignmentFileRemote {
+func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(o interface{}) *osconfig.OSPolicyAssignmentFileRemote {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentFileRemote
 	}
@@ -2160,7 +2160,7 @@ func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemote(o interface{})
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemote(obj *osconfig.OSPolicyAssignmentFileRemote) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(obj *osconfig.OSPolicyAssignmentFileRemote) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -2173,7 +2173,7 @@ func flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFileRemote(obj *osconfig
 
 }
 
-func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentExec(o interface{}) *osconfig.OSPolicyAssignmentExec {
+func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(o interface{}) *osconfig.OSPolicyAssignmentExec {
 	if o == nil {
 		return osconfig.EmptyOSPolicyAssignmentExec
 	}
@@ -2185,20 +2185,20 @@ func expandOSConfigOSPolicyAssignmentOSPolicyAssignmentExec(o interface{}) *osco
 	return &osconfig.OSPolicyAssignmentExec{
 		Interpreter:    osconfig.OSPolicyAssignmentExecInterpreterEnumRef(obj["interpreter"].(string)),
 		Args:           expandStringArray(obj["args"]),
-		File:           expandOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj["file"]),
+		File:           expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["file"]),
 		OutputFilePath: dcl.String(obj["output_file_path"].(string)),
 		Script:         dcl.String(obj["script"].(string)),
 	}
 }
 
-func flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentExec(obj *osconfig.OSPolicyAssignmentExec) interface{} {
+func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj *osconfig.OSPolicyAssignmentExec) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
 		"interpreter":      obj.Interpreter,
 		"args":             obj.Args,
-		"file":             flattenOSConfigOSPolicyAssignmentOSPolicyAssignmentFile(obj.File),
+		"file":             flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.File),
 		"output_file_path": obj.OutputFilePath,
 		"script":           obj.Script,
 	}

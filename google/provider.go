@@ -1215,7 +1215,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_eventarc_trigger":                    resourceEventarcTrigger(),
 			"google_network_connectivity_hub":            resourceNetworkConnectivityHub(),
 			"google_org_policy_policy":                   resourceOrgPolicyPolicy(),
-			"google_os_config_os_policy_assignment":      resourceOSConfigOSPolicyAssignment(),
+			"google_os_config_os_policy_assignment":      resourceOsConfigOsPolicyAssignment(),
 			"google_privateca_certificate_template":      resourcePrivatecaCertificateTemplate(),
 			"google_recaptcha_enterprise_key":            resourceRecaptchaEnterpriseKey(),
 			"google_container_aws_cluster":               resourceContainerAwsCluster(),

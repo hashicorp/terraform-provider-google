@@ -16,12 +16,11 @@
 subcategory: "OrgPolicy"
 layout: "google"
 page_title: "Google: google_org_policy_policy"
-sidebar_current: "docs-google-org-policy-policy"
 description: |-
 An organization policy gives you programmatic control over your organization's cloud resources.  Using Organization Policies, you will be able to configure constraints across your entire resource hierarchy.
 ---
 
-# google\_org\_policy\_policy
+# google_org_policy_policy
 
 An organization policy gives you programmatic control over your organization's cloud resources.  Using Organization Policies, you will be able to configure constraints across your entire resource hierarchy.
 

@@ -25,14 +25,14 @@ import (
 )
 
 func init() {
-	resource.AddTestSweepers("cloudbuildWorker_pool", &resource.Sweeper{
-		Name: "cloudbuildWorker_pool",
-		F:    testSweepcloudbuildWorker_pool,
+	resource.AddTestSweepers("CloudbuildWorkerPool", &resource.Sweeper{
+		Name: "CloudbuildWorkerPool",
+		F:    testSweepCloudbuildWorkerPool,
 	})
 }
 
-func testSweepcloudbuildWorker_pool(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for cloudbuildWorker_pool")
+func testSweepCloudbuildWorkerPool(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for CloudbuildWorkerPool")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -58,14 +58,14 @@ func testSweepcloudbuildWorker_pool(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLcloudbuildClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllWorkerPool(context.Background(), d["project"], d["location"], isDeletablecloudbuildWorker_pool)
+	client := NewDCLCloudbuildClient(config, config.userAgent, "", 0)
+	err = client.DeleteAllWorkerPool(context.Background(), d["project"], d["location"], isDeletableCloudbuildWorkerPool)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletablecloudbuildWorker_pool(r *cloudbuild.WorkerPool) bool {
+func isDeletableCloudbuildWorkerPool(r *cloudbuild.WorkerPool) bool {
 	return isSweepableTestResource(*r.Name)
 }

@@ -25,14 +25,14 @@ import (
 )
 
 func init() {
-	resource.AddTestSweepers("OSConfigOs_policy_assignment", &resource.Sweeper{
-		Name: "OSConfigOs_policy_assignment",
-		F:    testSweepOSConfigOs_policy_assignment,
+	resource.AddTestSweepers("OsConfigOsPolicyAssignment", &resource.Sweeper{
+		Name: "OsConfigOsPolicyAssignment",
+		F:    testSweepOsConfigOsPolicyAssignment,
 	})
 }
 
-func testSweepOSConfigOs_policy_assignment(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for OSConfigOs_policy_assignment")
+func testSweepOsConfigOsPolicyAssignment(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for OsConfigOsPolicyAssignment")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -58,14 +58,14 @@ func testSweepOSConfigOs_policy_assignment(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLOSConfigClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllOSPolicyAssignment(context.Background(), d["project"], d["location"], isDeletableOSConfigOs_policy_assignment)
+	client := NewDCLOsConfigClient(config, config.userAgent, "", 0)
+	err = client.DeleteAllOSPolicyAssignment(context.Background(), d["project"], d["location"], isDeletableOsConfigOsPolicyAssignment)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletableOSConfigOs_policy_assignment(r *osconfig.OSPolicyAssignment) bool {
+func isDeletableOsConfigOsPolicyAssignment(r *osconfig.OSPolicyAssignment) bool {
 	return isSweepableTestResource(*r.Name)
 }

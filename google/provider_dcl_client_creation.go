@@ -57,7 +57,7 @@ func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject stri
 	return assuredworkloads.NewClient(dclConfig)
 }
 
-func NewDCLcloudbuildClient(config *Config, userAgent, billingProject string, timeout time.Duration) *cloudbuild.Client {
+func NewDCLCloudbuildClient(config *Config, userAgent, billingProject string, timeout time.Duration) *cloudbuild.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
@@ -264,7 +264,7 @@ func NewDCLOrgPolicyClient(config *Config, userAgent, billingProject string, tim
 	return orgpolicy.NewClient(dclConfig)
 }
 
-func NewDCLOSConfigClient(config *Config, userAgent, billingProject string, timeout time.Duration) *osconfig.Client {
+func NewDCLOsConfigClient(config *Config, userAgent, billingProject string, timeout time.Duration) *osconfig.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
