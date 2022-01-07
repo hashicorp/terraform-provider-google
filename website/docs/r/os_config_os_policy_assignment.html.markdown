@@ -702,6 +702,46 @@ The `disruption_budget` block supports:
   (Optional)
   Specifies the relative value defined as a percentage, which will be multiplied by a reference value.
     
+The `source` block supports:
+    
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
+    
+* `gcs` -
+  (Optional)
+  A Cloud Storage object.
+    
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+    
+* `remote` -
+  (Optional)
+  A generic remote file.
+    
+The `validate` block supports:
+    
+* `interpreter` -
+  (Required)
+  Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL
+    
+* `args` -
+  (Optional)
+  Optional arguments to pass to the source during execution.
+    
+* `file` -
+  (Optional)
+  Required. A deb package.
+    
+* `output_file_path` -
+  (Optional)
+  Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.
+    
+* `script` -
+  (Optional)
+  An inline script. The size of the script is limited to 1024 characters.
+    
 - - -
 
 * `description` -
@@ -951,24 +991,6 @@ The `zypper` block supports:
   (Required)
   Required. A one word, unique name for this repository. This is the `repo id` in the zypper config file and also the `display_name` if `display_name` is omitted. This id is also used as the unique identifier when checking for GuestPolicy conflicts.
     
-The `file` block supports:
-    
-* `allow_insecure` -
-  (Optional)
-  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
-    
-* `gcs` -
-  (Optional)
-  A Cloud Storage object.
-    
-* `local_path` -
-  (Optional)
-  A local path within the VM to use.
-    
-* `remote` -
-  (Optional)
-  A generic remote file.
-    
 The `gcs` block supports:
     
 * `bucket` -
@@ -992,28 +1014,6 @@ The `remote` block supports:
 * `sha256_checksum` -
   (Optional)
   SHA256 checksum of the remote file.
-    
-The `enforce` block supports:
-    
-* `interpreter` -
-  (Required)
-  Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL
-    
-* `args` -
-  (Optional)
-  Optional arguments to pass to the source during execution.
-    
-* `file` -
-  (Optional)
-  Required. A deb package.
-    
-* `output_file_path` -
-  (Optional)
-  Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.
-    
-* `script` -
-  (Optional)
-  An inline script. The size of the script is limited to 1024 characters.
     
 ## Attributes Reference
 
