@@ -180,6 +180,7 @@ resource "google_redis_instance" "cache" {
 // config, add an additional network resource or change
 // this from "data"to "resource"
 data "google_compute_network" "redis-network" {
+  provider = google-beta
   name = "redis-test-network"
 }
 ```
