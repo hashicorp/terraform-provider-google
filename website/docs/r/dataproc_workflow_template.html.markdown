@@ -613,7 +613,7 @@ The `managed_cluster` block supports:
     
 * `labels` -
   (Optional)
-  Optional. The labels to associate with this cluster. Label keys must be between 1 and 63 characters long, and must conform to the following PCRE regular expression: {0,63} No more than 32 labels can be associated with a given cluster.
+  Optional. The labels to associate with this cluster. Label keys must be between 1 and 63 characters long, and must conform to the following PCRE regular expression: `{0,63}` No more than 32 labels can be associated with a given cluster.
     
 The `master_config` block supports:
     
