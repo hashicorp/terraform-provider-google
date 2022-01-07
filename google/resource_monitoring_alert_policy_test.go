@@ -17,6 +17,7 @@ func TestAccMonitoringAlertPolicy(t *testing.T) {
 		"full":   testAccMonitoringAlertPolicy_full,
 		"update": testAccMonitoringAlertPolicy_update,
 		"mql":    testAccMonitoringAlertPolicy_mql,
+		"log":    testAccMonitoringAlertPolicy_log,
 	}
 
 	for name, tc := range testCases {
@@ -126,6 +127,28 @@ func testAccMonitoringAlertPolicy_mql(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.mql",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMonitoringAlertPolicy_log(t *testing.T) {
+
+	alertName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	conditionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringAlertPolicy_logCfg(alertName, conditionName),
+			},
+			{
+				ResourceName:      "google_monitoring_alert_policy.log",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -268,6 +291,39 @@ resource "google_monitoring_alert_policy" "mql" {
         count = 2
       }
     }
+  }
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+  }
+}
+`, alertName, conditionName)
+}
+
+func testAccMonitoringAlertPolicy_logCfg(alertName, conditionName string) string {
+	return fmt.Sprintf(`
+resource "google_monitoring_alert_policy" "log" {
+  display_name = "%s"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "%s"
+
+    condition_matched_log {
+      filter = "protoPayload.methodName=\"google.cloud.bigquery.v2.TableService.DeleteTable\""
+      label_extractors = {
+        "test" = "EXTRACT(protoPayload.request)"
+      }
+    }
+  }
+
+  alert_strategy {
+    notification_rate_limit {
+      period = "300s"
+    }
+    auto_close = "2000s"
   }
 
   documentation {
