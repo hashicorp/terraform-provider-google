@@ -1,4 +1,35 @@
-## 4.6.0 (Unreleased)
+## 4.6.0 (January 10, 2021)
+
+BREAKING CHANGES:
+* pubsub: changed `google_pubsub_schema` so that modifiying fields will recreate the resource rather than causing Terraform to report it would attempt an invalid update ([#10768](https://github.com/hashicorp/terraform-provider-google/pull/10768))
+
+FEATURES:
+* **New Data Source:** `google_container_aws_versions` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
+* **New Data Source:** `google_container_azure_versions` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
+* **New Resource:** `google_apigee_nat_address` ([#10789](https://github.com/hashicorp/terraform-provider-google/pull/10789))
+* **New Resource:** `google_network_connectivity_hub` ([#10812](https://github.com/hashicorp/terraform-provider-google/pull/10812))
+* **New Resource:** `google_container_aws_cluster` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
+* **New Resource:** `google_container_aws_node_pool` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
+* **New Resource:** `google_container_azure_client` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
+* **New Resource:** `google_container_azure_cluster` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
+* **New Resource:** `google_container_azure_node_pool` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
+
+IMPROVEMENTS:
+* bigquery: added ability to create a table with both a schema and view simultaneously to `google_bigquery_table` ([#10819](https://github.com/hashicorp/terraform-provider-google/pull/10819))
+* cloud_composer: Added GA support for following fields:  `web_server_network_access_control`, `database_config`, `web_server_config`, `encryption_config`. ([#10827](https://github.com/hashicorp/terraform-provider-google/pull/10827))
+* cloud_composer: Added support for Cloud Composer master authorized networks flag ([#10780](https://github.com/hashicorp/terraform-provider-google/pull/10780))
+* cloud_composer: Added support for Cloud Composer v2 in GA. ([#10795](https://github.com/hashicorp/terraform-provider-google/pull/10795))
+* container: promoted `node_config.0.boot_disk_kms_key` of `google_container_node_pool` to GA ([#10829](https://github.com/hashicorp/terraform-provider-google/pull/10829))
+* osconfig: Added daily os config patch deployments ([#10807](https://github.com/hashicorp/terraform-provider-google/pull/10807))
+* storage: added configurable read timeout to `google_storage_bucket` ([#10781](https://github.com/hashicorp/terraform-provider-google/pull/10781))
+
+BUG FIXES:
+* billingbudget: fixed a bug where `google_billing_budget.budget_filter.labels` was not updating. ([#10767](https://github.com/hashicorp/terraform-provider-google/pull/10767))
+* compute: fixed scenario where `region_instance_group_manager` would not start update if `wait_for_instances` was set and initial status was not `STABLE` ([#10818](https://github.com/hashicorp/terraform-provider-google/pull/10818))
+* healthcare: Added back `self_link` functionality which was accidentally removed in `4.0.0` release. ([#10808](https://github.com/hashicorp/terraform-provider-google/pull/10808))
+* pubsub: fixed update failure when attempting to change non-updatable resource `google_pubsub_schema` ([#10768](https://github.com/hashicorp/terraform-provider-google/pull/10768))
+* storage: fixed a bug where `google_storage_bucket.lifecycle_rule.condition.days_since_custom_time` was not updating. ([#10778](https://github.com/hashicorp/terraform-provider-google/pull/10778))
+* vpcaccess: Added back `self_link` functionality which was accidentally removed in `4.0.0` release. ([#10808](https://github.com/hashicorp/terraform-provider-google/pull/10808))
 
 ## 4.5.0 (December 20, 2021)
 
