@@ -224,6 +224,30 @@ resource "google_compute_backend_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_external_managed&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service External Managed
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider = google-beta
+  name          = "backend-service"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
 
 ## Argument Reference
 
@@ -324,7 +348,7 @@ The following arguments are supported:
   load balancing cannot be used with the other. For more information, refer to
   [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service).
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
+  Possible values are `EXTERNAL`, `INTERNAL_SELF_MANAGED`, and `EXTERNAL_MANAGED`.
 
 * `locality_lb_policy` -
   (Optional)

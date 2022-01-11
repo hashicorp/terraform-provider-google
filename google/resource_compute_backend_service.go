@@ -604,11 +604,11 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", "EXTERNAL_MANAGED", ""}, false),
 				Description: `Indicates whether the backend service will be used with internal or
 external load balancing. A backend service created for one type of
 load balancing cannot be used with the other. For more information, refer to
-[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
+[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED", "EXTERNAL_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"locality_lb_policy": {
