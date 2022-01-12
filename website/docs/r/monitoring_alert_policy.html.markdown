@@ -235,7 +235,9 @@ The following arguments are supported:
   The alignment period for per-time
   series alignment. If present,
   alignmentPeriod must be at least
-  60 seconds. After per-time series
+  60 seconds. The alignment period
+  must be given in multiples of one
+  minute. After per-time series
   alignment, each time series will
   contain data points only on the
   period boundaries. If
