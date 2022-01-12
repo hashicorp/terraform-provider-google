@@ -701,7 +701,7 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 						"pull_request": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `filter to match changes in pull requests.  Specify only one of pullRequest or push.`,
+							Description: `filter to match changes in pull requests. Specify only one of 'pull_request' or 'push'.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -728,7 +728,7 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 						"push": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `filter to match changes in refs, like branches or tags.  Specify only one of pullRequest or push.`,
+							Description: `filter to match changes in refs, like branches or tags. Specify only one of 'pull_request' or 'push'.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
