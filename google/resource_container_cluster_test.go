@@ -1818,6 +1818,28 @@ func TestAccContainerCluster_withIPv4Error(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withDNSConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	domainName := fmt.Sprintf("tf-test-domain-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDNSConfig(clusterName, "CLOUD_DNS", domainName, "VPC_SCOPE"),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_dns_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccContainerCluster_masterAuthorizedNetworksDisabled(t *testing.T, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource_name]
@@ -3768,6 +3790,21 @@ resource "google_container_cluster" "with_autopilot" {
 	}
 }
 `, containerNetName, clusterName, location, enabled)
+}
+
+func testAccContainerCluster_withDNSConfig(clusterName string, clusterDns string, clusterDnsDomain string, clusterDnsScope string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_dns_config" {
+	name               = "%s"
+	location           = "us-central1-f"
+	initial_node_count = 1
+	dns_config {
+		cluster_dns 	   = "%s"
+		cluster_dns_domain = "%s"
+		cluster_dns_scope  = "%s"
+	}
+}
+`, clusterName, clusterDns, clusterDnsDomain, clusterDnsScope)
 }
 
 func testAccContainerCluster_withLoggingConfigEnabled(name string) string {
