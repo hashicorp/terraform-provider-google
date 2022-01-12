@@ -324,12 +324,12 @@ The following arguments are supported:
 
 * `pull_request` -
   (Optional)
-  filter to match changes in pull requests.  Specify only one of pullRequest or push.
+  filter to match changes in pull requests.  Specify only one of pull_request or push.
   Structure is [documented below](#nested_pull_request).
 
 * `push` -
   (Optional)
-  filter to match changes in refs, like branches or tags.  Specify only one of pullRequest or push.
+  filter to match changes in refs, like branches or tags.  Specify only one of pull_request or push.
   Structure is [documented below](#nested_push).
 
 
