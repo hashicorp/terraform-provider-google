@@ -974,7 +974,7 @@ The following arguments are supported:
 * `idle_timeout_sec` -
   (Optional)
   Specifies how long to keep a Connection Tracking entry while there is
-  no matching traffic (in seconds). 
+  no matching traffic (in seconds).
   For L4 ILB the minimum(default) is 10 minutes and maximum is 16 hours.
   For NLB the minimum(default) is 60 seconds and the maximum is 16 hours.
 
