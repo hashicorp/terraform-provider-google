@@ -200,7 +200,7 @@ access Google APIs and services by using Private Google Access.`,
 				ForceNew: true,
 				Description: `The purpose of the resource. A subnetwork with purpose set to
 INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
-reserved for Internal HTTP(S) Load Balancing. 
+reserved for Internal HTTP(S) Load Balancing.
 
 If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the 'role' field.`,
 			},
