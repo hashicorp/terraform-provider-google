@@ -355,9 +355,6 @@ func TestAccStorageObjectAcl_noOwner(t *testing.T) {
 				Config:             testGoogleStorageObjectsAclBasic1(bucketName, objectName),
 				ExpectNonEmptyPlan: true,
 			},
-			/*{
-				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
-			},*/
 		},
 	})
 }
