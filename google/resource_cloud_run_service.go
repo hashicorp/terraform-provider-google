@@ -435,6 +435,14 @@ commas.
 The alias definitions must be set on the run.googleapis.com/secrets
 annotation.`,
 															},
+															"default_mode": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Mode bits to use on created files by default. Must be a value between 0000
+and 0777. Defaults to 0644. Directories within the path are not affected by
+this setting. This might be in conflict with other options that affect the
+file mode, like fsGroup, and the result can be other mode bits set.`,
+															},
 															"items": {
 																Type:     schema.TypeList,
 																Optional: true,
@@ -458,6 +466,14 @@ Can be 'latest' for the latest value or an integer for a specific version.`,
 May not be an absolute path.
 May not contain the path element '..'.
 May not start with the string '..'.`,
+																		},
+																		"mode": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Description: `Mode bits to use on this file, must be a value between 0000 and 0777. If
+not specified, the volume defaultMode will be used. This might be in
+conflict with other options that affect the file mode, like fsGroup, and
+the result can be other mode bits set.`,
 																		},
 																	},
 																},
@@ -1678,12 +1694,31 @@ func flattenCloudRunServiceSpecTemplateSpecVolumesSecret(v interface{}, d *schem
 	transformed := make(map[string]interface{})
 	transformed["secret_name"] =
 		flattenCloudRunServiceSpecTemplateSpecVolumesSecretSecretName(original["secretName"], d, config)
+	transformed["default_mode"] =
+		flattenCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(original["defaultMode"], d, config)
 	transformed["items"] =
 		flattenCloudRunServiceSpecTemplateSpecVolumesSecretItems(original["items"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunServiceSpecTemplateSpecVolumesSecretSecretName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1701,6 +1736,7 @@ func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d *
 		transformed = append(transformed, map[string]interface{}{
 			"key":  flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsKey(original["key"], d, config),
 			"path": flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsPath(original["path"], d, config),
+			"mode": flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(original["mode"], d, config),
 		})
 	}
 	return transformed
@@ -1711,6 +1747,23 @@ func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsKey(v interface{}, 
 
 func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunServiceSpecTemplateSpecServingState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -2673,6 +2726,13 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecret(v interface{}, d Terrafo
 		transformed["secretName"] = transformedSecretName
 	}
 
+	transformedDefaultMode, err := expandCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(original["default_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["defaultMode"] = transformedDefaultMode
+	}
+
 	transformedItems, err := expandCloudRunServiceSpecTemplateSpecVolumesSecretItems(original["items"], d, config)
 	if err != nil {
 		return nil, err
@@ -2684,6 +2744,10 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecret(v interface{}, d Terrafo
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesSecretSecretName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2711,6 +2775,13 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d Te
 			transformed["path"] = transformedPath
 		}
 
+		transformedMode, err := expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(original["mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !isEmptyValue(val) {
+			transformed["mode"] = transformedMode
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2721,6 +2792,10 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsKey(v interface{}, d
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
