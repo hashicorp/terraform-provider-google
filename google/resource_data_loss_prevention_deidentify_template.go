@@ -85,7 +85,7 @@ Masking can start from the beginning or end of the string.`,
 																			Description: `Characters to skip when doing de-identification of a value. These will be left alone and skipped.`,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
-																					"character_to_skip": {
+																					"characters_to_skip": {
 																						Type:        schema.TypeString,
 																						Optional:    true,
 																						Description: `Characters to not transform when masking.`,
@@ -1204,13 +1204,13 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"character_to_skip":           flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["characterToSkip"], d, config),
+			"characters_to_skip":          flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(original["charactersToSkip"], d, config),
 			"common_characters_to_ignore": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["commonCharactersToIgnore"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1929,11 +1929,11 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedCharacterToSkip, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["character_to_skip"], d, config)
+		transformedCharactersToSkip, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(original["characters_to_skip"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedCharacterToSkip); val.IsValid() && !isEmptyValue(val) {
-			transformed["characterToSkip"] = transformedCharacterToSkip
+		} else if val := reflect.ValueOf(transformedCharactersToSkip); val.IsValid() && !isEmptyValue(val) {
+			transformed["charactersToSkip"] = transformedCharactersToSkip
 		}
 
 		transformedCommonCharactersToIgnore, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["common_characters_to_ignore"], d, config)
@@ -1948,7 +1948,7 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 	return req, nil
 }
 
-func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
