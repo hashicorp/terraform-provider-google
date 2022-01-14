@@ -83,7 +83,7 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -121,7 +121,7 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -161,7 +161,7 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -209,7 +209,7 @@ func TestAccComposerEnvironment_privateWithWebServerControl(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -244,7 +244,7 @@ func TestAccComposerEnvironment_withDatabaseConfig(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -279,7 +279,7 @@ func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -418,7 +418,7 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -450,7 +450,7 @@ func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -482,7 +482,7 @@ func TestAccComposerEnvironmentAirflow2_withSoftwareConfig(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -517,7 +517,7 @@ func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
