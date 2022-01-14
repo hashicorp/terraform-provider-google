@@ -30,7 +30,7 @@ func (w *DialogflowCXOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
 	// Returns the proper get.
-	url := fmt.Sprintf("https://dialogflow.googleapis.com/v3/%s", w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("%s%s", w.Config.DialogflowCXBasePath, w.CommonOperationWaiter.Op.Name)
 
 	return sendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
