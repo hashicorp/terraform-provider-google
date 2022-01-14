@@ -322,7 +322,7 @@ The following arguments are supported:
 
 <a name="nested_characters_to_ignore"></a>The `characters_to_ignore` block supports:
 
-* `character_to_skip` -
+* `characters_to_skip` -
   (Optional)
   Characters to not transform when masking.
 
