@@ -374,9 +374,11 @@ resource "google_cloud_run_service" "default" {
         name = "a-volume"
 	secret {
 	  secret_name = google_secret_manager_secret.secret.secret_id
+	  default_mode = 292 # 0444
 	  items {
             key = "1"
 	    path = "my-secret"
+	    mode = 256 # 0400
 	  }
 	}
       }
@@ -800,6 +802,13 @@ The following arguments are supported:
   The alias definitions must be set on the run.googleapis.com/secrets
   annotation.
 
+* `default_mode` -
+  (Optional)
+  Mode bits to use on created files by default. Must be a value between 0000
+  and 0777. Defaults to 0644. Directories within the path are not affected by
+  this setting. This might be in conflict with other options that affect the
+  file mode, like fsGroup, and the result can be other mode bits set.
+
 * `items` -
   (Optional)
   If unspecified, the volume will expose a file whose name is the
@@ -823,6 +832,13 @@ The following arguments are supported:
   May not be an absolute path.
   May not contain the path element '..'.
   May not start with the string '..'.
+
+* `mode` -
+  (Optional)
+  Mode bits to use on this file, must be a value between 0000 and 0777. If
+  not specified, the volume defaultMode will be used. This might be in
+  conflict with other options that affect the file mode, like fsGroup, and
+  the result can be other mode bits set.
 
 - - -
 
