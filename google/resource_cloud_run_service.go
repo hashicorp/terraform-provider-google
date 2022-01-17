@@ -108,6 +108,7 @@ func resourceCloudRunService() *schema.Resource {
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The location of the cloud run instance. eg us-central1`,
 			},
 			"name": {
