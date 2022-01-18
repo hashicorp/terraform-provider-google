@@ -80,6 +80,18 @@ Use the following format: 'projects/([^/]+)/locations/([^/]+)/keyRings/([^/]+)/c
 				ForceNew:    true,
 				Description: `Display name of the instance.`,
 			},
+			"ip_range": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `IP range represents the customer-provided CIDR block of length 22 that will be used for
+the Apigee instance creation. This optional range, if provided, should be freely
+available as part of larger named range the customer has allocated to the Service
+Networking peering. If this is not provided, Apigee will automatically request for any
+available /22 CIDR block from Service Networking. The customer should use this CIDR block
+for configuring their firewall needs to allow traffic from Apigee.
+Input format: "a.b.c.d/22"`,
+			},
 			"peering_cidr_range": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -127,6 +139,12 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("peering_cidr_range"); !isEmptyValue(reflect.ValueOf(peeringCidrRangeProp)) && (ok || !reflect.DeepEqual(v, peeringCidrRangeProp)) {
 		obj["peeringCidrRange"] = peeringCidrRangeProp
+	}
+	ipRangeProp, err := expandApigeeInstanceIpRange(d.Get("ip_range"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_range"); !isEmptyValue(reflect.ValueOf(ipRangeProp)) && (ok || !reflect.DeepEqual(v, ipRangeProp)) {
+		obj["ipRange"] = ipRangeProp
 	}
 	descriptionProp, err := expandApigeeInstanceDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -231,6 +249,9 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("peering_cidr_range", flattenApigeeInstancePeeringCidrRange(res["peeringCidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("ip_range", flattenApigeeInstanceIpRange(res["ipRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("description", flattenApigeeInstanceDescription(res["description"], d, config)); err != nil {
@@ -348,6 +369,10 @@ func flattenApigeeInstancePeeringCidrRange(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenApigeeInstanceIpRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenApigeeInstanceDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -377,6 +402,10 @@ func expandApigeeInstanceLocation(v interface{}, d TerraformResourceData, config
 }
 
 func expandApigeeInstancePeeringCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeInstanceIpRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

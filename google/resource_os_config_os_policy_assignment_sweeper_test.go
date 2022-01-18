@@ -20,19 +20,19 @@ import (
 	"log"
 	"testing"
 
-	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
+	osconfig "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/osconfig"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func init() {
-	resource.AddTestSweepers("ComputeGlobalForwardingRule", &resource.Sweeper{
-		Name: "ComputeGlobalForwardingRule",
-		F:    testSweepComputeGlobalForwardingRule,
+	resource.AddTestSweepers("OsConfigOsPolicyAssignment", &resource.Sweeper{
+		Name: "OsConfigOsPolicyAssignment",
+		F:    testSweepOsConfigOsPolicyAssignment,
 	})
 }
 
-func testSweepComputeGlobalForwardingRule(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeGlobalForwardingRule")
+func testSweepOsConfigOsPolicyAssignment(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for OsConfigOsPolicyAssignment")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -58,14 +58,14 @@ func testSweepComputeGlobalForwardingRule(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLComputeClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllForwardingRule(context.Background(), d["project"], d["location"], isDeletableComputeGlobalForwardingRule)
+	client := NewDCLOsConfigClient(config, config.userAgent, "", 0)
+	err = client.DeleteAllOSPolicyAssignment(context.Background(), d["project"], d["location"], isDeletableOsConfigOsPolicyAssignment)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletableComputeGlobalForwardingRule(r *compute.ForwardingRule) bool {
+func isDeletableOsConfigOsPolicyAssignment(r *osconfig.OSPolicyAssignment) bool {
 	return isSweepableTestResource(*r.Name)
 }
