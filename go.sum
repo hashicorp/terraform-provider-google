@@ -65,6 +65,12 @@ github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24 h1:sHglBQTwgx+rW
 github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24/go.mod h1:4UJr5HIiMZrwgkSPdsjy2uOQExX/WEILpIrO9UPGuXs=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20211215020606-79616333f950 h1:pJAaEIUF6dSY6hRyiHpSlSHgvyaCv478IUVZR6t2OIU=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20211215020606-79616333f950/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220106225628-959dba9ad83c h1:eSQGB4tXlzv8Z/LXRoP3Ja6dHMSIv/z4Qw+5VT6WaB8=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220106225628-959dba9ad83c/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220110205338-bb0f55721bc4 h1:q6pEOs1blrAzT4w9oWV9BlgAaNXEytrOTORhYxIBQEQ=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220110205338-bb0f55721bc4/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220114025148-a9879027a727 h1:+s/Q1OtaOX8y10li7GLqeBx6e4jd3aF/YlLhXWG9Y9g=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220114025148-a9879027a727/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
 github.com/Masterminds/goutils v1.1.0/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=
@@ -1441,5 +1447,3 @@ rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=
-github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220106225628-959dba9ad83c h1:eSQGB4tXlzv8Z/LXRoP3Ja6dHMSIv/z4Qw+5VT6WaB8=
-github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220106225628-959dba9ad83c/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
