@@ -393,7 +393,8 @@ Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manua
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `The version of the API in the given runtime environment.
-Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
+Please see the app.yaml reference for valid values at 'https://cloud.google.com/appengine/docs/standard/<language>/config/appref'\
+Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`,
 			},
 			"threadsafe": {
 				Type:        schema.TypeBool,

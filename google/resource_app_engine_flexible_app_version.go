@@ -790,7 +790,8 @@ If specified, the subnetwork must exist in the same region as the App Engine fle
 				Computed: true,
 				Optional: true,
 				Description: `The version of the API in the given runtime environment.
-Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
+Please see the app.yaml reference for valid values at 'https://cloud.google.com/appengine/docs/standard/<language>/config/appref'\
+Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`,
 			},
 			"runtime_channel": {
 				Type:        schema.TypeString,
