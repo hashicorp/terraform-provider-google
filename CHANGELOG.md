@@ -1,6 +1,6 @@
 ## 4.7.0 (Unreleased)
 
-## 4.6.0 (January 10, 2021)
+## 4.6.0 (January 10, 2022)
 
 BREAKING CHANGES:
 * pubsub: changed `google_pubsub_schema` so that modifiying fields will recreate the resource rather than causing Terraform to report it would attempt an invalid update ([#10768](https://github.com/hashicorp/terraform-provider-google/pull/10768))
