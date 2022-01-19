@@ -594,8 +594,7 @@ master_auth {
 }
 ```
 
-If this block is provided and both `username` and `password` are empty, basic authentication will be disabled.
-This block also contains several computed attributes, documented below. If this block is not provided, GKE will generate a password for you with the username `admin`.
+This block also contains several computed attributes, documented below.
 
 <a name="nested_master_authorized_networks_config"></a>The `master_authorized_networks_config` block supports:
 
@@ -767,7 +766,7 @@ linux_node_config {
 
 <a name="nested_workload_identity_config"></a> The `workload_identity_config` block supports:
 
-* `workload_pool` (Optional) - The workload pool to attach all Kubernetes service accounts to. Currently, the only supported identity namespace is the project of the cluster.
+* `workload_pool` (Optional) - The workload pool to attach all Kubernetes service accounts to.
 
 ```hcl
 workload_identity_config {
