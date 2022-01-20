@@ -94,6 +94,7 @@ Input format: "a.b.c.d/22"`,
 			},
 			"peering_cidr_range": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The size of the CIDR block range that will be reserved by the instance. For valid values, 
@@ -251,9 +252,6 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("peering_cidr_range", flattenApigeeInstancePeeringCidrRange(res["peeringCidrRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("ip_range", flattenApigeeInstanceIpRange(res["ipRange"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
 	if err := d.Set("description", flattenApigeeInstanceDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -366,10 +364,6 @@ func flattenApigeeInstanceLocation(v interface{}, d *schema.ResourceData, config
 }
 
 func flattenApigeeInstancePeeringCidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenApigeeInstanceIpRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

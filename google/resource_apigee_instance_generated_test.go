@@ -45,7 +45,7 @@ func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 				ResourceName:            "google_apigee_instance.apigee_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"org_id"},
+				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
 			},
 		},
 	})
@@ -137,7 +137,7 @@ func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
 				ResourceName:            "google_apigee_instance.apigee_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"org_id"},
+				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
 			},
 		},
 	})
@@ -230,7 +230,7 @@ func TestAccApigeeInstance_apigeeInstanceIpRangeTestExample(t *testing.T) {
 				ResourceName:            "google_apigee_instance.apigee_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"org_id"},
+				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
 			},
 		},
 	})
