@@ -390,6 +390,7 @@ requests per container of the Revision. Values are:
 									},
 									"service_account_name": {
 										Type:     schema.TypeString,
+										Computed: true,
 										Optional: true,
 										Description: `Email address of the IAM service account associated with the revision of the
 service. The service account represents the identity of the running revision,

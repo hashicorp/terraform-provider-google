@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: Fixed permadiff in `google_cloud_run_service`'s `template.spec.service_account_name`.
+```
