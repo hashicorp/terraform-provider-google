@@ -24,6 +24,14 @@ func TestAccStorageTransferJob_basic(t *testing.T) {
 		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccStorageTransferJob_omitSchedule(getTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccStorageTransferJob_basic(getTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription),
 			},
 			{
@@ -114,6 +122,61 @@ func testAccStorageTransferJobDestroyProducer(t *testing.T) func(s *terraform.St
 
 		return nil
 	}
+}
+
+func testAccStorageTransferJob_omitSchedule(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string) string {
+	return fmt.Sprintf(`
+data "google_storage_transfer_project_service_account" "default" {
+  project = "%s"
+}
+
+resource "google_storage_bucket" "data_source" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_iam_member" "data_source" {
+  bucket = google_storage_bucket.data_source.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_bucket" "data_sink" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_iam_member" "data_sink" {
+  bucket = google_storage_bucket.data_sink.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_transfer_job" "transfer_job" {
+  description = "%s"
+  project     = "%s"
+
+  transfer_spec {
+    gcs_data_source {
+      bucket_name = google_storage_bucket.data_source.name
+      path  = "foo/bar/"
+    }
+    gcs_data_sink {
+      bucket_name = google_storage_bucket.data_sink.name
+      path  = "foo/bar/"
+    }
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.data_source,
+    google_storage_bucket_iam_member.data_sink,
+  ]
+}
+`, project, dataSourceBucketName, project, dataSinkBucketName, project, transferJobDescription, project)
 }
 
 func testAccStorageTransferJob_basic(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string) string {

@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
@@ -116,7 +117,7 @@ func resourceStorageTransferJob() *schema.Resource {
 			},
 			"schedule": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -728,6 +729,10 @@ func expandTransferSchedules(transferSchedules []interface{}) *storagetransfer.S
 }
 
 func flattenTransferSchedule(transferSchedule *storagetransfer.Schedule) []map[string][]map[string]interface{} {
+	if reflect.DeepEqual(transferSchedule, &storagetransfer.Schedule{}) {
+		return nil
+	}
+
 	data := map[string][]map[string]interface{}{
 		"schedule_start_date": flattenDate(transferSchedule.ScheduleStartDate),
 	}
