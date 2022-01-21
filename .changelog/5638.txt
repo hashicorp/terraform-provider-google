@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: changed the default timeout for many resources to 20 minutes, the current Terraform default, where it was less than 20 minutes previously
+```
