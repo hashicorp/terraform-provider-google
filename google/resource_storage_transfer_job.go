@@ -33,6 +33,10 @@ var (
 		"transfer_spec.0.http_data_source",
 		"transfer_spec.0.azure_blob_storage_data_source",
 	}
+	awsS3AuthKeys = []string{
+		"transfer_spec.0.aws_s3_data_source.0.aws_access_key",
+		"transfer_spec.0.aws_s3_data_source.0.role_arn",
+	}
 )
 
 func resourceStorageTransferJob() *schema.Resource {
@@ -350,7 +354,7 @@ func awsS3DataSchema() *schema.Resource {
 			},
 			"aws_access_key": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -368,7 +372,14 @@ func awsS3DataSchema() *schema.Resource {
 						},
 					},
 				},
-				Description: `AWS credentials block.`,
+				ExactlyOneOf: awsS3AuthKeys,
+				Description:  `AWS credentials block.`,
+			},
+			"role_arn": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: awsS3AuthKeys,
+				Description:  `The Amazon Resource Name (ARN) of the role to support temporary credentials via 'AssumeRoleWithWebIdentity'. For more information about ARNs, see [IAM ARNs](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-arns). When a role ARN is provided, Transfer Service fetches temporary credentials for the session using a 'AssumeRoleWithWebIdentity' call for the provided role using the [GoogleServiceAccount][] for this project.`,
 			},
 		},
 	}
@@ -801,13 +812,17 @@ func expandAwsS3Data(awsS3Datas []interface{}) *storagetransfer.AwsS3Data {
 	return &storagetransfer.AwsS3Data{
 		BucketName:   awsS3Data["bucket_name"].(string),
 		AwsAccessKey: expandAwsAccessKeys(awsS3Data["aws_access_key"].([]interface{})),
+		RoleArn:      awsS3Data["role_arn"].(string),
 	}
 }
 
 func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceData) []map[string]interface{} {
 	data := map[string]interface{}{
-		"bucket_name":    awsS3Data.BucketName,
-		"aws_access_key": flattenAwsAccessKeys(d),
+		"bucket_name": awsS3Data.BucketName,
+		"role_arn":    awsS3Data.RoleArn,
+	}
+	if awsS3Data.AwsAccessKey != nil {
+		data["aws_access_key"] = flattenAwsAccessKeys(d)
 	}
 
 	return []map[string]interface{}{data}
