@@ -109,6 +109,7 @@ Currently supports one owner only.`,
 			},
 			"software_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `The config settings for software inside the runtime.`,
 				MaxItems:    1,
