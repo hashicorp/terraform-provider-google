@@ -36,7 +36,7 @@ The Google provider is jointly maintained by:
 
 If you have configuration questions, or general questions about using the provider, try checking out:
 
-* The [Google Cloud Platform Community Slack](https://gcp-slack.appspot.com/) #terraform channel
+* The [Google Cloud Platform Community Slack](https://googlecloud-community.slack.com/) `#terraform` channel. If you are not registered with that Slack Workspace yet, the up-to-date **public sign-up link** can be found in the "Stay Connected" section of the [Google Developer Center](https://cloud.google.com/developers#stay-connected).
 * [Terraform's community resources](https://www.terraform.io/docs/extend/community/index.html)
 * [HashiCorp support](https://support.hashicorp.com) for Terraform Enterprise customers
 
