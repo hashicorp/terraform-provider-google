@@ -168,7 +168,9 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 * `bucket_name` - (Required) S3 Bucket name.
 
-* `aws_access_key` - (Required) AWS credentials block.
+* `aws_access_key` - (Optional) AWS credentials block.
+
+* `role_arn` - (Optional) The Amazon Resource Name (ARN) of the role to support temporary credentials via 'AssumeRoleWithWebIdentity'. For more information about ARNs, see [IAM ARNs](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-arns). When a role ARN is provided, Transfer Service fetches temporary credentials for the session using a 'AssumeRoleWithWebIdentity' call for the provided role using the [GoogleServiceAccount][] for this project.
 
 The `aws_access_key` block supports:
 
