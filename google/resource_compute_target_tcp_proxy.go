@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeTargetTcpProxy() *schema.Resource {
@@ -78,7 +76,7 @@ this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
 			"proxy_header": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 				Description: `Specifies the type of proxy header to append before sending data to
 the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 				Default: "NONE",
@@ -422,7 +420,7 @@ func flattenComputeTargetTcpProxyDescription(v interface{}, d *schema.ResourceDa
 func flattenComputeTargetTcpProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

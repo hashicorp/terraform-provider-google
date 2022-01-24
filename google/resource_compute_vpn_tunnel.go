@@ -20,7 +20,6 @@ import (
 	"log"
 	"net"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -657,7 +656,7 @@ func flattenComputeVpnTunnelVpnGateway(v interface{}, d *schema.ResourceData, co
 func flattenComputeVpnTunnelVpnGatewayInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -681,7 +680,7 @@ func flattenComputeVpnTunnelPeerExternalGateway(v interface{}, d *schema.Resourc
 func flattenComputeVpnTunnelPeerExternalGatewayInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -720,7 +719,7 @@ func flattenComputeVpnTunnelSharedSecretHash(v interface{}, d *schema.ResourceDa
 func flattenComputeVpnTunnelIkeVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

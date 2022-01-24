@@ -19,7 +19,6 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -723,7 +722,7 @@ func flattenBigQueryDatasetAccessViewTableId(v interface{}, d *schema.ResourceDa
 func flattenBigQueryDatasetCreationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -757,7 +756,7 @@ func flattenBigQueryDatasetDatasetReferenceDatasetId(v interface{}, d *schema.Re
 func flattenBigQueryDatasetDefaultTableExpirationMs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -774,7 +773,7 @@ func flattenBigQueryDatasetDefaultTableExpirationMs(v interface{}, d *schema.Res
 func flattenBigQueryDatasetDefaultPartitionExpirationMs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -807,7 +806,7 @@ func flattenBigQueryDatasetLabels(v interface{}, d *schema.ResourceData, config 
 func flattenBigQueryDatasetLastModifiedTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

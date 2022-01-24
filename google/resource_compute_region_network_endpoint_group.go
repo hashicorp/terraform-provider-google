@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeRegionNetworkEndpointGroup() *schema.Resource {
@@ -193,7 +192,7 @@ you create the resource.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SERVERLESS", ""}, false),
+				ValidateFunc: validateEnum([]string{"SERVERLESS", ""}),
 				Description:  `Type of network endpoints in this network endpoint group. Defaults to SERVERLESS Default value: "SERVERLESS" Possible values: ["SERVERLESS"]`,
 				Default:      "SERVERLESS",
 			},

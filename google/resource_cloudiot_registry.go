@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func expandCloudIotDeviceRegistryHTTPConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -323,7 +322,7 @@ item.`,
 			"log_level": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"NONE", "ERROR", "INFO", "DEBUG", ""}, false),
+				ValidateFunc:     validateEnum([]string{"NONE", "ERROR", "INFO", "DEBUG", ""}),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("NONE"),
 				Description: `The default logging verbosity for activity from devices in this
 registry. Specifies which events should be written to logs. For

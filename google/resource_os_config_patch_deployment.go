@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -196,7 +195,7 @@ any other patch configuration fields.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"DIST", "UPGRADE", ""}, false),
+										ValidateFunc: validateEnum([]string{"DIST", "UPGRADE", ""}),
 										Description:  `By changing the type to DIST, the patching is performed using apt-get dist-upgrade instead. Possible values: ["DIST", "UPGRADE"]`,
 										AtLeastOneOf: []string{"patch_config.0.apt.0.type", "patch_config.0.apt.0.excludes", "patch_config.0.apt.0.exclusive_packages"},
 									},
@@ -281,7 +280,7 @@ any other patch configuration fields.`,
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice([]string{"SHELL", "POWERSHELL", ""}, false),
+													ValidateFunc: validateEnum([]string{"SHELL", "POWERSHELL", ""}),
 													Description: `The script interpreter to use to run the script. If no interpreter is specified the script will
 be executed directly, which will likely only succeed for scripts with shebang lines. Possible values: ["SHELL", "POWERSHELL"]`,
 												},
@@ -347,7 +346,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice([]string{"SHELL", "POWERSHELL", ""}, false),
+													ValidateFunc: validateEnum([]string{"SHELL", "POWERSHELL", ""}),
 													Description: `The script interpreter to use to run the script. If no interpreter is specified the script will
 be executed directly, which will likely only succeed for scripts with shebang lines. Possible values: ["SHELL", "POWERSHELL"]`,
 												},
@@ -425,7 +424,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice([]string{"SHELL", "POWERSHELL", ""}, false),
+													ValidateFunc: validateEnum([]string{"SHELL", "POWERSHELL", ""}),
 													Description: `The script interpreter to use to run the script. If no interpreter is specified the script will
 be executed directly, which will likely only succeed for scripts with shebang lines. Possible values: ["SHELL", "POWERSHELL"]`,
 												},
@@ -491,7 +490,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice([]string{"SHELL", "POWERSHELL", ""}, false),
+													ValidateFunc: validateEnum([]string{"SHELL", "POWERSHELL", ""}),
 													Description: `The script interpreter to use to run the script. If no interpreter is specified the script will
 be executed directly, which will likely only succeed for scripts with shebang lines. Possible values: ["SHELL", "POWERSHELL"]`,
 												},
@@ -514,7 +513,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "ALWAYS", "NEVER", ""}, false),
+							ValidateFunc: validateEnum([]string{"DEFAULT", "ALWAYS", "NEVER", ""}),
 							Description:  `Post-patch reboot settings. Possible values: ["DEFAULT", "ALWAYS", "NEVER"]`,
 							AtLeastOneOf: []string{"patch_config.0.reboot_config", "patch_config.0.apt", "patch_config.0.yum", "patch_config.0.goo", "patch_config.0.zypper", "patch_config.0.windows_update", "patch_config.0.pre_step", "patch_config.0.post_step"},
 						},
@@ -533,7 +532,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 										Description: `Only apply updates of these windows update classifications. If empty, all updates are applied. Possible values: ["CRITICAL", "SECURITY", "DEFINITION", "DRIVER", "FEATURE_PACK", "SERVICE_PACK", "TOOL", "UPDATE_ROLLUP", "UPDATE"]`,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
-											ValidateFunc: validation.StringInSlice([]string{"CRITICAL", "SECURITY", "DEFINITION", "DRIVER", "FEATURE_PACK", "SERVICE_PACK", "TOOL", "UPDATE_ROLLUP", "UPDATE"}, false),
+											ValidateFunc: validateEnum([]string{"CRITICAL", "SECURITY", "DEFINITION", "DRIVER", "FEATURE_PACK", "SERVICE_PACK", "TOOL", "UPDATE_ROLLUP", "UPDATE"}),
 										},
 										ExactlyOneOf: []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes", "patch_config.0.windows_update.0.exclusive_patches"},
 									},
@@ -793,7 +792,7 @@ will not run in February, April, June, etc.`,
 													Type:         schema.TypeString,
 													Required:     true,
 													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}, false),
+													ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
 													Description:  `A day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 												},
 												"week_ordinal": {
@@ -829,7 +828,7 @@ A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "201
 										Type:         schema.TypeString,
 										Required:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}, false),
+										ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
 										Description:  `IANA Time Zone Database time zone, e.g. "America/New_York". Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 									},
 								},
@@ -894,7 +893,7 @@ For example, if the disruption budget has a fixed value of 10, and 8 VMs fail to
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ZONE_BY_ZONE", "CONCURRENT_ZONES"}, false),
+							ValidateFunc: validateEnum([]string{"ZONE_BY_ZONE", "CONCURRENT_ZONES"}),
 							Description:  `Mode of the patch rollout. Possible values: ["ZONE_BY_ZONE", "CONCURRENT_ZONES"]`,
 						},
 					},
@@ -1818,7 +1817,7 @@ func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDay(v interface{}, d *
 func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDayHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1835,7 +1834,7 @@ func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDayHours(v interface{}
 func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDayMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1852,7 +1851,7 @@ func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDayMinutes(v interface
 func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1869,7 +1868,7 @@ func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDaySeconds(v interface
 func flattenOSConfigPatchDeploymentRecurringScheduleTimeOfDayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1941,7 +1940,7 @@ func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonth(v inte
 func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthWeekOrdinal(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1962,7 +1961,7 @@ func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOfWe
 func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyMonthDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2013,7 +2012,7 @@ func flattenOSConfigPatchDeploymentRolloutDisruptionBudget(v interface{}, d *sch
 func flattenOSConfigPatchDeploymentRolloutDisruptionBudgetFixed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2030,7 +2029,7 @@ func flattenOSConfigPatchDeploymentRolloutDisruptionBudgetFixed(v interface{}, d
 func flattenOSConfigPatchDeploymentRolloutDisruptionBudgetPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

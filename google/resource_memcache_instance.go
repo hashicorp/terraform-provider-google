@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceMemcacheInstance() *schema.Resource {
@@ -121,7 +119,7 @@ func resourceMemcacheInstance() *schema.Resource {
 			"memcache_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MEMCACHE_1_5", ""}, false),
+				ValidateFunc: validateEnum([]string{"MEMCACHE_1_5", ""}),
 				Description: `The major version of Memcached software. If not provided, latest supported version will be used.
 Currently the latest supported major version is MEMCACHE_1_5. The minor version will be automatically
 determined by our system based on the latest supported minor version. Default value: "MEMCACHE_1_5" Possible values: ["MEMCACHE_1_5"]`,
@@ -590,7 +588,7 @@ func flattenMemcacheInstanceMemcacheNodesZone(v interface{}, d *schema.ResourceD
 func flattenMemcacheInstanceMemcacheNodesPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -642,7 +640,7 @@ func flattenMemcacheInstanceAuthorizedNetwork(v interface{}, d *schema.ResourceD
 func flattenMemcacheInstanceNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -678,7 +676,7 @@ func flattenMemcacheInstanceNodeConfig(v interface{}, d *schema.ResourceData, co
 func flattenMemcacheInstanceNodeConfigCpuCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -695,7 +693,7 @@ func flattenMemcacheInstanceNodeConfigCpuCount(v interface{}, d *schema.Resource
 func flattenMemcacheInstanceNodeConfigMemorySizeMb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

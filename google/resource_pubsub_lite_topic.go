@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -420,7 +419,7 @@ func flattenPubsubLiteTopicPartitionConfig(v interface{}, d *schema.ResourceData
 func flattenPubsubLiteTopicPartitionConfigCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -452,7 +451,7 @@ func flattenPubsubLiteTopicPartitionConfigCapacity(v interface{}, d *schema.Reso
 func flattenPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -469,7 +468,7 @@ func flattenPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}
 func flattenPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

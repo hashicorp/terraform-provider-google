@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -480,7 +479,7 @@ func resourceComputeHttpHealthCheckImport(d *schema.ResourceData, meta interface
 func flattenComputeHttpHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -505,7 +504,7 @@ func flattenComputeHttpHealthCheckDescription(v interface{}, d *schema.ResourceD
 func flattenComputeHttpHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -530,7 +529,7 @@ func flattenComputeHttpHealthCheckName(v interface{}, d *schema.ResourceData, co
 func flattenComputeHttpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -551,7 +550,7 @@ func flattenComputeHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceD
 func flattenComputeHttpHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -568,7 +567,7 @@ func flattenComputeHttpHealthCheckTimeoutSec(v interface{}, d *schema.ResourceDa
 func flattenComputeHttpHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

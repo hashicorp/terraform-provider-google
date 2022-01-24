@@ -112,6 +112,10 @@ func validateRegexp(re string) schema.SchemaValidateFunc {
 	}
 }
 
+func validateEnum(values []string) schema.SchemaValidateFunc {
+	return validation.StringInSlice(values, false)
+}
+
 func validateRFC1918Network(min, max int) schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (s []string, es []error) {
 

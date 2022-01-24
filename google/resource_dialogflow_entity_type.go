@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDialogflowEntityType() *schema.Resource {
@@ -51,7 +50,7 @@ func resourceDialogflowEntityType() *schema.Resource {
 			"kind": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"KIND_MAP", "KIND_LIST", "KIND_REGEXP"}, false),
+				ValidateFunc: validateEnum([]string{"KIND_MAP", "KIND_LIST", "KIND_REGEXP"}),
 				Description: `Indicates the kind of entity type.
 * KIND_MAP: Map entity types allow mapping of a group of synonyms to a reference value.
 * KIND_LIST: List entity types contain a set of entries that do not map to reference values. However, list entity

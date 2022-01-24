@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -515,7 +514,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfig(v interface{}, d *schema.Resou
 func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -532,7 +531,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *
 func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -549,7 +548,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *
 func flattenDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -583,7 +582,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d *sch
 func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -600,7 +599,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interfa
 func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -617,7 +616,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interfa
 func flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

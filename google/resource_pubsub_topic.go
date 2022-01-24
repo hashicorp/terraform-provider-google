@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourcePubsubTopic() *schema.Resource {
@@ -121,7 +120,7 @@ if the schema has been deleted.`,
 						"encoding": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ENCODING_UNSPECIFIED", "JSON", "BINARY", ""}, false),
+							ValidateFunc: validateEnum([]string{"ENCODING_UNSPECIFIED", "JSON", "BINARY", ""}),
 							Description:  `The encoding of messages validated against schema. Default value: "ENCODING_UNSPECIFIED" Possible values: ["ENCODING_UNSPECIFIED", "JSON", "BINARY"]`,
 							Default:      "ENCODING_UNSPECIFIED",
 						},

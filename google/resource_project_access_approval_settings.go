@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAccessApprovalProjectSettings() *schema.Resource {
@@ -115,7 +114,7 @@ func accessapprovalProjectSettingsEnrolledServicesSchema() *schema.Resource {
 			"enrollment_level": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"BLOCK_ALL", ""}, false),
+				ValidateFunc: validateEnum([]string{"BLOCK_ALL", ""}),
 				Description:  `The enrollment level of the service. Default value: "BLOCK_ALL" Possible values: ["BLOCK_ALL"]`,
 				Default:      "BLOCK_ALL",
 			},

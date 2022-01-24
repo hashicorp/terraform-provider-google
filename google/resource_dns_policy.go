@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDNSPolicy() *schema.Resource {
@@ -136,7 +135,7 @@ func dnsPolicyAlternativeNameServerConfigTargetNameServersSchema() *schema.Resou
 			"forwarding_path": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"default", "private", ""}, false),
+				ValidateFunc: validateEnum([]string{"default", "private", ""}),
 				Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
 decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
 to the Internet. When set to 'private', Cloud DNS will always send queries through VPC for this target Possible values: ["default", "private"]`,

@@ -19,11 +19,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func stepTimeoutCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
@@ -411,25 +409,25 @@ The elements are of the form "KEY=VALUE" for the environment variable "KEY" bein
 									"log_streaming_option": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF", ""}, false),
+										ValidateFunc: validateEnum([]string{"STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF", ""}),
 										Description:  `Option to define build log streaming behavior to Google Cloud Storage. Possible values: ["STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF"]`,
 									},
 									"logging": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "NONE", ""}, false),
+										ValidateFunc: validateEnum([]string{"LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "NONE", ""}),
 										Description:  `Option to specify the logging mode, which determines if and where build logs are stored. Possible values: ["LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "NONE"]`,
 									},
 									"machine_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32", ""}, false),
+										ValidateFunc: validateEnum([]string{"UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32", ""}),
 										Description:  `Compute Engine machine type on which to run the build. Possible values: ["UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32"]`,
 									},
 									"requested_verify_option": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"NOT_VERIFIED", "VERIFIED", ""}, false),
+										ValidateFunc: validateEnum([]string{"NOT_VERIFIED", "VERIFIED", ""}),
 										Description:  `Requested verifiability options. Possible values: ["NOT_VERIFIED", "VERIFIED"]`,
 									},
 									"secret_env": {
@@ -448,13 +446,13 @@ will be available to all build steps in this build.`,
 										Description: `Requested hash for SourceProvenance. Possible values: ["NONE", "SHA256", "MD5"]`,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
-											ValidateFunc: validation.StringInSlice([]string{"NONE", "SHA256", "MD5"}, false),
+											ValidateFunc: validateEnum([]string{"NONE", "SHA256", "MD5"}),
 										},
 									},
 									"substitution_option": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"MUST_MATCH", "ALLOW_LOOSE", ""}, false),
+										ValidateFunc: validateEnum([]string{"MUST_MATCH", "ALLOW_LOOSE", ""}),
 										Description: `Option to specify behavior when there is an error in the substitution checks.
 
 NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot be overridden
@@ -713,7 +711,7 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 									"comment_control": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"COMMENTS_DISABLED", "COMMENTS_ENABLED", "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY", ""}, false),
+										ValidateFunc: validateEnum([]string{"COMMENTS_DISABLED", "COMMENTS_ENABLED", "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY", ""}),
 										Description:  `Whether to block builds on a "/gcbrun" comment from a repository owner or collaborator. Possible values: ["COMMENTS_DISABLED", "COMMENTS_ENABLED", "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY"]`,
 									},
 									"invert_regex": {
@@ -2062,7 +2060,7 @@ func flattenCloudBuildTriggerBuildOptionsMachineType(v interface{}, d *schema.Re
 func flattenCloudBuildTriggerBuildOptionsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
