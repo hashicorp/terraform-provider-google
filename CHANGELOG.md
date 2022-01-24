@@ -1,4 +1,23 @@
 ## 4.8.0 (Unreleased)
+
+BREAKING CHANGES:
+* dlp: renamed the `characters_to_ignore.character_to_skip` field to `characters_to_ignore.characters_to_skip` in `google_data_loss_prevention_deidentify_template`. Any affected configurations will have been failing with an error at apply time already. ([#10910](https://github.com/hashicorp/terraform-provider-google/pull/10910))
+
+FEATURES:
+* **New Resource:** `google_network_connectivity_spoke` ([#10921](https://github.com/hashicorp/terraform-provider-google/pull/10921))
+
+IMPROVEMENTS:
+* apigee: added `ip_range` field to `google_apigee_instance` ([#10928](https://github.com/hashicorp/terraform-provider-google/pull/10928))
+* cloudrun: added support for `default_mode` and `mode` settings for created files within `secrets` in `google_cloud_run_service` ([#10911](https://github.com/hashicorp/terraform-provider-google/pull/10911))
+* compute: Added `share_settings` in `google_compute_reservation` ([#10899](https://github.com/hashicorp/terraform-provider-google/pull/10899))
+* container: promoted `dns_config` field of `google_container_cluster` to GA ([#10892](https://github.com/hashicorp/terraform-provider-google/pull/10892))
+
+BUG FIXES:
+* all: Fixed operation polling to support custom endpoints. ([#10913](https://github.com/hashicorp/terraform-provider-google/pull/10913))
+* cloudrun: Fixed permadiff in `google_cloud_run_service`'s `template.spec.service_account_name`. ([#10940](https://github.com/hashicorp/terraform-provider-google/pull/10940))
+* dlp: Fixed typo in name of `characters_to_ignore.characters_to_skip` field for `google_data_loss_prevention_deidentify_template` ([#10910](https://github.com/hashicorp/terraform-provider-google/pull/10910))
+* storagetransfer: fixed bug where `schedule` was required, but really it is optional. ([#10942](https://github.com/hashicorp/terraform-provider-google/pull/10942))
+
 ## 4.7.0 (January 19, 2022)
 
 IMPROVEMENTS:
