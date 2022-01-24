@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -256,25 +255,6 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 				ResourceName:      "google_container_node_pool.with_upgrade_settings",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccContainerNodePool_withInvalidUpgradeSettings(t *testing.T) {
-	t.Parallel()
-
-	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
-	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccContainerNodePool_withUpgradeSettings(cluster, np, 0, 0),
-				ExpectError: regexp.MustCompile(`.?Max_surge and max_unavailable must not be negative and at least one of them must be greater than zero.*`),
 			},
 		},
 	})
