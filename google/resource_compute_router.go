@@ -19,11 +19,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // customizeDiff func for additional checks on google_compute_router properties:
@@ -102,7 +100,7 @@ will have the same local ASN.`,
 						"advertise_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
+							ValidateFunc: validateEnum([]string{"DEFAULT", "CUSTOM", ""}),
 							Description:  `User-specified flag to indicate which mode to use for advertisement. Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
 							Default:      "DEFAULT",
 						},
@@ -530,7 +528,7 @@ func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData, config *Conf
 func flattenComputeRouterBgpAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

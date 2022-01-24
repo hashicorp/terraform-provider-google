@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -308,6 +309,10 @@ func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Re
 	}
 
 	return merged, err
+}
+
+func stringToFixed64(v string) (int64, error) {
+	return strconv.ParseInt(v, 10, 64)
 }
 
 func extractFirstMapConfig(m []interface{}) map[string]interface{} {

@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetworkServicesEdgeCacheService() *schema.Resource {
@@ -438,7 +437,7 @@ Either specify includedQueryParameters or excludedQueryParameters, not both. '&'
 																			Type:         schema.TypeString,
 																			Computed:     true,
 																			Optional:     true,
-																			ValidateFunc: validation.StringInSlice([]string{"CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE", ""}, false),
+																			ValidateFunc: validateEnum([]string{"CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE", ""}),
 																			Description: `Cache modes allow users to control the behaviour of the cache, what content it should cache automatically, whether to respect origin headers, or whether to unconditionally cache all responses.
 
 For all cache modes, Cache-Control headers will be passed to the client. Use clientTtl to override what is sent to the client. Possible values: ["CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE"]`,
@@ -528,7 +527,7 @@ Note that when specifying an explicit negativeCachingPolicy, you should take car
 																			Type:         schema.TypeString,
 																			Computed:     true,
 																			Optional:     true,
-																			ValidateFunc: validation.StringInSlice([]string{"DISABLED", "REQUIRE_SIGNATURES", ""}, false),
+																			ValidateFunc: validateEnum([]string{"DISABLED", "REQUIRE_SIGNATURES", ""}),
 																			Description: `Whether to enforce signed requests. The default value is DISABLED, which means all content is public, and does not authorize access.
 
 You must also set a signedRequestKeyset to enable signed requests.
@@ -690,7 +689,7 @@ prefixRedirect cannot be supplied together with pathRedirect. Supply one alone o
 																Type:         schema.TypeString,
 																Computed:     true,
 																Optional:     true,
-																ValidateFunc: validation.StringInSlice([]string{"MOVED_PERMANENTLY_DEFAULT", "FOUND", "SEE_OTHER", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT", ""}, false),
+																ValidateFunc: validateEnum([]string{"MOVED_PERMANENTLY_DEFAULT", "FOUND", "SEE_OTHER", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT", ""}),
 																Description: `The HTTP Status code to use for this RedirectAction.
 
 The supported values are:

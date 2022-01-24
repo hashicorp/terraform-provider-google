@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourcePrivatecaCertificate() *schema.Resource {
@@ -96,7 +95,7 @@ as the Certificate.`,
 										Type:         schema.TypeString,
 										Required:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"KEY_TYPE_UNSPECIFIED", "PEM"}, false),
+										ValidateFunc: validateEnum([]string{"KEY_TYPE_UNSPECIFIED", "PEM"}),
 										Description:  `The format of the public key. Currently, only PEM format is supported. Possible values: ["KEY_TYPE_UNSPECIFIED", "PEM"]`,
 									},
 									"key": {

@@ -333,7 +333,7 @@ func readSeedFromFile(fileName string) (int64, error) {
 	// Remove NULL characters from seed
 	data = bytes.Trim(data, "\x00")
 	seed := string(data)
-	return strconv.ParseInt(seed, 10, 64)
+	return stringToFixed64(seed)
 }
 
 func writeSeedToFile(seed int64, fileName string) error {

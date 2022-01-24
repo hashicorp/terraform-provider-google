@@ -21,7 +21,6 @@ import (
 	"log"
 	"reflect"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -222,7 +221,7 @@ must be expressed in CIDR format. Only IPv4 is supported.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS", ""}, false),
+				ValidateFunc: validateEnum([]string{"INGRESS", "EGRESS", ""}),
 				Description: `Direction of traffic to which this firewall applies; default is
 INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
 destinationRanges; For EGRESS traffic, it is NOT supported to specify
@@ -249,7 +248,7 @@ If defined, logging is enabled, and logs will be exported to Cloud Logging.`,
 						"metadata": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"}, false),
+							ValidateFunc: validateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"}),
 							Description:  `This field denotes whether to include or exclude metadata for firewall logs. Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"]`,
 						},
 					},
@@ -978,7 +977,7 @@ func flattenComputeFirewallNetwork(v interface{}, d *schema.ResourceData, config
 func flattenComputeFirewallPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
