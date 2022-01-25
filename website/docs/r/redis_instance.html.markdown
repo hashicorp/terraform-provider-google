@@ -303,8 +303,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `auth_string` - (Optional) AUTH String set on the instance. This field will only be populated if auth_enabled is true.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
