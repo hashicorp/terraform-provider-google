@@ -492,7 +492,6 @@ cluster_config {
     * HBASE
     * HIVE_WEBHCAT
     * JUPYTER
-    * KERBEROS
     * PRESTO
     * RANGER
     * SOLR
