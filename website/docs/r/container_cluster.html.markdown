@@ -369,6 +369,10 @@ subnetwork in which the cluster's instances are launched.
 
 * `cloudrun_config` - (Optional). Structure is [documented below](#nested_cloudrun_config).
 
+* `gcp_filestore_csi_driver_config` - (Optional) The status of the Filestore CSI driver addon, 
+    which allows the usage of filestore instance as volumes.
+    It is disbaled by default; set `enabled = true` to enable.
+
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Structure is [documented below](#nested_istio_config).
 
