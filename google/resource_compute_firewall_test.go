@@ -239,6 +239,29 @@ func TestAccComputeFirewall_enableLogging(t *testing.T) {
 	})
 }
 
+func TestAccComputeFirewall_moduleOutput(t *testing.T) {
+	t.Parallel()
+
+	networkName := fmt.Sprintf("tf-test-firewall-%s", randString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewall_moduleOutput(networkName, firewallName),
+			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeFirewall_basic(network, firewall string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
@@ -443,4 +466,41 @@ resource "google_compute_firewall" "foobar" {
   %s
 }
 `, network, firewall, enableLoggingCfg)
+}
+
+func testAccComputeFirewall_moduleOutput(network, firewall string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.foobar.name
+}
+
+resource "google_compute_address" "foobar" {
+	name         = "%s-address"
+	subnetwork   = google_compute_subnetwork.foobar.id
+	address_type = "INTERNAL"
+	region       = "us-central1"
+  }
+
+resource "google_compute_firewall" "foobar" {
+  name        = "%s"
+  description = "Resource created for Terraform acceptance testing"
+  network     = google_compute_network.foobar.name
+  direction   = "INGRESS"
+
+  source_ranges = ["${google_compute_address.foobar.address}/32"]
+  target_tags   = ["foo"]
+
+  allow {
+    protocol = "tcp"
+  }
+}
+`, network, network, network, firewall)
 }
