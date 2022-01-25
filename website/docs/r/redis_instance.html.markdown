@@ -72,6 +72,18 @@ resource "google_redis_instance" "cache" {
     my_key    = "my_val"
     other_key = "other_val"
   }
+
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "TUESDAY"
+      start_time {
+        hours = 0
+        minutes = 30
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
 }
 
 // This example assumes this network already exists.
@@ -249,6 +261,16 @@ The following arguments are supported:
   zonal failures. If [alternativeLocationId] is also provided, it must
   be different from [locationId].
 
+* `maintenance_policy` -
+  (Optional)
+  Maintenance policy for an instance.
+  Structure is [documented below](#nested_maintenance_policy).
+
+* `maintenance_schedule` -
+  (Optional)
+  Upcoming maintenance schedule.
+  Structure is [documented below](#nested_maintenance_schedule).
+
 * `redis_version` -
   (Optional)
   The version of Redis software. If not provided, latest supported
@@ -304,6 +326,97 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `auth_string` - (Optional) AUTH String set on the instance. This field will only be populated if auth_enabled is true.
+
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `create_time` -
+  Output only. The time when the policy was created.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `update_time` -
+  Output only. The time when the policy was last updated.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `description` -
+  (Optional)
+  Optional. Description of what this policy is for.
+  Create/Update methods return INVALID_ARGUMENT if the
+  length is greater than 512.
+
+* `weekly_maintenance_window` -
+  (Optional)
+  Optional. Maintenance window that is applied to resources covered by this policy.
+  Minimum 1. For the current version, the maximum number
+  of weekly_window is expected to be one.
+  Structure is [documented below](#nested_weekly_maintenance_window).
+
+
+<a name="nested_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+
+* `day` -
+  (Required)
+  Required. The day of week that maintenance updates occur.
+  - DAY_OF_WEEK_UNSPECIFIED: The day of the week is unspecified.
+  - MONDAY: Monday
+  - TUESDAY: Tuesday
+  - WEDNESDAY: Wednesday
+  - THURSDAY: Thursday
+  - FRIDAY: Friday
+  - SATURDAY: Saturday
+  - SUNDAY: Sunday
+  Possible values are `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+
+* `duration` -
+  Output only. Duration of the maintenance window.
+  The current window is fixed at 1 hour.
+  A duration in seconds with up to nine fractional digits,
+  terminated by 's'. Example: "3.5s".
+
+* `start_time` -
+  (Required)
+  Required. Start time of the window in UTC time.
+  Structure is [documented below](#nested_start_time).
+
+
+<a name="nested_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+  An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59.
+  An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block supports:
+
+* `start_time` -
+  Output only. The start time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `end_time` -
+  Output only. The end time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `schedule_deadline_time` -
+  Output only. The deadline that the maintenance schedule start time
+  can not go beyond, including reschedule.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
 
 ## Attributes Reference
 

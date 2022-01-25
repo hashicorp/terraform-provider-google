@@ -103,6 +103,18 @@ resource "google_redis_instance" "cache" {
     my_key    = "my_val"
     other_key = "other_val"
   }
+
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "TUESDAY"
+      start_time {
+        hours = 0
+        minutes = 30
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
 }
 
 // This example assumes this network already exists.
