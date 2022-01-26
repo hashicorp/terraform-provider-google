@@ -1090,7 +1090,7 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("certificate_description", flattenPrivatecaCertificateCertificateDescription(res["certificateDescription"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
-	if err := d.Set("pem_certificates", flattenPrivatecaCertificatePemCertificates(res["pemCertificates"], d, config)); err != nil {
+	if err := d.Set("pem_certificates", flattenPrivatecaCertificatePemCertificates(res["pemCertificateChain"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("create_time", flattenPrivatecaCertificateCreateTime(res["createTime"], d, config)); err != nil {
