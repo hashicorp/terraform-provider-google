@@ -860,6 +860,61 @@ resource "google_compute_health_check" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_forwarding_rule_external_managed&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Global Forwarding Rule External Managed
+
+
+```hcl
+resource "google_compute_global_forwarding_rule" "default" {
+  provider              = google-beta
+  name                  = "global-rule"
+  target                = google_compute_target_http_proxy.default.id
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_target_http_proxy" "default" {
+  provider    = google-beta
+  name        = "target-proxy"
+  description = "a description"
+  url_map     = google_compute_url_map.default.id
+}
+
+resource "google_compute_url_map" "default" {
+  provider        = google-beta
+  name            = "url-map-target-proxy"
+  description     = "a description"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+```
 ## Example Usage - Private Service Connect Google Apis
 
 
@@ -974,11 +1029,12 @@ The following arguments are supported:
   The value of INTERNAL_SELF_MANAGED means that this will be used for
   Internal Global HTTP(S) LB. The value of EXTERNAL means that this
   will be used for External Global Load Balancing (HTTP(S) LB,
-  External TCP/UDP LB, SSL Proxy)
+  External TCP/UDP LB, SSL Proxy). The value of EXTERNAL_MANAGED means
+  that this will be used for Global external HTTP(S) load balancers.
   ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Note: This field must be set "" if the global address is
   configured as a purpose of PRIVATE_SERVICE_CONNECT and addressType of INTERNAL.
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
+  Possible values are `EXTERNAL`, `EXTERNAL_MANAGED`, and `INTERNAL_SELF_MANAGED`.
 
 * `metadata_filters` -
   (Optional)
