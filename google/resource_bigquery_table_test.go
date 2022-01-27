@@ -1079,7 +1079,7 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 
 	err = resourceBigQueryTableSchemaCustomizeDiffFunc(d)
 	if err != nil {
-		t.Errorf("error on testcase %s - %w", testcase.name, err)
+		t.Errorf("error on testcase %s - %v", testcase.name, err)
 	}
 	if !testcase.changeable != d.IsForceNew {
 		t.Errorf("%s: expected d.IsForceNew to be %v, but was %v", testcase.name, !testcase.changeable, d.IsForceNew)

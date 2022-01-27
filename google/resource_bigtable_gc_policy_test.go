@@ -141,7 +141,7 @@ func (testcase *testUnitBigtableGCPolicyCustomizeDiffTestcase) check(t *testing.
 
 	err := resourceBigtableGCPolicyCustomizeDiffFunc(d)
 	if err != nil {
-		t.Errorf("error on testcase %s - %w", testcase.testName, err)
+		t.Errorf("error on testcase %s - %v", testcase.testName, err)
 	}
 
 	var cleared bool = d.Cleared != nil && d.Cleared["max_age.0.duration"] == true && d.Cleared["max_age.0.days"] == true
