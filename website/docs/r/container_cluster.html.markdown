@@ -367,6 +367,10 @@ subnetwork in which the cluster's instances are launched.
     It can only be disabled if the nodes already do not have network policies enabled.
     Defaults to disabled; set `disabled = false` to enable.
 
+* `gcp_filestore_csi_driver_config` - (Optional) The status of the Filestore CSI driver addon, 
+    which allows the usage of filestore instance as volumes.
+    It is disbaled by default; set `enabled = true` to enable.
+
 * `cloudrun_config` - (Optional). Structure is [documented below](#nested_cloudrun_config).
 
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
