@@ -59,6 +59,7 @@ var (
 		"addons_config.0.horizontal_pod_autoscaling",
 		"addons_config.0.network_policy_config",
 		"addons_config.0.cloudrun_config",
+		"addons_config.0.gcp_filestore_csi_driver_config",
 	}
 
 	forceNewClusterNodeConfigFields = []string{
@@ -222,6 +223,23 @@ func resourceContainerCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"gcp_filestore_csi_driver_config": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							Computed:      true,
+							AtLeastOneOf:  addonsConfigKeys,
+							MaxItems:      1,
+							Description:   `The status of the Filestore CSI driver addon, which allows the usage of filestore instance as volumes. Defaults to disabled; set enabled = true to enable.`,
+							ConflictsWith: []string{"enable_autopilot"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
 									},
@@ -2564,6 +2582,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["gcp_filestore_csi_driver_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.GcpFilestoreCsiDriverConfig = &container.GcpFilestoreCsiDriverConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
 	if v, ok := config["cloudrun_config"]; ok && len(v.([]interface{})) > 0 {
 		addon := v.([]interface{})[0].(map[string]interface{})
 		ac.CloudRunConfig = &container.CloudRunConfig{
@@ -3064,6 +3090,14 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		result["network_policy_config"] = []map[string]interface{}{
 			{
 				"disabled": c.NetworkPolicyConfig.Disabled,
+			},
+		}
+	}
+
+	if c.GcpFilestoreCsiDriverConfig != nil {
+		result["gcp_filestore_csi_driver_config"] = []map[string]interface{}{
+			{
+				"enabled": c.GcpFilestoreCsiDriverConfig.Enabled,
 			},
 		}
 	}
