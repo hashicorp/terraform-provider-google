@@ -71,6 +71,8 @@ The following arguments are supported:
 * `action` - (Required) Action to take when `match` matches the request. Valid values:
   * "allow" : allow access to target
   * "deny(status)" : deny access to target, returns the  HTTP response code specified (valid values are 403, 404 and 502)
+  * "rate_based_ban" : limit client traffic to the configured threshold and ban the client if the traffic exceeds the threshold. Configure parameters for this action in RateLimitOptions. Requires rateLimitOptions to be set.
+  * "threshold" : limit client traffic to the configured threshold. Configure parameters for this action in rateLimitOptions. Requires rateLimitOptions to be set for this.
 
 * `priority` - (Required) An unique positive integer indicating the priority of evaluation for a rule.
     Rules are evaluated from highest priority (lowest numerically) to lowest priority (highest numerically) in order.
@@ -82,6 +84,9 @@ The following arguments are supported:
 
 * `preview` - (Optional) When set to true, the `action` specified above is not enforced.
     Stackdriver logs for requests that trigger a preview action are annotated as such.
+
+* `rate_limit_options` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+    Must be specified if the `action` is "rate_based_bad" or "throttle". Cannot be specified for other actions. Structure is [documented below](#nested_rate_limit_options).
 
 <a name="nested_match"></a>The `match` block supports:
 
@@ -107,6 +112,33 @@ The following arguments are supported:
 
 * `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
     The application context of the containing message determines which well-known feature set of CEL is supported.
+
+<a name="nested_rate_limit_options"></a>The `rate_limit_options` block supports:
+
+* `ban_duration_sec` - (Optional) Can only be specified if the `action` for the rule is "rate_based_ban".
+    If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.
+
+* `ban_threshold` - (Optional) Can only be specified if the `action` for the rule is "rate_based_ban".
+    If specified, the key will be banned for the configured 'ban_duration_sec' when the number of requests that exceed the 'rate_limit_threshold' also
+    exceed this 'ban_threshold'. Structure is [documented below](#nested_threshold).
+
+* `conform_action` - (Optional) Action to take for requests that are under the configured rate limit threshold. Valid option is "allow" only.
+
+* `enforce_on_key` - (Optional) Determines the key to enforce the rate_limit_threshold on.
+    Possible values incude "ALL", "ALL_IPS", "HTTP_HEADER", "IP", "XFF_IP". If not specified, defaults to "ALL".
+
+* `enforce_on_key_name` - (Optional) Rate limit key name applicable only for HTTP_HEADER key types. Name of the HTTP header whose value is taken as the key value.
+
+* `exceed_action` - (Optional) When a request is denied, returns the HTTP response code specified.
+    Valid options are "deny()" where valid values for status are 403, 404, 429, and 502.
+
+* `rate_limit_threshold` - (Optional) Threshold at which to begin ratelimiting. Structure is [documented below](#nested_threshold).
+
+<a name="nested_threshold"></a>The `{ban/rate_limit}_threshold` block supports:
+
+* `count` - (Optional) Number of HTTP(S) requests for calculating the threshold.
+
+* `interval_sec` - (Optional) Interval over which the threshold is computed.
 
 <a name="nested_adaptive_protection_config"></a>The `adaptive_protection_config` block supports:
 
