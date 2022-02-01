@@ -1,4 +1,19 @@
-## 4.9.0 (Unreleased)
+## 4.10.0 (Unreleased)
+## 4.9.0 (January 31, 2022)
+
+BREAKING CHANGES:
+* cloudrun: changed the `location` of `google_cloud_run_service` so that modifying the `location` field will recreate the resource rather than causing Terraform to report it would attempt an invalid update ([#10948](https://github.com/hashicorp/terraform-provider-google/pull/10948))
+
+IMPROVEMENTS:
+* provider: changed the default timeout for many resources to 20 minutes, the current Terraform default, where it was less than 20 minutes previously ([#10954](https://github.com/hashicorp/terraform-provider-google/pull/10954))
+* redis: added `maintenance_policy` and `maintenance_schedule` to `google_redis_instance` ([#10978](https://github.com/hashicorp/terraform-provider-google/pull/10978))
+* storage: added field `transfer_spec.aws_s3_data_source.role_arn` to `google_storage_transfer_job` ([#10950](https://github.com/hashicorp/terraform-provider-google/pull/10950))
+
+BUG FIXES:
+* cloudrun: fixed a bug where changing the non-updatable `location` of a `google_cloud_run_service` would not force resource recreation ([#10948](https://github.com/hashicorp/terraform-provider-google/pull/10948))
+* compute: fixed a bug where `google_compute_firewall` would incorrectly find `source_ranges` to be empty during validation ([#10976](https://github.com/hashicorp/terraform-provider-google/pull/10976))
+* notebooks: fixed permadiff in `google_notebooks_runtime.software_config` ([#10947](https://github.com/hashicorp/terraform-provider-google/pull/10947))
+
 ## 4.8.0 (January 24, 2022)
 
 BREAKING CHANGES:
