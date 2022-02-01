@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `EXTERNAL_MANAGED` value for `load_balancing_scheme` in `google_compute_backend_service ` and `google_compute_global_forwarding_rule` to GA
+```
