@@ -410,7 +410,7 @@ The following arguments are supported:
   The security policy associated with this backend service.
 
 * `security_settings` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The security settings that apply to this backend service. This field is applicable to either
   a regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2, and
   load_balancing_scheme set to INTERNAL_MANAGED; or a global backend service with the
@@ -856,13 +856,13 @@ The following arguments are supported:
 <a name="nested_security_settings"></a>The `security_settings` block supports:
 
 * `client_tls_policy` -
-  (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Required)
   ClientTlsPolicy is a resource that specifies how a client should authenticate
   connections to backends of a service. This resource itself does not affect
   configuration unless it is attached to a backend service resource.
 
 * `subject_alt_names` -
-  (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Required)
   A list of alternate names to verify the subject identity in the certificate.
   If specified, the client will verify that the server certificate's subject
   alt name matches one of the specified values.
