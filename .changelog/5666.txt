@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_backend_service_iam_*`
+```
