@@ -1,0 +1,3 @@
+```release-note:none
+compute: promoted `security_settings` field of `google_compute_backend_service` to GA
+```
