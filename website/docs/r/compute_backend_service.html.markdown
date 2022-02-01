@@ -234,14 +234,12 @@ resource "google_compute_backend_service" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
   name          = "backend-service"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name = "health-check"
   http_health_check {
     port = 80
