@@ -333,6 +333,13 @@ func resourceContainerCluster() *schema.Resource {
 										Default:     "default",
 										Description: `The Google Cloud Platform Service Account to be used by the node VMs.`,
 									},
+									"image_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "COS_CONTAINERD",
+										Description:  `The default image type used by NAP once a new node pool is being created.`,
+										ValidateFunc: validation.StringInSlice([]string{"COS_CONTAINERD", "COS", "UBUNTU_CONTAINERD", "UBUNTU"}, false),
+									},
 								},
 							},
 						},
@@ -2774,6 +2781,7 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	npd := &container.AutoprovisioningNodePoolDefaults{
 		OauthScopes:    convertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount: config["service_account"].(string),
+		ImageType:      config["image_type"].(string),
 	}
 
 	return npd
@@ -3342,6 +3350,7 @@ func flattenAutoProvisioningDefaults(a *container.AutoprovisioningNodePoolDefaul
 	r := make(map[string]interface{})
 	r["oauth_scopes"] = a.OauthScopes
 	r["service_account"] = a.ServiceAccount
+	r["image_type"] = a.ImageType
 
 	return []map[string]interface{}{r}
 }
