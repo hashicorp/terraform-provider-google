@@ -13,7 +13,7 @@ func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "terraform-test-" + randString(t, 10)
+	displayName := "tf-test-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -33,7 +33,7 @@ func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "terraform-test-" + randString(t, 10)
+	displayName := "tf-test-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -53,7 +53,7 @@ func TestAccDataSourceGoogleFolder_lookupOrganization(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "terraform-test-" + randString(t, 10)
+	displayName := "tf-test-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

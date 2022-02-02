@@ -19,7 +19,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 
-	projectId := "terraform-" + randString(t, 10)
+	projectId := "tf-test-" + randString(t, 10)
 	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
