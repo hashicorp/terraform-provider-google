@@ -1542,8 +1542,8 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_encryption(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "acceptance" {
-  name            = "terraform-%{random_suffix}"
-  project_id      = "terraform-%{random_suffix}"
+  name            = "tf-test-%{random_suffix}"
+  project_id      = "tf-test-%{random_suffix}"
   org_id          = "%{organization}"
   billing_account = "%{billing_account}"
 }
