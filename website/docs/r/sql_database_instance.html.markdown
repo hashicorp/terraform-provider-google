@@ -233,7 +233,7 @@ The `settings` block supports:
 * `activation_policy` - (Optional) This specifies when the instance should be
     active. Can be either `ALWAYS`, `NEVER` or `ON_DEMAND`.
 
-* `availability_type` - (Optional) The availability type of the Cloud SQL
+* `availability_type` - (Optional, Default: `ZONAL`) The availability type of the Cloud SQL
 instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For MySQL
 instances, ensure that `settings.backup_configuration.enabled` and
 `settings.backup_configuration.binary_log_enabled` are both set to `true`.
