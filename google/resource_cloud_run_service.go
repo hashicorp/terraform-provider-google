@@ -295,19 +295,19 @@ https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
 														Schema: map[string]*schema.Schema{
 															"container_port": {
 																Type:        schema.TypeInt,
-																Required:    true,
-																Description: `Port number.`,
+																Optional:    true,
+																Description: `Port number the container listens on. This must be a valid port number, 0 < x < 65536.`,
 															},
 															"name": {
 																Type:        schema.TypeString,
 																Computed:    true,
 																Optional:    true,
-																Description: `Name of the port.`,
+																Description: `If specified, used to specify which protocol to use. Allowed values are "http1" and "h2c".`,
 															},
 															"protocol": {
 																Type:        schema.TypeString,
 																Optional:    true,
-																Description: `Protocol used on port. Defaults to TCP.`,
+																Description: `Protocol for port. Must be "TCP". Defaults to "TCP".`,
 															},
 														},
 													},
