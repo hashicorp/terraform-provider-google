@@ -22,11 +22,8 @@ func dataSourceGoogleComputeInstanceTemplate() *schema.Resource {
 		Optional: true,
 	}
 
-	// Set 'Required' schema elements
-	addRequiredFieldsToSchema(dsSchema, "project")
-
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "name", "filter", "most_recent")
+	addOptionalFieldsToSchema(dsSchema, "name", "filter", "most_recent", "project")
 
 	dsSchema["name"].ExactlyOneOf = []string{"name", "filter"}
 	dsSchema["filter"].ExactlyOneOf = []string{"name", "filter"}
