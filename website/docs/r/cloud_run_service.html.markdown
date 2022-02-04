@@ -737,15 +737,15 @@ The following arguments are supported:
 
 * `name` -
   (Optional)
-  Name of the port.
+  If specified, used to specify which protocol to use. Allowed values are "http1" and "h2c".
 
 * `protocol` -
   (Optional)
-  Protocol used on port. Defaults to TCP.
+  Protocol for port. Must be "TCP". Defaults to "TCP".
 
 * `container_port` -
-  (Required)
-  Port number.
+  (Optional)
+  Port number the container listens on. This must be a valid port number, 0 < x < 65536.
 
 <a name="nested_resources"></a>The `resources` block supports:
 
