@@ -110,13 +110,17 @@ The following arguments are supported:
 
 <a name="nested_transfer_spec"></a>The `transfer_spec` block supports:
 
-* `gcs_data_sink` - (Required) A Google Cloud Storage data sink. Structure [documented below](#nested_gcs_data_sink).
+* `gcs_data_sink` - (Optional) A Google Cloud Storage data sink. Structure [documented below](#nested_gcs_data_sink).
+
+* `posix_data_sink` - (Optional) A POSIX data sink. Structure [documented below](#nested_posix_data_sink).
 
 * `object_conditions` - (Optional) Only objects that satisfy these object conditions are included in the set of data source and data sink objects. Object conditions based on objects' `last_modification_time` do not exclude objects in a data sink. Structure [documented below](#nested_object_conditions).
 
 * `transfer_options` - (Optional) Characteristics of how to treat files from datasource and sink during job. If the option `delete_objects_unique_in_sink` is true, object conditions based on objects' `last_modification_time` are ignored and do not exclude objects in a data source or a data sink. Structure [documented below](#nested_transfer_options).
 
 * `gcs_data_source` - (Optional) A Google Cloud Storage data source. Structure [documented below](#nested_gcs_data_source).
+
+* `posix_data_source` - (Optional) A POSIX filesystem data source. Structure [documented below](#nested_posix_data_source).
 
 * `aws_s3_data_source` - (Optional) An AWS S3 data source. Structure [documented below](#nested_aws_s3_data_source).
 
@@ -163,6 +167,14 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 * `bucket_name` - (Required) Google Cloud Storage bucket name.
 
 * `path` - (Optional) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.
+
+<a name="nested_posix_data_sink"></a>The `posix_data_sink` block supports:
+
+* `root_directory` - (Required) Root directory path to the filesystem.
+
+<a name="nested_posix_data_source"></a>The `posix_data_source` block supports:
+
+* `root_directory` - (Required) Root directory path to the filesystem.
 
 <a name="nested_aws_s3_data_source"></a>The `aws_s3_data_source` block supports:
 
