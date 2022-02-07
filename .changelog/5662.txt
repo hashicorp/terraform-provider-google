@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `provisioning_model` field to `google_compute_instance` resource to support Spot VM(beta)
+```
+```release-note:enhancement
+compute: added `provisioning_model` field to `google_compute_instance_template ` resource to support Spot VM(beta)
+```
