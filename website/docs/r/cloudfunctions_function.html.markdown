@@ -115,6 +115,8 @@ Eg. `"nodejs10"`, `"nodejs12"`, `"nodejs14"`, `"python37"`, `"python38"`, `"pyth
 
 - - -
 
+* `region` - (Optional) Region of function. If it is not provided, the provider region is used.
+
 * `description` - (Optional) Description of the function.
 
 * `available_memory_mb` - (Optional) Memory (in MB), available to the function. Default value is `256`. Possible values include `128`, `256`, `512`, `1024`, etc.
