@@ -696,6 +696,8 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(t *testi
 	databaseName := "tf-test-" + randString(t, 10)
 	addressName := "tf-test-" + randString(t, 10)
 	networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-allocated-ip-range")
+	addressName_update := "tf-test-" + randString(t, 10) + "update"
+	networkName_update := BootstrapSharedTestNetwork(t, "sql-instance-private-allocated-ip-range-update")
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -710,6 +712,77 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(databaseName, networkName_update, addressName_update),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeReplica(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+	addressName := "tf-test-" + randString(t, 10)
+	networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-replica")
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeReplica(databaseName, networkName, addressName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+	addressName := "tf-test-" + randString(t, 10)
+	networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-clone")
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone(databaseName, networkName, addressName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.clone1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
 			},
 		},
 	})
@@ -1095,7 +1168,7 @@ resource "google_compute_global_address" "foobar" {
   name          = "%s"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 24
+  prefix_length = 16
   network       = data.google_compute_network.servicenet.self_link
 }
 
@@ -1121,6 +1194,129 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, networkName, addressRangeName, databaseName)
+}
+
+func testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeReplica(databaseName, networkName, addressRangeName string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_compute_global_address" "foobar" {
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.servicenet.self_link
+}
+
+resource "google_service_networking_connection" "foobar" {
+  network                 = data.google_compute_network.servicenet.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.foobar.name]
+}
+
+resource "google_sql_database_instance" "instance" {
+  depends_on = [google_service_networking_connection.foobar]
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      start_time         = "00:00"
+      binary_log_enabled = true
+    }
+  }
+}
+resource "google_sql_database_instance" "replica1" {
+  depends_on = [google_service_networking_connection.foobar]
+  name                = "%s-replica1"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+      allocated_ip_range = google_compute_global_address.foobar.name
+    }
+  }
+
+  master_instance_name = google_sql_database_instance.instance.name
+
+  replica_configuration {
+    connect_retry_interval    = 100
+    master_heartbeat_period   = 10000
+    password                  = "password"
+    username                  = "username"
+    ssl_cipher                = "ALL"
+    verify_server_certificate = false
+  }
+}
+`, networkName, addressRangeName, databaseName, databaseName)
+}
+
+func testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone(databaseName, networkName, addressRangeName string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_compute_global_address" "foobar" {
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.servicenet.self_link
+}
+
+resource "google_service_networking_connection" "foobar" {
+  network                 = data.google_compute_network.servicenet.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.foobar.name]
+}
+
+resource "google_sql_database_instance" "instance" {
+  depends_on = [google_service_networking_connection.foobar]
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      start_time         = "00:00"
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "clone1" {
+  name                = "%s-clone1"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+
+  clone {
+    source_instance_name = google_sql_database_instance.instance.name
+    allocated_ip_range   = google_compute_global_address.foobar.name
+  }
+
+}
+`, networkName, addressRangeName, databaseName, databaseName)
 }
 
 var testGoogleSqlDatabaseInstance_settings = `
