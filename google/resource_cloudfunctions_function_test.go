@@ -25,6 +25,8 @@ const testHTTPTriggerUpdatePath = "./test-fixtures/cloudfunctions/http_trigger_u
 const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
 const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
 const testFirestoreTriggerPath = "./test-fixtures/cloudfunctions/firestore_trigger.js"
+const testSecretEnvVarFunctionPath = "./test-fixtures/cloudfunctions/secret_environment_variables.js"
+const testSecretVolumesMountFunctionPath = "./test-fixtures/cloudfunctions/secret_volumes_mount.js"
 const testFunctionsSourceArchivePrefix = "cloudfunczip"
 
 func init() {
@@ -409,6 +411,89 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 			},
 			{
 				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update"),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_secretEnvVar(t *testing.T) {
+	t.Parallel()
+
+	randomSecretSuffix := randString(t, 10)
+	accountId := fmt.Sprintf("tf-test-account-%s", randomSecretSuffix)
+	secretName := fmt.Sprintf("tf-test-secret-%s", randomSecretSuffix)
+	versionName1 := fmt.Sprintf("tf-test-version1-%s", randomSecretSuffix)
+	versionName2 := fmt.Sprintf("tf-test-version2-%s", randomSecretSuffix)
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
+	functionName := fmt.Sprintf("tf-test-%s", randomSecretSuffix)
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testSecretEnvVarFunctionPath)
+	funcResourceName := "google_cloudfunctions_function.function"
+	defer os.Remove(zipFilePath) // clean up
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_secretEnvVar(secretName, versionName1, bucketName, functionName, "1", zipFilePath, accountId),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
+			},
+			{
+				Config: testAccCloudFunctionsFunction_secretEnvVar(secretName, versionName2, bucketName+"-update", functionName, "2", zipFilePath, accountId),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_secretMount(t *testing.T) {
+	t.Parallel()
+
+	projectNumber := os.Getenv("GOOGLE_PROJECT_NUMBER")
+	randomSecretSuffix := randString(t, 10)
+	accountId := fmt.Sprintf("tf-test-account-%s", randomSecretSuffix)
+	secretName := fmt.Sprintf("tf-test-secret-%s", randomSecretSuffix)
+	versionName1 := fmt.Sprintf("tf-test-version1-%s", randomSecretSuffix)
+	versionName2 := fmt.Sprintf("tf-test-version2-%s", randomSecretSuffix)
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
+	functionName := fmt.Sprintf("tf-test-%s", randomSecretSuffix)
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testSecretVolumesMountFunctionPath)
+	funcResourceName := "google_cloudfunctions_function.function"
+	defer os.Remove(zipFilePath) // clean up
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_secretMount(projectNumber, secretName, versionName1, bucketName, functionName, "1", zipFilePath, accountId),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
+			},
+			{
+				Config: testAccCloudFunctionsFunction_secretMount(projectNumber, secretName, versionName2, bucketName, functionName, "2", zipFilePath, accountId),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -916,4 +1001,138 @@ resource "google_cloudfunctions_function" "function" {
   depends_on = [google_project_iam_member.gcfadmin]
 }
 `, projectNumber, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName)
+}
+
+func testAccCloudFunctionsFunction_secretEnvVar(secretName, versionName, bucketName, functionName, versionNumber, zipFilePath, accountId string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "cloud_function_runner" {
+  account_id   = "%s"
+  display_name = "Testing Cloud Function Secrets integration"
+}
+
+resource "google_secret_manager_secret" "test_secret" {
+  secret_id = "%s"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+      replicas {
+        location = "us-east1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "%s" {
+  secret      = google_secret_manager_secret.test_secret.id
+  secret_data = "This is my secret data."
+}
+
+resource "google_secret_manager_secret_iam_member" "cloud_function_iam_member" {
+  secret_id = google_secret_manager_secret.test_secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloud_function_runner.email}"
+}
+
+resource "google_storage_bucket" "cloud_functions" {
+  name                        = "%s"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "cloud_function_zip_object" {
+  name   = "cloud-function.zip"
+  bucket = google_storage_bucket.cloud_functions.name
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  runtime               = "nodejs14"
+  service_account_email = google_service_account.cloud_function_runner.email
+  entry_point           = "echoSecret"
+  source_archive_bucket = google_storage_bucket.cloud_functions.id
+  source_archive_object = google_storage_bucket_object.cloud_function_zip_object.name
+  trigger_http          = true
+  secret_environment_variables {
+    key     = "MY_SECRET"
+    secret  = google_secret_manager_secret.test_secret.secret_id
+    version = "%s"
+  }
+
+}
+`, accountId, secretName, versionName, bucketName, zipFilePath, functionName, versionNumber)
+}
+
+func testAccCloudFunctionsFunction_secretMount(projectNumber, secretName, versionName, bucketName, functionName, versionNumber, zipFilePath, accountId string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "cloud_function_runner" {
+  account_id   = "%s"
+  display_name = "Testing Cloud Function Secrets integration"
+}
+
+resource "google_secret_manager_secret" "test_secret" {
+  secret_id = "%s"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+      replicas {
+        location = "us-east1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "%s" {
+  secret      = google_secret_manager_secret.test_secret.id
+  secret_data = "This is my secret data."
+}
+
+resource "google_secret_manager_secret_iam_member" "cloud_function_iam_member" {
+  secret_id = google_secret_manager_secret.test_secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloud_function_runner.email}"
+}
+
+resource "google_storage_bucket" "cloud_functions" {
+  name                        = "%s"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "cloud_function_zip_object" {
+  name   = "cloud-function.zip"
+  bucket = google_storage_bucket.cloud_functions.name
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  runtime               = "nodejs14"
+  service_account_email = google_service_account.cloud_function_runner.email
+  entry_point           = "echoSecret"
+  source_archive_bucket = google_storage_bucket.cloud_functions.id
+  source_archive_object = google_storage_bucket_object.cloud_function_zip_object.name
+  trigger_http          = true
+  secret_volumes {
+    secret     = google_secret_manager_secret.test_secret.secret_id
+    mount_path = "/etc/secrets"
+    project_id = "%s"
+    versions {
+      version = "%s"
+      path    = "/test-secret"
+    }
+  }
+
+}
+`, accountId, secretName, versionName, bucketName, zipFilePath, functionName, projectNumber, versionNumber)
 }
