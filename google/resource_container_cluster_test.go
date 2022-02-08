@@ -2393,7 +2393,7 @@ resource "google_container_cluster" "with_authenticator_groups" {
   subnetwork         = google_compute_subnetwork.container_subnetwork.name
 
   authenticator_groups_config {
-    security_group = "gke-security-groups-test@%s"
+    security_group = "gke-security-groups@%s"
   }
 
   networking_mode = "VPC_NATIVE"
