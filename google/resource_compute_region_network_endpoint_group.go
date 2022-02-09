@@ -64,7 +64,7 @@ character, which cannot be a dash.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `Only valid when networkEndpointType is "SERVERLESS".
-Only one of cloud_run, app_engine or cloud_function may be set.`,
+Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -106,7 +106,7 @@ Example value: "v1", "v2".`,
 				Optional: true,
 				ForceNew: true,
 				Description: `Only valid when networkEndpointType is "SERVERLESS".
-Only one of cloud_run, app_engine or cloud_function may be set.`,
+Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -141,7 +141,7 @@ will parse them to { function = "function1" } and { function = "function2" } res
 				Optional: true,
 				ForceNew: true,
 				Description: `Only valid when networkEndpointType is "SERVERLESS".
-Only one of cloud_run, app_engine or cloud_function may be set.`,
+Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
