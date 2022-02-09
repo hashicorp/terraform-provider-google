@@ -1,5 +1,22 @@
 ## 4.11.0 (Unreleased)
 
+UNKNOWN CHANGELOG TYPE:
+* Revert "Add CDN load balancer with Cloud Storage buckets as backend" ([#11054](https://github.com/hashicorp/terraform-provider-google/pull/11054))
+
+IMPROVEMENTS:
+* compute: Added field `serverless_deployment` to `google_compute_network_endpoint_group` (beta only) for API Gateway resources ([#11064](https://github.com/hashicorp/terraform-provider-google/pull/11064))
+* compute: added `provisioning_model` field to `google_compute_instance_template ` resource to support Spot VM(beta) ([#11049](https://github.com/hashicorp/terraform-provider-google/pull/11049))
+* compute: added `provisioning_model` field to `google_compute_instance` resource to support Spot VM(beta) ([#11049](https://github.com/hashicorp/terraform-provider-google/pull/11049))
+* dataproc: increased the default timeout for `google_dataproc_cluster` from 20m to 45m ([#11026](https://github.com/hashicorp/terraform-provider-google/pull/11026))
+* gcf: Added SecretManager integration support to GCF. ([#11062](https://github.com/hashicorp/terraform-provider-google/pull/11062))
+* sql: added field `clone.allocated_ip_range` to support address range picker for clone for resource `google_sql_database_instance` ([#11058](https://github.com/hashicorp/terraform-provider-google/pull/11058))
+* sql: added support for address range picker for read replicas for resource `google_sql_database_instance` ([#11058](https://github.com/hashicorp/terraform-provider-google/pull/11058))
+* storagetransfer: added support for POSIX data source and data sink to `google_storage_transfer_job` via `transfer_spec.posix_data_source` and `transfer_spec.posix_data_sink` fields ([#11039](https://github.com/hashicorp/terraform-provider-google/pull/11039))
+
+BUG FIXES:
+* cloudrun: updated `containers.ports.container_port` to be optional instead of required on `google_cloud_run_service` ([#11040](https://github.com/hashicorp/terraform-provider-google/pull/11040))
+* compute: marked `project` field optional in `google_compute_instance_template` data source ([#11041](https://github.com/hashicorp/terraform-provider-google/pull/11041))
+
 ## 4.10.0 (February 7, 2022)
 
 FEATURES:
