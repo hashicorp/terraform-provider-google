@@ -170,6 +170,9 @@ cluster.
     when fuzzy versions are used. See the `google_container_engine_versions` data source's
     `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
 
+* `placement_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Specifies a custom placement policy for the
+  nodes.
+
 <a name="nested_autoscaling"></a>The `autoscaling` block supports:
 
 * `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=0 and
@@ -194,6 +197,12 @@ cluster.
     parallel. Can be set to 0 or greater.
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
+
+<a name="nested_placement_policy"></a>The `placement_policy` block supports:
+
+* `type` - (Required) The type of the policy. Supports a single value: COMPACT.
+  Specifying COMPACT placement policy type places node pool's nodes in a closer
+  physical proximity in order to reduce network latency between nodes.
 
 ## Attributes Reference
 
