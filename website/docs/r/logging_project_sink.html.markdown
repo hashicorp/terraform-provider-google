@@ -81,11 +81,13 @@ resource "google_logging_project_sink" "instance-sink" {
 }
 
 # Because our sink uses a unique_writer, we must grant that writer access to the bucket.
-resource "google_project_iam_member" "log-writer" {
+resource "google_project_iam_binding" "log-writer" {
   project = "your-project-id"
   role = "roles/storage.objectCreator"
 
-  member = google_logging_project_sink.instance-sink.writer_identity
+  members = [
+    google_logging_project_sink.instance-sink.writer_identity,
+  ]
 }
 ```
 
