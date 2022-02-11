@@ -219,6 +219,45 @@ milliseconds since the epoch.`,
 func bigqueryDatasetAccessSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"dataset": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Grants all resources of particular types in a particular dataset read access to the current dataset.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dataset": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `The dataset this entry applies to`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"dataset_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The ID of the dataset containing this table.`,
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The ID of the project containing this table.`,
+									},
+								},
+							},
+						},
+						"target_types": {
+							Type:     schema.TypeList,
+							Required: true,
+							Description: `Which resources in the dataset this entry applies to. Currently, only views are supported,
+but additional target types may be added in the future. Possible values: VIEWS`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"domain": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -666,6 +705,7 @@ func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config 
 			"special_group":  flattenBigQueryDatasetAccessSpecialGroup(original["specialGroup"], d, config),
 			"user_by_email":  flattenBigQueryDatasetAccessUserByEmail(original["userByEmail"], d, config),
 			"view":           flattenBigQueryDatasetAccessView(original["view"], d, config),
+			"dataset":        flattenBigQueryDatasetAccessDataset(original["dataset"], d, config),
 		})
 	}
 	return transformed
@@ -716,6 +756,48 @@ func flattenBigQueryDatasetAccessViewProjectId(v interface{}, d *schema.Resource
 }
 
 func flattenBigQueryDatasetAccessViewTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetAccessDataset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dataset"] =
+		flattenBigQueryDatasetAccessDatasetDataset(original["dataset"], d, config)
+	transformed["target_types"] =
+		flattenBigQueryDatasetAccessDatasetTargetTypes(original["targetTypes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryDatasetAccessDatasetDataset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dataset_id"] =
+		flattenBigQueryDatasetAccessDatasetDatasetDatasetId(original["datasetId"], d, config)
+	transformed["project_id"] =
+		flattenBigQueryDatasetAccessDatasetDatasetProjectId(original["projectId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryDatasetAccessDatasetDatasetDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetAccessDatasetDatasetProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetAccessDatasetTargetTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -900,6 +982,13 @@ func expandBigQueryDatasetAccess(v interface{}, d TerraformResourceData, config 
 			transformed["view"] = transformedView
 		}
 
+		transformedDataset, err := expandBigQueryDatasetAccessDataset(original["dataset"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataset); val.IsValid() && !isEmptyValue(val) {
+			transformed["dataset"] = transformedDataset
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -967,6 +1056,70 @@ func expandBigQueryDatasetAccessViewProjectId(v interface{}, d TerraformResource
 }
 
 func expandBigQueryDatasetAccessViewTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetAccessDataset(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDataset, err := expandBigQueryDatasetAccessDatasetDataset(original["dataset"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataset); val.IsValid() && !isEmptyValue(val) {
+		transformed["dataset"] = transformedDataset
+	}
+
+	transformedTargetTypes, err := expandBigQueryDatasetAccessDatasetTargetTypes(original["target_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTargetTypes); val.IsValid() && !isEmptyValue(val) {
+		transformed["targetTypes"] = transformedTargetTypes
+	}
+
+	return transformed, nil
+}
+
+func expandBigQueryDatasetAccessDatasetDataset(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDatasetId, err := expandBigQueryDatasetAccessDatasetDatasetDatasetId(original["dataset_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+		transformed["datasetId"] = transformedDatasetId
+	}
+
+	transformedProjectId, err := expandBigQueryDatasetAccessDatasetDatasetProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	return transformed, nil
+}
+
+func expandBigQueryDatasetAccessDatasetDatasetDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetAccessDatasetDatasetProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetAccessDatasetTargetTypes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

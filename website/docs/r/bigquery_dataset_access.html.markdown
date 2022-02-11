@@ -91,6 +91,29 @@ resource "google_bigquery_table" "public" {
   }
 }
 ```
+## Example Usage - Bigquery Dataset Access Authorized Dataset
+
+
+```hcl
+resource "google_bigquery_dataset_access" "access" {
+  dataset_id    = google_bigquery_dataset.private.dataset_id
+  dataset {
+    dataset{
+      project_id = google_bigquery_dataset.public.project
+      dataset_id = google_bigquery_dataset.public.dataset_id
+    }
+    target_types = ["VIEWS"]
+  }
+}
+
+resource "google_bigquery_dataset" "private" {
+  dataset_id = "private"
+}
+
+resource "google_bigquery_dataset" "public" {
+  dataset_id = "public"
+}
+```
 
 ## Argument Reference
 
@@ -156,6 +179,11 @@ The following arguments are supported:
   needs to be granted again via an update operation.
   Structure is [documented below](#nested_view).
 
+* `dataset` -
+  (Optional)
+  Grants all resources of particular types in a particular dataset read access to the current dataset.
+  Structure is [documented below](#nested_dataset).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -175,6 +203,29 @@ The following arguments are supported:
   The ID of the table. The ID must contain only letters (a-z,
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 1,024 characters.
+
+<a name="nested_dataset"></a>The `dataset` block supports:
+
+* `dataset` -
+  (Required)
+  The dataset this entry applies to
+  Structure is [documented below](#nested_dataset).
+
+* `target_types` -
+  (Required)
+  Which resources in the dataset this entry applies to. Currently, only views are supported,
+  but additional target types may be added in the future. Possible values: VIEWS
+
+
+<a name="nested_dataset"></a>The `dataset` block supports:
+
+* `dataset_id` -
+  (Required)
+  The ID of the dataset containing this table.
+
+* `project_id` -
+  (Required)
+  The ID of the project containing this table.
 
 ## Attributes Reference
 

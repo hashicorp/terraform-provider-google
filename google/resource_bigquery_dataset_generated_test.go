@@ -77,6 +77,92 @@ resource "google_service_account" "bqowner" {
 `, context)
 }
 
+func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.dataset",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_dataset" "public" {
+  dataset_id                  = "public%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This dataset is public"
+  location                    = "EU"
+  default_table_expiration_ms = 3600000
+
+  labels = {
+    env = "default"
+  }
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  access {
+    role   = "READER"
+    domain = "hashicorp.com"
+  }
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "private%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This dataset is private"
+  location                    = "EU"
+  default_table_expiration_ms = 3600000
+
+  labels = {
+    env = "default"
+  }
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  access {
+    role   = "READER"
+    domain = "hashicorp.com"
+  }
+
+  access {
+    dataset {
+      dataset {
+        project_id = google_bigquery_dataset.public.project
+        dataset_id = google_bigquery_dataset.public.dataset_id
+      }
+      target_types = ["VIEWS"]
+    }
+  }
+}
+
+resource "google_service_account" "bqowner" {
+  account_id = "bqowner%{random_suffix}"
+}
+`, context)
+}
+
 func testAccCheckBigQueryDatasetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

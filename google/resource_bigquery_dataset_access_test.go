@@ -68,6 +68,38 @@ func TestAccBigQueryDatasetAccess_view(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDatasetAccess_authorizedDataset(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	datasetID2 := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	expected := map[string]interface{}{
+		"dataset": map[string]interface{}{
+			"dataset": map[string]interface{}{
+				"projectId": getTestProjectFromEnv(),
+				"datasetId": datasetID2,
+			},
+			"targetTypes": []interface{}{"VIEWS"},
+		},
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetAccess_authorizedDataset(datasetID, datasetID2),
+				Check:  testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.private", expected),
+			},
+			{
+				Config: testAccBigQueryDatasetAccess_destroy(datasetID, "private"),
+				Check:  testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.private", expected),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDatasetAccess_multiple(t *testing.T) {
 	// Multiple fine-grained resources
 	skipIfVcr(t)
@@ -301,6 +333,29 @@ resource "google_bigquery_table" "public" {
 }
 
 `, datasetID, datasetID2, tableID, "SELECT state FROM `lookerdata.cdc.project_tycho_reports`")
+}
+
+func testAccBigQueryDatasetAccess_authorizedDataset(datasetID, datasetID2 string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset_access" "access" {
+  dataset_id    = google_bigquery_dataset.private.dataset_id
+  dataset {
+    dataset{
+      project_id = google_bigquery_dataset.public.project
+      dataset_id = google_bigquery_dataset.public.dataset_id
+    }
+    target_types = ["VIEWS"]
+  }
+}
+
+resource "google_bigquery_dataset" "private" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_dataset" "public" {
+  dataset_id = "%s"
+}
+`, datasetID, datasetID2)
 }
 
 func testAccBigQueryDatasetAccess_multiple(datasetID string) string {
