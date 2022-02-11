@@ -1,0 +1,3 @@
+```release-note:bug
+compute: corrected an issue in `google_compute_security_policy` where only alpha values for certain enums were accepted
+```
