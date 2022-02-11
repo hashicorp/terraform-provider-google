@@ -69,10 +69,11 @@ The following arguments are supported:
 <a name="nested_rule"></a>The `rule` block supports:
 
 * `action` - (Required) Action to take when `match` matches the request. Valid values:
-  * "allow" : allow access to target
-  * "deny(status)" : deny access to target, returns the  HTTP response code specified (valid values are 403, 404 and 502)
-  * "rate_based_ban" : limit client traffic to the configured threshold and ban the client if the traffic exceeds the threshold. Configure parameters for this action in RateLimitOptions. Requires rateLimitOptions to be set.
-  * "threshold" : limit client traffic to the configured threshold. Configure parameters for this action in rateLimitOptions. Requires rateLimitOptions to be set for this.
+    * allow: allow access to target.
+    * deny(): deny access to target, returns the HTTP response code specified (valid values are 403, 404, and 502).
+    * rate_based_ban: limit client traffic to the configured threshold and ban the client if the traffic exceeds the threshold. Configure parameters for this action in RateLimitOptions. Requires rateLimitOptions to be set.
+    * redirect: redirect to a different target. This can either be an internal reCAPTCHA redirect, or an external URL-based redirect via a 302 response. Parameters for this action can be configured via redirectOptions.
+    * throttle: limit client traffic to the configured threshold. Configure parameters for this action in rateLimitOptions. Requires rateLimitOptions to be set for this.
 
 * `priority` - (Required) An unique positive integer indicating the priority of evaluation for a rule.
     Rules are evaluated from highest priority (lowest numerically) to lowest priority (highest numerically) in order.
@@ -124,10 +125,15 @@ The following arguments are supported:
 
 * `conform_action` - (Optional) Action to take for requests that are under the configured rate limit threshold. Valid option is "allow" only.
 
-* `enforce_on_key` - (Optional) Determines the key to enforce the rate_limit_threshold on.
-    Possible values incude "ALL", "ALL_IPS", "HTTP_HEADER", "IP", "XFF_IP". If not specified, defaults to "ALL".
+* `enforce_on_key` - (Optional) Determines the key to enforce the rate_limit_threshold on. If not specified, defaults to "ALL".
 
-* `enforce_on_key_name` - (Optional) Rate limit key name applicable only for HTTP_HEADER key types. Name of the HTTP header whose value is taken as the key value.
+    * ALL: A single rate limit threshold is applied to all the requests matching this rule.
+    * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
+    * HTTP_HEADER: The value of the HTTP header whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to ALL.
+    * XFF_IP: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key type defaults to ALL.
+    * HTTP_COOKIE: The value of the HTTP cookie whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to ALL.
+
+* `enforce_on_key_name` - (Optional) Rate limit key name applicable only for the following key types: HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value. HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
 
 * `exceed_action` - (Optional) When a request is denied, returns the HTTP response code specified.
     Valid options are "deny()" where valid values for status are 403, 404, 429, and 502.
