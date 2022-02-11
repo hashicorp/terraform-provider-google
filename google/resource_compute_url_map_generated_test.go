@@ -556,6 +556,7 @@ resource "google_compute_health_check" "default" {
     port = 80
   }
 }
+
 `, context)
 }
 
