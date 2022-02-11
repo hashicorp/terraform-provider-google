@@ -1,0 +1,9 @@
+```release-note:enhancement
+datafusion: promoted `google_datafusion_instance` to GA
+```
+```release-note:deprecation
+datafusion: deprecated `service_account` in `google_datafusion_instance`. Use `tenant_project_id` instead to extract the tenant project ID (beta)
+```
+```release-note:enhancement
+datafusion: added support for `tenant_project_id` and `gcs_bucket` in `google_datafusion_instance` resource.
+```
