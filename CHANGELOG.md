@@ -65,15 +65,8 @@ BREAKING CHANGES:
 * pubsub: changed `google_pubsub_schema` so that modifiying fields will recreate the resource rather than causing Terraform to report it would attempt an invalid update ([#10768](https://github.com/hashicorp/terraform-provider-google/pull/10768))
 
 FEATURES:
-* **New Data Source:** `google_container_aws_versions` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
-* **New Data Source:** `google_container_azure_versions` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
 * **New Resource:** `google_apigee_nat_address` ([#10789](https://github.com/hashicorp/terraform-provider-google/pull/10789))
 * **New Resource:** `google_network_connectivity_hub` ([#10812](https://github.com/hashicorp/terraform-provider-google/pull/10812))
-* **New Resource:** `google_container_aws_cluster` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
-* **New Resource:** `google_container_aws_node_pool` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
-* **New Resource:** `google_container_azure_client` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
-* **New Resource:** `google_container_azure_cluster` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
-* **New Resource:** `google_container_azure_node_pool` ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
 
 IMPROVEMENTS:
 * bigquery: added ability to create a table with both a schema and view simultaneously to `google_bigquery_table` ([#10819](https://github.com/hashicorp/terraform-provider-google/pull/10819))
