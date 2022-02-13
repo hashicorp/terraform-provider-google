@@ -182,7 +182,7 @@ below](#nested_ip_allocation_policy).
 
 * `networking_mode` - (Optional) Determines whether alias IPs or routes will be used for pod IPs in the cluster.
 Options are `VPC_NATIVE` or `ROUTES`. `VPC_NATIVE` enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases),
-and requires the `ip_allocation_policy` block to be defined. By default when this field is unspecified, GKE will create a `ROUTES`-based cluster.
+and requires the `ip_allocation_policy` block to be defined. By default, when this field is unspecified, GKE will create a `VPC_NATIVE` cluster for versions above `1.21.0-gke.1500` and a `ROUTES`-based cluster for earlier versions. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/alias-ips#default_cluster_network_mode) for a detailed overview of default `networking_mode`s.
 
 * `logging_config` - (Optional) Logging configuration for the cluster.
     Structure is [documented below](#nested_logging_config).
