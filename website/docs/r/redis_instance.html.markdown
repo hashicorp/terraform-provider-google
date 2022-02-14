@@ -475,7 +475,7 @@ In addition to the arguments listed above, the following computed attributes are
   Serial number, as extracted from the certificate.
 
 * `cert` -
-  Serial number, as extracted from the certificate.
+  The certificate data in PEM format.
 
 * `create_time` -
   The time when the certificate was created.
