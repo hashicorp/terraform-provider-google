@@ -62,6 +62,47 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
+func TestAccCGCSnippet_sqlDatabaseInstancePostgresExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlDatabaseInstancePostgresExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlDatabaseInstancePostgresExample(context map[string]interface{}) string {
+	return Nprintf(`
+# [START cloud_sql_postgres_instance_80_db_n1_s2]
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-postgres-instance%{random_suffix}"
+  region           = "us-central1"
+  database_version = "POSTGRES_12"
+  settings {
+    tier = "db-custom-2-7680"
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+# [END cloud_sql_postgres_instance_80_db_n1_s2]
+`, context)
+}
+
 func TestAccCGCSnippet_sqlDatabaseInstanceMySqlExample(t *testing.T) {
 	t.Parallel()
 
