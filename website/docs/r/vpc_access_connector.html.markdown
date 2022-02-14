@@ -128,6 +128,16 @@ resource "google_compute_router_nat" "router_nat" {
   nat_ip_allocate_option             = "AUTO_ONLY"
 }
 
+# Egress route
+resource "google_compute_route" "route_connector_egress" {
+  name             = "connector-egress"
+  dest_range       = "0.0.0.0/0"
+  network          = google_compute_network.default.self_link
+  next_hop_gateway = "default-internet-gateway"
+  tags             = ["vpc-connector"]
+  priority         = 1000
+}
+
 # Cloud Run service
 resource "google_cloud_run_service" "gcr_service" {
   name     = "mygcrservice"
