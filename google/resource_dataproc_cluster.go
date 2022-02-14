@@ -63,6 +63,22 @@ var (
 	}
 )
 
+const resourceDataprocGoogleProvidedLabelPrefix = "labels.goog-dataproc"
+
+func resourceDataprocLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if strings.HasPrefix(k, resourceDataprocGoogleProvidedLabelPrefix) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.HasPrefix(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
 func resourceDataprocCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocClusterCreate,
@@ -132,11 +148,10 @@ func resourceDataprocCluster() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				// GCP automatically adds two labels
-				//    'goog-dataproc-cluster-uuid'
-				//    'goog-dataproc-cluster-name'
-				Computed:    true,
-				Description: `The list of labels (key/value pairs) to be applied to instances in the cluster. GCP generates some itself including goog-dataproc-cluster-name which is the name of the cluster.`,
+				// GCP automatically adds labels
+				DiffSuppressFunc: resourceDataprocLabelDiffSuppress,
+				Computed:         true,
+				Description:      `The list of labels (key/value pairs) to be applied to instances in the cluster. GCP generates some itself including goog-dataproc-cluster-name which is the name of the cluster.`,
 			},
 
 			"cluster_config": {

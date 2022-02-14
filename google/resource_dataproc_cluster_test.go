@@ -589,13 +589,7 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
-					// We only provide one, but GCP adds three, so expect 4. This means unfortunately a
-					// diff will exist unless the user adds these in. An alternative approach would
-					// be to follow the same approach as properties, i.e. split in into labels
-					// and override_labels
-					//
-					// The config is currently configured with ignore_changes = ["labels"] to handle this
-					//
+					// We only provide one, but GCP adds three, so expect 4.
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "4"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.key1", "value1"),
 				),
@@ -1312,12 +1306,6 @@ resource "google_dataproc_cluster" "with_labels" {
 
   labels = {
     key1 = "value1"
-  }
-
-  # This is because GCP automatically adds its own labels as well.
-  # In this case we just want to test our newly added label is there
-  lifecycle {
-    ignore_changes = [labels]
   }
 }
 `, rnd)
