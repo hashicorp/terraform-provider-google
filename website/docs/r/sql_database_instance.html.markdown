@@ -124,7 +124,7 @@ resource "google_compute_global_address" "private_ip_address" {
 }
 
 # When adding this resource to an existent VPC network, the `google_sql_database_instance` 
-# doesn't isn't reachable through its private IP until an option called `Export custom routes` gets manually 
+# doesn't turn reachable through its private IP until an option called `Export custom routes` gets manually 
 # enabled through the GCP console
 resource "google_service_networking_connection" "private_vpc_connection" {
   provider = google-beta
