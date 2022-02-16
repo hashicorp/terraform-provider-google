@@ -166,6 +166,13 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["diskEncryptionKeyName"] = diskEncryptionKeyNameProp
 	}
 
+	lockName, err := replaceVars(d, config, "{{org_id}}/apigeeInstances")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances")
 	if err != nil {
 		return err
@@ -279,6 +286,13 @@ func resourceApigeeInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	billingProject := ""
+
+	lockName, err := replaceVars(d, config, "{{org_id}}/apigeeInstances")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
 	if err != nil {
