@@ -32,7 +32,13 @@ var IamMemberBaseSchema = map[string]*schema.Schema{
 		Required:         true,
 		ForceNew:         true,
 		DiffSuppressFunc: iamMemberCaseDiffSuppress,
-		ValidateFunc:     validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM members for deleted principals"),
+		ValidateFunc: validation.All(
+			validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM members for deleted principals"),
+			validation.Any(
+				validation.StringInSlice([]string{"allUsers", "allAuthenticatedUsers"}, false),
+				validation.StringMatch(regexp.MustCompile("^user:|serviceAccount:|group:|domain:|projectOwner:|projectEditor:|projectViewer:"), "See Google docs on allowed IAM policy members https://cloud.google.com/iam/docs/overview#cloud-iam-policy"),
+			),
+		),
 	},
 	"condition": {
 		Type:     schema.TypeList,

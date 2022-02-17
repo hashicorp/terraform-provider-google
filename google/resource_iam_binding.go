@@ -25,7 +25,13 @@ var iamBindingSchema = map[string]*schema.Schema{
 		Elem: &schema.Schema{
 			Type:             schema.TypeString,
 			DiffSuppressFunc: caseDiffSuppress,
-			ValidateFunc:     validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM bindings for deleted principals"),
+			ValidateFunc: validation.All(
+				validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM members for deleted principals"),
+				validation.Any(
+					validation.StringInSlice([]string{"allUsers", "allAuthenticatedUsers"}, false),
+					validation.StringMatch(regexp.MustCompile("^user:|serviceAccount:|group:|domain:|projectOwner:|projectEditor:|projectViewer:"), "See Google docs on allowed IAM policy members https://cloud.google.com/iam/docs/overview#cloud-iam-policy"),
+				),
+			),
 		},
 		Set: func(v interface{}) int {
 			return schema.HashString(strings.ToLower(v.(string)))
