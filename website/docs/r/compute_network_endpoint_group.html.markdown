@@ -75,6 +75,33 @@ resource "google_compute_subnetwork" "default" {
   network       = google_compute_network.default.id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_endpoint_group_non_gcp&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Endpoint Group Non Gcp
+
+
+```hcl
+resource "google_compute_network_endpoint_group" "neg" {
+  name                  = "my-lb-neg"
+  network               = google_compute_network.default.id
+  default_port          = "90"
+  zone                  = "us-central1-a"
+  network_endpoint_type = "NON_GCP_PRIVATE_IP_PORT"
+}
+
+resource "google_compute_network_endpoint" "default-endpoint" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  port = google_compute_network_endpoint_group.neg.default_port
+  ip_address = "127.0.0.1"
+}
+
+resource "google_compute_network" "default" {
+  name = "neg-network"
+}
+```
 
 ## Argument Reference
 
@@ -107,9 +134,15 @@ The following arguments are supported:
 
 * `network_endpoint_type` -
   (Optional)
-  Type of network endpoints in this network endpoint group.
+  Type of network endpoints in this network endpoint group. 
+  NON_GCP_PRIVATE_IP_PORT is used for hybrid connectivity network 
+  endpoint groups (see https://cloud.google.com/load-balancing/docs/hybrid).
+  Note that NON_GCP_PRIVATE_IP_PORT can only be used with Backend Services
+  that 1) have the following load balancing schemes: EXTERNAL, EXTERNAL_MANAGED,
+  INTERNAL_MANAGED, and INTERNAL_SELF_MANAGED and 2) support the RATE or
+  CONNECTION balancing modes.
   Default value is `GCE_VM_IP_PORT`.
-  Possible values are `GCE_VM_IP_PORT`.
+  Possible values are `GCE_VM_IP_PORT` and `NON_GCP_PRIVATE_IP_PORT`.
 
 * `subnetwork` -
   (Optional)
