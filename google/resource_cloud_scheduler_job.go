@@ -562,33 +562,16 @@ func resourceCloudSchedulerJobSetState(state string, d *schema.ResourceData, met
 }
 
 func resourceCloudSchedulerJobGetState(d *schema.ResourceData, meta interface{}) (string, error) {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	res, err := jobSendRequest(d, meta, "GET", "/{{name}}", nil)
 	if err != nil {
 		return "", err
 	}
-
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
-	if err != nil {
-		return "", err
-	}
-
-	billingProject := ""
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return "", fmt.Errorf("Error fetching project for Job: %s", err)
-	}
-	billingProject = project
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 
 	return res["state"].(string), nil
+}
+
+func jobSendRequest(d *schema.ResourceData, meta interface{}, method string, path string, body map[string]interface{}) (map[string]interface{}, error) {
+	return jobSendRequestWithTimeout(d, meta, method, path, body, DefaultRequestTimeout)
 }
 
 func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) error {
