@@ -597,7 +597,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 			return err
 		}
 		bucket := sourceURL.Host
-		object := strings.TrimLeft(sourceURL.Path, "/")
+		object := strings.TrimLeft(sourceURL.Path+"#"+sourceURL.Fragment, "/")
 		if err := d.Set("source_archive_bucket", bucket); err != nil {
 			return fmt.Errorf("Error setting source_archive_bucket: %s", err)
 		}
