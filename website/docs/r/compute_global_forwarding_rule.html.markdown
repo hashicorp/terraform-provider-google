@@ -766,6 +766,121 @@ resource "google_compute_backend_service" "default" {
   load_balancing_scheme = "EXTERNAL_MANAGED"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_forwarding_rule_hybrid&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Global Forwarding Rule Hybrid
+
+
+```hcl
+// Roughly mirrors https://cloud.google.com/load-balancing/docs/https/setting-up-ext-https-hybrid
+
+resource "google_compute_network" "default" {
+  name                    = "my-network"
+}
+
+// Zonal NEG with GCE_VM_IP_PORT
+resource "google_compute_network_endpoint_group" "default" {
+  name                  = "default-neg"
+  network               = google_compute_network.default.id
+  default_port          = "90"
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+// Hybrid connectivity NEG
+resource "google_compute_network_endpoint_group" "hybrid" {
+  name                  = "hybrid-neg"
+  network               = google_compute_network.default.id
+  default_port          = "90"
+  zone                  = "us-central1-a"
+  network_endpoint_type = "NON_GCP_PRIVATE_IP_PORT"
+}
+
+resource "google_compute_network_endpoint" "hybrid-endpoint" {
+  network_endpoint_group = google_compute_network_endpoint_group.hybrid.name
+  port       = google_compute_network_endpoint_group.hybrid.default_port
+  ip_address = "127.0.0.1"
+}
+
+// Backend service for Zonal NEG
+resource "google_compute_backend_service" "default" {
+  name                  = "backend-default"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  backend {
+    group = google_compute_network_endpoint_group.default.id
+    balancing_mode               = "RATE"
+    max_rate_per_endpoint        = 10
+  }
+  health_checks = [google_compute_health_check.default.id]
+}
+
+// Backgend service for Hybrid NEG
+resource "google_compute_backend_service" "hybrid" {
+  name                  = "backend-hybrid"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  backend {
+    group                        = google_compute_network_endpoint_group.hybrid.id
+    balancing_mode               = "RATE"
+    max_rate_per_endpoint = 10
+  }
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "health-check"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "url-map-target-proxy"
+  description     = "a description"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+
+    path_rule {
+      paths   = ["/hybrid"]
+      service = google_compute_backend_service.hybrid.id
+    }
+  }
+}
+
+resource "google_compute_target_http_proxy" "default" {
+  name        = "target-proxy"
+  description = "a description"
+  url_map     = google_compute_url_map.default.id
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  name       = "global-rule"
+  target     = google_compute_target_http_proxy.default.id
+  port_range = "80"
+}
+```
 ## Example Usage - Private Service Connect Google Apis
 
 

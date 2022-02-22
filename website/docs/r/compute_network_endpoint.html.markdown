@@ -96,12 +96,6 @@ resource "google_compute_subnetwork" "default" {
 The following arguments are supported:
 
 
-* `instance` -
-  (Required)
-  The name for a specific VM instance that the IP address belongs to.
-  This is required for network endpoints of type GCE_VM_IP_PORT.
-  The instance must be in the same zone of network endpoint group.
-
 * `port` -
   (Required)
   Port number of network endpoint.
@@ -119,6 +113,12 @@ The following arguments are supported:
 
 - - -
 
+
+* `instance` -
+  (Optional)
+  The name for a specific VM instance that the IP address belongs to.
+  This is required for network endpoints of type GCE_VM_IP_PORT.
+  The instance must be in the same zone of network endpoint group.
 
 * `zone` -
   (Optional)
