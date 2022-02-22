@@ -76,8 +76,7 @@ The following arguments are supported:
 
 * `location` - (Required) The [GCS location](https://cloud.google.com/storage/docs/bucket-locations)
 
-* `project` - (Optional) The ID of the project in which the resource belongs. If it
-    is not provided, the provider project is used.
+* `project` - (Optional) The ID of the project in which the resource belongs. If it is not provided and the provider has been configured with a project, that project is used. If neither are defined, an error is returned.
 
 * `storage_class` - (Optional, Default: 'STANDARD') The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
