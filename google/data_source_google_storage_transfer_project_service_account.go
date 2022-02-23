@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -16,6 +17,10 @@ func dataSourceGoogleStorageTransferProjectServiceAccount() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"subject_id": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -42,6 +47,9 @@ func dataSourceGoogleStorageTransferProjectServiceAccountRead(d *schema.Resource
 	d.SetId(serviceAccount.AccountEmail)
 	if err := d.Set("email", serviceAccount.AccountEmail); err != nil {
 		return fmt.Errorf("Error setting email: %s", err)
+	}
+	if err := d.Set("subject_id", serviceAccount.SubjectId); err != nil {
+		return fmt.Errorf("Error setting subject_id: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
