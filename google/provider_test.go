@@ -117,7 +117,8 @@ var masterBillingAccountEnvVars = []string{
 	"GOOGLE_MASTER_BILLING_ACCOUNT",
 }
 
-var mutex = &sync.Mutex{}
+var configsLock = sync.RWMutex{}
+var sourcesLock = sync.RWMutex{}
 
 func init() {
 	configs = make(map[string]*Config)
@@ -135,7 +136,10 @@ func init() {
 // VCR requires a single HTTP client to handle all interactions so it can record and replay responses so
 // this caches HTTP clients per test by replacing ConfigureFunc
 func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc schema.ConfigureContextFunc, testName string) (*Config, diag.Diagnostics) {
-	if v, ok := configs[testName]; ok {
+	configsLock.RLock()
+	v, ok := configs[testName]
+	configsLock.RUnlock()
+	if ok {
 		return v, nil
 	}
 	c, diags := configureFunc(ctx, d)
@@ -210,15 +214,18 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 		return false
 	})
 	config.client.Transport = rec
-	mutex.Lock()
+	configsLock.Lock()
 	configs[testName] = config
-	mutex.Unlock()
+	configsLock.Unlock()
 	return config, nil
 }
 
 // We need to explicitly close the VCR recorder to save the cassette
 func closeRecorder(t *testing.T) {
-	if config, ok := configs[t.Name()]; ok {
+	configsLock.RLock()
+	config, ok := configs[t.Name()]
+	configsLock.RUnlock()
+	if ok {
 		// We did not cache the config if it does not use VCR
 		if !t.Failed() && isVcrEnabled() {
 			// If a test succeeds, write new seed/yaml to files
@@ -227,7 +234,11 @@ func closeRecorder(t *testing.T) {
 				t.Error(err)
 			}
 			envPath := os.Getenv("VCR_PATH")
-			if vcrSource, ok := sources[t.Name()]; ok {
+
+			sourcesLock.RLock()
+			vcrSource, ok := sources[t.Name()]
+			sourcesLock.RUnlock()
+			if ok {
 				err = writeSeedToFile(vcrSource.seed, vcrSeedFile(envPath, t.Name()))
 				if err != nil {
 					t.Error(err)
@@ -235,15 +246,20 @@ func closeRecorder(t *testing.T) {
 			}
 		}
 		// Clean up test config
-		mutex.Lock()
+		configsLock.Lock()
 		delete(configs, t.Name())
+		configsLock.Unlock()
+
+		sourcesLock.Lock()
 		delete(sources, t.Name())
-		mutex.Unlock()
+		sourcesLock.Unlock()
 	}
 }
 
 func googleProviderConfig(t *testing.T) *Config {
+	configsLock.RLock()
 	config, ok := configs[t.Name()]
+	configsLock.RUnlock()
 	if ok {
 		return config
 	}
@@ -300,7 +316,10 @@ func vcrFileName(name string) string {
 // In RECORDING mode, generates a new seed and saves it to a file, using the seed for the source
 // In REPLAYING mode, reads a seed from a file and creates a source from it
 func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
-	if s, ok := sources[t.Name()]; ok {
+	sourcesLock.RLock()
+	s, ok := sources[t.Name()]
+	sourcesLock.RUnlock()
+	if ok {
 		return &s, nil
 	}
 	switch mode {
@@ -308,9 +327,9 @@ func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
 		seed := rand.Int63()
 		s := rand.NewSource(seed)
 		vcrSource := VcrSource{seed: seed, source: s}
-		mutex.Lock()
+		sourcesLock.Lock()
 		sources[t.Name()] = vcrSource
-		mutex.Unlock()
+		sourcesLock.Unlock()
 		return &vcrSource, nil
 	case "REPLAYING":
 		seed, err := readSeedFromFile(vcrSeedFile(path, t.Name()))
@@ -319,9 +338,9 @@ func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
 		}
 		s := rand.NewSource(seed)
 		vcrSource := VcrSource{seed: seed, source: s}
-		mutex.Lock()
+		sourcesLock.Lock()
 		sources[t.Name()] = vcrSource
-		mutex.Unlock()
+		sourcesLock.Unlock()
 		return &vcrSource, nil
 	default:
 		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", mode)
