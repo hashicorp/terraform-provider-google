@@ -92,7 +92,7 @@ The following arguments are supported:
   
 * `name` -
   (Required)
-  Required. The resource name of the trigger. Must be unique within the location on the project.
+  Required. The resource name of the trigger. Must be unique within the location on the project and must be in `projects/{project}/locations/{location}/triggers/{trigger}` format.
   
 
 
@@ -100,7 +100,7 @@ The `destination` block supports:
     
 * `cloud_function` -
   (Optional)
-  [WARNING] Configuring a Cloud Function in Trigger is not supported as of today. The Cloud Function resource name. Format: projects/{project}/locations/{location}/functions/{function}
+  The Cloud Function resource name. Only Cloud Functions V2 is supported. Format: projects/{project}/locations/{location}/functions/{function}
     
 * `cloud_run_service` -
   (Optional)
@@ -163,7 +163,7 @@ The `pubsub` block supports:
     
 * `topic` -
   (Optional)
-  Optional. The name of the Pub/Sub topic created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/topics/{TOPIC_NAME}. You may set an existing topic for triggers of the type google.cloud.pubsub.topic.v1.messagePublished` only. The topic you provide here will not be deleted by Eventarc at trigger deletion.
+  Optional. The name of the Pub/Sub topic created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/topics/{TOPIC_NAME You may set an existing topic for triggers of the type google.cloud.pubsub.topic.v1.messagePublished` only. The topic you provide here will not be deleted by Eventarc at trigger deletion.
     
 ## Attributes Reference
 
