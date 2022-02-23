@@ -1,0 +1,3 @@
+```release-note:enhancement
+transfer: added attribute `subject_id` to data source `google_storage_transfer_project_service_account`
+```

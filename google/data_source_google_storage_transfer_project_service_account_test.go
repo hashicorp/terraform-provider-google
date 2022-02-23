@@ -20,6 +20,7 @@ func TestAccDataSourceGoogleStorageTransferProjectServiceAccount_basic(t *testin
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
+					resource.TestCheckResourceAttrSet(resourceName, "subject_id"),
 				),
 			},
 		},
