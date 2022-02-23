@@ -13,7 +13,7 @@ description: |-
 * Create a project in the [Google Cloud Console](https://console.cloud.google.com/)
 and set up billing on that project. Any examples in this guide will be part of
 the [GCP "always free" tier](https://cloud.google.com/free/).
-* [Terraform GCP Example](https://learn.hashicorp.com/tutorials/terraform/google-cloud-platform-build)
+* [Intsall Terraform](https://www.terraform.io/downloads)
 and read the Terraform getting started guide that follows. This guide will
 assume basic proficiency with Terraform - it is an introduction to the Google
 provider.
