@@ -33,6 +33,8 @@ Three different resources help you manage your IAM policy for Compute Engine Bac
 
 ~> **Note:**  This resource supports IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)) but they have some known limitations which can be found [here](https://cloud.google.com/iam/docs/conditions-overview#limitations). Please review this article if you are having issues with IAM Conditions.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## google\_compute\_backend\_service\_iam\_policy
