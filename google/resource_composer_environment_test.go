@@ -325,6 +325,75 @@ func TestAccComposerEnvironment_withEncryptionConfig(t *testing.T) {
 	})
 }
 
+func TestAccComposerEnvironment_withMaintenanceWindow(t *testing.T) {
+	t.Parallel()
+
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
+	subnetwork := network + "-1"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_maintenanceWindow(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_maintenanceWindow(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
+func TestAccComposerEnvironment_maintenanceWindowUpdate(t *testing.T) {
+	t.Parallel()
+
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
+	subnetwork := network + "-1"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_maintenanceWindow(envName, network, subnetwork),
+			},
+			{
+				Config: testAccComposerEnvironment_maintenanceWindowUpdate(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_maintenanceWindowUpdate(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
 func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
 	t.Parallel()
 
@@ -932,6 +1001,64 @@ resource "google_compute_subnetwork" "test" {
   network       = google_compute_network.test.self_link
 }
 `, pid, kmsKey, name, kmsKey, network, subnetwork)
+}
+
+func testAccComposerEnvironment_maintenanceWindow(envName, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+	name   = "%s"
+	region = "us-central1"
+	config {
+		maintenance_window {
+			start_time = "2019-08-01T01:00:00Z"
+			end_time = "2019-08-01T07:00:00Z"
+			recurrence = "FREQ=WEEKLY;BYDAY=TU,WE"
+		}
+	}
+}
+
+resource "google_compute_network" "test" {
+	name                    = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
+}
+
+`, envName, network, subnetwork)
+}
+
+func testAccComposerEnvironment_maintenanceWindowUpdate(envName, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+	name   = "%s"
+	region = "us-central1"
+	config {
+		maintenance_window {
+			start_time = "2019-08-01T01:00:00Z"
+			end_time = "2019-08-01T07:00:00Z"
+			recurrence = "FREQ=DAILY"
+		}
+	}
+}
+
+resource "google_compute_network" "test" {
+	name                    = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
+}
+
+`, envName, network, subnetwork)
 }
 
 func testAccComposerEnvironment_composerV2(envName, network, subnetwork string) string {

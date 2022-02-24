@@ -656,7 +656,7 @@ The `config` block supports:
   below.
 
 * `maintenance_window` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The configuration settings for Cloud Composer maintenance windows.
 
 * `workloads_config` -
