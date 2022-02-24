@@ -444,9 +444,9 @@ specified, then this instance will have no external IPv6 Internet access. Struct
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
    Structure [documented below](#nested_node_affinities).
    
-* `provisioning_model`(Optional, Beta) - Describe the type of preemptible VM. If this
-    is set, `preemptible` should be `true` and `auto_restart` should be
-    `false`. One of `STANDARD_PROVISION` or `SPOT`, for more info about
+* `provisioning_model` - (Optional, Beta) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`, 
+    `preemptible` should be `true` and `auto_restart` should be
+    `false`. For more info about
     `SPOT`, read [here](https://cloud.google.com/compute/docs/instances/spot)
     
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
