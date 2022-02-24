@@ -55,6 +55,7 @@ var (
 		"config.0.database_config",
 		"config.0.web_server_config",
 		"config.0.encryption_config",
+		"config.0.maintenance_window",
 		"config.0.workloads_config",
 		"config.0.environment_size",
 	}
@@ -310,7 +311,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: composerSoftwareConfigKeys,
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										ValidateFunc: validateComposerEnvironmentEnvVariables,
-										Description:  `Additional environment variables to provide to the Apache Airflow schedulerf, worker, and webserver processes. Environment variable names must match the regular expression [a-zA-Z_][a-zA-Z0-9_]*. They cannot specify Apache Airflow software configuration overrides (they cannot match the regular expression AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+), and they cannot match any of the following reserved names: AIRFLOW_HOME C_FORCE_ROOT CONTAINER_NAME DAGS_FOLDER GCP_PROJECT GCS_BUCKET GKE_CLUSTER_NAME SQL_DATABASE SQL_INSTANCE SQL_PASSWORD SQL_PROJECT SQL_REGION SQL_USER.`,
+										Description:  `Additional environment variables to provide to the Apache Airflow scheduler, worker, and webserver processes. Environment variable names must match the regular expression [a-zA-Z_][a-zA-Z0-9_]*. They cannot specify Apache Airflow software configuration overrides (they cannot match the regular expression AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+), and they cannot match any of the following reserved names: AIRFLOW_HOME C_FORCE_ROOT CONTAINER_NAME DAGS_FOLDER GCP_PROJECT GCS_BUCKET GKE_CLUSTER_NAME SQL_DATABASE SQL_INSTANCE SQL_PASSWORD SQL_PROJECT SQL_REGION SQL_USER.`,
 									},
 									"image_version": {
 										Type:             schema.TypeString,
@@ -463,7 +464,36 @@ func resourceComposerEnvironment() *schema.Resource {
 								},
 							},
 						},
-
+						"maintenance_window": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The configuration for Cloud Composer maintenance window.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    false,
+										Description: `Start time of the first recurrence of the maintenance window.`,
+									},
+									"end_time": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    false,
+										Description: `Maintenance window end time. It is used only to calculate the duration of the maintenance window. The value for end-time must be in the future, relative to 'start_time'.`,
+									},
+									"recurrence": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    false,
+										Description: `Maintenance window recurrence. Format is a subset of RFC-5545 (https://tools.ietf.org/html/rfc5545) 'RRULE'. The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'. Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.`,
+									},
+								},
+							},
+						},
 						"workloads_config": {
 							Type:         schema.TypeList,
 							Optional:     true,
@@ -869,6 +899,17 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
+		if d.HasChange("config.0.maintenance_window") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.MaintenanceWindow = config.MaintenanceWindow
+			}
+			err = resourceComposerEnvironmentPatchField("config.maintenanceWindow", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+
 		if d.HasChange("config.0.workloads_config") {
 			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
 			if config != nil {
@@ -1011,6 +1052,7 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["database_config"] = flattenComposerEnvironmentConfigDatabaseConfig(envCfg.DatabaseConfig)
 	transformed["web_server_config"] = flattenComposerEnvironmentConfigWebServerConfig(envCfg.WebServerConfig)
 	transformed["encryption_config"] = flattenComposerEnvironmentConfigEncryptionConfig(envCfg.EncryptionConfig)
+	transformed["maintenance_window"] = flattenComposerEnvironmentConfigMaintenanceWindow(envCfg.MaintenanceWindow)
 	transformed["workloads_config"] = flattenComposerEnvironmentConfigWorkloadsConfig(envCfg.WorkloadsConfig)
 	transformed["environment_size"] = envCfg.EnvironmentSize
 	return []interface{}{transformed}
@@ -1066,6 +1108,19 @@ func flattenComposerEnvironmentConfigEncryptionConfig(encryptionCfg *composer.En
 
 	transformed := make(map[string]interface{})
 	transformed["kms_key_name"] = encryptionCfg.KmsKeyName
+
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigMaintenanceWindow(maintenanceWindow *composer.MaintenanceWindow) interface{} {
+	if maintenanceWindow == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["start_time"] = maintenanceWindow.StartTime
+	transformed["end_time"] = maintenanceWindow.EndTime
+	transformed["recurrence"] = maintenanceWindow.Recurrence
 
 	return []interface{}{transformed}
 }
@@ -1250,6 +1305,11 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 	}
 	transformed.EncryptionConfig = transformedEncryptionConfig
 
+	transformedMaintenanceWindow, err := expandComposerEnvironmentConfigMaintenanceWindow(original["maintenance_window"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.MaintenanceWindow = transformedMaintenanceWindow
 	transformedWorkloadsConfig, err := expandComposerEnvironmentConfigWorkloadsConfig(original["workloads_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -1338,6 +1398,30 @@ func expandComposerEnvironmentConfigEncryptionConfig(v interface{}, d *schema.Re
 
 	transformed := &composer.EncryptionConfig{}
 	transformed.KmsKeyName = original["kms_key_name"].(string)
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigMaintenanceWindow(v interface{}, d *schema.ResourceData, config *Config) (*composer.MaintenanceWindow, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := &composer.MaintenanceWindow{}
+
+	if v, ok := original["start_time"]; ok {
+		transformed.StartTime = v.(string)
+	}
+
+	if v, ok := original["end_time"]; ok {
+		transformed.EndTime = v.(string)
+	}
+
+	if v, ok := original["recurrence"]; ok {
+		transformed.Recurrence = v.(string)
+	}
 
 	return transformed, nil
 }
