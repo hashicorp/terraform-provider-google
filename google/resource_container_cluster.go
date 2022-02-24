@@ -921,6 +921,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: `Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
