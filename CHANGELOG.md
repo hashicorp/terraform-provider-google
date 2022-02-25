@@ -13,6 +13,8 @@ IMPROVEMENTS:
 * compute: Added field `serverless_deployment` to `google_compute_network_endpoint_group` (beta only) for API Gateway resources ([#11064](https://github.com/hashicorp/terraform-provider-google/pull/11064))
 * compute: Update `instance` attribute for `google_compute_network_endpoint` to be optional, as Hybrid connectivity NEGs use network endpoints with just IP and Port. ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
 * compute: add `NON_GCP_PRIVATE_IP_PORT` value for `network_endpoint_type` in the `google_compute_network_endpoint_group` resource ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
+* compute: added `provisioning_model` field to `google_compute_instance_template ` resource to support Spot VM(beta) ([#11049](https://github.com/hashicorp/terraform-provider-google/pull/11049))
+* compute: added `provisioning_model` field to `google_compute_instance` resource to support Spot VM(beta) ([#11049](https://github.com/hashicorp/terraform-provider-google/pull/11049))
 * container: Add support for GKE Compact Placement ([#11085](https://github.com/hashicorp/terraform-provider-google/pull/11085))
 * datafusion: added support for `tenant_project_id` and `gcs_bucket` in `google_datafusion_instance` resource. ([#11087](https://github.com/hashicorp/terraform-provider-google/pull/11087))
 * datafusion: promoted `google_datafusion_instance` to GA ([#11087](https://github.com/hashicorp/terraform-provider-google/pull/11087))
