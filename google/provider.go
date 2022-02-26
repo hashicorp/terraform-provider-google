@@ -786,6 +786,7 @@ func Provider() *schema.Provider {
 			"google_monitoring_uptime_check_ips":                  dataSourceGoogleMonitoringUptimeCheckIps(),
 			"google_netblock_ip_ranges":                           dataSourceGoogleNetblockIpRanges(),
 			"google_organization":                                 dataSourceGoogleOrganization(),
+			"google_privateca_certificate_authority":              dataSourcePrivatecaCertificateAuthority(),
 			"google_project":                                      dataSourceGoogleProject(),
 			"google_projects":                                     dataSourceGoogleProjects(),
 			"google_project_organization_policy":                  dataSourceGoogleProjectOrganizationPolicy(),
