@@ -1,25 +1,17 @@
 ## 4.12.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-* Add resources dns_response_policy and dns_response_policy_rule ([#11089](https://github.com/hashicorp/terraform-provider-google/pull/11089))
-* Docs(logging_project_sink): Replace google_project_iam_binding with google_project_iam_member  ([#10936](https://github.com/hashicorp/terraform-provider-google/pull/10936))
-* Fixes #11078 - Documentation error in redis_instance documentation ([#11079](https://github.com/hashicorp/terraform-provider-google/pull/11079))
-* move to most recent Go 1.16 release ([#11132](https://github.com/hashicorp/terraform-provider-google/pull/11132))
+NOTE:
+* updated to go 1.16.14 ([#11132](https://github.com/hashicorp/terraform-provider-google/pull/11132))
+
 DEPRECATIONS:
 * datafusion: deprecated `service_account` in `google_datafusion_instance`. Use `tenant_project_id` instead to extract the tenant project ID (beta) ([#11087](https://github.com/hashicorp/terraform-provider-google/pull/11087))
 
 IMPROVEMENTS:
 * bigquery: added support for authorized datasets to `google_bigquery_dataset.access` and `google_bigquery_dataset_access` ([#11091](https://github.com/hashicorp/terraform-provider-google/pull/11091))
 * bigtable: added `multi_cluster_routing_cluster_ids` fields to `google_bigtable_app_profile` ([#11097](https://github.com/hashicorp/terraform-provider-google/pull/11097))
-* compute: Added field `serverless_deployment` to `google_compute_network_endpoint_group` (beta only) for API Gateway resources ([#11064](https://github.com/hashicorp/terraform-provider-google/pull/11064))
-* compute: Update `instance` attribute for `google_compute_network_endpoint` to be optional, as Hybrid connectivity NEGs use network endpoints with just IP and Port. ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
-* compute: add `NON_GCP_PRIVATE_IP_PORT` value for `network_endpoint_type` in the `google_compute_network_endpoint_group` resource ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
+* compute: updated `instance` attribute for `google_compute_network_endpoint` to be optional, as Hybrid connectivity NEGs use network endpoints with just IP and Port. ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
+* compute: added `NON_GCP_PRIVATE_IP_PORT` value for `network_endpoint_type` in the `google_compute_network_endpoint_group` resource ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
 * compute: added `provisioning_model` field to `google_compute_instance_template ` resource to support Spot VM(beta) ([#11049](https://github.com/hashicorp/terraform-provider-google/pull/11049))
-* compute: added `provisioning_model` field to `google_compute_instance` resource to support Spot VM(beta) ([#11049](https://github.com/hashicorp/terraform-provider-google/pull/11049))
-* container: Add support for GKE Compact Placement ([#11085](https://github.com/hashicorp/terraform-provider-google/pull/11085))
-* datafusion: added support for `tenant_project_id` and `gcs_bucket` in `google_datafusion_instance` resource. ([#11087](https://github.com/hashicorp/terraform-provider-google/pull/11087))
 * datafusion: promoted `google_datafusion_instance` to GA ([#11087](https://github.com/hashicorp/terraform-provider-google/pull/11087))
-* eventarc: changes in field documentation for eventarc_trigger resource ([#11104](https://github.com/hashicorp/terraform-provider-google/pull/11104))
-* iam: added warning regarding `google_service_account_key` behavior when the project cannot be inferred from the `service_account_id` field. ([#11119](https://github.com/hashicorp/terraform-provider-google/pull/11119))
 * provider: added retries for `ReadRequest` errors incorrectly coded as `403` errors, particularly in Google Compute Engine ([#11129](https://github.com/hashicorp/terraform-provider-google/pull/11129))
 
 BUG FIXES:
