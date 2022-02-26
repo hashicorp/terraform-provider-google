@@ -80,7 +80,8 @@ The following arguments are supported:
     to be created.
 
 * `password` - (Optional) The password for the user. Can be updated. For Postgres
-    instances this is a Required field.
+    instances this is a Required field, unless type is set to either CLOUD_IAM_USER
+    or CLOUD_IAM_SERVICE_ACCOUNT.
 
 * `type` - (Optional) The user type. It determines the method to authenticate the
     user during login. The default is the database's built-in user type. Flags
