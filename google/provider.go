@@ -824,8 +824,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 217
-// Generated IAM resources: 96
-// Total generated resources: 313
+// Generated IAM resources: 99
+// Total generated resources: 316
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
