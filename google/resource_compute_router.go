@@ -142,6 +142,16 @@ CIDR-formatted string.`,
 								},
 							},
 						},
+						"keepalive_interval": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The interval in seconds between BGP keepalive messages that are sent to the peer.
+Hold time is three times the interval at which keepalive messages are sent, and the hold time is the
+maximum number of seconds allowed to elapse between successive keepalive messages that BGP receives from a peer.
+BGP will use the smaller of either the local hold time value or the peer's hold time value as the hold time for
+the BGP connection between the two peers. If set, this value must be between 20 and 60. The default is 20.`,
+							Default: 20,
+						},
 					},
 				},
 			},
@@ -523,6 +533,8 @@ func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData, config *Conf
 		flattenComputeRouterBgpAdvertisedGroups(original["advertisedGroups"], d, config)
 	transformed["advertised_ip_ranges"] =
 		flattenComputeRouterBgpAdvertisedIpRanges(original["advertisedIpRanges"], d, config)
+	transformed["keepalive_interval"] =
+		flattenComputeRouterBgpKeepaliveInterval(original["keepaliveInterval"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRouterBgpAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -575,6 +587,23 @@ func flattenComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d *schema.Res
 
 func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeRouterBgpKeepaliveInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeRouterEncryptedInterconnectRouter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -641,6 +670,13 @@ func expandComputeRouterBgp(v interface{}, d TerraformResourceData, config *Conf
 		transformed["advertisedIpRanges"] = transformedAdvertisedIpRanges
 	}
 
+	transformedKeepaliveInterval, err := expandComputeRouterBgpKeepaliveInterval(original["keepalive_interval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeepaliveInterval); val.IsValid() && !isEmptyValue(val) {
+		transformed["keepaliveInterval"] = transformedKeepaliveInterval
+	}
+
 	return transformed, nil
 }
 
@@ -690,6 +726,10 @@ func expandComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d TerraformRes
 }
 
 func expandComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRouterBgpKeepaliveInterval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
