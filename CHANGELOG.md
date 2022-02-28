@@ -2,9 +2,6 @@
 NOTE:
 * updated to go 1.16.14 ([#11132](https://github.com/hashicorp/terraform-provider-google/pull/11132))
 
-DEPRECATIONS:
-* datafusion: deprecated `service_account` in `google_datafusion_instance`. Use `tenant_project_id` instead to extract the tenant project ID (beta) ([#11087](https://github.com/hashicorp/terraform-provider-google/pull/11087))
-
 IMPROVEMENTS:
 * bigquery: added support for authorized datasets to `google_bigquery_dataset.access` and `google_bigquery_dataset_access` ([#11091](https://github.com/hashicorp/terraform-provider-google/pull/11091))
 * bigtable: added `multi_cluster_routing_cluster_ids` fields to `google_bigtable_app_profile` ([#11097](https://github.com/hashicorp/terraform-provider-google/pull/11097))
