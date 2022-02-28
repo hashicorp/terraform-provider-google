@@ -1,4 +1,18 @@
 ## 4.12.0 (Unreleased)
+NOTE:
+* updated to go 1.16.14 ([#11132](https://github.com/hashicorp/terraform-provider-google/pull/11132))
+
+IMPROVEMENTS:
+* bigquery: added support for authorized datasets to `google_bigquery_dataset.access` and `google_bigquery_dataset_access` ([#11091](https://github.com/hashicorp/terraform-provider-google/pull/11091))
+* bigtable: added `multi_cluster_routing_cluster_ids` fields to `google_bigtable_app_profile` ([#11097](https://github.com/hashicorp/terraform-provider-google/pull/11097))
+* compute: updated `instance` attribute for `google_compute_network_endpoint` to be optional, as Hybrid connectivity NEGs use network endpoints with just IP and Port. ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
+* compute: added `NON_GCP_PRIVATE_IP_PORT` value for `network_endpoint_type` in the `google_compute_network_endpoint_group` resource ([#11147](https://github.com/hashicorp/terraform-provider-google/pull/11147))
+* datafusion: promoted `google_datafusion_instance` to GA ([#11087](https://github.com/hashicorp/terraform-provider-google/pull/11087))
+* provider: added retries for `ReadRequest` errors incorrectly coded as `403` errors, particularly in Google Compute Engine ([#11129](https://github.com/hashicorp/terraform-provider-google/pull/11129))
+
+BUG FIXES:
+* apigee: fixed a bug where multiple `google_apigee_instance` could not be used on the same `google_apigee_organization` ([#11121](https://github.com/hashicorp/terraform-provider-google/pull/11121))
+* compute: corrected an issue in `google_compute_security_policy` where only alpha values for certain enums were accepted ([#11095](https://github.com/hashicorp/terraform-provider-google/pull/11095))
 
 ## 4.11.0 (February 16, 2022)
 
