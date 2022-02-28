@@ -1,0 +1,4 @@
+```release-note:new-resource
+`google_region_backend_service_iam_*`
+
+```
