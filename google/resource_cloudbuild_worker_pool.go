@@ -163,6 +163,7 @@ func CloudbuildWorkerPoolWorkerConfigSchema() *schema.Resource {
 
 			"no_external_ip": {
 				Type:        schema.TypeBool,
+				Computed:    true,
 				Optional:    true,
 				Description: "If true, workers are created without any public address, which prevents network egress to public IPs.",
 			},
