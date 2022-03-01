@@ -1,0 +1,3 @@
+```release-note:bug
+composer: fixes mistake in docs for Composer 2 basic configuration
+```
