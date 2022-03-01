@@ -17,7 +17,10 @@ package google
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"reflect"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -171,7 +174,6 @@ for information on available CPU platforms.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `The share setting for reservations.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -179,19 +181,16 @@ for information on available CPU platforms.`,
 						"project_map": {
 							Type:        schema.TypeSet,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A map of project number and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `The project id/number, should be same as the key of this project config in the project map.`,
 									},
 								},
@@ -201,7 +200,6 @@ for information on available CPU platforms.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validateEnum([]string{"LOCAL", "SPECIFIC_PROJECTS", ""}),
 							Description:  `Type of sharing for this shared-reservation Possible values: ["LOCAL", "SPECIFIC_PROJECTS"]`,
 						},
@@ -419,6 +417,71 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 	billingProject = project
 
+	obj := make(map[string]interface{})
+	shareSettingsProp, err := expandComputeReservationShareSettings(d.Get("share_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("share_settings"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shareSettingsProp)) {
+		obj["shareSettings"] = shareSettingsProp
+	}
+
+	obj, err = resourceComputeReservationUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Reservation %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("share_settings") {
+		updateMask = append(updateMask, "shareSettings")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+	if d.HasChange("share_settings") {
+		url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+		if err != nil {
+			return err
+		}
+		urlUpdateMask := obj["urlUpdateMask"]
+		if urlUpdateMask != nil {
+			url = url + urlUpdateMask.(string)
+			delete(obj, "urlUpdateMask")
+		}
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Reservation %q: %#v", d.Id(), res)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Reservation", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
 	d.Partial(true)
 
 	if d.HasChange("specific_reservation") {
@@ -965,7 +1028,100 @@ func expandComputeReservationZone(v interface{}, d TerraformResourceData, config
 
 func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
-	newObj["specificSkuCount"] = obj["specificReservation"].(map[string]interface{})["count"]
+	config := meta.(*Config)
+	maskId := ""
+	firstProject := true
+	urlUpdateMask := ""
+
+	if d.HasChange("share_settings") {
+		// Get name.
+		nameProp, err := expandComputeReservationName(d.Get("name"), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for name: %s", err)
+		} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+			newObj["name"] = nameProp
+		}
+		// 	Get zone.
+		zoneProp, err := expandComputeReservationZone(d.Get("zone"), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for zone: %s", err)
+		} else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+			newObj["zone"] = zoneProp
+		}
+		transformed := make(map[string]interface{})
+		// Set shareType.
+		transformed["shareType"] = "SPECIFIC_PROJECTS"
+		// Set project_map.
+		projectMap := make(map[string]interface{})
+		old, new := d.GetChange("share_settings")
+		oldMap := old.([]interface{})[0].(map[string]interface{})["project_map"]
+		newMap := new.([]interface{})[0].(map[string]interface{})["project_map"]
+		before := oldMap.(*schema.Set)
+		after := newMap.(*schema.Set)
+
+		for _, raw := range after.Difference(before).List() {
+			original := raw.(map[string]interface{})
+			singleProject := make(map[string]interface{})
+			// set up project_map.
+			transformedProjectId := original["project_id"]
+			if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+				singleProject["projectId"] = transformedProjectId
+			}
+			transformedId, err := expandString(original["id"], d, config)
+			if err != nil {
+				return nil, fmt.Errorf("Invalid value for id: %s", err)
+			}
+			projectMap[transformedId] = singleProject
+			// add added projects to updateMask
+			if firstProject != true {
+				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", original["project_id"])
+			} else {
+				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", original["project_id"])
+				firstProject = false
+			}
+			decodedPath, _ := url.QueryUnescape(maskId)
+			urlUpdateMask = urlUpdateMask + decodedPath
+		}
+		transformed["projectMap"] = projectMap
+		newObj["shareSettings"] = transformed
+
+		// add removed projects to updateMask
+		firstProject = true
+		for _, raw := range before.Difference(after).List() {
+			original := raw.(map[string]interface{})
+			// To remove a project we need project number.
+			projectId := fmt.Sprintf("%s", original["project_id"])
+			projectIdOrNum := projectId
+			_, err := strconv.Atoi(projectId)
+			// convert id to number.
+			if err != nil {
+				config := meta.(*Config)
+				project, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(projectId).Do()
+				if err != nil {
+					return nil, fmt.Errorf("Invalid value for projectId: %s", err)
+				}
+				projectNum := project.ProjectNumber
+				projectIdOrNum = fmt.Sprintf("%d", projectNum)
+			}
+			if firstProject != true {
+				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", projectIdOrNum)
+			} else {
+				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", projectIdOrNum)
+				firstProject = false
+			}
+			decodedPath, _ := url.QueryUnescape(maskId)
+			urlUpdateMask = urlUpdateMask + decodedPath
+		}
+		newObj["urlUpdateMask"] = urlUpdateMask
+	}
+
+	// Resize.
+	if obj["specificReservation"] != nil {
+		count := obj["specificReservation"].(map[string]interface{})["count"]
+		if count != nil {
+			newObj["specificSkuCount"] = obj["specificReservation"].(map[string]interface{})["count"]
+		}
+	}
 
 	return newObj, nil
 }
