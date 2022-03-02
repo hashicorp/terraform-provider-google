@@ -80,6 +80,30 @@ resource "google_service_usage_consumer_quota_override" "override" {
   force          = true
 }
 ```
+## Example Usage - Consumer Quota Override Custom Dimension
+
+
+```hcl
+resource "google_project" "my_project" {
+  provider   = google-beta
+  name       = "tf-test-project"
+  project_id = "quota"
+  org_id     = "123456789"
+}
+
+resource "google_service_usage_consumer_quota_override" "override" {
+  provider       = google-beta
+  project        = google_project.my_project.project_id
+  service        = "libraryagent.googleapis.com"
+  metric         = urlencode("libraryagent.googleapis.com/borrows")
+  limit          = urlencode("/author/project")
+  override_value = "1"
+  force          = true
+  dimensions = {
+    author = "larry"
+  }
+}
+```
 
 ## Argument Reference
 
