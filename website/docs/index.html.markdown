@@ -43,8 +43,8 @@ If you have configuration questions, or general questions about using the provid
 ## Releases
 
 Interested in the provider's latest features, or want to make sure you're up to date?
-Check out the [`google` provider changelog](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md)
-and the [`google-beta` provider changelog](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md))
+Check out the [`google` provider changelog](https://github.com/hashicorp/terraform-provider-google/blob/main/CHANGELOG.md)
+and the [`google-beta` provider changelog](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/CHANGELOG.md))
 for release notes and additional information.
 
 Per [Terraform Provider Versioning](https://www.hashicorp.com/blog/hashicorp-terraform-provider-versioning),
@@ -101,7 +101,7 @@ the issue!
 ## Contributing
 
 If you'd like to help extend the Google provider, we gladly accept community
-contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/hashicorp/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
+contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/hashicorp/terraform-provider-google/blob/main/.github/CONTRIBUTING.md)
 
 Pull requests can be made against either provider repo where a maintainer will
 apply them to both `google` and `google-beta`, or against [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules)

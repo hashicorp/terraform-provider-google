@@ -17,8 +17,8 @@ Most of the changes outlined in this guide have been previously marked as
 deprecated in the Terraform `plan`/`apply` output throughout previous provider
 releases, up to and including the final `2.X` series release. These changes,
 such as deprecation notices, can always be found in the CHANGELOG of the
-affected providers. [google](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md)
-[google-beta](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md)
+affected providers. [google](https://github.com/hashicorp/terraform-provider-google/blob/main/CHANGELOG.md)
+[google-beta](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/CHANGELOG.md)
 
 ## What is `3.0.0-beta.1`?
 

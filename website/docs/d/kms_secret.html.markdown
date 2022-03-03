@@ -64,8 +64,8 @@ resource "random_id" "db_name_suffix" {
   byte_length = 4
 }
 
-resource "google_sql_database_instance" "master" {
-  name             = "master-instance-${random_id.db_name_suffix.hex}"
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
   database_version = "MYSQL_5_7"
 
   settings {
@@ -75,7 +75,7 @@ resource "google_sql_database_instance" "master" {
 
 resource "google_sql_user" "users" {
   name     = "me"
-  instance = google_sql_database_instance.master.name
+  instance = google_sql_database_instance.main.name
   host     = "me.com"
   password = data.google_kms_secret.sql_user_password.plaintext
 }
