@@ -199,6 +199,11 @@ The following arguments are supported:
   Specifies if endpoint independent mapping is enabled. This is enabled by default. For more information
   see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
 
+* `enable_endpoint_independent_mapping` -
+  (Optional)
+  Using dynamic port allocation lets the NAT gateway allocate different numbers of ports to each VM based on usage.
+  see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
+
 * `region` -
   (Optional)
   Region where the router and NAT reside.
