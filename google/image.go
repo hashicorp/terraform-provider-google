@@ -38,6 +38,7 @@ var imageMap = map[string]string{
 	"debian":      "debian-cloud",
 	"opensuse":    "opensuse-cloud",
 	"rhel":        "rhel-cloud",
+	"rocky-linux": "rocky-linux-cloud",
 	"sles":        "suse-cloud",
 	"ubuntu":      "ubuntu-os-cloud",
 	"windows":     "windows-cloud",
