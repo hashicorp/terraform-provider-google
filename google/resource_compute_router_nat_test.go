@@ -592,6 +592,7 @@ resource "google_compute_router_nat" "foobar" {
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
   enable_endpoint_independent_mapping = %t
+  enable_dynamic_port_allocation = %t
 }
 `, routerName, routerName, routerName, routerName, routerName, enabled)
 }
