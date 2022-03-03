@@ -239,8 +239,6 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error creating Workload: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating Workload %q: %#v", d.Id(), res)
-
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
@@ -250,6 +248,8 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating Workload %q: %#v", d.Id(), res)
 
 	return resourceAssuredWorkloadsWorkloadRead(d, meta)
 }
