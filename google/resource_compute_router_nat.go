@@ -188,6 +188,12 @@ valid static external IPs that have been assigned to the NAT.`,
 see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
 				Default: true,
 			},
+			"enable_dynamic_port_allocation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Using dynamic port allocation lets the NAT gateway allocate different numbers of ports to each VM based on usage.`,
+				Default:     false,
+			},
 			"icmp_idle_timeout_sec": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -402,6 +408,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
 	}
+	enableDynamicPortAllocationProp, err := expandNestedComputeRouterNatEnableDynamicPortAllocationProp(d.Get("enable_dynamic_port_allocation"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_dynamic_port_allocation"); ok || !reflect.DeepEqual(v, enableDynamicPortAllocationProp) {
+		obj["enableDynamicPortAllocationProp"] = enableDynamicPortAllocationProp
+	}
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
@@ -544,6 +556,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 	if err := d.Set("enable_endpoint_independent_mapping", flattenNestedComputeRouterNatEnableEndpointIndependentMapping(res["enableEndpointIndependentMapping"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
+	if err := d.Set("enable_dynamic_port_allocation", flattenNestedComputeRouterNatEnableDynamicPortAllocation(res["enableDynamicPortAllocation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 
@@ -927,6 +942,10 @@ func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}
 	return v
 }
 
+func flattenNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandNestedComputeRouterNatName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1083,6 +1102,10 @@ func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d TerraformResou
 }
 
 func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatEnableDynamicPortAllocationProp(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
