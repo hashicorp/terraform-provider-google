@@ -44,7 +44,7 @@ To get more information about Trigger, see:
 ```hcl
 resource "google_cloudbuild_trigger" "filename-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -67,7 +67,7 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
 ```hcl
 resource "google_cloudbuild_trigger" "build-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -144,7 +144,7 @@ data "google_project" "project" {}
 
 resource "google_cloudbuild_trigger" "service-account-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 

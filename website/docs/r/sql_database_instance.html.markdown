@@ -26,8 +26,8 @@ It is recommended to not set this field (or set it to true) until you're ready t
 ### SQL Second Generation Instance
 
 ```hcl
-resource "google_sql_database_instance" "master" {
-  name             = "master-instance"
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance"
   database_version = "POSTGRES_11"
   region           = "us-central1"
 
@@ -459,9 +459,9 @@ performing filtering in a Terraform config.
 Database instances can be imported using one of any of these accepted formats:
 
 ```
-$ terraform import google_sql_database_instance.master projects/{{project}}/instances/{{name}}
-$ terraform import google_sql_database_instance.master {{project}}/{{name}}
-$ terraform import google_sql_database_instance.master {{name}}
+$ terraform import google_sql_database_instance.main projects/{{project}}/instances/{{name}}
+$ terraform import google_sql_database_instance.main {{project}}/{{name}}
+$ terraform import google_sql_database_instance.main {{name}}
 
 ```
 

@@ -22,7 +22,7 @@ func TestAccDataSourceSqlDatabaseInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_sql_database_instance.qa",
-						"google_sql_database_instance.master",
+						"google_sql_database_instance.main",
 						map[string]struct{}{
 							"deletion_protection": {},
 						},
@@ -35,8 +35,8 @@ func TestAccDataSourceSqlDatabaseInstance_basic(t *testing.T) {
 
 func testAccDataSourceSqlDatabaseInstance_basic(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_sql_database_instance" "master" {
-  name             = "master-instance-%{random_suffix}"
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-%{random_suffix}"
   database_version = "POSTGRES_11"
   region           = "us-central1"
 
@@ -50,7 +50,7 @@ resource "google_sql_database_instance" "master" {
 }
 
 data "google_sql_database_instance" "qa" {
-    name = google_sql_database_instance.master.name
+    name = google_sql_database_instance.main.name
 }
 `, context)
 }

@@ -404,7 +404,7 @@ func getBigtableZone(z string, config *Config) (string, error) {
 // act like a TypeSet while it's a TypeList underneath. It preserves state
 // ordering on updates, and causes the resource to get recreated if it would
 // attempt to perform an impossible change.
-// This doesn't use the standard unordered list utility (https://github.com/GoogleCloudPlatform/magic-modules/blob/master/templates/terraform/unordered_list_customize_diff.erb)
+// This doesn't use the standard unordered list utility (https://github.com/GoogleCloudPlatform/magic-modules/blob/main/templates/terraform/unordered_list_customize_diff.erb)
 // because some fields can't be modified using the API and we recreate the instance
 // when they're changed.
 func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {

@@ -215,7 +215,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name        = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -273,7 +273,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name        = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -302,7 +302,7 @@ func testAccCloudBuildTrigger_fullStep() string {
 resource "google_cloudbuild_trigger" "build_trigger" {
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
 	invert_regex = false
   }
@@ -330,7 +330,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   description = "acceptance test build trigger updated"
   name        = "%s"
   trigger_template {
-    branch_name = "master-updated"
+    branch_name = "main-updated"
     repo_name   = "some-repo-updated"
 	invert_regex = true
   }
@@ -374,7 +374,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name        = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -402,7 +402,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name        = "%s"
   description = "acceptance test build trigger updated"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -610,7 +610,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -644,7 +644,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {

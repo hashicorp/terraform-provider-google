@@ -24,8 +24,8 @@ resource "random_id" "db_name_suffix" {
   byte_length = 4
 }
 
-resource "google_sql_database_instance" "master" {
-  name             = "master-instance-${random_id.db_name_suffix.hex}"
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
   database_version = "MYSQL_5_7"
 
   settings {
@@ -35,7 +35,7 @@ resource "google_sql_database_instance" "master" {
 
 resource "google_sql_user" "users" {
   name     = "me"
-  instance = google_sql_database_instance.master.name
+  instance = google_sql_database_instance.main.name
   host     = "me.com"
   password = "changeme"
 }
@@ -48,8 +48,8 @@ resource "random_id" "db_name_suffix" {
   byte_length = 4
 }
 
-resource "google_sql_database_instance" "master" {
-  name             = "master-instance-${random_id.db_name_suffix.hex}"
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
   database_version = "POSTGRES_9_6"
 
   settings {
@@ -64,7 +64,7 @@ resource "google_sql_database_instance" "master" {
 
 resource "google_sql_user" "users" {
   name     = "me@example.com"
-  instance = google_sql_database_instance.master.name
+  instance = google_sql_database_instance.main.name
   type     = "CLOUD_IAM_USER"
 }
 ```
@@ -120,11 +120,11 @@ This resource provides the following
 SQL users for MySQL databases can be imported using the `project`, `instance`, `host` and `name`, e.g.
 
 ```
-$ terraform import google_sql_user.users my-project/master-instance/my-domain.com/me
+$ terraform import google_sql_user.users my-project/main-instance/my-domain.com/me
 ```
 
 SQL users for PostgreSQL databases can be imported using the `project`, `instance` and `name`, e.g.
 
 ```
-$ terraform import google_sql_user.users my-project/master-instance/me
+$ terraform import google_sql_user.users my-project/main-instance/me
 ```

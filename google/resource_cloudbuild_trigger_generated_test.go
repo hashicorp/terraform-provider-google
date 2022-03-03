@@ -51,7 +51,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(context map[strin
 	return Nprintf(`
 resource "google_cloudbuild_trigger" "filename-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -93,7 +93,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerBuildExample(context map[string]i
 	return Nprintf(`
 resource "google_cloudbuild_trigger" "build-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -189,7 +189,7 @@ data "google_project" "project" {}
 
 resource "google_cloudbuild_trigger" "service-account-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
