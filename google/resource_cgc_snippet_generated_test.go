@@ -144,6 +144,52 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
+func TestAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "default" {
+  name             = "myinstance%{random_suffix}"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password = "INSERT-PASSWORD-HERE"
+  settings {
+    tier = "db-custom-2-7680"
+    ip_configuration {
+      authorized_networks {
+        name = "Network Name"
+        value = "192.0.2.0/24"
+        expiration_time = "3021-11-15T16:19:00.094Z"
+      }
+    }
+  }
+  deletion_protection = false
+}
+`, context)
+}
+
 func TestAccCGCSnippet_storageNewBucketExample(t *testing.T) {
 	t.Parallel()
 
