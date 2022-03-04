@@ -1,5 +1,22 @@
 ## 4.13.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_apigee_endpoint_attachment` ([#11157](https://github.com/hashicorp/terraform-provider-google/pull/11157))
+* **New Resource:** `google_cloudfunctions2_function` ([#11203](https://github.com/hashicorp/terraform-provider-google/pull/11203))
+* **New Resource:** `google_region_backend_service_iam_*` ([#11187](https://github.com/hashicorp/terraform-provider-google/pull/11187))
+* **New Datasource:** `google_dns_record_set` ([#11180](https://github.com/hashicorp/terraform-provider-google/pull/11180))
+* **New Datasource:** `google_privateca_certificate_authority` ([#11182](https://github.com/hashicorp/terraform-provider-google/pull/11182))
+
+IMPROVEMENTS:
+* composer: added support for Cloud Composer maintenance window in GA ([#11170](https://github.com/hashicorp/terraform-provider-google/pull/11170))
+* compute: added support for `keepalive_interval` to `google_compute_router.bgp` ([#11188](https://github.com/hashicorp/terraform-provider-google/pull/11188))
+* compute: added update support for `google_compute_reservation.share_settings` ([#11202](https://github.com/hashicorp/terraform-provider-google/pull/11202))
+* transfer: added attribute `subject_id` to data source `google_storage_transfer_project_service_account` ([#11156](https://github.com/hashicorp/terraform-provider-google/pull/11156))
+
+BUG FIXES:
+* composer: allow region to be undefined in configuration for `google_composer_environment` ([#11178](https://github.com/hashicorp/terraform-provider-google/pull/11178))
+* container: allowed `vertical_pod_autoscaling` to be computed as `enable_autopilot` can mutate it ([#11167](https://github.com/hashicorp/terraform-provider-google/pull/11167))
+
 ## 4.12.0 (February 28, 2022)
 
 NOTE:
