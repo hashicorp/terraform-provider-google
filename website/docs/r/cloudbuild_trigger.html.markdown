@@ -172,6 +172,143 @@ resource "google_project_iam_member" "logs_writer" {
   member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_pubsub_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Pubsub Config
+
+
+```hcl
+
+resource "google_pubsub_topic" "mytopic" {
+  name = "mytopic"
+}
+
+resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
+  name        = "pubsub-trigger"
+  description = "acceptance test example pubsub build trigger"
+
+  pubsub_config {
+    topic = google_pubsub_topic.mytopic.id
+  }
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  substitutions = {
+    _ACTION       = "$(body.message.data.action)"
+  }
+
+  filter = "_ACTION.matches('INSERT')"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_webhook_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Webhook Config
+
+
+```hcl
+
+resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
+  secret_id = "webhook_trigger-secret-key-1"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "webhook_trigger_secret_key_data" {
+  secret = google_secret_manager_secret.webhook_trigger_secret_key.id
+
+  secret_data = "secretkeygoeshere"
+}
+
+data "google_project" "project" {}
+
+data "google_iam_policy" "secret_accessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    members = [
+      "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com",
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  project = google_secret_manager_secret.webhook_trigger_secret_key.project
+  secret_id = google_secret_manager_secret.webhook_trigger_secret_key.secret_id
+  policy_data = data.google_iam_policy.secret_accessor.policy_data
+}
+
+
+resource "google_cloudbuild_trigger" "webhook-config-trigger" {
+  name        = "webhook-trigger"
+  description = "acceptance test example webhook build trigger"
+ 
+ webhook_config {
+    secret = google_secret_manager_secret_version.webhook_trigger_secret_key_data.id
+  }
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_manual&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Manual
+
+
+```hcl
+
+resource "google_cloudbuild_trigger" "manual-trigger" {
+  name        = "manual-build"
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -212,7 +349,27 @@ The following arguments are supported:
 
 * `filename` -
   (Optional)
-  Path, from the source root, to a file whose contents is used for the template. Either a filename or build template must be provided.
+  Path, from the source root, to a file whose contents is used for the template. 
+  Either a filename or build template must be provided. Set this only when using trigger_template or github.
+  When using Pub/Sub, Webhook or Manual set the file name using git_file_source instead.
+
+* `filter` -
+  (Optional)
+  A Common Expression Language string. Used only with Pub/Sub and Webhook.
+
+* `git_file_source` -
+  (Optional)
+  The file source describing the local or remote Build template.
+  Structure is [documented below](#nested_git_file_source).
+
+* `source_to_build` -
+  (Optional)
+  The repo and ref of the repository from which to build. 
+  This field is used only for those triggers that do not respond to SCM events. 
+  Triggers that respond to such events build source at whatever commit caused the event. 
+  This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
+  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
+  Structure is [documented below](#nested_source_to_build).
 
 * `ignored_files` -
   (Optional)
@@ -242,7 +399,7 @@ The following arguments are supported:
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
-  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
+  One of `trigger_template`, `github`, `pubsub_config`, `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_trigger_template).
 
 * `github` -
@@ -255,14 +412,14 @@ The following arguments are supported:
   (Optional)
   PubsubConfig describes the configuration of a trigger that creates 
   a build whenever a Pub/Sub message is published.
-  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
+  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_pubsub_config).
 
 * `webhook_config` -
   (Optional)
   WebhookConfig describes the configuration of a trigger that creates 
   a build whenever a webhook is sent to a trigger's webhook URL.
-  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
+  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_webhook_config).
 
 * `build` -
@@ -273,6 +430,43 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_git_file_source"></a>The `git_file_source` block supports:
+
+* `path` -
+  (Required)
+  The path of the file, with the repo root as the root of the path.
+
+* `uri` -
+  (Optional)
+  The URI of the repo (optional). If unspecified, the repo from which the trigger 
+  invocation originated is assumed to be the repo from which to read the specified path.
+
+* `repo_type` -
+  (Required)
+  The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
+  Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, and `GITHUB`.
+
+* `revision` -
+  (Optional)
+  The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the 
+  filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions 
+  If unspecified, the revision from which the trigger invocation originated is assumed to be the revision from which to read the specified path.
+
+<a name="nested_source_to_build"></a>The `source_to_build` block supports:
+
+* `uri` -
+  (Required)
+  The URI of the repo (required).
+
+* `ref` -
+  (Required)
+  The branch or tag to use. Must start with "refs/" (required).
+
+* `repo_type` -
+  (Required)
+  The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
+  Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, and `GITHUB`.
 
 <a name="nested_trigger_template"></a>The `trigger_template` block supports:
 
