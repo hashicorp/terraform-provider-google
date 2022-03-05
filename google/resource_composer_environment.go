@@ -66,6 +66,7 @@ var (
 		"config.0.private_environment_config.0.cloud_sql_ipv4_cidr_block",
 		"config.0.private_environment_config.0.web_server_ipv4_cidr_block",
 		"config.0.private_environment_config.0.cloud_composer_network_ipv4_cidr_block",
+		"config.0.private_environment_config.0.cloud_composer_connection_subnetwork",
 	}
 
 	composerIpAllocationPolicyKeys = []string{
@@ -390,6 +391,14 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: composerPrivateEnvironmentConfig,
 										ForceNew:     true,
 										Description:  `The CIDR block from which IP range for Cloud Composer Network in tenant project will be reserved. Needs to be disjoint from private_cluster_config.master_ipv4_cidr_block and cloud_sql_ipv4_cidr_block. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
+									},
+									"cloud_composer_connection_subnetwork": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										AtLeastOneOf: composerPrivateEnvironmentConfig,
+										ForceNew:     true,
+										Description:  `When specified, the environment will use Private Service Connect instead of VPC peerings to connect to Cloud SQL in the Tenant Project, and the PSC endpoint in the Customer Project will use an IP address from this subnetwork. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
 									},
 								},
 							},
@@ -1185,6 +1194,7 @@ func flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg *composer.P
 	transformed["cloud_sql_ipv4_cidr_block"] = envCfg.CloudSqlIpv4CidrBlock
 	transformed["web_server_ipv4_cidr_block"] = envCfg.WebServerIpv4CidrBlock
 	transformed["cloud_composer_network_ipv4_cidr_block"] = envCfg.CloudComposerNetworkIpv4CidrBlock
+	transformed["cloud_composer_connection_subnetwork"] = envCfg.CloudComposerConnectionSubnetwork
 
 	return []interface{}{transformed}
 }
@@ -1513,6 +1523,9 @@ func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *s
 
 	if v, ok := original["cloud_composer_network_ipv4_cidr_block"]; ok {
 		transformed.CloudComposerNetworkIpv4CidrBlock = v.(string)
+	}
+	if v, ok := original["cloud_composer_connection_subnetwork"]; ok {
+		transformed.CloudComposerConnectionSubnetwork = v.(string)
 	}
 
 	transformed.PrivateClusterConfig = subBlock

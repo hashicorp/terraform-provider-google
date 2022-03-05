@@ -463,6 +463,38 @@ func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 	})
 }
 
+func TestAccComposerEnvironment_composerV2PrivateServiceConnect(t *testing.T) {
+	t.Parallel()
+
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
+	subnetwork := network + "-1"
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_composerV2PrivateServiceConnect(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_composerV2PrivateServiceConnect(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
 // Checks behavior of node config, including dependencies on Compute resources.
 func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	t.Parallel()
@@ -1129,6 +1161,53 @@ resource "google_compute_subnetwork" "test" {
 	name          = "%s"
 	ip_cidr_range = "10.2.0.0/16"
 	region        = "us-east1"
+ 	network       = google_compute_network.test.self_link
+	private_ip_google_access = true
+}
+
+`, envName, network, subnetwork)
+}
+
+func testAccComposerEnvironment_composerV2PrivateServiceConnect(envName, network, subnetwork string) string {
+	return fmt.Sprintf(`
+data "google_composer_image_versions" "all" {
+}
+
+locals {
+	composer_version = "2"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
+	airflow_version = "2"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
+	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
+	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
+}
+resource "google_composer_environment" "test" {
+	name   = "%s"
+	region = "us-central1"
+
+		config {
+			node_config {
+      	network    			= google_compute_network.test.self_link
+      	subnetwork 			= google_compute_subnetwork.test.self_link
+    	}
+
+  		software_config {
+  		  image_version = local.matching_images[0]
+  		}
+  		private_environment_config {
+				cloud_composer_connection_subnetwork		= google_compute_subnetwork.test.self_link
+  		}
+  	}
+
+}
+
+resource "google_compute_network" "test" {
+	name                    = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
  	network       = google_compute_network.test.self_link
 	private_ip_google_access = true
 }
