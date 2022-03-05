@@ -70,10 +70,22 @@ and all following characters must be a dash, underscore, letter or digit.`,
 										Required: true,
 										Description: `The list of host patterns to match.
 
-Host patterns must be valid hostnames with optional port numbers in the format host:port. * matches any string of ([a-z0-9-.]*).
-The only accepted ports are :80 and :443.
+Host patterns must be valid hostnames. Ports are not allowed. Wildcard hosts are supported in the suffix or prefix form. * matches any string of ([a-z0-9-.]*). It does not match the empty string.
 
-Hosts are matched against the HTTP Host header, or for HTTP/2 and HTTP/3, the ":authority" header, from the incoming request.`,
+When multiple hosts are specified, hosts are matched in the following priority:
+
+  1. Exact domain names: ''www.foo.com''.
+  2. Suffix domain wildcards: ''*.foo.com'' or ''*-bar.foo.com''.
+  3. Prefix domain wildcards: ''foo.*'' or ''foo-*''.
+  4. Special wildcard ''*'' matching any domain.
+
+  Notes:
+
+    The wildcard will not match the empty string. e.g. ''*-bar.foo.com'' will match ''baz-bar.foo.com'' but not ''-bar.foo.com''. The longest wildcards match first. Only a single host in the entire service can match on ''*''. A domain must be unique across all configured hosts within a service.
+
+    Hosts are matched against the HTTP Host header, or for HTTP/2 and HTTP/3, the ":authority" header, from the incoming request.
+
+    You may specify up to 10 hosts.`,
 										MinItems: 1,
 										MaxItems: 10,
 										Elem: &schema.Schema{
@@ -374,7 +386,7 @@ Only one of origin or urlRedirect can be set.`,
 																						Optional: true,
 																						Description: `If true, requests to different hosts will be cached separately.
 
-Note: this should only be enabled if hosts share the same origin and content Removing the host from the cache key may inadvertently result in different objects being cached than intended, depending on which route the first user matched.`,
+Note: this should only be enabled if hosts share the same origin and content. Removing the host from the cache key may inadvertently result in different objects being cached than intended, depending on which route the first user matched.`,
 																					},
 																					"exclude_query_string": {
 																						Type:     schema.TypeBool,
@@ -450,10 +462,11 @@ For all cache modes, Cache-Control headers will be passed to the client. Use cli
 - The TTL must be > 0 and <= 86400s (1 day)
 - The clientTtl cannot be larger than the defaultTtl (if set)
 - Fractions of a second are not allowed.
-- Omit this field to use the defaultTtl, or the max-age set by the origin, as the client-facing TTL.
+
+Omit this field to use the defaultTtl, or the max-age set by the origin, as the client-facing TTL.
 
 When the cache mode is set to "USE_ORIGIN_HEADERS" or "BYPASS_CACHE", you must omit this field.
-A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+A duration in seconds terminated by 's'. Example: "3s".`,
 																		},
 																		"default_ttl": {
 																			Type:     schema.TypeString,
@@ -463,7 +476,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 Defaults to 3600s (1 hour).
 
-- The TTL must be >= 0 and <= 2592000s (1 month)
+- The TTL must be >= 0 and <= 31,536,000 seconds (1 year)
 - Setting a TTL of "0" means "always revalidate" (equivalent to must-revalidate)
 - The value of defaultTTL cannot be set to a value greater than that of maxTTL.
 - Fractions of a second are not allowed.
@@ -473,7 +486,7 @@ Note that infrequently accessed objects may be evicted from the cache before the
 
 When the cache mode is set to "USE_ORIGIN_HEADERS" or "BYPASS_CACHE", you must omit this field.
 
-A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+A duration in seconds terminated by 's'. Example: "3s".`,
 																		},
 																		"max_ttl": {
 																			Type:     schema.TypeString,
@@ -485,13 +498,14 @@ Defaults to 86400s (1 day).
 
 Cache directives that attempt to set a max-age or s-maxage higher than this, or an Expires header more than maxTtl seconds in the future will be capped at the value of maxTTL, as if it were the value of an s-maxage Cache-Control directive.
 
-- The TTL must be >= 0 and <= 2592000s (1 month)
+- The TTL must be >= 0 and <= 31,536,000 seconds (1 year)
 - Setting a TTL of "0" means "always revalidate"
 - The value of maxTtl must be equal to or greater than defaultTtl.
 - Fractions of a second are not allowed.
-- When the cache mode is set to "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", or "BYPASS_CACHE", you must omit this field.
 
-A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+When the cache mode is set to "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", or "BYPASS_CACHE", you must omit this field.
+
+A duration in seconds terminated by 's'. Example: "3s".`,
 																		},
 																		"negative_caching": {
 																			Type:     schema.TypeBool,
