@@ -324,6 +324,7 @@ func resourceNetworkConnectivityHubDelete(d *schema.ResourceData, meta interface
 
 func resourceNetworkConnectivityHubImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/hubs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",

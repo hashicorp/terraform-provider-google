@@ -445,6 +445,7 @@ func resourceRecaptchaEnterpriseKeyDelete(d *schema.ResourceData, meta interface
 
 func resourceRecaptchaEnterpriseKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/keys/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
