@@ -2,8 +2,6 @@
 
 FEATURES:
 * **New Resource:** `google_apigee_endpoint_attachment` ([#11157](https://github.com/hashicorp/terraform-provider-google/pull/11157))
-* **New Resource:** `google_cloudfunctions2_function` ([#11203](https://github.com/hashicorp/terraform-provider-google/pull/11203))
-* **New Resource:** `google_region_backend_service_iam_*` ([#11187](https://github.com/hashicorp/terraform-provider-google/pull/11187))
 * **New Datasource:** `google_dns_record_set` ([#11180](https://github.com/hashicorp/terraform-provider-google/pull/11180))
 * **New Datasource:** `google_privateca_certificate_authority` ([#11182](https://github.com/hashicorp/terraform-provider-google/pull/11182))
 
