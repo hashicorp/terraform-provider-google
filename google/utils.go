@@ -316,7 +316,7 @@ func stringToFixed64(v string) (int64, error) {
 }
 
 func extractFirstMapConfig(m []interface{}) map[string]interface{} {
-	if len(m) == 0 {
+	if len(m) == 0 || m[0] == nil {
 		return map[string]interface{}{}
 	}
 
