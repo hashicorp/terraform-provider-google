@@ -391,6 +391,27 @@ func TestAccDataprocCluster_updatable(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_nonPreemptibleSecondary(t *testing.T) {
+	t.Parallel()
+
+	rnd := randString(t, 10)
+	var cluster dataproc.Cluster
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_nonPreemptibleSecondary(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.non_preemptible_secondary", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.non_preemptible_secondary", "cluster_config.0.preemptible_worker_config.0.preemptibility", "NON_PREEMPTIBLE"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 	t.Parallel()
 
@@ -1218,6 +1239,41 @@ resource "google_dataproc_cluster" "updatable" {
   }
 }
 `, rnd, w, p)
+}
+
+func testAccDataprocCluster_nonPreemptibleSecondary(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "non_preemptible_secondary" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    master_config {
+	  num_instances = "1"
+	  machine_type  = "e2-medium"
+	  disk_config {
+		boot_disk_size_gb = 35
+	  }
+	}
+  
+	worker_config {
+	  num_instances = "2"
+	  machine_type  = "e2-medium"
+	  disk_config {
+		boot_disk_size_gb = 35
+	  }
+	}
+  
+	preemptible_worker_config {
+	  num_instances = "1"
+	  preemptibility = "NON_PREEMPTIBLE"
+	  disk_config {
+		boot_disk_size_gb = 35
+	  }
+	}
+  }
+}
+	`, rnd)
 }
 
 func testAccDataprocCluster_withStagingBucketOnly(bucketName string) string {

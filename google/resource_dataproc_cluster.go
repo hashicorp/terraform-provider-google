@@ -340,6 +340,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Description: `Specifies the number of preemptible nodes to create. Defaults to 0.`,
 										AtLeastOneOf: []string{
 											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.preemptibility",
 											"cluster_config.0.preemptible_worker_config.0.disk_config",
 										},
 									},
@@ -348,6 +349,20 @@ func resourceDataprocCluster() *schema.Resource {
 									// It always uses whatever is specified for the worker_config
 									// "machine_type": { ... }
 									// "min_cpu_platform": { ... }
+									"preemptibility": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Specifies the preemptibility of the secondary nodes. Defaults to PREEMPTIBLE.`,
+										AtLeastOneOf: []string{
+											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.preemptibility",
+											"cluster_config.0.preemptible_worker_config.0.disk_config",
+										},
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"PREEMPTIBILITY_UNSPECIFIED", "NON_PREEMPTIBLE", "PREEMPTIBLE"}, false),
+										Default:      "PREEMPTIBLE",
+									},
+
 									"disk_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -355,6 +370,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Description: `Disk Config`,
 										AtLeastOneOf: []string{
 											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.preemptibility",
 											"cluster_config.0.preemptible_worker_config.0.disk_config",
 										},
 										MaxItems: 1,
@@ -891,9 +907,6 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 	if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
 		log.Println("[INFO] got preemptible worker config")
 		conf.SecondaryWorkerConfig = expandPreemptibleInstanceGroupConfig(cfg)
-		if conf.SecondaryWorkerConfig.NumInstances > 0 {
-			conf.SecondaryWorkerConfig.IsPreemptible = true
-		}
 	}
 	return conf, nil
 }
@@ -1100,6 +1113,9 @@ func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.
 				icg.DiskConfig.BootDiskType = v.(string)
 			}
 		}
+	}
+	if p, ok := cfg["preemptibility"]; ok {
+		icg.Preemptibility = p.(string)
 	}
 	return icg
 }
@@ -1473,6 +1489,7 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
 		data["instance_names"] = icg.InstanceNames
+		data["preemptibility"] = icg.Preemptibility
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
