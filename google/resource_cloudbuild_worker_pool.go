@@ -396,6 +396,7 @@ func resourceCloudbuildWorkerPoolDelete(d *schema.ResourceData, meta interface{}
 
 func resourceCloudbuildWorkerPoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/workerPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",

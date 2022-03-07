@@ -204,6 +204,7 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 
 func resourceComputeFirewallPolicyAssociationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"locations/global/firewallPolicies/(?P<firewall_policy>[^/]+)/associations/(?P<name>[^/]+)",
 		"(?P<firewall_policy>[^/]+)/(?P<name>[^/]+)",
