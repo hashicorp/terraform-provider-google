@@ -148,7 +148,7 @@ cluster.
     with the specified prefix. Conflicts with `name`.
 
 * `node_config` - (Optional) Parameters used in creating the node pool. See
-    [google_container_cluster](container_cluster.html) for schema.
+    [google_container_cluster](container_cluster.html#nested_node_config) for schema.
 
 * `network_config` - (Optional) The network configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.

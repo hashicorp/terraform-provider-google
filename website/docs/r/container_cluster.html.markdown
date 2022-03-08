@@ -367,7 +367,7 @@ subnetwork in which the cluster's instances are launched.
     It can only be disabled if the nodes already do not have network policies enabled.
     Defaults to disabled; set `disabled = false` to enable.
 
-* `gcp_filestore_csi_driver_config` - (Optional) The status of the Filestore CSI driver addon, 
+* `gcp_filestore_csi_driver_config` - (Optional) The status of the Filestore CSI driver addon,
     which allows the usage of filestore instance as volumes.
     It is disabled by default; set `enabled = true` to enable.
 
@@ -649,6 +649,20 @@ gcfs_config {
 }
 ```
 
+
+* `gvnic` - (Optional) Google Virtual NIC (gVNIC) is a virtual network interface.
+    Installing the gVNIC driver allows for more efficient traffic transmission across the Google network infrastructure.
+    gVNIC is an alternative to the virtIO-based ethernet driver. GKE nodes must use a Container-Optimized OS node image.
+    GKE node version 1.15.11-gke.15 or later
+    Structure is [documented below](#nested_gvnic).
+
+
+```hcl
+gvnic {
+  enabled = true
+}
+```
+
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure [documented below](#nested_guest_accelerator).
     To support removal of guest_accelerators in Terraform 0.12 this field is an
@@ -761,6 +775,10 @@ linux_node_config {
 <a name="nested_gcfs_config"></a>The `gcfs_config` block supports:
 
 * `enabled` (Required) - Whether or not the Google Container Filesystem (GCFS) is enabled
+
+<a name="nested_gvnic"></a>The `gvnic` block supports:
+
+* `enabled` (Required) - Whether or not the Google Virtual NIC (gVNIC) is enabled
 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
