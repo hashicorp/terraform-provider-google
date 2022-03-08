@@ -136,6 +136,13 @@ in the same location as the Spanner Database.`,
 				Computed: true,
 				ForceNew: true,
 			},
+			"database_dialect": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "DATABASE_DIALECT_UNSPECIFIED",
+				ValidateFunc: validateRegexp(`^(DATABASE_DIALECT_UNSPECIFIED|GOOGLE_STANDARD_SQL|POSTGRESQL)\s`),
+				Description:  `The dialect of the Cloud Spanner Database.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -173,7 +180,12 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(instanceProp)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
 		obj["instance"] = instanceProp
 	}
-
+	dialectProp, err := expandSpannerDatabaseDialect(d.Get("database_dialect"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("database_dialect"); !isEmptyValue(reflect.ValueOf(dialectProp)) && (ok || !reflect.DeepEqual(v, dialectProp)) {
+		obj["databaseDialect"] = dialectProp
+	}
 	obj, err = resourceSpannerDatabaseEncoder(d, meta, obj)
 	if err != nil {
 		return err
@@ -308,6 +320,9 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("database_dialect", flattenSpannerDatabaseDialect(res["databaseDialect"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
@@ -485,6 +500,13 @@ func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, confi
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenSpannerDatabaseDialect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
 func expandSpannerDatabaseName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -522,6 +544,10 @@ func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, confi
 		return nil, fmt.Errorf("Invalid value for instance: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandSpannerDatabaseDialect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

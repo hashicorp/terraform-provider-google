@@ -100,6 +100,10 @@ The following arguments are supported:
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
+* `database_dialect` - (Optional) The dialect of the Cloud Spanner Database.
+  If it is not provided, "DATABASE_DIALECT_UNSPECIFIED" will be used.
+  Note: Databases that are created with POSTGRESQL dialect do not support extra DDL statements in the `CreateDatabase` call.
+  We must therefore re-apply terraform with ddl on the same database after creation.
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:
 
