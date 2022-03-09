@@ -1531,3 +1531,5 @@ rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220225200700-e76d50f1e637 h1:+s2wWcAciNo96AT+Ci9pwXuWm9qlY/ubLFWRaqE0tZg=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220225200700-e76d50f1e637/go.mod h1:UJoDYx6t3+xCOd+dZX8+NrEB+Y/eW1pQlvxh2Gt7y5E=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220304175357-35332d17a512 h1:8/Sn9pDdk/RxECtLUh4xum2eyUvf0h7bpx8h+lYvE+Q=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20220304175357-35332d17a512/go.mod h1:UJoDYx6t3+xCOd+dZX8+NrEB+Y/eW1pQlvxh2Gt7y5E=

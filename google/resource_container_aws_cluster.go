@@ -48,7 +48,6 @@ func resourceContainerAwsCluster() *schema.Resource {
 			"authorization": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Configuration related to the cluster RBAC settings.",
 				MaxItems:    1,
 				Elem:        ContainerAwsClusterAuthorizationSchema(),
@@ -181,7 +180,6 @@ func ContainerAwsClusterAuthorizationSchema() *schema.Resource {
 			"admin_users": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
 				Elem:        ContainerAwsClusterAuthorizationAdminUsersSchema(),
 			},
@@ -195,7 +193,6 @@ func ContainerAwsClusterAuthorizationAdminUsersSchema() *schema.Resource {
 			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The name of the user, e.g. `my-gcp-id@gmail.com`.",
 			},
 		},
@@ -208,7 +205,6 @@ func ContainerAwsClusterControlPlaneSchema() *schema.Resource {
 			"aws_services_authentication": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Authentication configuration for management of AWS resources.",
 				MaxItems:    1,
 				Elem:        ContainerAwsClusterControlPlaneAwsServicesAuthenticationSchema(),
@@ -217,7 +213,6 @@ func ContainerAwsClusterControlPlaneSchema() *schema.Resource {
 			"config_encryption": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The ARN of the AWS KMS key used to encrypt cluster configuration.",
 				MaxItems:    1,
 				Elem:        ContainerAwsClusterControlPlaneConfigEncryptionSchema(),
@@ -257,7 +252,6 @@ func ContainerAwsClusterControlPlaneSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The AWS instance type. When unspecified, it defaults to `t3.medium`.",
 			},
 
@@ -274,7 +268,6 @@ func ContainerAwsClusterControlPlaneSchema() *schema.Resource {
 			"proxy_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Proxy configuration for outbound HTTP(S) traffic.",
 				MaxItems:    1,
 				Elem:        ContainerAwsClusterControlPlaneProxyConfigSchema(),
@@ -284,7 +277,6 @@ func ContainerAwsClusterControlPlaneSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. Configuration related to the root volume provisioned for each control plane replica. Volumes will be provisioned in the availability zone associated with the corresponding subnet. When unspecified, it defaults to 32 GiB with the GP2 volume type.",
 				MaxItems:    1,
 				Elem:        ContainerAwsClusterControlPlaneRootVolumeSchema(),
@@ -293,7 +285,6 @@ func ContainerAwsClusterControlPlaneSchema() *schema.Resource {
 			"security_group_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The IDs of additional security groups to add to control plane replicas. The Anthos Multi-Cloud API will automatically create and manage security groups with the minimum rules needed for a functioning cluster.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -324,7 +315,6 @@ func ContainerAwsClusterControlPlaneAwsServicesAuthenticationSchema() *schema.Re
 			"role_arn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The Amazon Resource Name (ARN) of the role that the Anthos Multi-Cloud API will assume when managing AWS resources on your account.",
 			},
 
@@ -332,7 +322,6 @@ func ContainerAwsClusterControlPlaneAwsServicesAuthenticationSchema() *schema.Re
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. An identifier for the assumed role session. When unspecified, it defaults to `multicloud-service-agent`.",
 			},
 		},
@@ -345,7 +334,6 @@ func ContainerAwsClusterControlPlaneConfigEncryptionSchema() *schema.Resource {
 			"kms_key_arn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The ARN of the AWS KMS key used to encrypt cluster configuration.",
 			},
 		},
@@ -408,14 +396,12 @@ func ContainerAwsClusterControlPlaneProxyConfigSchema() *schema.Resource {
 			"secret_arn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ARN of the AWS Secret Manager secret that contains the HTTP(S) proxy configuration.",
 			},
 
 			"secret_version": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The version string of the AWS Secret Manager secret that contains the HTTP(S) proxy configuration.",
 			},
 		},
@@ -429,14 +415,12 @@ func ContainerAwsClusterControlPlaneRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The number of I/O operations per second (IOPS) to provision for GP3 volume.",
 			},
 
 			"kms_key_arn": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The Amazon Resource Name (ARN) of the Customer Managed Key (CMK) used to encrypt AWS EBS volumes. If not specified, the default Amazon managed key associated to the AWS region where this cluster runs will be used.",
 			},
 
@@ -444,7 +428,6 @@ func ContainerAwsClusterControlPlaneRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The size of the volume, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.",
 			},
 
@@ -452,7 +435,6 @@ func ContainerAwsClusterControlPlaneRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. Type of the EBS volume. When unspecified, it defaults to GP2 volume. Possible values: VOLUME_TYPE_UNSPECIFIED, GP2, GP3",
 			},
 		},
