@@ -154,9 +154,29 @@ The following arguments are supported:
   `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
   This value may not be changed after the Repository has been created.
 
+* `maven_config` -
+  (Optional)
+  MavenRepositoryConfig is maven related repository details.
+  Provides additional configuration details for repositories of the maven
+  format type.
+  Structure is [documented below](#nested_maven_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_maven_config"></a>The `maven_config` block supports:
+
+* `allow_snapshot_overwrites` -
+  (Optional)
+  The repository with this flag will allow publishing the same
+  snapshot versions.
+
+* `version_policy` -
+  (Optional)
+  Version policy defines the versions that the registry will accept.
+  Default value is `VERSION_POLICY_UNSPECIFIED`.
+  Possible values are `VERSION_POLICY_UNSPECIFIED`, `RELEASE`, and `SNAPSHOT`.
 
 ## Attributes Reference
 
