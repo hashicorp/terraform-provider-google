@@ -253,6 +253,7 @@ type Config struct {
 	NetworkConnectivityBasePath  string
 	OrgPolicyBasePath            string
 	RecaptchaEnterpriseBasePath  string
+	ApikeysBasePath              string
 	// CloudBuild WorkerPool uses a different endpoint (v1beta1) than any other CloudBuild resources
 	CloudBuildWorkerPoolBasePath string
 }

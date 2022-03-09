@@ -1297,7 +1297,7 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActionsS
 		Schema: map[string]*schema.Schema{
 			"executable_file": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: "Required. Cloud Storage URI of executable file.",
 			},

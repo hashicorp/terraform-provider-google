@@ -48,7 +48,6 @@ func resourceContainerAzureCluster() *schema.Resource {
 			"authorization": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Configuration related to the cluster RBAC settings.",
 				MaxItems:    1,
 				Elem:        ContainerAzureClusterAuthorizationSchema(),
@@ -196,7 +195,6 @@ func ContainerAzureClusterAuthorizationSchema() *schema.Resource {
 			"admin_users": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
 				Elem:        ContainerAzureClusterAuthorizationAdminUsersSchema(),
 			},
@@ -210,7 +208,6 @@ func ContainerAzureClusterAuthorizationAdminUsersSchema() *schema.Resource {
 			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The name of the user, e.g. `my-gcp-id@gmail.com`.",
 			},
 		},
@@ -300,7 +297,6 @@ func ContainerAzureClusterControlPlaneSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The Azure VM size name. Example: `Standard_DS2_v2`. For available VM sizes, see https://docs.microsoft.com/en-us/azure/virtual-machines/vm-naming-conventions. When unspecified, it defaults to `Standard_DS2_v2`.",
 			},
 		},

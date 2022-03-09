@@ -22,6 +22,15 @@ import (
 // empty string is passed for dcl default since dcl
 // [hardcodes the values](https://github.com/GoogleCloudPlatform/declarative-resource-client-library/blob/main/services/google/eventarc/beta/trigger_internal.go#L96-L103)
 
+var ApikeysEndpointEntryKey = "apikeys_custom_endpoint"
+var ApikeysEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_APIKEYS_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var AssuredWorkloadsEndpointEntryKey = "assured_workloads_custom_endpoint"
 var AssuredWorkloadsEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -131,6 +140,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 }
 
 //Add new values to config.go.erb config object declaration
+//ApikeysBasePath string
 //AssuredWorkloadsBasePath string
 //CloudBuildWorkerPoolBasePath string
 //CloudResourceManagerBasePath string
@@ -145,6 +155,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 //RecaptchaEnterpriseBasePath string
 
 //Add new values to provider.go.erb schema initialization
+// ApikeysEndpointEntryKey:               ApikeysEndpointEntry,
 // AssuredWorkloadsEndpointEntryKey:               AssuredWorkloadsEndpointEntry,
 // CloudBuildWorkerPoolEndpointEntryKey:               CloudBuildWorkerPoolEndpointEntry,
 // CloudResourceManagerEndpointEntryKey:               CloudResourceManagerEndpointEntry,
@@ -159,6 +170,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // RecaptchaEnterpriseEndpointEntryKey:               RecaptchaEnterpriseEndpointEntry,
 
 //Add new values to provider.go.erb - provider block read
+// config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
 // config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 // config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
 // config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
