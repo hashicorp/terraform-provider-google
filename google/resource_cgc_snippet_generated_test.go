@@ -275,7 +275,7 @@ resource "google_sql_database_instance" "default" {
 `, context)
 }
 
-func TestAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(t *testing.T) {
+func TestAccCGCSnippet_sqlSqlserverInstanceBackupLocationExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -288,79 +288,30 @@ func TestAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(t *testing.T
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(context),
+				Config: testAccCGCSnippet_sqlSqlserverInstanceBackupLocationExample(context),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
 			},
 		},
 	})
 }
 
-func testAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(context map[string]interface{}) string {
+func testAccCGCSnippet_sqlSqlserverInstanceBackupLocationExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_database_instance" "default" {
-  name             = "myinstance%{random_suffix}"
+  name             = ""
   region           = "us-central1"
   database_version = "SQLSERVER_2017_STANDARD"
   root_password = "INSERT-PASSWORD-HERE"
   settings {
     tier = "db-custom-2-7680"
-    ip_configuration {
-      authorized_networks {
-        name = "Network Name"
-        value = "192.0.2.0/24"
-        expiration_time = "3021-11-15T16:19:00.094Z"
-      }
-    }
-  }
-  deletion_protection = false
-}
-`, context)
-}
-
-func TestAccCGCSnippet_sqlPostgresInstanceAuthorizedNetworkExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCGCSnippet_sqlPostgresInstanceAuthorizedNetworkExample(context),
-			},
-			{
-				ResourceName:            "google_sql_database_instance.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-		},
-	})
-}
-
-func testAccCGCSnippet_sqlPostgresInstanceAuthorizedNetworkExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_sql_database_instance" "default" {
-  name             = "tf-test-postgres-instance-with-authorized-network%{random_suffix}"
-  region           = "us-central1"
-  database_version = "POSTGRES_12"
-  settings {
-    tier = "db-custom-2-7680"
-    ip_configuration {
-      authorized_networks {
-        name = "Network Name"
-        value = "192.0.2.0/24"
-        expiration_time = "3021-11-15T16:19:00.094Z"
-      }
+    backup_configuration {
+      enabled                        = true
+      location                       = "us-central1"
     }
   }
   deletion_protection =  "%{deletion_protection}"
