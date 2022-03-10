@@ -275,6 +275,52 @@ resource "google_sql_database_instance" "default" {
 `, context)
 }
 
+func TestAccCGCSnippet_sqlMysqlInstanceAuthorizedNetworkExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlMysqlInstanceAuthorizedNetworkExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlMysqlInstanceAuthorizedNetworkExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-mysql-instance-with-authorized-network%{random_suffix}"
+  region           = "us-central1"
+  database_version = "MYSQL_5_7"
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      authorized_networks {
+        name = "Network Name"
+        value = "192.0.2.0/24"
+        expiration_time = "3021-11-15T16:19:00.094Z"
+      }
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+`, context)
+}
+
 func TestAccCGCSnippet_sqlSqlserverInstanceBackupLocationExample(t *testing.T) {
 	t.Parallel()
 
