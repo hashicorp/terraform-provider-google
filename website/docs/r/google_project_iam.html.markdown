@@ -25,7 +25,7 @@ Four different resources help you manage your IAM policy for a project. Each of 
 
 ## google\_project\_iam\_policy
 
-~> **Be careful!** You can accidentally lock yourself out of your project
+!> **Be careful!** You can accidentally lock yourself out of your project
    using this resource. Deleting a `google_project_iam_policy` removes access
    from anyone without organization-level access to the project. Proceed with caution.
    It's not recommended to use `google_project_iam_policy` with your provider project
