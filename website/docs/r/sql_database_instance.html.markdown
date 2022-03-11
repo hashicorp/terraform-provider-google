@@ -163,12 +163,8 @@ provider "google-beta" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region the instance will sit in. Note, Cloud SQL is not
-    available in all regions - choose from one of the options listed [here](https://cloud.google.com/sql/docs/mysql/instance-locations).
-    A valid region must be provided to use this resource. If a region is not provided in the resource definition,
-    the provider region will be used instead, but this will be an apply-time error for instances if the provider
-    region is not supported with Cloud SQL. If you choose not to provide the `region` argument for this resource,
-    make sure you understand this.
+* `region` - (Optional) The region the instance will sit in. If a region is not provided in the resource definition,
+    the provider region will be used instead.
 
 - - -
 
