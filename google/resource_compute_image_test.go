@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -157,6 +158,27 @@ func TestAccComputeImage_sourceSnapshot(t *testing.T) {
 	})
 }
 
+func TestAccComputeImage_withStorageLocations(t *testing.T) {
+	t.Parallel()
+
+	var image compute.Image
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_storageLocations("image-test-" + randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists(
+						t, "google_compute_image.foobar", &image),
+					testAccCheckComputeImageHasStorageLocation(&image, "eu"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeImageExists(t *testing.T, n string, image *compute.Image) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -292,6 +314,15 @@ func testAccCheckComputeImageDoesNotContainLabel(image *compute.Image, key strin
 			return fmt.Errorf("Expected no label for key '%s' but found one with value '%s'", key, v)
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeImageHasStorageLocation(image *compute.Image, locations ...string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if !reflect.DeepEqual(locations, image.StorageLocations) {
+			return fmt.Errorf("Expected source locations to be %q, but found %q", locations, image.StorageLocations)
+		}
 		return nil
 	}
 }
@@ -449,4 +480,19 @@ resource "google_compute_image" "foobar" {
   source_snapshot = google_compute_snapshot.foobar.self_link
 }
 `, diskName, snapshotName, imageName)
+}
+
+func testAccComputeImage_storageLocations(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "foobar" {
+  name        = "%s"
+  raw_disk {
+	# Would create an image in 'us' if 'storage_locations' was not defined.
+    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+  }
+  storage_locations = [
+	  "eu",
+  ]
+}
+`, name)
 }

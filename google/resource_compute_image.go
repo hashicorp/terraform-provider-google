@@ -178,6 +178,16 @@ In order to create an image, you must provide the full or partial URL of one of 
 * The rawDisk.source URL
 * The sourceDisk URL`,
 			},
+			"storage_locations": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Storage location of the image (regional or multi-regional).`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"archive_size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -304,6 +314,12 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("source_snapshot"); !isEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
 		obj["sourceSnapshot"] = sourceSnapshotProp
 	}
+	sourceLocationsProp, err := expandSourceLocations(d.Get("storage_locations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("storage_locations"); !isEmptyValue(reflect.ValueOf(sourceLocationsProp)) && (ok || !reflect.DeepEqual(v, sourceLocationsProp)) {
+		obj["storageLocations"] = sourceLocationsProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images")
 	if err != nil {
@@ -422,6 +438,9 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("source_snapshot", flattenComputeImageSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err := d.Set("storage_locations", flattenComputeImageStorageLocations(res["storageLocations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -667,6 +686,10 @@ func flattenComputeImageSourceSnapshot(v interface{}, d *schema.ResourceData, co
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeImageStorageLocations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeImageDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -808,4 +831,8 @@ func expandComputeImageSourceSnapshot(v interface{}, d TerraformResourceData, co
 		return nil, fmt.Errorf("Invalid value for source_snapshot: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandSourceLocations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
