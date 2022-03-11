@@ -742,6 +742,15 @@ The supported values are:
 				Optional:    true,
 				Description: `A human-readable description of the resource.`,
 			},
+			"disable_http2": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Disables HTTP/2.
+
+HTTP/2 (h2) is enabled by default and recommended for performance. HTTP/2 improves connection re-use and reduces connection setup overhead by sending multiple streams over the same connection.
+
+Some legacy HTTP clients may have issues with HTTP/2 connections due to broken HTTP/2 implementations. Setting this to true will prevent HTTP/2 from being advertised and negotiated.`,
+			},
 			"disable_quic": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -861,6 +870,12 @@ func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("disable_quic"); !isEmptyValue(reflect.ValueOf(disableQuicProp)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
 		obj["disableQuic"] = disableQuicProp
+	}
+	disableHttp2Prop, err := expandNetworkServicesEdgeCacheServiceDisableHttp2(d.Get("disable_http2"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_http2"); !isEmptyValue(reflect.ValueOf(disableHttp2Prop)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
+		obj["disableHttp2"] = disableHttp2Prop
 	}
 	requireTlsProp, err := expandNetworkServicesEdgeCacheServiceRequireTls(d.Get("require_tls"), d, config)
 	if err != nil {
@@ -988,6 +1003,9 @@ func resourceNetworkServicesEdgeCacheServiceRead(d *schema.ResourceData, meta in
 	if err := d.Set("disable_quic", flattenNetworkServicesEdgeCacheServiceDisableQuic(res["disableQuic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheService: %s", err)
 	}
+	if err := d.Set("disable_http2", flattenNetworkServicesEdgeCacheServiceDisableHttp2(res["disableHttp2"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheService: %s", err)
+	}
 	if err := d.Set("require_tls", flattenNetworkServicesEdgeCacheServiceRequireTls(res["requireTls"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheService: %s", err)
 	}
@@ -1050,6 +1068,12 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 	} else if v, ok := d.GetOkExists("disable_quic"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
 		obj["disableQuic"] = disableQuicProp
 	}
+	disableHttp2Prop, err := expandNetworkServicesEdgeCacheServiceDisableHttp2(d.Get("disable_http2"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_http2"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
+		obj["disableHttp2"] = disableHttp2Prop
+	}
 	requireTlsProp, err := expandNetworkServicesEdgeCacheServiceRequireTls(d.Get("require_tls"), d, config)
 	if err != nil {
 		return err
@@ -1105,6 +1129,10 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 
 	if d.HasChange("disable_quic") {
 		updateMask = append(updateMask, "disableQuic")
+	}
+
+	if d.HasChange("disable_http2") {
+		updateMask = append(updateMask, "disableHttp2")
 	}
 
 	if d.HasChange("require_tls") {
@@ -1235,6 +1263,10 @@ func flattenNetworkServicesEdgeCacheServiceLabels(v interface{}, d *schema.Resou
 }
 
 func flattenNetworkServicesEdgeCacheServiceDisableQuic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceDisableHttp2(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1911,6 +1943,10 @@ func expandNetworkServicesEdgeCacheServiceLabels(v interface{}, d TerraformResou
 }
 
 func expandNetworkServicesEdgeCacheServiceDisableQuic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceDisableHttp2(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
