@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkservices: added `disable_http2` property to `google_network_services_edge_cache_service` resource
+```

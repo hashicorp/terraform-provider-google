@@ -127,6 +127,7 @@ resource "google_network_services_edge_cache_service" "instance" {
   name                 = "my-service"
   description          = "some description"
   disable_quic         = true
+  disable_http2        = true
   labels = {
     a = "b"
   }
@@ -776,6 +777,12 @@ The following arguments are supported:
 * `disable_quic` -
   (Optional)
   HTTP/3 (IETF QUIC) and Google QUIC are enabled by default.
+
+* `disable_http2` -
+  (Optional)
+  Disables HTTP/2.
+  HTTP/2 (h2) is enabled by default and recommended for performance. HTTP/2 improves connection re-use and reduces connection setup overhead by sending multiple streams over the same connection.
+  Some legacy HTTP clients may have issues with HTTP/2 connections due to broken HTTP/2 implementations. Setting this to true will prevent HTTP/2 from being advertised and negotiated.
 
 * `require_tls` -
   (Optional)
