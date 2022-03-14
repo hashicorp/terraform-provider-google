@@ -11,6 +11,7 @@ IMPROVEMENTS:
 * container: added support for gvnic to `google_container_node_pool` ([#11240](https://github.com/hashicorp/terraform-provider-google/pull/11240))
 * dataproc: added `preemptibility` field to the `preemptible_worker_config` of `google_dataproc_cluster` ([#11230](https://github.com/hashicorp/terraform-provider-google/pull/11230))
 * networkservices: updated edge cache service documentation ([#11222](https://github.com/hashicorp/terraform-provider-google/pull/11222))
+* serviceusage: supported `force` behavior for deleting consumer quota override ([#11205](https://github.com/hashicorp/terraform-provider-google/pull/11205))
 
 BUG FIXES:
 * dataproc: fixed a crash when `logging_config` only contains `nil` entry  in `google_dataproc_job` ([#11232](https://github.com/hashicorp/terraform-provider-google/pull/11232))
