@@ -1,5 +1,20 @@
 ## 4.14.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_bigqueryreservation_assignment` ([#11215](https://github.com/hashicorp/terraform-provider-google/pull/11215))
+* **New Resource:** `google_apikeys_key` ([#11249](https://github.com/hashicorp/terraform-provider-google/pull/11249))
+
+IMPROVEMENTS:
+* artifactregistry: added maven config for `google_artifact_registry_repository` ([#11246](https://github.com/hashicorp/terraform-provider-google/pull/11246))
+* cloudbuild: added support for manual builds, git source for webhook/pubsub triggered builds and filter field ([#11219](https://github.com/hashicorp/terraform-provider-google/pull/11219))
+* composer: added support for Private Service Connect by adding `cloud_composer_connection_subnetwork` field in `google_composer_environment` ([#11223](https://github.com/hashicorp/terraform-provider-google/pull/11223))
+* container: added support for gvnic to `google_container_node_pool` ([#11240](https://github.com/hashicorp/terraform-provider-google/pull/11240))
+* dataproc: added `preemptibility` field to the `preemptible_worker_config` of `google_dataproc_cluster` ([#11230](https://github.com/hashicorp/terraform-provider-google/pull/11230))
+* serviceusage: supported `force` behavior for deleting consumer quota override ([#11205](https://github.com/hashicorp/terraform-provider-google/pull/11205))
+
+BUG FIXES:
+* dataproc: fixed a crash when `logging_config` only contains `nil` entry  in `google_dataproc_job` ([#11232](https://github.com/hashicorp/terraform-provider-google/pull/11232))
+
 ## 4.13.0 (March 7, 2022)
 
 FEATURES:
