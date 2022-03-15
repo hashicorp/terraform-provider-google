@@ -62,12 +62,14 @@ resource "google_network_services_edge_cache_origin" "fallback" {
   retry_conditions = [
     "CONNECT_FAILURE",
     "NOT_FOUND",
-    "HTTP_5XX"
+    "HTTP_5XX",
+    "FORBIDDEN",
   ]
   timeout {
     connect_timeout = "10s"
-    max_attempts_timeout = "10s"
-    response_timeout = "10s"
+    max_attempts_timeout = "20s"
+    response_timeout = "60s"
+    read_timeout = "5s"
   }
 }
 
@@ -95,8 +97,8 @@ The following arguments are supported:
 * `origin_address` -
   (Required)
   A fully qualified domain name (FQDN) or IP address reachable over the public Internet, or the address of a Google Cloud Storage bucket.
-  This address will be used as the origin for cache requests - e.g. FQDN: media-backend.example.com IPv4:35.218.1.1 IPv6:[2607:f8b0:4012:809::200e] Cloud Storage: gs://bucketname
-  When providing an FQDN (hostname), it must be publicly resolvable (e.g. via Google public DNS) and IP addresses must be publicly routable.
+  This address will be used as the origin for cache requests - e.g. FQDN: media-backend.example.com, IPv4: 35.218.1.1, IPv6: 2607:f8b0:4012:809::200e, Cloud Storage: gs://bucketname
+  When providing an FQDN (hostname), it must be publicly resolvable (e.g. via Google public DNS) and IP addresses must be publicly routable.  It must not contain a protocol (e.g., https://) and it must not contain any slashes.
   If a Cloud Storage bucket is provided, it must be in the canonical "gs://bucketname" format. Other forms, such as "storage.googleapis.com", will be rejected.
 
 * `name` -
@@ -135,8 +137,8 @@ The following arguments are supported:
   retryConditions and failoverOrigin to control its own cache fill failures.
   The total number of allowed attempts to cache fill across this and failover origins is limited to four.
   The total time allowed for cache fill attempts across this and failover origins can be controlled with maxAttemptsTimeout.
-  The last valid response from an origin will be returned to the client.
-  If no origin returns a valid response, an HTTP 503 will be returned to the client.
+  The last valid, non-retried response from all origins will be returned to the client.
+  If no origin returns a valid response, an HTTP 502 will be returned to the client.
   Defaults to 1. Must be a value greater than 0 and less than 4.
 
 * `failover_origin` -
@@ -160,7 +162,8 @@ The following arguments are supported:
   - GATEWAY_ERROR: Similar to 5xx, but only applies to response codes 502, 503 or 504.
   - RETRIABLE_4XX: Retry for retriable 4xx response codes, which include HTTP 409 (Conflict) and HTTP 429 (Too Many Requests)
   - NOT_FOUND: Retry if the origin returns a HTTP 404 (Not Found). This can be useful when generating video content, and the segment is not available yet.
-  Each value may be one of `CONNECT_FAILURE`, `HTTP_5XX`, `GATEWAY_ERROR`, `RETRIABLE_4XX`, and `NOT_FOUND`.
+  - FORBIDDEN: Retry if the origin returns a HTTP 403 (Forbidden).
+  Each value may be one of `CONNECT_FAILURE`, `HTTP_5XX`, `GATEWAY_ERROR`, `RETRIABLE_4XX`, `NOT_FOUND`, and `FORBIDDEN`.
 
 * `timeout` -
   (Optional)
@@ -175,18 +178,30 @@ The following arguments are supported:
 
 * `connect_timeout` -
   (Optional)
-  The maximum duration to wait for the origin connection to be established, including DNS lookup, TLS handshake and TCP/QUIC connection establishment.
+  The maximum duration to wait for a single origin connection to be established, including DNS lookup, TLS handshake and TCP/QUIC connection establishment.
   Defaults to 5 seconds. The timeout must be a value between 1s and 15s.
+  The connectTimeout capped by the deadline set by the request's maxAttemptsTimeout.  The last connection attempt may have a smaller connectTimeout in order to adhere to the overall maxAttemptsTimeout.
 
 * `max_attempts_timeout` -
   (Optional)
-  The maximum time across all connection attempts to the origin, including failover origins, before returning an error to the client. A HTTP 503 will be returned if the timeout is reached before a response is returned.
-  Defaults to 5 seconds. The timeout must be a value between 1s and 15s.
+  The maximum time across all connection attempts to the origin, including failover origins, before returning an error to the client. A HTTP 504 will be returned if the timeout is reached before a response is returned.
+  Defaults to 15 seconds. The timeout must be a value between 1s and 30s.
+  If a failoverOrigin is specified, the maxAttemptsTimeout of the first configured origin sets the deadline for all connection attempts across all failoverOrigins.
 
 * `response_timeout` -
   (Optional)
-  The maximum duration to wait for data to arrive when reading from the HTTP connection/stream.
-  Defaults to 5 seconds. The timeout must be a value between 1s and 30s.
+  The maximum duration to wait for the last byte of a response to arrive when reading from the HTTP connection/stream.
+  Defaults to 30 seconds. The timeout must be a value between 1s and 120s.
+  The responseTimeout starts after the connection has been established.
+  This also applies to HTTP Chunked Transfer Encoding responses, and/or when an open-ended Range request is made to the origin. Origins that take longer to write additional bytes to the response than the configured responseTimeout will result in an error being returned to the client.
+  If the response headers have already been written to the connection, the response will be truncated and logged.
+
+* `read_timeout` -
+  (Optional)
+  The maximum duration to wait between reads of a single HTTP connection/stream.
+  Defaults to 15 seconds.  The timeout must be a value between 1s and 30s.
+  The readTimeout is capped by the responseTimeout.  All reads of the HTTP connection/stream must be completed by the deadline set by the responseTimeout.
+  If the response headers have already been written to the connection, the response will be truncated and logged.
 
 ## Attributes Reference
 

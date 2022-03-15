@@ -22,7 +22,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_updateAndImport(t *testing.T) {
 				ResourceName:            "google_network_services_edge_cache_origin.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "timeout"},
+				ImportStateVerifyIgnore: []string{"name"},
 			},
 			{
 				Config: testAccNetworkServicesEdgeCacheOrigin_update_1(name),
@@ -31,7 +31,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_updateAndImport(t *testing.T) {
 				ResourceName:            "google_network_services_edge_cache_origin.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "timeout"},
+				ImportStateVerifyIgnore: []string{"name"},
 			},
 		},
 	})
@@ -46,6 +46,7 @@ func testAccNetworkServicesEdgeCacheOrigin_update_0(name string) string {
 		labels = {
 			a = "b"
 		}
+		retry_conditions = ["NOT_FOUND"]
 		timeout {
 			connect_timeout = "10s"
 		}
@@ -59,8 +60,12 @@ func testAccNetworkServicesEdgeCacheOrigin_update_1(name string) string {
 		origin_address       = "gs://media-edge-fallback"
 		description          = "The default bucket for media edge test"
 		max_attempts         = 3
+		retry_conditions     = ["FORBIDDEN"]
 		timeout {
 			connect_timeout = "9s"
+			max_attempts_timeout = "14s"
+			response_timeout = "29s"
+			read_timeout = "13s"
 		}
 	}
 `, name)
