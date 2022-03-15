@@ -490,7 +490,7 @@ func expandNetworkConnectivitySpokeLinkedInterconnectAttachments(o interface{}) 
 		return networkconnectivity.EmptySpokeLinkedInterconnectAttachments
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return networkconnectivity.EmptySpokeLinkedInterconnectAttachments
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -518,7 +518,7 @@ func expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(o interface{})
 		return networkconnectivity.EmptySpokeLinkedRouterApplianceInstances
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return networkconnectivity.EmptySpokeLinkedRouterApplianceInstances
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -546,7 +546,7 @@ func expandNetworkConnectivitySpokeLinkedRouterApplianceInstancesInstancesArray(
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]networkconnectivity.SpokeLinkedRouterApplianceInstancesInstances, 0)
 	}
 
@@ -603,7 +603,7 @@ func expandNetworkConnectivitySpokeLinkedVpnTunnels(o interface{}) *networkconne
 		return networkconnectivity.EmptySpokeLinkedVpnTunnels
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return networkconnectivity.EmptySpokeLinkedVpnTunnels
 	}
 	obj := objArr[0].(map[string]interface{})

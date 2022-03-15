@@ -377,7 +377,7 @@ func expandOrgPolicyPolicySpec(o interface{}) *orgpolicy.PolicySpec {
 		return orgpolicy.EmptyPolicySpec
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return orgpolicy.EmptyPolicySpec
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -409,7 +409,7 @@ func expandOrgPolicyPolicySpecRulesArray(o interface{}) []orgpolicy.PolicySpecRu
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]orgpolicy.PolicySpecRules, 0)
 	}
 
@@ -472,7 +472,7 @@ func expandOrgPolicyPolicySpecRulesCondition(o interface{}) *orgpolicy.PolicySpe
 		return orgpolicy.EmptyPolicySpecRulesCondition
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return orgpolicy.EmptyPolicySpecRulesCondition
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -504,7 +504,7 @@ func expandOrgPolicyPolicySpecRulesValues(o interface{}) *orgpolicy.PolicySpecRu
 		return orgpolicy.EmptyPolicySpecRulesValues
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return orgpolicy.EmptyPolicySpecRulesValues
 	}
 	obj := objArr[0].(map[string]interface{})

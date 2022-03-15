@@ -488,7 +488,7 @@ func expandEventarcTriggerDestination(o interface{}) *eventarc.TriggerDestinatio
 		return eventarc.EmptyTriggerDestination
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return eventarc.EmptyTriggerDestination
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -516,7 +516,7 @@ func expandEventarcTriggerDestinationCloudRunService(o interface{}) *eventarc.Tr
 		return eventarc.EmptyTriggerDestinationCloudRunService
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return eventarc.EmptyTriggerDestinationCloudRunService
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -548,7 +548,7 @@ func expandEventarcTriggerMatchingCriteriaArray(o interface{}) []eventarc.Trigge
 	o = o.(*schema.Set).List()
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]eventarc.TriggerMatchingCriteria, 0)
 	}
 
@@ -605,7 +605,7 @@ func expandEventarcTriggerTransport(o interface{}) *eventarc.TriggerTransport {
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -631,7 +631,7 @@ func expandEventarcTriggerTransportPubsub(o interface{}) *eventarc.TriggerTransp
 		return eventarc.EmptyTriggerTransportPubsub
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return eventarc.EmptyTriggerTransportPubsub
 	}
 	obj := objArr[0].(map[string]interface{})

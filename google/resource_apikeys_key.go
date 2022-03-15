@@ -432,7 +432,7 @@ func expandApikeysKeyRestrictions(o interface{}) *apikeys.KeyRestrictions {
 		return apikeys.EmptyKeyRestrictions
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return apikeys.EmptyKeyRestrictions
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -466,7 +466,7 @@ func expandApikeysKeyRestrictionsAndroidKeyRestrictions(o interface{}) *apikeys.
 		return apikeys.EmptyKeyRestrictionsAndroidKeyRestrictions
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return apikeys.EmptyKeyRestrictionsAndroidKeyRestrictions
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -492,7 +492,7 @@ func expandApikeysKeyRestrictionsAndroidKeyRestrictionsAllowedApplicationsArray(
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]apikeys.KeyRestrictionsAndroidKeyRestrictionsAllowedApplications, 0)
 	}
 
@@ -549,7 +549,7 @@ func expandApikeysKeyRestrictionsApiTargetsArray(o interface{}) []apikeys.KeyRes
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]apikeys.KeyRestrictionsApiTargets, 0)
 	}
 
@@ -606,7 +606,7 @@ func expandApikeysKeyRestrictionsBrowserKeyRestrictions(o interface{}) *apikeys.
 		return apikeys.EmptyKeyRestrictionsBrowserKeyRestrictions
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return apikeys.EmptyKeyRestrictionsBrowserKeyRestrictions
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -632,7 +632,7 @@ func expandApikeysKeyRestrictionsIosKeyRestrictions(o interface{}) *apikeys.KeyR
 		return apikeys.EmptyKeyRestrictionsIosKeyRestrictions
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return apikeys.EmptyKeyRestrictionsIosKeyRestrictions
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -658,7 +658,7 @@ func expandApikeysKeyRestrictionsServerKeyRestrictions(o interface{}) *apikeys.K
 		return apikeys.EmptyKeyRestrictionsServerKeyRestrictions
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return apikeys.EmptyKeyRestrictionsServerKeyRestrictions
 	}
 	obj := objArr[0].(map[string]interface{})

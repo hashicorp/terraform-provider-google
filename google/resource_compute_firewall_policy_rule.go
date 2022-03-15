@@ -418,7 +418,7 @@ func expandComputeFirewallPolicyRuleMatch(o interface{}) *compute.FirewallPolicy
 		return compute.EmptyFirewallPolicyRuleMatch
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return compute.EmptyFirewallPolicyRuleMatch
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -448,7 +448,7 @@ func expandComputeFirewallPolicyRuleMatchLayer4ConfigsArray(o interface{}) []com
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]compute.FirewallPolicyRuleMatchLayer4Configs, 0)
 	}
 
