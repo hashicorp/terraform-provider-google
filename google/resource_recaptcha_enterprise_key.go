@@ -469,7 +469,7 @@ func expandRecaptchaEnterpriseKeyAndroidSettings(o interface{}) *recaptchaenterp
 		return recaptchaenterprise.EmptyKeyAndroidSettings
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return recaptchaenterprise.EmptyKeyAndroidSettings
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -497,7 +497,7 @@ func expandRecaptchaEnterpriseKeyIosSettings(o interface{}) *recaptchaenterprise
 		return recaptchaenterprise.EmptyKeyIosSettings
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return recaptchaenterprise.EmptyKeyIosSettings
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -525,7 +525,7 @@ func expandRecaptchaEnterpriseKeyTestingOptions(o interface{}) *recaptchaenterpr
 		return recaptchaenterprise.EmptyKeyTestingOptions
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return recaptchaenterprise.EmptyKeyTestingOptions
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -553,7 +553,7 @@ func expandRecaptchaEnterpriseKeyWebSettings(o interface{}) *recaptchaenterprise
 		return recaptchaenterprise.EmptyKeyWebSettings
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return recaptchaenterprise.EmptyKeyWebSettings
 	}
 	obj := objArr[0].(map[string]interface{})

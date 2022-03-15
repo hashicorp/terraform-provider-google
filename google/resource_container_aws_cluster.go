@@ -807,7 +807,7 @@ func expandContainerAwsClusterAuthorization(o interface{}) *containeraws.Cluster
 		return containeraws.EmptyClusterAuthorization
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterAuthorization
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -833,7 +833,7 @@ func expandContainerAwsClusterAuthorizationAdminUsersArray(o interface{}) []cont
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]containeraws.ClusterAuthorizationAdminUsers, 0)
 	}
 
@@ -888,7 +888,7 @@ func expandContainerAwsClusterControlPlane(o interface{}) *containeraws.ClusterC
 		return containeraws.EmptyClusterControlPlane
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterControlPlane
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -938,7 +938,7 @@ func expandContainerAwsClusterControlPlaneAwsServicesAuthentication(o interface{
 		return containeraws.EmptyClusterControlPlaneAwsServicesAuthentication
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterControlPlaneAwsServicesAuthentication
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -966,7 +966,7 @@ func expandContainerAwsClusterControlPlaneConfigEncryption(o interface{}) *conta
 		return containeraws.EmptyClusterControlPlaneConfigEncryption
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterControlPlaneConfigEncryption
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -992,7 +992,7 @@ func expandContainerAwsClusterControlPlaneDatabaseEncryption(o interface{}) *con
 		return containeraws.EmptyClusterControlPlaneDatabaseEncryption
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterControlPlaneDatabaseEncryption
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1018,7 +1018,7 @@ func expandContainerAwsClusterControlPlaneMainVolume(o interface{}) *containeraw
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1050,7 +1050,7 @@ func expandContainerAwsClusterControlPlaneProxyConfig(o interface{}) *containera
 		return containeraws.EmptyClusterControlPlaneProxyConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterControlPlaneProxyConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1078,7 +1078,7 @@ func expandContainerAwsClusterControlPlaneRootVolume(o interface{}) *containeraw
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1110,7 +1110,7 @@ func expandContainerAwsClusterControlPlaneSshConfig(o interface{}) *containeraws
 		return containeraws.EmptyClusterControlPlaneSshConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterControlPlaneSshConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1136,7 +1136,7 @@ func expandContainerAwsClusterFleet(o interface{}) *containeraws.ClusterFleet {
 		return containeraws.EmptyClusterFleet
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterFleet
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1163,7 +1163,7 @@ func expandContainerAwsClusterNetworking(o interface{}) *containeraws.ClusterNet
 		return containeraws.EmptyClusterNetworking
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyClusterNetworking
 	}
 	obj := objArr[0].(map[string]interface{})

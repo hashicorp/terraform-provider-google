@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed a crash when `logging_config` only contains `nil` entry  in `google_dataproc_workflow_template`
+```

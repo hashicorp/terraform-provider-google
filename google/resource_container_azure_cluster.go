@@ -764,7 +764,7 @@ func expandContainerAzureClusterAuthorization(o interface{}) *containerazure.Clu
 		return containerazure.EmptyClusterAuthorization
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyClusterAuthorization
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -790,7 +790,7 @@ func expandContainerAzureClusterAuthorizationAdminUsersArray(o interface{}) []co
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]containerazure.ClusterAuthorizationAdminUsers, 0)
 	}
 
@@ -845,7 +845,7 @@ func expandContainerAzureClusterControlPlane(o interface{}) *containerazure.Clus
 		return containerazure.EmptyClusterControlPlane
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyClusterControlPlane
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -889,7 +889,7 @@ func expandContainerAzureClusterControlPlaneSshConfig(o interface{}) *containera
 		return containerazure.EmptyClusterControlPlaneSshConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyClusterControlPlaneSshConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -915,7 +915,7 @@ func expandContainerAzureClusterControlPlaneDatabaseEncryption(o interface{}) *c
 		return containerazure.EmptyClusterControlPlaneDatabaseEncryption
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyClusterControlPlaneDatabaseEncryption
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -941,7 +941,7 @@ func expandContainerAzureClusterControlPlaneMainVolume(o interface{}) *container
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -967,7 +967,7 @@ func expandContainerAzureClusterControlPlaneProxyConfig(o interface{}) *containe
 		return containerazure.EmptyClusterControlPlaneProxyConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyClusterControlPlaneProxyConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -995,7 +995,7 @@ func expandContainerAzureClusterControlPlaneReplicaPlacementsArray(o interface{}
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]containerazure.ClusterControlPlaneReplicaPlacements, 0)
 	}
 
@@ -1052,7 +1052,7 @@ func expandContainerAzureClusterControlPlaneRootVolume(o interface{}) *container
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1078,7 +1078,7 @@ func expandContainerAzureClusterFleet(o interface{}) *containerazure.ClusterFlee
 		return containerazure.EmptyClusterFleet
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyClusterFleet
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -1105,7 +1105,7 @@ func expandContainerAzureClusterNetworking(o interface{}) *containerazure.Cluste
 		return containerazure.EmptyClusterNetworking
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyClusterNetworking
 	}
 	obj := objArr[0].(map[string]interface{})

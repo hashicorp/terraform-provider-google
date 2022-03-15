@@ -420,7 +420,7 @@ func expandCloudbuildWorkerPoolNetworkConfig(o interface{}) *cloudbuild.WorkerPo
 		return cloudbuild.EmptyWorkerPoolNetworkConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return cloudbuild.EmptyWorkerPoolNetworkConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -446,7 +446,7 @@ func expandCloudbuildWorkerPoolWorkerConfig(o interface{}) *cloudbuild.WorkerPoo
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})

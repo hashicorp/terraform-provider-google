@@ -459,7 +459,7 @@ func expandAssuredWorkloadsWorkloadKmsSettings(o interface{}) *assuredworkloads.
 		return assuredworkloads.EmptyWorkloadKmsSettings
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return assuredworkloads.EmptyWorkloadKmsSettings
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -487,7 +487,7 @@ func expandAssuredWorkloadsWorkloadResourceSettingsArray(o interface{}) []assure
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]assuredworkloads.WorkloadResourceSettings, 0)
 	}
 

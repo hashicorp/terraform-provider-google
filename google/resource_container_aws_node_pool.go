@@ -640,7 +640,7 @@ func expandContainerAwsNodePoolAutoscaling(o interface{}) *containeraws.NodePool
 		return containeraws.EmptyNodePoolAutoscaling
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyNodePoolAutoscaling
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -668,7 +668,7 @@ func expandContainerAwsNodePoolConfig(o interface{}) *containeraws.NodePoolConfi
 		return containeraws.EmptyNodePoolConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyNodePoolConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -710,7 +710,7 @@ func expandContainerAwsNodePoolConfigConfigEncryption(o interface{}) *containera
 		return containeraws.EmptyNodePoolConfigConfigEncryption
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyNodePoolConfigConfigEncryption
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -736,7 +736,7 @@ func expandContainerAwsNodePoolConfigRootVolume(o interface{}) *containeraws.Nod
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -768,7 +768,7 @@ func expandContainerAwsNodePoolConfigSshConfig(o interface{}) *containeraws.Node
 		return containeraws.EmptyNodePoolConfigSshConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyNodePoolConfigSshConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -794,7 +794,7 @@ func expandContainerAwsNodePoolConfigTaintsArray(o interface{}) []containeraws.N
 	}
 
 	objs := o.([]interface{})
-	if len(objs) == 0 {
+	if len(objs) == 0 || objs[0] == nil {
 		return make([]containeraws.NodePoolConfigTaints, 0)
 	}
 
@@ -853,7 +853,7 @@ func expandContainerAwsNodePoolMaxPodsConstraint(o interface{}) *containeraws.No
 		return containeraws.EmptyNodePoolMaxPodsConstraint
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containeraws.EmptyNodePoolMaxPodsConstraint
 	}
 	obj := objArr[0].(map[string]interface{})

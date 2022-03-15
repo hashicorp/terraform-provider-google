@@ -551,7 +551,7 @@ func expandContainerAzureNodePoolAutoscaling(o interface{}) *containerazure.Node
 		return containerazure.EmptyNodePoolAutoscaling
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyNodePoolAutoscaling
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -579,7 +579,7 @@ func expandContainerAzureNodePoolConfig(o interface{}) *containerazure.NodePoolC
 		return containerazure.EmptyNodePoolConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyNodePoolConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -611,7 +611,7 @@ func expandContainerAzureNodePoolConfigSshConfig(o interface{}) *containerazure.
 		return containerazure.EmptyNodePoolConfigSshConfig
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyNodePoolConfigSshConfig
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -637,7 +637,7 @@ func expandContainerAzureNodePoolConfigRootVolume(o interface{}) *containerazure
 		return nil
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
@@ -663,7 +663,7 @@ func expandContainerAzureNodePoolMaxPodsConstraint(o interface{}) *containerazur
 		return containerazure.EmptyNodePoolMaxPodsConstraint
 	}
 	objArr := o.([]interface{})
-	if len(objArr) == 0 {
+	if len(objArr) == 0 || objArr[0] == nil {
 		return containerazure.EmptyNodePoolMaxPodsConstraint
 	}
 	obj := objArr[0].(map[string]interface{})
