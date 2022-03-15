@@ -237,7 +237,6 @@ Policy can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_org_policy_policy.default {{parent}}/policies/{{name}}
-$ terraform import google_org_policy_policy.default {{parent}}/{{name}}
 ```
 
 
