@@ -165,9 +165,35 @@ The following arguments are supported:
   consume this reservation. Otherwise, it can be consumed by VMs with
   affinity for any reservation. Defaults to false.
 
+* `share_settings` -
+  (Optional)
+  The share setting for reservations.
+  Structure is [documented below](#nested_share_settings).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_share_settings"></a>The `share_settings` block supports:
+
+* `share_type` -
+  (Optional)
+  Type of sharing for this shared-reservation
+  Possible values are `LOCAL` and `SPECIFIC_PROJECTS`.
+
+* `project_map` -
+  (Optional)
+  A map of project number and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.
+  Structure is [documented below](#nested_project_map).
+
+
+<a name="nested_project_map"></a>The `project_map` block supports:
+
+* `id` - (Required) The identifier for this object. Format specified above.
+
+* `project_id` -
+  (Optional)
+  The project id/number, should be same as the key of this project config in the project map.
 
 ## Attributes Reference
 
@@ -192,9 +218,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

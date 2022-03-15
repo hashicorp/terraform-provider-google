@@ -40,11 +40,11 @@ func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config 
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("service_name"); ok {
-		values["serviceName"] = v.(string)
+		values["service_name"] = v.(string)
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"services/(?P<serviceName>[^/]+)", "(?P<serviceName>[^/]+)"}, d, config, d.Get("service_name").(string))
+	m, err := getImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)", "(?P<service_name>[^/]+)"}, d, config, d.Get("service_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config 
 	}
 
 	u := &ServiceManagementServiceIamUpdater{
-		serviceName: values["serviceName"],
+		serviceName: values["service_name"],
 		d:           d,
 		Config:      config,
 	}
@@ -69,7 +69,7 @@ func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config 
 func ServiceManagementServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"services/(?P<serviceName>[^/]+)", "(?P<serviceName>[^/]+)"}, d, config, d.Id())
+	m, err := getImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)", "(?P<service_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func ServiceManagementServiceIdParseFunc(d *schema.ResourceData, config *Config)
 	}
 
 	u := &ServiceManagementServiceIamUpdater{
-		serviceName: values["serviceName"],
+		serviceName: values["service_name"],
 		d:           d,
 		Config:      config,
 	}

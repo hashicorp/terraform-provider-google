@@ -1,0 +1,4 @@
+```release-note:new-resource
+`google_dns_response_policy`
+`google_dns_response_policy_rule`
+```

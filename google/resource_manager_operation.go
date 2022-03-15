@@ -30,7 +30,7 @@ func (w *ResourceManagerOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
 	// Returns the proper get.
-	url := fmt.Sprintf("https://cloudresourcemanager.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("%s%s", w.Config.ResourceManagerBasePath, w.CommonOperationWaiter.Op.Name)
 
 	return sendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }

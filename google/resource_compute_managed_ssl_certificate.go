@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeManagedSslCertificate() *schema.Resource {
@@ -36,7 +34,7 @@ func resourceComputeManagedSslCertificate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -90,7 +88,7 @@ These are in the same namespace as the managed SSL certificates.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MANAGED", ""}, false),
+				ValidateFunc: validateEnum([]string{"MANAGED", ""}),
 				Description: `Enum field whose value is always 'MANAGED' - used to signal to the API
 which type this is. Default value: "MANAGED" Possible values: ["MANAGED"]`,
 				Default: "MANAGED",
@@ -354,7 +352,7 @@ func flattenComputeManagedSslCertificateDescription(v interface{}, d *schema.Res
 func flattenComputeManagedSslCertificateCertificateId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

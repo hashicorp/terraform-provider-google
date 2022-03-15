@@ -17,18 +17,14 @@ layout: "google"
 page_title: "Google: google_cloud_scheduler_job"
 sidebar_current: "docs-google-cloud-scheduler-job"
 description: |-
-  A scheduled job that can publish a pubsub message or a http request
-  every X interval of time, using crontab format string.
+  A scheduled job that can publish a PubSub message or an HTTP request
+  every X interval of time, using a crontab format string.
 ---
 
 # google\_cloud\_scheduler\_job
 
-A scheduled job that can publish a pubsub message or a http request
-every X interval of time, using crontab format string.
-
-To use Cloud Scheduler your project must contain an App Engine app
-that is located in one of the supported regions. If your project
-does not have an App Engine app, you must create one.
+A scheduled job that can publish a PubSub message or an HTTP request
+every X interval of time, using a crontab format string.
 
 
 To get more information about Job, see:
@@ -425,9 +421,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -191,6 +191,8 @@ The following arguments are supported:
 
 * `automatic_restart` - Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
+    
+* `provisioning_model` - (Beta) Describe the type of preemptible VM.
 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 

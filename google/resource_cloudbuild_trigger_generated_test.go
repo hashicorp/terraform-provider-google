@@ -51,7 +51,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(context map[strin
 	return Nprintf(`
 resource "google_cloudbuild_trigger" "filename-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -93,7 +93,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerBuildExample(context map[string]i
 	return Nprintf(`
 resource "google_cloudbuild_trigger" "build-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -189,7 +189,7 @@ data "google_project" "project" {}
 
 resource "google_cloudbuild_trigger" "service-account-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -215,6 +215,200 @@ resource "google_project_iam_member" "logs_writer" {
   project = data.google_project.project.project_id
   role    = "roles/logging.logWriter"
   member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+`, context)
+}
+
+func TestAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(context),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.pubsub-config-trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_pubsub_topic" "mytopic" {
+  name = "mytopic"
+}
+
+resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
+  name        = "pubsub-trigger"
+  description = "acceptance test example pubsub build trigger"
+
+  pubsub_config {
+    topic = google_pubsub_topic.mytopic.id
+  }
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  substitutions = {
+    _ACTION       = "$(body.message.data.action)"
+  }
+
+  filter = "_ACTION.matches('INSERT')"
+}
+`, context)
+}
+
+func TestAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(context),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.webhook-config-trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
+  secret_id = "webhook_trigger-secret-key-1"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "webhook_trigger_secret_key_data" {
+  secret = google_secret_manager_secret.webhook_trigger_secret_key.id
+
+  secret_data = "secretkeygoeshere"
+}
+
+data "google_project" "project" {}
+
+data "google_iam_policy" "secret_accessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    members = [
+      "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com",
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  project = google_secret_manager_secret.webhook_trigger_secret_key.project
+  secret_id = google_secret_manager_secret.webhook_trigger_secret_key.secret_id
+  policy_data = data.google_iam_policy.secret_accessor.policy_data
+}
+
+
+resource "google_cloudbuild_trigger" "webhook-config-trigger" {
+  name        = "webhook-trigger"
+  description = "acceptance test example webhook build trigger"
+ 
+ webhook_config {
+    secret = google_secret_manager_secret_version.webhook_trigger_secret_key_data.id
+  }
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+}
+`, context)
+}
+
+func TestAccCloudBuildTrigger_cloudbuildTriggerManualExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerManualExample(context),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.manual-trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerManualExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_cloudbuild_trigger" "manual-trigger" {
+  name        = "manual-build"
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
 }
 `, context)
 }

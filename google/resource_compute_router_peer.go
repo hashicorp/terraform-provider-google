@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -39,9 +38,9 @@ func resourceComputeRouterBgpPeer() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -85,7 +84,7 @@ Only IPv4 is supported.`,
 			"advertise_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
+				ValidateFunc: validateEnum([]string{"DEFAULT", "CUSTOM", ""}),
 				Description: `User-specified flag to indicate which mode to use for advertisement.
 Valid values of this enum field are: 'DEFAULT', 'CUSTOM' Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
 				Default: "DEFAULT",
@@ -151,7 +150,7 @@ length, the routes with the lowest priority value win.`,
 						"session_initialization_mode": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ACTIVE", "DISABLED", "PASSIVE"}, false),
+							ValidateFunc: validateEnum([]string{"ACTIVE", "DISABLED", "PASSIVE"}),
 							Description: `The BFD session initialization mode for this BGP peer.
 If set to 'ACTIVE', the Cloud Router will initiate the BFD session
 for this BGP peer. If set to 'PASSIVE', the Cloud Router will wait
@@ -669,7 +668,7 @@ func flattenNestedComputeRouterBgpPeerPeerIpAddress(v interface{}, d *schema.Res
 func flattenNestedComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -686,7 +685,7 @@ func flattenNestedComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceD
 func flattenNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -769,7 +768,7 @@ func flattenNestedComputeRouterBgpPeerBfdSessionInitializationMode(v interface{}
 func flattenNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -786,7 +785,7 @@ func flattenNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d *s
 func flattenNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -803,7 +802,7 @@ func flattenNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d *sc
 func flattenNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

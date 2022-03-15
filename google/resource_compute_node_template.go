@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeNodeTemplate() *schema.Resource {
@@ -35,8 +34,8 @@ func resourceComputeNodeTemplate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -44,7 +43,7 @@ func resourceComputeNodeTemplate() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ENABLED", "NONE", ""}, false),
+				ValidateFunc: validateEnum([]string{"ENABLED", "NONE", ""}),
 				Description:  `CPU overcommit. Default value: "NONE" Possible values: ["ENABLED", "NONE"]`,
 				Default:      "NONE",
 			},
@@ -133,7 +132,7 @@ where the nodes should restart following a maintenance event.`,
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"RESTART_NODE_ON_ANY_SERVER", "RESTART_NODE_ON_MINIMAL_SERVERS"}, false),
+							ValidateFunc: validateEnum([]string{"RESTART_NODE_ON_ANY_SERVER", "RESTART_NODE_ON_MINIMAL_SERVERS"}),
 							Description: `Type of server binding policy. If 'RESTART_NODE_ON_ANY_SERVER',
 nodes using this template will restart on any physical server
 following a maintenance event.

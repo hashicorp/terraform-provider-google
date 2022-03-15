@@ -103,7 +103,7 @@ resource "google_privateca_certificate" "default" {
         locality = "mountain view"
         province = "california"
         street_address = "1600 amphitheatre parkway"
-      }
+      } 
       subject_alt_name {
         email_addresses = ["email@example.com"]
         ip_addresses = ["127.0.0.1"]
@@ -112,7 +112,6 @@ resource "google_privateca_certificate" "default" {
     }
     x509_config {
       ca_options {
-        non_ca = true
         is_ca = false
       }
       key_usage {
@@ -201,8 +200,8 @@ resource "google_privateca_certificate_template" "template" {
     aia_ocsp_servers = ["string"]
 
     ca_options {
-      is_ca                          = false
-      max_issuer_path_length         = 6
+      is_ca                  = false
+      max_issuer_path_length = 6
     }
 
     key_usage {
@@ -452,7 +451,6 @@ resource "google_privateca_certificate" "default" {
     }
     x509_config {
       ca_options {
-        non_ca = true
         is_ca = false
       }
       key_usage {

@@ -39,7 +39,7 @@ func resourceDialogflowCXFlow() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(40 * time.Minute),
 			Update: schema.DefaultTimeout(40 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -173,7 +173,7 @@ If the returned score value is less than the threshold value, then a no-match ev
 						"model_training_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"MODEL_TRAINING_MODE_AUTOMATIC", "MODEL_TRAINING_MODE_MANUAL", ""}, false),
+							ValidateFunc: validateEnum([]string{"MODEL_TRAINING_MODE_AUTOMATIC", "MODEL_TRAINING_MODE_MANUAL", ""}),
 							Description: `Indicates NLU model training mode.
 * MODEL_TRAINING_MODE_AUTOMATIC: NLU model training is automatically triggered when a flow gets modified. User can also manually trigger model training in this mode.
 * MODEL_TRAINING_MODE_MANUAL: User needs to manually trigger NLU model training. Best for large flows whose models take long time to train. Possible values: ["MODEL_TRAINING_MODE_AUTOMATIC", "MODEL_TRAINING_MODE_MANUAL"]`,
@@ -181,7 +181,7 @@ If the returned score value is less than the threshold value, then a no-match ev
 						"model_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"MODEL_TYPE_STANDARD", "MODEL_TYPE_ADVANCED", ""}, false),
+							ValidateFunc: validateEnum([]string{"MODEL_TYPE_STANDARD", "MODEL_TYPE_ADVANCED", ""}),
 							Description: `Indicates the type of NLU model.
 * MODEL_TYPE_STANDARD: Use standard NLU model.
 * MODEL_TYPE_ADVANCED: Use advanced NLU model. Possible values: ["MODEL_TYPE_STANDARD", "MODEL_TYPE_ADVANCED"]`,

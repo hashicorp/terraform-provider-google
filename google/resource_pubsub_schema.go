@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourcePubsubSchema() *schema.Resource {
@@ -35,8 +34,8 @@ func resourcePubsubSchema() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -59,7 +58,7 @@ that is a valid schema definition of the type specified in type.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO", ""}, false),
+				ValidateFunc: validateEnum([]string{"TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO", ""}),
 				Description:  `The type of the schema definition Default value: "TYPE_UNSPECIFIED" Possible values: ["TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO"]`,
 				Default:      "TYPE_UNSPECIFIED",
 			},

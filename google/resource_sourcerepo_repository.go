@@ -19,12 +19,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSourceRepoRepositoryPubSubConfigsHash(v interface{}) int {
@@ -56,9 +54,9 @@ func resourceSourceRepoRepository() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -83,7 +81,7 @@ Keyed by the topic names.`,
 						"message_format": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"PROTOBUF", "JSON"}, false),
+							ValidateFunc: validateEnum([]string{"PROTOBUF", "JSON"}),
 							Description: `The format of the Cloud Pub/Sub messages. 
 - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
 - JSON: The message payload is a JSON string of SourceRepoEvent. Possible values: ["PROTOBUF", "JSON"]`,
@@ -370,7 +368,7 @@ func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData, confi
 func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

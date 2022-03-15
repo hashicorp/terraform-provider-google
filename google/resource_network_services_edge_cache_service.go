@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetworkServicesEdgeCacheService() *schema.Resource {
@@ -71,10 +70,22 @@ and all following characters must be a dash, underscore, letter or digit.`,
 										Required: true,
 										Description: `The list of host patterns to match.
 
-Host patterns must be valid hostnames with optional port numbers in the format host:port. * matches any string of ([a-z0-9-.]*).
-The only accepted ports are :80 and :443.
+Host patterns must be valid hostnames. Ports are not allowed. Wildcard hosts are supported in the suffix or prefix form. * matches any string of ([a-z0-9-.]*). It does not match the empty string.
 
-Hosts are matched against the HTTP Host header, or for HTTP/2 and HTTP/3, the ":authority" header, from the incoming request.`,
+When multiple hosts are specified, hosts are matched in the following priority:
+
+  1. Exact domain names: ''www.foo.com''.
+  2. Suffix domain wildcards: ''*.foo.com'' or ''*-bar.foo.com''.
+  3. Prefix domain wildcards: ''foo.*'' or ''foo-*''.
+  4. Special wildcard ''*'' matching any domain.
+
+  Notes:
+
+    The wildcard will not match the empty string. e.g. ''*-bar.foo.com'' will match ''baz-bar.foo.com'' but not ''-bar.foo.com''. The longest wildcards match first. Only a single host in the entire service can match on ''*''. A domain must be unique across all configured hosts within a service.
+
+    Hosts are matched against the HTTP Host header, or for HTTP/2 and HTTP/3, the ":authority" header, from the incoming request.
+
+    You may specify up to 10 hosts.`,
 										MinItems: 1,
 										MaxItems: 10,
 										Elem: &schema.Schema{
@@ -375,7 +386,7 @@ Only one of origin or urlRedirect can be set.`,
 																						Optional: true,
 																						Description: `If true, requests to different hosts will be cached separately.
 
-Note: this should only be enabled if hosts share the same origin and content Removing the host from the cache key may inadvertently result in different objects being cached than intended, depending on which route the first user matched.`,
+Note: this should only be enabled if hosts share the same origin and content. Removing the host from the cache key may inadvertently result in different objects being cached than intended, depending on which route the first user matched.`,
 																					},
 																					"exclude_query_string": {
 																						Type:     schema.TypeBool,
@@ -438,7 +449,7 @@ Either specify includedQueryParameters or excludedQueryParameters, not both. '&'
 																			Type:         schema.TypeString,
 																			Computed:     true,
 																			Optional:     true,
-																			ValidateFunc: validation.StringInSlice([]string{"CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE", ""}, false),
+																			ValidateFunc: validateEnum([]string{"CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE", ""}),
 																			Description: `Cache modes allow users to control the behaviour of the cache, what content it should cache automatically, whether to respect origin headers, or whether to unconditionally cache all responses.
 
 For all cache modes, Cache-Control headers will be passed to the client. Use clientTtl to override what is sent to the client. Possible values: ["CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE"]`,
@@ -451,10 +462,11 @@ For all cache modes, Cache-Control headers will be passed to the client. Use cli
 - The TTL must be > 0 and <= 86400s (1 day)
 - The clientTtl cannot be larger than the defaultTtl (if set)
 - Fractions of a second are not allowed.
-- Omit this field to use the defaultTtl, or the max-age set by the origin, as the client-facing TTL.
+
+Omit this field to use the defaultTtl, or the max-age set by the origin, as the client-facing TTL.
 
 When the cache mode is set to "USE_ORIGIN_HEADERS" or "BYPASS_CACHE", you must omit this field.
-A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+A duration in seconds terminated by 's'. Example: "3s".`,
 																		},
 																		"default_ttl": {
 																			Type:     schema.TypeString,
@@ -464,7 +476,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 Defaults to 3600s (1 hour).
 
-- The TTL must be >= 0 and <= 2592000s (1 month)
+- The TTL must be >= 0 and <= 31,536,000 seconds (1 year)
 - Setting a TTL of "0" means "always revalidate" (equivalent to must-revalidate)
 - The value of defaultTTL cannot be set to a value greater than that of maxTTL.
 - Fractions of a second are not allowed.
@@ -474,7 +486,7 @@ Note that infrequently accessed objects may be evicted from the cache before the
 
 When the cache mode is set to "USE_ORIGIN_HEADERS" or "BYPASS_CACHE", you must omit this field.
 
-A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+A duration in seconds terminated by 's'. Example: "3s".`,
 																		},
 																		"max_ttl": {
 																			Type:     schema.TypeString,
@@ -486,13 +498,14 @@ Defaults to 86400s (1 day).
 
 Cache directives that attempt to set a max-age or s-maxage higher than this, or an Expires header more than maxTtl seconds in the future will be capped at the value of maxTTL, as if it were the value of an s-maxage Cache-Control directive.
 
-- The TTL must be >= 0 and <= 2592000s (1 month)
+- The TTL must be >= 0 and <= 31,536,000 seconds (1 year)
 - Setting a TTL of "0" means "always revalidate"
 - The value of maxTtl must be equal to or greater than defaultTtl.
 - Fractions of a second are not allowed.
-- When the cache mode is set to "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", or "BYPASS_CACHE", you must omit this field.
 
-A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+When the cache mode is set to "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", or "BYPASS_CACHE", you must omit this field.
+
+A duration in seconds terminated by 's'. Example: "3s".`,
 																		},
 																		"negative_caching": {
 																			Type:     schema.TypeBool,
@@ -528,7 +541,7 @@ Note that when specifying an explicit negativeCachingPolicy, you should take car
 																			Type:         schema.TypeString,
 																			Computed:     true,
 																			Optional:     true,
-																			ValidateFunc: validation.StringInSlice([]string{"DISABLED", "REQUIRE_SIGNATURES", ""}, false),
+																			ValidateFunc: validateEnum([]string{"DISABLED", "REQUIRE_SIGNATURES", ""}),
 																			Description: `Whether to enforce signed requests. The default value is DISABLED, which means all content is public, and does not authorize access.
 
 You must also set a signedRequestKeyset to enable signed requests.
@@ -690,7 +703,7 @@ prefixRedirect cannot be supplied together with pathRedirect. Supply one alone o
 																Type:         schema.TypeString,
 																Computed:     true,
 																Optional:     true,
-																ValidateFunc: validation.StringInSlice([]string{"MOVED_PERMANENTLY_DEFAULT", "FOUND", "SEE_OTHER", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT", ""}, false),
+																ValidateFunc: validateEnum([]string{"MOVED_PERMANENTLY_DEFAULT", "FOUND", "SEE_OTHER", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT", ""}),
 																Description: `The HTTP Status code to use for this RedirectAction.
 
 The supported values are:
@@ -728,6 +741,15 @@ The supported values are:
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `A human-readable description of the resource.`,
+			},
+			"disable_http2": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Disables HTTP/2.
+
+HTTP/2 (h2) is enabled by default and recommended for performance. HTTP/2 improves connection re-use and reduces connection setup overhead by sending multiple streams over the same connection.
+
+Some legacy HTTP clients may have issues with HTTP/2 connections due to broken HTTP/2 implementations. Setting this to true will prevent HTTP/2 from being advertised and negotiated.`,
 			},
 			"disable_quic": {
 				Type:        schema.TypeBool,
@@ -848,6 +870,12 @@ func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("disable_quic"); !isEmptyValue(reflect.ValueOf(disableQuicProp)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
 		obj["disableQuic"] = disableQuicProp
+	}
+	disableHttp2Prop, err := expandNetworkServicesEdgeCacheServiceDisableHttp2(d.Get("disable_http2"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_http2"); !isEmptyValue(reflect.ValueOf(disableHttp2Prop)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
+		obj["disableHttp2"] = disableHttp2Prop
 	}
 	requireTlsProp, err := expandNetworkServicesEdgeCacheServiceRequireTls(d.Get("require_tls"), d, config)
 	if err != nil {
@@ -975,6 +1003,9 @@ func resourceNetworkServicesEdgeCacheServiceRead(d *schema.ResourceData, meta in
 	if err := d.Set("disable_quic", flattenNetworkServicesEdgeCacheServiceDisableQuic(res["disableQuic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheService: %s", err)
 	}
+	if err := d.Set("disable_http2", flattenNetworkServicesEdgeCacheServiceDisableHttp2(res["disableHttp2"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheService: %s", err)
+	}
 	if err := d.Set("require_tls", flattenNetworkServicesEdgeCacheServiceRequireTls(res["requireTls"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheService: %s", err)
 	}
@@ -1037,6 +1068,12 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 	} else if v, ok := d.GetOkExists("disable_quic"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
 		obj["disableQuic"] = disableQuicProp
 	}
+	disableHttp2Prop, err := expandNetworkServicesEdgeCacheServiceDisableHttp2(d.Get("disable_http2"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_http2"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
+		obj["disableHttp2"] = disableHttp2Prop
+	}
 	requireTlsProp, err := expandNetworkServicesEdgeCacheServiceRequireTls(d.Get("require_tls"), d, config)
 	if err != nil {
 		return err
@@ -1092,6 +1129,10 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 
 	if d.HasChange("disable_quic") {
 		updateMask = append(updateMask, "disableQuic")
+	}
+
+	if d.HasChange("disable_http2") {
+		updateMask = append(updateMask, "disableHttp2")
 	}
 
 	if d.HasChange("require_tls") {
@@ -1222,6 +1263,10 @@ func flattenNetworkServicesEdgeCacheServiceLabels(v interface{}, d *schema.Resou
 }
 
 func flattenNetworkServicesEdgeCacheServiceDisableQuic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceDisableHttp2(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1898,6 +1943,10 @@ func expandNetworkServicesEdgeCacheServiceLabels(v interface{}, d TerraformResou
 }
 
 func expandNetworkServicesEdgeCacheServiceDisableQuic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceDisableHttp2(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

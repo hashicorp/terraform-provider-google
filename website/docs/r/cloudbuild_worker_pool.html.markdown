@@ -11,9 +11,6 @@ description: |-
 
 Definition of custom Cloud Build WorkerPools for running jobs with custom configuration and custom networking.
 
--> This resource is not currently public, and requires allow-listing of projects prior to use.
-
-
 ## Example Usage
 
 ```hcl
@@ -144,9 +141,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

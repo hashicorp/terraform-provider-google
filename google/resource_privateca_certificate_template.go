@@ -39,9 +39,9 @@ func resourcePrivatecaCertificateTemplate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -689,6 +689,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 
 func resourcePrivatecaCertificateTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateTemplates/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",

@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -36,8 +35,8 @@ func resourceResourceManagerLien() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -440,7 +439,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 	// If it's a project ID
 	var oldProjId int64
 	var newProjId int64
-	if oldVal, err := strconv.ParseInt(old, 10, 64); err == nil {
+	if oldVal, err := stringToFixed64(old); err == nil {
 		log.Printf("[DEBUG] The old value was a real number: %d", oldVal)
 		oldProjId = oldVal
 	} else {
@@ -450,7 +449,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		}
 		oldProjId = pOld.ProjectNumber
 	}
-	if newVal, err := strconv.ParseInt(new, 10, 64); err == nil {
+	if newVal, err := stringToFixed64(new); err == nil {
 		log.Printf("[DEBUG] The new value was a real number: %d", newVal)
 		newProjId = newVal
 	} else {

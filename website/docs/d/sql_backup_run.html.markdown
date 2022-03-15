@@ -15,7 +15,7 @@ Use this data source to get information about a Cloud SQL instance backup run.
 
 ```hcl
 data "google_sql_backup_run" "backup" {
-	instance = google_sql_database_instance.master.name
+	instance = google_sql_database_instance.main.name
 	most_recent = true
 }
 ```

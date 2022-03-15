@@ -123,6 +123,24 @@ func schemaNodeConfig() *schema.Schema {
 					},
 				},
 
+				"gvnic": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `Enable or disable gvnic in the node pool.`,
+					ForceNew:    true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"enabled": {
+								Type:        schema.TypeBool,
+								Required:    true,
+								ForceNew:    true,
+								Description: `Whether or not gvnic is enabled`,
+							},
+						},
+					},
+				},
+
 				"machine_type": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -336,6 +354,13 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		}
 	}
 
+	if v, ok := nodeConfig["gvnic"]; ok && len(v.([]interface{})) > 0 {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		nc.Gvnic = &container.VirtualNIC{
+			Enabled: conf["enabled"].(bool),
+		}
+	}
+
 	if scopes, ok := nodeConfig["oauth_scopes"]; ok {
 		scopesSet := scopes.(*schema.Set)
 		scopes := make([]string, scopesSet.Len())
@@ -459,6 +484,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"guest_accelerator":        flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":          c.LocalSsdCount,
 		"gcfs_config":              flattenGcfsConfig(c.GcfsConfig),
+		"gvnic":                    flattenGvnic(c.Gvnic),
 		"service_account":          c.ServiceAccount,
 		"metadata":                 c.Metadata,
 		"image_type":               c.ImageType,
@@ -504,6 +530,16 @@ func flattenShieldedInstanceConfig(c *container.ShieldedInstanceConfig) []map[st
 }
 
 func flattenGcfsConfig(c *container.GcfsConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled": c.Enabled,
+		})
+	}
+	return result
+}
+
+func flattenGvnic(c *container.VirtualNIC) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{

@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeResourcePolicy() *schema.Resource {
@@ -36,8 +34,8 @@ func resourceComputeResourcePolicy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -79,7 +77,7 @@ availability domain, they will not be put in the same low latency network`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"COLLOCATED", ""}, false),
+							ValidateFunc: validateEnum([]string{"COLLOCATED", ""}),
 							Description: `Collocation specifies whether to place VMs inside the same availability domain on the same low-latency network.
 Specify 'COLLOCATED' to enable collocation. Can only be specified with 'vm_count'. If compute instances are created
 with a COLLOCATED policy, then exactly 'vm_count' instances must be created at the same time with the resource policy
@@ -285,7 +283,7 @@ eg: 21:00`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY", ""}, false),
+										ValidateFunc: validateEnum([]string{"KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY", ""}),
 										Description: `Specifies the behavior to apply to scheduled snapshots when
 the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values: ["KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY"]`,
 										Default: "KEEP_AUTO_SNAPSHOTS",
@@ -358,7 +356,7 @@ func computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}, false),
+				ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
 				Description:  `The day of the week to create the snapshot. e.g. MONDAY Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 			},
 			"start_time": {
@@ -648,7 +646,7 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlySchedule(v 
 func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleHoursInCycle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -684,7 +682,7 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailySchedule(v i
 func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleDaysInCycle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -760,7 +758,7 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicy(v interfa
 func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyMaxRetentionDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -830,7 +828,7 @@ func flattenComputeResourcePolicyGroupPlacementPolicy(v interface{}, d *schema.R
 func flattenComputeResourcePolicyGroupPlacementPolicyVmCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -847,7 +845,7 @@ func flattenComputeResourcePolicyGroupPlacementPolicyVmCount(v interface{}, d *s
 func flattenComputeResourcePolicyGroupPlacementPolicyAvailabilityDomainCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

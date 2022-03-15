@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -36,8 +34,8 @@ func resourceComputeAddress() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -61,13 +59,13 @@ except the last character, which cannot be a dash.`,
 				Description: `The static external IP address represented by this resource. Only
 IPv4 is supported. An address may only be specified for INTERNAL
 address types. The IP address must be inside the specified subnetwork,
-if any.`,
+if any. Set by the API if undefined.`,
 			},
 			"address_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "EXTERNAL", ""}, false),
+				ValidateFunc: validateEnum([]string{"INTERNAL", "EXTERNAL", ""}),
 				Description:  `The type of address to reserve. Default value: "EXTERNAL" Possible values: ["INTERNAL", "EXTERNAL"]`,
 				Default:      "EXTERNAL",
 			},
@@ -91,7 +89,7 @@ IPSEC_INTERCONNECT purposes.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
+				ValidateFunc: validateEnum([]string{"PREMIUM", "STANDARD", ""}),
 				Description: `The networking tier used for configuring this address. If this field is not
 specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
@@ -485,7 +483,7 @@ func flattenComputeAddressNetwork(v interface{}, d *schema.ResourceData, config 
 func flattenComputeAddressPrefixLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

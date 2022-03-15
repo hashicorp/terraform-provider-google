@@ -151,7 +151,6 @@ resource "google_privateca_certificate_authority" "default" {
       ca_options {
         is_ca = true
         # Force the sub CA to only issue leaf certs
-        zero_max_issuer_path_length = true
         max_issuer_path_length = 0
       }
       key_usage {

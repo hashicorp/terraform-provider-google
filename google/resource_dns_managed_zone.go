@@ -19,12 +19,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/dns/v1"
 )
 
@@ -40,9 +38,9 @@ func resourceDNSManagedZone() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -85,7 +83,7 @@ default_key_specs can only be updated when the state is 'off'.`,
 									"algorithm": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
+										ValidateFunc: validateEnum([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}),
 										Description:  `String mnemonic specifying the DNSSEC algorithm of this key Possible values: ["ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512"]`,
 									},
 									"key_length": {
@@ -96,7 +94,7 @@ default_key_specs can only be updated when the state is 'off'.`,
 									"key_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"keySigning", "zoneSigning", ""}, false),
+										ValidateFunc: validateEnum([]string{"keySigning", "zoneSigning", ""}),
 										Description: `Specifies whether this is a key signing key (KSK) or a zone
 signing key (ZSK). Key signing keys have the Secure Entry
 Point flag set and, when active, will only be used to sign
@@ -125,7 +123,7 @@ to sign all other types of resource record sets. Possible values: ["keySigning",
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
+							ValidateFunc: validateEnum([]string{"nsec", "nsec3", ""}),
 							Description: `Specifies the mechanism used to provide authenticated denial-of-existence responses.
 non_existence can only be updated when the state is 'off'. Possible values: ["nsec", "nsec3"]`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
@@ -133,7 +131,7 @@ non_existence can only be updated when the state is 'off'. Possible values: ["ns
 						"state": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
+							ValidateFunc: validateEnum([]string{"off", "on", "transfer", ""}),
 							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in Possible values: ["off", "on", "transfer"]`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
@@ -241,7 +239,7 @@ blocks in an update and then apply another update adding all of them back simult
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"private", "public", ""}, false),
+				ValidateFunc:     validateEnum([]string{"private", "public", ""}),
 				DiffSuppressFunc: caseDiffSuppress,
 				Description: `The zone's visibility: public zones are exposed to the Internet,
 while private zones are visible only to Virtual Private Cloud resources. Default value: "public" Possible values: ["private", "public"]`,
@@ -298,7 +296,7 @@ func dnsManagedZoneForwardingConfigTargetNameServersSchema() *schema.Resource {
 			"forwarding_path": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"default", "private", ""}, false),
+				ValidateFunc: validateEnum([]string{"default", "private", ""}),
 				Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
 decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
 to the Internet. When set to 'private', Cloud DNS will always send queries through VPC for this target Possible values: ["default", "private"]`,
@@ -755,7 +753,7 @@ func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d 
 func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

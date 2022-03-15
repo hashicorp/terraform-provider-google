@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -38,9 +36,9 @@ func resourceComputeNetwork() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -87,7 +85,7 @@ and the maximum value is 1500 bytes.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "GLOBAL", ""}, false),
+				ValidateFunc: validateEnum([]string{"REGIONAL", "GLOBAL", ""}),
 				Description: `The network-wide routing mode to use. If set to 'REGIONAL', this
 network's cloud routers will only advertise routes with subnetworks
 of this network in the same region as the router. If set to 'GLOBAL',
@@ -478,7 +476,7 @@ func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.Reso
 func flattenComputeNetworkMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

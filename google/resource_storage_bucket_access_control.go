@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceStorageBucketAccessControl() *schema.Resource {
@@ -36,9 +35,9 @@ func resourceStorageBucketAccessControl() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -72,7 +71,7 @@ Examples:
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"OWNER", "READER", "WRITER", ""}, false),
+				ValidateFunc: validateEnum([]string{"OWNER", "READER", "WRITER", ""}),
 				Description:  `The access permission for the entity. Possible values: ["OWNER", "READER", "WRITER"]`,
 			},
 			"domain": {

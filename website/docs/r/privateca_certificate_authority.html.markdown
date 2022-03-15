@@ -118,7 +118,6 @@ resource "google_privateca_certificate_authority" "default" {
       ca_options {
         is_ca = true
         # Force the sub CA to only issue leaf certs
-        zero_max_issuer_path_length = true
         max_issuer_path_length = 0
       }
       key_usage {
@@ -596,8 +595,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

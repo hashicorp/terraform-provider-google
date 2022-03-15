@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a bug where `google_compute_firewall` would incorrectly find `source_ranges` to be empty during validation
+```

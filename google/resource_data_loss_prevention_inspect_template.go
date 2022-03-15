@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataLossPreventionInspectTemplate() *schema.Resource {
@@ -38,9 +36,9 @@ func resourceDataLossPreventionInspectTemplate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -78,7 +76,7 @@ func resourceDataLossPreventionInspectTemplate() *schema.Resource {
 							Description: `List of options defining data content to scan. If empty, text, images, and other content will be included. Possible values: ["CONTENT_TEXT", "CONTENT_IMAGE"]`,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
-								ValidateFunc: validation.StringInSlice([]string{"CONTENT_TEXT", "CONTENT_IMAGE"}, false),
+								ValidateFunc: validateEnum([]string{"CONTENT_TEXT", "CONTENT_IMAGE"}),
 							},
 						},
 						"custom_info_types": {
@@ -154,13 +152,13 @@ phrase and every phrase must contain at least 2 characters that are letters or d
 									"exclusion_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"EXCLUSION_TYPE_EXCLUDE", ""}, false),
+										ValidateFunc: validateEnum([]string{"EXCLUSION_TYPE_EXCLUDE", ""}),
 										Description:  `If set to EXCLUSION_TYPE_EXCLUDE this infoType will not cause a finding to be returned. It still can be used for rules matching. Possible values: ["EXCLUSION_TYPE_EXCLUDE"]`,
 									},
 									"likelihood": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}, false),
+										ValidateFunc: validateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
 										Description: `Likelihood to return for this CustomInfoType. This base value can be altered by a detection rule if the finding meets the criteria
 specified by the rule. Default value: "VERY_LIKELY" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 										Default: "VERY_LIKELY",
@@ -294,7 +292,7 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 						"min_likelihood": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}, false),
+							ValidateFunc: validateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
 							Description:  `Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info Default value: "POSSIBLE" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 							Default:      "POSSIBLE",
 						},
@@ -336,7 +334,7 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 															"matching_type": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: validation.StringInSlice([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"}, false),
+																ValidateFunc: validateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"}),
 																Description:  `How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType Possible values: ["MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"]`,
 															},
 															"dictionary": {
@@ -477,7 +475,7 @@ the entire match is returned. No more than 3 may be included.`,
 																		"fixed_likelihood": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: validation.StringInSlice([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}, false),
+																			ValidateFunc: validateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
 																			Description:  `Set the likelihood of a finding to a fixed value. Either this or relative_likelihood can be set. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 																		},
 																		"relative_likelihood": {
@@ -860,7 +858,7 @@ func flattenDataLossPreventionInspectTemplateInspectConfigLimits(v interface{}, 
 func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerItem(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -877,7 +875,7 @@ func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerIt
 func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -930,7 +928,7 @@ func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerIn
 func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeMaxFindings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1088,7 +1086,7 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRul
 func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRuleProximityWindowBefore(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1105,7 +1103,7 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRul
 func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRuleProximityWindowAfter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1141,7 +1139,7 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRul
 func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRuleLikelihoodAdjustmentRelativeLikelihood(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

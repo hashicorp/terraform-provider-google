@@ -60,10 +60,9 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"allow", "deny(403)", "deny(404)", "deny(502)"}, false),
-							Description:  `Action to take when match matches the request. Valid values:   "allow" : allow access to target, "deny(status)" : deny access to target, returns the HTTP response code specified (valid values are 403, 404 and 502)`,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Action to take when match matches the request.`,
 						},
 
 						"priority": {

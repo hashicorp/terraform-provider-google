@@ -424,9 +424,11 @@ resource "google_cloud_run_service" "default" {
         name = "a-volume"
 	secret {
 	  secret_name = google_secret_manager_secret.secret.secret_id
+	  default_mode = 292 # 0444
 	  items {
             key = "1"
 	    path = "my-secret"
+	    mode = 256 # 0400
 	  }
 	}
       }

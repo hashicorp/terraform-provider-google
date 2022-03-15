@@ -1,0 +1,3 @@
+```release-note:enhancement
+iam: added warning regarding `google_service_account_key` behavior when the project cannot be inferred from the `service_account_id` field.
+```

@@ -36,15 +36,15 @@ The Google provider is jointly maintained by:
 
 If you have configuration questions, or general questions about using the provider, try checking out:
 
-* The [Google Cloud Platform Community Slack](https://gcp-slack.appspot.com/) #terraform channel
+* The [Google Cloud Platform Community Slack](https://googlecloud-community.slack.com/) `#terraform` channel. If you are not registered with that Slack Workspace yet, the up-to-date **public sign-up link** can be found in the "Stay Connected" section of the [Google Developer Center](https://cloud.google.com/developers#stay-connected).
 * [Terraform's community resources](https://www.terraform.io/docs/extend/community/index.html)
 * [HashiCorp support](https://support.hashicorp.com) for Terraform Enterprise customers
 
 ## Releases
 
 Interested in the provider's latest features, or want to make sure you're up to date?
-Check out the [`google` provider changelog](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md)
-and the [`google-beta` provider changelog](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md))
+Check out the [`google` provider changelog](https://github.com/hashicorp/terraform-provider-google/blob/main/CHANGELOG.md)
+and the [`google-beta` provider changelog](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/CHANGELOG.md))
 for release notes and additional information.
 
 Per [Terraform Provider Versioning](https://www.hashicorp.com/blog/hashicorp-terraform-provider-versioning),
@@ -101,7 +101,7 @@ the issue!
 ## Contributing
 
 If you'd like to help extend the Google provider, we gladly accept community
-contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/hashicorp/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
+contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/hashicorp/terraform-provider-google/blob/main/.github/CONTRIBUTING.md)
 
 Pull requests can be made against either provider repo where a maintainer will
 apply them to both `google` and `google-beta`, or against [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules)

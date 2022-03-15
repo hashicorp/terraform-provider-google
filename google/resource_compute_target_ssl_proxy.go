@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeTargetSslProxy() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceComputeTargetSslProxy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -81,7 +79,7 @@ SSL certificate must be specified.`,
 			"proxy_header": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 				Description: `Specifies the type of proxy header to append before sending data to
 the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 				Default: "NONE",
@@ -510,7 +508,7 @@ func flattenComputeTargetSslProxyDescription(v interface{}, d *schema.ResourceDa
 func flattenComputeTargetSslProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

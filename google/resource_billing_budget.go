@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -39,9 +38,9 @@ func resourceBillingBudget() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -132,7 +131,7 @@ budget.`,
 						"spend_basis": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"CURRENT_SPEND", "FORECASTED_SPEND", ""}, false),
+							ValidateFunc: validateEnum([]string{"CURRENT_SPEND", "FORECASTED_SPEND", ""}),
 							Description: `The type of basis used to determine if spend has passed
 the threshold. Default value: "CURRENT_SPEND" Possible values: ["CURRENT_SPEND", "FORECASTED_SPEND"]`,
 							Default: "CURRENT_SPEND",
@@ -217,7 +216,7 @@ account and all subaccounts, if they exist.`,
 						"credit_types_treatment": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS", ""}, false),
+							ValidateFunc: validateEnum([]string{"INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS", ""}),
 							Description: `Specifies how credits should be treated when determining spend
 for threshold calculations. Default value: "INCLUDE_ALL_CREDITS" Possible values: ["INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS"]`,
 							Default:      "INCLUDE_ALL_CREDITS",
@@ -687,7 +686,7 @@ func flattenBillingBudgetAmountSpecifiedAmountUnits(v interface{}, d *schema.Res
 func flattenBillingBudgetAmountSpecifiedAmountNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

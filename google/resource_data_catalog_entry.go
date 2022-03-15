@@ -20,7 +20,6 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -41,9 +40,9 @@ func resourceDataCatalogEntry() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -143,7 +142,7 @@ for what fields this schema can contain.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"FILESET", ""}, false),
+				ValidateFunc: validateEnum([]string{"FILESET", ""}),
 				Description: `The type of the entry. Only used for Entries with types in the EntryType enum.
 Currently, only FILESET enum value is allowed. All other entries created through Data Catalog must use userSpecifiedType. Possible values: ["FILESET"]`,
 				ExactlyOneOf: []string{"type", "user_specified_type"},
@@ -681,7 +680,7 @@ func flattenDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsFilePath(v interface
 func flattenDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsSizeBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -778,7 +777,7 @@ func flattenDataCatalogEntryBigqueryDateShardedSpecTablePrefix(v interface{}, d 
 func flattenDataCatalogEntryBigqueryDateShardedSpecShardCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

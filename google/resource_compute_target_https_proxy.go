@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeTargetHttpsProxy() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -90,7 +88,7 @@ this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
 			"quic_override": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "ENABLE", "DISABLE", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "ENABLE", "DISABLE", ""}),
 				Description: `Specifies the QUIC override policy for this resource. This determines
 whether the load balancer will attempt to negotiate QUIC with clients
 or not. Can specify one of NONE, ENABLE, or DISABLE. If NONE is
@@ -531,7 +529,7 @@ func flattenComputeTargetHttpsProxyDescription(v interface{}, d *schema.Resource
 func flattenComputeTargetHttpsProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

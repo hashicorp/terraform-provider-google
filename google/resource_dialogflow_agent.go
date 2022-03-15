@@ -38,7 +38,7 @@ func resourceDialogflowAgent() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(40 * time.Minute),
 			Update: schema.DefaultTimeout(40 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -64,7 +64,7 @@ Europe/Paris.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"API_VERSION_V1", "API_VERSION_V2", "API_VERSION_V2_BETA_1", ""}, false),
+				ValidateFunc: validateEnum([]string{"API_VERSION_V1", "API_VERSION_V2", "API_VERSION_V2_BETA_1", ""}),
 				Description: `API version displayed in Dialogflow console. If not specified, V2 API is assumed. Clients are free to query
 different service endpoints for different API versions. However, bots connectors and webhook calls will follow 
 the specified API version.
@@ -103,7 +103,7 @@ default of 0.3 is used.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MATCH_MODE_HYBRID", "MATCH_MODE_ML_ONLY", ""}, false),
+				ValidateFunc: validateEnum([]string{"MATCH_MODE_HYBRID", "MATCH_MODE_ML_ONLY", ""}),
 				Description: `Determines how intents are detected from user queries.
 * MATCH_MODE_HYBRID: Best for agents with a small number of examples in intents and/or wide use of templates
 syntax and composite entities.
@@ -121,7 +121,7 @@ using @sys.any or very large developer entities. Possible values: ["MATCH_MODE_H
 			"tier": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"TIER_STANDARD", "TIER_ENTERPRISE", "TIER_ENTERPRISE_PLUS", ""}, false),
+				ValidateFunc: validateEnum([]string{"TIER_STANDARD", "TIER_ENTERPRISE", "TIER_ENTERPRISE_PLUS", ""}),
 				Description: `The agent tier. If not specified, TIER_STANDARD is assumed.
 * TIER_STANDARD: Standard tier.
 * TIER_ENTERPRISE: Enterprise tier (Essentials).

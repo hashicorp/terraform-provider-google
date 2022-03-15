@@ -39,9 +39,9 @@ func resourceComputeFirewallPolicy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -152,8 +152,6 @@ func resourceComputeFirewallPolicyCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error creating FirewallPolicy: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating FirewallPolicy %q: %#v", d.Id(), res)
-
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
@@ -163,6 +161,8 @@ func resourceComputeFirewallPolicyCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating FirewallPolicy %q: %#v", d.Id(), res)
 
 	return resourceComputeFirewallPolicyRead(d, meta)
 }
@@ -311,6 +311,7 @@ func resourceComputeFirewallPolicyDelete(d *schema.ResourceData, meta interface{
 
 func resourceComputeFirewallPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"locations/global/firewallPolicies/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",

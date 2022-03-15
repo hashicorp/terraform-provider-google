@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // waitForAttachmentToBeProvisioned waits for an attachment to leave the
@@ -57,9 +55,9 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -96,7 +94,7 @@ PARTNER type this will Pre-Activate the interconnect attachment`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}, false),
+				ValidateFunc: validateEnum([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}),
 				Description: `Provisioned bandwidth capacity for the interconnect attachment.
 For attachments of type DEDICATED, the user can set the bandwidth.
 For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
@@ -139,7 +137,7 @@ domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "IPSEC", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "IPSEC", ""}),
 				Description: `Indicates the user-supplied encryption option of this interconnect
 attachment:
 
@@ -212,7 +210,7 @@ this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not 
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}, false),
+				ValidateFunc: validateEnum([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}),
 				Description: `The type of InterconnectAttachment you wish to create. Defaults to
 DEDICATED. Possible values: ["DEDICATED", "PARTNER", "PARTNER_PROVIDER"]`,
 			},
@@ -751,7 +749,7 @@ func flattenComputeInterconnectAttachmentPrivateInterconnectInfo(v interface{}, 
 func flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -795,7 +793,7 @@ func flattenComputeInterconnectAttachmentName(v interface{}, d *schema.ResourceD
 func flattenComputeInterconnectAttachmentVlanTag8021q(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

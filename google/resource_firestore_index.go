@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 /*
@@ -73,8 +72,8 @@ func resourceFirestoreIndex() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -102,7 +101,7 @@ ordered '"ASCENDING"' (unless explicitly specified otherwise).`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"CONTAINS", ""}, false),
+							ValidateFunc: validateEnum([]string{"CONTAINS", ""}),
 							Description: `Indicates that this field supports operations on arrayValues. Only one of 'order' and 'arrayConfig' can
 be specified. Possible values: ["CONTAINS"]`,
 						},
@@ -116,7 +115,7 @@ be specified. Possible values: ["CONTAINS"]`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ASCENDING", "DESCENDING", ""}, false),
+							ValidateFunc: validateEnum([]string{"ASCENDING", "DESCENDING", ""}),
 							Description: `Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
 Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCENDING", "DESCENDING"]`,
 						},
@@ -134,7 +133,7 @@ Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCEN
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"COLLECTION", "COLLECTION_GROUP", ""}, false),
+				ValidateFunc: validateEnum([]string{"COLLECTION", "COLLECTION_GROUP", ""}),
 				Description:  `The scope at which a query is run. Default value: "COLLECTION" Possible values: ["COLLECTION", "COLLECTION_GROUP"]`,
 				Default:      "COLLECTION",
 			},

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourcePrivatecaCertificate() *schema.Resource {
@@ -35,8 +34,8 @@ func resourcePrivatecaCertificate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -96,7 +95,7 @@ as the Certificate.`,
 										Type:         schema.TypeString,
 										Required:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"KEY_TYPE_UNSPECIFIED", "PEM"}, false),
+										ValidateFunc: validateEnum([]string{"KEY_TYPE_UNSPECIFIED", "PEM"}),
 										Description:  `The format of the public key. Currently, only PEM format is supported. Possible values: ["KEY_TYPE_UNSPECIFIED", "PEM"]`,
 									},
 									"key": {

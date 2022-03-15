@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataLossPreventionJobTrigger() *schema.Resource {
@@ -38,9 +36,9 @@ func resourceDataLossPreventionJobTrigger() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -147,7 +145,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 															"output_schema": {
 																Type:         schema.TypeString,
 																Optional:     true,
-																ValidateFunc: validation.StringInSlice([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}, false),
+																ValidateFunc: validateEnum([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}),
 																Description: `Schema used for writing the findings for Inspect jobs. This field is only used for
 Inspect and must be unspecified for Risk jobs. Columns are derived from the Finding
 object. If appending to an existing table, any columns from the predefined schema
@@ -297,7 +295,7 @@ format processors are applied. In addition, the binary content of the selected f
 Images are scanned only as binary if the specified region does not support image inspection and no fileTypes were specified. Possible values: ["BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"]`,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: validation.StringInSlice([]string{"BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"}, false),
+														ValidateFunc: validateEnum([]string{"BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"}),
 													},
 												},
 												"files_limit_percent": {
@@ -309,7 +307,7 @@ Must be between 0 and 100, inclusively. Both 0 and 100 means no limit.`,
 												"sample_method": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validation.StringInSlice([]string{"TOP", "RANDOM_START", ""}, false),
+													ValidateFunc: validateEnum([]string{"TOP", "RANDOM_START", ""}),
 													Description: `How to sample bytes if not all bytes are scanned. Meaningful only when used in conjunction with bytesLimitPerFile.
 If not specified, scanning would start from the top. Possible values: ["TOP", "RANDOM_START"]`,
 												},
@@ -422,7 +420,7 @@ be based on the time of the execution of the last run of the JobTrigger.`,
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"PAUSED", "HEALTHY", "CANCELLED", ""}, false),
+				ValidateFunc: validateEnum([]string{"PAUSED", "HEALTHY", "CANCELLED", ""}),
 				Description:  `Whether the trigger is currently active. Default value: "HEALTHY" Possible values: ["PAUSED", "HEALTHY", "CANCELLED"]`,
 				Default:      "HEALTHY",
 			},
@@ -1004,7 +1002,7 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigCloudStorageOptio
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigCloudStorageOptionsBytesLimitPerFile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1021,7 +1019,7 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigCloudStorageOptio
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigCloudStorageOptionsBytesLimitPerFilePercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1038,7 +1036,7 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigCloudStorageOptio
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigCloudStorageOptionsFilesLimitPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

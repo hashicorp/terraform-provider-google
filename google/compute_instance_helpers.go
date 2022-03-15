@@ -118,7 +118,6 @@ func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 	if v, ok := original["min_node_cpus"]; ok {
 		scheduling.MinNodeCpus = int64(v.(int))
 	}
-
 	return scheduling, nil
 }
 

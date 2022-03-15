@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceActiveDirectoryDomainTrust() *schema.Resource {
@@ -36,9 +35,9 @@ func resourceActiveDirectoryDomainTrust() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -67,7 +66,7 @@ https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locatio
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INBOUND", "OUTBOUND", "BIDIRECTIONAL"}, false),
+				ValidateFunc: validateEnum([]string{"INBOUND", "OUTBOUND", "BIDIRECTIONAL"}),
 				Description:  `The trust direction, which decides if the current domain is trusted, trusting, or both. Possible values: ["INBOUND", "OUTBOUND", "BIDIRECTIONAL"]`,
 			},
 			"trust_handshake_secret": {
@@ -81,7 +80,7 @@ https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locatio
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"FOREST", "EXTERNAL"}, false),
+				ValidateFunc: validateEnum([]string{"FOREST", "EXTERNAL"}),
 				Description:  `The type of trust represented by the trust resource. Possible values: ["FOREST", "EXTERNAL"]`,
 			},
 			"selective_authentication": {

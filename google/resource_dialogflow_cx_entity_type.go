@@ -39,7 +39,7 @@ func resourceDialogflowCXEntityType() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(40 * time.Minute),
 			Update: schema.DefaultTimeout(40 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -77,7 +77,7 @@ For KIND_LIST entity types: A string that can contain references to other entity
 			"kind": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"KIND_MAP", "KIND_LIST", "KIND_REGEXP"}, false),
+				ValidateFunc: validateEnum([]string{"KIND_MAP", "KIND_LIST", "KIND_REGEXP"}),
 				Description: `Indicates whether the entity type can be automatically expanded.
 * KIND_MAP: Map entity types allow mapping of a group of synonyms to a canonical value.
 * KIND_LIST: List entity types contain a set of entries that do not map to canonical values. However, list entity types can contain references to other entity types (with or without aliases).
@@ -86,7 +86,7 @@ For KIND_LIST entity types: A string that can contain references to other entity
 			"auto_expansion_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"AUTO_EXPANSION_MODE_DEFAULT", "AUTO_EXPANSION_MODE_UNSPECIFIED", ""}, false),
+				ValidateFunc: validateEnum([]string{"AUTO_EXPANSION_MODE_DEFAULT", "AUTO_EXPANSION_MODE_UNSPECIFIED", ""}),
 				Description: `Represents kinds of entities.
 * AUTO_EXPANSION_MODE_UNSPECIFIED: Auto expansion disabled for the entity.
 * AUTO_EXPANSION_MODE_DEFAULT: Allows an agent to recognize values that have not been explicitly listed in the entity. Possible values: ["AUTO_EXPANSION_MODE_DEFAULT", "AUTO_EXPANSION_MODE_UNSPECIFIED"]`,

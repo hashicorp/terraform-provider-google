@@ -72,6 +72,53 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+func TestAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNetworkEndpointGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(context),
+			},
+			{
+				ResourceName:            "google_compute_network_endpoint_group.neg",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "subnetwork", "zone"},
+			},
+		},
+	})
+}
+
+func testAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_network_endpoint_group" "neg" {
+  name                  = "tf-test-my-lb-neg%{random_suffix}"
+  network               = google_compute_network.default.id
+  default_port          = "90"
+  zone                  = "us-central1-a"
+  network_endpoint_type = "NON_GCP_PRIVATE_IP_PORT"
+}
+
+resource "google_compute_network_endpoint" "default-endpoint" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  port = google_compute_network_endpoint_group.neg.default_port
+  ip_address = "127.0.0.1"
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-neg-network%{random_suffix}"
+}
+`, context)
+}
+
 func testAccCheckComputeNetworkEndpointGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetworkManagementConnectivityTest() *schema.Resource {
@@ -38,9 +36,9 @@ func resourceNetworkManagementConnectivityTest() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -161,7 +159,7 @@ destination is a global load balancer VIP.`,
 						"network_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"GCP_NETWORK", "NON_GCP_NETWORK", ""}, false),
+							ValidateFunc: validateEnum([]string{"GCP_NETWORK", "NON_GCP_NETWORK", ""}),
 							Description:  `Type of the network where the endpoint is located. Possible values: ["GCP_NETWORK", "NON_GCP_NETWORK"]`,
 						},
 						"port": {
@@ -625,7 +623,7 @@ func flattenNetworkManagementConnectivityTestSourceIpAddress(v interface{}, d *s
 func flattenNetworkManagementConnectivityTestSourcePort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -683,7 +681,7 @@ func flattenNetworkManagementConnectivityTestDestinationIpAddress(v interface{},
 func flattenNetworkManagementConnectivityTestDestinationPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

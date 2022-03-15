@@ -20,12 +20,10 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -188,9 +186,9 @@ func resourceComputeBackendService() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -302,7 +300,7 @@ delimiters.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC", ""}, false),
+							ValidateFunc: validateEnum([]string{"USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC", ""}),
 							Description: `Specifies the cache setting for all responses from this backend.
 The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC Possible values: ["USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"]`,
 						},
@@ -604,17 +602,17 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
+				ValidateFunc: validateEnum([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", "EXTERNAL_MANAGED", ""}),
 				Description: `Indicates whether the backend service will be used with internal or
 external load balancing. A backend service created for one type of
 load balancing cannot be used with the other. For more information, refer to
-[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
+[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED", "EXTERNAL_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"locality_lb_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", ""}, false),
+				ValidateFunc: validateEnum([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", ""}),
 				Description: `The load balancing algorithm used within the scope of the locality.
 The possible values are:
 
@@ -846,7 +844,7 @@ scheme is EXTERNAL.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC", ""}, false),
+				ValidateFunc: validateEnum([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC", ""}),
 				Description: `The protocol this BackendService uses to communicate with backends.
 The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
 types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC"]`,
@@ -857,11 +855,42 @@ types and may result in errors if used with the GA API. Possible values: ["HTTP"
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `The security policy associated with this backend service.`,
 			},
+			"security_settings": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The security settings that apply to this backend service. This field is applicable to either
+a regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2, and
+load_balancing_scheme set to INTERNAL_MANAGED; or a global backend service with the
+load_balancing_scheme set to INTERNAL_SELF_MANAGED.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"client_tls_policy": {
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description: `ClientTlsPolicy is a resource that specifies how a client should authenticate
+connections to backends of a service. This resource itself does not affect
+configuration unless it is attached to a backend service resource.`,
+						},
+						"subject_alt_names": {
+							Type:     schema.TypeList,
+							Required: true,
+							Description: `A list of alternate names to verify the subject identity in the certificate.
+If specified, the client will verify that the server certificate's subject
+alt name matches one of the specified values.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"session_affinity": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", ""}),
 				Description: `Type of session affinity to use. The default is NONE. Session affinity is
 not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE"]`,
 			},
@@ -926,7 +955,7 @@ partial URL.`,
 			"balancing_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"UTILIZATION", "RATE", "CONNECTION", ""}, false),
+				ValidateFunc: validateEnum([]string{"UTILIZATION", "RATE", "CONNECTION", ""}),
 				Description: `Specifies the balancing mode for this backend.
 
 For global HTTP(S) or TCP/SSL load balancing, the default is
@@ -1155,6 +1184,12 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("security_policy"); !isEmptyValue(reflect.ValueOf(securityPolicyProp)) && (ok || !reflect.DeepEqual(v, securityPolicyProp)) {
 		obj["securityPolicy"] = securityPolicyProp
 	}
+	securitySettingsProp, err := expandComputeBackendServiceSecuritySettings(d.Get("security_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("security_settings"); !isEmptyValue(reflect.ValueOf(securitySettingsProp)) && (ok || !reflect.DeepEqual(v, securitySettingsProp)) {
+		obj["securitySettings"] = securitySettingsProp
+	}
 	sessionAffinityProp, err := expandComputeBackendServiceSessionAffinity(d.Get("session_affinity"), d, config)
 	if err != nil {
 		return err
@@ -1366,6 +1401,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("security_policy", flattenComputeBackendServiceSecurityPolicy(res["securityPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
+	if err := d.Set("security_settings", flattenComputeBackendServiceSecuritySettings(res["securitySettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
 	if err := d.Set("session_affinity", flattenComputeBackendServiceSessionAffinity(res["sessionAffinity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -1518,6 +1556,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("security_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityPolicyProp)) {
 		obj["securityPolicy"] = securityPolicyProp
 	}
+	securitySettingsProp, err := expandComputeBackendServiceSecuritySettings(d.Get("security_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("security_settings"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securitySettingsProp)) {
+		obj["securitySettings"] = securitySettingsProp
+	}
 	sessionAffinityProp, err := expandComputeBackendServiceSessionAffinity(d.Get("session_affinity"), d, config)
 	if err != nil {
 		return err
@@ -1660,7 +1704,7 @@ func resourceComputeBackendServiceImport(d *schema.ResourceData, meta interface{
 func flattenComputeBackendServiceAffinityCookieTtlSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1724,7 +1768,7 @@ func flattenComputeBackendServiceBackendGroup(v interface{}, d *schema.ResourceD
 func flattenComputeBackendServiceBackendMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1741,7 +1785,7 @@ func flattenComputeBackendServiceBackendMaxConnections(v interface{}, d *schema.
 func flattenComputeBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1758,7 +1802,7 @@ func flattenComputeBackendServiceBackendMaxConnectionsPerInstance(v interface{},
 func flattenComputeBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1775,7 +1819,7 @@ func flattenComputeBackendServiceBackendMaxConnectionsPerEndpoint(v interface{},
 func flattenComputeBackendServiceBackendMaxRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1825,7 +1869,7 @@ func flattenComputeBackendServiceCircuitBreakers(v interface{}, d *schema.Resour
 func flattenComputeBackendServiceCircuitBreakersMaxRequestsPerConnection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1842,7 +1886,7 @@ func flattenComputeBackendServiceCircuitBreakersMaxRequestsPerConnection(v inter
 func flattenComputeBackendServiceCircuitBreakersMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1859,7 +1903,7 @@ func flattenComputeBackendServiceCircuitBreakersMaxConnections(v interface{}, d 
 func flattenComputeBackendServiceCircuitBreakersMaxPendingRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1876,7 +1920,7 @@ func flattenComputeBackendServiceCircuitBreakersMaxPendingRequests(v interface{}
 func flattenComputeBackendServiceCircuitBreakersMaxRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1893,7 +1937,7 @@ func flattenComputeBackendServiceCircuitBreakersMaxRequests(v interface{}, d *sc
 func flattenComputeBackendServiceCircuitBreakersMaxRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1959,7 +2003,7 @@ func flattenComputeBackendServiceConsistentHashHttpCookieTtl(v interface{}, d *s
 func flattenComputeBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1976,7 +2020,7 @@ func flattenComputeBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{
 func flattenComputeBackendServiceConsistentHashHttpCookieTtlNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2005,7 +2049,7 @@ func flattenComputeBackendServiceConsistentHashHttpHeaderName(v interface{}, d *
 func flattenComputeBackendServiceConsistentHashMinimumRingSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2098,7 +2142,7 @@ func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v i
 func flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2115,7 +2159,7 @@ func flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{},
 func flattenComputeBackendServiceCdnPolicyDefaultTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2132,7 +2176,7 @@ func flattenComputeBackendServiceCdnPolicyDefaultTtl(v interface{}, d *schema.Re
 func flattenComputeBackendServiceCdnPolicyMaxTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2149,7 +2193,7 @@ func flattenComputeBackendServiceCdnPolicyMaxTtl(v interface{}, d *schema.Resour
 func flattenComputeBackendServiceCdnPolicyClientTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2189,7 +2233,7 @@ func flattenComputeBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d
 func flattenComputeBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2206,7 +2250,7 @@ func flattenComputeBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{
 func flattenComputeBackendServiceCdnPolicyNegativeCachingPolicyTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2227,7 +2271,7 @@ func flattenComputeBackendServiceCdnPolicyCacheMode(v interface{}, d *schema.Res
 func flattenComputeBackendServiceCdnPolicyServeWhileStale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2257,7 +2301,7 @@ func flattenComputeBackendServiceConnectionDraining(v interface{}, d *schema.Res
 func flattenComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2400,7 +2444,7 @@ func flattenComputeBackendServiceOutlierDetectionBaseEjectionTime(v interface{},
 func flattenComputeBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2417,7 +2461,7 @@ func flattenComputeBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v inter
 func flattenComputeBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2434,7 +2478,7 @@ func flattenComputeBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interfa
 func flattenComputeBackendServiceOutlierDetectionConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2451,7 +2495,7 @@ func flattenComputeBackendServiceOutlierDetectionConsecutiveErrors(v interface{}
 func flattenComputeBackendServiceOutlierDetectionConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2468,7 +2512,7 @@ func flattenComputeBackendServiceOutlierDetectionConsecutiveGatewayFailure(v int
 func flattenComputeBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2485,7 +2529,7 @@ func flattenComputeBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v in
 func flattenComputeBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2502,7 +2546,7 @@ func flattenComputeBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFail
 func flattenComputeBackendServiceOutlierDetectionEnforcingSuccessRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2534,7 +2578,7 @@ func flattenComputeBackendServiceOutlierDetectionInterval(v interface{}, d *sche
 func flattenComputeBackendServiceOutlierDetectionIntervalSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2551,7 +2595,7 @@ func flattenComputeBackendServiceOutlierDetectionIntervalSeconds(v interface{}, 
 func flattenComputeBackendServiceOutlierDetectionIntervalNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2568,7 +2612,7 @@ func flattenComputeBackendServiceOutlierDetectionIntervalNanos(v interface{}, d 
 func flattenComputeBackendServiceOutlierDetectionMaxEjectionPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2585,7 +2629,7 @@ func flattenComputeBackendServiceOutlierDetectionMaxEjectionPercent(v interface{
 func flattenComputeBackendServiceOutlierDetectionSuccessRateMinimumHosts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2602,7 +2646,7 @@ func flattenComputeBackendServiceOutlierDetectionSuccessRateMinimumHosts(v inter
 func flattenComputeBackendServiceOutlierDetectionSuccessRateRequestVolume(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2619,7 +2663,7 @@ func flattenComputeBackendServiceOutlierDetectionSuccessRateRequestVolume(v inte
 func flattenComputeBackendServiceOutlierDetectionSuccessRateStdevFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2645,6 +2689,32 @@ func flattenComputeBackendServiceSecurityPolicy(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenComputeBackendServiceSecuritySettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["client_tls_policy"] =
+		flattenComputeBackendServiceSecuritySettingsClientTlsPolicy(original["clientTlsPolicy"], d, config)
+	transformed["subject_alt_names"] =
+		flattenComputeBackendServiceSecuritySettingsSubjectAltNames(original["subjectAltNames"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeBackendServiceSecuritySettingsClientTlsPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeBackendServiceSecuritySettingsSubjectAltNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeBackendServiceSessionAffinity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -2652,7 +2722,7 @@ func flattenComputeBackendServiceSessionAffinity(v interface{}, d *schema.Resour
 func flattenComputeBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3524,6 +3594,44 @@ func expandComputeBackendServiceProtocol(v interface{}, d TerraformResourceData,
 }
 
 func expandComputeBackendServiceSecurityPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceSecuritySettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedClientTlsPolicy, err := expandComputeBackendServiceSecuritySettingsClientTlsPolicy(original["client_tls_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientTlsPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["clientTlsPolicy"] = transformedClientTlsPolicy
+	}
+
+	transformedSubjectAltNames, err := expandComputeBackendServiceSecuritySettingsSubjectAltNames(original["subject_alt_names"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSubjectAltNames); val.IsValid() && !isEmptyValue(val) {
+		transformed["subjectAltNames"] = transformedSubjectAltNames
+	}
+
+	return transformed, nil
+}
+
+func expandComputeBackendServiceSecuritySettingsClientTlsPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for client_tls_policy: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeBackendServiceSecuritySettingsSubjectAltNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

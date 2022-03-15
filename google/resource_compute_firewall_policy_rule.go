@@ -39,9 +39,9 @@ func resourceComputeFirewallPolicyRule() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -395,6 +395,7 @@ func resourceComputeFirewallPolicyRuleDelete(d *schema.ResourceData, meta interf
 
 func resourceComputeFirewallPolicyRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"locations/global/firewallPolicies/(?P<firewall_policy>[^/]+)/rules/(?P<priority>[^/]+)",
 		"(?P<firewall_policy>[^/]+)/(?P<priority>[^/]+)",

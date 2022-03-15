@@ -65,14 +65,16 @@ resource "google_project_service" "apigee" {
   service = "apigee.googleapis.com"
 }
 
-resource "google_project_service" "compute" {
-  project = google_project.project.project_id
-  service = "compute.googleapis.com"
-}
-
 resource "google_project_service" "servicenetworking" {
   project = google_project.project.project_id
   service = "servicenetworking.googleapis.com"
+  depends_on = [google_project_service.apigee]
+}
+
+resource "google_project_service" "compute" {
+  project = google_project.project.project_id
+  service = "compute.googleapis.com"
+  depends_on = [google_project_service.servicenetworking]
 }
 
 resource "google_compute_network" "apigee_network" {

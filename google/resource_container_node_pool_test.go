@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -256,25 +255,6 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 				ResourceName:      "google_container_node_pool.with_upgrade_settings",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccContainerNodePool_withInvalidUpgradeSettings(t *testing.T) {
-	t.Parallel()
-
-	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
-	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccContainerNodePool_withUpgradeSettings(cluster, np, 0, 0),
-				ExpectError: regexp.MustCompile(`.?Max_surge and max_unavailable must not be negative and at least one of them must be greater than zero.*`),
 			},
 		},
 	})
@@ -727,6 +707,55 @@ resource "google_container_node_pool" "np" {
     machine_type = "n1-standard-8"
     image_type = "COS_CONTAINERD"
     gcfs_config {
+      enabled = true
+    }
+  }
+}
+`, cluster, np)
+}
+
+func TestAccContainerNodePool_gvnic(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_gvnic(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_gvnic(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = "1.19"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n1-standard-8"
+    image_type = "COS_CONTAINERD"
+    gvnic {
       enabled = true
     }
   }

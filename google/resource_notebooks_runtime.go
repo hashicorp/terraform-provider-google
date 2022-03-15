@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const notebooksRuntimeGoogleProvidedLabel = "goog-caip-managed-notebook"
@@ -60,9 +58,9 @@ func resourceNotebooksRuntime() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(15 * time.Minute),
-			Update: schema.DefaultTimeout(15 * time.Minute),
-			Delete: schema.DefaultTimeout(15 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -109,6 +107,7 @@ Currently supports one owner only.`,
 			},
 			"software_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `The config settings for software inside the runtime.`,
 				MaxItems:    1,
@@ -448,7 +447,7 @@ Runtimes support the following network configurations:
 									"nic_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED_NIC_TYPE", "VIRTIO_NET", "GVNIC", ""}, false),
+										ValidateFunc: validateEnum([]string{"UNSPECIFIED_NIC_TYPE", "VIRTIO_NET", "GVNIC", ""}),
 										Description: `The type of vNIC to be used on this interface. This may be gVNIC
 or VirtioNet. Possible values: ["UNSPECIFIED_NIC_TYPE", "VIRTIO_NET", "GVNIC"]`,
 									},
@@ -975,7 +974,7 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskGuestOsFea
 func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskIndex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1021,7 +1020,7 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskInitialize
 func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskInitializeParamsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1162,7 +1161,7 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigAcceleratorConfigT
 func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigAcceleratorConfigCoreCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1285,7 +1284,7 @@ func flattenNotebooksRuntimeSoftwareConfigIdleShutdown(v interface{}, d *schema.
 func flattenNotebooksRuntimeSoftwareConfigIdleShutdownTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

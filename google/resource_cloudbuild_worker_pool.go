@@ -39,9 +39,9 @@ func resourceCloudbuildWorkerPool() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -163,6 +163,7 @@ func CloudbuildWorkerPoolWorkerConfigSchema() *schema.Resource {
 
 			"no_external_ip": {
 				Type:        schema.TypeBool,
+				Computed:    true,
 				Optional:    true,
 				Description: "If true, workers are created without any public address, which prevents network egress to public IPs.",
 			},
@@ -395,6 +396,7 @@ func resourceCloudbuildWorkerPoolDelete(d *schema.ResourceData, meta interface{}
 
 func resourceCloudbuildWorkerPoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/workerPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",

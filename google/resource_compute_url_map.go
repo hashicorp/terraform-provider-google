@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -38,9 +37,9 @@ func resourceComputeUrlMap() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -571,7 +570,7 @@ the redirect. The value must be between 1 and 1024 characters.`,
 						"redirect_response_code": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}, false),
+							ValidateFunc: validateEnum([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}),
 							Description: `The HTTP Status code to use for this RedirectAction. Supported values are:
 
 * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
@@ -1183,7 +1182,7 @@ the redirect. The value must be between 1 and 1024 characters.`,
 									"redirect_response_code": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}, false),
+										ValidateFunc: validateEnum([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}),
 										Description: `The HTTP Status code to use for this RedirectAction. Supported values are:
 
 * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
@@ -1798,7 +1797,7 @@ must be between 1 and 1024 characters.`,
 												"redirect_response_code": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validation.StringInSlice([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}, false),
+													ValidateFunc: validateEnum([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}),
 													Description: `The HTTP Status code to use for this RedirectAction. Supported values are:
 
 * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
@@ -2087,7 +2086,7 @@ length of 1024 characters.`,
 															"filter_match_criteria": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: validation.StringInSlice([]string{"MATCH_ALL", "MATCH_ANY"}, false),
+																ValidateFunc: validateEnum([]string{"MATCH_ALL", "MATCH_ANY"}),
 																Description: `Specifies how individual filterLabel matches within the list of filterLabels
 contribute towards the overall metadataFilter match. Supported values are:
   - MATCH_ANY: At least one of the filterLabels must have a matching label in the
@@ -2635,7 +2634,7 @@ retaining the remaining portion of the URL before redirecting the request.`,
 												"redirect_response_code": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validation.StringInSlice([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}, false),
+													ValidateFunc: validateEnum([]string{"FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT", ""}),
 													Description: `The HTTP Status code to use for this RedirectAction. Supported values are:
 
 * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
@@ -3141,7 +3140,7 @@ func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData, conf
 func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3538,7 +3537,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(v
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3585,7 +3584,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3636,7 +3635,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3698,7 +3697,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3730,7 +3729,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3770,7 +3769,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d 
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -3932,7 +3931,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHe
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4019,7 +4018,7 @@ func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.Resource
 func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4222,7 +4221,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(
 func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4239,7 +4238,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchR
 func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4443,7 +4442,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4490,7 +4489,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbo
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4541,7 +4540,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDel
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4603,7 +4602,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4635,7 +4634,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeou
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4675,7 +4674,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, 
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -4837,7 +4836,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5000,7 +4999,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBac
 func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5150,7 +5149,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutSeconds(v interface
 func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5188,7 +5187,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyRetryConditions
 func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5224,7 +5223,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutSe
 func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5308,7 +5307,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyExposeHeaders(v 
 func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5382,7 +5381,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayF
 func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5418,7 +5417,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(
 func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5578,7 +5577,7 @@ func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService
 func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5728,7 +5727,7 @@ func flattenComputeUrlMapDefaultRouteActionTimeoutSeconds(v interface{}, d *sche
 func flattenComputeUrlMapDefaultRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5766,7 +5765,7 @@ func flattenComputeUrlMapDefaultRouteActionRetryPolicyRetryConditions(v interfac
 func flattenComputeUrlMapDefaultRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5802,7 +5801,7 @@ func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v int
 func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5886,7 +5885,7 @@ func flattenComputeUrlMapDefaultRouteActionCorsPolicyExposeHeaders(v interface{}
 func flattenComputeUrlMapDefaultRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5960,7 +5959,7 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySe
 func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -5996,7 +5995,7 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(v interface
 func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

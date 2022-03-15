@@ -96,12 +96,6 @@ resource "google_compute_subnetwork" "default" {
 The following arguments are supported:
 
 
-* `instance` -
-  (Required)
-  The name for a specific VM instance that the IP address belongs to.
-  This is required for network endpoints of type GCE_VM_IP_PORT.
-  The instance must be in the same zone of network endpoint group.
-
 * `port` -
   (Required)
   Port number of network endpoint.
@@ -119,6 +113,12 @@ The following arguments are supported:
 
 - - -
 
+
+* `instance` -
+  (Optional)
+  The name for a specific VM instance that the IP address belongs to.
+  This is required for network endpoints of type GCE_VM_IP_PORT.
+  The instance must be in the same zone of network endpoint group.
 
 * `zone` -
   (Optional)
@@ -140,8 +140,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

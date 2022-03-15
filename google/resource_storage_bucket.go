@@ -318,8 +318,9 @@ func resourceStorageBucket() *schema.Resource {
 			},
 
 			"default_event_based_hold": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether or not to automatically apply an eventBasedHold to new objects added to the bucket.`,
 			},
 
 			"logging": {

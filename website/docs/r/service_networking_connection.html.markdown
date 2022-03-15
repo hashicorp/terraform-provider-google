@@ -50,6 +50,13 @@ The following arguments are supported:
   this service provider. Note that invoking this method with a different range when connection
   is already established will not reallocate already provisioned service producer subnetworks.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `peering` - (Computed) The name of the VPC Network Peering connection that was created by the service producer.
+
+
 ## Import
 ServiceNetworkingConnection can be imported using any of these accepted formats
 

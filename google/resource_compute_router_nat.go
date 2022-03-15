@@ -19,12 +19,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -126,9 +124,9 @@ func resourceComputeRouterNat() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: resourceComputeRouterNatDrainNatIpsCustomDiff,
@@ -145,7 +143,7 @@ comply with RFC1035.`,
 			"nat_ip_allocate_option": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY", "AUTO_ONLY"}, false),
+				ValidateFunc: validateEnum([]string{"MANUAL_ONLY", "AUTO_ONLY"}),
 				Description: `How external IPs should be allocated for this NAT. Valid values are
 'AUTO_ONLY' for only allowing NAT IPs allocated by Google Cloud
 Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible values: ["MANUAL_ONLY", "AUTO_ONLY"]`,
@@ -160,7 +158,7 @@ Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible va
 			"source_subnetwork_ip_ranges_to_nat": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"}, false),
+				ValidateFunc: validateEnum([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"}),
 				Description: `How NAT should be configured per Subnetwork.
 If 'ALL_SUBNETWORKS_ALL_IP_RANGES', all of the
 IP ranges in every Subnetwork are allowed to Nat.
@@ -211,7 +209,7 @@ see the [official documentation](https://cloud.google.com/nat/docs/overview#spec
 						"filter": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
+							ValidateFunc: validateEnum([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}),
 							Description:  `Specifies the desired filtering of logs on this NAT. Possible values: ["ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"]`,
 						},
 					},
@@ -832,7 +830,7 @@ func flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{},
 func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -852,7 +850,7 @@ func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.Res
 	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
@@ -866,7 +864,7 @@ func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.Re
 	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
@@ -880,7 +878,7 @@ func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d 
 	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
@@ -894,7 +892,7 @@ func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *
 	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}

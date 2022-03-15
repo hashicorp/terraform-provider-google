@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeRegionNetworkEndpointGroup() *schema.Resource {
@@ -35,8 +34,8 @@ func resourceComputeRegionNetworkEndpointGroup() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -65,7 +64,7 @@ character, which cannot be a dash.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `Only valid when networkEndpointType is "SERVERLESS".
-Only one of cloud_run, app_engine or cloud_function may be set.`,
+Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -107,7 +106,7 @@ Example value: "v1", "v2".`,
 				Optional: true,
 				ForceNew: true,
 				Description: `Only valid when networkEndpointType is "SERVERLESS".
-Only one of cloud_run, app_engine or cloud_function may be set.`,
+Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -142,7 +141,7 @@ will parse them to { function = "function1" } and { function = "function2" } res
 				Optional: true,
 				ForceNew: true,
 				Description: `Only valid when networkEndpointType is "SERVERLESS".
-Only one of cloud_run, app_engine or cloud_function may be set.`,
+Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -193,7 +192,7 @@ you create the resource.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SERVERLESS", ""}, false),
+				ValidateFunc: validateEnum([]string{"SERVERLESS", ""}),
 				Description:  `Type of network endpoints in this network endpoint group. Defaults to SERVERLESS Default value: "SERVERLESS" Possible values: ["SERVERLESS"]`,
 				Default:      "SERVERLESS",
 			},

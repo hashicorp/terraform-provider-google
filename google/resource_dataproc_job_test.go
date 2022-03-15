@@ -588,6 +588,10 @@ resource "google_dataproc_job" "spark" {
     properties = {
       "spark.logConf" = "true"
     }
+    logging_config {
+      driver_log_levels = {
+      }
+    }
   }
 }
 `, rnd)

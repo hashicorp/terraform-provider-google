@@ -31,7 +31,7 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
 	// Returns the proper get.
-	url := fmt.Sprintf("https://file.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("%s%s", w.Config.FilestoreBasePath, w.CommonOperationWaiter.Op.Name)
 
 	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, isNotFilestoreQuotaError)
 }

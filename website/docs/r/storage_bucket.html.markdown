@@ -89,6 +89,8 @@ The following arguments are supported:
 
 * `cors` - (Optional) The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is [documented below](#nested_cors).
 
+* `default_event_based_hold` - (Optional) Whether or not to automatically apply an eventBasedHold to new objects added to the bucket.
+
 * `retention_policy` - (Optional) Configuration of the bucket's data retention policy for how long objects in the bucket should be retained. Structure is [documented below](#nested_retention_policy).
 
 * `labels` - (Optional) A map of key/value label pairs to assign to the bucket.

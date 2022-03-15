@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: added ip_range field to `google_apigee_instance`
+```

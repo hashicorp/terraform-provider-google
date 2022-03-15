@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -36,8 +35,8 @@ func resourceVPCAccessConnector() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -71,11 +70,12 @@ func resourceVPCAccessConnector() *schema.Resource {
 				Default:      200,
 			},
 			"network": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Description:  `Name of the VPC network. Required if 'ip_cidr_range' is set.`,
-				ExactlyOneOf: []string{"network"},
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
+				Description:      `Name or self_link of the VPC network. Required if 'ip_cidr_range' is set.`,
+				ExactlyOneOf:     []string{"network"},
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -363,7 +363,10 @@ func flattenVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config
 }
 
 func flattenVPCAccessConnectorNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenVPCAccessConnectorIpCidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -377,7 +380,7 @@ func flattenVPCAccessConnectorState(v interface{}, d *schema.ResourceData, confi
 func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -394,7 +397,7 @@ func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceDat
 func flattenVPCAccessConnectorMaxThroughput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -413,7 +416,7 @@ func expandVPCAccessConnectorName(v interface{}, d TerraformResourceData, config
 }
 
 func expandVPCAccessConnectorNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	return GetResourceNameFromSelfLink(v.(string)), nil
 }
 
 func expandVPCAccessConnectorIpCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

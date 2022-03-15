@@ -63,6 +63,22 @@ var (
 	}
 )
 
+const resourceDataprocGoogleProvidedLabelPrefix = "labels.goog-dataproc"
+
+func resourceDataprocLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if strings.HasPrefix(k, resourceDataprocGoogleProvidedLabelPrefix) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.HasPrefix(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
 func resourceDataprocCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocClusterCreate,
@@ -71,9 +87,9 @@ func resourceDataprocCluster() *schema.Resource {
 		Delete: resourceDataprocClusterDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(45 * time.Minute),
+			Update: schema.DefaultTimeout(45 * time.Minute),
+			Delete: schema.DefaultTimeout(45 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -132,11 +148,10 @@ func resourceDataprocCluster() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				// GCP automatically adds two labels
-				//    'goog-dataproc-cluster-uuid'
-				//    'goog-dataproc-cluster-name'
-				Computed:    true,
-				Description: `The list of labels (key/value pairs) to be applied to instances in the cluster. GCP generates some itself including goog-dataproc-cluster-name which is the name of the cluster.`,
+				// GCP automatically adds labels
+				DiffSuppressFunc: resourceDataprocLabelDiffSuppress,
+				Computed:         true,
+				Description:      `The list of labels (key/value pairs) to be applied to instances in the cluster. GCP generates some itself including goog-dataproc-cluster-name which is the name of the cluster.`,
 			},
 
 			"cluster_config": {
@@ -325,6 +340,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Description: `Specifies the number of preemptible nodes to create. Defaults to 0.`,
 										AtLeastOneOf: []string{
 											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.preemptibility",
 											"cluster_config.0.preemptible_worker_config.0.disk_config",
 										},
 									},
@@ -333,6 +349,20 @@ func resourceDataprocCluster() *schema.Resource {
 									// It always uses whatever is specified for the worker_config
 									// "machine_type": { ... }
 									// "min_cpu_platform": { ... }
+									"preemptibility": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Specifies the preemptibility of the secondary nodes. Defaults to PREEMPTIBLE.`,
+										AtLeastOneOf: []string{
+											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.preemptibility",
+											"cluster_config.0.preemptible_worker_config.0.disk_config",
+										},
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"PREEMPTIBILITY_UNSPECIFIED", "NON_PREEMPTIBLE", "PREEMPTIBLE"}, false),
+										Default:      "PREEMPTIBLE",
+									},
+
 									"disk_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -340,6 +370,7 @@ func resourceDataprocCluster() *schema.Resource {
 										Description: `Disk Config`,
 										AtLeastOneOf: []string{
 											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.preemptibility",
 											"cluster_config.0.preemptible_worker_config.0.disk_config",
 										},
 										MaxItems: 1,
@@ -876,9 +907,6 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 	if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
 		log.Println("[INFO] got preemptible worker config")
 		conf.SecondaryWorkerConfig = expandPreemptibleInstanceGroupConfig(cfg)
-		if conf.SecondaryWorkerConfig.NumInstances > 0 {
-			conf.SecondaryWorkerConfig.IsPreemptible = true
-		}
 	}
 	return conf, nil
 }
@@ -1085,6 +1113,9 @@ func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.
 				icg.DiskConfig.BootDiskType = v.(string)
 			}
 		}
+	}
+	if p, ok := cfg["preemptibility"]; ok {
+		icg.Preemptibility = p.(string)
 	}
 	return icg
 }
@@ -1458,6 +1489,7 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
 		data["instance_names"] = icg.InstanceNames
+		data["preemptibility"] = icg.Preemptibility
 		if icg.DiskConfig != nil {
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds

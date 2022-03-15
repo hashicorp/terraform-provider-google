@@ -322,7 +322,7 @@ The following arguments are supported:
 
 <a name="nested_characters_to_ignore"></a>The `characters_to_ignore` block supports:
 
-* `character_to_skip` -
+* `characters_to_skip` -
   (Optional)
   Characters to not transform when masking.
 
@@ -539,9 +539,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

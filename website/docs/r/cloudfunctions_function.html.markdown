@@ -152,6 +152,10 @@ Eg. `"nodejs10"`, `"nodejs12"`, `"nodejs14"`, `"python37"`, `"python38"`, `"pyth
 
 * `min_instances` - (Optional) The limit on the minimum number of function instances that may coexist at a given time.
 
+* `secret_environment_variables` - (Optional) Secret environment variables configuration. Structure is [documented below](#nested_secret_environment_variables).
+
+* `secret_volumes` - (Optional) Secret volumes configuration. Structure is [documented below](#nested_secret_volumes).
+
 <a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
@@ -174,6 +178,32 @@ which to observe events. For example, `"myBucket"` or `"projects/my-project/topi
     * To refer to a specific commit: `https://source.developers.google.com/projects/*/repos/*/revisions/*/paths/*`
     * To refer to a moveable alias (branch): `https://source.developers.google.com/projects/*/repos/*/moveable-aliases/*/paths/*`. To refer to HEAD, use the `master` moveable alias.
     * To refer to a specific fixed alias (tag): `https://source.developers.google.com/projects/*/repos/*/fixed-aliases/*/paths/*`
+
+<a name="nested_secret_environment_variables"></a>The `secret_environment_variables` block supports:
+
+* `key` - (Required) Name of the environment variable.
+
+* `project_id` - (Optional) Project identifier (due to a known limitation, only project number is supported by this field) of the project that contains the secret. If not set, it will be populated with the function's project, assuming that the secret exists in the same project as of the function.
+
+* `secret` - (Required) ID of the secret in secret manager (not the full resource name).
+
+* `version` - (Required) Version of the secret (version number or the string "latest"). It is recommended to use a numeric version for secret environment variables as any updates to the secret value is not reflected until new clones start.
+
+<a name="nested_secret_volumes"></a>The `secret_volumes` block supports:
+
+* `mount_path` - (Required) The path within the container to mount the secret volume. For example, setting the mount_path as "/etc/secrets" would mount the secret value files under the "/etc/secrets" directory. This directory will also be completely shadowed and unavailable to mount any other secrets. Recommended mount paths: "/etc/secrets" Restricted mount paths: "/cloudsql", "/dev/log", "/pod", "/proc", "/var/log".
+
+* `project_id` - (Optional) Project identifier (due to a known limitation, only project number is supported by this field) of the project that contains the secret. If not set, it will be populated with the function's project, assuming that the secret exists in the same project as of the function.
+
+* `secret` - (Required) ID of the secret in secret manager (not the full resource name).
+
+* `versions` - (Optional) List of secret versions to mount for this secret. If empty, the "latest" version of the secret will be made available in a file named after the secret under the mount point. Structure is [documented below](#nested_nested_versions).
+
+<a name="nested_versions"></a>The `versions` block supports:
+
+* `path` - (Required) Relative path of the file under the mount path where the secret value for this version will be fetched and made available. For example, setting the mount_path as "/etc/secrets" and path as "/secret_foo" would mount the secret value file at "/etc/secrets/secret_foo".
+
+* `version` - (Required) Version of the secret (version number or the string "latest"). It is preferable to use "latest" version with secret volumes as secret value changes are reflected immediately.
 
 ## Attributes Reference
 

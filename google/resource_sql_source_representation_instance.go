@@ -38,8 +38,8 @@ func resourceSQLSourceRepresentationInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -47,7 +47,7 @@ func resourceSQLSourceRepresentationInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MYSQL_5_5", "MYSQL_5_6", "MYSQL_5_7", "MYSQL_8_0"}, false),
+				ValidateFunc: validateEnum([]string{"MYSQL_5_5", "MYSQL_5_6", "MYSQL_5_7", "MYSQL_8_0"}),
 				Description:  `The MySQL version running on your source database server. Possible values: ["MYSQL_5_5", "MYSQL_5_6", "MYSQL_5_7", "MYSQL_8_0"]`,
 			},
 			"name": {
@@ -349,7 +349,7 @@ func flattenSQLSourceRepresentationInstanceOnPremisesConfigurationHost(v interfa
 func flattenSQLSourceRepresentationInstanceOnPremisesConfigurationPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

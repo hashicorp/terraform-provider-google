@@ -214,7 +214,7 @@ This resource provides the following
 
 - `create` - Default is 40 minutes.
 - `update` - Default is 40 minutes.
-- `delete` - Default is 4 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -315,6 +315,82 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ForceNew:    true,
 				Description: `Region of function. If it is not provided, the provider region is used.`,
 			},
+
+			"secret_environment_variables": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Secret environment variables configuration`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Name of the environment variable.`,
+						},
+						"project_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `Project identifier (due to a known limitation, only project number is supported by this field) of the project that contains the secret. If not set, it will be populated with the function's project, assuming that the secret exists in the same project as of the function.`,
+						},
+						"secret": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `ID of the secret in secret manager (not the full resource name).`,
+						},
+						"version": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Version of the secret (version number or the string "latest"). It is recommended to use a numeric version for secret environment variables as any updates to the secret value is not reflected until new clones start.`,
+						},
+					},
+				},
+			},
+
+			"secret_volumes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Secret volumes configuration.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mount_path": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The path within the container to mount the secret volume. For example, setting the mount_path as "/etc/secrets" would mount the secret value files under the "/etc/secrets" directory. This directory will also be completely shadowed and unavailable to mount any other secrets. Recommended mount paths: "/etc/secrets" Restricted mount paths: "/cloudsql", "/dev/log", "/pod", "/proc", "/var/log".`,
+						},
+						"project_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `Project identifier (due to a known limitation, only project number is supported by this field) of the project that contains the secret. If not set, it will be populated with the function's project, assuming that the secret exists in the same project as of the function.`,
+						},
+						"secret": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `ID of the secret in secret manager (not the full resource name).`,
+						},
+						"versions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `List of secret versions to mount for this secret. If empty, the "latest" version of the secret will be made available in a file named after the secret under the mount point.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"path": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Relative path of the file under the mount path where the secret value for this version will be fetched and made available. For example, setting the mount_path as "/etc/secrets" and path as "/secret_foo" would mount the secret value file at "/etc/secrets/secret_foo".`,
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Version of the secret (version number or the string "latest"). It is preferable to use "latest" version with secret volumes as secret value changes are reflected immediately.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -360,6 +436,16 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("either source_repository or both of source_archive_bucket+source_archive_object must be set")
 		}
 		function.SourceArchiveUrl = fmt.Sprintf("gs://%v/%v", sourceArchiveBucket, sourceArchiveObj)
+	}
+
+	secretEnv := d.Get("secret_environment_variables").([]interface{})
+	if len(secretEnv) > 0 {
+		function.SecretEnvironmentVariables = expandSecretEnvironmentVariables(secretEnv)
+	}
+
+	secretVolume := d.Get("secret_volumes").([]interface{})
+	if len(secretVolume) > 0 {
+		function.SecretVolumes = expandSecretVolumes(secretVolume)
 	}
 
 	if v, ok := d.GetOk("available_memory_mb"); ok {
@@ -523,6 +609,14 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error setting source_repository: %s", err)
 	}
 
+	if err := d.Set("secret_environment_variables", flattenSecretEnvironmentVariables(function.SecretEnvironmentVariables)); err != nil {
+		return fmt.Errorf("Error setting secret_environment_variables: %s", err)
+	}
+
+	if err := d.Set("secret_volumes", flattenSecretVolumes(function.SecretVolumes)); err != nil {
+		return fmt.Errorf("Error setting secret_volumes: %s", err)
+	}
+
 	if function.HttpsTrigger != nil {
 		if err := d.Set("trigger_http", true); err != nil {
 			return fmt.Errorf("Error setting trigger_http: %s", err)
@@ -598,6 +692,16 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("source_repository") {
 		function.SourceRepository = expandSourceRepository(d.Get("source_repository").([]interface{}))
 		updateMaskArr = append(updateMaskArr, "sourceRepository")
+	}
+
+	if d.HasChange("secret_environment_variables") {
+		function.SecretEnvironmentVariables = expandSecretEnvironmentVariables(d.Get("secret_environment_variables").([]interface{}))
+		updateMaskArr = append(updateMaskArr, "secretEnvironmentVariables")
+	}
+
+	if d.HasChange("secret_volumes") {
+		function.SecretVolumes = expandSecretVolumes(d.Get("secret_volumes").([]interface{}))
+		updateMaskArr = append(updateMaskArr, "secretVolumes")
 	}
 
 	if d.HasChange("description") {
@@ -816,5 +920,112 @@ func flattenSourceRepository(sourceRepo *cloudfunctions.SourceRepository) []map[
 		"deployed_url": sourceRepo.DeployedUrl,
 	})
 
+	return result
+}
+
+func expandSecretEnvironmentVariables(configured []interface{}) []*cloudfunctions.SecretEnvVar {
+	if len(configured) == 0 {
+		return nil
+	}
+	result := make([]*cloudfunctions.SecretEnvVar, 0, len(configured))
+	for _, e := range configured {
+		data := e.(map[string]interface{})
+		result = append(result, &cloudfunctions.SecretEnvVar{
+			Key:       data["key"].(string),
+			ProjectId: data["project_id"].(string),
+			Secret:    data["secret"].(string),
+			Version:   data["version"].(string),
+		})
+	}
+	return result
+}
+
+func flattenSecretEnvironmentVariables(envVars []*cloudfunctions.SecretEnvVar) []map[string]interface{} {
+	if envVars == nil {
+		return nil
+	}
+	var result []map[string]interface{}
+
+	for _, envVar := range envVars {
+		if envVar != nil {
+			data := map[string]interface{}{
+				"key":        envVar.Key,
+				"project_id": envVar.ProjectId,
+				"secret":     envVar.Secret,
+				"version":    envVar.Version,
+			}
+			result = append(result, data)
+		}
+	}
+	return result
+}
+
+func expandSecretVolumes(configured []interface{}) []*cloudfunctions.SecretVolume {
+	if len(configured) == 0 {
+		return nil
+	}
+	result := make([]*cloudfunctions.SecretVolume, 0, len(configured))
+	for _, e := range configured {
+		data := e.(map[string]interface{})
+		result = append(result, &cloudfunctions.SecretVolume{
+			MountPath: data["mount_path"].(string),
+			ProjectId: data["project_id"].(string),
+			Secret:    data["secret"].(string),
+			Versions:  expandSecretVersion(data["versions"].([]interface{})), //TODO
+		})
+	}
+	return result
+}
+
+func flattenSecretVolumes(secretVolumes []*cloudfunctions.SecretVolume) []map[string]interface{} {
+	if secretVolumes == nil {
+		return nil
+	}
+	var result []map[string]interface{}
+
+	for _, secretVolume := range secretVolumes {
+		if secretVolume != nil {
+			data := map[string]interface{}{
+				"mount_path": secretVolume.MountPath,
+				"project_id": secretVolume.ProjectId,
+				"secret":     secretVolume.Secret,
+				"versions":   flattenSecretVersion(secretVolume.Versions),
+			}
+			result = append(result, data)
+		}
+	}
+	return result
+}
+
+func expandSecretVersion(configured []interface{}) []*cloudfunctions.SecretVersion {
+	if len(configured) == 0 {
+		return nil
+	}
+	result := make([]*cloudfunctions.SecretVersion, 0, len(configured))
+	for _, e := range configured {
+		data := e.(map[string]interface{})
+		result = append(result, &cloudfunctions.SecretVersion{
+			Path:    data["path"].(string),
+			Version: data["version"].(string),
+		})
+	}
+	return result
+}
+
+func flattenSecretVersion(secretVersions []*cloudfunctions.SecretVersion) []map[string]interface{} {
+	if secretVersions == nil {
+		return nil
+	}
+	var result []map[string]interface{}
+
+	for _, secretVersion := range secretVersions {
+		if secretVersion != nil {
+			data := map[string]interface{}{
+				"path":    secretVersion.Path,
+				"version": secretVersion.Version,
+			}
+			result = append(result, data)
+		}
+	}
 	return result
 }

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDatastoreIndex() *schema.Resource {
@@ -36,7 +35,7 @@ func resourceDatastoreIndex() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -50,7 +49,7 @@ func resourceDatastoreIndex() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "ALL_ANCESTORS", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "ALL_ANCESTORS", ""}),
 				Description:  `Policy for including ancestors in the index. Default value: "NONE" Possible values: ["NONE", "ALL_ANCESTORS"]`,
 				Default:      "NONE",
 			},
@@ -66,7 +65,7 @@ func resourceDatastoreIndex() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ASCENDING", "DESCENDING"}, false),
+							ValidateFunc: validateEnum([]string{"ASCENDING", "DESCENDING"}),
 							Description:  `The direction the index should optimize for sorting. Possible values: ["ASCENDING", "DESCENDING"]`,
 						},
 						"name": {

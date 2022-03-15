@@ -1599,6 +1599,39 @@ func TestAccContainerCluster_withSoleTenantGroup(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_nodeAutoprovisioningDefaultsImageType(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	includeImageType := true
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaultsImageType(clusterName, includeImageType),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaultsImageType(clusterName, !includeImageType),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 	t.Parallel()
 
@@ -1813,6 +1846,28 @@ func TestAccContainerCluster_withIPv4Error(t *testing.T) {
 			{
 				Config:      testAccContainerCluster_withIPv4Error(clusterName),
 				ExpectError: regexp.MustCompile("master_ipv4_cidr_block can only be set if"),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withDNSConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	domainName := fmt.Sprintf("tf-test-domain-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDNSConfig(clusterName, "CLOUD_DNS", domainName, "VPC_SCOPE"),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_dns_config",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -2073,6 +2128,9 @@ resource "google_container_cluster" "primary" {
     network_policy_config {
       disabled = true
     }
+    gcp_filestore_csi_driver_config {
+      enabled = false
+    }
     cloudrun_config {
       disabled = true
     }
@@ -2107,6 +2165,9 @@ resource "google_container_cluster" "primary" {
     }
     network_policy_config {
       disabled = false
+    }
+    gcp_filestore_csi_driver_config {
+      enabled = true
     }
     cloudrun_config {
       disabled = false
@@ -2332,7 +2393,7 @@ resource "google_container_cluster" "with_authenticator_groups" {
   subnetwork         = google_compute_subnetwork.container_subnetwork.name
 
   authenticator_groups_config {
-    security_group = "gke-security-groups-test@%s"
+    security_group = "gke-security-groups@%s"
   }
 
   networking_mode = "VPC_NATIVE"
@@ -2972,6 +3033,38 @@ resource "google_container_cluster" "with_autoprovisioning" {
   }
 }`
 	return config
+}
+
+func testAccContainerCluster_autoprovisioningDefaultsImageType(cluster string, includeImageType bool) string {
+	imageTypeCfg := ""
+	if includeImageType {
+		imageTypeCfg = `image_type = "COS_CONTAINERD"`
+	}
+
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+resource "google_container_cluster" "with_autoprovisioning" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  cluster_autoscaling {
+    enabled = true
+    resource_limits {
+      resource_type = "cpu"
+      maximum       = 2
+    }
+    resource_limits {
+      resource_type = "memory"
+      maximum       = 2048
+    }
+    auto_provisioning_defaults {
+      %s
+    }
+  }
+}`, cluster, imageTypeCfg)
 }
 
 func testAccContainerCluster_withNodePoolAutoscaling(cluster, np string) string {
@@ -3768,6 +3861,21 @@ resource "google_container_cluster" "with_autopilot" {
 	}
 }
 `, containerNetName, clusterName, location, enabled)
+}
+
+func testAccContainerCluster_withDNSConfig(clusterName string, clusterDns string, clusterDnsDomain string, clusterDnsScope string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_dns_config" {
+	name               = "%s"
+	location           = "us-central1-f"
+	initial_node_count = 1
+	dns_config {
+		cluster_dns 	   = "%s"
+		cluster_dns_domain = "%s"
+		cluster_dns_scope  = "%s"
+	}
+}
+`, clusterName, clusterDns, clusterDnsDomain, clusterDnsScope)
 }
 
 func testAccContainerCluster_withLoggingConfigEnabled(name string) string {

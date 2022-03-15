@@ -5594,7 +5594,6 @@ resource "google_compute_reservation" "reservation" {
       machine_type = "n1-standard-1"
     }
   }
-
   specific_reservation_required = true
 }
 

@@ -1,0 +1,3 @@
+```release-note:bug
+storagetransfer: fixed bug where `schedule` was required, but really it is optional.
+```

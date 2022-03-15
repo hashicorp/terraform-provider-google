@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceHealthcareFhirStore() *schema.Resource {
@@ -38,9 +36,9 @@ func resourceHealthcareFhirStore() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -64,7 +62,7 @@ func resourceHealthcareFhirStore() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DSTU2", "STU3", "R4"}, false),
+				ValidateFunc: validateEnum([]string{"DSTU2", "STU3", "R4"}),
 				Description:  `The FHIR specification version. Possible values: ["DSTU2", "STU3", "R4"]`,
 			},
 			"disable_referential_integrity": {
@@ -196,7 +194,7 @@ value 2. The maximum depth allowed is 5.`,
 												"schema_type": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validation.StringInSlice([]string{"ANALYTICS", ""}, false),
+													ValidateFunc: validateEnum([]string{"ANALYTICS", ""}),
 													Description: `Specifies the output schema type. Only ANALYTICS is supported at this time.
  * ANALYTICS: Analytics schema defined by the FHIR community.
   See https://github.com/FHIR/sql-on-fhir/blob/master/sql-on-fhir.md. Default value: "ANALYTICS" Possible values: ["ANALYTICS"]`,
@@ -631,7 +629,7 @@ func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigSchem
 func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigRecursiveStructureDepth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

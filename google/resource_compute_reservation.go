@@ -17,8 +17,10 @@ package google
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -37,9 +39,9 @@ func resourceComputeReservation() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -127,7 +129,7 @@ reserves disks of type 'local-ssd'.`,
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice([]string{"SCSI", "NVME", ""}, false),
+													ValidateFunc: validateEnum([]string{"SCSI", "NVME", ""}),
 													Description:  `The disk interface to use for attaching this disk. Default value: "SCSI" Possible values: ["SCSI", "NVME"]`,
 													Default:      "SCSI",
 												},
@@ -167,6 +169,42 @@ for information on available CPU platforms.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"share_settings": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `The share setting for reservations.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"project_map": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `A map of project number and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The project id/number, should be same as the key of this project config in the project map.`,
+									},
+								},
+							},
+						},
+						"share_type": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: validateEnum([]string{"LOCAL", "SPECIFIC_PROJECTS", ""}),
+							Description:  `Type of sharing for this shared-reservation Possible values: ["LOCAL", "SPECIFIC_PROJECTS"]`,
+						},
+					},
+				},
 			},
 			"specific_reservation_required": {
 				Type:     schema.TypeBool,
@@ -233,6 +271,12 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("specific_reservation_required"); !isEmptyValue(reflect.ValueOf(specificReservationRequiredProp)) && (ok || !reflect.DeepEqual(v, specificReservationRequiredProp)) {
 		obj["specificReservationRequired"] = specificReservationRequiredProp
+	}
+	shareSettingsProp, err := expandComputeReservationShareSettings(d.Get("share_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("share_settings"); !isEmptyValue(reflect.ValueOf(shareSettingsProp)) && (ok || !reflect.DeepEqual(v, shareSettingsProp)) {
+		obj["shareSettings"] = shareSettingsProp
 	}
 	specificReservationProp, err := expandComputeReservationSpecificReservation(d.Get("specific_reservation"), d, config)
 	if err != nil {
@@ -373,6 +417,71 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 	billingProject = project
 
+	obj := make(map[string]interface{})
+	shareSettingsProp, err := expandComputeReservationShareSettings(d.Get("share_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("share_settings"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shareSettingsProp)) {
+		obj["shareSettings"] = shareSettingsProp
+	}
+
+	obj, err = resourceComputeReservationUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Reservation %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("share_settings") {
+		updateMask = append(updateMask, "shareSettings")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+	if d.HasChange("share_settings") {
+		url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+		if err != nil {
+			return err
+		}
+		urlUpdateMask := obj["urlUpdateMask"]
+		if urlUpdateMask != nil {
+			url = url + urlUpdateMask.(string)
+			delete(obj, "urlUpdateMask")
+		}
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Reservation %q: %#v", d.Id(), res)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Reservation", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
 	d.Partial(true)
 
 	if d.HasChange("specific_reservation") {
@@ -530,7 +639,7 @@ func flattenComputeReservationSpecificReservation(v interface{}, d *schema.Resou
 func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -547,7 +656,7 @@ func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.
 func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -614,7 +723,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelera
 func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -654,7 +763,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInte
 func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -684,6 +793,65 @@ func expandComputeReservationName(v interface{}, d TerraformResourceData, config
 }
 
 func expandComputeReservationSpecificReservationRequired(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeReservationShareSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedShareType, err := expandComputeReservationShareSettingsShareType(original["share_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedShareType); val.IsValid() && !isEmptyValue(val) {
+		transformed["shareType"] = transformedShareType
+	}
+
+	transformedProjectMap, err := expandComputeReservationShareSettingsProjectMap(original["project_map"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectMap); val.IsValid() && !isEmptyValue(val) {
+		transformed["projectMap"] = transformedProjectMap
+	}
+
+	return transformed, nil
+}
+
+func expandComputeReservationShareSettingsShareType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeReservationShareSettingsProjectMap(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedProjectId, err := expandComputeReservationShareSettingsProjectMapProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedId, err := expandString(original["id"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedId] = transformed
+	}
+	return m, nil
+}
+
+func expandComputeReservationShareSettingsProjectMapProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -860,7 +1028,100 @@ func expandComputeReservationZone(v interface{}, d TerraformResourceData, config
 
 func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
-	newObj["specificSkuCount"] = obj["specificReservation"].(map[string]interface{})["count"]
+	config := meta.(*Config)
+	maskId := ""
+	firstProject := true
+	urlUpdateMask := ""
+
+	if d.HasChange("share_settings") {
+		// Get name.
+		nameProp, err := expandComputeReservationName(d.Get("name"), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for name: %s", err)
+		} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+			newObj["name"] = nameProp
+		}
+		// 	Get zone.
+		zoneProp, err := expandComputeReservationZone(d.Get("zone"), d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for zone: %s", err)
+		} else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+			newObj["zone"] = zoneProp
+		}
+		transformed := make(map[string]interface{})
+		// Set shareType.
+		transformed["shareType"] = "SPECIFIC_PROJECTS"
+		// Set project_map.
+		projectMap := make(map[string]interface{})
+		old, new := d.GetChange("share_settings")
+		oldMap := old.([]interface{})[0].(map[string]interface{})["project_map"]
+		newMap := new.([]interface{})[0].(map[string]interface{})["project_map"]
+		before := oldMap.(*schema.Set)
+		after := newMap.(*schema.Set)
+
+		for _, raw := range after.Difference(before).List() {
+			original := raw.(map[string]interface{})
+			singleProject := make(map[string]interface{})
+			// set up project_map.
+			transformedProjectId := original["project_id"]
+			if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+				singleProject["projectId"] = transformedProjectId
+			}
+			transformedId, err := expandString(original["id"], d, config)
+			if err != nil {
+				return nil, fmt.Errorf("Invalid value for id: %s", err)
+			}
+			projectMap[transformedId] = singleProject
+			// add added projects to updateMask
+			if firstProject != true {
+				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", original["project_id"])
+			} else {
+				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", original["project_id"])
+				firstProject = false
+			}
+			decodedPath, _ := url.QueryUnescape(maskId)
+			urlUpdateMask = urlUpdateMask + decodedPath
+		}
+		transformed["projectMap"] = projectMap
+		newObj["shareSettings"] = transformed
+
+		// add removed projects to updateMask
+		firstProject = true
+		for _, raw := range before.Difference(after).List() {
+			original := raw.(map[string]interface{})
+			// To remove a project we need project number.
+			projectId := fmt.Sprintf("%s", original["project_id"])
+			projectIdOrNum := projectId
+			_, err := strconv.Atoi(projectId)
+			// convert id to number.
+			if err != nil {
+				config := meta.(*Config)
+				project, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(projectId).Do()
+				if err != nil {
+					return nil, fmt.Errorf("Invalid value for projectId: %s", err)
+				}
+				projectNum := project.ProjectNumber
+				projectIdOrNum = fmt.Sprintf("%d", projectNum)
+			}
+			if firstProject != true {
+				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", projectIdOrNum)
+			} else {
+				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", projectIdOrNum)
+				firstProject = false
+			}
+			decodedPath, _ := url.QueryUnescape(maskId)
+			urlUpdateMask = urlUpdateMask + decodedPath
+		}
+		newObj["urlUpdateMask"] = urlUpdateMask
+	}
+
+	// Resize.
+	if obj["specificReservation"] != nil {
+		count := obj["specificReservation"].(map[string]interface{})["count"]
+		if count != nil {
+			newObj["specificSkuCount"] = obj["specificReservation"].(map[string]interface{})["count"]
+		}
+	}
 
 	return newObj, nil
 }

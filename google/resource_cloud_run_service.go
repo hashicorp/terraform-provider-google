@@ -20,7 +20,6 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -96,9 +95,9 @@ func resourceCloudRunService() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(15 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -108,6 +107,7 @@ func resourceCloudRunService() *schema.Resource {
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The location of the cloud run instance. eg us-central1`,
 			},
 			"name": {
@@ -128,7 +128,7 @@ include labels and annotations that should be attached to the Revision.
 To correlate a Revision, and/or to force a Revision to be created when the
 spec doesn't otherwise change, a nonce label may be provided in the
 template metadata. For more details, see:
-https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
+https://github.com/knative/serving/blob/main/docs/client-conventions.md#associate-modifications-with-revisions
 
 Cloud Run does not currently support referencing a build that is
 responsible for materializing the container image from source.`,
@@ -151,7 +151,7 @@ responsible for materializing the container image from source.`,
 In the context of a Revision, we disallow a number of the fields of
 this Container, including: name, ports, and volumeMounts.
 The runtime contract is documented here:
-https://github.com/knative/serving/blob/master/docs/runtime-contract.md`,
+https://github.com/knative/serving/blob/main/docs/runtime-contract.md`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"image": {
@@ -295,19 +295,19 @@ https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
 														Schema: map[string]*schema.Schema{
 															"container_port": {
 																Type:        schema.TypeInt,
-																Required:    true,
-																Description: `Port number.`,
+																Optional:    true,
+																Description: `Port number the container listens on. This must be a valid port number, 0 < x < 65536.`,
 															},
 															"name": {
 																Type:        schema.TypeString,
 																Computed:    true,
 																Optional:    true,
-																Description: `Name of the port.`,
+																Description: `If specified, used to specify which protocol to use. Allowed values are "http1" and "h2c".`,
 															},
 															"protocol": {
 																Type:        schema.TypeString,
 																Optional:    true,
-																Description: `Protocol used on port. Defaults to TCP.`,
+																Description: `Protocol for port. Must be "TCP". Defaults to "TCP".`,
 															},
 														},
 													},
@@ -390,6 +390,7 @@ requests per container of the Revision. Values are:
 									},
 									"service_account_name": {
 										Type:     schema.TypeString,
+										Computed: true,
 										Optional: true,
 										Description: `Email address of the IAM service account associated with the revision of the
 service. The service account represents the identity of the running revision,
@@ -435,6 +436,14 @@ commas.
 The alias definitions must be set on the run.googleapis.com/secrets
 annotation.`,
 															},
+															"default_mode": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Mode bits to use on created files by default. Must be a value between 0000
+and 0777. Defaults to 0644. Directories within the path are not affected by
+this setting. This might be in conflict with other options that affect the
+file mode, like fsGroup, and the result can be other mode bits set.`,
+															},
 															"items": {
 																Type:     schema.TypeList,
 																Optional: true,
@@ -458,6 +467,14 @@ Can be 'latest' for the latest value or an integer for a specific version.`,
 May not be an absolute path.
 May not contain the path element '..'.
 May not start with the string '..'.`,
+																		},
+																		"mode": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Description: `Mode bits to use on this file, must be a value between 0000 and 0777. If
+not specified, the volume defaultMode will be used. This might be in
+conflict with other options that affect the file mode, like fsGroup, and
+the result can be other mode bits set.`,
 																		},
 																	},
 																},
@@ -1181,7 +1198,7 @@ func flattenCloudRunServiceSpecTrafficRevisionName(v interface{}, d *schema.Reso
 func flattenCloudRunServiceSpecTrafficPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1248,7 +1265,7 @@ func flattenCloudRunServiceSpecTemplateMetadataLabels(v interface{}, d *schema.R
 func flattenCloudRunServiceSpecTemplateMetadataGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1542,7 +1559,7 @@ func flattenCloudRunServiceSpecTemplateSpecContainersPortsProtocol(v interface{}
 func flattenCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1609,7 +1626,7 @@ func flattenCloudRunServiceSpecTemplateSpecContainersVolumeMountsName(v interfac
 func flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1626,7 +1643,7 @@ func flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(v interface{}, d
 func flattenCloudRunServiceSpecTemplateSpecTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1678,12 +1695,31 @@ func flattenCloudRunServiceSpecTemplateSpecVolumesSecret(v interface{}, d *schem
 	transformed := make(map[string]interface{})
 	transformed["secret_name"] =
 		flattenCloudRunServiceSpecTemplateSpecVolumesSecretSecretName(original["secretName"], d, config)
+	transformed["default_mode"] =
+		flattenCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(original["defaultMode"], d, config)
 	transformed["items"] =
 		flattenCloudRunServiceSpecTemplateSpecVolumesSecretItems(original["items"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunServiceSpecTemplateSpecVolumesSecretSecretName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1701,6 +1737,7 @@ func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d *
 		transformed = append(transformed, map[string]interface{}{
 			"key":  flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsKey(original["key"], d, config),
 			"path": flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsPath(original["path"], d, config),
+			"mode": flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(original["mode"], d, config),
 		})
 	}
 	return transformed
@@ -1711,6 +1748,23 @@ func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsKey(v interface{}, 
 
 func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunServiceSpecTemplateSpecServingState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1782,7 +1836,7 @@ func flattenCloudRunServiceStatusUrl(v interface{}, d *schema.ResourceData, conf
 func flattenCloudRunServiceStatusObservedGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1836,7 +1890,7 @@ func flattenCloudRunServiceMetadataLabels(v interface{}, d *schema.ResourceData,
 func flattenCloudRunServiceMetadataGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2673,6 +2727,13 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecret(v interface{}, d Terrafo
 		transformed["secretName"] = transformedSecretName
 	}
 
+	transformedDefaultMode, err := expandCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(original["default_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["defaultMode"] = transformedDefaultMode
+	}
+
 	transformedItems, err := expandCloudRunServiceSpecTemplateSpecVolumesSecretItems(original["items"], d, config)
 	if err != nil {
 		return nil, err
@@ -2684,6 +2745,10 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecret(v interface{}, d Terrafo
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesSecretSecretName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2711,6 +2776,13 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d Te
 			transformed["path"] = transformedPath
 		}
 
+		transformedMode, err := expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(original["mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !isEmptyValue(val) {
+			transformed["mode"] = transformedMode
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2721,6 +2793,10 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsKey(v interface{}, d
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

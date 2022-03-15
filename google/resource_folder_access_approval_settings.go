@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 var accessApprovalCloudProductMapping = map[string]string{
@@ -62,9 +61,9 @@ func resourceAccessApprovalFolderSettings() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -147,7 +146,7 @@ Note: These values are supported as input, but considered a legacy format:
 			"enrollment_level": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"BLOCK_ALL", ""}, false),
+				ValidateFunc: validateEnum([]string{"BLOCK_ALL", ""}),
 				Description:  `The enrollment level of the service. Default value: "BLOCK_ALL" Possible values: ["BLOCK_ALL"]`,
 				Default:      "BLOCK_ALL",
 			},

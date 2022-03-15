@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: increased the default timeout for `google_dataproc_cluster` from 20m to 45m
+```

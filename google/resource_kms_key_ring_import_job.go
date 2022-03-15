@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceKMSKeyRingImportJob() *schema.Resource {
@@ -36,8 +35,8 @@ func resourceKMSKeyRingImportJob() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -51,7 +50,7 @@ func resourceKMSKeyRingImportJob() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"RSA_OAEP_3072_SHA1_AES_256", "RSA_OAEP_4096_SHA1_AES_256"}, false),
+				ValidateFunc: validateEnum([]string{"RSA_OAEP_3072_SHA1_AES_256", "RSA_OAEP_4096_SHA1_AES_256"}),
 				Description:  `The wrapping method to be used for incoming key material. Possible values: ["RSA_OAEP_3072_SHA1_AES_256", "RSA_OAEP_4096_SHA1_AES_256"]`,
 			},
 			"key_ring": {
@@ -66,7 +65,7 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SOFTWARE", "HSM", "EXTERNAL"}, false),
+				ValidateFunc: validateEnum([]string{"SOFTWARE", "HSM", "EXTERNAL"}),
 				Description: `The protection level of the ImportJob. This must match the protectionLevel of the
 versionTemplate on the CryptoKey you attempt to import into. Possible values: ["SOFTWARE", "HSM", "EXTERNAL"]`,
 			},

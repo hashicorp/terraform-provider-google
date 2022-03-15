@@ -106,6 +106,44 @@ resource "google_apigee_instance" "apigee_instance" {
   peering_cidr_range = "SLASH_22"
 }
 ```
+## Example Usage - Apigee Instance Ip Range
+
+
+```hcl
+data "google_client_config" "current" {}
+
+resource "google_compute_network" "apigee_network" {
+  name = "apigee-network"
+}
+
+resource "google_compute_global_address" "apigee_range" {
+  name          = "apigee-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 22
+  network       = google_compute_network.apigee_network.id
+}
+
+resource "google_service_networking_connection" "apigee_vpc_connection" {
+  network                 = google_compute_network.apigee_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.apigee_range.name]
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  analytics_region   = "us-central1"
+  project_id         = data.google_client_config.current.project
+  authorized_network = google_compute_network.apigee_network.id
+  depends_on         = [google_service_networking_connection.apigee_vpc_connection]
+}
+
+resource "google_apigee_instance" "apigee_instance" {
+  name     = "tf-test%{random_suffix}"
+  location = "us-central1-b"
+  org_id   = google_apigee_organization.apigee_org.id
+  ip_range = "10.87.8.0/22"
+}
+```
 ## Example Usage - Apigee Instance Full
 
 
@@ -211,6 +249,16 @@ The following arguments are supported:
   (Optional)
   The size of the CIDR block range that will be reserved by the instance. For valid values, 
   see [CidrRange](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.instances#CidrRange) on the documentation.
+
+* `ip_range` -
+  (Optional)
+  IP range represents the customer-provided CIDR block of length 22 that will be used for
+  the Apigee instance creation. This optional range, if provided, should be freely
+  available as part of larger named range the customer has allocated to the Service
+  Networking peering. If this is not provided, Apigee will automatically request for any
+  available /22 CIDR block from Service Networking. The customer should use this CIDR block
+  for configuring their firewall needs to allow traffic from Apigee.
+  Input format: "a.b.c.d/22"
 
 * `description` -
   (Optional)

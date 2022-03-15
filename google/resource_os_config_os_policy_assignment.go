@@ -39,9 +39,9 @@ func resourceOsConfigOsPolicyAssignment() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -334,15 +334,245 @@ func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecSchema() *sc
 				Required:    true,
 				Description: "Required. What to run to validate this resource is in the desired state. An exit code of 100 indicates \"in desired state\", and exit code of 101 indicates \"not in desired state\". Any other exit code indicates a failure running validate.",
 				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentExecSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateSchema(),
 			},
 
 			"enforce": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Required. What to run to validate this resource is in the desired state. An exit code of 100 indicates \"in desired state\", and exit code of 101 indicates \"not in desired state\". Any other exit code indicates a failure running validate.",
+				Description: "What to run to bring this resource into the desired state. An exit code of 100 indicates \"success\", any other exit code indicates a failure running enforce.",
 				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentExecSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceSchema(),
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"interpreter": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL",
+			},
+
+			"args": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional arguments to pass to the source during execution.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"file": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A remote or local file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileSchema(),
+			},
+
+			"output_file_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.",
+			},
+
+			"script": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "An inline script. The size of the script is limited to 1024 characters.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allow_insecure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.",
+			},
+
+			"gcs": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A Cloud Storage object.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcsSchema(),
+			},
+
+			"local_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A local path within the VM to use.",
+			},
+
+			"remote": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A generic remote file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemoteSchema(),
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Bucket of the Cloud Storage object.",
+			},
+
+			"object": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Name of the Cloud Storage object.",
+			},
+
+			"generation": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Generation number of the Cloud Storage object.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemoteSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.",
+			},
+
+			"sha256_checksum": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "SHA256 checksum of the remote file.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"interpreter": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL",
+			},
+
+			"args": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional arguments to pass to the source during execution.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"file": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A remote or local file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileSchema(),
+			},
+
+			"output_file_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.",
+			},
+
+			"script": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "An inline script. The size of the script is limited to 1024 characters.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allow_insecure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.",
+			},
+
+			"gcs": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A Cloud Storage object.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcsSchema(),
+			},
+
+			"local_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A local path within the VM to use.",
+			},
+
+			"remote": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A generic remote file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemoteSchema(),
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Bucket of the Cloud Storage object.",
+			},
+
+			"object": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Name of the Cloud Storage object.",
+			},
+
+			"generation": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Generation number of the Cloud Storage object.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemoteSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.",
+			},
+
+			"sha256_checksum": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "SHA256 checksum of the remote file.",
 			},
 		},
 	}
@@ -372,15 +602,91 @@ func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileSchema() *sc
 			"file": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Required. A deb package.",
+				Description: "A remote or local source.",
 				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileSchema(),
 			},
 
 			"permissions": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Consists of three octal digits which represent, in order, the permissions of the owner, group, and other users for the file (similarly to the numeric mode used in the linux chmod utility). Each digit represents a three bit number with the 4 bit corresponding to the read permissions, the 2 bit corresponds to the write bit, and the one bit corresponds to the execute permission. Default behavior is 755. Below are some examples of permissions and their associated values: read, write, and execute: 7 read and execute: 5 read and write: 6 read only: 4",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allow_insecure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.",
+			},
+
+			"gcs": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A Cloud Storage object.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcsSchema(),
+			},
+
+			"local_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A local path within the VM to use.",
+			},
+
+			"remote": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A generic remote file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemoteSchema(),
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Bucket of the Cloud Storage object.",
+			},
+
+			"object": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Name of the Cloud Storage object.",
+			},
+
+			"generation": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Generation number of the Cloud Storage object.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemoteSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.",
+			},
+
+			"sha256_checksum": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "SHA256 checksum of the remote file.",
 			},
 		},
 	}
@@ -474,13 +780,89 @@ func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSchema() *
 				Required:    true,
 				Description: "Required. A deb package.",
 				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceSchema(),
 			},
 
 			"pull_deps": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Whether dependencies should also be installed. - install when false: `dpkg -i package` - install when true: `apt-get update && apt-get -y install package.deb`",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allow_insecure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.",
+			},
+
+			"gcs": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A Cloud Storage object.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcsSchema(),
+			},
+
+			"local_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A local path within the VM to use.",
+			},
+
+			"remote": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A generic remote file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemoteSchema(),
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Bucket of the Cloud Storage object.",
+			},
+
+			"object": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Name of the Cloud Storage object.",
+			},
+
+			"generation": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Generation number of the Cloud Storage object.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemoteSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.",
+			},
+
+			"sha256_checksum": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "SHA256 checksum of the remote file.",
 			},
 		},
 	}
@@ -504,9 +886,9 @@ func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema() *
 			"source": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. A deb package.",
+				Description: "Required. The MSI package.",
 				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceSchema(),
 			},
 
 			"properties": {
@@ -519,21 +901,173 @@ func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSchema() *
 	}
 }
 
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allow_insecure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.",
+			},
+
+			"gcs": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A Cloud Storage object.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcsSchema(),
+			},
+
+			"local_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A local path within the VM to use.",
+			},
+
+			"remote": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A generic remote file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemoteSchema(),
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Bucket of the Cloud Storage object.",
+			},
+
+			"object": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Name of the Cloud Storage object.",
+			},
+
+			"generation": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Generation number of the Cloud Storage object.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemoteSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.",
+			},
+
+			"sha256_checksum": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "SHA256 checksum of the remote file.",
+			},
+		},
+	}
+}
+
 func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"source": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. A deb package.",
+				Description: "Required. An rpm package.",
 				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceSchema(),
 			},
 
 			"pull_deps": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Whether dependencies should also be installed. - install when false: `rpm --upgrade --replacepkgs package.rpm` - install when true: `yum -y install package.rpm` or `zypper -y install package.rpm`",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allow_insecure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.",
+			},
+
+			"gcs": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A Cloud Storage object.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcsSchema(),
+			},
+
+			"local_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A local path within the VM to use.",
+			},
+
+			"remote": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A generic remote file.",
+				MaxItems:    1,
+				Elem:        OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemoteSchema(),
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Bucket of the Cloud Storage object.",
+			},
+
+			"object": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Name of the Cloud Storage object.",
+			},
+
+			"generation": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Generation number of the Cloud Storage object.",
+			},
+		},
+	}
+}
+
+func OsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemoteSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.",
+			},
+
+			"sha256_checksum": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "SHA256 checksum of the remote file.",
 			},
 		},
 	}
@@ -774,121 +1308,6 @@ func OsConfigOsPolicyAssignmentRolloutDisruptionBudgetSchema() *schema.Resource 
 	}
 }
 
-func OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"allow_insecure": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.",
-			},
-
-			"gcs": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "A Cloud Storage object.",
-				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcsSchema(),
-			},
-
-			"local_path": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "A local path within the VM to use.",
-			},
-
-			"remote": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "A generic remote file.",
-				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemoteSchema(),
-			},
-		},
-	}
-}
-
-func OsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcsSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"bucket": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Required. Bucket of the Cloud Storage object.",
-			},
-
-			"object": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Required. Name of the Cloud Storage object.",
-			},
-
-			"generation": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "Generation number of the Cloud Storage object.",
-			},
-		},
-	}
-}
-
-func OsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemoteSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"uri": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.",
-			},
-
-			"sha256_checksum": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "SHA256 checksum of the remote file.",
-			},
-		},
-	}
-}
-
-func OsConfigOsPolicyAssignmentOSPolicyAssignmentExecSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"interpreter": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL",
-			},
-
-			"args": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "Optional arguments to pass to the source during execution.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
-			"file": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "Required. A deb package.",
-				MaxItems:    1,
-				Elem:        OsConfigOsPolicyAssignmentOSPolicyAssignmentFileSchema(),
-			},
-
-			"output_file_path": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.",
-			},
-
-			"script": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "An inline script. The size of the script is limited to 1024 characters.",
-			},
-		},
-	}
-}
-
 func resourceOsConfigOsPolicyAssignmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
@@ -1123,6 +1542,7 @@ func resourceOsConfigOsPolicyAssignmentDelete(d *schema.ResourceData, meta inter
 
 func resourceOsConfigOsPolicyAssignmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/osPolicyAssignments/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -1533,8 +1953,8 @@ func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(o int
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExec{
-		Validate: expandOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj["validate"]),
-		Enforce:  expandOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj["enforce"]),
+		Validate: expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate(obj["validate"]),
+		Enforce:  expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce(obj["enforce"]),
 	}
 }
 
@@ -1543,8 +1963,256 @@ func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExec(obj 
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"validate": flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj.Validate),
-		"enforce":  flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj.Enforce),
+		"validate": flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate(obj.Validate),
+		"enforce":  flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce(obj.Enforce),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate{
+		Interpreter:    osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateInterpreterEnumRef(obj["interpreter"].(string)),
+		Args:           expandStringArray(obj["args"]),
+		File:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile(obj["file"]),
+		OutputFilePath: dcl.String(obj["output_file_path"].(string)),
+		Script:         dcl.String(obj["script"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidate) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"interpreter":      obj.Interpreter,
+		"args":             obj.Args,
+		"file":             flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile(obj.File),
+		"output_file_path": obj.OutputFilePath,
+		"script":           obj.Script,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile{
+		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
+		Gcs:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs(obj["gcs"]),
+		LocalPath:     dcl.String(obj["local_path"].(string)),
+		Remote:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote(obj["remote"]),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFile) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allow_insecure": obj.AllowInsecure,
+		"gcs":            flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs(obj.Gcs),
+		"local_path":     obj.LocalPath,
+		"remote":         flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote(obj.Remote),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs{
+		Bucket:     dcl.String(obj["bucket"].(string)),
+		Object:     dcl.String(obj["object"].(string)),
+		Generation: dcl.Int64(int64(obj["generation"].(int))),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileGcs) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"bucket":     obj.Bucket,
+		"object":     obj.Object,
+		"generation": obj.Generation,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote{
+		Uri:            dcl.String(obj["uri"].(string)),
+		Sha256Checksum: dcl.String(obj["sha256_checksum"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecValidateFileRemote) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri":             obj.Uri,
+		"sha256_checksum": obj.Sha256Checksum,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce{
+		Interpreter:    osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceInterpreterEnumRef(obj["interpreter"].(string)),
+		Args:           expandStringArray(obj["args"]),
+		File:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile(obj["file"]),
+		OutputFilePath: dcl.String(obj["output_file_path"].(string)),
+		Script:         dcl.String(obj["script"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforce) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"interpreter":      obj.Interpreter,
+		"args":             obj.Args,
+		"file":             flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile(obj.File),
+		"output_file_path": obj.OutputFilePath,
+		"script":           obj.Script,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile{
+		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
+		Gcs:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs(obj["gcs"]),
+		LocalPath:     dcl.String(obj["local_path"].(string)),
+		Remote:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote(obj["remote"]),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFile) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allow_insecure": obj.AllowInsecure,
+		"gcs":            flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs(obj.Gcs),
+		"local_path":     obj.LocalPath,
+		"remote":         flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote(obj.Remote),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs{
+		Bucket:     dcl.String(obj["bucket"].(string)),
+		Object:     dcl.String(obj["object"].(string)),
+		Generation: dcl.Int64(int64(obj["generation"].(int))),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileGcs) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"bucket":     obj.Bucket,
+		"object":     obj.Object,
+		"generation": obj.Generation,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote{
+		Uri:            dcl.String(obj["uri"].(string)),
+		Sha256Checksum: dcl.String(obj["sha256_checksum"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesExecEnforceFileRemote) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri":             obj.Uri,
+		"sha256_checksum": obj.Sha256Checksum,
 	}
 
 	return []interface{}{transformed}
@@ -1564,7 +2232,7 @@ func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(o int
 		Path:    dcl.String(obj["path"].(string)),
 		State:   osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileStateEnumRef(obj["state"].(string)),
 		Content: dcl.String(obj["content"].(string)),
-		File:    expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["file"]),
+		File:    expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile(obj["file"]),
 	}
 }
 
@@ -1576,8 +2244,98 @@ func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFile(obj 
 		"path":        obj.Path,
 		"state":       obj.State,
 		"content":     obj.Content,
-		"file":        flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.File),
+		"file":        flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile(obj.File),
 		"permissions": obj.Permissions,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile{
+		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
+		Gcs:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs(obj["gcs"]),
+		LocalPath:     dcl.String(obj["local_path"].(string)),
+		Remote:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote(obj["remote"]),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFile) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allow_insecure": obj.AllowInsecure,
+		"gcs":            flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs(obj.Gcs),
+		"local_path":     obj.LocalPath,
+		"remote":         flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote(obj.Remote),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs{
+		Bucket:     dcl.String(obj["bucket"].(string)),
+		Object:     dcl.String(obj["object"].(string)),
+		Generation: dcl.Int64(int64(obj["generation"].(int))),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileGcs) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"bucket":     obj.Bucket,
+		"object":     obj.Object,
+		"generation": obj.Generation,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote{
+		Uri:            dcl.String(obj["uri"].(string)),
+		Sha256Checksum: dcl.String(obj["sha256_checksum"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesFileFileRemote) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri":             obj.Uri,
+		"sha256_checksum": obj.Sha256Checksum,
 	}
 
 	return []interface{}{transformed}
@@ -1660,7 +2418,7 @@ func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(o i
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb{
-		Source:   expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
+		Source:   expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource(obj["source"]),
 		PullDeps: dcl.Bool(obj["pull_deps"].(bool)),
 	}
 }
@@ -1670,8 +2428,98 @@ func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDeb(ob
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"source":    flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
+		"source":    flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource(obj.Source),
 		"pull_deps": obj.PullDeps,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource{
+		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
+		Gcs:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs(obj["gcs"]),
+		LocalPath:     dcl.String(obj["local_path"].(string)),
+		Remote:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote(obj["remote"]),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSource) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allow_insecure": obj.AllowInsecure,
+		"gcs":            flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs(obj.Gcs),
+		"local_path":     obj.LocalPath,
+		"remote":         flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote(obj.Remote),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs{
+		Bucket:     dcl.String(obj["bucket"].(string)),
+		Object:     dcl.String(obj["object"].(string)),
+		Generation: dcl.Int64(int64(obj["generation"].(int))),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceGcs) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"bucket":     obj.Bucket,
+		"object":     obj.Object,
+		"generation": obj.Generation,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote{
+		Uri:            dcl.String(obj["uri"].(string)),
+		Sha256Checksum: dcl.String(obj["sha256_checksum"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgDebSourceRemote) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri":             obj.Uri,
+		"sha256_checksum": obj.Sha256Checksum,
 	}
 
 	return []interface{}{transformed}
@@ -1714,7 +2562,7 @@ func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(o i
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi{
-		Source:     expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
+		Source:     expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource(obj["source"]),
 		Properties: expandStringArray(obj["properties"]),
 	}
 }
@@ -1724,8 +2572,98 @@ func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsi(ob
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"source":     flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
+		"source":     flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource(obj.Source),
 		"properties": obj.Properties,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource{
+		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
+		Gcs:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs(obj["gcs"]),
+		LocalPath:     dcl.String(obj["local_path"].(string)),
+		Remote:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote(obj["remote"]),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSource) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allow_insecure": obj.AllowInsecure,
+		"gcs":            flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs(obj.Gcs),
+		"local_path":     obj.LocalPath,
+		"remote":         flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote(obj.Remote),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs{
+		Bucket:     dcl.String(obj["bucket"].(string)),
+		Object:     dcl.String(obj["object"].(string)),
+		Generation: dcl.Int64(int64(obj["generation"].(int))),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceGcs) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"bucket":     obj.Bucket,
+		"object":     obj.Object,
+		"generation": obj.Generation,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote{
+		Uri:            dcl.String(obj["uri"].(string)),
+		Sha256Checksum: dcl.String(obj["sha256_checksum"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgMsiSourceRemote) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri":             obj.Uri,
+		"sha256_checksum": obj.Sha256Checksum,
 	}
 
 	return []interface{}{transformed}
@@ -1742,7 +2680,7 @@ func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(o i
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm{
-		Source:   expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["source"]),
+		Source:   expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource(obj["source"]),
 		PullDeps: dcl.Bool(obj["pull_deps"].(bool)),
 	}
 }
@@ -1752,8 +2690,98 @@ func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpm(ob
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"source":    flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.Source),
+		"source":    flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource(obj.Source),
 		"pull_deps": obj.PullDeps,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource{
+		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
+		Gcs:           expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs(obj["gcs"]),
+		LocalPath:     dcl.String(obj["local_path"].(string)),
+		Remote:        expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote(obj["remote"]),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSource) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allow_insecure": obj.AllowInsecure,
+		"gcs":            flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs(obj.Gcs),
+		"local_path":     obj.LocalPath,
+		"remote":         flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote(obj.Remote),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs{
+		Bucket:     dcl.String(obj["bucket"].(string)),
+		Object:     dcl.String(obj["object"].(string)),
+		Generation: dcl.Int64(int64(obj["generation"].(int))),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceGcs) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"bucket":     obj.Bucket,
+		"object":     obj.Object,
+		"generation": obj.Generation,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote(o interface{}) *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote {
+	if o == nil {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return osconfig.EmptyOSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote{
+		Uri:            dcl.String(obj["uri"].(string)),
+		Sha256Checksum: dcl.String(obj["sha256_checksum"].(string)),
+	}
+}
+
+func flattenOsConfigOsPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote(obj *osconfig.OSPolicyAssignmentOSPoliciesResourceGroupsResourcesPkgRpmSourceRemote) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri":             obj.Uri,
+		"sha256_checksum": obj.Sha256Checksum,
 	}
 
 	return []interface{}{transformed}
@@ -2077,130 +3105,6 @@ func flattenOsConfigOsPolicyAssignmentRolloutDisruptionBudget(obj *osconfig.OSPo
 	transformed := map[string]interface{}{
 		"fixed":   obj.Fixed,
 		"percent": obj.Percent,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(o interface{}) *osconfig.OSPolicyAssignmentFile {
-	if o == nil {
-		return osconfig.EmptyOSPolicyAssignmentFile
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return osconfig.EmptyOSPolicyAssignmentFile
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &osconfig.OSPolicyAssignmentFile{
-		AllowInsecure: dcl.Bool(obj["allow_insecure"].(bool)),
-		Gcs:           expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(obj["gcs"]),
-		LocalPath:     dcl.String(obj["local_path"].(string)),
-		Remote:        expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(obj["remote"]),
-	}
-}
-
-func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj *osconfig.OSPolicyAssignmentFile) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"allow_insecure": obj.AllowInsecure,
-		"gcs":            flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(obj.Gcs),
-		"local_path":     obj.LocalPath,
-		"remote":         flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(obj.Remote),
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(o interface{}) *osconfig.OSPolicyAssignmentFileGcs {
-	if o == nil {
-		return osconfig.EmptyOSPolicyAssignmentFileGcs
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return osconfig.EmptyOSPolicyAssignmentFileGcs
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &osconfig.OSPolicyAssignmentFileGcs{
-		Bucket:     dcl.String(obj["bucket"].(string)),
-		Object:     dcl.String(obj["object"].(string)),
-		Generation: dcl.Int64(int64(obj["generation"].(int))),
-	}
-}
-
-func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileGcs(obj *osconfig.OSPolicyAssignmentFileGcs) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"bucket":     obj.Bucket,
-		"object":     obj.Object,
-		"generation": obj.Generation,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(o interface{}) *osconfig.OSPolicyAssignmentFileRemote {
-	if o == nil {
-		return osconfig.EmptyOSPolicyAssignmentFileRemote
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return osconfig.EmptyOSPolicyAssignmentFileRemote
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &osconfig.OSPolicyAssignmentFileRemote{
-		Uri:            dcl.String(obj["uri"].(string)),
-		Sha256Checksum: dcl.String(obj["sha256_checksum"].(string)),
-	}
-}
-
-func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFileRemote(obj *osconfig.OSPolicyAssignmentFileRemote) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"uri":             obj.Uri,
-		"sha256_checksum": obj.Sha256Checksum,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(o interface{}) *osconfig.OSPolicyAssignmentExec {
-	if o == nil {
-		return osconfig.EmptyOSPolicyAssignmentExec
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return osconfig.EmptyOSPolicyAssignmentExec
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &osconfig.OSPolicyAssignmentExec{
-		Interpreter:    osconfig.OSPolicyAssignmentExecInterpreterEnumRef(obj["interpreter"].(string)),
-		Args:           expandStringArray(obj["args"]),
-		File:           expandOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj["file"]),
-		OutputFilePath: dcl.String(obj["output_file_path"].(string)),
-		Script:         dcl.String(obj["script"].(string)),
-	}
-}
-
-func flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentExec(obj *osconfig.OSPolicyAssignmentExec) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"interpreter":      obj.Interpreter,
-		"args":             obj.Args,
-		"file":             flattenOsConfigOsPolicyAssignmentOSPolicyAssignmentFile(obj.File),
-		"output_file_path": obj.OutputFilePath,
-		"script":           obj.Script,
 	}
 
 	return []interface{}{transformed}

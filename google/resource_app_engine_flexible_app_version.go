@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAppEngineFlexibleAppVersion() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceAppEngineFlexibleAppVersion() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -170,21 +168,21 @@ replies to a healthcheck until it is ready to serve traffic. Default: "300s"`,
 						"auth_fail_action": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
+							ValidateFunc: validateEnum([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}),
 							Description:  `Action to take when users access resources that require authentication. Default value: "AUTH_FAIL_ACTION_REDIRECT" Possible values: ["AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED"]`,
 							Default:      "AUTH_FAIL_ACTION_REDIRECT",
 						},
 						"login": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
+							ValidateFunc: validateEnum([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}),
 							Description:  `Level of login required to access this resource. Default value: "LOGIN_OPTIONAL" Possible values: ["LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED"]`,
 							Default:      "LOGIN_OPTIONAL",
 						},
 						"security_level": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
+							ValidateFunc: validateEnum([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}),
 							Description:  `Security (HTTPS) enforcement for this URL. Possible values: ["SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS"]`,
 						},
 						"url": {
@@ -507,7 +505,7 @@ the configuration ID. In this case, configId must be omitted.`,
 						"rollout_strategy": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"FIXED", "MANAGED", ""}, false),
+							ValidateFunc: validateEnum([]string{"FIXED", "MANAGED", ""}),
 							Description:  `Endpoints rollout strategy. If FIXED, configId must be specified. If MANAGED, configId must be omitted. Default value: "FIXED" Possible values: ["FIXED", "MANAGED"]`,
 							Default:      "FIXED",
 						},
@@ -546,19 +544,19 @@ The first matching URL handles the request and other request handlers are not at
 						"auth_fail_action": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
+							ValidateFunc: validateEnum([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}),
 							Description:  `Actions to take when the user is not logged in. Possible values: ["AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED"]`,
 						},
 						"login": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
+							ValidateFunc: validateEnum([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}),
 							Description:  `Methods to restrict access to a URL based on login status. Possible values: ["LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED"]`,
 						},
 						"redirect_http_response_code": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
+							ValidateFunc: validateEnum([]string{"REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}),
 							Description:  `30x code to use when performing redirects for the secure field. Possible values: ["REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307"]`,
 						},
 						"script": {
@@ -580,7 +578,7 @@ Only the auto value is supported for Node.js in the App Engine standard environm
 						"security_level": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
+							ValidateFunc: validateEnum([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}),
 							Description:  `Security (HTTPS) enforcement for this URL. Possible values: ["SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS"]`,
 						},
 						"static_files": {
@@ -653,7 +651,7 @@ All URLs that begin with this prefix are handled by this handler, using the port
 				Description: `A list of the types of messages that this application is able to receive. Possible values: ["INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validation.StringInSlice([]string{"INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"}, false),
+					ValidateFunc: validateEnum([]string{"INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"}),
 				},
 				Set: schema.HashString,
 			},
@@ -790,7 +788,8 @@ If specified, the subnetwork must exist in the same region as the App Engine fle
 				Computed: true,
 				Optional: true,
 				Description: `The version of the API in the given runtime environment.
-Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
+Please see the app.yaml reference for valid values at 'https://cloud.google.com/appengine/docs/standard/<language>/config/appref'\
+Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`,
 			},
 			"runtime_channel": {
 				Type:        schema.TypeString,
@@ -805,7 +804,7 @@ Please see the app.yaml reference for valid values at https://cloud.google.com/a
 			"serving_status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SERVING", "STOPPED", ""}, false),
+				ValidateFunc: validateEnum([]string{"SERVING", "STOPPED", ""}),
 				Description:  `Current serving status of this version. Only the versions with a SERVING status create instances and can be billed. Default value: "SERVING" Possible values: ["SERVING", "STOPPED"]`,
 				Default:      "SERVING",
 			},
@@ -1565,7 +1564,7 @@ func flattenAppEngineFlexibleAppVersionResources(v interface{}, d *schema.Resour
 func flattenAppEngineFlexibleAppVersionResourcesCpu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1582,7 +1581,7 @@ func flattenAppEngineFlexibleAppVersionResourcesCpu(v interface{}, d *schema.Res
 func flattenAppEngineFlexibleAppVersionResourcesDiskGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1631,7 +1630,7 @@ func flattenAppEngineFlexibleAppVersionResourcesVolumesVolumeType(v interface{},
 func flattenAppEngineFlexibleAppVersionResourcesVolumesSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2106,7 +2105,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingCpuUtilizationTargetUtili
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxConcurrentRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2123,7 +2122,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxConcurrentRequests(v i
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2140,7 +2139,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxIdleInstances(v interf
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxTotalInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2161,7 +2160,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxPendingLatency(v inter
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMinIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2178,7 +2177,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMinIdleInstances(v interf
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMinTotalInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2241,7 +2240,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilization(v interfa
 func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetWriteBytesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2258,7 +2257,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetWrit
 func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetWriteOpsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2275,7 +2274,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetWrit
 func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetReadBytesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2292,7 +2291,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetRead
 func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetReadOpsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2328,7 +2327,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilization(v inte
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetSentBytesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2345,7 +2344,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetS
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetSentPacketsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2362,7 +2361,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetS
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetReceivedBytesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2379,7 +2378,7 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetR
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetReceivedPacketsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2409,7 +2408,7 @@ func flattenAppEngineFlexibleAppVersionManualScaling(v interface{}, d *schema.Re
 func flattenAppEngineFlexibleAppVersionManualScalingInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

@@ -1,11 +1,18 @@
 package google
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
@@ -31,8 +38,7 @@ func TestAccStorageObjectAcl_basic(t *testing.T) {
 			}
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccStorageObjectAclDestroyProducer(t),
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageObjectsAclBasic1(bucketName, objectName),
@@ -273,6 +279,82 @@ func TestAccStorageObjectAcl_unordered(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageObjectAclUnordered(bucketName, objectName),
+			},
+		},
+	})
+}
+
+// a round tripper that returns fake response for get object API removing `owner` attribute
+// it only modifies the response once, since otherwise resource will fail to delete.
+type testRoundTripper struct {
+	http.RoundTripper
+	bucketName, objectName string
+	done                   bool
+}
+
+func (t *testRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	response, err := t.RoundTripper.RoundTrip(r)
+	if err != nil {
+		return response, err
+	}
+	expectedPath := fmt.Sprintf("/storage/v1/b/%s/o/%s", t.bucketName, t.objectName)
+	if t.done || r.URL.Path != expectedPath || r.Host != "storage.googleapis.com" {
+		return response, err
+	}
+	t.done = true
+	responseBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return response, err
+	}
+	var responseMap map[string]json.RawMessage
+	err = json.Unmarshal(responseBytes, &responseMap)
+	if err != nil {
+		return response, err
+	}
+	delete(responseMap, "owner")
+	responseBytes, err = json.Marshal(responseMap)
+	if err != nil {
+		return response, err
+	}
+	response.Body = io.NopCloser(bytes.NewBuffer(responseBytes))
+	return response, nil
+}
+
+// Test that we don't fail if there's no owner for object
+func TestAccStorageObjectAcl_noOwner(t *testing.T) {
+	skipIfVcr(t)
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	objectName := testAclObjectName(t)
+	objectData := []byte("data data data")
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
+	provider := Provider()
+	oldConfigureFunc := provider.ConfigureContextFunc
+	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		c, diagnostics := oldConfigureFunc(ctx, d)
+		config := c.(*Config)
+		roundTripper := &testRoundTripper{RoundTripper: config.client.Transport, bucketName: bucketName, objectName: objectName}
+		config.client.Transport = roundTripper
+		return c, diagnostics
+	}
+	providers := map[string]*schema.Provider{
+		"google": provider,
+	}
+	vcrTest(t, resource.TestCase{
+		PreCheck: func() {
+			if errObjectAcl != nil {
+				panic(errObjectAcl)
+			}
+			testAccPreCheck(t)
+		},
+		Providers: providers,
+		Steps: []resource.TestStep{
+			{
+				Config:             testGoogleStorageObjectsAclBasic1(bucketName, objectName),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

@@ -19,12 +19,10 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataCatalogTagTemplate() *schema.Resource {
@@ -39,9 +37,9 @@ func resourceDataCatalogTagTemplate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -89,7 +87,7 @@ Can have up to 500 allowed values.`,
 									"primitive_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"DOUBLE", "STRING", "BOOL", "TIMESTAMP", ""}, false),
+										ValidateFunc: validateEnum([]string{"DOUBLE", "STRING", "BOOL", "TIMESTAMP", ""}),
 										Description: `Represents primitive types - string, bool etc.
  Exactly one of 'primitive_type' or 'enum_type' must be set Possible values: ["DOUBLE", "STRING", "BOOL", "TIMESTAMP"]`,
 									},
@@ -516,7 +514,7 @@ func flattenDataCatalogTagTemplateFieldsIsRequired(v interface{}, d *schema.Reso
 func flattenDataCatalogTagTemplateFieldsOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

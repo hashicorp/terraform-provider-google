@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourcePrivatecaCaPool() *schema.Resource {
@@ -37,9 +36,9 @@ func resourcePrivatecaCaPool() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -60,7 +59,7 @@ running 'gcloud privateca locations list'.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ENTERPRISE", "DEVOPS"}, false),
+				ValidateFunc: validateEnum([]string{"ENTERPRISE", "DEVOPS"}),
 				Description:  `The Tier of this CaPool. Possible values: ["ENTERPRISE", "DEVOPS"]`,
 			},
 			"issuance_policy": {
@@ -107,7 +106,7 @@ Otherwise, any key may be used.`,
 												"signature_algorithm": {
 													Type:         schema.TypeString,
 													Required:     true,
-													ValidateFunc: validation.StringInSlice([]string{"ECDSA_P256", "ECDSA_P384", "EDDSA_25519"}, false),
+													ValidateFunc: validateEnum([]string{"ECDSA_P256", "ECDSA_P384", "EDDSA_25519"}),
 													Description:  `The algorithm used. Possible values: ["ECDSA_P256", "ECDSA_P384", "EDDSA_25519"]`,
 												},
 											},

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceMonitoringMetricDescriptor() *schema.Resource {
@@ -36,9 +35,9 @@ func resourceMonitoringMetricDescriptor() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -58,7 +57,7 @@ func resourceMonitoringMetricDescriptor() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"METRIC_KIND_UNSPECIFIED", "GAUGE", "DELTA", "CUMULATIVE"}, false),
+				ValidateFunc: validateEnum([]string{"METRIC_KIND_UNSPECIFIED", "GAUGE", "DELTA", "CUMULATIVE"}),
 				Description:  `Whether the metric records instantaneous values, changes to a value, etc. Some combinations of metricKind and valueType might not be supported. Possible values: ["METRIC_KIND_UNSPECIFIED", "GAUGE", "DELTA", "CUMULATIVE"]`,
 			},
 			"type": {
@@ -71,7 +70,7 @@ func resourceMonitoringMetricDescriptor() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION"}, false),
+				ValidateFunc: validateEnum([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION"}),
 				Description:  `Whether the measurement is an integer, a floating-point number, etc. Some combinations of metricKind and valueType might not be supported. Possible values: ["BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION"]`,
 			},
 			"labels": {
@@ -85,7 +84,7 @@ func resourceMonitoringMetricDescriptor() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"LAUNCH_STAGE_UNSPECIFIED", "UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED", ""}, false),
+				ValidateFunc: validateEnum([]string{"LAUNCH_STAGE_UNSPECIFIED", "UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED", ""}),
 				Description:  `The launch stage of the metric definition. Possible values: ["LAUNCH_STAGE_UNSPECIFIED", "UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED"]`,
 			},
 			"metadata": {
@@ -176,7 +175,7 @@ func monitoringMetricDescriptorLabelsSchema() *schema.Resource {
 			"value_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"STRING", "BOOL", "INT64", ""}, false),
+				ValidateFunc: validateEnum([]string{"STRING", "BOOL", "INT64", ""}),
 				Description:  `The type of data that can be assigned to the label. Default value: "STRING" Possible values: ["STRING", "BOOL", "INT64"]`,
 				Default:      "STRING",
 			},

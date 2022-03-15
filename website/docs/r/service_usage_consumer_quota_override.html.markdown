@@ -80,6 +80,30 @@ resource "google_service_usage_consumer_quota_override" "override" {
   force          = true
 }
 ```
+## Example Usage - Consumer Quota Override Custom Dimension
+
+
+```hcl
+resource "google_project" "my_project" {
+  provider   = google-beta
+  name       = "tf-test-project"
+  project_id = "quota"
+  org_id     = "123456789"
+}
+
+resource "google_service_usage_consumer_quota_override" "override" {
+  provider       = google-beta
+  project        = google_project.my_project.project_id
+  service        = "libraryagent.googleapis.com"
+  metric         = urlencode("libraryagent.googleapis.com/borrows")
+  limit          = urlencode("/author/project")
+  override_value = "1"
+  force          = true
+  dimensions = {
+    author = "larry"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -134,9 +158,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -224,6 +224,28 @@ resource "google_compute_backend_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_external_managed&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service External Managed
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  name = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
 
 ## Argument Reference
 
@@ -324,7 +346,7 @@ The following arguments are supported:
   load balancing cannot be used with the other. For more information, refer to
   [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service).
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
+  Possible values are `EXTERNAL`, `INTERNAL_SELF_MANAGED`, and `EXTERNAL_MANAGED`.
 
 * `locality_lb_policy` -
   (Optional)
@@ -386,7 +408,7 @@ The following arguments are supported:
   The security policy associated with this backend service.
 
 * `security_settings` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The security settings that apply to this backend service. This field is applicable to either
   a regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2, and
   load_balancing_scheme set to INTERNAL_MANAGED; or a global backend service with the
@@ -832,13 +854,13 @@ The following arguments are supported:
 <a name="nested_security_settings"></a>The `security_settings` block supports:
 
 * `client_tls_policy` -
-  (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Required)
   ClientTlsPolicy is a resource that specifies how a client should authenticate
   connections to backends of a service. This resource itself does not affect
   configuration unless it is attached to a backend service resource.
 
 * `subject_alt_names` -
-  (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Required)
   A list of alternate names to verify the subject identity in the certificate.
   If specified, the client will verify that the server certificate's subject
   alt name matches one of the specified values.
@@ -876,9 +898,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

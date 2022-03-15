@@ -261,7 +261,8 @@ The following arguments are supported:
 * `runtime_api_version` -
   (Optional)
   The version of the API in the given runtime environment.
-  Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref
+  Please see the app.yaml reference for valid values at `https://cloud.google.com/appengine/docs/standard/<language>/config/appref`\
+  Substitute `<language>` with `python`, `java`, `php`, `ruby`, `go` or `nodejs`.
 
 * `handlers` -
   (Optional)
@@ -738,9 +739,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

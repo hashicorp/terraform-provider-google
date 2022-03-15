@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDialogflowFulfillment() *schema.Resource {
@@ -37,9 +36,9 @@ func resourceDialogflowFulfillment() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -62,7 +61,7 @@ func resourceDialogflowFulfillment() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"SMALLTALK"}, false),
+							ValidateFunc: validateEnum([]string{"SMALLTALK"}),
 							Description: `The type of the feature that enabled for fulfillment.
 * SMALLTALK: Fulfillment is enabled for SmallTalk. Possible values: ["SMALLTALK"]`,
 						},

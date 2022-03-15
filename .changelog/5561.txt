@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrun: added support for `default_mode` and `mode` settings for created files within `secrets` in `google_cloud_run_service`
+```

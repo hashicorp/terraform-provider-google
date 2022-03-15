@@ -163,6 +163,14 @@ The following arguments are supported:
   Leave this field blank to advertise no custom IP ranges.
   Structure is [documented below](#nested_advertised_ip_ranges).
 
+* `keepalive_interval` -
+  (Optional)
+  The interval in seconds between BGP keepalive messages that are sent to the peer.
+  Hold time is three times the interval at which keepalive messages are sent, and the hold time is the
+  maximum number of seconds allowed to elapse between successive keepalive messages that BGP receives from a peer.
+  BGP will use the smaller of either the local hold time value or the peer's hold time value as the hold time for
+  the BGP connection between the two peers. If set, this value must be between 20 and 60. The default is 20.
+
 
 <a name="nested_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
 
@@ -191,9 +199,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

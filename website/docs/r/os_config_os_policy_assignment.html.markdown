@@ -682,6 +682,82 @@ The `resources` block supports:
   (Optional)
   Package repository resource
     
+The `validate` block supports:
+    
+* `args` -
+  (Optional)
+  Optional arguments to pass to the source during execution.
+    
+* `file` -
+  (Optional)
+  A remote or local file.
+    
+* `interpreter` -
+  (Required)
+  Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL
+    
+* `output_file_path` -
+  (Optional)
+  Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.
+    
+* `script` -
+  (Optional)
+  An inline script. The size of the script is limited to 1024 characters.
+    
+The `source` block supports:
+    
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
+    
+* `gcs` -
+  (Optional)
+  A Cloud Storage object.
+    
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+    
+* `remote` -
+  (Optional)
+  A generic remote file.
+    
+The `source` block supports:
+    
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
+    
+* `gcs` -
+  (Optional)
+  A Cloud Storage object.
+    
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+    
+* `remote` -
+  (Optional)
+  A generic remote file.
+    
+The `source` block supports:
+    
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
+    
+* `gcs` -
+  (Optional)
+  A Cloud Storage object.
+    
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+    
+* `remote` -
+  (Optional)
+  A generic remote file.
+    
 The `rollout` block supports:
     
 * `disruption_budget` -
@@ -750,11 +826,117 @@ The `exec` block supports:
     
 * `enforce` -
   (Optional)
-  Required. What to run to validate this resource is in the desired state. An exit code of 100 indicates "in desired state", and exit code of 101 indicates "not in desired state". Any other exit code indicates a failure running validate.
+  What to run to bring this resource into the desired state. An exit code of 100 indicates "success", any other exit code indicates a failure running enforce.
     
 * `validate` -
   (Required)
   Required. What to run to validate this resource is in the desired state. An exit code of 100 indicates "in desired state", and exit code of 101 indicates "not in desired state". Any other exit code indicates a failure running validate.
+    
+The `enforce` block supports:
+    
+* `args` -
+  (Optional)
+  Optional arguments to pass to the source during execution.
+    
+* `file` -
+  (Optional)
+  A remote or local file.
+    
+* `interpreter` -
+  (Required)
+  Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL
+    
+* `output_file_path` -
+  (Optional)
+  Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.
+    
+* `script` -
+  (Optional)
+  An inline script. The size of the script is limited to 1024 characters.
+    
+The `file` block supports:
+    
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
+    
+* `gcs` -
+  (Optional)
+  A Cloud Storage object.
+    
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+    
+* `remote` -
+  (Optional)
+  A generic remote file.
+    
+The `gcs` block supports:
+    
+* `bucket` -
+  (Required)
+  Required. Bucket of the Cloud Storage object.
+    
+* `generation` -
+  (Optional)
+  Generation number of the Cloud Storage object.
+    
+* `object` -
+  (Required)
+  Required. Name of the Cloud Storage object.
+    
+The `remote` block supports:
+    
+* `sha256_checksum` -
+  (Optional)
+  SHA256 checksum of the remote file.
+    
+* `uri` -
+  (Required)
+  Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.
+    
+The `file` block supports:
+    
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
+    
+* `gcs` -
+  (Optional)
+  A Cloud Storage object.
+    
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+    
+* `remote` -
+  (Optional)
+  A generic remote file.
+    
+The `gcs` block supports:
+    
+* `bucket` -
+  (Required)
+  Required. Bucket of the Cloud Storage object.
+    
+* `generation` -
+  (Optional)
+  Generation number of the Cloud Storage object.
+    
+* `object` -
+  (Required)
+  Required. Name of the Cloud Storage object.
+    
+The `remote` block supports:
+    
+* `sha256_checksum` -
+  (Optional)
+  SHA256 checksum of the remote file.
+    
+* `uri` -
+  (Required)
+  Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.
     
 The `file` block supports:
     
@@ -764,7 +946,7 @@ The `file` block supports:
     
 * `file` -
   (Optional)
-  Required. A deb package.
+  A remote or local source.
     
 * `path` -
   (Required)
@@ -776,6 +958,48 @@ The `file` block supports:
 * `state` -
   (Required)
   Required. Desired state of the file. Possible values: OS_POLICY_COMPLIANCE_STATE_UNSPECIFIED, COMPLIANT, NON_COMPLIANT, UNKNOWN, NO_OS_POLICIES_APPLICABLE
+    
+The `file` block supports:
+    
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
+    
+* `gcs` -
+  (Optional)
+  A Cloud Storage object.
+    
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+    
+* `remote` -
+  (Optional)
+  A generic remote file.
+    
+The `gcs` block supports:
+    
+* `bucket` -
+  (Required)
+  Required. Bucket of the Cloud Storage object.
+    
+* `generation` -
+  (Optional)
+  Generation number of the Cloud Storage object.
+    
+* `object` -
+  (Required)
+  Required. Name of the Cloud Storage object.
+    
+The `remote` block supports:
+    
+* `sha256_checksum` -
+  (Optional)
+  SHA256 checksum of the remote file.
+    
+* `uri` -
+  (Required)
+  Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.
     
 The `pkg` block supports:
     
@@ -827,6 +1051,30 @@ The `deb` block supports:
   (Required)
   Required. A deb package.
     
+The `gcs` block supports:
+    
+* `bucket` -
+  (Required)
+  Required. Bucket of the Cloud Storage object.
+    
+* `generation` -
+  (Optional)
+  Generation number of the Cloud Storage object.
+    
+* `object` -
+  (Required)
+  Required. Name of the Cloud Storage object.
+    
+The `remote` block supports:
+    
+* `sha256_checksum` -
+  (Optional)
+  SHA256 checksum of the remote file.
+    
+* `uri` -
+  (Required)
+  Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.
+    
 The `googet` block supports:
     
 * `name` -
@@ -841,7 +1089,31 @@ The `msi` block supports:
     
 * `source` -
   (Required)
-  Required. A deb package.
+  Required. The MSI package.
+    
+The `gcs` block supports:
+    
+* `bucket` -
+  (Required)
+  Required. Bucket of the Cloud Storage object.
+    
+* `generation` -
+  (Optional)
+  Generation number of the Cloud Storage object.
+    
+* `object` -
+  (Required)
+  Required. Name of the Cloud Storage object.
+    
+The `remote` block supports:
+    
+* `sha256_checksum` -
+  (Optional)
+  SHA256 checksum of the remote file.
+    
+* `uri` -
+  (Required)
+  Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.
     
 The `rpm` block supports:
     
@@ -851,7 +1123,31 @@ The `rpm` block supports:
     
 * `source` -
   (Required)
-  Required. A deb package.
+  Required. An rpm package.
+    
+The `gcs` block supports:
+    
+* `bucket` -
+  (Required)
+  Required. Bucket of the Cloud Storage object.
+    
+* `generation` -
+  (Optional)
+  Generation number of the Cloud Storage object.
+    
+* `object` -
+  (Required)
+  Required. Name of the Cloud Storage object.
+    
+The `remote` block supports:
+    
+* `sha256_checksum` -
+  (Optional)
+  SHA256 checksum of the remote file.
+    
+* `uri` -
+  (Required)
+  Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.
     
 The `yum` block supports:
     
@@ -951,70 +1247,6 @@ The `zypper` block supports:
   (Required)
   Required. A one word, unique name for this repository. This is the `repo id` in the zypper config file and also the `display_name` if `display_name` is omitted. This id is also used as the unique identifier when checking for GuestPolicy conflicts.
     
-The `file` block supports:
-    
-* `allow_insecure` -
-  (Optional)
-  Defaults to false. When false, files are subject to validations based on the file type: Remote: A checksum must be specified. Cloud Storage: An object generation number must be specified.
-    
-* `gcs` -
-  (Optional)
-  A Cloud Storage object.
-    
-* `local_path` -
-  (Optional)
-  A local path within the VM to use.
-    
-* `remote` -
-  (Optional)
-  A generic remote file.
-    
-The `gcs` block supports:
-    
-* `bucket` -
-  (Required)
-  Required. Bucket of the Cloud Storage object.
-    
-* `object` -
-  (Required)
-  Required. Name of the Cloud Storage object.
-    
-* `generation` -
-  (Optional)
-  Generation number of the Cloud Storage object.
-    
-The `remote` block supports:
-    
-* `uri` -
-  (Required)
-  Required. URI from which to fetch the object. It should contain both the protocol and path following the format `{protocol}://{location}`.
-    
-* `sha256_checksum` -
-  (Optional)
-  SHA256 checksum of the remote file.
-    
-The `enforce` block supports:
-    
-* `interpreter` -
-  (Required)
-  Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL
-    
-* `args` -
-  (Optional)
-  Optional arguments to pass to the source during execution.
-    
-* `file` -
-  (Optional)
-  Required. A deb package.
-    
-* `output_file_path` -
-  (Optional)
-  Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.
-    
-* `script` -
-  (Optional)
-  An inline script. The size of the script is limited to 1024 characters.
-    
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -1050,9 +1282,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

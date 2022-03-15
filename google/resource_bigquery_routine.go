@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,9 +39,9 @@ func resourceBigQueryRoutine() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -74,7 +73,7 @@ If language=SQL, it is the substring inside (but excluding) the parentheses.`,
 						"argument_kind": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"FIXED_TYPE", "ANY_TYPE", ""}, false),
+							ValidateFunc: validateEnum([]string{"FIXED_TYPE", "ANY_TYPE", ""}),
 							Description:  `Defaults to FIXED_TYPE. Default value: "FIXED_TYPE" Possible values: ["FIXED_TYPE", "ANY_TYPE"]`,
 							Default:      "FIXED_TYPE",
 						},
@@ -94,7 +93,7 @@ the schema as returned by the API.`,
 						"mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"IN", "OUT", "INOUT", ""}, false),
+							ValidateFunc: validateEnum([]string{"IN", "OUT", "INOUT", ""}),
 							Description:  `Specifies whether the argument is input or output. Can be set for procedures only. Possible values: ["IN", "OUT", "INOUT"]`,
 						},
 						"name": {
@@ -113,7 +112,7 @@ the schema as returned by the API.`,
 			"determinism_level": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DETERMINISM_LEVEL_UNSPECIFIED", "DETERMINISTIC", "NOT_DETERMINISTIC", ""}, false),
+				ValidateFunc: validateEnum([]string{"DETERMINISM_LEVEL_UNSPECIFIED", "DETERMINISTIC", "NOT_DETERMINISTIC", ""}),
 				Description:  `The determinism level of the JavaScript UDF if defined. Possible values: ["DETERMINISM_LEVEL_UNSPECIFIED", "DETERMINISTIC", "NOT_DETERMINISTIC"]`,
 			},
 			"imported_libraries": {
@@ -128,7 +127,7 @@ imported JAVASCRIPT libraries.`,
 			"language": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SQL", "JAVASCRIPT", ""}, false),
+				ValidateFunc: validateEnum([]string{"SQL", "JAVASCRIPT", ""}),
 				Description:  `The language of the routine. Possible values: ["SQL", "JAVASCRIPT"]`,
 			},
 			"return_table_type": {
@@ -161,7 +160,7 @@ the schema as returned by the API.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION", ""}, false),
+				ValidateFunc: validateEnum([]string{"SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION", ""}),
 				Description:  `The type of routine. Possible values: ["SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION"]`,
 			},
 			"creation_time": {
@@ -565,7 +564,7 @@ func flattenBigQueryRoutineRoutineType(v interface{}, d *schema.ResourceData, co
 func flattenBigQueryRoutineCreationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -582,7 +581,7 @@ func flattenBigQueryRoutineCreationTime(v interface{}, d *schema.ResourceData, c
 func flattenBigQueryRoutineLastModifiedTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

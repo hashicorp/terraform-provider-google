@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeGlobalAddress() *schema.Resource {
@@ -36,8 +34,8 @@ func resourceComputeGlobalAddress() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -66,7 +64,7 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", ""}, false),
+				ValidateFunc:     validateEnum([]string{"EXTERNAL", "INTERNAL", ""}),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("EXTERNAL"),
 				Description: `The type of the address to reserve.
 
@@ -84,7 +82,7 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
+				ValidateFunc:     validateEnum([]string{"IPV4", "IPV6", ""}),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("IPV4"),
 				Description:      `The IP Version that will be used by this address. The default value is 'IPV4'. Possible values: ["IPV4", "IPV6"]`,
 			},
@@ -398,7 +396,7 @@ func flattenComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData,
 func flattenComputeGlobalAddressPrefixLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

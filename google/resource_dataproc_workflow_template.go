@@ -38,8 +38,8 @@ func resourceDataprocWorkflowTemplate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -969,7 +969,7 @@ func DataprocWorkflowTemplatePlacementManagedClusterSchema() *schema.Resource {
 				ForceNew:    true,
 				Description: "Required. The cluster configuration.",
 				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSchema(),
 			},
 
 			"labels": {
@@ -983,96 +983,369 @@ func DataprocWorkflowTemplatePlacementManagedClusterSchema() *schema.Resource {
 	}
 }
 
-func DataprocWorkflowTemplateParametersSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"fields": {
-				Type:        schema.TypeList,
-				Required:    true,
-				ForceNew:    true,
-				Description: "Required. Paths to all fields that the parameter replaces. A field is allowed to appear in at most one parameter's list of field paths. A field path is similar in syntax to a google.protobuf.FieldMask. For example, a field path that references the zone field of a workflow template's cluster selector would be specified as `placement.clusterSelector.zone`. Also, field paths can reference fields using the following syntax: * Values in maps can be referenced by key: * labels['key'] * placement.clusterSelector.clusterLabels['key'] * placement.managedCluster.labels['key'] * placement.clusterSelector.clusterLabels['key'] * jobs['step-id'].labels['key'] * Jobs in the jobs list can be referenced by step-id: * jobs['step-id'].hadoopJob.mainJarFileUri * jobs['step-id'].hiveJob.queryFileUri * jobs['step-id'].pySparkJob.mainPythonFileUri * jobs['step-id'].hadoopJob.jarFileUris[0] * jobs['step-id'].hadoopJob.archiveUris[0] * jobs['step-id'].hadoopJob.fileUris[0] * jobs['step-id'].pySparkJob.pythonFileUris[0] * Items in repeated fields can be referenced by a zero-based index: * jobs['step-id'].sparkJob.args[0] * Other examples: * jobs['step-id'].hadoopJob.properties['key'] * jobs['step-id'].hadoopJob.args[0] * jobs['step-id'].hiveJob.scriptVariables['key'] * jobs['step-id'].hadoopJob.mainJarFileUri * placement.clusterSelector.zone It may not be possible to parameterize maps and repeated fields in their entirety since only individual map values and individual items in repeated fields can be referenced. For example, the following field paths are invalid: - placement.clusterSelector.clusterLabels - jobs['step-id'].sparkJob.args",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: "Required. Parameter name. The parameter name is used as the key, and paired with the parameter value, which are passed to the template when the template is instantiated. The name must contain only capital letters (A-Z), numbers (0-9), and underscores (_), and must not start with a number. The maximum length is 40 characters.",
-			},
-
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Brief description of the parameter. Must not exceed 1024 characters.",
-			},
-
-			"validation": {
+			"autoscaling_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Validation rules to be applied to this parameter's value.",
+				Description: "Optional. Autoscaling config for the policy associated with the cluster. Cluster does not autoscale if this field is unset.",
 				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateParametersValidationSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSchema(),
+			},
+
+			"encryption_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Encryption settings for the cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSchema(),
+			},
+
+			"endpoint_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Port/endpoint configuration for this cluster",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSchema(),
+			},
+
+			"gce_cluster_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The shared Compute Engine config settings for all instances in a cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSchema(),
+			},
+
+			"initialization_actions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Commands to execute on each node after config is completed. By default, executables are run on master and all worker nodes. You can test a node's `role` metadata to run an executable on a master or worker node, as shown below using `curl` (you can also use `wget`): ROLE=$(curl -H Metadata-Flavor:Google http://metadata/computeMetadata/v1/instance/attributes/dataproc-role) if [[ \"${ROLE}\" == 'Master' ]]; then ... master specific actions ... else ... worker specific actions ... fi",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSchema(),
+			},
+
+			"lifecycle_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Lifecycle setting for the cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSchema(),
+			},
+
+			"master_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The Compute Engine config settings for the master instance in a cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigSchema(),
+			},
+
+			"secondary_worker_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The Compute Engine config settings for additional worker instances in a cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSchema(),
+			},
+
+			"security_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Security settings for the cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSchema(),
+			},
+
+			"software_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The config settings for software inside the cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSchema(),
+			},
+
+			"staging_bucket": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. A Cloud Storage bucket used to stage job dependencies, config files, and job driver console output. If you do not specify a staging bucket, Cloud Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's staging bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket (see [Dataproc staging bucket](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/staging-bucket)). **This field requires a Cloud Storage bucket name, not a URI to a Cloud Storage bucket.**",
+			},
+
+			"temp_bucket": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. A Cloud Storage bucket used to store ephemeral cluster and jobs data, such as Spark and MapReduce history files. If you do not specify a temp bucket, Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's temp bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket. The default bucket has a TTL of 90 days, but you can use any TTL (or none) if you specify a bucket. **This field requires a Cloud Storage bucket name, not a URI to a Cloud Storage bucket.**",
+			},
+
+			"worker_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The Compute Engine config settings for worker instances in a cluster.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSchema(),
 			},
 		},
 	}
 }
 
-func DataprocWorkflowTemplateParametersValidationSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"regex": {
+			"policy": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. The autoscaling policy used by the cluster. Only resource names including projectid and location (region) are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]` * `projects/[project_id]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]` Note that the policy must be in the same project and Dataproc region.",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigEncryptionConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"gce_pd_kms_key_name": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. The Cloud KMS key name to use for PD disk encryption for all instances in the cluster.",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigEndpointConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable_http_port_access": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. If true, enable http access to specific ports on the cluster from external sources. Defaults to false.",
+			},
+
+			"http_ports": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "Output only. The map of port descriptions to URLs. Will only be populated if enable_http_port_access is true.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"internal_ip_only": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. If true, all instances in the cluster will only have internal IP addresses. By default, clusters are not restricted to internal IP addresses, and will have ephemeral external IP addresses assigned to each instance. This `internal_ip_only` restriction can only be enabled for subnetwork enabled networks, and all off-cluster dependencies must be configured to be accessible without external IP addresses.",
+			},
+
+			"metadata": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The Compute Engine metadata entries to add to all instances (see [Project and instance metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"network": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. The Compute Engine network to be used for machine communications. Cannot be specified with subnetwork_uri. If neither `network_uri` nor `subnetwork_uri` is specified, the \"default\" network of the project is used, if it exists. Cannot be a \"Custom Subnet Network\" (see [Using Subnetworks](https://cloud.google.com/compute/docs/subnetworks) for more information). A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/regions/global/default` * `projects/[project_id]/regions/global/default` * `default`",
+			},
+
+			"node_group_affinity": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Validation based on regular expressions.",
+				Description: "Optional. Node Group Affinity for sole-tenant clusters.",
 				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateParametersValidationRegexSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySchema(),
+			},
+
+			"private_ipv6_google_access": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The type of IPv6 access for a cluster. Possible values: PRIVATE_IPV6_GOOGLE_ACCESS_UNSPECIFIED, INHERIT_FROM_SUBNETWORK, OUTBOUND, BIDIRECTIONAL",
+			},
+
+			"reservation_affinity": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Reservation Affinity for consuming Zonal reservation.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySchema(),
+			},
+
+			"service_account": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. The [Dataproc service account](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/service-accounts#service_accounts_in_dataproc) (also see [VM Data Plane identity](https://cloud.google.com/dataproc/docs/concepts/iam/dataproc-principals#vm_service_account_data_plane_identity)) used by Dataproc cluster VM instances to access Google Cloud Platform services. If not specified, the [Compute Engine default service account](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account) is used.",
+			},
+
+			"service_account_scopes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The URIs of service account scopes to be included in Compute Engine instances. The following base set of scopes is always included: * https://www.googleapis.com/auth/cloud.useraccounts.readonly * https://www.googleapis.com/auth/devstorage.read_write * https://www.googleapis.com/auth/logging.write If no scopes are specified, the following defaults are also provided: * https://www.googleapis.com/auth/bigquery * https://www.googleapis.com/auth/bigtable.admin.table * https://www.googleapis.com/auth/bigtable.data * https://www.googleapis.com/auth/devstorage.full_control",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"subnetwork": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. The Compute Engine subnetwork to be used for machine communications. Cannot be specified with network_uri. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/regions/us-east1/subnetworks/sub0` * `projects/[project_id]/regions/us-east1/subnetworks/sub0` * `sub0`",
+			},
+
+			"tags": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The Compute Engine tags to add to all instances (see [Tagging instances](https://cloud.google.com/compute/docs/label-or-tag-resources#tags)).",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
+			"zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The zone where the Compute Engine cluster will be located. On a create request, it is required in the \"global\" region. If omitted in a non-global Dataproc region, the service will pick a zone in the corresponding Compute Engine region. On a get request, zone will always be present. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/[zone]` * `projects/[project_id]/zones/[zone]` * `us-central1-f`",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinitySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"node_group": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Required. The URI of a sole-tenant [node group resource](https://cloud.google.com/compute/docs/reference/rest/v1/nodeGroups) that the cluster will be created on. A full URL, partial URI, or node group name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/us-central1-a/nodeGroups/node-group-1` * `projects/[project_id]/zones/us-central1-a/nodeGroups/node-group-1` * `node-group-1`",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinitySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"consume_reservation_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Type of reservation to consume Possible values: TYPE_UNSPECIFIED, NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION",
+			},
+
+			"key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Corresponds to the label key of reservation resource.",
 			},
 
 			"values": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Validation based on a list of allowed values.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateParametersValidationValuesSchema(),
-			},
-		},
-	}
-}
-
-func DataprocWorkflowTemplateParametersValidationRegexSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"regexes": {
-				Type:        schema.TypeList,
-				Required:    true,
-				ForceNew:    true,
-				Description: "Required. RE2 regular expressions used to validate the parameter's value. The value must match the regex in its entirety (substring matches are not sufficient).",
+				Description: "Optional. Corresponds to the label values of reservation resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
 }
 
-func DataprocWorkflowTemplateParametersValidationValuesSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"values": {
-				Type:        schema.TypeList,
-				Required:    true,
+			"executable_file": {
+				Type:        schema.TypeString,
+				Optional:    true,
 				ForceNew:    true,
-				Description: "Required. List of allowed values for the parameter.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "Required. Cloud Storage URI of executable file.",
+			},
+
+			"execution_timeout": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Amount of time executable has to complete. Default is 10 minutes (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)). Cluster creation fails with an explanatory error message (the name of the executable that caused the error and the exceeded timeout period) if the executable is not completed at end of the timeout period.",
 			},
 		},
 	}
 }
 
-func DataprocWorkflowTemplateClusterInstanceGroupConfigSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigLifecycleConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"auto_delete_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The time when cluster will be auto-deleted (see JSON representation of [Timestamp](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+			},
+
+			"auto_delete_ttl": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The lifetime duration of cluster. The cluster will be auto-deleted at the end of this period. Minimum value is 10 minutes; maximum value is 14 days (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+			},
+
+			"idle_delete_ttl": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The duration to keep the cluster alive while idling (when no jobs are running). Passing this threshold will cause the cluster to be deleted. Minimum value is 5 minutes; maximum value is 14 days (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+			},
+
+			"idle_start_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Output only. The time when cluster became idle (most recent job finished) and became eligible for deletion due to idleness (see JSON representation of [Timestamp](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"accelerators": {
@@ -1081,7 +1354,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigSchema() *schema.Resource
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Optional. The Compute Engine accelerator configuration for these instances.",
-				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSchema(),
 			},
 
 			"disk_config": {
@@ -1091,7 +1364,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigSchema() *schema.Resource
 				ForceNew:    true,
 				Description: "Optional. Disk option config settings.",
 				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfigSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSchema(),
 			},
 
 			"image": {
@@ -1148,13 +1421,13 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigSchema() *schema.Resource
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Output only. The config for Compute Engine Instance Group Manager that manages this group. This is only used for preemptible instance groups.",
-				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigManagedGroupConfigSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSchema(),
 			},
 		},
 	}
 }
 
-func DataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"accelerator_count": {
@@ -1174,7 +1447,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsSchema() *sch
 	}
 }
 
-func DataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfigSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"boot_disk_size_gb": {
@@ -1202,7 +1475,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfigSchema() *schem
 	}
 }
 
-func DataprocWorkflowTemplateClusterInstanceGroupConfigManagedGroupConfigSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"instance_group_manager_name": {
@@ -1220,369 +1493,155 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigManagedGroupConfigSchema(
 	}
 }
 
-func DataprocWorkflowTemplateClusterClusterConfigSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"autoscaling_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Autoscaling config for the policy associated with the cluster. Cluster does not autoscale if this field is unset.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigAutoscalingConfigSchema(),
-			},
-
-			"encryption_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Encryption settings for the cluster.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigEncryptionConfigSchema(),
-			},
-
-			"endpoint_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Port/endpoint configuration for this cluster",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigEndpointConfigSchema(),
-			},
-
-			"gce_cluster_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. The shared Compute Engine config settings for all instances in a cluster.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigSchema(),
-			},
-
-			"initialization_actions": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Commands to execute on each node after config is completed. By default, executables are run on master and all worker nodes. You can test a node's `role` metadata to run an executable on a master or worker node, as shown below using `curl` (you can also use `wget`): ROLE=$(curl -H Metadata-Flavor:Google http://metadata/computeMetadata/v1/instance/attributes/dataproc-role) if [[ \"${ROLE}\" == 'Master' ]]; then ... master specific actions ... else ... worker specific actions ... fi",
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigInitializationActionsSchema(),
-			},
-
-			"lifecycle_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Lifecycle setting for the cluster.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigLifecycleConfigSchema(),
-			},
-
-			"master_config": {
+			"accelerators": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The Compute Engine config settings for worker instances in a cluster.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigSchema(),
+				Description: "Optional. The Compute Engine accelerator configuration for these instances.",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSchema(),
 			},
 
-			"secondary_worker_config": {
+			"disk_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The Compute Engine config settings for worker instances in a cluster.",
+				Description: "Optional. Disk option config settings.",
 				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSchema(),
 			},
 
-			"security_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Security settings for the cluster.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigSecurityConfigSchema(),
-			},
-
-			"software_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. The config settings for software inside the cluster.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigSoftwareConfigSchema(),
-			},
-
-			"staging_bucket": {
+			"image": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. A Cloud Storage bucket used to stage job dependencies, config files, and job driver console output. If you do not specify a staging bucket, Cloud Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's staging bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket (see [Dataproc staging bucket](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/staging-bucket)). **This field requires a Cloud Storage bucket name, not a URI to a Cloud Storage bucket.**",
+				Description:      "Optional. The Compute Engine image resource used for cluster instances. The URI can represent an image or image family. Image examples: * `https://www.googleapis.com/compute/beta/projects/[project_id]/global/images/[image-id]` * `projects/[project_id]/global/images/[image-id]` * `image-id` Image family examples. Dataproc will use the most recent image from the family: * `https://www.googleapis.com/compute/beta/projects/[project_id]/global/images/family/[custom-image-family-name]` * `projects/[project_id]/global/images/family/[custom-image-family-name]` If the URI is unspecified, it will be inferred from `SoftwareConfig.image_version` or the system default.",
 			},
 
-			"temp_bucket": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. A Cloud Storage bucket used to store ephemeral cluster and jobs data, such as Spark and MapReduce history files. If you do not specify a temp bucket, Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's temp bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket. The default bucket has a TTL of 90 days, but you can use any TTL (or none) if you specify a bucket. **This field requires a Cloud Storage bucket name, not a URI to a Cloud Storage bucket.**",
+			"machine_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The Compute Engine machine type used for cluster instances. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/us-east1-a/machineTypes/n1-standard-2` * `projects/[project_id]/zones/us-east1-a/machineTypes/n1-standard-2` * `n1-standard-2` **Auto Zone Exception**: If you are using the Dataproc [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the machine type resource, for example, `n1-standard-2`.",
 			},
 
-			"worker_config": {
-				Type:        schema.TypeList,
+			"min_cpu_platform": {
+				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The Compute Engine config settings for worker instances in a cluster.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigSchema(),
+				Description: "Optional. Specifies the minimum cpu platform for the Instance Group. See [Dataproc -> Minimum CPU Platform](https://cloud.google.com/dataproc/docs/concepts/compute/dataproc-min-cpu).",
 			},
-		},
-	}
-}
 
-func DataprocWorkflowTemplateClusterClusterConfigAutoscalingConfigSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"policy": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The autoscaling policy used by the cluster. Only resource names including projectid and location (region) are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]` * `projects/[project_id]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]` Note that the policy must be in the same project and Dataproc region.",
-			},
-		},
-	}
-}
-
-func DataprocWorkflowTemplateClusterClusterConfigEncryptionConfigSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"gce_pd_kms_key_name": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The Cloud KMS key name to use for PD disk encryption for all instances in the cluster.",
-			},
-		},
-	}
-}
-
-func DataprocWorkflowTemplateClusterClusterConfigEndpointConfigSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"enable_http_port_access": {
-				Type:        schema.TypeBool,
+			"num_instances": {
+				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. If true, enable http access to specific ports on the cluster from external sources. Defaults to false.",
+				Description: "Optional. The number of VM instances in the instance group. For [HA cluster](/dataproc/docs/concepts/configuring-clusters/high-availability) [master_config](#FIELDS.master_config) groups, **must be set to 3**. For standard cluster [master_config](#FIELDS.master_config) groups, **must be set to 1**.",
 			},
 
-			"http_ports": {
-				Type:        schema.TypeMap,
+			"preemptibility": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Specifies the preemptibility of the instance group. The default value for master and worker groups is `NON_PREEMPTIBLE`. This default cannot be changed. The default value for secondary instances is `PREEMPTIBLE`. Possible values: PREEMPTIBILITY_UNSPECIFIED, NON_PREEMPTIBLE, PREEMPTIBLE",
+			},
+
+			"instance_names": {
+				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "Output only. The map of port descriptions to URLs. Will only be populated if enable_http_port_access is true.",
+				Description: "Output only. The list of instance names. Dataproc derives the names from `cluster_name`, `num_instances`, and the instance group.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-		},
-	}
-}
 
-func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"internal_ip_only": {
+			"is_preemptible": {
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. If true, all instances in the cluster will only have internal IP addresses. By default, clusters are not restricted to internal IP addresses, and will have ephemeral external IP addresses assigned to each instance. This `internal_ip_only` restriction can only be enabled for subnetwork enabled networks, and all off-cluster dependencies must be configured to be accessible without external IP addresses.",
+				Description: "Output only. Specifies that this instance group contains preemptible instances.",
 			},
 
-			"metadata": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "The Compute Engine metadata entries to add to all instances (see [Project and instance metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
-			"network": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The Compute Engine network to be used for machine communications. Cannot be specified with subnetwork_uri. If neither `network_uri` nor `subnetwork_uri` is specified, the \"default\" network of the project is used, if it exists. Cannot be a \"Custom Subnet Network\" (see [Using Subnetworks](https://cloud.google.com/compute/docs/subnetworks) for more information). A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/regions/global/default` * `projects/[project_id]/regions/global/default` * `default`",
-			},
-
-			"node_group_affinity": {
+			"managed_group_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Output only. The config for Compute Engine Instance Group Manager that manages this group. This is only used for preemptible instance groups.",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSchema(),
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"accelerator_count": {
+				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Node Group Affinity for sole-tenant clusters.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigNodeGroupAffinitySchema(),
+				Description: "The number of the accelerator cards of this type exposed to this instance.",
 			},
 
-			"private_ipv6_google_access": {
+			"accelerator_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The type of IPv6 access for a cluster. Possible values: PRIVATE_IPV6_GOOGLE_ACCESS_UNSPECIFIED, INHERIT_FROM_SUBNETWORK, OUTBOUND, BIDIRECTIONAL",
+				Description: "Full URL, partial URI, or short name of the accelerator type resource to expose to this instance. See [Compute Engine AcceleratorTypes](https://cloud.google.com/compute/docs/reference/beta/acceleratorTypes). Examples: * `https://www.googleapis.com/compute/beta/projects/[project_id]/zones/us-east1-a/acceleratorTypes/nvidia-tesla-k80` * `projects/[project_id]/zones/us-east1-a/acceleratorTypes/nvidia-tesla-k80` * `nvidia-tesla-k80` **Auto Zone Exception**: If you are using the Dataproc [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the accelerator type resource, for example, `nvidia-tesla-k80`.",
 			},
+		},
+	}
+}
 
-			"reservation_affinity": {
-				Type:        schema.TypeList,
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"boot_disk_size_gb": {
+				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Reservation Affinity for consuming Zonal reservation.",
-				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigReservationAffinitySchema(),
+				Description: "Optional. Size in GB of the boot disk (default is 500GB).",
 			},
 
-			"service_account": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The [Dataproc service account](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/service-accounts#service_accounts_in_dataproc) (also see [VM Data Plane identity](https://cloud.google.com/dataproc/docs/concepts/iam/dataproc-principals#vm_service_account_data_plane_identity)) used by Dataproc cluster VM instances to access Google Cloud Platform services. If not specified, the [Compute Engine default service account](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account) is used.",
-			},
-
-			"service_account_scopes": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. The URIs of service account scopes to be included in Compute Engine instances. The following base set of scopes is always included: * https://www.googleapis.com/auth/cloud.useraccounts.readonly * https://www.googleapis.com/auth/devstorage.read_write * https://www.googleapis.com/auth/logging.write If no scopes are specified, the following defaults are also provided: * https://www.googleapis.com/auth/bigquery * https://www.googleapis.com/auth/bigtable.admin.table * https://www.googleapis.com/auth/bigtable.data * https://www.googleapis.com/auth/devstorage.full_control",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
-			"subnetwork": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The Compute Engine subnetwork to be used for machine communications. Cannot be specified with network_uri. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/regions/us-east1/subnetworks/sub0` * `projects/[project_id]/regions/us-east1/subnetworks/sub0` * `sub0`",
-			},
-
-			"tags": {
-				Type:        schema.TypeSet,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "The Compute Engine tags to add to all instances (see [Tagging instances](https://cloud.google.com/compute/docs/label-or-tag-resources#tags)).",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Set:         schema.HashString,
-			},
-
-			"zone": {
+			"boot_disk_type": {
 				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Type of the boot disk (default is \"pd-standard\"). Valid values: \"pd-balanced\" (Persistent Disk Balanced Solid State Drive), \"pd-ssd\" (Persistent Disk Solid State Drive), or \"pd-standard\" (Persistent Disk Hard Disk Drive). See [Disk types](https://cloud.google.com/compute/docs/disks#disk-types).",
+			},
+
+			"num_local_ssds": {
+				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The zone where the Compute Engine cluster will be located. On a create request, it is required in the \"global\" region. If omitted in a non-global Dataproc region, the service will pick a zone in the corresponding Compute Engine region. On a get request, zone will always be present. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/[zone]` * `projects/[project_id]/zones/[zone]` * `us-central1-f`",
+				Description: "Optional. Number of attached SSDs, from 0 to 4 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
 			},
 		},
 	}
 }
 
-func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigNodeGroupAffinitySchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"node_group": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Required. The URI of a sole-tenant [node group resource](https://cloud.google.com/compute/docs/reference/rest/v1/nodeGroups) that the cluster will be created on. A full URL, partial URI, or node group name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/us-central1-a/nodeGroups/node-group-1` * `projects/[project_id]/zones/us-central1-a/nodeGroups/node-group-1` * `node-group-1`",
-			},
-		},
-	}
-}
-
-func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigReservationAffinitySchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"consume_reservation_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Type of reservation to consume Possible values: TYPE_UNSPECIFIED, NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION",
-			},
-
-			"key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Corresponds to the label key of reservation resource.",
-			},
-
-			"values": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Corresponds to the label values of reservation resource.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-		},
-	}
-}
-
-func DataprocWorkflowTemplateClusterClusterConfigInitializationActionsSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"executable_file": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Required. Cloud Storage URI of executable file.",
-			},
-
-			"execution_timeout": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Amount of time executable has to complete. Default is 10 minutes (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)). Cluster creation fails with an explanatory error message (the name of the executable that caused the error and the exceeded timeout period) if the executable is not completed at end of the timeout period.",
-			},
-		},
-	}
-}
-
-func DataprocWorkflowTemplateClusterClusterConfigLifecycleConfigSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"auto_delete_time": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. The time when cluster will be auto-deleted (see JSON representation of [Timestamp](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
-			},
-
-			"auto_delete_ttl": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. The lifetime duration of cluster. The cluster will be auto-deleted at the end of this period. Minimum value is 10 minutes; maximum value is 14 days (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
-			},
-
-			"idle_delete_ttl": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. The duration to keep the cluster alive while idling (when no jobs are running). Passing this threshold will cause the cluster to be deleted. Minimum value is 5 minutes; maximum value is 14 days (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
-			},
-
-			"idle_start_time": {
+			"instance_group_manager_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Output only. The time when cluster became idle (most recent job finished) and became eligible for deletion due to idleness (see JSON representation of [Timestamp](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+				Description: "Output only. The name of the Instance Group Manager for this group.",
+			},
+
+			"instance_template_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Output only. The name of the Instance Template used for the Managed Instance Group.",
 			},
 		},
 	}
 }
 
-func DataprocWorkflowTemplateClusterClusterConfigSecurityConfigSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"kerberos_config": {
@@ -1591,13 +1650,13 @@ func DataprocWorkflowTemplateClusterClusterConfigSecurityConfigSchema() *schema.
 				ForceNew:    true,
 				Description: "Optional. Kerberos related configuration.",
 				MaxItems:    1,
-				Elem:        DataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfigSchema(),
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSchema(),
 			},
 		},
 	}
 }
 
-func DataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfigSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"cross_realm_trust_admin_server": {
@@ -1709,7 +1768,7 @@ func DataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfigSch
 	}
 }
 
-func DataprocWorkflowTemplateClusterClusterConfigSoftwareConfigSchema() *schema.Resource {
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"image_version": {
@@ -1732,6 +1791,243 @@ func DataprocWorkflowTemplateClusterClusterConfigSoftwareConfigSchema() *schema.
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Optional. The properties to set on daemon config files. Property keys are specified in `prefix:property` format, for example `core:hadoop.tmp.dir`. The following are supported prefixes and their mappings: * capacity-scheduler: `capacity-scheduler.xml` * core: `core-site.xml` * distcp: `distcp-default.xml` * hdfs: `hdfs-site.xml` * hive: `hive-site.xml` * mapred: `mapred-site.xml` * pig: `pig.properties` * spark: `spark-defaults.conf` * yarn: `yarn-site.xml` For more information, see [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties).",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"accelerators": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The Compute Engine accelerator configuration for these instances.",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSchema(),
+			},
+
+			"disk_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Disk option config settings.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSchema(),
+			},
+
+			"image": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. The Compute Engine image resource used for cluster instances. The URI can represent an image or image family. Image examples: * `https://www.googleapis.com/compute/beta/projects/[project_id]/global/images/[image-id]` * `projects/[project_id]/global/images/[image-id]` * `image-id` Image family examples. Dataproc will use the most recent image from the family: * `https://www.googleapis.com/compute/beta/projects/[project_id]/global/images/family/[custom-image-family-name]` * `projects/[project_id]/global/images/family/[custom-image-family-name]` If the URI is unspecified, it will be inferred from `SoftwareConfig.image_version` or the system default.",
+			},
+
+			"machine_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The Compute Engine machine type used for cluster instances. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/us-east1-a/machineTypes/n1-standard-2` * `projects/[project_id]/zones/us-east1-a/machineTypes/n1-standard-2` * `n1-standard-2` **Auto Zone Exception**: If you are using the Dataproc [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the machine type resource, for example, `n1-standard-2`.",
+			},
+
+			"min_cpu_platform": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Specifies the minimum cpu platform for the Instance Group. See [Dataproc -> Minimum CPU Platform](https://cloud.google.com/dataproc/docs/concepts/compute/dataproc-min-cpu).",
+			},
+
+			"num_instances": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The number of VM instances in the instance group. For [HA cluster](/dataproc/docs/concepts/configuring-clusters/high-availability) [master_config](#FIELDS.master_config) groups, **must be set to 3**. For standard cluster [master_config](#FIELDS.master_config) groups, **must be set to 1**.",
+			},
+
+			"preemptibility": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Specifies the preemptibility of the instance group. The default value for master and worker groups is `NON_PREEMPTIBLE`. This default cannot be changed. The default value for secondary instances is `PREEMPTIBLE`. Possible values: PREEMPTIBILITY_UNSPECIFIED, NON_PREEMPTIBLE, PREEMPTIBLE",
+			},
+
+			"instance_names": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Output only. The list of instance names. Dataproc derives the names from `cluster_name`, `num_instances`, and the instance group.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"is_preemptible": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Output only. Specifies that this instance group contains preemptible instances.",
+			},
+
+			"managed_group_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Output only. The config for Compute Engine Instance Group Manager that manages this group. This is only used for preemptible instance groups.",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSchema(),
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"accelerator_count": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The number of the accelerator cards of this type exposed to this instance.",
+			},
+
+			"accelerator_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Full URL, partial URI, or short name of the accelerator type resource to expose to this instance. See [Compute Engine AcceleratorTypes](https://cloud.google.com/compute/docs/reference/beta/acceleratorTypes). Examples: * `https://www.googleapis.com/compute/beta/projects/[project_id]/zones/us-east1-a/acceleratorTypes/nvidia-tesla-k80` * `projects/[project_id]/zones/us-east1-a/acceleratorTypes/nvidia-tesla-k80` * `nvidia-tesla-k80` **Auto Zone Exception**: If you are using the Dataproc [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the accelerator type resource, for example, `nvidia-tesla-k80`.",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"boot_disk_size_gb": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Size in GB of the boot disk (default is 500GB).",
+			},
+
+			"boot_disk_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Type of the boot disk (default is \"pd-standard\"). Valid values: \"pd-balanced\" (Persistent Disk Balanced Solid State Drive), \"pd-ssd\" (Persistent Disk Solid State Drive), or \"pd-standard\" (Persistent Disk Hard Disk Drive). See [Disk types](https://cloud.google.com/compute/docs/disks#disk-types).",
+			},
+
+			"num_local_ssds": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Number of attached SSDs, from 0 to 4 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"instance_group_manager_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Output only. The name of the Instance Group Manager for this group.",
+			},
+
+			"instance_template_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Output only. The name of the Instance Template used for the Managed Instance Group.",
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplateParametersSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"fields": {
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Required. Paths to all fields that the parameter replaces. A field is allowed to appear in at most one parameter's list of field paths. A field path is similar in syntax to a google.protobuf.FieldMask. For example, a field path that references the zone field of a workflow template's cluster selector would be specified as `placement.clusterSelector.zone`. Also, field paths can reference fields using the following syntax: * Values in maps can be referenced by key: * labels['key'] * placement.clusterSelector.clusterLabels['key'] * placement.managedCluster.labels['key'] * placement.clusterSelector.clusterLabels['key'] * jobs['step-id'].labels['key'] * Jobs in the jobs list can be referenced by step-id: * jobs['step-id'].hadoopJob.mainJarFileUri * jobs['step-id'].hiveJob.queryFileUri * jobs['step-id'].pySparkJob.mainPythonFileUri * jobs['step-id'].hadoopJob.jarFileUris[0] * jobs['step-id'].hadoopJob.archiveUris[0] * jobs['step-id'].hadoopJob.fileUris[0] * jobs['step-id'].pySparkJob.pythonFileUris[0] * Items in repeated fields can be referenced by a zero-based index: * jobs['step-id'].sparkJob.args[0] * Other examples: * jobs['step-id'].hadoopJob.properties['key'] * jobs['step-id'].hadoopJob.args[0] * jobs['step-id'].hiveJob.scriptVariables['key'] * jobs['step-id'].hadoopJob.mainJarFileUri * placement.clusterSelector.zone It may not be possible to parameterize maps and repeated fields in their entirety since only individual map values and individual items in repeated fields can be referenced. For example, the following field paths are invalid: - placement.clusterSelector.clusterLabels - jobs['step-id'].sparkJob.args",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Required. Parameter name. The parameter name is used as the key, and paired with the parameter value, which are passed to the template when the template is instantiated. The name must contain only capital letters (A-Z), numbers (0-9), and underscores (_), and must not start with a number. The maximum length is 40 characters.",
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Brief description of the parameter. Must not exceed 1024 characters.",
+			},
+
+			"validation": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Validation rules to be applied to this parameter's value.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplateParametersValidationSchema(),
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplateParametersValidationSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"regex": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Validation based on regular expressions.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplateParametersValidationRegexSchema(),
+			},
+
+			"values": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Validation based on a list of allowed values.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplateParametersValidationValuesSchema(),
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplateParametersValidationRegexSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"regexes": {
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Required. RE2 regular expressions used to validate the parameter's value. The value must match the regex in its entirety (substring matches are not sufficient).",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplateParametersValidationValuesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"values": {
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Required. List of allowed values for the parameter.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -1918,6 +2214,7 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 
 func resourceDataprocWorkflowTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/workflowTemplates/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -2699,7 +2996,7 @@ func expandDataprocWorkflowTemplatePlacementManagedCluster(o interface{}) *datap
 	obj := objArr[0].(map[string]interface{})
 	return &dataproc.WorkflowTemplatePlacementManagedCluster{
 		ClusterName: dcl.String(obj["cluster_name"].(string)),
-		Config:      expandDataprocWorkflowTemplateClusterClusterConfig(obj["config"]),
+		Config:      expandDataprocWorkflowTemplatePlacementManagedClusterConfig(obj["config"]),
 		Labels:      checkStringMap(obj["labels"]),
 	}
 }
@@ -2710,8 +3007,860 @@ func flattenDataprocWorkflowTemplatePlacementManagedCluster(obj *dataproc.Workfl
 	}
 	transformed := map[string]interface{}{
 		"cluster_name": obj.ClusterName,
-		"config":       flattenDataprocWorkflowTemplateClusterClusterConfig(obj.Config),
+		"config":       flattenDataprocWorkflowTemplatePlacementManagedClusterConfig(obj.Config),
 		"labels":       obj.Labels,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfig{
+		AutoscalingConfig:     expandDataprocWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(obj["autoscaling_config"]),
+		EncryptionConfig:      expandDataprocWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(obj["encryption_config"]),
+		EndpointConfig:        expandDataprocWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(obj["endpoint_config"]),
+		GceClusterConfig:      expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(obj["gce_cluster_config"]),
+		InitializationActions: expandDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActionsArray(obj["initialization_actions"]),
+		LifecycleConfig:       expandDataprocWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(obj["lifecycle_config"]),
+		MasterConfig:          expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfig(obj["master_config"]),
+		SecondaryWorkerConfig: expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(obj["secondary_worker_config"]),
+		SecurityConfig:        expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(obj["security_config"]),
+		SoftwareConfig:        expandDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(obj["software_config"]),
+		StagingBucket:         dcl.String(obj["staging_bucket"].(string)),
+		TempBucket:            dcl.String(obj["temp_bucket"].(string)),
+		WorkerConfig:          expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(obj["worker_config"]),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"autoscaling_config":      flattenDataprocWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(obj.AutoscalingConfig),
+		"encryption_config":       flattenDataprocWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(obj.EncryptionConfig),
+		"endpoint_config":         flattenDataprocWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(obj.EndpointConfig),
+		"gce_cluster_config":      flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(obj.GceClusterConfig),
+		"initialization_actions":  flattenDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActionsArray(obj.InitializationActions),
+		"lifecycle_config":        flattenDataprocWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(obj.LifecycleConfig),
+		"master_config":           flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfig(obj.MasterConfig),
+		"secondary_worker_config": flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(obj.SecondaryWorkerConfig),
+		"security_config":         flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(obj.SecurityConfig),
+		"software_config":         flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(obj.SoftwareConfig),
+		"staging_bucket":          obj.StagingBucket,
+		"temp_bucket":             obj.TempBucket,
+		"worker_config":           flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(obj.WorkerConfig),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig{
+		Policy: dcl.String(obj["policy"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"policy": obj.Policy,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig{
+		GcePdKmsKeyName: dcl.String(obj["gce_pd_kms_key_name"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"gce_pd_kms_key_name": obj.GcePdKmsKeyName,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigEndpointConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigEndpointConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigEndpointConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigEndpointConfig{
+		EnableHttpPortAccess: dcl.Bool(obj["enable_http_port_access"].(bool)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigEndpointConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigEndpointConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"enable_http_port_access": obj.EnableHttpPortAccess,
+		"http_ports":              obj.HttpPorts,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig{
+		InternalIPOnly:          dcl.Bool(obj["internal_ip_only"].(bool)),
+		Metadata:                checkStringMap(obj["metadata"]),
+		Network:                 dcl.String(obj["network"].(string)),
+		NodeGroupAffinity:       expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(obj["node_group_affinity"]),
+		PrivateIPv6GoogleAccess: dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumRef(obj["private_ipv6_google_access"].(string)),
+		ReservationAffinity:     expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(obj["reservation_affinity"]),
+		ServiceAccount:          dcl.String(obj["service_account"].(string)),
+		ServiceAccountScopes:    expandStringArray(obj["service_account_scopes"]),
+		Subnetwork:              dcl.String(obj["subnetwork"].(string)),
+		Tags:                    expandStringArray(obj["tags"]),
+		Zone:                    dcl.StringOrNil(obj["zone"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"internal_ip_only":           obj.InternalIPOnly,
+		"metadata":                   obj.Metadata,
+		"network":                    obj.Network,
+		"node_group_affinity":        flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(obj.NodeGroupAffinity),
+		"private_ipv6_google_access": obj.PrivateIPv6GoogleAccess,
+		"reservation_affinity":       flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(obj.ReservationAffinity),
+		"service_account":            obj.ServiceAccount,
+		"service_account_scopes":     obj.ServiceAccountScopes,
+		"subnetwork":                 obj.Subnetwork,
+		"tags":                       obj.Tags,
+		"zone":                       obj.Zone,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity{
+		NodeGroup: dcl.String(obj["node_group"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"node_group": obj.NodeGroup,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity{
+		ConsumeReservationType: dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumRef(obj["consume_reservation_type"].(string)),
+		Key:                    dcl.String(obj["key"].(string)),
+		Values:                 expandStringArray(obj["values"]),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"consume_reservation_type": obj.ConsumeReservationType,
+		"key":                      obj.Key,
+		"values":                   obj.Values,
+	}
+
+	return []interface{}{transformed}
+
+}
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActionsArray(o interface{}) []dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+	if o == nil {
+		return make([]dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions, 0)
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return make([]dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions, 0)
+	}
+
+	items := make([]dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions, 0, len(objs))
+	for _, item := range objs {
+		i := expandDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActions(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActions(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigInitializationActions
+	}
+
+	obj := o.(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions{
+		ExecutableFile:   dcl.String(obj["executable_file"].(string)),
+		ExecutionTimeout: dcl.String(obj["execution_timeout"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActionsArray(objs []dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActions(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigInitializationActions(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigInitializationActions) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"executable_file":   obj.ExecutableFile,
+		"execution_timeout": obj.ExecutionTimeout,
+	}
+
+	return transformed
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig{
+		AutoDeleteTime: dcl.String(obj["auto_delete_time"].(string)),
+		AutoDeleteTtl:  dcl.String(obj["auto_delete_ttl"].(string)),
+		IdleDeleteTtl:  dcl.String(obj["idle_delete_ttl"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigLifecycleConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"auto_delete_time": obj.AutoDeleteTime,
+		"auto_delete_ttl":  obj.AutoDeleteTtl,
+		"idle_delete_ttl":  obj.IdleDeleteTtl,
+		"idle_start_time":  obj.IdleStartTime,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfig {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfig{
+		Accelerators:   expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsArray(obj["accelerators"]),
+		DiskConfig:     expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(obj["disk_config"]),
+		Image:          dcl.String(obj["image"].(string)),
+		MachineType:    dcl.String(obj["machine_type"].(string)),
+		MinCpuPlatform: dcl.StringOrNil(obj["min_cpu_platform"].(string)),
+		NumInstances:   dcl.Int64(int64(obj["num_instances"].(int))),
+		Preemptibility: dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigPreemptibilityEnumRef(obj["preemptibility"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"accelerators":         flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsArray(obj.Accelerators),
+		"disk_config":          flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(obj.DiskConfig),
+		"image":                obj.Image,
+		"machine_type":         obj.MachineType,
+		"min_cpu_platform":     obj.MinCpuPlatform,
+		"num_instances":        obj.NumInstances,
+		"preemptibility":       obj.Preemptibility,
+		"instance_names":       obj.InstanceNames,
+		"is_preemptible":       obj.IsPreemptible,
+		"managed_group_config": flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(obj.ManagedGroupConfig),
+	}
+
+	return []interface{}{transformed}
+
+}
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsArray(o interface{}) []dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+
+	items := make([]dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators, 0, len(objs))
+	for _, item := range objs {
+		i := expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators{
+		AcceleratorCount: dcl.Int64(int64(obj["accelerator_count"].(int))),
+		AcceleratorType:  dcl.String(obj["accelerator_type"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsArray(objs []dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"accelerator_count": obj.AcceleratorCount,
+		"accelerator_type":  obj.AcceleratorType,
+	}
+
+	return transformed
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig{
+		BootDiskSizeGb: dcl.Int64(int64(obj["boot_disk_size_gb"].(int))),
+		BootDiskType:   dcl.String(obj["boot_disk_type"].(string)),
+		NumLocalSsds:   dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"boot_disk_size_gb": obj.BootDiskSizeGb,
+		"boot_disk_type":    obj.BootDiskType,
+		"num_local_ssds":    obj.NumLocalSsds,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"instance_group_manager_name": obj.InstanceGroupManagerName,
+		"instance_template_name":      obj.InstanceTemplateName,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig{
+		Accelerators:   expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsArray(obj["accelerators"]),
+		DiskConfig:     expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(obj["disk_config"]),
+		Image:          dcl.String(obj["image"].(string)),
+		MachineType:    dcl.String(obj["machine_type"].(string)),
+		MinCpuPlatform: dcl.StringOrNil(obj["min_cpu_platform"].(string)),
+		NumInstances:   dcl.Int64(int64(obj["num_instances"].(int))),
+		Preemptibility: dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigPreemptibilityEnumRef(obj["preemptibility"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"accelerators":         flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsArray(obj.Accelerators),
+		"disk_config":          flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(obj.DiskConfig),
+		"image":                obj.Image,
+		"machine_type":         obj.MachineType,
+		"min_cpu_platform":     obj.MinCpuPlatform,
+		"num_instances":        obj.NumInstances,
+		"preemptibility":       obj.Preemptibility,
+		"instance_names":       obj.InstanceNames,
+		"is_preemptible":       obj.IsPreemptible,
+		"managed_group_config": flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(obj.ManagedGroupConfig),
+	}
+
+	return []interface{}{transformed}
+
+}
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsArray(o interface{}) []dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+
+	items := make([]dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators, 0, len(objs))
+	for _, item := range objs {
+		i := expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators{
+		AcceleratorCount: dcl.Int64(int64(obj["accelerator_count"].(int))),
+		AcceleratorType:  dcl.String(obj["accelerator_type"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsArray(objs []dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"accelerator_count": obj.AcceleratorCount,
+		"accelerator_type":  obj.AcceleratorType,
+	}
+
+	return transformed
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig{
+		BootDiskSizeGb: dcl.Int64(int64(obj["boot_disk_size_gb"].(int))),
+		BootDiskType:   dcl.String(obj["boot_disk_type"].(string)),
+		NumLocalSsds:   dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"boot_disk_size_gb": obj.BootDiskSizeGb,
+		"boot_disk_type":    obj.BootDiskType,
+		"num_local_ssds":    obj.NumLocalSsds,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"instance_group_manager_name": obj.InstanceGroupManagerName,
+		"instance_template_name":      obj.InstanceTemplateName,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecurityConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigSecurityConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigSecurityConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigSecurityConfig{
+		KerberosConfig: expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(obj["kerberos_config"]),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecurityConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"kerberos_config": flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(obj.KerberosConfig),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig{
+		CrossRealmTrustAdminServer:    dcl.String(obj["cross_realm_trust_admin_server"].(string)),
+		CrossRealmTrustKdc:            dcl.String(obj["cross_realm_trust_kdc"].(string)),
+		CrossRealmTrustRealm:          dcl.String(obj["cross_realm_trust_realm"].(string)),
+		CrossRealmTrustSharedPassword: dcl.String(obj["cross_realm_trust_shared_password"].(string)),
+		EnableKerberos:                dcl.Bool(obj["enable_kerberos"].(bool)),
+		KdcDbKey:                      dcl.String(obj["kdc_db_key"].(string)),
+		KeyPassword:                   dcl.String(obj["key_password"].(string)),
+		Keystore:                      dcl.String(obj["keystore"].(string)),
+		KeystorePassword:              dcl.String(obj["keystore_password"].(string)),
+		KmsKey:                        dcl.String(obj["kms_key"].(string)),
+		Realm:                         dcl.String(obj["realm"].(string)),
+		RootPrincipalPassword:         dcl.String(obj["root_principal_password"].(string)),
+		TgtLifetimeHours:              dcl.Int64(int64(obj["tgt_lifetime_hours"].(int))),
+		Truststore:                    dcl.String(obj["truststore"].(string)),
+		TruststorePassword:            dcl.String(obj["truststore_password"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigSecurityConfigKerberosConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"cross_realm_trust_admin_server":    obj.CrossRealmTrustAdminServer,
+		"cross_realm_trust_kdc":             obj.CrossRealmTrustKdc,
+		"cross_realm_trust_realm":           obj.CrossRealmTrustRealm,
+		"cross_realm_trust_shared_password": obj.CrossRealmTrustSharedPassword,
+		"enable_kerberos":                   obj.EnableKerberos,
+		"kdc_db_key":                        obj.KdcDbKey,
+		"key_password":                      obj.KeyPassword,
+		"keystore":                          obj.Keystore,
+		"keystore_password":                 obj.KeystorePassword,
+		"kms_key":                           obj.KmsKey,
+		"realm":                             obj.Realm,
+		"root_principal_password":           obj.RootPrincipalPassword,
+		"tgt_lifetime_hours":                obj.TgtLifetimeHours,
+		"truststore":                        obj.Truststore,
+		"truststore_password":               obj.TruststorePassword,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig{
+		ImageVersion:       dcl.String(obj["image_version"].(string)),
+		OptionalComponents: expandDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsArray(obj["optional_components"]),
+		Properties:         checkStringMap(obj["properties"]),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"image_version":       obj.ImageVersion,
+		"optional_components": flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsArray(obj.OptionalComponents),
+		"properties":          obj.Properties,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfig{
+		Accelerators:   expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsArray(obj["accelerators"]),
+		DiskConfig:     expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(obj["disk_config"]),
+		Image:          dcl.String(obj["image"].(string)),
+		MachineType:    dcl.String(obj["machine_type"].(string)),
+		MinCpuPlatform: dcl.StringOrNil(obj["min_cpu_platform"].(string)),
+		NumInstances:   dcl.Int64(int64(obj["num_instances"].(int))),
+		Preemptibility: dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigPreemptibilityEnumRef(obj["preemptibility"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"accelerators":         flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsArray(obj.Accelerators),
+		"disk_config":          flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(obj.DiskConfig),
+		"image":                obj.Image,
+		"machine_type":         obj.MachineType,
+		"min_cpu_platform":     obj.MinCpuPlatform,
+		"num_instances":        obj.NumInstances,
+		"preemptibility":       obj.Preemptibility,
+		"instance_names":       obj.InstanceNames,
+		"is_preemptible":       obj.IsPreemptible,
+		"managed_group_config": flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(obj.ManagedGroupConfig),
+	}
+
+	return []interface{}{transformed}
+
+}
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsArray(o interface{}) []dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+
+	items := make([]dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators, 0, len(objs))
+	for _, item := range objs {
+		i := expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators{
+		AcceleratorCount: dcl.Int64(int64(obj["accelerator_count"].(int))),
+		AcceleratorType:  dcl.String(obj["accelerator_type"].(string)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsArray(objs []dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"accelerator_count": obj.AcceleratorCount,
+		"accelerator_type":  obj.AcceleratorType,
+	}
+
+	return transformed
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig{
+		BootDiskSizeGb: dcl.Int64(int64(obj["boot_disk_size_gb"].(int))),
+		BootDiskType:   dcl.String(obj["boot_disk_type"].(string)),
+		NumLocalSsds:   dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"boot_disk_size_gb": obj.BootDiskSizeGb,
+		"boot_disk_type":    obj.BootDiskType,
+		"num_local_ssds":    obj.NumLocalSsds,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"instance_group_manager_name": obj.InstanceGroupManagerName,
+		"instance_template_name":      obj.InstanceTemplateName,
 	}
 
 	return []interface{}{transformed}
@@ -2858,577 +4007,7 @@ func flattenDataprocWorkflowTemplateParametersValidationValues(obj *dataproc.Wor
 	return []interface{}{transformed}
 
 }
-
-func expandDataprocWorkflowTemplateClusterInstanceGroupConfig(o interface{}) *dataproc.ClusterInstanceGroupConfig {
-	if o == nil {
-		return nil
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return nil
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterInstanceGroupConfig{
-		Accelerators:   expandDataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsArray(obj["accelerators"]),
-		DiskConfig:     expandDataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfig(obj["disk_config"]),
-		Image:          dcl.String(obj["image"].(string)),
-		MachineType:    dcl.String(obj["machine_type"].(string)),
-		MinCpuPlatform: dcl.StringOrNil(obj["min_cpu_platform"].(string)),
-		NumInstances:   dcl.Int64(int64(obj["num_instances"].(int))),
-		Preemptibility: dataproc.ClusterInstanceGroupConfigPreemptibilityEnumRef(obj["preemptibility"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterInstanceGroupConfig(obj *dataproc.ClusterInstanceGroupConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"accelerators":         flattenDataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsArray(obj.Accelerators),
-		"disk_config":          flattenDataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfig(obj.DiskConfig),
-		"image":                obj.Image,
-		"machine_type":         obj.MachineType,
-		"min_cpu_platform":     obj.MinCpuPlatform,
-		"num_instances":        obj.NumInstances,
-		"preemptibility":       obj.Preemptibility,
-		"instance_names":       obj.InstanceNames,
-		"is_preemptible":       obj.IsPreemptible,
-		"managed_group_config": flattenDataprocWorkflowTemplateClusterInstanceGroupConfigManagedGroupConfig(obj.ManagedGroupConfig),
-	}
-
-	return []interface{}{transformed}
-
-}
-func expandDataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsArray(o interface{}) []dataproc.ClusterInstanceGroupConfigAccelerators {
-	if o == nil {
-		return nil
-	}
-
-	objs := o.([]interface{})
-	if len(objs) == 0 {
-		return nil
-	}
-
-	items := make([]dataproc.ClusterInstanceGroupConfigAccelerators, 0, len(objs))
-	for _, item := range objs {
-		i := expandDataprocWorkflowTemplateClusterInstanceGroupConfigAccelerators(item)
-		items = append(items, *i)
-	}
-
-	return items
-}
-
-func expandDataprocWorkflowTemplateClusterInstanceGroupConfigAccelerators(o interface{}) *dataproc.ClusterInstanceGroupConfigAccelerators {
-	if o == nil {
-		return nil
-	}
-
-	obj := o.(map[string]interface{})
-	return &dataproc.ClusterInstanceGroupConfigAccelerators{
-		AcceleratorCount: dcl.Int64(int64(obj["accelerator_count"].(int))),
-		AcceleratorType:  dcl.String(obj["accelerator_type"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsArray(objs []dataproc.ClusterInstanceGroupConfigAccelerators) []interface{} {
-	if objs == nil {
-		return nil
-	}
-
-	items := []interface{}{}
-	for _, item := range objs {
-		i := flattenDataprocWorkflowTemplateClusterInstanceGroupConfigAccelerators(&item)
-		items = append(items, i)
-	}
-
-	return items
-}
-
-func flattenDataprocWorkflowTemplateClusterInstanceGroupConfigAccelerators(obj *dataproc.ClusterInstanceGroupConfigAccelerators) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"accelerator_count": obj.AcceleratorCount,
-		"accelerator_type":  obj.AcceleratorType,
-	}
-
-	return transformed
-
-}
-
-func expandDataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfig(o interface{}) *dataproc.ClusterInstanceGroupConfigDiskConfig {
-	if o == nil {
-		return nil
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return nil
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterInstanceGroupConfigDiskConfig{
-		BootDiskSizeGb: dcl.Int64(int64(obj["boot_disk_size_gb"].(int))),
-		BootDiskType:   dcl.String(obj["boot_disk_type"].(string)),
-		NumLocalSsds:   dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfig(obj *dataproc.ClusterInstanceGroupConfigDiskConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"boot_disk_size_gb": obj.BootDiskSizeGb,
-		"boot_disk_type":    obj.BootDiskType,
-		"num_local_ssds":    obj.NumLocalSsds,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func flattenDataprocWorkflowTemplateClusterInstanceGroupConfigManagedGroupConfig(obj *dataproc.ClusterInstanceGroupConfigManagedGroupConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"instance_group_manager_name": obj.InstanceGroupManagerName,
-		"instance_template_name":      obj.InstanceTemplateName,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfig(o interface{}) *dataproc.ClusterClusterConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfig{
-		AutoscalingConfig:     expandDataprocWorkflowTemplateClusterClusterConfigAutoscalingConfig(obj["autoscaling_config"]),
-		EncryptionConfig:      expandDataprocWorkflowTemplateClusterClusterConfigEncryptionConfig(obj["encryption_config"]),
-		EndpointConfig:        expandDataprocWorkflowTemplateClusterClusterConfigEndpointConfig(obj["endpoint_config"]),
-		GceClusterConfig:      expandDataprocWorkflowTemplateClusterClusterConfigGceClusterConfig(obj["gce_cluster_config"]),
-		InitializationActions: expandDataprocWorkflowTemplateClusterClusterConfigInitializationActionsArray(obj["initialization_actions"]),
-		LifecycleConfig:       expandDataprocWorkflowTemplateClusterClusterConfigLifecycleConfig(obj["lifecycle_config"]),
-		MasterConfig:          expandDataprocWorkflowTemplateClusterInstanceGroupConfig(obj["master_config"]),
-		SecondaryWorkerConfig: expandDataprocWorkflowTemplateClusterInstanceGroupConfig(obj["secondary_worker_config"]),
-		SecurityConfig:        expandDataprocWorkflowTemplateClusterClusterConfigSecurityConfig(obj["security_config"]),
-		SoftwareConfig:        expandDataprocWorkflowTemplateClusterClusterConfigSoftwareConfig(obj["software_config"]),
-		StagingBucket:         dcl.String(obj["staging_bucket"].(string)),
-		TempBucket:            dcl.String(obj["temp_bucket"].(string)),
-		WorkerConfig:          expandDataprocWorkflowTemplateClusterInstanceGroupConfig(obj["worker_config"]),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfig(obj *dataproc.ClusterClusterConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"autoscaling_config":      flattenDataprocWorkflowTemplateClusterClusterConfigAutoscalingConfig(obj.AutoscalingConfig),
-		"encryption_config":       flattenDataprocWorkflowTemplateClusterClusterConfigEncryptionConfig(obj.EncryptionConfig),
-		"endpoint_config":         flattenDataprocWorkflowTemplateClusterClusterConfigEndpointConfig(obj.EndpointConfig),
-		"gce_cluster_config":      flattenDataprocWorkflowTemplateClusterClusterConfigGceClusterConfig(obj.GceClusterConfig),
-		"initialization_actions":  flattenDataprocWorkflowTemplateClusterClusterConfigInitializationActionsArray(obj.InitializationActions),
-		"lifecycle_config":        flattenDataprocWorkflowTemplateClusterClusterConfigLifecycleConfig(obj.LifecycleConfig),
-		"master_config":           flattenDataprocWorkflowTemplateClusterInstanceGroupConfig(obj.MasterConfig),
-		"secondary_worker_config": flattenDataprocWorkflowTemplateClusterInstanceGroupConfig(obj.SecondaryWorkerConfig),
-		"security_config":         flattenDataprocWorkflowTemplateClusterClusterConfigSecurityConfig(obj.SecurityConfig),
-		"software_config":         flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfig(obj.SoftwareConfig),
-		"staging_bucket":          obj.StagingBucket,
-		"temp_bucket":             obj.TempBucket,
-		"worker_config":           flattenDataprocWorkflowTemplateClusterInstanceGroupConfig(obj.WorkerConfig),
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigAutoscalingConfig(o interface{}) *dataproc.ClusterClusterConfigAutoscalingConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigAutoscalingConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigAutoscalingConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigAutoscalingConfig{
-		Policy: dcl.String(obj["policy"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigAutoscalingConfig(obj *dataproc.ClusterClusterConfigAutoscalingConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"policy": obj.Policy,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigEncryptionConfig(o interface{}) *dataproc.ClusterClusterConfigEncryptionConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigEncryptionConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigEncryptionConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigEncryptionConfig{
-		GcePdKmsKeyName: dcl.String(obj["gce_pd_kms_key_name"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigEncryptionConfig(obj *dataproc.ClusterClusterConfigEncryptionConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"gce_pd_kms_key_name": obj.GcePdKmsKeyName,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigEndpointConfig(o interface{}) *dataproc.ClusterClusterConfigEndpointConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigEndpointConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigEndpointConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigEndpointConfig{
-		EnableHttpPortAccess: dcl.Bool(obj["enable_http_port_access"].(bool)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigEndpointConfig(obj *dataproc.ClusterClusterConfigEndpointConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"enable_http_port_access": obj.EnableHttpPortAccess,
-		"http_ports":              obj.HttpPorts,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigGceClusterConfig(o interface{}) *dataproc.ClusterClusterConfigGceClusterConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigGceClusterConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigGceClusterConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigGceClusterConfig{
-		InternalIPOnly:          dcl.Bool(obj["internal_ip_only"].(bool)),
-		Metadata:                checkStringMap(obj["metadata"]),
-		Network:                 dcl.String(obj["network"].(string)),
-		NodeGroupAffinity:       expandDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigNodeGroupAffinity(obj["node_group_affinity"]),
-		PrivateIPv6GoogleAccess: dataproc.ClusterClusterConfigGceClusterConfigPrivateIPv6GoogleAccessEnumRef(obj["private_ipv6_google_access"].(string)),
-		ReservationAffinity:     expandDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigReservationAffinity(obj["reservation_affinity"]),
-		ServiceAccount:          dcl.String(obj["service_account"].(string)),
-		ServiceAccountScopes:    expandStringArray(obj["service_account_scopes"]),
-		Subnetwork:              dcl.String(obj["subnetwork"].(string)),
-		Tags:                    expandStringArray(obj["tags"]),
-		Zone:                    dcl.StringOrNil(obj["zone"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigGceClusterConfig(obj *dataproc.ClusterClusterConfigGceClusterConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"internal_ip_only":           obj.InternalIPOnly,
-		"metadata":                   obj.Metadata,
-		"network":                    obj.Network,
-		"node_group_affinity":        flattenDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigNodeGroupAffinity(obj.NodeGroupAffinity),
-		"private_ipv6_google_access": obj.PrivateIPv6GoogleAccess,
-		"reservation_affinity":       flattenDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigReservationAffinity(obj.ReservationAffinity),
-		"service_account":            obj.ServiceAccount,
-		"service_account_scopes":     obj.ServiceAccountScopes,
-		"subnetwork":                 obj.Subnetwork,
-		"tags":                       obj.Tags,
-		"zone":                       obj.Zone,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigNodeGroupAffinity(o interface{}) *dataproc.ClusterClusterConfigGceClusterConfigNodeGroupAffinity {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigGceClusterConfigNodeGroupAffinity
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigGceClusterConfigNodeGroupAffinity
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigGceClusterConfigNodeGroupAffinity{
-		NodeGroup: dcl.String(obj["node_group"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigNodeGroupAffinity(obj *dataproc.ClusterClusterConfigGceClusterConfigNodeGroupAffinity) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"node_group": obj.NodeGroup,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigReservationAffinity(o interface{}) *dataproc.ClusterClusterConfigGceClusterConfigReservationAffinity {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigGceClusterConfigReservationAffinity
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigGceClusterConfigReservationAffinity
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigGceClusterConfigReservationAffinity{
-		ConsumeReservationType: dataproc.ClusterClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnumRef(obj["consume_reservation_type"].(string)),
-		Key:                    dcl.String(obj["key"].(string)),
-		Values:                 expandStringArray(obj["values"]),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigReservationAffinity(obj *dataproc.ClusterClusterConfigGceClusterConfigReservationAffinity) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"consume_reservation_type": obj.ConsumeReservationType,
-		"key":                      obj.Key,
-		"values":                   obj.Values,
-	}
-
-	return []interface{}{transformed}
-
-}
-func expandDataprocWorkflowTemplateClusterClusterConfigInitializationActionsArray(o interface{}) []dataproc.ClusterClusterConfigInitializationActions {
-	if o == nil {
-		return make([]dataproc.ClusterClusterConfigInitializationActions, 0)
-	}
-
-	objs := o.([]interface{})
-	if len(objs) == 0 {
-		return make([]dataproc.ClusterClusterConfigInitializationActions, 0)
-	}
-
-	items := make([]dataproc.ClusterClusterConfigInitializationActions, 0, len(objs))
-	for _, item := range objs {
-		i := expandDataprocWorkflowTemplateClusterClusterConfigInitializationActions(item)
-		items = append(items, *i)
-	}
-
-	return items
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigInitializationActions(o interface{}) *dataproc.ClusterClusterConfigInitializationActions {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigInitializationActions
-	}
-
-	obj := o.(map[string]interface{})
-	return &dataproc.ClusterClusterConfigInitializationActions{
-		ExecutableFile:   dcl.String(obj["executable_file"].(string)),
-		ExecutionTimeout: dcl.String(obj["execution_timeout"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigInitializationActionsArray(objs []dataproc.ClusterClusterConfigInitializationActions) []interface{} {
-	if objs == nil {
-		return nil
-	}
-
-	items := []interface{}{}
-	for _, item := range objs {
-		i := flattenDataprocWorkflowTemplateClusterClusterConfigInitializationActions(&item)
-		items = append(items, i)
-	}
-
-	return items
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigInitializationActions(obj *dataproc.ClusterClusterConfigInitializationActions) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"executable_file":   obj.ExecutableFile,
-		"execution_timeout": obj.ExecutionTimeout,
-	}
-
-	return transformed
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigLifecycleConfig(o interface{}) *dataproc.ClusterClusterConfigLifecycleConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigLifecycleConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigLifecycleConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigLifecycleConfig{
-		AutoDeleteTime: dcl.String(obj["auto_delete_time"].(string)),
-		AutoDeleteTtl:  dcl.String(obj["auto_delete_ttl"].(string)),
-		IdleDeleteTtl:  dcl.String(obj["idle_delete_ttl"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigLifecycleConfig(obj *dataproc.ClusterClusterConfigLifecycleConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"auto_delete_time": obj.AutoDeleteTime,
-		"auto_delete_ttl":  obj.AutoDeleteTtl,
-		"idle_delete_ttl":  obj.IdleDeleteTtl,
-		"idle_start_time":  obj.IdleStartTime,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigSecurityConfig(o interface{}) *dataproc.ClusterClusterConfigSecurityConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigSecurityConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigSecurityConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigSecurityConfig{
-		KerberosConfig: expandDataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfig(obj["kerberos_config"]),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigSecurityConfig(obj *dataproc.ClusterClusterConfigSecurityConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"kerberos_config": flattenDataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfig(obj.KerberosConfig),
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfig(o interface{}) *dataproc.ClusterClusterConfigSecurityConfigKerberosConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigSecurityConfigKerberosConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigSecurityConfigKerberosConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigSecurityConfigKerberosConfig{
-		CrossRealmTrustAdminServer:    dcl.String(obj["cross_realm_trust_admin_server"].(string)),
-		CrossRealmTrustKdc:            dcl.String(obj["cross_realm_trust_kdc"].(string)),
-		CrossRealmTrustRealm:          dcl.String(obj["cross_realm_trust_realm"].(string)),
-		CrossRealmTrustSharedPassword: dcl.String(obj["cross_realm_trust_shared_password"].(string)),
-		EnableKerberos:                dcl.Bool(obj["enable_kerberos"].(bool)),
-		KdcDbKey:                      dcl.String(obj["kdc_db_key"].(string)),
-		KeyPassword:                   dcl.String(obj["key_password"].(string)),
-		Keystore:                      dcl.String(obj["keystore"].(string)),
-		KeystorePassword:              dcl.String(obj["keystore_password"].(string)),
-		KmsKey:                        dcl.String(obj["kms_key"].(string)),
-		Realm:                         dcl.String(obj["realm"].(string)),
-		RootPrincipalPassword:         dcl.String(obj["root_principal_password"].(string)),
-		TgtLifetimeHours:              dcl.Int64(int64(obj["tgt_lifetime_hours"].(int))),
-		Truststore:                    dcl.String(obj["truststore"].(string)),
-		TruststorePassword:            dcl.String(obj["truststore_password"].(string)),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfig(obj *dataproc.ClusterClusterConfigSecurityConfigKerberosConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"cross_realm_trust_admin_server":    obj.CrossRealmTrustAdminServer,
-		"cross_realm_trust_kdc":             obj.CrossRealmTrustKdc,
-		"cross_realm_trust_realm":           obj.CrossRealmTrustRealm,
-		"cross_realm_trust_shared_password": obj.CrossRealmTrustSharedPassword,
-		"enable_kerberos":                   obj.EnableKerberos,
-		"kdc_db_key":                        obj.KdcDbKey,
-		"key_password":                      obj.KeyPassword,
-		"keystore":                          obj.Keystore,
-		"keystore_password":                 obj.KeystorePassword,
-		"kms_key":                           obj.KmsKey,
-		"realm":                             obj.Realm,
-		"root_principal_password":           obj.RootPrincipalPassword,
-		"tgt_lifetime_hours":                obj.TgtLifetimeHours,
-		"truststore":                        obj.Truststore,
-		"truststore_password":               obj.TruststorePassword,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandDataprocWorkflowTemplateClusterClusterConfigSoftwareConfig(o interface{}) *dataproc.ClusterClusterConfigSoftwareConfig {
-	if o == nil {
-		return dataproc.EmptyClusterClusterConfigSoftwareConfig
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 {
-		return dataproc.EmptyClusterClusterConfigSoftwareConfig
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &dataproc.ClusterClusterConfigSoftwareConfig{
-		ImageVersion:       dcl.String(obj["image_version"].(string)),
-		OptionalComponents: expandDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(obj["optional_components"]),
-		Properties:         checkStringMap(obj["properties"]),
-	}
-}
-
-func flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfig(obj *dataproc.ClusterClusterConfigSoftwareConfig) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"image_version":       obj.ImageVersion,
-		"optional_components": flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(obj.OptionalComponents),
-		"properties":          obj.Properties,
-	}
-
-	return []interface{}{transformed}
-
-}
-func flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(obj []dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnum) interface{} {
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsArray(obj []dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum) interface{} {
 	if obj == nil {
 		return nil
 	}
@@ -3439,11 +4018,11 @@ func flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalCo
 	return items
 }
 
-func expandDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(o interface{}) []dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnum {
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsArray(o interface{}) []dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum {
 	objs := o.([]interface{})
-	items := make([]dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnum, 0, len(objs))
+	items := make([]dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum, 0, len(objs))
 	for _, item := range objs {
-		i := dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnumRef(item.(string))
+		i := dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnumRef(item.(string))
 		items = append(items, *i)
 	}
 	return items

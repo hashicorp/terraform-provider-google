@@ -58,8 +58,10 @@ resource "google_composer_environment" "test" {
   name   = "example-composer-env"
   region = "us-central1"
  
-  software_config {
-    image_version = "composer-2.0.0-preview.3-airflow-2.1.2"
+ config {
+    software_config {
+      image_version = "composer-2.0.0-preview.3-airflow-2.1.2"
+    }
   }
 }
 ```
@@ -656,7 +658,7 @@ The `config` block supports:
   below.
 
 * `maintenance_window` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The configuration settings for Cloud Composer maintenance windows.
 
 * `workloads_config` -
@@ -797,7 +799,7 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   `ip_allocation_policy.cluster_ipv4_cidr_block` and `ip_allocation_policy.service_ipv4_cidr_block`.
   
 * `cloud_composer_connection_subnetwork"` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   When specified, the environment will use Private Service Connect instead of VPC peerings to connect
   to Cloud SQL in the Tenant Project, and the PSC endpoint in the Customer Project will use an IP 
   address from this subnetwork. This field is supported for Cloud Composer environments in 

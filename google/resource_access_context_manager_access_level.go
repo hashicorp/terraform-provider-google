@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAccessContextManagerAccessLevel() *schema.Resource {
@@ -37,9 +36,9 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -93,7 +92,7 @@ allowed.`,
 An empty list allows all management levels. Possible values: ["MANAGEMENT_UNSPECIFIED", "NONE", "BASIC", "COMPLETE"]`,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: validation.StringInSlice([]string{"MANAGEMENT_UNSPECIFIED", "NONE", "BASIC", "COMPLETE"}, false),
+														ValidateFunc: validateEnum([]string{"MANAGEMENT_UNSPECIFIED", "NONE", "BASIC", "COMPLETE"}),
 													},
 												},
 												"allowed_encryption_statuses": {
@@ -103,7 +102,7 @@ An empty list allows all management levels. Possible values: ["MANAGEMENT_UNSPEC
 An empty list allows all statuses. Possible values: ["ENCRYPTION_UNSPECIFIED", "ENCRYPTION_UNSUPPORTED", "UNENCRYPTED", "ENCRYPTED"]`,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: validation.StringInSlice([]string{"ENCRYPTION_UNSPECIFIED", "ENCRYPTION_UNSUPPORTED", "UNENCRYPTED", "ENCRYPTED"}, false),
+														ValidateFunc: validateEnum([]string{"ENCRYPTION_UNSPECIFIED", "ENCRYPTION_UNSUPPORTED", "UNENCRYPTED", "ENCRYPTED"}),
 													},
 												},
 												"os_constraints": {
@@ -116,7 +115,7 @@ An empty list allows all types and all versions.`,
 															"os_type": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: validation.StringInSlice([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS", "ANDROID", "IOS"}, false),
+																ValidateFunc: validateEnum([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS", "ANDROID", "IOS"}),
 																Description:  `The operating system type of the device. Possible values: ["OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS", "ANDROID", "IOS"]`,
 															},
 															"minimum_version": {
@@ -220,7 +219,7 @@ Format: accessPolicies/{policy_id}/accessLevels/{short_name}`,
 						"combining_function": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AND", "OR", ""}, false),
+							ValidateFunc: validateEnum([]string{"AND", "OR", ""}),
 							Description: `How the conditions list should be combined to determine if a request
 is granted this AccessLevel. If AND is used, each Condition in
 conditions must be satisfied for the AccessLevel to be applied. If

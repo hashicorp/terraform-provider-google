@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputePacketMirroring() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceComputePacketMirroring() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -164,7 +162,7 @@ destination (egress) IP in the IP header. Only IPv4 is supported.`,
 						"direction": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS", "BOTH", ""}, false),
+							ValidateFunc: validateEnum([]string{"INGRESS", "EGRESS", "BOTH", ""}),
 							Description:  `Direction of traffic to mirror. Default value: "BOTH" Possible values: ["INGRESS", "EGRESS", "BOTH"]`,
 							Default:      "BOTH",
 						},
@@ -174,7 +172,7 @@ destination (egress) IP in the IP header. Only IPv4 is supported.`,
 							Description: `Protocols that apply as a filter on mirrored traffic. Possible values: ["tcp", "udp", "icmp"]`,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
-								ValidateFunc: validation.StringInSlice([]string{"tcp", "udp", "icmp"}, false),
+								ValidateFunc: validateEnum([]string{"tcp", "udp", "icmp"}),
 							},
 						},
 					},
@@ -559,7 +557,7 @@ func flattenComputePacketMirroringNetworkUrl(v interface{}, d *schema.ResourceDa
 func flattenComputePacketMirroringPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

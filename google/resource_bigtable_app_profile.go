@@ -37,9 +37,9 @@ func resourceBigtableAppProfile() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -70,7 +70,6 @@ func resourceBigtableAppProfile() *schema.Resource {
 			"multi_cluster_routing_use_any": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Description: `If true, read/write requests are routed to the nearest cluster in the instance, and will fail over to the nearest cluster that is available
 in the event of transient errors or delays. Clusters in a region are considered equidistant. Choosing this option sacrifices read-your-writes
 consistency to improve availability.`,
@@ -102,6 +101,15 @@ It is unsafe to send these requests to the same table/row/column in multiple clu
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The unique name of the requested app profile. Values are of the form 'projects/<project>/instances/<instance>/appProfiles/<appProfileId>'.`,
+			},
+			"multi_cluster_routing_cluster_ids": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The set of clusters to route to. The order is ignored; clusters will be tried in order of distance. If left empty, all clusters are eligible.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				ConflictsWith: []string{"single_cluster_routing"},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -257,6 +265,12 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	multiClusterRoutingUseAnyProp, err := expandBigtableAppProfileMultiClusterRoutingUseAny(d.Get("multi_cluster_routing_use_any"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("multi_cluster_routing_use_any"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, multiClusterRoutingUseAnyProp)) {
+		obj["multiClusterRoutingUseAny"] = multiClusterRoutingUseAnyProp
+	}
 	singleClusterRoutingProp, err := expandBigtableAppProfileSingleClusterRouting(d.Get("single_cluster_routing"), d, config)
 	if err != nil {
 		return err
@@ -281,8 +295,38 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 		updateMask = append(updateMask, "description")
 	}
 
+	if d.HasChange("multi_cluster_routing_use_any") {
+		updateMask = append(updateMask, "multiClusterRoutingUseAny")
+	}
+
 	if d.HasChange("single_cluster_routing") {
 		updateMask = append(updateMask, "singleClusterRouting")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	if d.HasChange("multi_cluster_routing_cluster_ids") && !stringInSlice(updateMask, "multiClusterRoutingUseAny") {
+		updateMask = append(updateMask, "multiClusterRoutingUseAny")
+	}
+
+	// this api requires the body to define something for all values passed into
+	// the update mask, however, multi-cluster routing and single-cluster routing
+	// are conflicting, so we can't have them both in the update mask, despite
+	// both of them registering as changing. thus, we need to remove whichever
+	// one is not defined.
+	newRouting, oldRouting := d.GetChange("multi_cluster_routing_use_any")
+	if newRouting != oldRouting {
+		for i, val := range updateMask {
+			if val == "multiClusterRoutingUseAny" && newRouting.(bool) ||
+				val == "singleClusterRouting" && oldRouting.(bool) {
+				updateMask = append(updateMask[0:i], updateMask[i+1:]...)
+				break
+			}
+		}
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -373,7 +417,21 @@ func flattenBigtableAppProfileDescription(v interface{}, d *schema.ResourceData,
 }
 
 func flattenBigtableAppProfileMultiClusterRoutingUseAny(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v != nil
+	if v == nil {
+		return false
+	}
+
+	if v.(map[string]interface{})["clusterIds"] == nil {
+		return true
+	}
+
+	if len(v.(map[string]interface{})["clusterIds"].([]interface{})) > 0 {
+		if err := d.Set("multi_cluster_routing_cluster_ids", v.(map[string]interface{})["clusterIds"]); err != nil {
+			return true
+		}
+	}
+
+	return true
 }
 
 func flattenBigtableAppProfileSingleClusterRouting(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -408,7 +466,15 @@ func expandBigtableAppProfileMultiClusterRoutingUseAny(v interface{}, d Terrafor
 		return nil, nil
 	}
 
-	return bigtableadmin.MultiClusterRoutingUseAny{}, nil
+	obj := bigtableadmin.MultiClusterRoutingUseAny{}
+
+	clusterIds := d.Get("multi_cluster_routing_cluster_ids").([]interface{})
+
+	for _, id := range clusterIds {
+		obj.ClusterIds = append(obj.ClusterIds, id.(string))
+	}
+
+	return obj, nil
 }
 
 func expandBigtableAppProfileSingleClusterRouting(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

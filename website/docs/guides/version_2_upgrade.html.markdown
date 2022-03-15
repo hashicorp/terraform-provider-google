@@ -21,7 +21,7 @@ for details if you're new to using `google-beta`.
 Most of the changes outlined in this guide have been previously marked as
 deprecated in the Terraform `plan`/`apply` output throughout previous provider
 releases, up to and including 1.20.0. These changes, such as deprecation notices,
-can always be found in the [CHANGELOG](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md).
+can always be found in the [CHANGELOG](https://github.com/hashicorp/terraform-provider-google/blob/main/CHANGELOG.md).
 
 ## Why version 2.0.0?
 
@@ -166,7 +166,7 @@ available. For more information see [the official documentation on GCP launch st
 
 Because the API for beta features can change before their GA launch, there may
 be breaking changes in the `google-beta` provider in minor release versions.
-These changes will be announced in the [`google-beta` CHANGELOG](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md).
+These changes will be announced in the [`google-beta` CHANGELOG](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/CHANGELOG.md).
 
 To have resources at different API versions, set up provider blocks for each version:
 
@@ -293,7 +293,7 @@ Example updated configuration:
 ```hcl
 resource "google_cloudbuild_trigger" "build_trigger" {
   trigger_template {
-    branch_name = "master-updated"
+    branch_name = "main-updated"
     repo_name   = "some-repo-updated"
   }
 

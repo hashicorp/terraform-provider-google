@@ -374,9 +374,11 @@ resource "google_cloud_run_service" "default" {
         name = "a-volume"
 	secret {
 	  secret_name = google_secret_manager_secret.secret.secret_id
+	  default_mode = 292 # 0444
 	  items {
             key = "1"
 	    path = "my-secret"
+	    mode = 256 # 0400
 	  }
 	}
       }
@@ -517,7 +519,7 @@ The following arguments are supported:
   In the context of a Revision, we disallow a number of the fields of
   this Container, including: name, ports, and volumeMounts.
   The runtime contract is documented here:
-  https://github.com/knative/serving/blob/master/docs/runtime-contract.md
+  https://github.com/knative/serving/blob/main/docs/runtime-contract.md
   Structure is [documented below](#nested_containers).
 
 * `container_concurrency` -
@@ -735,15 +737,15 @@ The following arguments are supported:
 
 * `name` -
   (Optional)
-  Name of the port.
+  If specified, used to specify which protocol to use. Allowed values are "http1" and "h2c".
 
 * `protocol` -
   (Optional)
-  Protocol used on port. Defaults to TCP.
+  Protocol for port. Must be "TCP". Defaults to "TCP".
 
 * `container_port` -
-  (Required)
-  Port number.
+  (Optional)
+  Port number the container listens on. This must be a valid port number, 0 < x < 65536.
 
 <a name="nested_resources"></a>The `resources` block supports:
 
@@ -800,6 +802,13 @@ The following arguments are supported:
   The alias definitions must be set on the run.googleapis.com/secrets
   annotation.
 
+* `default_mode` -
+  (Optional)
+  Mode bits to use on created files by default. Must be a value between 0000
+  and 0777. Defaults to 0644. Directories within the path are not affected by
+  this setting. This might be in conflict with other options that affect the
+  file mode, like fsGroup, and the result can be other mode bits set.
+
 * `items` -
   (Optional)
   If unspecified, the volume will expose a file whose name is the
@@ -824,6 +833,13 @@ The following arguments are supported:
   May not contain the path element '..'.
   May not start with the string '..'.
 
+* `mode` -
+  (Optional)
+  Mode bits to use on this file, must be a value between 0000 and 0777. If
+  not specified, the volume defaultMode will be used. This might be in
+  conflict with other options that affect the file mode, like fsGroup, and
+  the result can be other mode bits set.
+
 - - -
 
 
@@ -841,7 +857,7 @@ The following arguments are supported:
   To correlate a Revision, and/or to force a Revision to be created when the
   spec doesn't otherwise change, a nonce label may be provided in the
   template metadata. For more details, see:
-  https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
+  https://github.com/knative/serving/blob/main/docs/client-conventions.md#associate-modifications-with-revisions
   Cloud Run does not currently support referencing a build that is
   responsible for materializing the container image from source.
   Structure is [documented below](#nested_template).
@@ -966,9 +982,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 15 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

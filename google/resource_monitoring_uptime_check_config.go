@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceMonitoringUptimeCheckConfig() *schema.Resource {
@@ -38,9 +36,9 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -68,7 +66,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"matcher": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", ""}, false),
+							ValidateFunc: validateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", ""}),
 							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX"]`,
 							Default:      "CONTAINS_STRING",
 						},
@@ -112,7 +110,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"content_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}, false),
+							ValidateFunc: validateEnum([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}),
 							Description:  `The content type to use for the check. Possible values: ["TYPE_UNSPECIFIED", "URL_ENCODED"]`,
 						},
 						"headers": {
@@ -147,7 +145,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}, false),
+							ValidateFunc: validateEnum([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}),
 							Description:  `The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
 							Default:      "GET",
 						},
@@ -218,7 +216,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
+							ValidateFunc: validateEnum([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}),
 							Description:  `The resource type of the group members. Possible values: ["RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER"]`,
 							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
@@ -756,7 +754,7 @@ func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, 
 func flattenMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -810,7 +808,7 @@ func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.Resourc
 func flattenMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

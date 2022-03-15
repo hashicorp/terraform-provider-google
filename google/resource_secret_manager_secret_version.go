@@ -49,8 +49,8 @@ func resourceSecretManagerSecretVersion() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Update: resourceSecretManagerSecretVersionUpdate,
@@ -266,7 +266,7 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 
 	parts := secretRegex.FindStringSubmatch(name)
 	if len(parts) != 2 {
-		panic(fmt.Sprintf("Version name doesn not fit the format `projects/{{project}}/secrets/{{secret}}/versions{{version}}`"))
+		panic(fmt.Sprintf("Version name doesn not fit the format `projects/{{project}}/secrets/{{secret}}/versions/{{version}}`"))
 	}
 	if err := d.Set("secret", parts[1]); err != nil {
 		return nil, fmt.Errorf("Error setting secret: %s", err)

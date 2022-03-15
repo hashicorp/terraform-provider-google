@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -51,9 +50,9 @@ func resourceBigqueryDataTransferConfig() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: sensitiveParamCustomizeDiff,
@@ -72,10 +71,12 @@ func resourceBigqueryDataTransferConfig() *schema.Resource {
 				Description: `The user specified display name for the transfer config.`,
 			},
 			"params": {
-				Type:        schema.TypeMap,
-				Required:    true,
-				Description: `These parameters are specific to each data source.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Required: true,
+				Description: `Parameters specific to each data source. For more information see the bq tab in the 'Setting up a data transfer'
+section for each data source. For example the parameters for Cloud Storage transfers are listed here:
+https://cloud.google.com/bigquery-transfer/docs/cloud-storage-transfer#bq`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"data_refresh_window_days": {
 				Type:     schema.TypeInt,
@@ -695,7 +696,7 @@ func flattenBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d *
 func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

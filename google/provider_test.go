@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -26,6 +27,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"google.golang.org/api/cloudbilling/v1"
+	"google.golang.org/api/cloudresourcemanager/v1"
+	"google.golang.org/api/iamcredentials/v1"
+	"google.golang.org/api/serviceusage/v1"
 )
 
 var testAccProviders map[string]*schema.Provider
@@ -112,6 +117,9 @@ var masterBillingAccountEnvVars = []string{
 	"GOOGLE_MASTER_BILLING_ACCOUNT",
 }
 
+var configsLock = sync.RWMutex{}
+var sourcesLock = sync.RWMutex{}
+
 func init() {
 	configs = make(map[string]*Config)
 	sources = make(map[string]VcrSource)
@@ -128,7 +136,10 @@ func init() {
 // VCR requires a single HTTP client to handle all interactions so it can record and replay responses so
 // this caches HTTP clients per test by replacing ConfigureFunc
 func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc schema.ConfigureContextFunc, testName string) (*Config, diag.Diagnostics) {
-	if v, ok := configs[testName]; ok {
+	configsLock.RLock()
+	v, ok := configs[testName]
+	configsLock.RUnlock()
+	if ok {
 		return v, nil
 	}
 	c, diags := configureFunc(ctx, d)
@@ -203,13 +214,18 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 		return false
 	})
 	config.client.Transport = rec
+	configsLock.Lock()
 	configs[testName] = config
+	configsLock.Unlock()
 	return config, nil
 }
 
 // We need to explicitly close the VCR recorder to save the cassette
 func closeRecorder(t *testing.T) {
-	if config, ok := configs[t.Name()]; ok {
+	configsLock.RLock()
+	config, ok := configs[t.Name()]
+	configsLock.RUnlock()
+	if ok {
 		// We did not cache the config if it does not use VCR
 		if !t.Failed() && isVcrEnabled() {
 			// If a test succeeds, write new seed/yaml to files
@@ -218,7 +234,11 @@ func closeRecorder(t *testing.T) {
 				t.Error(err)
 			}
 			envPath := os.Getenv("VCR_PATH")
-			if vcrSource, ok := sources[t.Name()]; ok {
+
+			sourcesLock.RLock()
+			vcrSource, ok := sources[t.Name()]
+			sourcesLock.RUnlock()
+			if ok {
 				err = writeSeedToFile(vcrSource.seed, vcrSeedFile(envPath, t.Name()))
 				if err != nil {
 					t.Error(err)
@@ -226,13 +246,20 @@ func closeRecorder(t *testing.T) {
 			}
 		}
 		// Clean up test config
+		configsLock.Lock()
 		delete(configs, t.Name())
+		configsLock.Unlock()
+
+		sourcesLock.Lock()
 		delete(sources, t.Name())
+		sourcesLock.Unlock()
 	}
 }
 
 func googleProviderConfig(t *testing.T) *Config {
+	configsLock.RLock()
 	config, ok := configs[t.Name()]
+	configsLock.RUnlock()
 	if ok {
 		return config
 	}
@@ -289,7 +316,10 @@ func vcrFileName(name string) string {
 // In RECORDING mode, generates a new seed and saves it to a file, using the seed for the source
 // In REPLAYING mode, reads a seed from a file and creates a source from it
 func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
-	if s, ok := sources[t.Name()]; ok {
+	sourcesLock.RLock()
+	s, ok := sources[t.Name()]
+	sourcesLock.RUnlock()
+	if ok {
 		return &s, nil
 	}
 	switch mode {
@@ -297,7 +327,9 @@ func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
 		seed := rand.Int63()
 		s := rand.NewSource(seed)
 		vcrSource := VcrSource{seed: seed, source: s}
+		sourcesLock.Lock()
 		sources[t.Name()] = vcrSource
+		sourcesLock.Unlock()
 		return &vcrSource, nil
 	case "REPLAYING":
 		seed, err := readSeedFromFile(vcrSeedFile(path, t.Name()))
@@ -306,7 +338,9 @@ func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
 		}
 		s := rand.NewSource(seed)
 		vcrSource := VcrSource{seed: seed, source: s}
+		sourcesLock.Lock()
 		sources[t.Name()] = vcrSource
+		sourcesLock.Unlock()
 		return &vcrSource, nil
 	default:
 		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", mode)
@@ -329,7 +363,7 @@ func readSeedFromFile(fileName string) (int64, error) {
 	// Remove NULL characters from seed
 	data = bytes.Trim(data, "\x00")
 	seed := string(data)
-	return strconv.ParseInt(seed, 10, 64)
+	return stringToFixed64(seed)
 }
 
 func writeSeedToFile(seed int64, fileName string) error {
@@ -521,8 +555,13 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + randString(t, 10)
-	sa := "tf-test-" + randString(t, 10)
 	topicName := "tf-test-topic-" + randString(t, 10)
+
+	config := BootstrapConfig(t)
+	accessToken, err := setupProjectsAndGetAccessToken(org, billing, pid, "pubsub", config)
+	if err != nil {
+		t.Error(err)
+	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -530,17 +569,11 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderUserProjectOverride(pid, pname, org, billing, sa),
-				// The token creator IAM API call returns success long before the policy is
-				// actually usable. Wait a solid 2 minutes to ensure we can use it.
-				Check: sleepInSecondsForTest(2 * 60),
-			},
-			{
-				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false, topicName),
+				Config:      testAccProviderUserProjectOverride_step2(accessToken, pid, false, topicName),
 				ExpectError: regexp.MustCompile("Cloud Pub/Sub API has not been used"),
 			},
 			{
-				Config: testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, true, topicName),
+				Config: testAccProviderUserProjectOverride_step2(accessToken, pid, true, topicName),
 			},
 			{
 				ResourceName:      "google_pubsub_topic.project-2-topic",
@@ -548,7 +581,7 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccProviderUserProjectOverride_step3(pid, pname, org, billing, sa, true),
+				Config: testAccProviderUserProjectOverride_step3(accessToken, true),
 			},
 		},
 	})
@@ -564,7 +597,12 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + randString(t, 10)
-	sa := "tf-test-" + randString(t, 10)
+
+	config := BootstrapConfig(t)
+	accessToken, err := setupProjectsAndGetAccessToken(org, billing, pid, "cloudkms", config)
+	if err != nil {
+		t.Error(err)
+	}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -572,20 +610,11 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderIndirectUserProjectOverride(pid, pname, org, billing, sa),
-				Check: func(s *terraform.State) error {
-					// The token creator IAM API call returns success long before the policy is
-					// actually usable. Wait a solid 2 minutes to ensure we can use it.
-					time.Sleep(2 * time.Minute)
-					return nil
-				},
-			},
-			{
-				Config:      testAccProviderIndirectUserProjectOverride_step2(pid, pname, org, billing, sa, false),
+				Config:      testAccProviderIndirectUserProjectOverride_step2(pid, accessToken, false),
 				ExpectError: regexp.MustCompile(`Cloud Key Management Service \(KMS\) API has not been used`),
 			},
 			{
-				Config: testAccProviderIndirectUserProjectOverride_step2(pid, pname, org, billing, sa, true),
+				Config: testAccProviderIndirectUserProjectOverride_step2(pid, accessToken, true),
 			},
 			{
 				ResourceName:      "google_kms_crypto_key.project-2-key",
@@ -593,7 +622,7 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccProviderIndirectUserProjectOverride_step3(pid, pname, org, billing, sa, true),
+				Config: testAccProviderIndirectUserProjectOverride_step3(accessToken, true),
 			},
 		},
 	})
@@ -626,58 +655,8 @@ resource "google_compute_address" "default" {
 // Set up two projects. Project 1 has a service account that is used to create a
 // pubsub topic in project 2. The pubsub API is only enabled in project 2,
 // which causes the create to fail unless user_project_override is set to true.
-func testAccProviderUserProjectOverride(pid, name, org, billing, sa string) string {
-	return fmt.Sprintf(`
-resource "google_project" "project-1" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
 
-resource "google_service_account" "project-1" {
-	project    = google_project.project-1.project_id
-    account_id = "%s"
-}
-
-resource "google_project" "project-2" {
-	project_id      = "%s-2"
-	name            = "%s-2"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project_service" "project-2-pubsub-service" {
-	project = google_project.project-2.project_id
-	service = "pubsub.googleapis.com"
-}
-
-// Permission needed for user_project_override
-resource "google_project_iam_member" "project-2-serviceusage" {
-	project = google_project.project-2.project_id
-	role    = "roles/serviceusage.serviceUsageConsumer"
-	member  = "serviceAccount:${google_service_account.project-1.email}"
-}
-
-resource "google_project_iam_member" "project-2-pubsub-member" {
-	project = google_project.project-2.project_id
-	role    = "roles/pubsub.admin"
-	member  = "serviceAccount:${google_service_account.project-1.email}"
-}
-
-data "google_client_openid_userinfo" "me" {}
-
-// Enable the test runner to get an access token on behalf of
-// the project 1 service account
-resource "google_service_account_iam_member" "token-creator-iam" {
-	service_account_id = google_service_account.project-1.name
-	role               = "roles/iam.serviceAccountTokenCreator"
-	member             = "serviceAccount:${data.google_client_openid_userinfo.me.email}"
-}
-`, pid, name, org, billing, sa, pid, name, org, billing)
-}
-
-func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string, override bool, topicName string) string {
+func testAccProviderUserProjectOverride_step2(accessToken, pid string, override bool, topicName string) string {
 	return fmt.Sprintf(`
 // See step 3 below, which is really step 2 minus the pubsub topic.
 // Step 3 exists because provider configurations can't be removed while objects
@@ -687,101 +666,27 @@ func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string
 
 resource "google_pubsub_topic" "project-2-topic" {
 	provider = google.project-1-token
-	project  = google_project.project-2.project_id
+	project  = "%s-2"
 
 	name = "%s"
 	labels = {
 	  foo = "bar"
 	}
 }
-`, testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa, override), topicName)
+`, testAccProviderUserProjectOverride_step3(accessToken, override), pid, topicName)
 }
 
-func testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa string, override bool) string {
+func testAccProviderUserProjectOverride_step3(accessToken string, override bool) string {
 	return fmt.Sprintf(`
-%s
-
-data "google_service_account_access_token" "project-1-token" {
-	// This data source would have a depends_on t
-	// google_service_account_iam_binding.token-creator-iam, but depends_on
-	// in data sources makes them always have a diff in apply:
-	// https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-	// Instead, rely on the other test step completing before this one.
-
-	target_service_account = google_service_account.project-1.email
-	scopes = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
-	lifetime = "300s"
-}
-
 provider "google" {
 	alias  = "project-1-token"
-	access_token = data.google_service_account_access_token.project-1-token.access_token
+	access_token = "%s"
 	user_project_override = %v
 }
-`, testAccProviderUserProjectOverride(pid, name, org, billing, sa), override)
+`, accessToken, override)
 }
 
-// Set up two projects. Project 1 has a service account that is used to create a
-// kms crypto key in project 2. The kms API is only enabled in project 2,
-// which causes the create to fail unless user_project_override is set to true.
-func testAccProviderIndirectUserProjectOverride(pid, name, org, billing, sa string) string {
-	return fmt.Sprintf(`
-resource "google_project" "project-1" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_service_account" "project-1" {
-	project    = google_project.project-1.project_id
-    account_id = "%s"
-}
-
-resource "google_project" "project-2" {
-	project_id      = "%s-2"
-	name            = "%s-2"
-	org_id          = "%s"
-	billing_account = "%s"
-}
-
-resource "google_project_service" "project-2-kms" {
-	project = google_project.project-2.project_id
-	service = "cloudkms.googleapis.com"
-}
-
-// Permission needed for user_project_override
-resource "google_project_iam_member" "project-2-serviceusage" {
-	project = google_project.project-2.project_id
-	role    = "roles/serviceusage.serviceUsageConsumer"
-	member  = "serviceAccount:${google_service_account.project-1.email}"
-}
-
-resource "google_project_iam_member" "project-2-kms" {
-	project = google_project.project-2.project_id
-	role    = "roles/cloudkms.admin"
-	member  = "serviceAccount:${google_service_account.project-1.email}"
-}
-
-resource "google_project_iam_member" "project-2-kms-encrypt" {
-	project = google_project.project-2.project_id
-	role    = "roles/cloudkms.cryptoKeyEncrypter"
-	member  = "serviceAccount:${google_service_account.project-1.email}"
-}
-
-data "google_client_openid_userinfo" "me" {}
-
-// Enable the test runner to get an access token on behalf of
-// the project 1 service account
-resource "google_service_account_iam_member" "token-creator-iam" {
-	service_account_id = google_service_account.project-1.name
-	role               = "roles/iam.serviceAccountTokenCreator"
-	member             = "serviceAccount:${data.google_client_openid_userinfo.me.email}"
-}
-`, pid, name, org, billing, sa, pid, name, org, billing)
-}
-
-func testAccProviderIndirectUserProjectOverride_step2(pid, name, org, billing, sa string, override bool) string {
+func testAccProviderIndirectUserProjectOverride_step2(pid, accessToken string, override bool) string {
 	return fmt.Sprintf(`
 // See step 3 below, which is really step 2 minus the kms resources.
 // Step 3 exists because provider configurations can't be removed while objects
@@ -791,7 +696,7 @@ func testAccProviderIndirectUserProjectOverride_step2(pid, name, org, billing, s
 
 resource "google_kms_key_ring" "project-2-keyring" {
 	provider = google.project-1-token
-	project  = google_project.project-2.project_id
+	project  = "%s-2"
 
 	name     = "%s"
 	location = "us-central1"
@@ -808,32 +713,18 @@ data "google_kms_secret_ciphertext" "project-2-ciphertext" {
 	crypto_key = google_kms_crypto_key.project-2-key.id
 	plaintext  = "my-secret"
 }
-`, testAccProviderIndirectUserProjectOverride_step3(pid, name, org, billing, sa, override), pid, pid)
+`, testAccProviderIndirectUserProjectOverride_step3(accessToken, override), pid, pid, pid)
 }
 
-func testAccProviderIndirectUserProjectOverride_step3(pid, name, org, billing, sa string, override bool) string {
+func testAccProviderIndirectUserProjectOverride_step3(accessToken string, override bool) string {
 	return fmt.Sprintf(`
-%s
-
-data "google_service_account_access_token" "project-1-token" {
-	// This data source would have a depends_on to
-	// google_service_account_iam_binding.token-creator-iam, but depends_on
-	// in data sources makes them always have a diff in apply:
-	// https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-	// Instead, rely on the other test step completing before this one.
-
-	target_service_account = google_service_account.project-1.email
-	scopes                 = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
-	lifetime               = "300s"
-}
-
 provider "google" {
 	alias = "project-1-token"
 
-	access_token          = data.google_service_account_access_token.project-1-token.access_token
+	access_token          = "%s"
 	user_project_override = %v
 }
-`, testAccProviderIndirectUserProjectOverride(pid, name, org, billing, sa), override)
+`, accessToken, override)
 }
 
 // getTestRegion has the same logic as the provider's getRegion, to be used in tests.
@@ -947,6 +838,197 @@ func sleepInSecondsForTest(t int) resource.TestCheckFunc {
 		time.Sleep(time.Duration(t) * time.Second)
 		return nil
 	}
+}
+
+func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *Config) (string, error) {
+	// Create project-1 and project-2
+	rmService := config.NewResourceManagerClient(config.userAgent)
+
+	project := &cloudresourcemanager.Project{
+		ProjectId: pid,
+		Name:      pname,
+		Parent: &cloudresourcemanager.ResourceId{
+			Id:   org,
+			Type: "organization",
+		},
+	}
+
+	var op *cloudresourcemanager.Operation
+	err := retryTimeDuration(func() (reqErr error) {
+		op, reqErr = rmService.Projects.Create(project).Do()
+		return reqErr
+	}, 5*time.Minute)
+	if err != nil {
+		return "", err
+	}
+
+	// Wait for the operation to complete
+	opAsMap, err := ConvertToMap(op)
+	if err != nil {
+		return "", err
+	}
+
+	waitErr := resourceManagerOperationWaitTime(config, opAsMap, "creating project", config.userAgent, 5*time.Minute)
+	if waitErr != nil {
+		return "", waitErr
+	}
+
+	ba := &cloudbilling.ProjectBillingInfo{
+		BillingAccountName: fmt.Sprintf("billingAccounts/%s", billing),
+	}
+	_, err = config.NewBillingClient(config.userAgent).Projects.UpdateBillingInfo(prefixedProject(pid), ba).Do()
+	if err != nil {
+		return "", err
+	}
+
+	p2 := fmt.Sprintf("%s-2", pid)
+	project.ProjectId = p2
+	project.Name = fmt.Sprintf("%s-2", pname)
+
+	err = retryTimeDuration(func() (reqErr error) {
+		op, reqErr = rmService.Projects.Create(project).Do()
+		return reqErr
+	}, 5*time.Minute)
+	if err != nil {
+		return "", err
+	}
+
+	// Wait for the operation to complete
+	opAsMap, err = ConvertToMap(op)
+	if err != nil {
+		return "", err
+	}
+
+	waitErr = resourceManagerOperationWaitTime(config, opAsMap, "creating project", config.userAgent, 5*time.Minute)
+	if waitErr != nil {
+		return "", waitErr
+	}
+
+	_, err = config.NewBillingClient(config.userAgent).Projects.UpdateBillingInfo(prefixedProject(p2), ba).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// Enable the appropriate service in project-2 only
+	suService := config.NewServiceUsageClient(config.userAgent)
+
+	serviceReq := &serviceusage.BatchEnableServicesRequest{
+		ServiceIds: []string{fmt.Sprintf("%s.googleapis.com", service)},
+	}
+
+	_, err = suService.Services.BatchEnable(fmt.Sprintf("projects/%s", p2), serviceReq).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// Enable the test runner to create service accounts and get an access token on behalf of
+	// the project 1 service account
+	curEmail, err := GetCurrentUserEmail(config, config.userAgent)
+	if err != nil {
+		return "", err
+	}
+
+	proj1SATokenCreator := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", curEmail)},
+		Role:    "roles/iam.serviceAccountTokenCreator",
+	}
+
+	proj1SACreator := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", curEmail)},
+		Role:    "roles/iam.serviceAccountCreator",
+	}
+
+	bindings := mergeBindings([]*cloudresourcemanager.Binding{proj1SATokenCreator, proj1SACreator})
+
+	p, err := rmService.Projects.GetIamPolicy(pid,
+		&cloudresourcemanager.GetIamPolicyRequest{
+			Options: &cloudresourcemanager.GetPolicyOptions{
+				RequestedPolicyVersion: iamPolicyVersion,
+			},
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	p.Bindings = mergeBindings(append(p.Bindings, bindings...))
+	_, err = config.NewResourceManagerClient(config.userAgent).Projects.SetIamPolicy(pid,
+		&cloudresourcemanager.SetIamPolicyRequest{
+			Policy:     p,
+			UpdateMask: "bindings,etag,auditConfigs",
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// Create a service account for project-1
+	sa1, err := getOrCreateServiceAccount(config, pid)
+	if err != nil {
+		return "", err
+	}
+
+	// Add permissions to service accounts
+
+	// Permission needed for user_project_override
+	proj2ServiceUsageBinding := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", sa1.Email)},
+		Role:    "roles/serviceusage.serviceUsageConsumer",
+	}
+
+	// Admin permission for service
+	proj2ServiceAdminBinding := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", sa1.Email)},
+		Role:    fmt.Sprintf("roles/%s.admin", service),
+	}
+
+	bindings = mergeBindings([]*cloudresourcemanager.Binding{proj2ServiceUsageBinding, proj2ServiceAdminBinding})
+
+	// For KMS test only
+	if service == "cloudkms" {
+		proj2CryptoKeyBinding := &cloudresourcemanager.Binding{
+			Members: []string{fmt.Sprintf("serviceAccount:%s", sa1.Email)},
+			Role:    "roles/cloudkms.cryptoKeyEncrypter",
+		}
+
+		bindings = mergeBindings(append(bindings, proj2CryptoKeyBinding))
+	}
+
+	p, err = rmService.Projects.GetIamPolicy(p2,
+		&cloudresourcemanager.GetIamPolicyRequest{
+			Options: &cloudresourcemanager.GetPolicyOptions{
+				RequestedPolicyVersion: iamPolicyVersion,
+			},
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	p.Bindings = mergeBindings(append(p.Bindings, bindings...))
+	_, err = config.NewResourceManagerClient(config.userAgent).Projects.SetIamPolicy(p2,
+		&cloudresourcemanager.SetIamPolicyRequest{
+			Policy:     p,
+			UpdateMask: "bindings,etag,auditConfigs",
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// The token creator IAM API call returns success long before the policy is
+	// actually usable. Wait a solid 2 minutes to ensure we can use it.
+	time.Sleep(2 * time.Minute)
+
+	iamCredsService := config.NewIamCredentialsClient(config.userAgent)
+	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{
+		Lifetime: "300s",
+		Scope:    []string{"https://www.googleapis.com/auth/cloud-platform"},
+	}
+	atResp, err := iamCredsService.Projects.ServiceAccounts.GenerateAccessToken(fmt.Sprintf("projects/-/serviceAccounts/%s", sa1.Email), tokenRequest).Do()
+	if err != nil {
+		return "", err
+	}
+
+	accessToken := atResp.AccessToken
+
+	return accessToken, nil
 }
 
 func isReleaseDiffEnabled() bool {

@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataLossPreventionDeidentifyTemplate() *schema.Resource {
@@ -38,9 +36,9 @@ func resourceDataLossPreventionDeidentifyTemplate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -85,7 +83,7 @@ Masking can start from the beginning or end of the string.`,
 																			Description: `Characters to skip when doing de-identification of a value. These will be left alone and skipped.`,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
-																					"character_to_skip": {
+																					"characters_to_skip": {
 																						Type:        schema.TypeString,
 																						Optional:    true,
 																						Description: `Characters to not transform when masking.`,
@@ -93,7 +91,7 @@ Masking can start from the beginning or end of the string.`,
 																					"common_characters_to_ignore": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validation.StringInSlice([]string{"NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE", ""}, false),
+																						ValidateFunc: validateEnum([]string{"NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE", ""}),
 																						Description:  `Common characters to not transform when masking. Useful to avoid removing punctuation. Possible values: ["NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE"]`,
 																					},
 																				},
@@ -258,7 +256,7 @@ Note: We recommend using CryptoDeterministicConfig for all use cases which do no
 																		"common_alphabet": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: validation.StringInSlice([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}, false),
+																			ValidateFunc: validateEnum([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}),
 																			Description:  `Common alphabets. Possible values: ["FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC"]`,
 																		},
 																		"context": {
@@ -438,7 +436,7 @@ year by itself or a year and month where the day is not significant.`,
 																					"day_of_week_value": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}, false),
+																						ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																					},
 																					"float_value": {
@@ -954,7 +952,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1006,7 +1004,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1023,7 +1021,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1040,7 +1038,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1057,7 +1055,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1091,7 +1089,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1108,7 +1106,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1125,7 +1123,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1173,7 +1171,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigNumberToMask(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1204,13 +1202,13 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"character_to_skip":           flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["characterToSkip"], d, config),
+			"characters_to_skip":          flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(original["charactersToSkip"], d, config),
 			"common_characters_to_ignore": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["commonCharactersToIgnore"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1485,7 +1483,7 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1929,11 +1927,11 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedCharacterToSkip, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(original["character_to_skip"], d, config)
+		transformedCharactersToSkip, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(original["characters_to_skip"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedCharacterToSkip); val.IsValid() && !isEmptyValue(val) {
-			transformed["characterToSkip"] = transformedCharacterToSkip
+		} else if val := reflect.ValueOf(transformedCharactersToSkip); val.IsValid() && !isEmptyValue(val) {
+			transformed["charactersToSkip"] = transformedCharactersToSkip
 		}
 
 		transformedCommonCharactersToIgnore, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(original["common_characters_to_ignore"], d, config)
@@ -1948,7 +1946,7 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 	return req, nil
 }
 
-func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharacterToSkip(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCharactersToSkip(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

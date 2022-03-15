@@ -148,7 +148,7 @@ cluster.
     with the specified prefix. Conflicts with `name`.
 
 * `node_config` - (Optional) Parameters used in creating the node pool. See
-    [google_container_cluster](container_cluster.html) for schema.
+    [google_container_cluster](container_cluster.html#nested_node_config) for schema.
 
 * `network_config` - (Optional) The network configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
@@ -169,6 +169,9 @@ cluster.
     recommended that you specify explicit versions as Terraform will see spurious diffs
     when fuzzy versions are used. See the `google_container_engine_versions` data source's
     `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
+
+* `placement_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Specifies a custom placement policy for the
+  nodes.
 
 <a name="nested_autoscaling"></a>The `autoscaling` block supports:
 
@@ -194,6 +197,12 @@ cluster.
     parallel. Can be set to 0 or greater.
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
+
+<a name="nested_placement_policy"></a>The `placement_policy` block supports:
+
+* `type` - (Required) The type of the policy. Supports a single value: COMPACT.
+  Specifying COMPACT placement policy type places node pool's nodes in a closer
+  physical proximity in order to reduce network latency between nodes.
 
 ## Attributes Reference
 

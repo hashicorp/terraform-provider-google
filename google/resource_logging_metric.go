@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceLoggingMetric() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceLoggingMetric() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -59,7 +57,7 @@ is used to match log entries.`,
 						"metric_kind": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"DELTA", "GAUGE", "CUMULATIVE"}, false),
+							ValidateFunc: validateEnum([]string{"DELTA", "GAUGE", "CUMULATIVE"}),
 							Description: `Whether the metric records instantaneous values, changes to a value, etc.
 Some combinations of metricKind and valueType might not be supported.
 For counter metrics, set this to DELTA. Possible values: ["DELTA", "GAUGE", "CUMULATIVE"]`,
@@ -67,7 +65,7 @@ For counter metrics, set this to DELTA. Possible values: ["DELTA", "GAUGE", "CUM
 						"value_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}, false),
+							ValidateFunc: validateEnum([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}),
 							Description: `Whether the measurement is an integer, a floating-point number, etc.
 Some combinations of metricKind and valueType might not be supported.
 For counter metrics, set this to INT64. Possible values: ["BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"]`,
@@ -254,7 +252,7 @@ func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "STRING", ""}, false),
+				ValidateFunc: validateEnum([]string{"BOOL", "INT64", "STRING", ""}),
 				Description:  `The type of data that can be assigned to the label. Default value: "STRING" Possible values: ["BOOL", "INT64", "STRING"]`,
 				Default:      "STRING",
 			},
@@ -708,7 +706,7 @@ func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.Res
 func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -750,7 +748,7 @@ func flattenLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d *schem
 func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

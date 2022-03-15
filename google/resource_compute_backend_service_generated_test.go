@@ -156,6 +156,47 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceExternalManagedExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceExternalManagedExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  name = "tf-test-health-check%{random_suffix}"
+  http_health_check {
+    port = 80
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
