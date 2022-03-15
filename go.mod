@@ -1,4 +1,5 @@
 module github.com/hashicorp/terraform-provider-google
+
 require (
 	cloud.google.com/go/bigtable v1.10.1
 	cloud.google.com/go/iam v0.1.1 // indirect
@@ -14,9 +15,8 @@ require (
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/go-version v1.3.0
-	github.com/hashicorp/hcl/v2 v2.6.0 // indirect
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.1
+	github.com/hashicorp/go-version v1.4.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.11.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/sirupsen/logrus v1.8.1
@@ -25,8 +25,7 @@ require (
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	google.golang.org/api v0.70.0
-	google.golang.org/grpc v1.44.0
+	google.golang.org/grpc v1.45.0
 )
-
 
 go 1.16
