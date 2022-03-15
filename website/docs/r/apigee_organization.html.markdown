@@ -167,6 +167,10 @@ The following arguments are supported:
   Default value is `CLOUD`.
   Possible values are `CLOUD` and `HYBRID`.
 
+* `billing_type` -
+  (Optional)
+  Billing type of the Apigee organization. See [Apigee pricing](https://cloud.google.com/apigee/pricing).
+
 * `runtime_database_encryption_key_name` -
   (Optional)
   Cloud KMS key name used for encrypting the data that is stored and replicated across runtime instances.

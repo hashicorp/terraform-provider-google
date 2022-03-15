@@ -61,6 +61,13 @@ func resourceApigeeOrganization() *schema.Resource {
 See [Getting started with the Service Networking API](https://cloud.google.com/service-infrastructure/docs/service-networking/getting-started).
 Valid only when 'RuntimeType' is set to CLOUD. The value can be updated only when there are no runtime instances. For example: "default".`,
 			},
+			"billing_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Billing type of the Apigee organization. See [Apigee pricing](https://cloud.google.com/apigee/pricing).`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -147,6 +154,12 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("runtime_type"); !isEmptyValue(reflect.ValueOf(runtimeTypeProp)) && (ok || !reflect.DeepEqual(v, runtimeTypeProp)) {
 		obj["runtimeType"] = runtimeTypeProp
+	}
+	billingTypeProp, err := expandApigeeOrganizationBillingType(d.Get("billing_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("billing_type"); !isEmptyValue(reflect.ValueOf(billingTypeProp)) && (ok || !reflect.DeepEqual(v, billingTypeProp)) {
+		obj["billingType"] = billingTypeProp
 	}
 	runtimeDatabaseEncryptionKeyNameProp, err := expandApigeeOrganizationRuntimeDatabaseEncryptionKeyName(d.Get("runtime_database_encryption_key_name"), d, config)
 	if err != nil {
@@ -258,6 +271,9 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("subscription_type", flattenApigeeOrganizationSubscriptionType(res["subscriptionType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
+	if err := d.Set("billing_type", flattenApigeeOrganizationBillingType(res["billingType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Organization: %s", err)
+	}
 	if err := d.Set("ca_certificate", flattenApigeeOrganizationCaCertificate(res["caCertificate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
@@ -307,6 +323,12 @@ func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("runtime_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runtimeTypeProp)) {
 		obj["runtimeType"] = runtimeTypeProp
+	}
+	billingTypeProp, err := expandApigeeOrganizationBillingType(d.Get("billing_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("billing_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, billingTypeProp)) {
+		obj["billingType"] = billingTypeProp
 	}
 	runtimeDatabaseEncryptionKeyNameProp, err := expandApigeeOrganizationRuntimeDatabaseEncryptionKeyName(d.Get("runtime_database_encryption_key_name"), d, config)
 	if err != nil {
@@ -461,6 +483,10 @@ func flattenApigeeOrganizationSubscriptionType(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenApigeeOrganizationBillingType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenApigeeOrganizationCaCertificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -486,6 +512,10 @@ func expandApigeeOrganizationAuthorizedNetwork(v interface{}, d TerraformResourc
 }
 
 func expandApigeeOrganizationRuntimeType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeOrganizationBillingType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
