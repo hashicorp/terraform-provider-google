@@ -246,10 +246,10 @@ type Config struct {
 	// dataprocBasePath is implemented in mm
 	AssuredWorkloadsBasePath     string
 	CloudResourceManagerBasePath string
+	ContainerAwsBasePath         string
+	ContainerAzureBasePath       string
 	EventarcBasePath             string
 	GkeHubBasePath               string
-	ContainerAzureBasePath       string
-	ContainerAwsBasePath         string
 	NetworkConnectivityBasePath  string
 	OrgPolicyBasePath            string
 	RecaptchaEnterpriseBasePath  string

@@ -200,8 +200,8 @@ resource "google_apikeys_key" "primary" {
     }
 
     api_targets {
-      methods = ["GET*"]
       service = "translate.googleapis.com"
+      methods = ["GET*"]
     }
   }
 }
@@ -232,8 +232,8 @@ resource "google_apikeys_key" "primary" {
     }
 
     api_targets {
-      methods = ["GET*"]
       service = "translate.googleapis.com"
+      methods = ["GET*"]
     }
   }
 }
@@ -257,8 +257,8 @@ resource "google_apikeys_key" "primary" {
 
   restrictions {
     api_targets {
-      methods = ["GET*"]
       service = "translate.googleapis.com"
+      methods = ["GET*"]
     }
 
     browser_key_restrictions {
@@ -286,8 +286,8 @@ resource "google_apikeys_key" "primary" {
 
   restrictions {
     api_targets {
-      methods = ["POST*"]
       service = "maps.googleapis.com"
+      methods = ["POST*"]
     }
 
     browser_key_restrictions {
@@ -315,8 +315,8 @@ resource "google_apikeys_key" "primary" {
 
   restrictions {
     api_targets {
-      methods = ["GET*"]
       service = "translate.googleapis.com"
+      methods = ["GET*"]
     }
 
     ios_key_restrictions {
@@ -344,8 +344,8 @@ resource "google_apikeys_key" "primary" {
 
   restrictions {
     api_targets {
-      methods = ["GET*"]
       service = "translate.googleapis.com"
+      methods = ["GET*"]
     }
 
     ios_key_restrictions {
@@ -391,8 +391,8 @@ resource "google_apikeys_key" "primary" {
 
   restrictions {
     api_targets {
-      methods = ["GET*"]
       service = "translate.googleapis.com"
+      methods = ["GET*"]
     }
 
     server_key_restrictions {
@@ -420,8 +420,8 @@ resource "google_apikeys_key" "primary" {
 
   restrictions {
     api_targets {
-      methods = ["GET*"]
       service = "translate.googleapis.com"
+      methods = ["GET*"]
     }
 
     server_key_restrictions {
