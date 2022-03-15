@@ -1,0 +1,6 @@
+```release-note:enhancement
+networkservices: updated EdgeCacheOrigin to retry_conditions to include `FORBIDDEN`
+```
+```release-note:enhancement
+networkservices: updated EdgeCacheOrigin resource to read and write the `timeout` property, including a new `read_timeout` field.
+```
