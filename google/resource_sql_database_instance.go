@@ -1056,6 +1056,9 @@ func expandAuthorizedNetworks(configured []interface{}) []*sqladmin.AclEntry {
 func expandDatabaseFlags(configured []interface{}) []*sqladmin.DatabaseFlags {
 	databaseFlags := make([]*sqladmin.DatabaseFlags, 0, len(configured))
 	for _, _flag := range configured {
+		if _flag == nil {
+			continue
+		}
 		_entry := _flag.(map[string]interface{})
 
 		databaseFlags = append(databaseFlags, &sqladmin.DatabaseFlags{
