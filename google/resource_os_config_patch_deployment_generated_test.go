@@ -114,6 +114,56 @@ resource "google_os_config_patch_deployment" "patch" {
 `, context)
 }
 
+func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(context),
+			},
+			{
+				ResourceName:            "google_os_config_patch_deployment.patch",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
+			},
+		},
+	})
+}
+
+func testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_os_config_patch_deployment" "patch" {
+  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+
+  instance_filter {
+    all = true
+  }
+
+  recurring_schedule {
+    time_zone {
+      id = "America/New_York"
+    }
+
+    time_of_day {
+      hours = 0
+      minutes = 0
+      seconds = 0
+      nanos = 0
+    }
+  }
+}
+`, context)
+}
+
 func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *testing.T) {
 	t.Parallel()
 
