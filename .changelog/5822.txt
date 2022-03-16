@@ -1,0 +1,3 @@
+```release-note:bug
+osconfig: fixed a bug where `recurring_schedule.time_of_day` can not be set to 12am exact time in `google_os_config_patch_deployment` resource
+```
