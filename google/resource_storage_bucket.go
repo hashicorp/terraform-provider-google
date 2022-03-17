@@ -664,95 +664,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 
-	// We are trying to support several different use cases for bucket. Buckets are globally
-	// unique but they are associated with projects internally, but some users want to use
-	// buckets in a project agnostic way. Thus we will check to see if the project ID has been
-	// explicitly set and use that first. However if no project is explicitly set, such as during
-	// import, we will look up the ID from the compute API using the project Number from the
-	// bucket API response.
-	// If you are working in a project-agnostic way and have not set the project ID in the provider
-	// block, or the resource or an environment variable, we use the compute API to lookup the projectID
-	// from the projectNumber which is included in the bucket API response
-	if d.Get("project") == "" {
-		project, _ := getProject(d, config)
-		if err := d.Set("project", project); err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
-		}
-	}
-	if d.Get("project") == "" {
-		proj, err := config.NewComputeClient(userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
-		if err := d.Set("project", proj.Name); err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
-		}
-	}
-
-	// Update the bucket ID according to the resource ID
-	if err := d.Set("self_link", res.SelfLink); err != nil {
-		return fmt.Errorf("Error setting self_link: %s", err)
-	}
-	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
-		return fmt.Errorf("Error setting url: %s", err)
-	}
-	if err := d.Set("storage_class", res.StorageClass); err != nil {
-		return fmt.Errorf("Error setting storage_class: %s", err)
-	}
-	if err := d.Set("encryption", flattenBucketEncryption(res.Encryption)); err != nil {
-		return fmt.Errorf("Error setting encryption: %s", err)
-	}
-	if err := d.Set("location", res.Location); err != nil {
-		return fmt.Errorf("Error setting location: %s", err)
-	}
-	if err := d.Set("cors", flattenCors(res.Cors)); err != nil {
-		return fmt.Errorf("Error setting cors: %s", err)
-	}
-	if err := d.Set("default_event_based_hold", res.DefaultEventBasedHold); err != nil {
-		return fmt.Errorf("Error setting default_event_based_hold: %s", err)
-	}
-	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
-		return fmt.Errorf("Error setting logging: %s", err)
-	}
-	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
-		return fmt.Errorf("Error setting versioning: %s", err)
-	}
-	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
-		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
-	}
-	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error setting labels: %s", err)
-	}
-	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
-		return fmt.Errorf("Error setting website: %s", err)
-	}
-	if err := d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy)); err != nil {
-		return fmt.Errorf("Error setting retention_policy: %s", err)
-	}
-
-	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
-		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
-			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
-		}
-	} else {
-		if err := d.Set("uniform_bucket_level_access", false); err != nil {
-			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
-		}
-	}
-
-	if res.Billing == nil {
-		if err := d.Set("requester_pays", nil); err != nil {
-			return fmt.Errorf("Error setting requester_pays: %s", err)
-		}
-	} else {
-		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
-			return fmt.Errorf("Error setting requester_pays: %s", err)
-		}
-	}
-
-	d.SetId(res.Id)
-	return nil
+	return setStorageBucket(d, config, res, bucket, userAgent)
 }
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
@@ -1378,4 +1290,98 @@ func detectLifecycleChange(d *schema.ResourceData) bool {
 	}
 
 	return false
+}
+
+// Resource Read and DataSource Read both need to set attributes, but Data Sources don't support Timeouts
+// so we pulled this portion out separately (https://github.com/hashicorp/terraform-provider-google/issues/11264)
+func setStorageBucket(d *schema.ResourceData, config *Config, res *storage.Bucket, bucket, userAgent string) error {
+	// We are trying to support several different use cases for bucket. Buckets are globally
+	// unique but they are associated with projects internally, but some users want to use
+	// buckets in a project agnostic way. Thus we will check to see if the project ID has been
+	// explicitly set and use that first. However if no project is explicitly set, such as during
+	// import, we will look up the ID from the compute API using the project Number from the
+	// bucket API response.
+	// If you are working in a project-agnostic way and have not set the project ID in the provider
+	// block, or the resource or an environment variable, we use the compute API to lookup the projectID
+	// from the projectNumber which is included in the bucket API response
+	if d.Get("project") == "" {
+		project, _ := getProject(d, config)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
+	if d.Get("project") == "" {
+		proj, err := config.NewComputeClient(userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
+		if err := d.Set("project", proj.Name); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
+
+	// Update the bucket ID according to the resource ID
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
+		return fmt.Errorf("Error setting url: %s", err)
+	}
+	if err := d.Set("storage_class", res.StorageClass); err != nil {
+		return fmt.Errorf("Error setting storage_class: %s", err)
+	}
+	if err := d.Set("encryption", flattenBucketEncryption(res.Encryption)); err != nil {
+		return fmt.Errorf("Error setting encryption: %s", err)
+	}
+	if err := d.Set("location", res.Location); err != nil {
+		return fmt.Errorf("Error setting location: %s", err)
+	}
+	if err := d.Set("cors", flattenCors(res.Cors)); err != nil {
+		return fmt.Errorf("Error setting cors: %s", err)
+	}
+	if err := d.Set("default_event_based_hold", res.DefaultEventBasedHold); err != nil {
+		return fmt.Errorf("Error setting default_event_based_hold: %s", err)
+	}
+	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
+		return fmt.Errorf("Error setting logging: %s", err)
+	}
+	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
+		return fmt.Errorf("Error setting versioning: %s", err)
+	}
+	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
+		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
+	}
+	if err := d.Set("labels", res.Labels); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
+		return fmt.Errorf("Error setting website: %s", err)
+	}
+	if err := d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy)); err != nil {
+		return fmt.Errorf("Error setting retention_policy: %s", err)
+	}
+
+	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
+		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+	} else {
+		if err := d.Set("uniform_bucket_level_access", false); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+	}
+
+	if res.Billing == nil {
+		if err := d.Set("requester_pays", nil); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
+	} else {
+		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
+	}
+
+	d.SetId(res.Id)
+	return nil
 }
