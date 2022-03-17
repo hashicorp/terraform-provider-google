@@ -31,6 +31,8 @@ Three different resources help you manage your IAM policy for Compute Engine Mac
 
 ~> **Note:** `google_compute_machine_image_iam_binding` resources **can be** used in conjunction with `google_compute_machine_image_iam_member` resources **only if** they do not grant privilege to the same role.
 
+~> **Note:** `google_compute_machine_image_iam_member` resources should depend on the associated `google_compute_machine_image`. If it does not have an implicit dependency, the dependency should be set explicitly using [`depends_on`](https://www.terraform.io/language/meta-arguments/depends_on). Otherwise, it may create race condition.
+
 ~> **Note:**  This resource supports IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)) but they have some known limitations which can be found [here](https://cloud.google.com/iam/docs/conditions-overview#limitations). Please review this article if you are having issues with IAM Conditions.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.

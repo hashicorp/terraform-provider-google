@@ -31,6 +31,8 @@ Three different resources help you manage your IAM policy for Data catalog Polic
 
 ~> **Note:** `google_data_catalog_policy_tag_iam_binding` resources **can be** used in conjunction with `google_data_catalog_policy_tag_iam_member` resources **only if** they do not grant privilege to the same role.
 
+~> **Note:** `google_data_catalog_policy_tag_iam_member` resources should depend on the associated `google_data_catalog_policy_tag`. If it does not have an implicit dependency, the dependency should be set explicitly using [`depends_on`](https://www.terraform.io/language/meta-arguments/depends_on). Otherwise, it may create race condition.
+
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
