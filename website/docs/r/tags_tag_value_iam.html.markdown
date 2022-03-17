@@ -31,6 +31,8 @@ Three different resources help you manage your IAM policy for Tags TagValue. Eac
 
 ~> **Note:** `google_tags_tag_value_iam_binding` resources **can be** used in conjunction with `google_tags_tag_value_iam_member` resources **only if** they do not grant privilege to the same role.
 
+~> **Note:** `google_tags_tag_value_iam_member` resources should depend on the associated `google_tags_tag_value`. If it does not have an implicit dependency, the dependency should be set explicitly using [`depends_on`](https://www.terraform.io/language/meta-arguments/depends_on). Otherwise, it may create race condition.
+
 
 
 
