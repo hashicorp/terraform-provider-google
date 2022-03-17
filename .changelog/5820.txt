@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed a bug where `google_storage_bucket` data source would retry for 20 min when bucket was not found.
+```
