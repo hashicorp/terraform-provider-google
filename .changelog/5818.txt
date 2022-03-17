@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed a permadiff when `google_monitoring_uptime_check_config.http_check.path` does not begin with "/"
+```

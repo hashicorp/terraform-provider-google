@@ -43,7 +43,7 @@ resource "google_monitoring_uptime_check_config" "http" {
   timeout      = "60s"
 
   http_check {
-    path = "/some-path"
+    path = "some-path"
     port = "8010"
     request_method = "POST"
     content_type = "URL_ENCODED"
@@ -214,7 +214,7 @@ The following arguments are supported:
 
 * `path` -
   (Optional)
-  The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. Optional (defaults to "/").
+  The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. If the provided path does not begin with "/", a "/" will be prepended automatically. Optional (defaults to "/").
 
 * `use_ssl` -
   (Optional)

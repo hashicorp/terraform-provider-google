@@ -55,7 +55,7 @@ resource "google_monitoring_uptime_check_config" "http" {
   timeout      = "60s"
 
   http_check {
-    path = "/some-path"
+    path = "some-path"
     port = "8010"
     request_method = "POST"
     content_type = "URL_ENCODED"
