@@ -17,7 +17,7 @@ subcategory: "RecaptchaEnterprise"
 layout: "google"
 page_title: "Google: google_recaptcha_enterprise_key"
 description: |-
-The RecaptchaEnterprise Key resource
+  The RecaptchaEnterprise Key resource
 ---
 
 # google_recaptcha_enterprise_key

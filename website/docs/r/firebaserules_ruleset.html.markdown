@@ -17,7 +17,7 @@ subcategory: "Firebaserules"
 layout: "google"
 page_title: "Google: google_firebaserules_ruleset"
 description: |-
-The Firebaserules Ruleset resource
+  The Firebaserules Ruleset resource
 ---
 
 # google_firebaserules_ruleset

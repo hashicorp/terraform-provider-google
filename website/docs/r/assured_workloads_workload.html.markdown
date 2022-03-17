@@ -17,7 +17,7 @@ subcategory: "AssuredWorkloads"
 layout: "google"
 page_title: "Google: google_assured_workloads_workload"
 description: |-
-The AssuredWorkloads Workload resource
+  The AssuredWorkloads Workload resource
 ---
 
 # google_assured_workloads_workload
