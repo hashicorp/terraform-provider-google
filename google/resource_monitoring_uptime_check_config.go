@@ -24,6 +24,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return old == "/"+new
+}
+
 func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringUptimeCheckConfigCreate,
@@ -128,11 +132,12 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"path": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Description:  `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. Optional (defaults to "/").`,
-							Default:      "/",
-							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress,
+							Description:      `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. If the provided path does not begin with "/", a "/" will be prepended automatically. Optional (defaults to "/").`,
+							Default:          "/",
+							AtLeastOneOf:     []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"port": {
 							Type:         schema.TypeInt,
