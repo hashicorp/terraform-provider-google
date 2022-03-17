@@ -249,6 +249,7 @@ type Config struct {
 	ContainerAwsBasePath         string
 	ContainerAzureBasePath       string
 	EventarcBasePath             string
+	FirebaserulesBasePath        string
 	GkeHubBasePath               string
 	NetworkConnectivityBasePath  string
 	OrgPolicyBasePath            string

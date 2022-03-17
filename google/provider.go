@@ -695,6 +695,7 @@ func Provider() *schema.Provider {
 			AssuredWorkloadsEndpointEntryKey:             AssuredWorkloadsEndpointEntry,
 			CloudResourceManagerEndpointEntryKey:         CloudResourceManagerEndpointEntry,
 			EventarcEndpointEntryKey:                     EventarcEndpointEntry,
+			FirebaserulesEndpointEntryKey:                FirebaserulesEndpointEntry,
 			GkeHubFeatureCustomEndpointEntryKey:          GkeHubFeatureCustomEndpointEntry,
 			NetworkConnectivityEndpointEntryKey:          NetworkConnectivityEndpointEntry,
 			OrgPolicyEndpointEntryKey:                    OrgPolicyEndpointEntry,
@@ -1233,6 +1234,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_container_azure_node_pool":           resourceContainerAzureNodePool(),
 			"google_dataproc_workflow_template":          resourceDataprocWorkflowTemplate(),
 			"google_eventarc_trigger":                    resourceEventarcTrigger(),
+			"google_firebaserules_release":               resourceFirebaserulesRelease(),
+			"google_firebaserules_ruleset":               resourceFirebaserulesRuleset(),
 			"google_logging_log_view":                    resourceLoggingLogView(),
 			"google_network_connectivity_hub":            resourceNetworkConnectivityHub(),
 			"google_network_connectivity_spoke":          resourceNetworkConnectivitySpoke(),
@@ -1473,6 +1476,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
+	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
 	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)
 	config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)
 	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
