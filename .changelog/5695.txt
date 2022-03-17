@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_firebaserules_ruleset`
+```
+```release-note:new-resource
+`google_firebaserules_release`
+```

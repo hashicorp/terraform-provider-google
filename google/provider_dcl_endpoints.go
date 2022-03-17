@@ -94,6 +94,15 @@ var EventarcEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var FirebaserulesEndpointEntryKey = "firebaserules_custom_endpoint"
+var FirebaserulesEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var LoggingEndpointEntryKey = "logging_custom_endpoint"
 var LoggingEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -157,6 +166,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 //ContainerAwsBasePath string
 //ContainerAzureBasePath string
 //EventarcBasePath string
+//FirebaserulesBasePath string
 //LoggingBasePath string
 //NetworkConnectivityBasePath string
 //OrgPolicyBasePath string
@@ -173,6 +183,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // ContainerAwsEndpointEntryKey:               ContainerAwsEndpointEntry,
 // ContainerAzureEndpointEntryKey:               ContainerAzureEndpointEntry,
 // EventarcEndpointEntryKey:               EventarcEndpointEntry,
+// FirebaserulesEndpointEntryKey:               FirebaserulesEndpointEntry,
 // LoggingEndpointEntryKey:               LoggingEndpointEntry,
 // NetworkConnectivityEndpointEntryKey:               NetworkConnectivityEndpointEntry,
 // OrgPolicyEndpointEntryKey:               OrgPolicyEndpointEntry,
@@ -189,6 +200,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // config.ContainerAwsBasePath = d.Get(ContainerAwsEndpointEntryKey).(string)
 // config.ContainerAzureBasePath = d.Get(ContainerAzureEndpointEntryKey).(string)
 // config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
+// config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
 // config.LoggingBasePath = d.Get(LoggingEndpointEntryKey).(string)
 // config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)
 // config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)

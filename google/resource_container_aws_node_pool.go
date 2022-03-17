@@ -48,7 +48,6 @@ func resourceContainerAwsNodePool() *schema.Resource {
 			"autoscaling": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Autoscaler configuration for this node pool.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolAutoscalingSchema(),
@@ -65,7 +64,6 @@ func resourceContainerAwsNodePool() *schema.Resource {
 			"config": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The configuration of the node pool.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolConfigSchema(),
@@ -104,7 +102,6 @@ func resourceContainerAwsNodePool() *schema.Resource {
 			"version": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The Kubernetes version to run on this node pool (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAwsServerConfig.",
 			},
 
@@ -169,14 +166,12 @@ func ContainerAwsNodePoolAutoscalingSchema() *schema.Resource {
 			"max_node_count": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Maximum number of nodes in the NodePool. Must be >= min_node_count.",
 			},
 
 			"min_node_count": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Minimum number of nodes in the NodePool. Must be >= 1 and <= max_node_count.",
 			},
 		},
@@ -189,7 +184,6 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 			"config_encryption": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The ARN of the AWS KMS key used to encrypt node pool configuration.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolConfigConfigEncryptionSchema(),
@@ -222,7 +216,6 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. Template for the root volume provisioned for node pool nodes. Volumes will be provisioned in the availability zone assigned to the node pool subnet. When unspecified, it defaults to 32 GiB with the GP2 volume type.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolConfigRootVolumeSchema(),
@@ -231,7 +224,6 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 			"security_group_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The IDs of additional security groups to add to nodes in this pool. The manager will automatically create security groups with minimum rules needed for a functioning cluster.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -270,7 +262,6 @@ func ContainerAwsNodePoolConfigConfigEncryptionSchema() *schema.Resource {
 			"kms_key_arn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. The ARN of the AWS KMS key used to encrypt node pool configuration.",
 			},
 		},
@@ -284,14 +275,12 @@ func ContainerAwsNodePoolConfigRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The number of I/O operations per second (IOPS) to provision for GP3 volume.",
 			},
 
 			"kms_key_arn": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The Amazon Resource Name (ARN) of the Customer Managed Key (CMK) used to encrypt AWS EBS volumes. If not specified, the default Amazon managed key associated to the AWS region where this cluster runs will be used.",
 			},
 
@@ -299,7 +288,6 @@ func ContainerAwsNodePoolConfigRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The size of the volume, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.",
 			},
 
@@ -307,7 +295,6 @@ func ContainerAwsNodePoolConfigRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. Type of the EBS volume. When unspecified, it defaults to GP2 volume. Possible values: VOLUME_TYPE_UNSPECIFIED, GP2, GP3",
 			},
 		},
