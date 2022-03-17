@@ -17,7 +17,7 @@ subcategory: "Firebaserules"
 layout: "google"
 page_title: "Google: google_firebaserules_release"
 description: |-
-The Firebaserules Release resource
+  The Firebaserules Release resource
 ---
 
 # google_firebaserules_release

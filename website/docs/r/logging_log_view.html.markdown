@@ -17,7 +17,7 @@ subcategory: "Logging"
 layout: "google"
 page_title: "Google: google_logging_log_view"
 description: |-
-The Logging LogView resource
+  The Logging LogView resource
 ---
 
 # google_logging_log_view

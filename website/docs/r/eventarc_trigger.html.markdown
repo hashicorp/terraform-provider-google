@@ -17,7 +17,7 @@ subcategory: "Eventarc"
 layout: "google"
 page_title: "Google: google_eventarc_trigger"
 description: |-
-The Eventarc Trigger resource
+  The Eventarc Trigger resource
 ---
 
 # google_eventarc_trigger
