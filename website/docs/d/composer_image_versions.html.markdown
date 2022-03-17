@@ -43,5 +43,5 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `image_versions` - A list of composer image versions available in the given project and location. Each `image_version` contains:
-  * `image_version_id` - The string identifier of the image version, in the form: "composer-x.y.z-airflow-a.b(.c)"
+  * `image_version_id` - The string identifier of the image version, in the form: "composer-x.y.z-airflow-a.b.c"
   * `supported_python_versions` - Supported python versions for this image version
