@@ -3,10 +3,10 @@ FEATURES:
 * **New Resource:** google_logging_log_view ([#11282](https://github.com/hashicorp/terraform-provider-google/pull/11282))
 
 IMPROVEMENTS:
-* apigee: added `billing_type` attribute to Apigee Organization resource. ([#11285](https://github.com/hashicorp/terraform-provider-google/pull/11285))
+* apigee: added `billing_type` attribute to `google_apigee_organization` resource. ([#11285](https://github.com/hashicorp/terraform-provider-google/pull/11285))
 * networkservices: added `disable_http2` property to `google_network_services_edge_cache_service` resource ([#11258](https://github.com/hashicorp/terraform-provider-google/pull/11258))
-* networkservices: updated EdgeCacheOrigin resource to read and write the `timeout` property, including a new `read_timeout` field. ([#11277](https://github.com/hashicorp/terraform-provider-google/pull/11277))
-* networkservices: updated EdgeCacheOrigin to retry_conditions to include `FORBIDDEN` ([#11277](https://github.com/hashicorp/terraform-provider-google/pull/11277))
+* networkservices: updated `google_network_services_edge_cache_origin` resource to read and write the `timeout` property, including a new `read_timeout` field. ([#11277](https://github.com/hashicorp/terraform-provider-google/pull/11277))
+* networkservices: updated `google_network_services_edge_cache_origin` to retry_conditions to include `FORBIDDEN` ([#11277](https://github.com/hashicorp/terraform-provider-google/pull/11277))
 
 BUG FIXES:
 * dataproc: fixed a crash when `logging_config` only contains `nil` entry  in `google_dataproc_workflow_template` ([#11280](https://github.com/hashicorp/terraform-provider-google/pull/11280))
