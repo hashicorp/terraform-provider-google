@@ -319,6 +319,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										Type:             schema.TypeString,
 										Computed:         true,
 										Optional:         true,
+										ForceNew:         true,
 										AtLeastOneOf:     composerSoftwareConfigKeys,
 										ValidateFunc:     validateRegexp(composerEnvironmentVersionRegexp),
 										DiffSuppressFunc: composerImageVersionDiffSuppress,
@@ -791,21 +792,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 		config, err := expandComposerEnvironmentConfig(d.Get("config"), d, tfConfig)
 		if err != nil {
 			return err
-		}
-
-		if d.HasChange("config.0.software_config.0.image_version") {
-			patchObj := &composer.Environment{
-				Config: &composer.EnvironmentConfig{
-					SoftwareConfig: &composer.SoftwareConfig{},
-				},
-			}
-			if config != nil && config.SoftwareConfig != nil {
-				patchObj.Config.SoftwareConfig.ImageVersion = config.SoftwareConfig.ImageVersion
-			}
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.imageVersion", userAgent, patchObj, d, tfConfig)
-			if err != nil {
-				return err
-			}
 		}
 
 		if d.HasChange("config.0.software_config.0.airflow_config_overrides") {
