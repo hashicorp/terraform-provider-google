@@ -534,6 +534,11 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", name))
 	}
 
+	if res.Status == "DELETED" {
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("project", res.ProjectId); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
