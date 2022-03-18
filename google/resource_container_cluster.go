@@ -411,13 +411,12 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"authenticator_groups_config": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				MaxItems:      1,
-				Description:   `Configuration for the Google Groups for GKE feature.`,
-				ConflictsWith: []string{"enable_autopilot"},
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Description: `Configuration for the Google Groups for GKE feature.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"security_group": {
