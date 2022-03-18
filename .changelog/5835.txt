@@ -1,0 +1,3 @@
+```release-note:bug
+apikeys: fixed a bug where `google_apikeys_key.key_string` was not being set.
+```

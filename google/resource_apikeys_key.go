@@ -318,6 +318,9 @@ func resourceApikeysKeyRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("restrictions", flattenApikeysKeyRestrictions(res.Restrictions)); err != nil {
 		return fmt.Errorf("error setting restrictions in state: %s", err)
 	}
+	if err = d.Set("key_string", res.KeyString); err != nil {
+		return fmt.Errorf("error setting key_string in state: %s", err)
+	}
 
 	return nil
 }
