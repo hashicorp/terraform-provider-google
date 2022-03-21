@@ -118,29 +118,31 @@ func resourceLoggingBucketConfigAcquireOrCreate(parentType string, iDFunc loggin
 			return err
 		}
 
-		d.SetId(id)
-
 		if parentType == "project" {
 			//logging bucket can be created only at the project level, in future api may allow for folder, org and other parent resources
 
-			log.Printf("[DEBUG] Fetching logging bucket config: %#v", d.Id())
-			url, err := replaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
+			log.Printf("[DEBUG] Fetching logging bucket config: %#v", id)
+			url, err := replaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", id))
 			if err != nil {
 				return err
 			}
 
 			res, _ := sendRequest(config, "GET", "", url, userAgent, nil)
 			if res == nil {
-				log.Printf("[DEGUG] Loggin Bucket not exist %s", d.Id())
-				return resourceLoggingBucketConfigCreate(d, meta)
+				log.Printf("[DEGUG] Loggin Bucket not exist %s", id)
+				// we need to pass the id in here because we don't want to set it in state
+				// until we know there won't be any errors on create
+				return resourceLoggingBucketConfigCreate(d, meta, id)
 			}
 		}
+
+		d.SetId(id)
 
 		return resourceLoggingBucketConfigUpdate(d, meta)
 	}
 }
 
-func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{}, id string) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -176,6 +178,8 @@ func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return fmt.Errorf("Error creating Bucket: %s", err)
 	}
+
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Bucket %q: %#v", d.Id(), res)
 
