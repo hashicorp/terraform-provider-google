@@ -349,7 +349,7 @@ func TestAccCGCSnippet_sqlSqlserverInstanceBackupLocationExample(t *testing.T) {
 func testAccCGCSnippet_sqlSqlserverInstanceBackupLocationExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_database_instance" "default" {
-  name             = ""
+  name             = "tf-test-sqlserver-instance-with-backup-location%{random_suffix}"
   region           = "us-central1"
   database_version = "SQLSERVER_2017_STANDARD"
   root_password = "INSERT-PASSWORD-HERE"
