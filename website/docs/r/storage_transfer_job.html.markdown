@@ -85,6 +85,7 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
       seconds = 0
       nanos   = 0
     }
+    repeat_interval = "604800s"
   }
 
   depends_on = [google_storage_bucket_iam_member.s3-backup-bucket]
@@ -135,6 +136,8 @@ The following arguments are supported:
 * `schedule_end_date` - (Optional) The last day the recurring transfer will be run. If `schedule_end_date` is the same as `schedule_start_date`, the transfer will be executed only once. Structure [documented below](#nested_schedule_start_end_date).
 
 * `start_time_of_day` - (Optional) The time in UTC at which the transfer will be scheduled to start in a day. Transfers may start later than this time. If not specified, recurring and one-time transfers that are scheduled to run today will run immediately; recurring transfers that are scheduled to run on a future date will start at approximately midnight UTC on that date. Note that when configuring a transfer with the Cloud Platform Console, the transfer's start time in a day is specified in your local timezone. Structure [documented below](#nested_start_time_of_day).
+
+* `repeat_interval` - (Optional) Interval between the start of each scheduled transfer. If unspecified, the default value is 24 hours. This value may not be less than 1 hour. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
 <a name="nested_object_conditions"></a>The `object_conditions` block supports:
 

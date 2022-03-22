@@ -172,6 +172,13 @@ func resourceStorageTransferJob() *schema.Resource {
 							DiffSuppressFunc: diffSuppressEmptyStartTimeOfDay,
 							Description:      `The time in UTC at which the transfer will be scheduled to start in a day. Transfers may start later than this time. If not specified, recurring and one-time transfers that are scheduled to run today will run immediately; recurring transfers that are scheduled to run on a future date will start at approximately midnight UTC on that date. Note that when configuring a transfer with the Cloud Platform Console, the transfer's start time in a day is specified in your local timezone.`,
 						},
+						"repeat_interval": {
+							Type:         schema.TypeString,
+							ValidateFunc: validateDuration(),
+							Optional:     true,
+							Description:  `Interval between the start of each scheduled transfer. If unspecified, the default value is 24 hours. This value may not be less than 1 hour. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+							Default:      "86400s",
+						},
 					},
 				},
 				Description: `Schedule specification defining when the Transfer Job should be scheduled to start, end and what time to run.`,
@@ -774,15 +781,16 @@ func expandTransferSchedules(transferSchedules []interface{}) *storagetransfer.S
 		ScheduleStartDate: expandDates(schedule["schedule_start_date"].([]interface{})),
 		ScheduleEndDate:   expandDates(schedule["schedule_end_date"].([]interface{})),
 		StartTimeOfDay:    expandTimeOfDays(schedule["start_time_of_day"].([]interface{})),
+		RepeatInterval:    schedule["repeat_interval"].(string),
 	}
 }
 
-func flattenTransferSchedule(transferSchedule *storagetransfer.Schedule) []map[string][]map[string]interface{} {
+func flattenTransferSchedule(transferSchedule *storagetransfer.Schedule) []map[string]interface{} {
 	if reflect.DeepEqual(transferSchedule, &storagetransfer.Schedule{}) {
 		return nil
 	}
 
-	data := map[string][]map[string]interface{}{
+	data := map[string]interface{}{
 		"schedule_start_date": flattenDate(transferSchedule.ScheduleStartDate),
 	}
 
@@ -794,7 +802,11 @@ func flattenTransferSchedule(transferSchedule *storagetransfer.Schedule) []map[s
 		data["start_time_of_day"] = flattenTimeOfDay(transferSchedule.StartTimeOfDay)
 	}
 
-	return []map[string][]map[string]interface{}{data}
+	if transferSchedule.RepeatInterval != "" {
+		data["repeat_interval"] = transferSchedule.RepeatInterval
+	}
+
+	return []map[string]interface{}{data}
 }
 
 func expandGcsData(gcsDatas []interface{}) *storagetransfer.GcsData {
