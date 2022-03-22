@@ -289,6 +289,7 @@ resource "google_storage_transfer_job" "transfer_job" {
       seconds = 0
       nanos   = 0
     }
+	repeat_interval = "604800s"
   }
 
   depends_on = [
