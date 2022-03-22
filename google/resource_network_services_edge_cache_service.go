@@ -416,6 +416,24 @@ Either specify includedQueryParameters or excludedQueryParameters, not both. '&'
 																						Optional:    true,
 																						Description: `If true, http and https requests will be cached separately.`,
 																					},
+																					"included_cookie_names": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `Names of Cookies to include in cache keys.  The cookie name and cookie value of each cookie named will be used as part of the cache key.
+
+Cookie names:
+  - must be valid RFC 6265 "cookie-name" tokens
+  - are case sensitive
+  - cannot start with "Edge-Cache-" (case insensitive)
+
+  Note that specifying several cookies, and/or cookies that have a large range of values (e.g., per-user) will dramatically impact the cache hit rate, and may result in a higher eviction rate and reduced performance.
+
+  You may specify up to three cookie names.`,
+																						MaxItems: 3,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
 																					"included_header_names": {
 																						Type:     schema.TypeList,
 																						Optional: true,
@@ -1725,6 +1743,8 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActio
 		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludedQueryParameters(original["excludedQueryParameters"], d, config)
 	transformed["included_header_names"] =
 		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedHeaderNames(original["includedHeaderNames"], d, config)
+	transformed["included_cookie_names"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedCookieNames(original["includedCookieNames"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1748,6 +1768,10 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActio
 }
 
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedHeaderNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedCookieNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2717,6 +2741,13 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 		transformed["includedHeaderNames"] = transformedIncludedHeaderNames
 	}
 
+	transformedIncludedCookieNames, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedCookieNames(original["included_cookie_names"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludedCookieNames); val.IsValid() && !isEmptyValue(val) {
+		transformed["includedCookieNames"] = transformedIncludedCookieNames
+	}
+
 	return transformed, nil
 }
 
@@ -2741,6 +2772,10 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 }
 
 func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedHeaderNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedCookieNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
