@@ -161,7 +161,6 @@ resource "google_redis_instance" "cache" {
 
 ```hcl
 resource "google_redis_instance" "cache" {
-  provider = google-beta
   name           = "mrr-memory-cache"
   tier           = "STANDARD_HA"
   memory_size_gb = 5
@@ -192,7 +191,6 @@ resource "google_redis_instance" "cache" {
 // config, add an additional network resource or change
 // this from "data"to "resource"
 data "google_compute_network" "redis-network" {
-  provider = google-beta
   name = "redis-test-network"
 }
 ```
@@ -301,14 +299,14 @@ The following arguments are supported:
   Possible values are `SERVER_AUTHENTICATION` and `DISABLED`.
 
 * `replica_count` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Optional. The number of replica nodes. The valid range for the Standard Tier with 
   read replicas enabled is [1-5] and defaults to 2. If read replicas are not enabled
   for a Standard Tier instance, the only valid value is 1 and the default is 1. 
   The valid value for basic tier is 0 and the default is also 0.
 
 * `read_replicas_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Optional. Read replica mode. Can only be specified when trying to create the instance.
   If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
   - READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the 
@@ -453,18 +451,15 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_server_ca_certs).
 
 * `nodes` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Output only. Info per node.
   Structure is [documented below](#nested_nodes).
 
 * `read_endpoint` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Output only. Hostname or IP address of the exposed readonly Redis endpoint. Standard tier only.
   Targets all healthy replica nodes in instance. Replication is asynchronous and replica nodes
   will exhibit some lag behind the primary. Write requests must target 'host'.
 
 * `read_endpoint_port` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Output only. The port number of the exposed readonly redis endpoint. Standard tier only. 
   Write requests should target 'port'.
 

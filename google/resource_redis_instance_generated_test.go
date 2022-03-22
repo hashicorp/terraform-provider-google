@@ -206,6 +206,70 @@ resource "google_redis_instance" "cache" {
 `, context)
 }
 
+func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisInstance_redisInstanceMrrExample(context),
+			},
+			{
+				ResourceName:            "google_redis_instance.cache",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccRedisInstance_redisInstanceMrrExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_redis_instance" "cache" {
+  name           = "tf-test-mrr-memory-cache%{random_suffix}"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 5
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = data.google_compute_network.redis-network.id
+
+  redis_version     = "REDIS_6_X"
+  display_name      = "Terraform Test Instance"
+  reserved_ip_range = "192.168.0.0/28"
+  replica_count     = 5
+  read_replicas_mode = "READ_REPLICAS_ENABLED"
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "%{network_name}"
+}
+`, context)
+}
+
 func testAccCheckRedisInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

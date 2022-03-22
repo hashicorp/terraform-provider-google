@@ -283,6 +283,19 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"read_replicas_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED", ""}),
+				Description: `Optional. Read replica mode. Can only be specified when trying to create the instance.
+If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
+- READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the 
+instance cannot scale up or down the number of replicas.
+- READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance 
+can scale up and down the number of replicas. Default value: "READ_REPLICAS_DISABLED" Possible values: ["READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED"]`,
+				Default: "READ_REPLICAS_DISABLED",
+			},
 			"redis_configs": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -305,6 +318,15 @@ at the top for the latest valid values.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The name of the Redis region of the instance.`,
+			},
+			"replica_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `Optional. The number of replica nodes. The valid range for the Standard Tier with 
+read replicas enabled is [1-5] and defaults to 2. If read replicas are not enabled
+for a Standard Tier instance, the only valid value is 1 and the default is 1. 
+The valid value for basic tier is 0 and the default is also 0.`,
 			},
 			"reserved_ip_range": {
 				Type:     schema.TypeString,
@@ -359,6 +381,25 @@ and can change after a failover event.`,
 				Description: `Hostname or IP address of the exposed Redis endpoint used by clients
 to connect to the service.`,
 			},
+			"nodes": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Output only. Info per node.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Node identifying string. e.g. 'node-0', 'node-1'`,
+						},
+						"zone": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Location of the node.`,
+						},
+					},
+				},
+			},
 			"persistence_iam_identity": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -371,6 +412,19 @@ checked before each import/export operation.`,
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: `The port number of the exposed Redis endpoint.`,
+			},
+			"read_endpoint": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Output only. Hostname or IP address of the exposed readonly Redis endpoint. Standard tier only.
+Targets all healthy replica nodes in instance. Replication is asynchronous and replica nodes
+will exhibit some lag behind the primary. Write requests must target 'host'.`,
+			},
+			"read_endpoint_port": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: `Output only. The port number of the exposed readonly redis endpoint. Standard tier only. 
+Write requests should target 'port'.`,
 			},
 			"server_ca_certs": {
 				Type:        schema.TypeList,
@@ -526,6 +580,18 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("transit_encryption_mode"); !isEmptyValue(reflect.ValueOf(transitEncryptionModeProp)) && (ok || !reflect.DeepEqual(v, transitEncryptionModeProp)) {
 		obj["transitEncryptionMode"] = transitEncryptionModeProp
+	}
+	replicaCountProp, err := expandRedisInstanceReplicaCount(d.Get("replica_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("replica_count"); !isEmptyValue(reflect.ValueOf(replicaCountProp)) && (ok || !reflect.DeepEqual(v, replicaCountProp)) {
+		obj["replicaCount"] = replicaCountProp
+	}
+	readReplicasModeProp, err := expandRedisInstanceReadReplicasMode(d.Get("read_replicas_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("read_replicas_mode"); !isEmptyValue(reflect.ValueOf(readReplicasModeProp)) && (ok || !reflect.DeepEqual(v, readReplicasModeProp)) {
+		obj["readReplicasMode"] = readReplicasModeProp
 	}
 
 	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
@@ -720,6 +786,21 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("server_ca_certs", flattenRedisInstanceServerCaCerts(res["serverCaCerts"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("replica_count", flattenRedisInstanceReplicaCount(res["replicaCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("nodes", flattenRedisInstanceNodes(res["nodes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("read_endpoint", flattenRedisInstanceReadEndpoint(res["readEndpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("read_endpoint_port", flattenRedisInstanceReadEndpointPort(res["readEndpointPort"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("read_replicas_mode", flattenRedisInstanceReadReplicasMode(res["readReplicasMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 
 	return nil
 }
@@ -782,6 +863,12 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("memory_size_gb"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, memorySizeGbProp)) {
 		obj["memorySizeGb"] = memorySizeGbProp
 	}
+	replicaCountProp, err := expandRedisInstanceReplicaCount(d.Get("replica_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("replica_count"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, replicaCountProp)) {
+		obj["replicaCount"] = replicaCountProp
+	}
 
 	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
 	if err != nil {
@@ -822,6 +909,10 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("memory_size_gb") {
 		updateMask = append(updateMask, "memorySizeGb")
+	}
+
+	if d.HasChange("replica_count") {
+		updateMask = append(updateMask, "replicaCount")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -1280,6 +1371,75 @@ func flattenRedisInstanceServerCaCertsSha1Fingerprint(v interface{}, d *schema.R
 	return v
 }
 
+func flattenRedisInstanceReplicaCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenRedisInstanceNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"id":   flattenRedisInstanceNodesId(original["id"], d, config),
+			"zone": flattenRedisInstanceNodesZone(original["zone"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenRedisInstanceNodesId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenRedisInstanceNodesZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenRedisInstanceReadEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenRedisInstanceReadEndpointPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenRedisInstanceReadReplicasMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandRedisInstanceAlternativeLocationId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1553,6 +1713,14 @@ func expandRedisInstanceTier(v interface{}, d TerraformResourceData, config *Con
 }
 
 func expandRedisInstanceTransitEncryptionMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisInstanceReplicaCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisInstanceReadReplicasMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
