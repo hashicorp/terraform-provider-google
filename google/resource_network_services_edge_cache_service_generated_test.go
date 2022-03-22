@@ -262,6 +262,7 @@ resource "google_network_services_edge_cache_service" "instance" {
                 exclude_host = true
                 included_query_parameters = ["apple", "dev", "santa", "claus"]
                 included_header_names = ["banana"]
+                included_cookie_names = ["orange"]
               }
               negative_caching = true
               signed_request_mode = "DISABLED"
