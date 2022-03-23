@@ -716,6 +716,7 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			// ####### START datasources ###########
 			"google_active_folder":                                dataSourceGoogleActiveFolder(),
 			"google_app_engine_default_service_account":           dataSourceGoogleAppEngineDefaultServiceAccount(),
 			"google_billing_account":                              dataSourceGoogleBillingAccount(),
@@ -813,8 +814,8 @@ func Provider() *schema.Provider {
 			"google_storage_transfer_project_service_account":     dataSourceGoogleStorageTransferProjectServiceAccount(),
 			"google_tpu_tensorflow_versions":                      dataSourceTpuTensorflowVersions(),
 			"google_redis_instance":                               dataSourceGoogleRedisInstance(),
+			// ####### END datasources ###########
 		},
-
 		ResourcesMap: ResourceMap(),
 	}
 
@@ -1148,6 +1149,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_workflows_workflow":                                    resourceWorkflowsWorkflow(),
 		},
 		map[string]*schema.Resource{
+			// ####### START handwritten resources ###########
 			"google_app_engine_application":                resourceAppEngineApplication(),
 			"google_bigquery_table":                        resourceBigQueryTable(),
 			"google_bigquery_reservation_assignment":       resourceBigqueryReservationAssignment(),
@@ -1218,9 +1220,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_default_object_acl":            resourceStorageDefaultObjectAcl(),
 			"google_storage_notification":                  resourceStorageNotification(),
 			"google_storage_transfer_job":                  resourceStorageTransferJob(),
+			// ####### END handwritten resources ###########
 		},
-		// resources implemented within tpgtools
 		map[string]*schema.Resource{
+			// ####### START tpgtools resources ###########
 			"google_apikeys_key":                         resourceApikeysKey(),
 			"google_assured_workloads_workload":          resourceAssuredWorkloadsWorkload(),
 			"google_cloudbuild_worker_pool":              resourceCloudbuildWorkerPool(),
@@ -1243,9 +1246,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_os_config_os_policy_assignment":      resourceOsConfigOsPolicyAssignment(),
 			"google_privateca_certificate_template":      resourcePrivatecaCertificateTemplate(),
 			"google_recaptcha_enterprise_key":            resourceRecaptchaEnterpriseKey(),
+			// ####### END tpgtools resources ###########
 		},
-		// ------------------------------------
 		map[string]*schema.Resource{
+			// ####### START non-generated IAM resources ###########
 			"google_bigtable_instance_iam_binding":       ResourceIamBinding(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
 			"google_bigtable_instance_iam_member":        ResourceIamMember(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
 			"google_bigtable_instance_iam_policy":        ResourceIamPolicy(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
@@ -1306,6 +1310,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_service_account_iam_binding":         ResourceIamBinding(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
 			"google_service_account_iam_member":          ResourceIamMember(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
 			"google_service_account_iam_policy":          ResourceIamPolicy(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+			// ####### END non-generated IAM resources ###########
 		},
 	)
 }
