@@ -152,6 +152,21 @@ func EventarcTriggerDestinationSchema() *schema.Resource {
 				MaxItems:    1,
 				Elem:        EventarcTriggerDestinationCloudRunServiceSchema(),
 			},
+
+			"gke": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A GKE service capable of receiving events. The service should be running in the same project as the trigger.",
+				MaxItems:    1,
+				Elem:        EventarcTriggerDestinationGkeSchema(),
+			},
+
+			"workflow": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "The resource name of the Workflow whose Executions are triggered by the events. The Workflow resource should be deployed in the same project as the trigger. Format: `projects/{project}/locations/{location}/workflows/{workflow}`",
+			},
 		},
 	}
 }
@@ -182,6 +197,43 @@ func EventarcTriggerDestinationCloudRunServiceSchema() *schema.Resource {
 	}
 }
 
+func EventarcTriggerDestinationGkeSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cluster": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Required. The name of the cluster the GKE service is running in. The cluster must be running in the same project as the trigger being created.",
+			},
+
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. The name of the Google Compute Engine in which the cluster resides, which can either be compute zone (for example, us-central1-a) for the zonal clusters or region (for example, us-central1) for regional clusters.",
+			},
+
+			"namespace": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. The namespace the GKE service is running in.",
+			},
+
+			"service": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. Name of the GKE service.",
+			},
+
+			"path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. The relative path on the GKE service the events should be sent to. The value must conform to the definition of a URI path segment (section 3.3 of RFC2396). Examples: \"/route\", \"route\", \"route/subroute\".",
+			},
+		},
+	}
+}
+
 func EventarcTriggerMatchingCriteriaSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -195,6 +247,12 @@ func EventarcTriggerMatchingCriteriaSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Required. The value for the attribute.",
+			},
+
+			"operator": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. The operator used for matching the events with the value of the filter. If not specified, only events that have an exact key-value pair specified in the filter are matched. The only allowed value is `match-path-pattern`.",
 			},
 		},
 	}
@@ -495,6 +553,8 @@ func expandEventarcTriggerDestination(o interface{}) *eventarc.TriggerDestinatio
 	return &eventarc.TriggerDestination{
 		CloudFunction:   dcl.String(obj["cloud_function"].(string)),
 		CloudRunService: expandEventarcTriggerDestinationCloudRunService(obj["cloud_run_service"]),
+		Gke:             expandEventarcTriggerDestinationGke(obj["gke"]),
+		Workflow:        dcl.String(obj["workflow"].(string)),
 	}
 }
 
@@ -505,6 +565,8 @@ func flattenEventarcTriggerDestination(obj *eventarc.TriggerDestination) interfa
 	transformed := map[string]interface{}{
 		"cloud_function":    obj.CloudFunction,
 		"cloud_run_service": flattenEventarcTriggerDestinationCloudRunService(obj.CloudRunService),
+		"gke":               flattenEventarcTriggerDestinationGke(obj.Gke),
+		"workflow":          obj.Workflow,
 	}
 
 	return []interface{}{transformed}
@@ -540,6 +602,40 @@ func flattenEventarcTriggerDestinationCloudRunService(obj *eventarc.TriggerDesti
 	return []interface{}{transformed}
 
 }
+
+func expandEventarcTriggerDestinationGke(o interface{}) *eventarc.TriggerDestinationGke {
+	if o == nil {
+		return eventarc.EmptyTriggerDestinationGke
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return eventarc.EmptyTriggerDestinationGke
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &eventarc.TriggerDestinationGke{
+		Cluster:   dcl.String(obj["cluster"].(string)),
+		Location:  dcl.String(obj["location"].(string)),
+		Namespace: dcl.String(obj["namespace"].(string)),
+		Service:   dcl.String(obj["service"].(string)),
+		Path:      dcl.String(obj["path"].(string)),
+	}
+}
+
+func flattenEventarcTriggerDestinationGke(obj *eventarc.TriggerDestinationGke) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"cluster":   obj.Cluster,
+		"location":  obj.Location,
+		"namespace": obj.Namespace,
+		"service":   obj.Service,
+		"path":      obj.Path,
+	}
+
+	return []interface{}{transformed}
+
+}
 func expandEventarcTriggerMatchingCriteriaArray(o interface{}) []eventarc.TriggerMatchingCriteria {
 	if o == nil {
 		return make([]eventarc.TriggerMatchingCriteria, 0)
@@ -570,6 +666,7 @@ func expandEventarcTriggerMatchingCriteria(o interface{}) *eventarc.TriggerMatch
 	return &eventarc.TriggerMatchingCriteria{
 		Attribute: dcl.String(obj["attribute"].(string)),
 		Value:     dcl.String(obj["value"].(string)),
+		Operator:  dcl.String(obj["operator"].(string)),
 	}
 }
 
@@ -594,6 +691,7 @@ func flattenEventarcTriggerMatchingCriteria(obj *eventarc.TriggerMatchingCriteri
 	transformed := map[string]interface{}{
 		"attribute": obj.Attribute,
 		"value":     obj.Value,
+		"operator":  obj.Operator,
 	}
 
 	return transformed

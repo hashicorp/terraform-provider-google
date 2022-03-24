@@ -184,7 +184,7 @@ The following arguments are supported:
 
 * `autoscaling` -
   (Required)
-  Required. Autoscaler configuration for this node pool.
+  Autoscaler configuration for this node pool.
   
 * `cluster` -
   (Required)
@@ -192,7 +192,7 @@ The following arguments are supported:
   
 * `config` -
   (Required)
-  Required. The configuration of the node pool.
+  The configuration of the node pool.
   
 * `location` -
   (Required)
@@ -200,7 +200,7 @@ The following arguments are supported:
   
 * `max_pods_constraint` -
   (Required)
-  Required. The constraint on the maximum number of pods that can be run simultaneously on a node in the node pool.
+  The constraint on the maximum number of pods that can be run simultaneously on a node in the node pool.
   
 * `name` -
   (Required)
@@ -208,11 +208,11 @@ The following arguments are supported:
   
 * `subnet_id` -
   (Required)
-  Required. The subnet where the node pool node run.
+  The subnet where the node pool node run.
   
 * `version` -
   (Required)
-  Required. The Kubernetes version to run on this node pool (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAwsServerConfig.
+  The Kubernetes version to run on this node pool (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAwsServerConfig.
   
 
 
@@ -220,25 +220,25 @@ The `autoscaling` block supports:
     
 * `max_node_count` -
   (Required)
-  Required. Maximum number of nodes in the NodePool. Must be >= min_node_count.
+  Maximum number of nodes in the NodePool. Must be >= min_node_count.
     
 * `min_node_count` -
   (Required)
-  Required. Minimum number of nodes in the NodePool. Must be >= 1 and <= max_node_count.
+  Minimum number of nodes in the NodePool. Must be >= 1 and <= max_node_count.
     
 The `config` block supports:
     
 * `config_encryption` -
   (Required)
-  Required. The ARN of the AWS KMS key used to encrypt node pool configuration.
+  The ARN of the AWS KMS key used to encrypt node pool configuration.
     
 * `iam_instance_profile` -
   (Required)
-  Required. The name of the AWS IAM role assigned to nodes in the pool.
+  The name of the AWS IAM role assigned to nodes in the pool.
     
 * `instance_type` -
   (Optional)
-  Optional. The AWS instance type. When unspecified, it defaults to `t3.medium`.
+  Optional. The AWS instance type. When unspecified, it defaults to `m5.large`.
     
 * `labels` -
   (Optional)
@@ -268,13 +268,13 @@ The `config_encryption` block supports:
     
 * `kms_key_arn` -
   (Required)
-  Required. The ARN of the AWS KMS key used to encrypt node pool configuration.
+  The ARN of the AWS KMS key used to encrypt node pool configuration.
     
 The `max_pods_constraint` block supports:
     
 * `max_pods_per_node` -
   (Required)
-  Required. The maximum number of pods to schedule on a single node.
+  The maximum number of pods to schedule on a single node.
     
 - - -
 
@@ -310,21 +310,21 @@ The `ssh_config` block supports:
     
 * `ec2_key_pair` -
   (Required)
-  Required. The name of the EC2 key pair used to login into cluster machines.
+  The name of the EC2 key pair used to login into cluster machines.
     
 The `taints` block supports:
     
 * `effect` -
   (Required)
-  Required. The taint effect. Possible values: EFFECT_UNSPECIFIED, NO_SCHEDULE, PREFER_NO_SCHEDULE, NO_EXECUTE
+  The taint effect. Possible values: EFFECT_UNSPECIFIED, NO_SCHEDULE, PREFER_NO_SCHEDULE, NO_EXECUTE
     
 * `key` -
   (Required)
-  Required. Key for the taint.
+  Key for the taint.
     
 * `value` -
   (Required)
-  Required. Value for the taint.
+  Value for the taint.
     
 ## Attributes Reference
 

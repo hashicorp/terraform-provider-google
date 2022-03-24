@@ -87,19 +87,19 @@ The following arguments are supported:
 
 * `authorization` -
   (Required)
-  Required. Configuration related to the cluster RBAC settings.
+  Configuration related to the cluster RBAC settings.
   
 * `azure_region` -
   (Required)
-  Required. The Azure region where the cluster runs. Each Google Cloud region supports a subset of nearby Azure regions. You can call to list all supported Azure regions within a given Google Cloud region.
+  The Azure region where the cluster runs. Each Google Cloud region supports a subset of nearby Azure regions. You can call to list all supported Azure regions within a given Google Cloud region.
   
 * `client` -
   (Required)
-  Required. Name of the AzureClient. The `AzureClient` resource must reside on the same GCP project and region as the `AzureCluster`. `AzureClient` names are formatted as `projects/<project-number>/locations/<region>/azureClients/<client-id>`. See Resource Names (https:cloud.google.com/apis/design/resource_names) for more details on Google Cloud resource names.
+  Name of the AzureClient. The `AzureClient` resource must reside on the same GCP project and region as the `AzureCluster`. `AzureClient` names are formatted as `projects/<project-number>/locations/<region>/azureClients/<client-id>`. See Resource Names (https:cloud.google.com/apis/design/resource_names) for more details on Google Cloud resource names.
   
 * `control_plane` -
   (Required)
-  Required. Configuration related to the cluster control plane.
+  Configuration related to the cluster control plane.
   
 * `fleet` -
   (Required)
@@ -115,11 +115,11 @@ The following arguments are supported:
   
 * `networking` -
   (Required)
-  Required. Cluster-wide networking configuration.
+  Cluster-wide networking configuration.
   
 * `resource_group_id` -
   (Required)
-  Required. The ARM ID of the resource group where the cluster resources are deployed. For example: `/subscriptions/*/resourceGroups/*`
+  The ARM ID of the resource group where the cluster resources are deployed. For example: `/subscriptions/*/resourceGroups/*`
   
 
 
@@ -127,13 +127,13 @@ The `authorization` block supports:
     
 * `admin_users` -
   (Required)
-  Required. Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+  Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
     
 The `admin_users` block supports:
     
 * `username` -
   (Required)
-  Required. The name of the user, e.g. `my-gcp-id@gmail.com`.
+  The name of the user, e.g. `my-gcp-id@gmail.com`.
     
 The `control_plane` block supports:
     
@@ -159,11 +159,11 @@ The `control_plane` block supports:
     
 * `ssh_config` -
   (Required)
-  Required. SSH configuration for how to access the underlying control plane machines.
+  SSH configuration for how to access the underlying control plane machines.
     
 * `subnet_id` -
   (Required)
-  Required. The ARM ID of the subnet where the control plane VMs are deployed. Example: `/subscriptions//resourceGroups//providers/Microsoft.Network/virtualNetworks//subnets/default`.
+  The ARM ID of the subnet where the control plane VMs are deployed. Example: `/subscriptions//resourceGroups//providers/Microsoft.Network/virtualNetworks//subnets/default`.
     
 * `tags` -
   (Optional)
@@ -171,7 +171,7 @@ The `control_plane` block supports:
     
 * `version` -
   (Required)
-  Required. The Kubernetes version to run on control plane replicas (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAzureServerConfig.
+  The Kubernetes version to run on control plane replicas (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAzureServerConfig.
     
 * `vm_size` -
   (Optional)
@@ -181,7 +181,7 @@ The `ssh_config` block supports:
     
 * `authorized_key` -
   (Required)
-  Required. The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.
+  The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.
     
 The `fleet` block supports:
     
@@ -196,15 +196,15 @@ The `networking` block supports:
     
 * `pod_address_cidr_blocks` -
   (Required)
-  Required. The IP address range of the pods in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All pods in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.
+  The IP address range of the pods in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All pods in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.
     
 * `service_address_cidr_blocks` -
   (Required)
-  Required. The IP address range for services in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All services in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creating a cluster.
+  The IP address range for services in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All services in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creating a cluster.
     
 * `virtual_network_id` -
   (Required)
-  Required. The Azure Resource Manager (ARM) ID of the VNet associated with your cluster. All components in the cluster (i.e. control plane and node pools) run on a single VNet. Example: `/subscriptions/*/resourceGroups/*/providers/Microsoft.Network/virtualNetworks/*` This field cannot be changed after creation.
+  The Azure Resource Manager (ARM) ID of the VNet associated with your cluster. All components in the cluster (i.e. control plane and node pools) run on a single VNet. Example: `/subscriptions/*/resourceGroups/*/providers/Microsoft.Network/virtualNetworks/*` This field cannot be changed after creation.
     
 - - -
 
