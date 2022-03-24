@@ -59,6 +59,34 @@ resource "google_storage_bucket" "image_bucket" {
   location = "EU"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_bucket_security_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Bucket Security Policy
+
+
+```hcl
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "image-backend-bucket"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_backend.name
+  enable_cdn  = true
+  edge_security_policy = google_compute_security_policy.policy.id
+}
+
+resource "google_storage_bucket" "image_backend" {
+  name     = "image-store-bucket"
+  location = "EU"
+}
+
+resource "google_compute_security_policy" "policy" {
+  name        = "image-store-bucket"
+  description = "basic security policy"
+	type = "CLOUD_ARMOR_EDGE"
+}
+```
 
 ## Argument Reference
 
@@ -87,6 +115,10 @@ The following arguments are supported:
   (Optional)
   Cloud CDN configuration for this Backend Bucket.
   Structure is [documented below](#nested_cdn_policy).
+
+* `edge_security_policy` -
+  (Optional)
+  The security policy associated with this backend bucket.
 
 * `custom_response_headers` -
   (Optional)

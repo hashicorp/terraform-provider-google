@@ -53,6 +53,13 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The type indicates the intended use of the security policy. CLOUD_ARMOR - Cloud Armor backend security policies can be configured to filter incoming HTTP requests targeting backend services. They filter requests before they hit the origin servers. CLOUD_ARMOR_EDGE - Cloud Armor edge security policies can be configured to filter incoming HTTP requests targeting backend services (including Cloud CDN-enabled) as well as backend buckets (Cloud Storage). They filter requests before the request is served from Google's cache.`,
+			},
+
 			"rule": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -203,6 +210,11 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 		Name:        sp,
 		Description: d.Get("description").(string),
 	}
+
+	if v, ok := d.GetOk("type"); ok {
+		securityPolicy.Type = v.(string)
+	}
+
 	if v, ok := d.GetOk("rule"); ok {
 		securityPolicy.Rules = expandSecurityPolicyRules(v.(*schema.Set).List())
 	}
@@ -258,6 +270,9 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("description", securityPolicy.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
+	if err := d.Set("type", securityPolicy.Type); err != nil {
+		return fmt.Errorf("Error setting type: %s", err)
+	}
 	if err := d.Set("rule", flattenSecurityPolicyRules(securityPolicy.Rules)); err != nil {
 		return err
 	}
@@ -288,13 +303,21 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 
 	sp := d.Get("name").(string)
 
-	if d.HasChange("description") {
-		securityPolicy := &compute.SecurityPolicy{
-			Description:     d.Get("description").(string),
-			Fingerprint:     d.Get("fingerprint").(string),
-			ForceSendFields: []string{"Description"},
-		}
+	securityPolicy := &compute.SecurityPolicy{
+		Fingerprint: d.Get("fingerprint").(string),
+	}
 
+	if d.HasChange("type") {
+		securityPolicy.Type = d.Get("type").(string)
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Type")
+	}
+
+	if d.HasChange("description") {
+		securityPolicy.Description = d.Get("description").(string)
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Description")
+	}
+
+	if len(securityPolicy.ForceSendFields) > 0 {
 		client := config.NewComputeClient(userAgent)
 
 		op, err := client.SecurityPolicies.Patch(project, sp, securityPolicy).Do()
