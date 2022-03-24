@@ -177,7 +177,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The resource name of the Secret. Format:
-  `projects/{{project}}/secrets/{{secret_id}}`
+  `projects/{{project_number}}/secrets/{{secret_id}}`
 
 * `create_time` -
   The time at which the Secret was created.
