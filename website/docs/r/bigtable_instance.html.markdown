@@ -87,6 +87,14 @@ Bigtable instances are noted on the [Cloud Bigtable locations page](https://clou
 Required, with a minimum of `1` for a `PRODUCTION` instance. Must be left unset
 for a `DEVELOPMENT` instance.
 
+* `autoscaling_config` - (Optional) Autoscaling config for the cluster, contains the following arguments:
+
+  * `min_nodes` - (Required) The minimum number of nodes for autoscaling.
+  * `max_nodes` - (Required) The maximum number of nodes for autoscaling.
+  * `cpu_target` - (Required) The CPU utilization target in percentage. Must be between 10 and 80.
+
+!> **Warning**: Only one of `autoscaling_config` or `num_nodes` should be set for a cluster. If both are set, `num_nodes` is ignored. If none is set, autoscaling will be disabled and sized to the current node count.
+
 * `storage_type` - (Optional) The storage type to use. One of `"SSD"` or
 `"HDD"`. Defaults to `"SSD"`.
 
