@@ -32,7 +32,7 @@ To get more information about DomainTrust, see:
     * [Active Directory Trust](https://cloud.google.com/managed-microsoft-ad/docs/create-one-way-trust)
 
 ~> **Warning:** All arguments including `trust_handshake_secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](/language/state/sensitive-data.html).
 
 ## Example Usage - Active Directory Domain Trust Basic
 
