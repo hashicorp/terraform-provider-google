@@ -114,6 +114,53 @@ resource "google_storage_bucket" "image_backend_full" {
 `, context)
 }
 
+func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_backend.name
+  enable_cdn  = true
+  edge_security_policy = google_compute_security_policy.policy.id
+}
+
+resource "google_storage_bucket" "image_backend" {
+  name     = "tf-test-image-store-bucket%{random_suffix}"
+  location = "EU"
+}
+
+resource "google_compute_security_policy" "policy" {
+  name        = "tf-test-image-store-bucket%{random_suffix}"
+  description = "basic security policy"
+	type = "CLOUD_ARMOR_EDGE"
+}
+`, context)
+}
+
 func testAccCheckComputeBackendBucketDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -95,6 +95,37 @@ func TestAccComputeBackendBucket_withCdnPolicy(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendBucket_withSecurityPolicy(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	polName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_withSecurityPolicy(bucketName, polName, "google_compute_security_policy.policy.self_link"),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_withSecurityPolicy(bucketName, polName, "\"\""),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeBackendBucket_basic(backendName, storageName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
@@ -200,4 +231,28 @@ resource "google_storage_bucket" "bucket" {
   location = "EU"
 }
 `, backendName, age, max_ttl, ttl, ttl, ttl, code, ttl, storageName)
+}
+
+func testAccComputeBackendBucket_withSecurityPolicy(bucketName, polName, polLink string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "%s"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  edge_security_policy = %s
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "%s"
+  location = "EU"
+}
+
+
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "basic security policy"
+  type = "CLOUD_ARMOR_EDGE"
+}
+`, bucketName, polLink, bucketName, polName)
 }
