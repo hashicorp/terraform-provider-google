@@ -48,7 +48,7 @@ func resourceContainerAzureCluster() *schema.Resource {
 			"authorization": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. Configuration related to the cluster RBAC settings.",
+				Description: "Configuration related to the cluster RBAC settings.",
 				MaxItems:    1,
 				Elem:        ContainerAzureClusterAuthorizationSchema(),
 			},
@@ -57,20 +57,20 @@ func resourceContainerAzureCluster() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The Azure region where the cluster runs. Each Google Cloud region supports a subset of nearby Azure regions. You can call to list all supported Azure regions within a given Google Cloud region.",
+				Description: "The Azure region where the cluster runs. Each Google Cloud region supports a subset of nearby Azure regions. You can call to list all supported Azure regions within a given Google Cloud region.",
 			},
 
 			"client": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Required. Name of the AzureClient. The `AzureClient` resource must reside on the same GCP project and region as the `AzureCluster`. `AzureClient` names are formatted as `projects/<project-number>/locations/<region>/azureClients/<client-id>`. See Resource Names (https:cloud.google.com/apis/design/resource_names) for more details on Google Cloud resource names.",
+				Description:      "Name of the AzureClient. The `AzureClient` resource must reside on the same GCP project and region as the `AzureCluster`. `AzureClient` names are formatted as `projects/<project-number>/locations/<region>/azureClients/<client-id>`. See Resource Names (https:cloud.google.com/apis/design/resource_names) for more details on Google Cloud resource names.",
 			},
 
 			"control_plane": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. Configuration related to the cluster control plane.",
+				Description: "Configuration related to the cluster control plane.",
 				MaxItems:    1,
 				Elem:        ContainerAzureClusterControlPlaneSchema(),
 			},
@@ -102,7 +102,7 @@ func resourceContainerAzureCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. Cluster-wide networking configuration.",
+				Description: "Cluster-wide networking configuration.",
 				MaxItems:    1,
 				Elem:        ContainerAzureClusterNetworkingSchema(),
 			},
@@ -111,7 +111,7 @@ func resourceContainerAzureCluster() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The ARM ID of the resource group where the cluster resources are deployed. For example: `/subscriptions/*/resourceGroups/*`",
+				Description: "The ARM ID of the resource group where the cluster resources are deployed. For example: `/subscriptions/*/resourceGroups/*`",
 			},
 
 			"annotations": {
@@ -195,7 +195,7 @@ func ContainerAzureClusterAuthorizationSchema() *schema.Resource {
 			"admin_users": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
+				Description: "Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
 				Elem:        ContainerAzureClusterAuthorizationAdminUsersSchema(),
 			},
 		},
@@ -208,7 +208,7 @@ func ContainerAzureClusterAuthorizationAdminUsersSchema() *schema.Resource {
 			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Required. The name of the user, e.g. `my-gcp-id@gmail.com`.",
+				Description: "The name of the user, e.g. `my-gcp-id@gmail.com`.",
 			},
 		},
 	}
@@ -221,7 +221,7 @@ func ContainerAzureClusterControlPlaneSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. SSH configuration for how to access the underlying control plane machines.",
+				Description: "SSH configuration for how to access the underlying control plane machines.",
 				MaxItems:    1,
 				Elem:        ContainerAzureClusterControlPlaneSshConfigSchema(),
 			},
@@ -230,13 +230,13 @@ func ContainerAzureClusterControlPlaneSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The ARM ID of the subnet where the control plane VMs are deployed. Example: `/subscriptions//resourceGroups//providers/Microsoft.Network/virtualNetworks//subnets/default`.",
+				Description: "The ARM ID of the subnet where the control plane VMs are deployed. Example: `/subscriptions//resourceGroups//providers/Microsoft.Network/virtualNetworks//subnets/default`.",
 			},
 
 			"version": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Required. The Kubernetes version to run on control plane replicas (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAzureServerConfig.",
+				Description: "The Kubernetes version to run on control plane replicas (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAzureServerConfig.",
 			},
 
 			"database_encryption": {
@@ -310,7 +310,7 @@ func ContainerAzureClusterControlPlaneSshConfigSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.",
+				Description: "The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.",
 			},
 		},
 	}
@@ -425,7 +425,7 @@ func ContainerAzureClusterNetworkingSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The IP address range of the pods in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All pods in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.",
+				Description: "The IP address range of the pods in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All pods in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -433,7 +433,7 @@ func ContainerAzureClusterNetworkingSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The IP address range for services in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All services in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creating a cluster.",
+				Description: "The IP address range for services in this cluster, in CIDR notation (e.g. `10.96.0.0/14`). All services in the cluster get assigned a unique RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creating a cluster.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -441,7 +441,7 @@ func ContainerAzureClusterNetworkingSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The Azure Resource Manager (ARM) ID of the VNet associated with your cluster. All components in the cluster (i.e. control plane and node pools) run on a single VNet. Example: `/subscriptions/*/resourceGroups/*/providers/Microsoft.Network/virtualNetworks/*` This field cannot be changed after creation.",
+				Description: "The Azure Resource Manager (ARM) ID of the VNet associated with your cluster. All components in the cluster (i.e. control plane and node pools) run on a single VNet. Example: `/subscriptions/*/resourceGroups/*/providers/Microsoft.Network/virtualNetworks/*` This field cannot be changed after creation.",
 			},
 		},
 	}

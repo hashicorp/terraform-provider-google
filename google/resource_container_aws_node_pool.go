@@ -48,7 +48,7 @@ func resourceContainerAwsNodePool() *schema.Resource {
 			"autoscaling": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. Autoscaler configuration for this node pool.",
+				Description: "Autoscaler configuration for this node pool.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolAutoscalingSchema(),
 			},
@@ -64,7 +64,7 @@ func resourceContainerAwsNodePool() *schema.Resource {
 			"config": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. The configuration of the node pool.",
+				Description: "The configuration of the node pool.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolConfigSchema(),
 			},
@@ -80,7 +80,7 @@ func resourceContainerAwsNodePool() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The constraint on the maximum number of pods that can be run simultaneously on a node in the node pool.",
+				Description: "The constraint on the maximum number of pods that can be run simultaneously on a node in the node pool.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolMaxPodsConstraintSchema(),
 			},
@@ -96,13 +96,13 @@ func resourceContainerAwsNodePool() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The subnet where the node pool node run.",
+				Description: "The subnet where the node pool node run.",
 			},
 
 			"version": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Required. The Kubernetes version to run on this node pool (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAwsServerConfig.",
+				Description: "The Kubernetes version to run on this node pool (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling GetAwsServerConfig.",
 			},
 
 			"annotations": {
@@ -166,13 +166,13 @@ func ContainerAwsNodePoolAutoscalingSchema() *schema.Resource {
 			"max_node_count": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "Required. Maximum number of nodes in the NodePool. Must be >= min_node_count.",
+				Description: "Maximum number of nodes in the NodePool. Must be >= min_node_count.",
 			},
 
 			"min_node_count": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "Required. Minimum number of nodes in the NodePool. Must be >= 1 and <= max_node_count.",
+				Description: "Minimum number of nodes in the NodePool. Must be >= 1 and <= max_node_count.",
 			},
 		},
 	}
@@ -184,7 +184,7 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 			"config_encryption": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Required. The ARN of the AWS KMS key used to encrypt node pool configuration.",
+				Description: "The ARN of the AWS KMS key used to encrypt node pool configuration.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolConfigConfigEncryptionSchema(),
 			},
@@ -193,7 +193,7 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The name of the AWS IAM role assigned to nodes in the pool.",
+				Description: "The name of the AWS IAM role assigned to nodes in the pool.",
 			},
 
 			"instance_type": {
@@ -201,7 +201,7 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The AWS instance type. When unspecified, it defaults to `t3.medium`.",
+				Description: "Optional. The AWS instance type. When unspecified, it defaults to `m5.large`.",
 			},
 
 			"labels": {
@@ -262,7 +262,7 @@ func ContainerAwsNodePoolConfigConfigEncryptionSchema() *schema.Resource {
 			"kms_key_arn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Required. The ARN of the AWS KMS key used to encrypt node pool configuration.",
+				Description: "The ARN of the AWS KMS key used to encrypt node pool configuration.",
 			},
 		},
 	}
@@ -308,7 +308,7 @@ func ContainerAwsNodePoolConfigSshConfigSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The name of the EC2 key pair used to login into cluster machines.",
+				Description: "The name of the EC2 key pair used to login into cluster machines.",
 			},
 		},
 	}
@@ -321,21 +321,21 @@ func ContainerAwsNodePoolConfigTaintsSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The taint effect. Possible values: EFFECT_UNSPECIFIED, NO_SCHEDULE, PREFER_NO_SCHEDULE, NO_EXECUTE",
+				Description: "The taint effect. Possible values: EFFECT_UNSPECIFIED, NO_SCHEDULE, PREFER_NO_SCHEDULE, NO_EXECUTE",
 			},
 
 			"key": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. Key for the taint.",
+				Description: "Key for the taint.",
 			},
 
 			"value": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. Value for the taint.",
+				Description: "Value for the taint.",
 			},
 		},
 	}
@@ -348,7 +348,7 @@ func ContainerAwsNodePoolMaxPodsConstraintSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The maximum number of pods to schedule on a single node.",
+				Description: "The maximum number of pods to schedule on a single node.",
 			},
 		},
 	}

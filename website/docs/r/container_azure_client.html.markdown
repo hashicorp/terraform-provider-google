@@ -45,7 +45,7 @@ The following arguments are supported:
 
 * `application_id` -
   (Required)
-  Required. The Azure Active Directory Application ID.
+  The Azure Active Directory Application ID.
   
 * `location` -
   (Required)
@@ -57,7 +57,7 @@ The following arguments are supported:
   
 * `tenant_id` -
   (Required)
-  Required. The Azure Active Directory Tenant ID.
+  The Azure Active Directory Tenant ID.
   
 
 

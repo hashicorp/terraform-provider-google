@@ -47,7 +47,7 @@ func resourceContainerAzureClient() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The Azure Active Directory Application ID.",
+				Description: "The Azure Active Directory Application ID.",
 			},
 
 			"location": {
@@ -68,7 +68,7 @@ func resourceContainerAzureClient() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The Azure Active Directory Tenant ID.",
+				Description: "The Azure Active Directory Tenant ID.",
 			},
 
 			"project": {

@@ -1,0 +1,3 @@
+```release-note:enhancement
+eventarc: added gke and workflows destination for eventarc trigger resource.
+```

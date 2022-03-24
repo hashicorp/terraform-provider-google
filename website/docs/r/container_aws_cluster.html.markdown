@@ -122,15 +122,15 @@ The following arguments are supported:
 
 * `authorization` -
   (Required)
-  Required. Configuration related to the cluster RBAC settings.
+  Configuration related to the cluster RBAC settings.
   
 * `aws_region` -
   (Required)
-  Required. The AWS region where the cluster runs. Each Google Cloud region supports a subset of nearby AWS regions. You can call to list all supported AWS regions within a given Google Cloud region.
+  The AWS region where the cluster runs. Each Google Cloud region supports a subset of nearby AWS regions. You can call to list all supported AWS regions within a given Google Cloud region.
   
 * `control_plane` -
   (Required)
-  Required. Configuration related to the cluster control plane.
+  Configuration related to the cluster control plane.
   
 * `fleet` -
   (Required)
@@ -146,7 +146,7 @@ The following arguments are supported:
   
 * `networking` -
   (Required)
-  Required. Cluster-wide networking configuration.
+  Cluster-wide networking configuration.
   
 
 
@@ -154,35 +154,35 @@ The `authorization` block supports:
     
 * `admin_users` -
   (Required)
-  Required. Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+  Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
     
 The `admin_users` block supports:
     
 * `username` -
   (Required)
-  Required. The name of the user, e.g. `my-gcp-id@gmail.com`.
+  The name of the user, e.g. `my-gcp-id@gmail.com`.
     
 The `control_plane` block supports:
     
 * `aws_services_authentication` -
   (Required)
-  Required. Authentication configuration for management of AWS resources.
+  Authentication configuration for management of AWS resources.
     
 * `config_encryption` -
   (Required)
-  Required. The ARN of the AWS KMS key used to encrypt cluster configuration.
+  The ARN of the AWS KMS key used to encrypt cluster configuration.
     
 * `database_encryption` -
   (Required)
-  Required. The ARN of the AWS KMS key used to encrypt cluster secrets.
+  The ARN of the AWS KMS key used to encrypt cluster secrets.
     
 * `iam_instance_profile` -
   (Required)
-  Required. The name of the AWS IAM instance pofile to assign to each control plane replica.
+  The name of the AWS IAM instance pofile to assign to each control plane replica.
     
 * `instance_type` -
   (Optional)
-  Optional. The AWS instance type. When unspecified, it defaults to `t3.medium`.
+  Optional. The AWS instance type. When unspecified, it defaults to `m5.large`.
     
 * `main_volume` -
   (Optional)
@@ -206,7 +206,7 @@ The `control_plane` block supports:
     
 * `subnet_ids` -
   (Required)
-  Required. The list of subnets where control plane replicas will run. A replica will be provisioned on each subnet and up to three values can be provided. Each subnet must be in a different AWS Availability Zone (AZ).
+  The list of subnets where control plane replicas will run. A replica will be provisioned on each subnet and up to three values can be provided. Each subnet must be in a different AWS Availability Zone (AZ).
     
 * `tags` -
   (Optional)
@@ -214,13 +214,13 @@ The `control_plane` block supports:
     
 * `version` -
   (Required)
-  Required. The Kubernetes version to run on control plane replicas (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling .
+  The Kubernetes version to run on control plane replicas (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling .
     
 The `aws_services_authentication` block supports:
     
 * `role_arn` -
   (Required)
-  Required. The Amazon Resource Name (ARN) of the role that the Anthos Multi-Cloud API will assume when managing AWS resources on your account.
+  The Amazon Resource Name (ARN) of the role that the Anthos Multi-Cloud API will assume when managing AWS resources on your account.
     
 * `role_session_name` -
   (Optional)
@@ -230,13 +230,13 @@ The `config_encryption` block supports:
     
 * `kms_key_arn` -
   (Required)
-  Required. The ARN of the AWS KMS key used to encrypt cluster configuration.
+  The ARN of the AWS KMS key used to encrypt cluster configuration.
     
 The `database_encryption` block supports:
     
 * `kms_key_arn` -
   (Required)
-  Required. The ARN of the AWS KMS key used to encrypt cluster secrets.
+  The ARN of the AWS KMS key used to encrypt cluster secrets.
     
 The `fleet` block supports:
     
@@ -251,15 +251,15 @@ The `networking` block supports:
     
 * `pod_address_cidr_blocks` -
   (Required)
-  Required. All pods in the cluster are assigned an RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.
+  All pods in the cluster are assigned an RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.
     
 * `service_address_cidr_blocks` -
   (Required)
-  Required. All services in the cluster are assigned an RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.
+  All services in the cluster are assigned an RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.
     
 * `vpc_id` -
   (Required)
-  Required. The VPC associated with the cluster. All component clusters (i.e. control plane and node pools) run on a single VPC. This field cannot be changed after creation.
+  The VPC associated with the cluster. All component clusters (i.e. control plane and node pools) run on a single VPC. This field cannot be changed after creation.
     
 - - -
 
@@ -327,7 +327,7 @@ The `ssh_config` block supports:
     
 * `ec2_key_pair` -
   (Required)
-  Required. The name of the EC2 key pair used to login into cluster machines.
+  The name of the EC2 key pair used to login into cluster machines.
     
 ## Attributes Reference
 
