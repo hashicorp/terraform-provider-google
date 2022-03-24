@@ -185,6 +185,131 @@ func TestAccBigtableInstance_kms(t *testing.T) {
 	})
 }
 
+func TestAccBigtableInstance_createWithAutoscalingAndUpdate(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create Autoscaling config with 2 nodes.
+				Config: testAccBigtableInstance_autoscalingCluster(instanceName, 2, 5, 70),
+				Check: resource.ComposeTestCheckFunc(resource.TestCheckResourceAttr("google_bigtable_instance.instance",
+					"cluster.0.num_nodes", "2")),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+			{
+				// Update Autoscaling configs.
+				Config: testAccBigtableInstance_autoscalingCluster(instanceName, 1, 5, 80),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+		},
+	})
+}
+
+func TestAccBigtableInstance_enableAndDisableAutoscaling(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableInstance(instanceName, 2),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+			{
+				// Enable Autoscaling.
+				Config: testAccBigtableInstance_autoscalingCluster(instanceName, 2, 5, 70),
+				Check: resource.ComposeTestCheckFunc(resource.TestCheckResourceAttr("google_bigtable_instance.instance",
+					"cluster.0.num_nodes", "2")),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+			{
+				// Disable Autoscaling specifying num_nodes=1 and node count becomes 1.
+				Config: testAccBigtableInstance(instanceName, 1),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+		},
+	})
+}
+
+func TestAccBigtableInstance_enableAndDisableAutoscalingWithoutNumNodes(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create Autoscaling cluster with 2 nodes.
+				Config: testAccBigtableInstance_autoscalingCluster(instanceName, 2, 5, 70),
+				Check: resource.ComposeTestCheckFunc(resource.TestCheckResourceAttr("google_bigtable_instance.instance",
+					"cluster.0.num_nodes", "2")),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+			{
+				// Disable Autoscaling without specifying num_nodes, it should use the current node count, which is 2.
+				Config: testAccBigtableInstance_noNumNodes(instanceName),
+				Check: resource.ComposeTestCheckFunc(resource.TestCheckResourceAttr("google_bigtable_instance.instance",
+					"cluster.0.num_nodes", "2")),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+		},
+	})
+}
+
 func testAccCheckBigtableInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		var ctx = context.Background()
@@ -228,6 +353,21 @@ resource "google_bigtable_instance" "instance" {
   }
 }
 `, instanceName, instanceName, numNodes)
+}
+
+func testAccBigtableInstance_noNumNodes(instanceName string) string {
+	return fmt.Sprintf(`
+		resource "google_bigtable_instance" "instance" {
+			name = "%s"
+			cluster {
+				cluster_id   = "%s"
+				storage_type = "HDD"
+			}
+			deletion_protection = false
+			labels = {
+				env = "default"
+			}
+		}`, instanceName, instanceName)
 }
 
 func testAccBigtableInstance_invalid(instanceName string) string {
@@ -394,4 +534,21 @@ resource "google_bigtable_instance" "instance" {
 
 }
 `, pid, instanceName, instanceName, numNodes, kmsKey)
+}
+
+func testAccBigtableInstance_autoscalingCluster(instanceName string, min int, max int, cpuTarget int) string {
+	return fmt.Sprintf(`resource "google_bigtable_instance" "instance" {
+		name = "%s"
+		cluster {
+			cluster_id   = "%s"
+			storage_type = "HDD"
+			autoscaling_config {
+				min_nodes = %d
+				max_nodes = %d
+				cpu_target = %d
+			}
+		}
+	  deletion_protection = false
+
+	}`, instanceName, instanceName, min, max, cpuTarget)
 }
