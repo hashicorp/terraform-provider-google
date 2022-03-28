@@ -1176,7 +1176,7 @@ resource "google_container_node_pool" "np_with_node_config" {
     }
 
     // Updatable fields
-    image_type = "COS"
+    image_type = "COS_CONTAINERD"
   }
 }
 `, cluster, nodePool)
@@ -1220,7 +1220,7 @@ resource "google_container_node_pool" "np_with_node_config" {
     }
 
     // Updatable fields
-    image_type = "UBUNTU"
+    image_type = "UBUNTU_CONTAINERD"
   }
 }
 `, cluster, nodePool)
@@ -1359,7 +1359,7 @@ resource "google_container_node_pool" "np_with_gpu" {
 
     preemptible     = true
     service_account = "default"
-    image_type      = "COS"
+    image_type      = "COS_CONTAINERD"
 
     guest_accelerator {
       type  = "nvidia-tesla-a100"
