@@ -244,7 +244,11 @@ func subtractFromBindings(bindings []*cloudresourcemanager.Binding, toRemove ...
 }
 
 func iamMemberIsCaseSensitive(member string) bool {
-	return strings.HasPrefix(member, "principalSet:") || strings.HasPrefix(member, "principal:") || strings.HasPrefix(member, "principalHierarchy:")
+	// allAuthenticatedUsers and allUsers are special identifiers that are case sensitive. See:
+	// https://cloud.google.com/iam/docs/overview#all-authenticated-users
+	return strings.Contains(member, "allAuthenticatedUsers") || strings.Contains(member, "allUsers") ||
+		strings.HasPrefix(member, "principalSet:") || strings.HasPrefix(member, "principal:") ||
+		strings.HasPrefix(member, "principalHierarchy:")
 }
 
 // normalizeIamMemberCasing returns the case adjusted value of an iamMember
