@@ -91,6 +91,18 @@ func resourceSpannerDatabase() *schema.Resource {
 				Description: `A unique identifier for the database, which cannot be changed after
 the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].`,
 			},
+			"database_dialect": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"GOOGLE_STANDARD_SQL", "POSTGRESQL", ""}),
+				Description: `The dialect of the Cloud Spanner Database.
+If it is not provided, "GOOGLE_STANDARD_SQL" will be used. 
+Note: Databases that are created with POSTGRESQL dialect do not support 
+extra DDL statements in the 'CreateDatabase' call. You must therefore re-apply 
+terraform with ddl on the same database after creation. Possible values: ["GOOGLE_STANDARD_SQL", "POSTGRESQL"]`,
+			},
 			"ddl": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -166,6 +178,12 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
 		obj["encryptionConfig"] = encryptionConfigProp
+	}
+	databaseDialectProp, err := expandSpannerDatabaseDatabaseDialect(d.Get("database_dialect"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("database_dialect"); !isEmptyValue(reflect.ValueOf(databaseDialectProp)) && (ok || !reflect.DeepEqual(v, databaseDialectProp)) {
+		obj["databaseDialect"] = databaseDialectProp
 	}
 	instanceProp, err := expandSpannerDatabaseInstance(d.Get("instance"), d, config)
 	if err != nil {
@@ -305,6 +323,9 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("encryption_config", flattenSpannerDatabaseEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("database_dialect", flattenSpannerDatabaseDatabaseDialect(res["databaseDialect"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
@@ -478,6 +499,10 @@ func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.R
 	return v
 }
 
+func flattenSpannerDatabaseDatabaseDialect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -516,6 +541,10 @@ func expandSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d TerraformR
 	return v, nil
 }
 
+func expandSpannerDatabaseDatabaseDialect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("instances", v.(string), "project", d, config, true)
 	if err != nil {
@@ -526,6 +555,9 @@ func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, confi
 
 func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	obj["createStatement"] = fmt.Sprintf("CREATE DATABASE `%s`", obj["name"])
+	if dialect, ok := obj["databaseDialect"]; ok && dialect == "POSTGRESQL" {
+		obj["createStatement"] = fmt.Sprintf("CREATE DATABASE %s", obj["name"])
+	}
 	delete(obj, "name")
 	delete(obj, "instance")
 	return obj, nil

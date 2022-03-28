@@ -116,6 +116,90 @@ resource "google_spanner_database" "basic" {
 `, instanceName, instanceName, databaseName)
 }
 
+func TestAccSpannerDatabase_postgres(t *testing.T) {
+	t.Parallel()
+
+	rnd := randString(t, 10)
+	instanceName := fmt.Sprintf("tf-test-%s", rnd)
+	databaseName := fmt.Sprintf("tfgen_%s", rnd)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerDatabase_postgres(instanceName, databaseName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_database.basic_spangres", "state"),
+				),
+			},
+			{
+				// Test import with default Terraform ID
+				ResourceName:            "google_spanner_database.basic_spangres",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ddl", "deletion_protection"},
+			},
+			{
+				Config: testAccSpannerDatabase_postgresUpdate(instanceName, databaseName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_database.basic_spangres", "state"),
+				),
+			},
+			{
+				// Test import with default Terraform ID
+				ResourceName:            "google_spanner_database.basic_spangres",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ddl", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccSpannerDatabase_postgres(instanceName, databaseName string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s-display"
+  num_nodes    = 1
+}
+
+resource "google_spanner_database" "basic_spangres" {
+  instance = google_spanner_instance.basic.name
+  name     = "%s_spangres"
+  database_dialect = "POSTGRESQL"
+  deletion_protection = false
+}
+`, instanceName, instanceName, databaseName)
+}
+
+func testAccSpannerDatabase_postgresUpdate(instanceName, databaseName string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s-display"
+  num_nodes    = 1
+}
+
+resource "google_spanner_database" "basic_spangres" {
+  instance = google_spanner_instance.basic.name
+  name     = "%s_spangres"
+  database_dialect = "POSTGRESQL"
+  ddl = [
+     "CREATE TABLE t1 (t1 bigint NOT NULL PRIMARY KEY)",
+     "CREATE TABLE t2 (t2 bigint NOT NULL PRIMARY KEY)",
+     "CREATE TABLE t3 (t3 bigint NOT NULL PRIMARY KEY)",
+     "CREATE TABLE t4 (t4 bigint NOT NULL PRIMARY KEY)",
+  ]
+  deletion_protection = false
+}
+`, instanceName, instanceName, databaseName)
+}
+
 // Unit Tests for type spannerDatabaseId
 func TestDatabaseNameForApi(t *testing.T) {
 	id := spannerDatabaseId{
