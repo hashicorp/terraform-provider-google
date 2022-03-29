@@ -412,6 +412,67 @@ resource "google_sql_database_instance" "default" {
 `, context)
 }
 
+func TestAccCGCSnippet_sqlMysqlInstanceReplicaExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlMysqlInstanceReplicaExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.read_replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlMysqlInstanceReplicaExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "primary" {
+  name             = "tf-test-mysql-primary-instance-name%{random_suffix}"
+  region           = "europe-west4"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier               = "db-n1-standard-2"
+    backup_configuration {
+      enabled            = "true"
+      binary_log_enabled = "true"
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+
+resource "google_sql_database_instance" "read_replica" {
+  name                 = "tf-test-mysql-replica-instance-name%{random_suffix}"
+  master_instance_name = google_sql_database_instance.primary.name
+  region               = "europe-west4"
+  database_version     = "MYSQL_8_0"
+
+  replica_configuration {
+    failover_target = false
+  }
+
+  settings {
+    tier              = "db-n1-standard-2"
+    availability_type = "ZONAL"
+    disk_size         = "100"
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+`, context)
+}
+
 func TestAccCGCSnippet_storageNewBucketExample(t *testing.T) {
 	t.Parallel()
 
