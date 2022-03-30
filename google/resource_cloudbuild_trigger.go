@@ -82,6 +82,26 @@ func resourceCloudBuildTrigger() *schema.Resource {
 		CustomizeDiff: stepTimeoutCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
+			"approval_config": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `Configuration for manual approval to start a build invocation of this BuildTrigger. 
+Builds created by this trigger will require approval before they execute. 
+Any user with a Cloud Build Approver role for the project can approve a build.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"approval_required": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Whether or not approval is needed. If this is set on a build, it will become pending when run, 
+and will need to be explicitly approved to start.`,
+							Default: false,
+						},
+					},
+				},
+			},
 			"build": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -698,7 +718,8 @@ When using Pub/Sub, Webhook or Manual set the file name using git_file_source in
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateEnum([]string{"UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"}),
-							Description:  `The type of the repo, since it may not be explicit from the repo field (e.g from a URL). Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"]`,
+							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
+Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"]`,
 						},
 						"revision": {
 							Type:     schema.TypeString,
@@ -904,7 +925,8 @@ One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateEnum([]string{"UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"}),
-							Description:  `The type of the repo, since it may not be explicit from the repo field (e.g from a URL). Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"]`,
+							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
+Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"]`,
 						},
 						"uri": {
 							Type:        schema.TypeString,
@@ -1143,6 +1165,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("webhook_config"); !isEmptyValue(reflect.ValueOf(webhookConfigProp)) && (ok || !reflect.DeepEqual(v, webhookConfigProp)) {
 		obj["webhookConfig"] = webhookConfigProp
 	}
+	approvalConfigProp, err := expandCloudBuildTriggerApprovalConfig(d.Get("approval_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("approval_config"); !isEmptyValue(reflect.ValueOf(approvalConfigProp)) && (ok || !reflect.DeepEqual(v, approvalConfigProp)) {
+		obj["approvalConfig"] = approvalConfigProp
+	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
 		return err
@@ -1291,6 +1319,9 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("webhook_config", flattenCloudBuildTriggerWebhookConfig(res["webhookConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
+	if err := d.Set("approval_config", flattenCloudBuildTriggerApprovalConfig(res["approvalConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Trigger: %s", err)
+	}
 	if err := d.Set("build", flattenCloudBuildTriggerBuild(res["build"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
@@ -1409,6 +1440,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("webhook_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, webhookConfigProp)) {
 		obj["webhookConfig"] = webhookConfigProp
+	}
+	approvalConfigProp, err := expandCloudBuildTriggerApprovalConfig(d.Get("approval_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("approval_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, approvalConfigProp)) {
+		obj["approvalConfig"] = approvalConfigProp
 	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
@@ -1804,6 +1841,19 @@ func flattenCloudBuildTriggerWebhookConfigSecret(v interface{}, d *schema.Resour
 
 func flattenCloudBuildTriggerWebhookConfigState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudBuildTriggerApprovalConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	transformed := make(map[string]interface{})
+	if v == nil {
+		// Disabled by default, but API will not return object if value is false
+		transformed["approval_required"] = false
+		return []interface{}{transformed}
+	}
+
+	original := v.(map[string]interface{})
+	transformed["approval_required"] = original["approvalRequired"]
+	return []interface{}{transformed}
 }
 
 func flattenCloudBuildTriggerBuild(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -2778,6 +2828,29 @@ func expandCloudBuildTriggerWebhookConfigSecret(v interface{}, d TerraformResour
 }
 
 func expandCloudBuildTriggerWebhookConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerApprovalConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedApprovalRequired, err := expandCloudBuildTriggerApprovalConfigApprovalRequired(original["approval_required"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApprovalRequired); val.IsValid() && !isEmptyValue(val) {
+		transformed["approvalRequired"] = transformedApprovalRequired
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerApprovalConfigApprovalRequired(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
