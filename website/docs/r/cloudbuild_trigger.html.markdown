@@ -307,6 +307,15 @@ resource "google_cloudbuild_trigger" "manual-trigger" {
     revision  = "refs/heads/main"
     repo_type = "GITHUB"
   }
+
+  
+  // If this is set on a build, it will become pending when it is run, 
+  // and will need to be explicitly approved to start.
+  approval_config {
+     approval_required = true 
+  }
+   
+  
 }
 ```
 
@@ -422,6 +431,13 @@ The following arguments are supported:
   One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_webhook_config).
 
+* `approval_config` -
+  (Optional)
+  Configuration for manual approval to start a build invocation of this BuildTrigger. 
+  Builds created by this trigger will require approval before they execute. 
+  Any user with a Cloud Build Approver role for the project can approve a build.
+  Structure is [documented below](#nested_approval_config).
+
 * `build` -
   (Optional)
   Contents of the build template. Either a filename or build template must be provided.
@@ -444,7 +460,8 @@ The following arguments are supported:
 
 * `repo_type` -
   (Required)
-  The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
+  The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
+  Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB
   Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, and `GITHUB`.
 
 * `revision` -
@@ -466,6 +483,7 @@ The following arguments are supported:
 * `repo_type` -
   (Required)
   The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
+  Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB
   Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, and `GITHUB`.
 
 <a name="nested_trigger_template"></a>The `trigger_template` block supports:
@@ -582,6 +600,13 @@ The following arguments are supported:
 * `state` -
   Potential issues with the underlying Pub/Sub subscription configuration.
   Only populated on get requests.
+
+<a name="nested_approval_config"></a>The `approval_config` block supports:
+
+* `approval_required` -
+  (Optional)
+  Whether or not approval is needed. If this is set on a build, it will become pending when run, 
+  and will need to be explicitly approved to start.
 
 <a name="nested_build"></a>The `build` block supports:
 
