@@ -1,0 +1,5 @@
+```release-note:new-resource
+`google_endpoints_service_consumers_iam_binding`
+`google_endpoints_service_consumers_iam_member`
+`google_endpoints_service_consumers_iam_policy`
+```
