@@ -1,0 +1,3 @@
+```release-note:none
+bigtable: Add support to verify data loss in Cloud Bigtable tests
+```

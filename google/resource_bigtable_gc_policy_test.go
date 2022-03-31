@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"cloud.google.com/go/bigtable"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -53,6 +54,9 @@ func TestAccBigtableGCPolicy_swapOffDeprecated(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableGCPolicyExists(
 						t, "google_bigtable_gc_policy.policy"),
+					// Verify can write some data.
+					testAccBigtableCanWriteData(
+						t, "google_bigtable_gc_policy.policy", 10),
 				),
 			},
 			{
@@ -60,6 +64,9 @@ func TestAccBigtableGCPolicy_swapOffDeprecated(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableGCPolicyExists(
 						t, "google_bigtable_gc_policy.policy"),
+					// Verify no data loss after the GC policy update.
+					testAccBigtableCanReadData(
+						t, "google_bigtable_gc_policy.policy", 10),
 				),
 			},
 		},
@@ -263,6 +270,82 @@ func testAccBigtableGCPolicyExists(t *testing.T, n string) resource.TestCheckFun
 		}
 
 		return fmt.Errorf("Error retrieving gc policy. Could not find policy in family %s", rs.Primary.Attributes["column_family"])
+	}
+}
+
+func testAccBigtableCanWriteData(t *testing.T, n string, numberOfRows int) resource.TestCheckFunc {
+	var ctx = context.Background()
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+		config := googleProviderConfig(t)
+		c, err := config.BigTableClientFactory(config.userAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
+		if err != nil {
+			return fmt.Errorf("Error starting client. %s", err)
+		}
+
+		defer c.Close()
+
+		table := c.Open(rs.Primary.Attributes["table"])
+		rowKeys := make([]string, numberOfRows)
+		mutations := make([]*bigtable.Mutation, numberOfRows)
+		columnFamily := rs.Primary.Attributes["column_family"]
+		for i := 0; i < 10; i++ {
+			rowKeys[i] = fmt.Sprintf("row%d", i)
+			mutations[i] = bigtable.NewMutation()
+			mutations[i].Set(columnFamily, "column", bigtable.Now(), []byte(fmt.Sprintf("value%d", i)))
+		}
+
+		rowErrs, err := table.ApplyBulk(ctx, rowKeys, mutations)
+		if err != nil {
+			return fmt.Errorf("could not write elements to bigtable: %v", err)
+		}
+		for _, rowErr := range rowErrs {
+			return fmt.Errorf("could not write element to bigtable: %v", rowErr)
+		}
+		return nil
+	}
+}
+
+func testAccBigtableCanReadData(t *testing.T, n string, numberOfRows int) resource.TestCheckFunc {
+	var ctx = context.Background()
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+		config := googleProviderConfig(t)
+		c, err := config.BigTableClientFactory(config.userAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
+		if err != nil {
+			return fmt.Errorf("Error starting client. %s", err)
+		}
+
+		defer c.Close()
+
+		table := c.Open(rs.Primary.Attributes["table"])
+		var rows []bigtable.Row
+		if err := table.ReadRows(ctx, bigtable.InfiniteRange(""), func(row bigtable.Row) bool {
+			rows = append(rows, row)
+			return true
+		}); err != nil {
+			return fmt.Errorf("Could not read elements from bigtable: %v", err)
+		}
+
+		if len(rows) != numberOfRows {
+			return fmt.Errorf("Expecting %d rows but got: %d", numberOfRows, len(rows))
+		}
+
+		return nil
 	}
 }
 
