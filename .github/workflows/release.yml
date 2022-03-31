@@ -28,36 +28,39 @@ jobs:
           # TODO: Replace with go-version-from-file when it is supported
           # https://github.com/actions/setup-go/pull/62
           go-version: ${{ steps.go-version.outputs.content }}
-      - uses: hashicorp/setup-hc-releases@v1
+      - name: Setup hc-releases
+        uses: hashicorp/setup-hc-releases@v2
         with:
           github-token: ${{ secrets.HASHI_RELEASES_GITHUB_TOKEN }}
-          signer: ${{ env.SIGNER }}
       - uses: hashicorp/setup-signore@v2
         with:
           github-token: ${{ secrets.HASHI_SIGNORE_GITHUB_TOKEN }}
           signer: interim_signing_subkey_768B676
       - name: Release Notes
         run: sed -n -e "1{/# /d;}" -e "2{/^$/d;}" -e "/# \[$(git describe --abbrev=0 --exclude="$(git describe --abbrev=0 --match='v*.*.*' --tags)" --match='v*.*.*' --tags | tr -d v)/q;p" CHANGELOG.md > /tmp/RELEASE-NOTES.md
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.TF_PROVIDER_RELEASE_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.TF_PROVIDER_RELEASE_AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.TF_PROVIDER_RELEASE_AWS_ROLE_ARN }}
-          role-duration-seconds: 3600
-          # TODO: allow session tagging once IAM permission changes addressed
-          # Reference: https://github.com/hashicorp/hc-releases/issues/124
-          role-skip-session-tagging: true
       - name: goreleaser release
         uses: goreleaser/goreleaser-action@v2
         with:
           args: release --release-notes /tmp/RELEASE-NOTES.md --rm-dist
         env:
+          HC_RELEASES_HOST: ${{ secrets.HC_RELEASES_HOST_STAGING }}
+          HC_RELEASES_KEY: ${{ secrets.HC_RELEASES_KEY_STAGING }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SIGNORE_CLIENT_ID: ${{ secrets.SIGNORE_CLIENT_ID }}
           SIGNORE_CLIENT_SECRET: ${{ secrets.SIGNORE_CLIENT_SECRET }}
-      - name: hc-releases publish
-        run: hc-releases publish -product=${{ github.event.repository.name }}
-        env:
-          FASTLY_API_TOKEN: ${{ secrets.HASHI_FASTLY_PURGE_TOKEN }}
-          TERRAFORM_REGISTRY_SYNC_TOKEN: ${{ secrets.TF_PROVIDER_RELEASE_TERRAFORM_REGISTRY_SYNC_TOKEN }}
+      - name: Create Release metadata
+        uses: hashicorp/actions-hc-releases-create-metadata@v1
+        with:
+          private-tools-token: ${{ secrets.CODESIGN_GITHUB_TOKEN }}
+          product-name: "terraform-provider-google"
+          version: ${{ github.ref_name }}
+          hc-releases-host: ${{ secrets.HC_RELEASES_HOST_STAGING}}
+          hc-releases-key: ${{ secrets.HC_RELEASES_KEY_STAGING }}
+      - name: Promote
+        uses: hashicorp/actions-hc-releases-promote@v1
+        with:
+          product-name: "terraform-provider-google"
+          version: ${{ github.ref_name }}
+          hc-releases-host: ${{ secrets.HC_RELEASES_HOST_PROD }}
+          hc-releases-key: ${{ secrets.HC_RELEASES_KEY_PROD }}
+          hc-releases-source_env_key: ${{ secrets.HC_RELEASES_KEY_STAGING }}
