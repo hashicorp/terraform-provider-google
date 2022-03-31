@@ -39,14 +39,10 @@ publishers:
     checksum: true
     signature: true
     cmd: |
-      hc-releases upload -product {{ .ProjectName }} -version {{ .Version }} \
-      -file={{ .ArtifactName }} \
-      -header=x-terraform-protocol-version={{ .Env.PROTOCOL_VERSION }} \
-      -header=x-terraform-protocol-versions={{ .Env.PROTOCOL_VERSIONS }}
+      hc-releases upload -product {{ .ProjectName }} -version {{ .Version }} -file={{ .ArtifactPath }} -header="x-terraform-protocol-version={{ .Env.PROTOCOL_VERSION }}" -header="x-terraform-protocol-versions={{ .Env.PROTOCOL_VERSIONS }}"
     env:
       - HC_RELEASES_HOST={{ .Env.HC_RELEASES_HOST }}
       - HC_RELEASES_KEY={{ .Env.HC_RELEASES_KEY }}
-    dir: "{{ dir .ArtifactPath }}"
 release:
   ids:
     - none
