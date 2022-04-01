@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: adds `presto_config` to `dataproc_job`
+```
