@@ -20,6 +20,103 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+func TestAccCGCSnippet_flaskGoogleCloudQuickstartExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_flaskGoogleCloudQuickstartExample(context),
+			},
+			{
+				ResourceName:            "google_compute_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata", "metadata_startup_script"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_flaskGoogleCloudQuickstartExample(context map[string]interface{}) string {
+	return Nprintf(`
+# Create a single Compute Engine instance
+resource "google_compute_instance" "default" {
+  name         = "tf-test-flask-vm%{random_suffix}"
+  machine_type = "f1-micro"
+  zone         = "us-west1-a"
+  tags         = ["ssh"]
+
+  # Uncomment and enter valid path to file
+  # metadata = {
+  #   ssh-keys = "${file("~/.ssh/id_ed25519.pub")}"
+  # }
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  # Install Flask
+  metadata_startup_script = "sudo apt-get update; sudo apt-get install -yq build-essential python-pip rsync; pip install flask"
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      # Include this section to give the VM an external IP address
+    }
+  }
+}
+
+resource "google_compute_firewall" "ssh" {
+  name = "tf-test-allow-ssh%{random_suffix}"
+  allow {
+    ports    = ["22"]
+    protocol = "tcp"
+  }
+  direction     = "INGRESS"
+  network       = "default"
+  priority      = 1000
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["ssh"]
+}
+
+
+# [START vpc_flask_quickstart_5000_fw]
+resource "google_compute_firewall" "flask" {
+  name    = "tf-test-flask-app-firewall%{random_suffix}"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["5000"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+}
+# [END vpc_flask_quickstart_5000_fw]
+
+# Create new multi-region storage bucket in the US
+# with versioning enabled
+
+resource "google_storage_bucket" "default" {
+  name          = "tf-test-bucket-tfstate%{random_suffix}"
+  force_destroy = false
+  location      = "US"
+  storage_class = "STANDARD"
+  versioning {
+    enabled = true
+  }
+}
+`, context)
+}
+
 func TestAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(t *testing.T) {
 	t.Parallel()
 
