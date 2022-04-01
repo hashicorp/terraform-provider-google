@@ -90,6 +90,7 @@ output "pyspark_status" {
        * [hive_config](#nested_hive_config)     - Submits a Hive job to the cluster
        * [hpig_config](#nested_hpig_config)     - Submits a Pig job to the cluster
        * [sparksql_config](#nested_sparksql_config) - Submits a Spark SQL job to the cluster
+       * [presto_config](#nested_presto_config) - Submits a Presto job to the cluster
 
 - - -
 
@@ -320,6 +321,37 @@ resource "google_dataproc_job" "sparksql" {
 
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
+<a name="nested_presto_config"></a>The `presto_config` block supports:
+
+```hcl
+# Submit a Presto job to the cluster
+resource "google_dataproc_job" "presto" {
+  ...
+  presto_config {
+    query_list = [
+      "DROP TABLE IF EXISTS dprocjob_test",
+      "CREATE TABLE dprocjob_test(bar int)",
+      "SELECT * FROM dprocjob_test WHERE bar > 2",
+    ]
+  }
+}
+```
+
+* `client_tags` - (Optional) Presto client tags to attach to this query.
+
+* `continue_on_failure` - (Optional) Whether to continue executing queries if a query fails. Setting to true can be useful when executing independent parallel queries. Defaults to false.
+
+* `query_list`- (Optional) The list of SQL queries or statements to execute as part of the job.
+   Conflicts with `query_file_uri`
+
+* `query_file_uri` - (Optional) The HCFS URI of the script that contains SQL queries.
+   Conflicts with `query_list`
+
+* `properties` - (Optional) A mapping of property names to values. Used to set Presto session properties Equivalent to using the --session flag in the Presto CLI.
+
+* `output_format` - (Optional) The format in which query output will be displayed. See the Presto documentation for supported output formats.
+
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 ## Attributes Reference
 
