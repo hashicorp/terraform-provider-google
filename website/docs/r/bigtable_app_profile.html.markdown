@@ -30,22 +30,34 @@ To get more information about AppProfile, see:
 * [API documentation](https://cloud.google.com/bigtable/docs/reference/admin/rest/v2/projects.instances.appProfiles)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigtable_app_profile_multicluster&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigtable_app_profile_anycluster&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Bigtable App Profile Multicluster
+## Example Usage - Bigtable App Profile Anycluster
 
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
   name = "bt-instance"
   cluster {
-    cluster_id   = "bt-instance"
+    cluster_id   = "cluster-1"
+    zone         = "us-central1-a"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "cluster-2"
     zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
   }
+  cluster {
+    cluster_id   = "cluster-3"
+    zone         = "us-central1-c"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }  
 
   deletion_protection  = "true"
 }
@@ -54,7 +66,9 @@ resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
   app_profile_id = "bt-profile"
 
+  // Requests will be routed to any of the 3 clusters.
   multi_cluster_routing_use_any = true
+
   ignore_warnings               = true
 }
 ```
@@ -70,7 +84,7 @@ resource "google_bigtable_app_profile" "ap" {
 resource "google_bigtable_instance" "instance" {
   name = "bt-instance"
   cluster {
-    cluster_id   = "bt-instance"
+    cluster_id   = "cluster-1"
     zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
@@ -83,12 +97,57 @@ resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
   app_profile_id = "bt-profile"
 
+  // Requests will be routed to the following cluster.
   single_cluster_routing {
-    cluster_id                 = "bt-instance"
+    cluster_id                 = "cluster-1"
     allow_transactional_writes = true
   }
 
   ignore_warnings = true
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigtable_app_profile_multicluster&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigtable App Profile Multicluster
+
+
+```hcl
+resource "google_bigtable_instance" "instance" {
+  name = "bt-instance"
+  cluster {
+    cluster_id   = "cluster-1"
+    zone         = "us-central1-a"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "cluster-2"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "cluster-3"
+    zone         = "us-central1-c"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+
+  deletion_protection  = "true"
+}
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "bt-profile"
+
+  // Requests will be routed to the following 2 clusters.
+  multi_cluster_routing_use_any = true
+  multi_cluster_routing_cluster_ids = ["cluster-1", "cluster-2"]
+
+  ignore_warnings               = true
 }
 ```
 
