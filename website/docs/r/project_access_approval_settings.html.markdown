@@ -43,6 +43,51 @@ resource "google_project_access_approval_settings" "project_access_approval" {
   }
 }
 ```
+## Example Usage - Project Access Approval Active Key Version
+
+
+```hcl
+resource "google_kms_key_ring" "key_ring" {
+  name     = "key-ring"
+  location = "global"
+  project  = "my-project-name"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name = "crypto-key"
+  key_ring = google_kms_key_ring.key_ring.id
+  purpose = "ASYMMETRIC_SIGN"
+
+  version_template {
+    algorithm = "EC_SIGN_P384_SHA384"
+  }
+}
+
+data "google_access_approval_project_service_account" "service_account" {
+  project_id = "my-project-name"
+}
+
+resource "google_kms_crypto_key_iam_member" "iam" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.signerVerifier"
+  member        = "serviceAccount:${data.google_access_approval_project_service_account.service_account.account_email}"
+}
+
+data "google_kms_crypto_key_version" "crypto_key_version" {
+  crypto_key = google_kms_crypto_key.crypto_key.id
+}
+
+resource "google_project_access_approval_settings" "project_access_approval" {
+  project_id          = "my-project-name"
+  active_key_version  = data.google_kms_crypto_key_version.crypto_key_version.name
+
+  enrolled_services {
+  	cloud_product = "all"
+  }
+
+  depends_on = [google_kms_crypto_key_iam_member.iam]
+}
+```
 
 ## Argument Reference
 
@@ -93,6 +138,12 @@ The following arguments are supported:
   Notifications relating to a resource will be sent to all emails in the settings of ancestor
   resources of that resource. A maximum of 50 email addresses are allowed.
 
+* `active_key_version` -
+  (Optional)
+  The asymmetric crypto key version to use for signing approval requests.
+  Empty active_key_version indicates that a Google-managed key should be used for signing.
+  This property will be ignored if set by an ancestor of the resource, and new non-empty values may not be set.
+
 * `project` -
   (Optional, Deprecated)
   Deprecated in favor of `project_id`
@@ -109,6 +160,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `enrolled_ancestor` -
   If the field is true, that indicates that at least one service is enrolled for Access Approval in one or more ancestors of the Project.
+
+* `ancestor_has_active_key_version` -
+  If the field is true, that indicates that an ancestor of this Project has set active_key_version.
+
+* `invalid_key_version` -
+  If the field is true, that indicates that there is some configuration issue with the active_key_version
+  configured on this Project (e.g. it doesn't exist or the Access Approval service account doesn't have the
+  correct permissions on it, etc.) This key version is not necessarily the effective key version at this level,
+  as key versions are inherited top-down.
 
 
 ## Timeouts

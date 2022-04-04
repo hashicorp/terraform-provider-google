@@ -59,6 +59,12 @@ A maximum of 10 enrolled services will be enforced, to be expanded as the set of
 				ForceNew:    true,
 				Description: `ID of the organization of the access approval settings.`,
 			},
+			"active_key_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The asymmetric crypto key version to use for signing approval requests.
+Empty active_key_version indicates that a Google-managed key should be used for signing.`,
+			},
 			"notification_emails": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -72,10 +78,22 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 				},
 				Set: schema.HashString,
 			},
+			"ancestor_has_active_key_version": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `This field will always be unset for the organization since organizations do not have ancestors.`,
+			},
 			"enrolled_ancestor": {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: `This field will always be unset for the organization since organizations do not have ancestors.`,
+			},
+			"invalid_key_version": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: `If the field is true, that indicates that there is some configuration issue with the active_key_version
+configured on this Organization (e.g. it doesn't exist or the Access Approval service account doesn't have the
+correct permissions on it, etc.).`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -136,6 +154,12 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(enrolledServicesProp)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	activeKeyVersionProp, err := expandAccessApprovalOrganizationSettingsActiveKeyVersion(d.Get("active_key_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("active_key_version"); !isEmptyValue(reflect.ValueOf(activeKeyVersionProp)) && (ok || !reflect.DeepEqual(v, activeKeyVersionProp)) {
+		obj["activeKeyVersion"] = activeKeyVersionProp
+	}
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
@@ -158,6 +182,10 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("active_key_version") {
+		updateMask = append(updateMask, "activeKeyVersion")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -221,6 +249,15 @@ func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta
 	if err := d.Set("enrolled_ancestor", flattenAccessApprovalOrganizationSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
 	}
+	if err := d.Set("active_key_version", flattenAccessApprovalOrganizationSettingsActiveKeyVersion(res["activeKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+	if err := d.Set("ancestor_has_active_key_version", flattenAccessApprovalOrganizationSettingsAncestorHasActiveKeyVersion(res["ancestorHasActiveKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
+	if err := d.Set("invalid_key_version", flattenAccessApprovalOrganizationSettingsInvalidKeyVersion(res["invalidKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
+	}
 
 	return nil
 }
@@ -247,6 +284,12 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	activeKeyVersionProp, err := expandAccessApprovalOrganizationSettingsActiveKeyVersion(d.Get("active_key_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("active_key_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, activeKeyVersionProp)) {
+		obj["activeKeyVersion"] = activeKeyVersionProp
+	}
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
@@ -262,6 +305,10 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("active_key_version") {
+		updateMask = append(updateMask, "activeKeyVersion")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -296,6 +343,7 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 	obj := make(map[string]interface{})
 	obj["notificationEmails"] = []string{}
 	obj["enrolledServices"] = []string{}
+	obj["activeKeyVersion"] = ""
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
@@ -307,6 +355,7 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 
 	updateMask = append(updateMask, "notificationEmails")
 	updateMask = append(updateMask, "enrolledServices")
+	updateMask = append(updateMask, "activeKeyVersion")
 
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -387,6 +436,18 @@ func flattenAccessApprovalOrganizationSettingsEnrolledAncestor(v interface{}, d 
 	return v
 }
 
+func flattenAccessApprovalOrganizationSettingsActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessApprovalOrganizationSettingsAncestorHasActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessApprovalOrganizationSettingsInvalidKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandAccessApprovalOrganizationSettingsNotificationEmails(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
@@ -427,5 +488,9 @@ func expandAccessApprovalOrganizationSettingsEnrolledServicesCloudProduct(v inte
 }
 
 func expandAccessApprovalOrganizationSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessApprovalOrganizationSettingsActiveKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
