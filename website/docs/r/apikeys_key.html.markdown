@@ -16,6 +16,7 @@
 subcategory: "Apikeys"
 layout: "google"
 page_title: "Google: google_apikeys_key"
+sidebar_current: "docs-google-apikeys-key"
 description: |-
   The Apikeys Key resource
 ---
