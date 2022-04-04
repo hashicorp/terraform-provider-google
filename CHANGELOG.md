@@ -1,4 +1,35 @@
 ## 4.16.0 (Unreleased)
+NOTE: We're marked a change in this release as a `BREAKING CHANGE` to indicate that the change may cause undesirable behavior for users in some circumstances. This is done to increase visibility on the change, which otherwise would have been marked under the `BUG FIXES` category, and it is not believed to be a change that breaks the backwards compatibility of the provider requiring a major version change.
+
+BREAKING CHANGES:
+* composer: made the `google_composer_environment.config.software_config.image_version` field immutable as updating this field is only available in beta. ([#11309](https://github.com/hashicorp/terraform-provider-google/pull/11309))
+
+FEATURES:
+* **New Resource:** `google_firebaserules_release` ([#11297](https://github.com/hashicorp/terraform-provider-google/pull/11297))
+* **New Resource:** `google_firebaserules_ruleset` ([#11297](https://github.com/hashicorp/terraform-provider-google/pull/11297))
+
+IMPROVEMENTS:
+* apigee: added field `billing_type`([#11285](https://github.com/hashicorp/terraform-provider-google/pull/11285))
+* bigtable: added support for `autoscaling_config` to `google_bigtable_instance` ([#11344](https://github.com/hashicorp/terraform-provider-google/pull/11344))
+* composer: Added support for `composer-1` and `composer-2` aliases in image version argument ([#11296](https://github.com/hashicorp/terraform-provider-google/pull/11296))
+* compute: added support for attaching a `edge_security_policy` to `google_compute_backend_bucket` ([#11350](https://github.com/hashicorp/terraform-provider-google/pull/11350))
+* compute: added support for field `type` to `google_compute_security_policy` ([#11350](https://github.com/hashicorp/terraform-provider-google/pull/11350))
+* eventarc: added gke and workflows destination for eventarc trigger resource. ([#11347](https://github.com/hashicorp/terraform-provider-google/pull/11347))
+* networkservices: added `included_cookie_names` to cache key policy configuration ([#11333](https://github.com/hashicorp/terraform-provider-google/pull/11333))
+* redis: added read replica field `replicaCount `, `nodes`,  `readEndpoint`, `readEndpointPort`, `readReplicasMode` in `google_redis_instance` ([#11330](https://github.com/hashicorp/terraform-provider-google/pull/11330))
+* spanner: added support for setting database_dialect on `google_spanner_database` ([#11363](https://github.com/hashicorp/terraform-provider-google/pull/11363))
+* storagetransfer: added `repeat_interval` field to `google_storage_transfer_job` resource ([#11328](https://github.com/hashicorp/terraform-provider-google/pull/11328))
+
+BUG FIXES:
+* apikeys: fixed a bug where `google_apikeys_key.key_string` was not being set. ([#11308](https://github.com/hashicorp/terraform-provider-google/pull/11308))
+* container: fixed a bug where `google_container_cluster.authenticator_groups_config` could not be set in tandem with `enable_autopilot` ([#11310](https://github.com/hashicorp/terraform-provider-google/pull/11310))
+* iam: fixed an issue where special identifiers `allAuthenticatedUsers` and `allUsers` were flattened to lower case in IAM members. ([#11359](https://github.com/hashicorp/terraform-provider-google/pull/11359))
+* logging: fixed bug where `google_logging_project_bucket_config` would erroneously write to state after it errored out and wasn't actually created. ([#11314](https://github.com/hashicorp/terraform-provider-google/pull/11314))
+* monitoring: fixed a permadiff when `google_monitoring_uptime_check_config.http_check.path` does not begin with "/" ([#11301](https://github.com/hashicorp/terraform-provider-google/pull/11301))
+* osconfig: fixed a bug where `recurring_schedule.time_of_day` can not be set to 12am exact time in `google_os_config_patch_deployment` resource ([#11293](https://github.com/hashicorp/terraform-provider-google/pull/11293))
+* storage: fixed a bug where `google_storage_bucket` data source would retry for 20 min when bucket was not found. ([#11295](https://github.com/hashicorp/terraform-provider-google/pull/11295))
+* storage: fixed bug where `google_storage_transfer_job` that was deleted outside of Terraform would not be recreated on apply. ([#11307](https://github.com/hashicorp/terraform-provider-google/pull/11307))
+
 ## 4.15.0 (March 21, 2022)
 
 FEATURES:
