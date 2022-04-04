@@ -32,7 +32,9 @@ func TestAccAccessApprovalSettings(t *testing.T) {
 
 func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
 		"org_id":        getTestOrgFromEnv(t),
+		"location":      getTestRegionFromEnv(),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -52,6 +54,15 @@ func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 			},
 			{
 				Config: testAccAccessApprovalOrganizationSettings_update(context),
+			},
+			{
+				ResourceName:            "google_organization_access_approval_settings.organization_access_approval",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"organization_id"},
+			},
+			{
+				Config: testAccAccessApprovalOrganizationSettings_activeKeyVersion(context),
 			},
 			{
 				ResourceName:            "google_organization_access_approval_settings.organization_access_approval",
@@ -91,6 +102,52 @@ resource "google_organization_access_approval_settings" "organization_access_app
     cloud_product = "all"
     enrollment_level = "BLOCK_ALL"
   }
+}
+`, context)
+}
+
+func testAccAccessApprovalOrganizationSettings_activeKeyVersion(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_kms_key_ring" "key_ring" {
+  name     = "tf-test-%{random_suffix}"
+  project  = "%{project}"
+  location = "%{location}"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name            = "tf-test-%{random_suffix}"
+  key_ring        = google_kms_key_ring.key_ring.id
+  purpose         = "ASYMMETRIC_SIGN"
+
+  version_template {
+    algorithm = "EC_SIGN_P384_SHA384"
+  }
+}
+
+data "google_access_approval_organization_service_account" "aa_account" {
+  organization_id = "%{org_id}"
+}
+
+resource "google_kms_crypto_key_iam_member" "iam" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.signerVerifier"
+  member        = "serviceAccount:${data.google_access_approval_organization_service_account.aa_account.account_email}"
+}
+
+data "google_kms_crypto_key_version" "crypto_key_version" {
+  crypto_key = google_kms_crypto_key.crypto_key.id
+}
+
+resource "google_organization_access_approval_settings" "organization_access_approval" {
+  organization_id     = "%{org_id}"
+
+  enrolled_services {
+    cloud_product = "all"
+  }
+
+  active_key_version = data.google_kms_crypto_key_version.crypto_key_version.name
+
+  depends_on = [google_kms_crypto_key_iam_member.iam]
 }
 `, context)
 }

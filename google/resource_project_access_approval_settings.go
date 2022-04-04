@@ -59,6 +59,13 @@ A maximum of 10 enrolled services will be enforced, to be expanded as the set of
 				ForceNew:    true,
 				Description: `ID of the project of the access approval settings.`,
 			},
+			"active_key_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The asymmetric crypto key version to use for signing approval requests.
+Empty active_key_version indicates that a Google-managed key should be used for signing.
+This property will be ignored if set by an ancestor of the resource, and new non-empty values may not be set.`,
+			},
 			"notification_emails": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -78,10 +85,23 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 				Deprecated:  "Deprecated in favor of `project_id`",
 				Description: `Deprecated in favor of 'project_id'`,
 			},
+			"ancestor_has_active_key_version": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `If the field is true, that indicates that an ancestor of this Project has set active_key_version.`,
+			},
 			"enrolled_ancestor": {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: `If the field is true, that indicates that at least one service is enrolled for Access Approval in one or more ancestors of the Project.`,
+			},
+			"invalid_key_version": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: `If the field is true, that indicates that there is some configuration issue with the active_key_version
+configured on this Project (e.g. it doesn't exist or the Access Approval service account doesn't have the
+correct permissions on it, etc.) This key version is not necessarily the effective key version at this level,
+as key versions are inherited top-down.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -142,6 +162,12 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(enrolledServicesProp)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	activeKeyVersionProp, err := expandAccessApprovalProjectSettingsActiveKeyVersion(d.Get("active_key_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("active_key_version"); !isEmptyValue(reflect.ValueOf(activeKeyVersionProp)) && (ok || !reflect.DeepEqual(v, activeKeyVersionProp)) {
+		obj["activeKeyVersion"] = activeKeyVersionProp
+	}
 	projectProp, err := expandAccessApprovalProjectSettingsProject(d.Get("project"), d, config)
 	if err != nil {
 		return err
@@ -170,6 +196,10 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("active_key_version") {
+		updateMask = append(updateMask, "activeKeyVersion")
 	}
 
 	if d.HasChange("project") {
@@ -237,6 +267,15 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 	if err := d.Set("enrolled_ancestor", flattenAccessApprovalProjectSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProjectSettings: %s", err)
 	}
+	if err := d.Set("active_key_version", flattenAccessApprovalProjectSettingsActiveKeyVersion(res["activeKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err := d.Set("ancestor_has_active_key_version", flattenAccessApprovalProjectSettingsAncestorHasActiveKeyVersion(res["ancestorHasActiveKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err := d.Set("invalid_key_version", flattenAccessApprovalProjectSettingsInvalidKeyVersion(res["invalidKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
 	if err := d.Set("project", flattenAccessApprovalProjectSettingsProject(res["project"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProjectSettings: %s", err)
 	}
@@ -266,6 +305,12 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	activeKeyVersionProp, err := expandAccessApprovalProjectSettingsActiveKeyVersion(d.Get("active_key_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("active_key_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, activeKeyVersionProp)) {
+		obj["activeKeyVersion"] = activeKeyVersionProp
+	}
 	projectProp, err := expandAccessApprovalProjectSettingsProject(d.Get("project"), d, config)
 	if err != nil {
 		return err
@@ -287,6 +332,10 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("active_key_version") {
+		updateMask = append(updateMask, "activeKeyVersion")
 	}
 
 	if d.HasChange("project") {
@@ -325,6 +374,7 @@ func resourceAccessApprovalProjectSettingsDelete(d *schema.ResourceData, meta in
 	obj := make(map[string]interface{})
 	obj["notificationEmails"] = []string{}
 	obj["enrolledServices"] = []string{}
+	obj["activeKeyVersion"] = ""
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
@@ -336,6 +386,7 @@ func resourceAccessApprovalProjectSettingsDelete(d *schema.ResourceData, meta in
 
 	updateMask = append(updateMask, "notificationEmails")
 	updateMask = append(updateMask, "enrolledServices")
+	updateMask = append(updateMask, "activeKeyVersion")
 
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -416,6 +467,18 @@ func flattenAccessApprovalProjectSettingsEnrolledAncestor(v interface{}, d *sche
 	return v
 }
 
+func flattenAccessApprovalProjectSettingsActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessApprovalProjectSettingsAncestorHasActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessApprovalProjectSettingsInvalidKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenAccessApprovalProjectSettingsProject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -460,6 +523,10 @@ func expandAccessApprovalProjectSettingsEnrolledServicesCloudProduct(v interface
 }
 
 func expandAccessApprovalProjectSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessApprovalProjectSettingsActiveKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

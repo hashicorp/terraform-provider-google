@@ -1,0 +1,12 @@
+```release-note:enhancement
+access approval: added `active_key_version`, `ancestor_has_active_key_version`, and `invalid_key_version` fields to `google_folder_access_approval_settings`, `google_organization_access_approval_settings`, and `google_project_access_approval_settings` resources
+```
+```release-note:new-datasource
+`google_access_approval_folder_service_account`
+```
+```release-note:new-datasource
+`google_access_approval_organization_service_account`
+```
+```release-note:new-datasource
+`google_access_approval_project_service_account`
+```

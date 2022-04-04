@@ -84,6 +84,13 @@ A maximum of 10 enrolled services will be enforced, to be expanded as the set of
 				ForceNew:    true,
 				Description: `ID of the folder of the access approval settings.`,
 			},
+			"active_key_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The asymmetric crypto key version to use for signing approval requests.
+Empty active_key_version indicates that a Google-managed key should be used for signing.
+This property will be ignored if set by an ancestor of the resource, and new non-empty values may not be set.`,
+			},
 			"notification_emails": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -97,10 +104,23 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 				},
 				Set: schema.HashString,
 			},
+			"ancestor_has_active_key_version": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `If the field is true, that indicates that an ancestor of this Folder has set active_key_version.`,
+			},
 			"enrolled_ancestor": {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: `If the field is true, that indicates that at least one service is enrolled for Access Approval in one or more ancestors of the Folder.`,
+			},
+			"invalid_key_version": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: `If the field is true, that indicates that there is some configuration issue with the active_key_version
+configured on this Folder (e.g. it doesn't exist or the Access Approval service account doesn't have the
+correct permissions on it, etc.) This key version is not necessarily the effective key version at this level,
+as key versions are inherited top-down.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -174,6 +194,12 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(enrolledServicesProp)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	activeKeyVersionProp, err := expandAccessApprovalFolderSettingsActiveKeyVersion(d.Get("active_key_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("active_key_version"); !isEmptyValue(reflect.ValueOf(activeKeyVersionProp)) && (ok || !reflect.DeepEqual(v, activeKeyVersionProp)) {
+		obj["activeKeyVersion"] = activeKeyVersionProp
+	}
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
@@ -196,6 +222,10 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("active_key_version") {
+		updateMask = append(updateMask, "activeKeyVersion")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -259,6 +289,15 @@ func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta inter
 	if err := d.Set("enrolled_ancestor", flattenAccessApprovalFolderSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderSettings: %s", err)
 	}
+	if err := d.Set("active_key_version", flattenAccessApprovalFolderSettingsActiveKeyVersion(res["activeKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err := d.Set("ancestor_has_active_key_version", flattenAccessApprovalFolderSettingsAncestorHasActiveKeyVersion(res["ancestorHasActiveKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
+	if err := d.Set("invalid_key_version", flattenAccessApprovalFolderSettingsInvalidKeyVersion(res["invalidKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSettings: %s", err)
+	}
 
 	return nil
 }
@@ -285,6 +324,12 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	activeKeyVersionProp, err := expandAccessApprovalFolderSettingsActiveKeyVersion(d.Get("active_key_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("active_key_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, activeKeyVersionProp)) {
+		obj["activeKeyVersion"] = activeKeyVersionProp
+	}
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
@@ -300,6 +345,10 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("active_key_version") {
+		updateMask = append(updateMask, "activeKeyVersion")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -334,6 +383,7 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 	obj := make(map[string]interface{})
 	obj["notificationEmails"] = []string{}
 	obj["enrolledServices"] = []string{}
+	obj["activeKeyVersion"] = ""
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
@@ -345,6 +395,7 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 
 	updateMask = append(updateMask, "notificationEmails")
 	updateMask = append(updateMask, "enrolledServices")
+	updateMask = append(updateMask, "activeKeyVersion")
 
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -425,6 +476,18 @@ func flattenAccessApprovalFolderSettingsEnrolledAncestor(v interface{}, d *schem
 	return v
 }
 
+func flattenAccessApprovalFolderSettingsActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessApprovalFolderSettingsAncestorHasActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessApprovalFolderSettingsInvalidKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandAccessApprovalFolderSettingsNotificationEmails(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
@@ -465,5 +528,9 @@ func expandAccessApprovalFolderSettingsEnrolledServicesCloudProduct(v interface{
 }
 
 func expandAccessApprovalFolderSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessApprovalFolderSettingsActiveKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

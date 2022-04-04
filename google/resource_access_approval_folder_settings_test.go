@@ -14,13 +14,18 @@ import (
 // See AccessApprovalOrganizationSettings for the test runner.
 func testAccAccessApprovalFolderSettings(t *testing.T) {
 	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
 		"org_id":        getTestOrgFromEnv(t),
+		"location":      getTestRegionFromEnv(),
 		"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		CheckDestroy: testAccCheckAccessApprovalFolderSettingsDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -41,6 +46,15 @@ func testAccAccessApprovalFolderSettings(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"folder_id"},
 			},
+			{
+				Config: testAccAccessApprovalFolderSettings_activeKeyVersion(context),
+			},
+			{
+				ResourceName:            "google_folder_access_approval_settings.folder_access_approval",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"folder_id"},
+			},
 		},
 	})
 }
@@ -52,6 +66,13 @@ resource "google_folder" "my_folder" {
   parent       = "organizations/%{org_id}"
 }
 
+# Wait after folder creation to limit eventual consistency errors.
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_folder.my_folder]
+
+  create_duration = "120s"
+}
+
 resource "google_folder_access_approval_settings" "folder_access_approval" {
   folder_id           = google_folder.my_folder.folder_id
   notification_emails = ["testuser@example.com"]
@@ -59,6 +80,8 @@ resource "google_folder_access_approval_settings" "folder_access_approval" {
   enrolled_services {
     cloud_product = "all"
   }
+
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, context)
 }
@@ -70,6 +93,13 @@ resource "google_folder" "my_folder" {
   parent       = "organizations/%{org_id}"
 }
 
+# Wait after folder creation to limit eventual consistency errors.
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_folder.my_folder]
+
+  create_duration = "120s"
+}
+
 resource "google_folder_access_approval_settings" "folder_access_approval" {
   folder_id           = google_folder.my_folder.folder_id
   notification_emails = ["testuser@example.com", "example.user@example.com"]
@@ -77,6 +107,68 @@ resource "google_folder_access_approval_settings" "folder_access_approval" {
   enrolled_services {
     cloud_product = "all"
   }
+
+  depends_on = [time_sleep.wait_120_seconds]
+}
+`, context)
+}
+
+func testAccAccessApprovalFolderSettings_activeKeyVersion(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_folder" "my_folder" {
+  display_name = "tf-test-my-folder%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+}
+
+# Wait after folder creation to limit eventual consistency errors.
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_folder.my_folder]
+
+  create_duration = "120s"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  name     = "tf-test-%{random_suffix}"
+  project  = "%{project}"
+  location = "%{location}"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name            = "tf-test-%{random_suffix}"
+  key_ring        = google_kms_key_ring.key_ring.id
+  purpose         = "ASYMMETRIC_SIGN"
+
+  version_template {
+    algorithm = "EC_SIGN_P384_SHA384"
+  }
+}
+
+data "google_access_approval_folder_service_account" "aa_account" {
+  folder_id = google_folder.my_folder.folder_id
+
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
+resource "google_kms_crypto_key_iam_member" "iam" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.signerVerifier"
+  member        = "serviceAccount:${data.google_access_approval_folder_service_account.aa_account.account_email}"
+}
+
+data "google_kms_crypto_key_version" "crypto_key_version" {
+  crypto_key = google_kms_crypto_key.crypto_key.id
+}
+
+resource "google_folder_access_approval_settings" "folder_access_approval" {
+  folder_id           = google_folder.my_folder.folder_id
+
+  enrolled_services {
+    cloud_product = "all"
+  }
+
+  active_key_version = data.google_kms_crypto_key_version.crypto_key_version.name
+
+  depends_on = [google_kms_crypto_key_iam_member.iam]
 }
 `, context)
 }

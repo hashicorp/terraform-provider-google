@@ -717,6 +717,9 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			// ####### START datasources ###########
+			"google_access_approval_folder_service_account":       dataSourceAccessApprovalFolderServiceAccount(),
+			"google_access_approval_organization_service_account": dataSourceAccessApprovalOrganizationServiceAccount(),
+			"google_access_approval_project_service_account":      dataSourceAccessApprovalProjectServiceAccount(),
 			"google_active_folder":                                dataSourceGoogleActiveFolder(),
 			"google_app_engine_default_service_account":           dataSourceGoogleAppEngineDefaultServiceAccount(),
 			"google_billing_account":                              dataSourceGoogleBillingAccount(),
