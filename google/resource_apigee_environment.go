@@ -54,6 +54,29 @@ func resourceApigeeEnvironment() *schema.Resource {
 				Description: `The Apigee Organization associated with the Apigee environment,
 in the format 'organizations/{{org_name}}'.`,
 			},
+			"api_proxy_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"API_PROXY_TYPE_UNSPECIFIED", "PROGRAMMABLE", "CONFIGURABLE", ""}),
+				Description: `Optional. API Proxy type supported by the environment. The type can be set when creating
+the Environment and cannot be changed. Possible values: ["API_PROXY_TYPE_UNSPECIFIED", "PROGRAMMABLE", "CONFIGURABLE"]`,
+			},
+			"deployment_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"DEPLOYMENT_TYPE_UNSPECIFIED", "PROXY", "ARCHIVE", ""}),
+				Description: `Optional. Deployment type supported by the environment. The deployment type can be
+set when creating the environment and cannot be changed. When you enable archive
+deployment, you will be prevented from performing a subset of actions within the
+environment, including:
+Managing the deployment of API proxy or shared flow revisions;
+Creating, updating, or deleting resource files;
+Creating, updating, or deleting target servers. Possible values: ["DEPLOYMENT_TYPE_UNSPECIFIED", "PROXY", "ARCHIVE"]`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -96,6 +119,18 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	deploymentTypeProp, err := expandApigeeEnvironmentDeploymentType(d.Get("deployment_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deployment_type"); !isEmptyValue(reflect.ValueOf(deploymentTypeProp)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
+		obj["deploymentType"] = deploymentTypeProp
+	}
+	apiProxyTypeProp, err := expandApigeeEnvironmentApiProxyType(d.Get("api_proxy_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("api_proxy_type"); !isEmptyValue(reflect.ValueOf(apiProxyTypeProp)) && (ok || !reflect.DeepEqual(v, apiProxyTypeProp)) {
+		obj["apiProxyType"] = apiProxyTypeProp
 	}
 
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
@@ -184,6 +219,12 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("description", flattenApigeeEnvironmentDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
+	if err := d.Set("deployment_type", flattenApigeeEnvironmentDeploymentType(res["deploymentType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err := d.Set("api_proxy_type", flattenApigeeEnvironmentApiProxyType(res["apiProxyType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
 
 	return nil
 }
@@ -215,6 +256,18 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	deploymentTypeProp, err := expandApigeeEnvironmentDeploymentType(d.Get("deployment_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deployment_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
+		obj["deploymentType"] = deploymentTypeProp
+	}
+	apiProxyTypeProp, err := expandApigeeEnvironmentApiProxyType(d.Get("api_proxy_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("api_proxy_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, apiProxyTypeProp)) {
+		obj["apiProxyType"] = apiProxyTypeProp
 	}
 
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
@@ -344,6 +397,14 @@ func flattenApigeeEnvironmentDescription(v interface{}, d *schema.ResourceData, 
 	return v
 }
 
+func flattenApigeeEnvironmentDeploymentType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenApigeeEnvironmentApiProxyType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandApigeeEnvironmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -353,5 +414,13 @@ func expandApigeeEnvironmentDisplayName(v interface{}, d TerraformResourceData, 
 }
 
 func expandApigeeEnvironmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentDeploymentType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentApiProxyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
