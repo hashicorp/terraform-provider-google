@@ -1,6 +1,6 @@
 ## 4.16.0 (Unreleased)
 BREAKING CHANGES:
-* composer: made the `google_composer_environment.config.software_config.image_version` field immutable as this functionality is only available in beta. ([#11309](https://github.com/hashicorp/terraform-provider-google/pull/11309))
+* composer: made the `google_composer_environment.config.software_config.image_version` field immutable as updating this field is only available in beta. ([#11309](https://github.com/hashicorp/terraform-provider-google/pull/11309))
 
 FEATURES:
 * **New Resource:** `google_firebaserules_release` ([#11297](https://github.com/hashicorp/terraform-provider-google/pull/11297))
