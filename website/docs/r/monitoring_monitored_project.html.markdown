@@ -16,6 +16,7 @@
 subcategory: "Cloud (Stackdriver) Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_monitored_project"
+sidebar_current: "docs-google-monitoring-monitored-project"
 description: |-
   Beta only: Monitored Project allows you to set a project as monitored by a _metrics scope_, which is a term for a project used to group the metrics of multiple projects, potentially across multiple organizations.  This enables you to view these groups in the Monitoring page of the cloud console.
 ---

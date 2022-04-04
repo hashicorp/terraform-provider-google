@@ -16,6 +16,7 @@
 subcategory: "ContainerAzure"
 layout: "google"
 page_title: "Google: google_container_azure_node_pool"
+sidebar_current: "docs-google-container-azure-node-pool"
 description: |-
   An Anthos node pool running on Azure.
 ---

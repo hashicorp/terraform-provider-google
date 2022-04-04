@@ -16,6 +16,7 @@
 subcategory: "ContainerAzure"
 layout: "google"
 page_title: "Google: google_container_azure_cluster"
+sidebar_current: "docs-google-container-azure-cluster"
 description: |-
   An Anthos cluster running on Azure.
 ---
