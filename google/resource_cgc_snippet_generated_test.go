@@ -53,10 +53,9 @@ resource "google_compute_instance" "default" {
   zone         = "us-west1-a"
   tags         = ["ssh"]
 
-  # Uncomment and enter valid path to file
-  # metadata = {
-  #   ssh-keys = "${file("~/.ssh/id_ed25519.pub")}"
-  # }
+  metadata = {
+    enable-oslogin = "TRUE"
+  }
   boot_disk {
     initialize_params {
       image = "debian-cloud/debian-9"
