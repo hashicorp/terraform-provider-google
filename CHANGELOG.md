@@ -3,19 +3,18 @@ BREAKING CHANGES:
 * composer: made the `google_composer_environment.config.software_config.image_version` field immutable as this functionality is only available in beta. ([#11309](https://github.com/hashicorp/terraform-provider-google/pull/11309))
 
 FEATURES:
-* **New Data Source:** dataproc_metastore_service ([#11358](https://github.com/hashicorp/terraform-provider-google/pull/11358))
-* **New Resource:** Add billingType attribute to Apigee Organization resource. ([#11285](https://github.com/hashicorp/terraform-provider-google/pull/11285))
 * **New Resource:** `google_firebaserules_release` ([#11297](https://github.com/hashicorp/terraform-provider-google/pull/11297))
 * **New Resource:** `google_firebaserules_ruleset` ([#11297](https://github.com/hashicorp/terraform-provider-google/pull/11297))
 
 IMPROVEMENTS:
+* apigee: added field `billing_type`([#11285](https://github.com/hashicorp/terraform-provider-google/pull/11285))
 * bigtable: added support for `autoscaling_config` to `google_bigtable_instance` ([#11344](https://github.com/hashicorp/terraform-provider-google/pull/11344))
 * composer: Added support for `composer-1` and `composer-2` aliases in image version argument ([#11296](https://github.com/hashicorp/terraform-provider-google/pull/11296))
 * compute: added support for attaching a `edge_security_policy` to `google_compute_backend_bucket` ([#11350](https://github.com/hashicorp/terraform-provider-google/pull/11350))
 * compute: added support for field `type` to `google_compute_security_policy` ([#11350](https://github.com/hashicorp/terraform-provider-google/pull/11350))
 * eventarc: added gke and workflows destination for eventarc trigger resource. ([#11347](https://github.com/hashicorp/terraform-provider-google/pull/11347))
 * networkservices: added `included_cookie_names` to cache key policy configuration ([#11333](https://github.com/hashicorp/terraform-provider-google/pull/11333))
-* redis: added read replica field `replicaCount `, `nodes`,  `readEndpoint`, `readEndpointPort`, `readReplicasMode` in `google_redis_instance` (GA only) ([#11330](https://github.com/hashicorp/terraform-provider-google/pull/11330))
+* redis: added read replica field `replicaCount `, `nodes`,  `readEndpoint`, `readEndpointPort`, `readReplicasMode` in `google_redis_instance` ([#11330](https://github.com/hashicorp/terraform-provider-google/pull/11330))
 * spanner: added support for setting database_dialect on `google_spanner_database` ([#11363](https://github.com/hashicorp/terraform-provider-google/pull/11363))
 * storagetransfer: added `repeat_interval` field to `google_storage_transfer_job` resource ([#11328](https://github.com/hashicorp/terraform-provider-google/pull/11328))
 
