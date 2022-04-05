@@ -406,6 +406,123 @@ resource "google_cloud_run_service" "default" {
   depends_on = [google_secret_manager_secret_version.secret-version-data]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=eventarc_basic_tf&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Eventarc Basic Tf
+
+
+```hcl
+# Used to retrieve project_number later
+data "google_project" "project" {
+}
+        
+# Enable Cloud Run API
+resource "google_project_service" "run" {
+  service            = "run.googleapis.com"
+  disable_on_destroy = false
+}
+    
+# Enable Eventarc API
+resource "google_project_service" "eventarc" {
+  service            = "eventarc.googleapis.com"
+  disable_on_destroy = false
+}
+
+
+  
+# Deploy Cloud Run service
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-hello-tf"
+  location = "us-east1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+  
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+  
+  depends_on = [google_project_service.run]
+}
+      
+# Make Cloud Run service publicly accessible
+resource "google_cloud_run_service_iam_member" "allUsers" {
+  service  = google_cloud_run_service.default.name
+  location = google_cloud_run_service.default.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+
+  
+      
+# Create a Pub/Sub trigger
+resource "google_eventarc_trigger" "trigger-pubsub-tf" {
+name     = "trigger-pubsub-tf"
+location = google_cloud_run_service.default.location
+matching_criteria {
+  attribute = "type"   
+  value     = "google.cloud.pubsub.topic.v1.messagePublished"
+}
+destination {
+  cloud_run_service {
+    service = google_cloud_run_service.default.name
+    region  = google_cloud_run_service.default.location
+  }
+}
+
+depends_on = [google_project_service.eventarc]
+}
+
+
+# Give default Compute service account eventarc.eventReceiver role
+resource "google_project_iam_binding" "project" {
+  project = data.google_project.project.id
+  role    = "roles/eventarc.eventReceiver"
+
+  members = [
+    "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  ]
+}
+    
+# Create an AuditLog for Cloud Storage trigger
+resource "google_eventarc_trigger" "trigger-auditlog-tf" {
+  name     = "trigger-auditlog-tf"
+  location = google_cloud_run_service.default.location
+  project  = data.google_project.project.id
+  matching_criteria {
+    attribute = "type"
+    value     = "google.cloud.audit.log.v1.written"
+  }
+  matching_criteria {
+    attribute = "serviceName"
+    value     = "storage.googleapis.com"
+  }
+matching_criteria {
+attribute = "methodName"
+value     = "storage.objects.create"
+}
+destination {
+cloud_run_service {
+  service = google_cloud_run_service.default.name
+  region  = google_cloud_run_service.default.location
+}
+}
+service_account = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+
+depends_on = [google_project_service.eventarc]
+}
+
+```
 
 ## Argument Reference
 
