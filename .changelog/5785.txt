@@ -1,0 +1,12 @@
+```release-note:enhancement
+access context manager: Added support for scoped policies in `google_access_context_manager_access_policy`
+```
+```release-note:new-resource
+`google_access_context_manager_access_policy_iam_policy`
+```
+```release-note:new-resource
+`google_access_context_manager_access_policy_iam_binding`
+```
+```release-note:new-resource
+`google_access_context_manager_access_policy_iam_member`
+```
