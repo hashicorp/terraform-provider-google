@@ -29,7 +29,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 To get more information about function, see:
 
-* [API documentation](https://cloud.google.com/functions/docs/reference/rest/v2beta)
+* [API documentation](https://cloud.google.com/functions/docs/reference/rest/v2beta/projects.locations.functions)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudfunctions2_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
