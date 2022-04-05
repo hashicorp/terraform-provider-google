@@ -49,7 +49,23 @@ Your account must have the `serviceusage.services.use` permission on the
 ```hcl
 resource "google_access_context_manager_access_policy" "access-policy" {
   parent = "organizations/123456789"
-  title  = "my policy"
+  title  = "Org Access Policy"
+}
+```
+## Example Usage - Access Context Manager Access Policy Scoped
+
+
+```hcl
+resource "google_project" "project" {
+  project_id      = "acm-test-proj-123"
+  name            = "acm-test-proj-123"
+  org_id          = "123456789"
+}
+
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/123456789"
+  title  = "Scoped Access Policy"
+  scopes = ["projects/${google_project.project.number}"]
 }
 ```
 
@@ -70,6 +86,11 @@ The following arguments are supported:
 
 - - -
 
+
+* `scopes` -
+  (Optional)
+  Folder or project on which this policy is applicable.
+  Format: folders/{{folder_id}} or projects/{{project_id}}
 
 
 ## Attributes Reference

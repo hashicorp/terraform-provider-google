@@ -830,8 +830,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 217
-// Generated IAM resources: 102
-// Total generated resources: 319
+// Generated IAM resources: 105
+// Total generated resources: 322
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -844,6 +844,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_project_access_approval_settings":                      resourceAccessApprovalProjectSettings(),
 			"google_organization_access_approval_settings":                 resourceAccessApprovalOrganizationSettings(),
 			"google_access_context_manager_access_policy":                  resourceAccessContextManagerAccessPolicy(),
+			"google_access_context_manager_access_policy_iam_binding":      ResourceIamBinding(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc),
+			"google_access_context_manager_access_policy_iam_member":       ResourceIamMember(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc),
+			"google_access_context_manager_access_policy_iam_policy":       ResourceIamPolicy(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc),
 			"google_access_context_manager_access_level":                   resourceAccessContextManagerAccessLevel(),
 			"google_access_context_manager_access_levels":                  resourceAccessContextManagerAccessLevels(),
 			"google_access_context_manager_access_level_condition":         resourceAccessContextManagerAccessLevelCondition(),
