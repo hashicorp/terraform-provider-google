@@ -60,7 +60,7 @@ resource "google_composer_environment" "test" {
  
  config {
     software_config {
-      image_version = "composer-2-airflow-2.2.3"
+      image_version = "composer-2-airflow-2"
     }
   }
 }
@@ -157,7 +157,7 @@ resource "google_composer_environment" "test" {
   config {
  
     software_config {
-      image_version = "composer-2-airflow-2.2.3"
+      image_version = "composer-2-airflow-2"
     }
  
     workloads_config {
@@ -451,11 +451,11 @@ The following arguments are supported:
 
   The version of the software running in the environment. This encapsulates both the version of Cloud Composer
   functionality and the version of Apache Airflow. It must match the regular expression
-  `composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+\.[0-9]+(\.[0-9]+)?)`.
+  `composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+(\.[0-9]+(\.[0-9]+)?)?)`.
   The Cloud Composer portion of the image version is a full semantic version, or an alias in the form of major
   version number or 'latest'.
   The Apache Airflow portion of the image version is a full semantic version that points to one of the
-  supported Apache Airflow versions, or an alias in the form of only major and minor versions specified.
+  supported Apache Airflow versions, or an alias in the form of only major or major.minor versions specified.
   For more information about Cloud Composer images, see
   [Cloud Composer version list](https://cloud.google.com/composer/docs/concepts/versioning/composer-versions).
 
@@ -765,11 +765,11 @@ The `software_config` block supports:
 
   The version of the software running in the environment. This encapsulates both the version of Cloud Composer
   functionality and the version of Apache Airflow. It must match the regular expression
-  `composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+\.[0-9]+(\.[0-9]+)?)`.
+  `composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+(\.[0-9]+(\.[0-9]+)?)?)`.
   The Cloud Composer portion of the image version is a full semantic version, or an alias in the form of major
   version number or 'latest'.
   The Apache Airflow portion of the image version is a full semantic version that points to one of the
-  supported Apache Airflow versions, or an alias in the form of only major and minor versions specified.
+  supported Apache Airflow versions, or an alias in the form of only major or major.minor versions specified.
   **Important**: You can only upgrade in-place between minor or patch versions of Cloud Composer or Apache
   Airflow. For example, you can upgrade your environment from `composer-1.16.x` to `composer-1.17.x`, or from
   `airflow-2.1.x` to `airflow-2.2.x`. You cannot upgrade between major Cloud Composer or Apache Airflow

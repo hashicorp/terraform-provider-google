@@ -38,11 +38,13 @@ func TestComposerImageVersionDiffSuppress(t *testing.T) {
 		{"preview matches", "composer-1.17.0-preview.0-airflow-2.0.1", "composer-1.17.0-preview.0-airflow-2.0.1", true},
 		{"old latest", "composer-latest-airflow-1.10.0", "composer-1.4.1-airflow-1.10.0", true},
 		{"new latest", "composer-1.4.1-airflow-1.10.0", "composer-latest-airflow-1.10.0", true},
-		{"composer alias equivalent", "composer-1.4.0-airflow-1.10.0", "composer-1-airflow-1.10", true},
-		{"composer alias different", "composer-1.4.0-airflow-2.1.4", "composer-2-airflow-2.2", false},
+		{"composer major alias equivalent", "composer-1.4.0-airflow-1.10.0", "composer-1-airflow-1.10", true},
+		{"composer major alias different", "composer-1.4.0-airflow-2.1.4", "composer-2-airflow-2.2", false},
 		{"composer different", "composer-1.4.0-airflow-1.10.0", "composer-1.4.1-airflow-1.10.0", false},
-		{"airflow alias equivalent", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1.10", true},
-		{"airflow alias different", "composer-1.4.0-airflow-2.1.4", "composer-1.4.0-airflow-2.2", false},
+		{"airflow major alias equivalent", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1", true},
+		{"airflow major alias different", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-2", false},
+		{"airflow major.minor alias equivalent", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1.10", true},
+		{"airflow major.minor alias different", "composer-1.4.0-airflow-2.1.4", "composer-1.4.0-airflow-2.2", false},
 		{"airflow different", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1.9.0", false},
 	}
 
@@ -1099,15 +1101,6 @@ resource "google_compute_subnetwork" "test" {
 
 func testAccComposerEnvironment_composerV2(envName, network, subnetwork string) string {
 	return fmt.Sprintf(`
-data "google_composer_image_versions" "all" {
-}
-
-locals {
-	composer_version = "2"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
-	airflow_version = "2"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
-	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
-	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
-}
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-east1"
@@ -1122,7 +1115,7 @@ resource "google_composer_environment" "test" {
     	}
 
   		software_config {
-  		  image_version = local.matching_images[0]
+  		  image_version = "composer-2-airflow-2"
   		}
 
   		workloads_config {
@@ -1174,15 +1167,6 @@ resource "google_compute_subnetwork" "test" {
 
 func testAccComposerEnvironment_composerV2PrivateServiceConnect(envName, network, subnetwork string) string {
 	return fmt.Sprintf(`
-data "google_composer_image_versions" "all" {
-}
-
-locals {
-	composer_version = "2"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
-	airflow_version = "2"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
-	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
-	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
-}
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-central1"
@@ -1194,7 +1178,7 @@ resource "google_composer_environment" "test" {
     	}
 
   		software_config {
-  		  image_version = local.matching_images[0]
+  		  image_version = "composer-2-airflow-2"
   		}
   		private_environment_config {
 				cloud_composer_connection_subnetwork		= google_compute_subnetwork.test.self_link
@@ -1221,16 +1205,6 @@ resource "google_compute_subnetwork" "test" {
 
 func testAccComposerEnvironment_update(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
-data "google_composer_image_versions" "all" {
-}
-
-locals {
-	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
-	airflow_version = "1"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
-	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
-	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
-}
-
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-central1"
@@ -1249,7 +1223,7 @@ resource "google_composer_environment" "test" {
 		}
 
 		software_config {
-			image_version = local.matching_images[0]
+			image_version = "composer-1-airflow-1"
 
 			airflow_config_overrides = {
 				core-load_example = "True"
@@ -1289,15 +1263,6 @@ resource "google_compute_subnetwork" "test" {
 
 func testAccComposerEnvironment_updateComposerV2(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
-data "google_composer_image_versions" "all" {
-}
-
-locals {
-	composer_version = "2"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
-	airflow_version = "2"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
-	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
-	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
-}
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-east1"
@@ -1312,7 +1277,7 @@ resource "google_composer_environment" "test" {
     	}
 
   		software_config {
-  		  image_version = local.matching_images[0]
+  		  image_version = "composer-2-airflow-2"
   		}
 
   		workloads_config {
@@ -1411,16 +1376,6 @@ resource "google_project_iam_member" "composer-worker" {
 
 func testAccComposerEnvironment_softwareCfg(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
-data "google_composer_image_versions" "all" {
-}
-
-locals {
-	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
-	airflow_version = "1"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
-	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
-	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
-}
-
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-central1"
@@ -1431,7 +1386,7 @@ resource "google_composer_environment" "test" {
 			zone       = "us-central1-a"
 		}
 		software_config {
-			image_version  = local.matching_images[0]
+			image_version  = "composer-1-airflow-1"
 			python_version = "3"
 		}
 	}
@@ -1490,17 +1445,6 @@ resource "google_compute_subnetwork" "test" {
 
 func testAccComposerEnvironment_airflow2SoftwareCfg(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
-data "google_composer_image_versions" "all" {
-}
-
-locals {
-	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
-	airflow_version = "2"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
-	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
-	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
-}
-
-
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-central1"
@@ -1511,7 +1455,7 @@ resource "google_composer_environment" "test" {
 			zone       = "us-central1-a"
 		}
 		software_config {
-			image_version  = local.matching_images[0]
+			image_version  = "composer-1-airflow-2"
 			scheduler_count = 2
 		}
 	}
