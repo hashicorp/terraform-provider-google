@@ -313,7 +313,6 @@ The following arguments are supported:
   instance cannot scale up or down the number of replicas.
   - READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance 
   can scale up and down the number of replicas.
-  Default value is `READ_REPLICAS_DISABLED`.
   Possible values are `READ_REPLICAS_DISABLED` and `READ_REPLICAS_ENABLED`.
 
 * `region` -
