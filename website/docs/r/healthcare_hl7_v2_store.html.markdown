@@ -265,7 +265,7 @@ The following arguments are supported:
   (Optional)
   The version of the unschematized parser to be used when a custom `schema` is not set.
   Default value is `V1`.
-  Possible values are `V1` and `V2`.
+  Possible values are `V1`, `V2`, and `V3`.
 
 <a name="nested_notification_configs"></a>The `notification_configs` block supports:
 
