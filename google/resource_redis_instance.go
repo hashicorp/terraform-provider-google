@@ -285,6 +285,7 @@ resolution and up to nine fractional digits.`,
 			},
 			"read_replicas_mode": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateEnum([]string{"READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED", ""}),
@@ -293,8 +294,7 @@ If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
 - READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the 
 instance cannot scale up or down the number of replicas.
 - READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance 
-can scale up and down the number of replicas. Default value: "READ_REPLICAS_DISABLED" Possible values: ["READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED"]`,
-				Default: "READ_REPLICAS_DISABLED",
+can scale up and down the number of replicas. Possible values: ["READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED"]`,
 			},
 			"redis_configs": {
 				Type:     schema.TypeMap,
