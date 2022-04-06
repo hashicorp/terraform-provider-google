@@ -645,8 +645,7 @@ func TestAccCGCSnippet_storageNewBucketExample(t *testing.T) {
 
 func testAccCGCSnippet_storageNewBucketExample(context map[string]interface{}) string {
 	return Nprintf(`
-
-# Create new storage bucket in the US region
+# Create new storage bucket in the US multi-region
 # with coldline storage
 resource "google_storage_bucket" "static" {
   name          = "tf-test-new-bucket%{random_suffix}"
@@ -654,7 +653,20 @@ resource "google_storage_bucket" "static" {
   storage_class = "COLDLINE"
 
   uniform_bucket_level_access = true
-}
+} 
 
+# Upload files
+# Discussion about using tf to upload a large number of objects
+# https://stackoverflow.com/questions/68455132/terraform-copy-multiple-files-to-bucket-at-the-same-time-bucket-creation
+
+# The text object in Cloud Storage
+resource "google_storage_bucket_object" "default" {
+  name         = "tf-test-new-object%{random_suffix}"
+# Uncomment and add valid path to an object.
+#  source       = "/path/to/an/object"
+  content      = "Data as string to be uploaded"
+  content_type = "text/plain"
+  bucket       = google_storage_bucket.static.id
+}
 `, context)
 }
