@@ -41,12 +41,10 @@ func resourceApigeeInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"location": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Compute Engine location where the instance resides. For trial organization
-subscriptions, the location must be a Compute Engine zone. For paid organization
-subscriptions, it should correspond to a Compute Engine region.`,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Required. Compute Engine location where the instance resides.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
