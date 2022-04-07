@@ -109,7 +109,7 @@ resource "google_apigee_organization" "apigee_org" {
 
 resource "google_apigee_instance" "apigee_instance" {
   name     = "tf-test%{random_suffix}"
-  location = "us-central1-b"
+  location = "us-central1"
   org_id   = google_apigee_organization.apigee_org.id
 }
 
