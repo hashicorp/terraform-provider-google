@@ -620,6 +620,72 @@ resource "google_sql_database_instance" "read_replica" {
 `, context)
 }
 
+func TestAccCGCSnippet_sqlSqlserverInstancePrivateIpExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlSqlserverInstancePrivateIpExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlSqlserverInstancePrivateIpExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_compute_network" "private_network" {
+  name                    = "tf-test-private-network%{random_suffix}"
+  auto_create_subnetworks = "false"
+}
+
+resource "google_compute_global_address" "private_ip_address" {
+  name          = "tf-test-private-ip-address%{random_suffix}"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.private_network.id
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+  network                 = google_compute_network.private_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-private-ip-sql-instance%{random_suffix}"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password        = "INSERT-PASSWORD-HERE"
+
+  depends_on = [google_service_networking_connection.private_vpc_connection]
+
+  settings {
+    tier = "db-custom-2-7680"
+    ip_configuration {
+      ipv4_enabled    = "false"
+      private_network = google_compute_network.private_network.id
+    }
+  }
+  deletion_protection = "false"
+}
+`, context)
+}
+
 func TestAccCGCSnippet_storageNewBucketExample(t *testing.T) {
 	t.Parallel()
 
