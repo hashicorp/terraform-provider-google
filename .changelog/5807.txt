@@ -1,0 +1,3 @@
+```release-note:enhancement
+os-config: added field `migInstancesAllowed` to resource `os_config_patch_deployment`
+```
