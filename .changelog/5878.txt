@@ -1,0 +1,3 @@
+```release-note:bug
+tags: fixed issue where tags could not be applied sequentially to the same parent in `google_tags_tag_binding`
+```

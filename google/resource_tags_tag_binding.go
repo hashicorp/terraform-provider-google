@@ -83,6 +83,13 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["tagValue"] = tagValueProp
 	}
 
+	lockName, err := replaceVars(d, config, "tagBindings/{{parent}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{TagsBasePath}}tagBindings")
 	if err != nil {
 		return err
@@ -203,6 +210,13 @@ func resourceTagsTagBindingDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	billingProject := ""
+
+	lockName, err := replaceVars(d, config, "tagBindings/{{parent}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	url, err := replaceVars(d, config, "{{TagsBasePath}}tagBindings/{{name}}")
 	if err != nil {
