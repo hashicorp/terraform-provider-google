@@ -221,6 +221,12 @@ any other patch configuration fields.`,
 							},
 							AtLeastOneOf: []string{"patch_config.0.reboot_config", "patch_config.0.apt", "patch_config.0.yum", "patch_config.0.goo", "patch_config.0.zypper", "patch_config.0.windows_update", "patch_config.0.pre_step", "patch_config.0.post_step"},
 						},
+						"mig_instances_allowed": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Allows the patch job to run on Managed instance groups (MIGs).`,
+						},
 						"post_step": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1255,6 +1261,8 @@ func flattenOSConfigPatchDeploymentPatchConfig(v interface{}, d *schema.Resource
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["mig_instances_allowed"] =
+		flattenOSConfigPatchDeploymentPatchConfigMigInstancesAllowed(original["migInstancesAllowed"], d, config)
 	transformed["reboot_config"] =
 		flattenOSConfigPatchDeploymentPatchConfigRebootConfig(original["rebootConfig"], d, config)
 	transformed["apt"] =
@@ -1273,6 +1281,10 @@ func flattenOSConfigPatchDeploymentPatchConfig(v interface{}, d *schema.Resource
 		flattenOSConfigPatchDeploymentPatchConfigPostStep(original["postStep"], d, config)
 	return []interface{}{transformed}
 }
+func flattenOSConfigPatchDeploymentPatchConfigMigInstancesAllowed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenOSConfigPatchDeploymentPatchConfigRebootConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -2150,6 +2162,13 @@ func expandOSConfigPatchDeploymentPatchConfig(v interface{}, d TerraformResource
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedMigInstancesAllowed, err := expandOSConfigPatchDeploymentPatchConfigMigInstancesAllowed(original["mig_instances_allowed"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMigInstancesAllowed); val.IsValid() && !isEmptyValue(val) {
+		transformed["migInstancesAllowed"] = transformedMigInstancesAllowed
+	}
+
 	transformedRebootConfig, err := expandOSConfigPatchDeploymentPatchConfigRebootConfig(original["reboot_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -2207,6 +2226,10 @@ func expandOSConfigPatchDeploymentPatchConfig(v interface{}, d TerraformResource
 	}
 
 	return transformed, nil
+}
+
+func expandOSConfigPatchDeploymentPatchConfigMigInstancesAllowed(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandOSConfigPatchDeploymentPatchConfigRebootConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

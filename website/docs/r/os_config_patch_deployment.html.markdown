@@ -208,6 +208,8 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 
   patch_config {
+    mig_instances_allowed = true
+    
     reboot_config = "ALWAYS"
 
     apt {
@@ -387,6 +389,10 @@ The following arguments are supported:
 
 
 <a name="nested_patch_config"></a>The `patch_config` block supports:
+
+* `mig_instances_allowed` -
+  (Optional)
+  Allows the patch job to run on Managed instance groups (MIGs).
 
 * `reboot_config` -
   (Optional)
