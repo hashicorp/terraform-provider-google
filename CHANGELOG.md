@@ -1,5 +1,37 @@
 ## 4.17.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_access_approval_folder_service_account` ([#11407](https://github.com/hashicorp/terraform-provider-google/pull/11407))
+* **New Data Source:** `google_access_approval_organization_service_account` ([#11407](https://github.com/hashicorp/terraform-provider-google/pull/11407))
+* **New Data Source:** `google_access_approval_project_service_account` ([#11407](https://github.com/hashicorp/terraform-provider-google/pull/11407))
+* **New Resource:** `google_access_context_manager_access_policy_iam_binding` ([#11409](https://github.com/hashicorp/terraform-provider-google/pull/11409))
+* **New Resource:** `google_access_context_manager_access_policy_iam_member` ([#11409](https://github.com/hashicorp/terraform-provider-google/pull/11409))
+* **New Resource:** `google_access_context_manager_access_policy_iam_policy` ([#11409](https://github.com/hashicorp/terraform-provider-google/pull/11409))
+* **New Resource:** `google_endpoints_service_consumers_iam_binding` ([#11372](https://github.com/hashicorp/terraform-provider-google/pull/11372))
+* **New Resource:** `google_endpoints_service_consumers_iam_member` ([#11372](https://github.com/hashicorp/terraform-provider-google/pull/11372))
+* **New Resource:** `google_endpoints_service_consumers_iam_policy` ([#11372](https://github.com/hashicorp/terraform-provider-google/pull/11372))
+* **New Resource:** google_iam_deny_policy ([#11446](https://github.com/hashicorp/terraform-provider-google/pull/11446))
+
+IMPROVEMENTS:
+* access approval: added `active_key_version`, `ancestor_has_active_key_version`, and `invalid_key_version` fields to `google_folder_access_approval_settings`, `google_organization_access_approval_settings`, and `google_project_access_approval_settings` resources ([#11407](https://github.com/hashicorp/terraform-provider-google/pull/11407))
+* access context manager: Added support for scoped policies in `google_access_context_manager_access_policy` ([#11409](https://github.com/hashicorp/terraform-provider-google/pull/11409))
+* apigee: added `deployment_type` and `api_proxy_type` to `google_apigee_environment` ([#11405](https://github.com/hashicorp/terraform-provider-google/pull/11405))
+* bigtable: Update the examples to show users can create all 3 different flavors of AppProfile ([#11394](https://github.com/hashicorp/terraform-provider-google/pull/11394))
+* cloudbuild: added `approval_config` to `google_cloudbuild_trigger` ([#11375](https://github.com/hashicorp/terraform-provider-google/pull/11375))
+* composer: Added support for `airflow-1` and `airflow-2` aliases in image version argument ([#11422](https://github.com/hashicorp/terraform-provider-google/pull/11422))
+* dataflow: added `skip_wait_on_job_termination` attribute to `google_dataflow_job` and `google_dataflow_flex_template_job` resources (issue #10559) ([#11452](https://github.com/hashicorp/terraform-provider-google/pull/11452))
+* dataproc: added `presto_config` to `dataproc_job` ([#11393](https://github.com/hashicorp/terraform-provider-google/pull/11393))
+* healthcare: added support V3 parser version for Healthcare HL7 stores. ([#11430](https://github.com/hashicorp/terraform-provider-google/pull/11430))
+* healthcare: added support for `ANALYTICS_V2 `and `LOSSLESS` BigQueryDestination schema types to `google_healthcare_fhir_store` ([#11426](https://github.com/hashicorp/terraform-provider-google/pull/11426))
+* os-config: added field `migInstancesAllowed` to resource `os_config_patch_deployment` ([#11447](https://github.com/hashicorp/terraform-provider-google/pull/11447))
+* privateca: Added support for IAM conditions to CaPool ([#11392](https://github.com/hashicorp/terraform-provider-google/pull/11392))
+* pubsub: added `enable_exactly_once_delivery` to `google_pubsub_subscription` ([#11384](https://github.com/hashicorp/terraform-provider-google/pull/11384))
+* spanner: added support for setting database_dialect on `google_spanner_database` ([#11363](https://github.com/hashicorp/terraform-provider-google/pull/11363))
+
+BUG FIXES:
+* redis: fixed an issue where older redis instances had a dangerous diff on the field `read_replicas_mode`, adding a default of `READ_REPLICAS_DISABLED`. Now, if the field is not set in config, the value of the field will keep the old value from state. ([#11420](https://github.com/hashicorp/terraform-provider-google/pull/11420))
+* tags: fixed issue where tags could not be applied sequentially to the same parent in `google_tags_tag_binding` ([#11442](https://github.com/hashicorp/terraform-provider-google/pull/11442))
+
 ## 4.16.0 (April 4, 2022)
 NOTE: We're marked a change in this release as a `BREAKING CHANGE` to indicate that the change may cause undesirable behavior for users in some circumstances. This is done to increase visibility on the change, which otherwise would have been marked under the `BUG FIXES` category, and it is not believed to be a change that breaks the backwards compatibility of the provider requiring a major version change.
 
