@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -36,6 +37,32 @@ func TestAccDataflowJob_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_zone(bucket, job, zone),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataflowJobSkipWait_basic(t *testing.T) {
+	// Dataflow responses include serialized java classes and bash commands
+	// This makes body comparison infeasible
+	skipIfVcr(t)
+	t.Parallel()
+
+	randStr := randString(t, 10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	zone := "us-central1-f"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJobSkipWait_zone(bucket, job, zone),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
@@ -329,7 +356,16 @@ func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 			config := googleProviderConfig(t)
 			job, err := config.NewDataflowClient(config.userAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 			if job != nil {
-				if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
+				var ok bool
+				skipWait, err := strconv.ParseBool(rs.Primary.Attributes["skip_wait_on_job_termination"])
+				if err != nil {
+					return fmt.Errorf("could not parse attribute: %v", err)
+				}
+				_, ok = dataflowTerminalStatesMap[job.CurrentState]
+				if !ok && skipWait {
+					_, ok = dataflowTerminatingStatesMap[job.CurrentState]
+				}
+				if !ok {
 					return fmt.Errorf("Job still present")
 				}
 			} else if err != nil {
@@ -351,7 +387,16 @@ func testAccCheckDataflowJobRegionDestroyProducer(t *testing.T) func(s *terrafor
 			config := googleProviderConfig(t)
 			job, err := config.NewDataflowClient(config.userAgent).Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 			if job != nil {
-				if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
+				var ok bool
+				skipWait, err := strconv.ParseBool(rs.Primary.Attributes["skip_wait_on_job_termination"])
+				if err != nil {
+					return fmt.Errorf("could not parse attribute: %v", err)
+				}
+				_, ok = dataflowTerminalStatesMap[job.CurrentState]
+				if !ok && skipWait {
+					_, ok = dataflowTerminatingStatesMap[job.CurrentState]
+				}
+				if !ok {
 					return fmt.Errorf("Job still present")
 				}
 			} else if err != nil {
@@ -631,6 +676,32 @@ resource "google_dataflow_job" "big_data" {
     output    = "${google_storage_bucket.temp.url}/output"
   }
   on_delete = "cancel"
+}
+`, bucket, job, zone, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
+
+func testAccDataflowJobSkipWait_zone(bucket, job, zone string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "temp" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_dataflow_job" "big_data" {
+  name = "%s"
+ 
+  zone    = "%s"
+
+  machine_type      = "e2-standard-2"
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
+  on_delete                    = "cancel"
+  skip_wait_on_job_termination = true
 }
 `, bucket, job, zone, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 }
