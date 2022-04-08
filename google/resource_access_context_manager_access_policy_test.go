@@ -166,7 +166,6 @@ resource "google_access_context_manager_access_policy" "test-access" {
 
 func testAccAccessContextManagerAccessPolicy_scopedTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
-	project := getTestProjectFromEnv()
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -174,7 +173,7 @@ func testAccAccessContextManagerAccessPolicy_scopedTest(t *testing.T) {
 		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerAccessPolicy_scoped(org, project, "scoped policy"),
+				Config: testAccAccessContextManagerAccessPolicy_scoped(org, "scoped policy"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_policy.test-access",
@@ -185,12 +184,14 @@ func testAccAccessContextManagerAccessPolicy_scopedTest(t *testing.T) {
 	})
 }
 
-func testAccAccessContextManagerAccessPolicy_scoped(org, project, title string) string {
+func testAccAccessContextManagerAccessPolicy_scoped(org, title string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {
+}
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
   title  = "%s"
-  scopes = ["projects/%s"]
+  scopes = ["projects/${data.google_project.project.number}"]
 }
-`, org, title, project)
+`, org, title)
 }
