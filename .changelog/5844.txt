@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataflow: added `skip_wait_on_job_termination` attribute to `google_dataflow_job` and `google_dataflow_flex_template_job` resources (issue #10559)
+```

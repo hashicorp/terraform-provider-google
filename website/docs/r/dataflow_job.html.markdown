@@ -65,6 +65,33 @@ The Dataflow resource is considered 'existing' while it is in a nonterminal stat
 
 A Dataflow job which is 'destroyed' may be "cancelled" or "drained".  If "cancelled", the job terminates - any data written remains where it is, but no new data will be processed.  If "drained", no new data will enter the pipeline, but any data currently in the pipeline will finish being processed.  The default is "drain". When `on_delete` is set to `"drain"` in the configuration, you may experience a long wait for your `terraform destroy` to complete.
 
+You can potentially short-circuit the wait by setting `skip_wait_for_job_termination` to `true`, but beware that unless you take active steps to ensure that the job `name` parameter changes between instances, the name will conflict and the launch of the new job will fail. One way to do this is with a [random_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) resource, for example:
+
+```hcl
+variable "big_data_job_subscription_id" {
+  type    = string
+  default = "projects/myproject/subscriptions/messages"
+}
+
+resource "random_id" "big_data_job_name_suffix" {
+  byte_length = 4
+  keepers = {
+    region          = var.region
+    subscription_id = var.big_data_job_subscription_id
+  }
+}
+resource "google_dataflow_flex_template_job" "big_data_job" {
+  provider                      = google-beta
+  name                          = "dataflow-flextemplates-job-${random_id.big_data_job_name_suffix.dec}"
+  region                        = var.region
+  container_spec_gcs_path       = "gs://my-bucket/templates/template.json"
+  skip_wait_for_job_termination = true
+  parameters = {
+    inputSubscription = var.big_data_job_subscription_id
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -83,6 +110,7 @@ The following arguments are supported:
 * `transform_name_mapping` - (Optional) Only applicable when updating a pipeline. Map of transform name prefixes of the job to be replaced with the corresponding name prefixes of the new job. This field is not used outside of update.
 * `max_workers` - (Optional) The number of workers permitted to work on the job.  More workers may improve processing speed at additional cost.
 * `on_delete` - (Optional) One of "drain" or "cancel".  Specifies behavior of deletion during `terraform destroy`.  See above note.
+* `skip_wait_for_job_termination` - (Optional)  If set to `true`, terraform will treat `DRAINING` and `CANCELLING` as terminal states when deleting the resource, and will remove the resource from terraform state and move on.  See above note.
 * `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
 * `zone` - (Optional) The zone in which the created job should run. If it is not provided, the provider zone is used.
 * `region` - (Optional) The region in which the created job should run.
