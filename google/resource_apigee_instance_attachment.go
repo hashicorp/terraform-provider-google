@@ -77,7 +77,7 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["environment"] = environmentProp
 	}
 
-	lockName, err := replaceVars(d, config, "{{instance_id}}")
+	lockName, err := replaceVars(d, config, "apigeeInstanceAttachments")
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "{{instance_id}}")
+	lockName, err := replaceVars(d, config, "apigeeInstanceAttachments")
 	if err != nil {
 		return err
 	}
