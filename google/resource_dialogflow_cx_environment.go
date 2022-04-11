@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -131,6 +132,20 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
+	// extract location from the parent
+	location := ""
+
+	if parts := regexp.MustCompile(`locations\/([^\/]*)\/`).FindStringSubmatch(d.Get("parent").(string)); parts != nil {
+		location = parts[1]
+	} else {
+		return fmt.Errorf(
+			"Saw %s when the parent is expected to contains location %s",
+			d.Get("parent"),
+			"projects/{{project}}/locations/{{location}}/...",
+		)
+	}
+
+	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Environment: %s", err)
@@ -190,6 +205,20 @@ func resourceDialogflowCXEnvironmentRead(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
+	// extract location from the parent
+	location := ""
+
+	if parts := regexp.MustCompile(`locations\/([^\/]*)\/`).FindStringSubmatch(d.Get("parent").(string)); parts != nil {
+		location = parts[1]
+	} else {
+		return fmt.Errorf(
+			"Saw %s when the parent is expected to contains location %s",
+			d.Get("parent"),
+			"projects/{{project}}/locations/{{location}}/...",
+		)
+	}
+
+	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DialogflowCXEnvironment %q", d.Id()))
@@ -269,6 +298,21 @@ func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	// extract location from the parent
+	location := ""
+
+	if parts := regexp.MustCompile(`locations\/([^\/]*)\/`).FindStringSubmatch(d.Get("parent").(string)); parts != nil {
+		location = parts[1]
+	} else {
+		return fmt.Errorf(
+			"Saw %s when the parent is expected to contains location %s",
+			d.Get("parent"),
+			"projects/{{project}}/locations/{{location}}/...",
+		)
+	}
+
+	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
@@ -308,6 +352,21 @@ func resourceDialogflowCXEnvironmentDelete(d *schema.ResourceData, meta interfac
 	}
 
 	var obj map[string]interface{}
+
+	// extract location from the parent
+	location := ""
+
+	if parts := regexp.MustCompile(`locations\/([^\/]*)\/`).FindStringSubmatch(d.Get("parent").(string)); parts != nil {
+		location = parts[1]
+	} else {
+		return fmt.Errorf(
+			"Saw %s when the parent is expected to contains location %s",
+			d.Get("parent"),
+			"projects/{{project}}/locations/{{location}}/...",
+		)
+	}
+
+	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
