@@ -71,6 +71,7 @@ func resourceVPCAccessConnector() *schema.Resource {
 			},
 			"network": {
 				Type:             schema.TypeString,
+				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareResourceNames,

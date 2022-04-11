@@ -1,0 +1,3 @@
+```release-note:bug
+vpcaccess: fixed an issue where `google_vpc_access_connector` would be repeatedly recreated when `network` was not specified
+```
