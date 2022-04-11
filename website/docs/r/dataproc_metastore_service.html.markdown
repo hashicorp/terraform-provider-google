@@ -54,6 +54,38 @@ resource "google_dataproc_metastore_service" "default" {
   }
 }
 ```
+## Example Usage - Dataproc Metastore Service Cmek Example
+
+
+```hcl
+resource "google_dataproc_metastore_service" "default" {
+  provider   = google-beta
+  service_id = "example-service"
+  location   = "us-central1"
+
+  encryption_config {
+    kms_key = google_kms_crypto_key.crypto_key.id
+  }
+
+  hive_metastore_config {
+    version = "3.1.2"
+  }
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  provider = google-beta
+  name     = "example-key"
+  key_ring = google_kms_key_ring.key_ring.id
+
+  purpose  = "ENCRYPT_DECRYPT"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  provider = google-beta
+  name     = "example-keyring"
+  location = "us-central1"
+}
+```
 
 ## Argument Reference
 
@@ -94,6 +126,12 @@ The following arguments are supported:
   This specifies when the service can be restarted for maintenance purposes in UTC time.
   Structure is [documented below](#nested_maintenance_window).
 
+* `encryption_config` -
+  (Optional)
+  Information used to configure the Dataproc Metastore service to encrypt
+  customer data at rest.
+  Structure is [documented below](#nested_encryption_config).
+
 * `hive_metastore_config` -
   (Optional)
   Configuration information specific to running Hive metastore software as the metastore service.
@@ -118,6 +156,13 @@ The following arguments are supported:
   (Required)
   The day of week, when the window starts.
   Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `kms_key` -
+  (Required)
+  The fully qualified customer provided Cloud KMS key name to use for customer data encryption.
+  Use the following format: `projects/([^/]+)/locations/([^/]+)/keyRings/([^/]+)/cryptoKeys/([^/]+)`
 
 <a name="nested_hive_metastore_config"></a>The `hive_metastore_config` block supports:
 
