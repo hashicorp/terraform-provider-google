@@ -26,7 +26,7 @@ for more information on lifecycle parameters.
 It is recommended to not set this field (or set it to true) until you're ready to destroy.
 
 
-## Example Usage - Production Instance
+## Example Usage - Simple Instance
 
 ```hcl
 resource "google_bigtable_instance" "production-instance" {
@@ -36,6 +36,38 @@ resource "google_bigtable_instance" "production-instance" {
     cluster_id   = "tf-instance-cluster"
     num_nodes    = 1
     storage_type = "HDD"
+  }
+
+  labels = {
+    my-label = "prod-label"
+  }
+}
+```
+
+## Example Usage - Replicated Instance
+
+```hcl
+resource "google_bigtable_instance" "production-instance" {
+  name = "tf-instance"
+
+  # A cluster with fixed number of nodes.
+  cluster {
+    cluster_id   = "tf-instance-cluster1"
+    num_nodes    = 1
+    storage_type = "HDD"
+    zone    = "us-central1-c"
+  }
+
+  # a cluster with auto scaling.
+  cluster {
+    cluster_id   = "tf-instance-cluster2"
+    storage_type = "HDD"
+    zone    = "us-central1-b"
+    autoscaling_config {
+      min_nodes = 1
+      max_nodes = 3
+      cpu_target = 50
+    }
   }
 
   labels = {
@@ -98,7 +130,7 @@ for a `DEVELOPMENT` instance.
 * `storage_type` - (Optional) The storage type to use. One of `"SSD"` or
 `"HDD"`. Defaults to `"SSD"`.
 
-* `kms_key_name` - (Optional) Describes the Cloud KMS encryption key that will be used to protect the destination Bigtable cluster. The requirements for this key are: 1) The Cloud Bigtable service account associated with the project that contains this cluster must be granted the `cloudkms.cryptoKeyEncrypterDecrypter` role on the CMEK key. 2) Only regional keys can be used and the region of the CMEK key must match the region of the cluster. 3) All clusters within an instance must use the same CMEK key. Values are of the form `projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}`
+* `kms_key_name` - (Optional) Describes the Cloud KMS encryption key that will be used to protect the destination Bigtable cluster. The requirements for this key are: 1) The Cloud Bigtable service account associated with the project that contains this cluster must be granted the `cloudkms.cryptoKeyEncrypterDecrypter` role on the CMEK key. 2) Only regional keys can be used and the region of the CMEK key must match the region of the cluster.
 
 !> **Warning**: Modifying this field will cause Terraform to delete/recreate the entire resource. 
 
