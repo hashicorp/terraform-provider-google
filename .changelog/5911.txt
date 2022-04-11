@@ -1,0 +1,3 @@
+```release-note:bug
+Update mutex on google_apigee_instance_attachment to lock on org_id.
+```
