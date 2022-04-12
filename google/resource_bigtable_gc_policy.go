@@ -2,12 +2,15 @@ package google
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
@@ -56,9 +59,10 @@ func resourceBigtableGCPolicyCustomizeDiff(_ context.Context, d *schema.Resource
 
 func resourceBigtableGCPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceBigtableGCPolicyCreate,
+		Create:        resourceBigtableGCPolicyUpsert,
 		Read:          resourceBigtableGCPolicyRead,
 		Delete:        resourceBigtableGCPolicyDestroy,
+		Update:        resourceBigtableGCPolicyUpsert,
 		CustomizeDiff: resourceBigtableGCPolicyCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
@@ -84,12 +88,24 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Description: `The name of the column family.`,
 			},
 
+			"gc_rules": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Description:   `Serialized JSON string for garbage collection policy. Conflicts with "mode", "max_age" and "max_version".`,
+				ValidateFunc:  validation.StringIsJSON,
+				ConflictsWith: []string{"mode", "max_age", "max_version"},
+				StateFunc: func(v interface{}) string {
+					json, _ := structure.NormalizeJsonString(v)
+					return json
+				},
+			},
 			"mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Description:  `If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
-				ValidateFunc: validation.StringInSlice([]string{GCPolicyModeIntersection, GCPolicyModeUnion}, false),
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   `If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
+				ValidateFunc:  validation.StringInSlice([]string{GCPolicyModeIntersection, GCPolicyModeUnion}, false),
+				ConflictsWith: []string{"gc_rules"},
 			},
 
 			"max_age": {
@@ -120,6 +136,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						},
 					},
 				},
+				ConflictsWith: []string{"gc_rules"},
 			},
 
 			"max_version": {
@@ -137,6 +154,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						},
 					},
 				},
+				ConflictsWith: []string{"gc_rules"},
 			},
 
 			"project": {
@@ -151,7 +169,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 	}
 }
 
-func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceBigtableGCPolicyUpsert(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -288,13 +306,22 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	mode := d.Get("mode").(string)
 	ma, aok := d.GetOk("max_age")
 	mv, vok := d.GetOk("max_version")
+	gcRules, gok := d.GetOk("gc_rules")
 
-	if !aok && !vok {
+	if !aok && !vok && !gok {
 		return bigtable.NoGcPolicy(), nil
 	}
 
 	if mode == "" && aok && vok {
-		return nil, fmt.Errorf("If multiple policies are set, mode can't be empty")
+		return nil, fmt.Errorf("if multiple policies are set, mode can't be empty")
+	}
+
+	if gok {
+		var j map[string]interface{}
+		if err := json.Unmarshal([]byte(gcRules.(string)), &j); err != nil {
+			return nil, err
+		}
+		return getGCPolicyFromJSON(j)
 	}
 
 	if aok {
@@ -322,6 +349,100 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	return policies[0], nil
+}
+
+func getGCPolicyFromJSON(topLevelPolicy map[string]interface{}) (bigtable.GCPolicy, error) {
+	policy := []bigtable.GCPolicy{}
+
+	if err := validateNestedPolicy(topLevelPolicy, true); err != nil {
+		return nil, err
+	}
+
+	for _, p := range topLevelPolicy["rules"].([]interface{}) {
+		childPolicy := p.(map[string]interface{})
+		if err := validateNestedPolicy(childPolicy, false); err != nil {
+			return nil, err
+		}
+
+		if childPolicy["max_age"] != nil {
+			maxAge := childPolicy["max_age"].(string)
+			duration, err := time.ParseDuration(maxAge)
+			if err != nil {
+				return nil, fmt.Errorf("invalid duration string: %v", maxAge)
+			}
+			policy = append(policy, bigtable.MaxAgePolicy(duration))
+		}
+
+		if childPolicy["max_version"] != nil {
+			version := childPolicy["max_version"].(float64)
+			policy = append(policy, bigtable.MaxVersionsPolicy(int(version)))
+		}
+
+		if childPolicy["mode"] != nil {
+			n, err := getGCPolicyFromJSON(childPolicy)
+			if err != nil {
+				return nil, err
+			}
+			policy = append(policy, n)
+		}
+	}
+
+	switch topLevelPolicy["mode"] {
+	case strings.ToLower(GCPolicyModeUnion):
+		return bigtable.UnionPolicy(policy...), nil
+	case strings.ToLower(GCPolicyModeIntersection):
+		return bigtable.IntersectionPolicy(policy...), nil
+	default:
+		return policy[0], nil
+	}
+}
+
+func validateNestedPolicy(p map[string]interface{}, topLevel bool) error {
+	if len(p) > 2 {
+		return fmt.Errorf("rules has more than 2 fields")
+	}
+	maxVersion, maxVersionOk := p["max_version"]
+	maxAge, maxAgeOk := p["max_age"]
+	rulesObj, rulesOk := p["rules"]
+
+	_, modeOk := p["mode"]
+	rules, arrOk := rulesObj.([]interface{})
+	_, vCastOk := maxVersion.(float64)
+	_, aCastOk := maxAge.(string)
+
+	if rulesOk && !arrOk {
+		return fmt.Errorf("`rules` must be array")
+	}
+
+	if modeOk && len(rules) < 2 {
+		return fmt.Errorf("`rules` need at least 2 GC rule when mode is specified")
+	}
+
+	if topLevel && !rulesOk {
+		return fmt.Errorf("invalid nested policy, need `rules`")
+	}
+
+	if topLevel && !modeOk && len(rules) != 1 {
+		return fmt.Errorf("when `mode` is not specified, `rules` can only have 1 child rule")
+	}
+
+	if !topLevel && len(p) == 2 && (!modeOk || !rulesOk) {
+		return fmt.Errorf("need `mode` and `rules` for child nested policies")
+	}
+
+	if !topLevel && len(p) == 1 && !maxVersionOk && !maxAgeOk {
+		return fmt.Errorf("need `max_version` or `max_age` for the rule")
+	}
+
+	if maxVersionOk && !vCastOk {
+		return fmt.Errorf("`max_version` must be a number")
+	}
+
+	if maxAgeOk && !aCastOk {
+		return fmt.Errorf("`max_age must be a string")
+	}
+
+	return nil
 }
 
 func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {

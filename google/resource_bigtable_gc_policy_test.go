@@ -2,6 +2,7 @@ package google
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -127,6 +128,42 @@ func TestAccBigtableGCPolicy_multiplePolicies(t *testing.T) {
 	})
 }
 
+func TestAccBigtableGCPolicy_gcRulesPolicy(t *testing.T) {
+	skipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	gcRulesOriginal := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"10h\"},{\"max_version\":2}]}"
+	gcRulesUpdate := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"16h\"},{\"max_version\":1}]}"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableGCPolicy_gcRulesCreate(instanceName, tableName, familyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableGCPolicyExists(t, "google_bigtable_gc_policy.policy"),
+					resource.TestCheckResourceAttr("google_bigtable_gc_policy.policy", "gc_rules", gcRulesOriginal),
+				),
+			},
+			// Testing gc_rules update
+			// TODO: Add test to verify no data loss
+			{
+				Config: testAccBigtableGCPolicy_gcRulesUpdate(instanceName, tableName, familyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableGCPolicyExists(t, "google_bigtable_gc_policy.policy"),
+					resource.TestCheckResourceAttr("google_bigtable_gc_policy.policy", "gc_rules", gcRulesUpdate),
+				),
+			},
+		},
+	})
+}
+
 func TestUnitBigtableGCPolicy_customizeDiff(t *testing.T) {
 	for _, tc := range testUnitBigtableGCPolicyCustomizeDiffTestcases {
 		tc.check(t)
@@ -154,6 +191,111 @@ func (testcase *testUnitBigtableGCPolicyCustomizeDiffTestcase) check(t *testing.
 	var cleared bool = d.Cleared != nil && d.Cleared["max_age.0.duration"] == true && d.Cleared["max_age.0.days"] == true
 	if cleared != testcase.cleared {
 		t.Errorf("%s: expected diff clear to be %v, but was %v", testcase.testName, testcase.cleared, cleared)
+	}
+}
+
+type testUnitBigtableGCPolicyJSONRules struct {
+	name          string
+	gcJSONString  string
+	want          string
+	errorExpected bool
+}
+
+var testUnitBigtableGCPolicyRulesTestCases = []testUnitBigtableGCPolicyJSONRules{
+	{
+		name:          "Simple policy",
+		gcJSONString:  `{"rules":[{"max_age":"10h"}]}`,
+		want:          "age() > 10h",
+		errorExpected: false,
+	},
+	{
+		name:          "Simple multiple policies",
+		gcJSONString:  `{"mode":"union", "rules":[{"max_age":"10h"},{"max_version":2}]}`,
+		want:          "(age() > 10h || versions() > 2)",
+		errorExpected: false,
+	},
+	{
+		name:          "Nested policy",
+		gcJSONString:  `{"mode":"union", "rules":[{"max_age":"10h"},{"mode": "intersection", "rules":[{"max_age":"2h"}, {"max_version":2}]}]}`,
+		want:          "(age() > 10h || (age() > 2h && versions() > 2))",
+		errorExpected: false,
+	},
+	{
+		name:          "JSON with no `rules`",
+		gcJSONString:  `{"mode": "union"}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Empty JSON",
+		gcJSONString:  "{}",
+		errorExpected: true,
+	},
+	{
+		name:          "Invalid duration string",
+		errorExpected: true,
+		gcJSONString:  `{"mode":"union","rules":[{"max_age":"12o"},{"max_version":2}]}`,
+	},
+	{
+		name:          "Empty mode policy with more than 1 rules",
+		gcJSONString:  `{"rules":[{"max_age":"10h"}, {"max_version":2}]}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Less than 2 rules with mode specified",
+		gcJSONString:  `{"mode":"union", "rules":[{"max_version":2}]}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Invalid GC rule object",
+		gcJSONString:  `{"mode": "union", "rules": [{"mode": "intersection"}]}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Invalid GC rule field: not max_version or max_age",
+		gcJSONString:  `{"mode": "union", "rules": [{"max_versions": 2}]}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Invalid GC rule field: additional fields",
+		gcJSONString:  `{"mode": "union", "rules": [{"max_age": "10h", "something_else": 100}]}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Invalid GC rule field: more than 2 fields in a gc rule object",
+		gcJSONString:  `{"mode": "union", "rules": [{"max_age": "10h", "max_version": 10, "something": 100}]}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Invalid GC rule field: max_version or max_age is in the wrong type",
+		gcJSONString:  `{"mode": "union", "rules": [{"max_age": "10d", "max_version": 2}]}`,
+		errorExpected: true,
+	},
+	{
+		name:          "Invalid GC rule: wrong data type for child gc_rule",
+		gcJSONString:  `{"rules": {"max_version": "456"}}`,
+		errorExpected: true,
+	},
+}
+
+func TestUnitBigtableGCPolicy_getGCPolicyFromJSON(t *testing.T) {
+	for _, tc := range testUnitBigtableGCPolicyRulesTestCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var j map[string]interface{}
+			err := json.Unmarshal([]byte(tc.gcJSONString), &j)
+			if err != nil {
+				t.Fatalf("error unmarshalling JSON string: %v", err)
+			}
+			got, err := getGCPolicyFromJSON(j)
+			if tc.errorExpected && err == nil {
+				t.Fatal("expect error, got nil")
+			} else if !tc.errorExpected && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			} else {
+				if got != nil && got.String() != tc.want {
+					t.Errorf("error getting policy from JSON, got: %v, want: %v", tc.want, got)
+				}
+			}
+		})
 	}
 }
 
@@ -519,4 +661,70 @@ resource "google_bigtable_gc_policy" "policyC" {
   mode        = "UNION"
 }
 `, instanceName, instanceName, tableName, family, family, family, family)
+}
+
+func testAccBigtableGCPolicy_gcRulesCreate(instanceName, tableName, family string) string {
+	return fmt.Sprintf(`
+	resource "google_bigtable_instance" "instance" {
+		name = "%s"
+
+		cluster {
+			cluster_id = "%s"
+			zone       = "us-central1-b"
+		}
+
+		instance_type = "DEVELOPMENT"
+		deletion_protection = false
+	}
+
+	resource "google_bigtable_table" "table" {
+		name          = "%s"
+		instance_name = google_bigtable_instance.instance.id
+
+		column_family {
+			family = "%s"
+		}
+	}
+
+	resource "google_bigtable_gc_policy" "policy" {
+		instance_name = google_bigtable_instance.instance.id
+		table         = google_bigtable_table.table.name
+		column_family = "%s"
+
+		gc_rules = "{\"mode\":\"intersection\", \"rules\":[{\"max_age\":\"10h\"},{\"max_version\":2}]}"
+	}
+`, instanceName, instanceName, tableName, family, family)
+}
+
+func testAccBigtableGCPolicy_gcRulesUpdate(instanceName, tableName, family string) string {
+	return fmt.Sprintf(`
+	resource "google_bigtable_instance" "instance" {
+		name = "%s"
+
+		cluster {
+			cluster_id = "%s"
+			zone       = "us-central1-b"
+		}
+
+		instance_type = "DEVELOPMENT"
+		deletion_protection = false
+	}
+
+	resource "google_bigtable_table" "table" {
+		name          = "%s"
+		instance_name = google_bigtable_instance.instance.id
+
+		column_family {
+			family = "%s"
+		}
+	}
+
+	resource "google_bigtable_gc_policy" "policy" {
+		instance_name = google_bigtable_instance.instance.id
+		table         = google_bigtable_table.table.name
+		column_family = "%s"
+
+		gc_rules = "{\"mode\":\"intersection\", \"rules\":[{\"max_age\":\"16h\"},{\"max_version\":1}]}"
+	}
+`, instanceName, instanceName, tableName, family, family)
 }

@@ -66,6 +66,65 @@ resource "google_bigtable_gc_policy" "policy" {
 }
 ```
 
+For complex, nested policies, an optional `gc_rules` field are supported. This field
+conflicts with `mode`, `max_age` and `max_version`. This field is a serialized JSON
+string. Example:
+```hcl
+resource "google_bigtable_instance" "instance" {
+  name = "instance_name"
+
+  cluster {
+    cluster_id = "cid"
+    zone       = "us-central1-b"
+  }
+
+  instance_type = "DEVELOPMENT"
+  deletion_protection = false
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "your-table"
+  instance_name = google_bigtable_instance.instance.id
+
+  column_family {
+    family = "cf1"
+  }
+}
+
+resource "google_bigtable_gc_policy" "policy" {
+  instance_name = google_bigtable_instance.instance.id
+  table         = google_bigtable_table.table.name
+  column_family = "cf1"
+
+  gc_rules = <<EOF
+{
+  "mode": "union",
+  "rules": [
+    {
+      "max_age": "10h"
+    },
+    {
+      "mode": "intersection",
+      "rules": [
+        {
+          "max_age": "2h"
+        },
+        {
+          "max_version": 2
+        }
+      ]
+    }
+  ]
+}
+EOF
+
+}
+```
+This is equivalent to running the following `cbt` command:
+```
+cbt setgcpolicy your-table cf1 "(maxage=2d and maxversions=2) or maxage=10h"
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -84,6 +143,8 @@ The following arguments are supported:
 
 * `max_version` - (Optional) GC policy that applies to all versions of a cell except for the most recent.
 
+* `gc_rules` - (Optional) Serialized JSON object to represent a more complex GC policy. Conflicts with `mode`, `max_age` and `max_version`. Conflicts with `mode`, `max_age` and `max_version`.
+
 -----
 
 `max_age` supports the following arguments:
@@ -97,6 +158,12 @@ The following arguments are supported:
 `max_version` supports the following arguments:
 
 * `number` - (Required) Number of version before applying the GC policy.
+
+-----
+`gc_rules` include 2 fields:
+- `mode`: optional, either `intersection` or `union`.
+- `rules`: an array of GC policy rule, can be specified as JSON object: `{"max_age": "16h"}` or `{"max_version": 2}`
+- If `mode` is not specified, `rules` can only contains one GC policy. If `mode` is specified, `rules` must have at least 2 policies.
 
 ## Attributes Reference
 
