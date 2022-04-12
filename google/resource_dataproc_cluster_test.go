@@ -557,6 +557,8 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 	t.Parallel()
 
 	rnd := randString(t, 10)
+	version := "2.0-debian10"
+
 	var cluster dataproc.Cluster
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -564,10 +566,10 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withImageVersion(rnd),
+				Config: testAccDataprocCluster_withImageVersion(rnd, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_image_version", &cluster),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_image_version", "cluster_config.0.software_config.0.image_version", "1.3.7-deb9"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_image_version", "cluster_config.0.software_config.0.image_version", version),
 				),
 			},
 		},
@@ -1367,7 +1369,7 @@ resource "google_dataproc_cluster" "with_labels" {
 `, rnd)
 }
 
-func testAccDataprocCluster_withImageVersion(rnd string) string {
+func testAccDataprocCluster_withImageVersion(rnd, version string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_image_version" {
   name   = "tf-test-dproc-%s"
@@ -1375,11 +1377,11 @@ resource "google_dataproc_cluster" "with_image_version" {
 
   cluster_config {
     software_config {
-      image_version = "1.3.7-deb9"
+      image_version = "%s"
     }
   }
 }
-`, rnd)
+`, rnd, version)
 }
 
 func testAccDataprocCluster_withOptionalComponents(rnd string) string {
