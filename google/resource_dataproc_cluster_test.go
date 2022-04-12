@@ -557,7 +557,7 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 	t.Parallel()
 
 	rnd := randString(t, 10)
-	version := "2.0-debian10"
+	version := "2.0.35-debian10"
 
 	var cluster dataproc.Cluster
 	vcrTest(t, resource.TestCase{

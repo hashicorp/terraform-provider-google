@@ -46,7 +46,7 @@ resource "google_dataproc_workflow_template" "template" {
           num_instances = 2
         }
         software_config {
-          image_version = "1.3.7-deb9"
+          image_version = "2.0.35-debian10"
         }
       }
     }
