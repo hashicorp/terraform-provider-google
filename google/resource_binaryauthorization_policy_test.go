@@ -163,7 +163,10 @@ func testAccCheckBinaryAuthorizationPolicyDefault(t *testing.T, pid string) reso
 		if err != nil {
 			return err
 		}
+
+		// new fields will cause this test to fail- if they're simple outputs, we can just ignore them.
 		delete(pol, "updateTime")
+		delete(pol, "etag")
 
 		defaultPol := defaultBinaryAuthorizationPolicy(pid)
 		if !reflect.DeepEqual(pol, defaultPol) {
