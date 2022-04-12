@@ -15,6 +15,7 @@ func TestAccDataprocWorkflowTemplate_basic(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randString(t, 10),
 		"project":       getTestProjectFromEnv(),
+		"version":       "2.0.35-debian10",
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -71,7 +72,7 @@ resource "google_dataproc_workflow_template" "template" {
           num_instances = 2
         }
         software_config {
-          image_version = "1.3.7-deb9"
+          image_version = "%{version}"
         }
       }
     }

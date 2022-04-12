@@ -73,7 +73,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
     # Override or set some custom properties
     software_config {
-      image_version = "1.3.7-deb9"
+      image_version = "2.0.35-debian10"
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }
@@ -470,7 +470,7 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 cluster_config {
   # Override or set some custom properties
   software_config {
-    image_version = "1.3.7-deb9"
+    image_version = "2.0.35-debian10"
 
     override_properties = {
       "dataproc:dataproc.allow.zero.workers" = "true"
