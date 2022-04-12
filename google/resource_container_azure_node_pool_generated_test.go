@@ -245,7 +245,7 @@ resource "google_container_azure_node_pool" "primary" {
 
   name      = "tf-test-node-pool-name%{random_suffix}"
   subnet_id = "/subscriptions/%{azure_sub}/resourceGroups/%{byo_prefix}-dev-byo/providers/Microsoft.Network/virtualNetworks/%{byo_prefix}-dev-vnet/subnets/default"
-  version   = "1.21.5-gke.2800"
+  version   = "1.21.6-gke.1500"
 
   annotations = {
     annotation-two = "value-two"
