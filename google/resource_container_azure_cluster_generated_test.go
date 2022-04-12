@@ -140,7 +140,7 @@ resource "google_container_azure_cluster" "primary" {
     }
 
     subnet_id = "/subscriptions/%{azure_sub}/resourceGroups/%{byo_prefix}-dev-byo/providers/Microsoft.Network/virtualNetworks/%{byo_prefix}-dev-vnet/subnets/default"
-    version   = "1.21.5-gke.2800"
+    version   = "1.21.6-gke.1500"
 
     database_encryption {
       key_id = "/subscriptions/%{azure_sub}/resourceGroups/%{byo_prefix}-dev-cluster/providers/Microsoft.KeyVault/vaults/%{byo_prefix}-dev-keyvault/keys/%{byo_prefix}-dev-key"
