@@ -68,7 +68,6 @@ resource "google_filestore_instance" "instance" {
 
 ```hcl
 resource "google_filestore_instance" "instance" {
-  provider = google-beta
   name = "test-instance"
   location = "us-central1-b"
   tier = "BASIC_SSD"
@@ -99,6 +98,37 @@ resource "google_filestore_instance" "instance" {
   }
 }
 ```
+## Example Usage - Filestore Instance Enterprise
+
+
+```hcl
+resource "google_filestore_instance" "instance" {
+  name = "test-instance"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+
+  file_shares {
+    capacity_gb = 2560
+    name        = "share1"
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+  kms_key_name = google_kms_crypto_key.filestore_key.id
+}
+
+resource "google_kms_key_ring" "filestore_keyring" {
+  name     = "filestore-keyring"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "filestore_key" {
+  name            = "filestore-key"
+  key_ring        = google_kms_key_ring.filestore_keyring.id
+}
+```
 
 ## Argument Reference
 
@@ -112,7 +142,7 @@ The following arguments are supported:
 * `tier` -
   (Required)
   The service tier of the instance.
-  Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD and ENTERPRISE (beta only)
+  Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD and ENTERPRISE
 
 * `file_shares` -
   (Required)
@@ -139,7 +169,7 @@ The following arguments are supported:
   for the standard tier, or 2560 GiB for the premium tier.
 
 * `nfs_export_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Nfs Export Options. There is a limit of 10 export options per file share.
   Structure is [documented below](#nested_nfs_export_options).
 
@@ -200,7 +230,7 @@ The following arguments are supported:
   A list of IPv4 or IPv6 addresses.
 
 * `connect_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The network connect mode of the Filestore instance.
   If not provided, the connect mode defaults to
   DIRECT_PEERING.
@@ -217,6 +247,10 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Resource labels to represent user-provided metadata.
+
+* `kms_key_name` -
+  (Optional)
+  KMS key name used for data encryption.
 
 * `zone` -
   (Optional, Deprecated)
