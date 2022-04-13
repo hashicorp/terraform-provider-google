@@ -96,6 +96,9 @@ The following arguments are supported:
 * `rate_limit_options` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
     Must be specified if the `action` is "rate_based_bad" or "throttle". Cannot be specified for other actions. Structure is [documented below](#nested_rate_limit_options).
 
+* `redirect_options` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+    Can be specified if the `action` is "redirect". Cannot be specified for other actions. Structure is [documented below](#nested_redirect_options).
+
 <a name="nested_match"></a>The `match` block supports:
 
 * `config` - (Optional) The configuration options available when specifying `versioned_expr`.
@@ -152,6 +155,15 @@ The following arguments are supported:
 * `count` - (Optional) Number of HTTP(S) requests for calculating the threshold.
 
 * `interval_sec` - (Optional) Interval over which the threshold is computed.
+
+<a name="nested_redirect_options"></a>The `redirect_options` block supports:
+
+* `type` - (Required) Type of redirect action.
+
+    * EXTERNAL_302: Redirect to an external address, configured in 'target'.
+    * GOOGLE_RECAPTCHA: Redirect to Google reCAPTCHA.
+
+* `target` - (Optional) External redirection target when "EXTERNAL_302" is set in 'type'.
 
 <a name="nested_adaptive_protection_config"></a>The `adaptive_protection_config` block supports:
 
