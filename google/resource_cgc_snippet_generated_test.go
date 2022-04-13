@@ -158,7 +158,7 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
-func TestAccCGCSnippet_sqlDatabaseInstancePostgresExample(t *testing.T) {
+func TestAccCGCSnippet_sqlSqlserverInstanceCloneExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -171,156 +171,38 @@ func TestAccCGCSnippet_sqlDatabaseInstancePostgresExample(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCGCSnippet_sqlDatabaseInstancePostgresExample(context),
+				Config: testAccCGCSnippet_sqlSqlserverInstanceCloneExample(context),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
+				ResourceName:            "google_sql_database_instance.clone",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password", "clone"},
 			},
 		},
 	})
 }
 
-func testAccCGCSnippet_sqlDatabaseInstancePostgresExample(context map[string]interface{}) string {
+func testAccCGCSnippet_sqlSqlserverInstanceCloneExample(context map[string]interface{}) string {
 	return Nprintf(`
-# [START cloud_sql_postgres_instance_80_db_n1_s2]
-resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-postgres-instance%{random_suffix}"
+resource "google_sql_database_instance" "source" {
+  name             = "tf-test-sqlserver-instance-source-name%{random_suffix}"
   region           = "us-central1"
-  database_version = "POSTGRES_12"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password = "INSERT-PASSWORD-HERE"
   settings {
     tier = "db-custom-2-7680"
   }
   deletion_protection =  "%{deletion_protection}"
 }
-# [END cloud_sql_postgres_instance_80_db_n1_s2]
-`, context)
-}
 
-func TestAccCGCSnippet_sqlDatabaseInstanceMySqlExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCGCSnippet_sqlDatabaseInstanceMySqlExample(context),
-			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-		},
-	})
-}
-
-func testAccCGCSnippet_sqlDatabaseInstanceMySqlExample(context map[string]interface{}) string {
-	return Nprintf(`
-# [START cloud_sql_mysql_instance_80_db_n1_s2]
-resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-mysql-instance%{random_suffix}"
+resource "google_sql_database_instance" "clone" {
+  name             = "tf-test-sqlserver-instance-clone-name%{random_suffix}"
   region           = "us-central1"
-  database_version = "MYSQL_8_0"
-  settings {
-    tier = "db-n1-standard-2"
-  }
-  deletion_protection =  "%{deletion_protection}"
-}
-# [END cloud_sql_mysql_instance_80_db_n1_s2]
-`, context)
-}
-
-func TestAccCGCSnippet_sqlMysqlInstanceBackupExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCGCSnippet_sqlMysqlInstanceBackupExample(context),
-			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-		},
-	})
-}
-
-func testAccCGCSnippet_sqlMysqlInstanceBackupExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-mysql-instance-backup%{random_suffix}"
-  region           = "asia-northeast1"
-  database_version = "MYSQL_5_7"
-  settings {
-    tier = "db-f1-micro"
-    backup_configuration {
-      enabled                        = true
-      binary_log_enabled             = true
-      start_time                     = "20:55"
-    }
-  }
-  deletion_protection =  "%{deletion_protection}"
-}
-`, context)
-}
-
-func TestAccCGCSnippet_sqlPostgresInstanceBackupExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCGCSnippet_sqlPostgresInstanceBackupExample(context),
-			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-		},
-	})
-}
-
-func testAccCGCSnippet_sqlPostgresInstanceBackupExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-postgres-instance-backup%{random_suffix}"
-  region           = "us-central1"
-  database_version = "POSTGRES_12"
-  settings {
-    tier = "db-custom-2-7680"
-    backup_configuration {
-      enabled                        = true
-      start_time                     = "20:55"
-    }
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password = "INSERT-PASSWORD-HERE"
+  clone {
+    source_instance_name = google_sql_database_instance.source.id
   }
   deletion_protection =  "%{deletion_protection}"
 }
@@ -371,7 +253,7 @@ resource "google_sql_database_instance" "default" {
 `, context)
 }
 
-func TestAccCGCSnippet_sqlMysqlInstanceAuthorizedNetworkExample(t *testing.T) {
+func TestAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -384,26 +266,27 @@ func TestAccCGCSnippet_sqlMysqlInstanceAuthorizedNetworkExample(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCGCSnippet_sqlMysqlInstanceAuthorizedNetworkExample(context),
+				Config: testAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(context),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.instance",
+				ResourceName:            "google_sql_database_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
 			},
 		},
 	})
 }
 
-func testAccCGCSnippet_sqlMysqlInstanceAuthorizedNetworkExample(context map[string]interface{}) string {
+func testAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-mysql-instance-with-authorized-network%{random_suffix}"
+resource "google_sql_database_instance" "default" {
+  name = "tf-test-sqlserver-instance-with-authorized-network%{random_suffix}"
   region           = "us-central1"
-  database_version = "MYSQL_5_7"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password = "INSERT-PASSWORD-HERE"
   settings {
-    tier = "db-f1-micro"
+    tier = "db-custom-2-7680"
     ip_configuration {
       authorized_networks {
         name = "Network Name"
@@ -412,7 +295,7 @@ resource "google_sql_database_instance" "instance" {
       }
     }
   }
-  deletion_protection =  "%{deletion_protection}"
+  deletion_protection = "%{deletion_protection}"
 }
 `, context)
 }
@@ -508,7 +391,7 @@ resource "google_sql_database_instance" "default" {
 `, context)
 }
 
-func TestAccCGCSnippet_sqlPostgresInstancePublicIpExample(t *testing.T) {
+func TestAccCGCSnippet_sqlSqlserverInstanceReplicaExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -521,26 +404,88 @@ func TestAccCGCSnippet_sqlPostgresInstancePublicIpExample(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCGCSnippet_sqlPostgresInstancePublicIpExample(context),
+				Config: testAccCGCSnippet_sqlSqlserverInstanceReplicaExample(context),
 			},
 			{
-				ResourceName:            "google_sql_database_instance.postgres_public_ip_instance_name",
+				ResourceName:            "google_sql_database_instance.read_replica",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
 			},
 		},
 	})
 }
 
-func testAccCGCSnippet_sqlPostgresInstancePublicIpExample(context map[string]interface{}) string {
+func testAccCGCSnippet_sqlSqlserverInstanceReplicaExample(context map[string]interface{}) string {
 	return Nprintf(`
-# [START cloud_sql_postgres_instance_public_ip]  
-resource "google_sql_database_instance" "postgres_public_ip_instance_name" {
-  database_version = "POSTGRES_12"
-  name             = "tf-test-postgres-public-ip-instance-name%{random_suffix}"
-  region           = "asia-southeast2"
+resource "google_sql_database_instance" "primary" {
+  name             = "tf-test-sqlserver-primary-instance-name%{random_suffix}"
+  region           = "europe-west4"
+  database_version = "SQLSERVER_2019_ENTERPRISE"
+  root_password    = "INSERT-PASSWORD-HERE"
   settings {
+    tier = "db-custom-2-7680"
+    backup_configuration {
+      enabled = "true"
+    }
+  }
+  deletion_protection = "%{deletion_protection}"
+}
+
+resource "google_sql_database_instance" "read_replica" {
+  name                 = "tf-test-sqlserver-replica-instance-name%{random_suffix}"
+  master_instance_name = google_sql_database_instance.primary.name
+  region               = "europe-west4"
+  database_version     = "SQLSERVER_2019_ENTERPRISE"
+  root_password        = "INSERT-PASSWORD-HERE"
+  replica_configuration {
+    failover_target = false
+  }
+
+  settings {
+    tier              = "db-custom-2-7680"
+    availability_type = "ZONAL"
+    disk_size         = "100"
+  }
+  deletion_protection = "%{deletion_protection}"
+}
+`, context)
+}
+
+func TestAccCGCSnippet_sqlSqlserverInstancePublicIpExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlSqlserverInstancePublicIpExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.sqlserver_public_ip_instance_name",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlSqlserverInstancePublicIpExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "sqlserver_public_ip_instance_name" {
+  name                 = "tf-test-sqlserver-public-ip-instance-name%{random_suffix}"
+  region               = "europe-west4"
+  database_version     = "SQLSERVER_2019_ENTERPRISE"
+  root_password        = "INSERT-PASSWORD-HERE"
+  settings {
+    tier              = "db-custom-2-7680"
     availability_type = "ZONAL"
     ip_configuration {
       # Add optional authorized networks
@@ -552,68 +497,6 @@ resource "google_sql_database_instance" "postgres_public_ip_instance_name" {
       # Enable public IP
       ipv4_enabled = true
     }
-    tier = "db-custom-2-7680"
-  }
-  deletion_protection =  "%{deletion_protection}"
-}
-`, context)
-}
-
-func TestAccCGCSnippet_sqlMysqlInstanceReplicaExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCGCSnippet_sqlMysqlInstanceReplicaExample(context),
-			},
-			{
-				ResourceName:            "google_sql_database_instance.read_replica",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-		},
-	})
-}
-
-func testAccCGCSnippet_sqlMysqlInstanceReplicaExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_sql_database_instance" "primary" {
-  name             = "tf-test-mysql-primary-instance-name%{random_suffix}"
-  region           = "europe-west4"
-  database_version = "MYSQL_8_0"
-  settings {
-    tier               = "db-n1-standard-2"
-    backup_configuration {
-      enabled            = "true"
-      binary_log_enabled = "true"
-    }
-  }
-  deletion_protection =  "%{deletion_protection}"
-}
-
-resource "google_sql_database_instance" "read_replica" {
-  name                 = "tf-test-mysql-replica-instance-name%{random_suffix}"
-  master_instance_name = google_sql_database_instance.primary.name
-  region               = "europe-west4"
-  database_version     = "MYSQL_8_0"
-
-  replica_configuration {
-    failover_target = false
-  }
-
-  settings {
-    tier              = "db-n1-standard-2"
-    availability_type = "ZONAL"
-    disk_size         = "100"
   }
   deletion_protection =  "%{deletion_protection}"
 }
