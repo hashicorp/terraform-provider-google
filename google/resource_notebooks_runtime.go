@@ -354,10 +354,10 @@ rest/v1/projects.locations.runtimes#AcceleratorType'`,
 										},
 									},
 									"container_images": {
-										Type:             schema.TypeList,
-										Optional:         true,
-										DiffSuppressFunc: NotReturnedByAPIDiffSuppress,
-										Description:      `Use a list of container images to start the notebook instance.`,
+										Type:        schema.TypeList,
+										Computed:    true,
+										Optional:    true,
+										Description: `Use a list of container images to start the notebook instance.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"repository": {
