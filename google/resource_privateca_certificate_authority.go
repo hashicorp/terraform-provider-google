@@ -59,6 +59,7 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 						"subject_config": {
 							Type:        schema.TypeList,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Specifies some of the values in a certificate that are related to the subject.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -66,6 +67,7 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 									"subject": {
 										Type:        schema.TypeList,
 										Required:    true,
+										ForceNew:    true,
 										Description: `Contains distinguished name fields such as the location and organization.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -73,6 +75,7 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 												"common_name": {
 													Type:        schema.TypeString,
 													Required:    true,
+													ForceNew:    true,
 													Description: `The common name of the distinguished name.`,
 												},
 												"organization": {
@@ -123,6 +126,7 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 									"subject_alt_name": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `The subject alternative name fields.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -176,6 +180,7 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 						"x509_config": {
 							Type:        schema.TypeList,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Describes how some of the technical X.509 fields in a certificate should be populated.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -183,6 +188,7 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 									"ca_options": {
 										Type:        schema.TypeList,
 										Required:    true,
+										ForceNew:    true,
 										Description: `Describes values that are relevant in a CA certificate.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -190,23 +196,27 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 												"is_ca": {
 													Type:        schema.TypeBool,
 													Required:    true,
+													ForceNew:    true,
 													Description: `When true, the "CA" in Basic Constraints extension will be set to true.`,
 												},
 												"max_issuer_path_length": {
 													Type:     schema.TypeInt,
 													Optional: true,
+													ForceNew: true,
 													Description: `Refers to the "path length constraint" in Basic Constraints extension. For a CA certificate, this value describes the depth of
 subordinate CA certificates that are allowed. If this value is less than 0, the request will fail.`,
 												},
 												"non_ca": {
 													Type:     schema.TypeBool,
 													Optional: true,
+													ForceNew: true,
 													Description: `When true, the "CA" in Basic Constraints extension will be set to false. 
 If both 'is_ca' and 'non_ca' are unset, the extension will be omitted from the CA certificate.`,
 												},
 												"zero_max_issuer_path_length": {
 													Type:     schema.TypeBool,
 													Optional: true,
+													ForceNew: true,
 													Description: `When true, the "path length constraint" in Basic Constraints extension will be set to 0.
 if both 'max_issuer_path_length' and 'zero_max_issuer_path_length' are unset,
 the max path length will be omitted from the CA certificate.`,
@@ -217,6 +227,7 @@ the max path length will be omitted from the CA certificate.`,
 									"key_usage": {
 										Type:        schema.TypeList,
 										Required:    true,
+										ForceNew:    true,
 										Description: `Indicates the intended use for keys that correspond to a certificate.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -224,6 +235,7 @@ the max path length will be omitted from the CA certificate.`,
 												"base_key_usage": {
 													Type:        schema.TypeList,
 													Required:    true,
+													ForceNew:    true,
 													Description: `Describes high-level ways in which a key may be used.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -231,46 +243,55 @@ the max path length will be omitted from the CA certificate.`,
 															"cert_sign": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used to sign certificates.`,
 															},
 															"content_commitment": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used for cryptographic commitments. Note that this may also be referred to as "non-repudiation".`,
 															},
 															"crl_sign": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used sign certificate revocation lists.`,
 															},
 															"data_encipherment": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used to encipher data.`,
 															},
 															"decipher_only": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used to decipher only.`,
 															},
 															"digital_signature": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used for digital signatures.`,
 															},
 															"encipher_only": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used to encipher only.`,
 															},
 															"key_agreement": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used in a key agreement protocol.`,
 															},
 															"key_encipherment": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `The key may be used to encipher other keys.`,
 															},
 														},
@@ -279,6 +300,7 @@ the max path length will be omitted from the CA certificate.`,
 												"extended_key_usage": {
 													Type:        schema.TypeList,
 													Required:    true,
+													ForceNew:    true,
 													Description: `Describes high-level ways in which a key may be used.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -286,31 +308,37 @@ the max path length will be omitted from the CA certificate.`,
 															"client_auth": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.2. Officially described as "TLS WWW client authentication", though regularly used for non-WWW TLS.`,
 															},
 															"code_signing": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.3. Officially described as "Signing of downloadable executable code client authentication".`,
 															},
 															"email_protection": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.4. Officially described as "Email protection".`,
 															},
 															"ocsp_signing": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".`,
 															},
 															"server_auth": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.1. Officially described as "TLS WWW server authentication", though regularly used for non-WWW TLS.`,
 															},
 															"time_stamping": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																ForceNew:    true,
 																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.8. Officially described as "Binding the hash of an object to a time".`,
 															},
 														},
@@ -319,12 +347,14 @@ the max path length will be omitted from the CA certificate.`,
 												"unknown_extended_key_usages": {
 													Type:        schema.TypeList,
 													Optional:    true,
+													ForceNew:    true,
 													Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"object_id_path": {
 																Type:        schema.TypeList,
 																Required:    true,
+																ForceNew:    true,
 																Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeInt,
@@ -339,18 +369,21 @@ the max path length will be omitted from the CA certificate.`,
 									"additional_extensions": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `Specifies an X.509 extension, which may be used in different parts of X.509 objects like certificates, CSRs, and CRLs.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"critical": {
 													Type:     schema.TypeBool,
 													Required: true,
+													ForceNew: true,
 													Description: `Indicates whether or not this extension is critical (i.e., if the client does not know how to
 handle this extension, the client should consider this to be an error).`,
 												},
 												"object_id": {
 													Type:        schema.TypeList,
 													Required:    true,
+													ForceNew:    true,
 													Description: `Describes values that are relevant in a CA certificate.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -358,6 +391,7 @@ handle this extension, the client should consider this to be an error).`,
 															"object_id_path": {
 																Type:        schema.TypeList,
 																Required:    true,
+																ForceNew:    true,
 																Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeInt,
@@ -369,6 +403,7 @@ handle this extension, the client should consider this to be an error).`,
 												"value": {
 													Type:        schema.TypeString,
 													Required:    true,
+													ForceNew:    true,
 													Description: `The value of this X.509 extension. A base64-encoded string.`,
 												},
 											},
@@ -377,6 +412,7 @@ handle this extension, the client should consider this to be an error).`,
 									"aia_ocsp_servers": {
 										Type:     schema.TypeList,
 										Optional: true,
+										ForceNew: true,
 										Description: `Describes Online Certificate Status Protocol (OCSP) endpoint addresses that appear in the
 "Authority Information Access" extension in the certificate.`,
 										Elem: &schema.Schema{
@@ -386,12 +422,14 @@ handle this extension, the client should consider this to be an error).`,
 									"policy_ids": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"object_id_path": {
 													Type:        schema.TypeList,
 													Required:    true,
+													ForceNew:    true,
 													Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
 													Elem: &schema.Schema{
 														Type: schema.TypeInt,
@@ -419,6 +457,7 @@ certificate. Otherwise, it is used to sign a CSR.`,
 						"algorithm": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							ValidateFunc: validateEnum([]string{"SIGN_HASH_ALGORITHM_UNSPECIFIED", "RSA_PSS_2048_SHA256", "RSA_PSS_3072_SHA256", "RSA_PSS_4096_SHA256", "RSA_PKCS1_2048_SHA256", "RSA_PKCS1_3072_SHA256", "RSA_PKCS1_4096_SHA256", "EC_P256_SHA256", "EC_P384_SHA384", ""}),
 							Description: `The algorithm to use for creating a managed Cloud KMS key for a for a simplified
 experience. All managed keys will be have their ProtectionLevel as HSM. Possible values: ["SIGN_HASH_ALGORITHM_UNSPECIFIED", "RSA_PSS_2048_SHA256", "RSA_PSS_3072_SHA256", "RSA_PSS_4096_SHA256", "RSA_PKCS1_2048_SHA256", "RSA_PKCS1_3072_SHA256", "RSA_PKCS1_4096_SHA256", "EC_P256_SHA256", "EC_P384_SHA384"]`,
@@ -427,6 +466,7 @@ experience. All managed keys will be have their ProtectionLevel as HSM. Possible
 						"cloud_kms_key_version": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 							Description: `The resource name for an existing Cloud KMS CryptoKeyVersion in the format
 'projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*'.`,
 							ExactlyOneOf: []string{"key_spec.0.cloud_kms_key_version", "key_spec.0.algorithm"},
