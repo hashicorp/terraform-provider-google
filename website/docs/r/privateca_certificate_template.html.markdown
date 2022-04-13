@@ -13,7 +13,7 @@
 #     are required, please file an issue at https:#github.com/hashicorp/terraform-provider-google/issues/new/choose
 #
 # ----------------------------------------------------------------------------
-subcategory: "Privateca"
+subcategory: "Certificate Authority Service"
 layout: "google"
 page_title: "Google: google_privateca_certificate_template"
 sidebar_current: "docs-google-privateca-certificate-template"
