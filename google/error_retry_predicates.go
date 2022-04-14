@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"google.golang.org/api/googleapi"
@@ -45,7 +46,7 @@ var defaultErrorRetryPredicates = []RetryErrorPredicateFunc{
 	// reads, causing significant failure for our CI and for large customers.
 	// GCE returns the wrong error code, as this should be a 429, which we retry
 	// already.
-	is403ReadRequestsForMinuteError,
+	is403QuotaExceededPerMinuteError,
 }
 
 /** END GLOBAL ERROR RETRY PREDICATES HERE **/
@@ -127,15 +128,18 @@ func isSubnetworkUnreadyError(err error) (bool, string) {
 
 // GCE (and possibly other APIs) incorrectly return a 403 rather than a 429 on
 // rate limits.
-func is403ReadRequestsForMinuteError(err error) (bool, string) {
+func is403QuotaExceededPerMinuteError(err error) (bool, string) {
 	gerr, ok := err.(*googleapi.Error)
 	if !ok {
 		return false, ""
 	}
-
-	if gerr.Code == 403 && strings.Contains(gerr.Body, "Quota exceeded for quota metric") && strings.Contains(gerr.Body, "Read requests per minute") {
-		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 403 and error message 'Quota exceeded for quota metric' on metric `Read requests per minute`: %s", err)
-		return true, "Read requests per minute"
+	var QuotaRegex = regexp.MustCompile(`Quota exceeded for quota metric '(?P<Metric>.*)' and limit '(?P<Limit>.* per minute)' of service`)
+	if gerr.Code == 403 && QuotaRegex.MatchString(gerr.Body) {
+		matches := QuotaRegex.FindStringSubmatch(gerr.Body)
+		metric := matches[QuotaRegex.SubexpIndex("Metric")]
+		limit := matches[QuotaRegex.SubexpIndex("Limit")]
+		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 403 and error message 'Quota exceeded for quota metric `%s`: %s", metric, err)
+		return true, fmt.Sprintf("Waiting for quota limit %s to refresh", limit)
 	}
 	return false, ""
 }
@@ -255,17 +259,6 @@ func isBigqueryIAMQuotaError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 403 && strings.Contains(strings.ToLower(gerr.Body), "exceeded rate limits") {
 			return true, "Waiting for Bigquery edit quota to refresh"
-		}
-	}
-	return false, ""
-}
-
-// Retry if operation returns a 403 with the message for
-// exceeding the quota limit for 'OperationReadGroup'
-func isOperationReadQuotaError(err error) (bool, string) {
-	if gerr, ok := err.(*googleapi.Error); ok {
-		if gerr.Code == 403 && strings.Contains(gerr.Body, "Quota exceeded for quota group") {
-			return true, "Waiting for quota to refresh"
 		}
 	}
 	return false, ""
