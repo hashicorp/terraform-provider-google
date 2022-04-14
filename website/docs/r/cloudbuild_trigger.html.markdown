@@ -988,7 +988,7 @@ The following arguments are supported:
 * `logging` -
   (Optional)
   Option to specify the logging mode, which determines if and where build logs are stored.
-  Possible values are `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, and `NONE`.
+  Possible values are `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, `CLOUD_LOGGING_ONLY`, and `NONE`.
 
 * `env` -
   (Optional)
