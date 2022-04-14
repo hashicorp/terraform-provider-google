@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_cloud_deploy_delivery_pipeline`
+```
+```release-note:new-resource
+`google_cloud_deploy_target`
+```
