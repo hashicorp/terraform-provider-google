@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: modified request retry logic to retry all per-minute quota limits returned with a 403 error code. Previously, only read requests were retried. This will generally affect Google Compute Engine resources.
+```

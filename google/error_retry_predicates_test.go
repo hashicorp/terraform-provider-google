@@ -84,11 +84,33 @@ func TestIsCommonRetryableErrorCode_otherError(t *testing.T) {
 func TestIsOperationReadQuotaError_quotaExceeded(t *testing.T) {
 	err := googleapi.Error{
 		Code: 403,
-		Body: "Quota exceeded for quota group 'OperationReadGroup' and limit 'Operation read requests per 100 seconds' of service 'compute.googleapis.com' for consumer 'project_number:11111111'.",
+		Body: "Quota exceeded for quota metric 'OperationReadGroup' and limit 'Operation read requests per minute' of service 'compute.googleapis.com' for consumer 'project_number:11111111'.",
 	}
-	isRetryable, _ := isOperationReadQuotaError(&err)
+	isRetryable, _ := is403QuotaExceededPerMinuteError(&err)
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestIs403QuotaExceededPerMinuteError_perMinuteQuotaExceeded(t *testing.T) {
+	err := googleapi.Error{
+		Code: 403,
+		Body: "Quota exceeded for quota metric 'Queries' and limit 'Queries per minute' of service 'compute.googleapis.com' for consumer 'project_number:11111111'.",
+	}
+	isRetryable, _ := is403QuotaExceededPerMinuteError(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestIs403QuotaExceededPerMinuteError_perDayQuotaExceededNotRetryable(t *testing.T) {
+	err := googleapi.Error{
+		Code: 403,
+		Body: "Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'compute.googleapis.com' for consumer 'project_number:11111111'.",
+	}
+	isRetryable, _ := is403QuotaExceededPerMinuteError(&err)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
 	}
 }
 
