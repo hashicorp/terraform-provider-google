@@ -343,7 +343,7 @@ The following arguments are supported:
   API Gateway: Unused, App Engine: The service version, Cloud Functions: Unused, Cloud Run: The service tag
 
 * `url_mask` -
-  (Required)
+  (Optional)
   A template to parse platform-specific fields from a request URL. URL mask allows for routing to multiple resources
   on the same serverless platform without having to create multiple Network Endpoint Groups and backend resources.
   The fields parsed by this template are platform-specific and are as follows: API Gateway: The gateway ID,
