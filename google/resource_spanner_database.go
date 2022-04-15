@@ -556,7 +556,7 @@ func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, confi
 func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	obj["createStatement"] = fmt.Sprintf("CREATE DATABASE `%s`", obj["name"])
 	if dialect, ok := obj["databaseDialect"]; ok && dialect == "POSTGRESQL" {
-		obj["createStatement"] = fmt.Sprintf("CREATE DATABASE %s", obj["name"])
+		obj["createStatement"] = fmt.Sprintf("CREATE DATABASE \"%s\"", obj["name"])
 	}
 	delete(obj, "name")
 	delete(obj, "instance")

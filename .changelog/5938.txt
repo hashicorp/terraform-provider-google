@@ -1,0 +1,3 @@
+```release-note:bug
+spanner: fix escaping of database names with Postgres dialect in `google_spanner_database`
+```
