@@ -230,9 +230,10 @@ The `settings` block supports:
     active. Can be either `ALWAYS`, `NEVER` or `ON_DEMAND`.
 
 * `availability_type` - (Optional, Default: `ZONAL`) The availability type of the Cloud SQL
-instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For MySQL
-instances, ensure that `settings.backup_configuration.enabled` and
-`settings.backup_configuration.binary_log_enabled` are both set to `true`.
+  instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For MySQL and SQL Server instances,
+  ensure that `settings.backup_configuration.enabled` and `settings.backup_configuration.binary_log_enabled`
+  are both set to `true`. For Postgres instances, ensure that `settings.backup_configuration.enabled`
+  and `settings.backup_configuration.point_in_time_recovery_enabled` are both set to `true`.
 
 * `collation` - (Optional) The name of server instance collation.
 
