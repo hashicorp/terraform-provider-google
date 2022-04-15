@@ -169,7 +169,7 @@ resource "google_spanner_instance" "basic" {
 
 resource "google_spanner_database" "basic_spangres" {
   instance = google_spanner_instance.basic.name
-  name     = "%s_spangres"
+  name     = "%s-spangres"
   database_dialect = "POSTGRESQL"
   deletion_protection = false
 }
@@ -187,7 +187,7 @@ resource "google_spanner_instance" "basic" {
 
 resource "google_spanner_database" "basic_spangres" {
   instance = google_spanner_instance.basic.name
-  name     = "%s_spangres"
+  name     = "%s-spangres"
   database_dialect = "POSTGRESQL"
   ddl = [
      "CREATE TABLE t1 (t1 bigint NOT NULL PRIMARY KEY)",
