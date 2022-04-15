@@ -552,7 +552,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-private-ip-sql-instance%{random_suffix}"
   region           = "us-central1"
-  database_version = "SQLSERVER_2017_STANDARD"
+  database_version = "SQLSERVER_2019_STANDARD"
   root_password        = "INSERT-PASSWORD-HERE"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
@@ -566,6 +566,7 @@ resource "google_sql_database_instance" "instance" {
   }
   deletion_protection = "false"
 }
+
 `, context)
 }
 
