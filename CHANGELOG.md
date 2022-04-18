@@ -9,7 +9,7 @@ IMPROVEMENTS:
 * bigtable: added `gc_rules` to `google_bigtable_gc_policy` resource. ([#11481](https://github.com/hashicorp/terraform-provider-google/pull/11481))
 * dialogflow: added support for location based dialogflow resources ([#11470](https://github.com/hashicorp/terraform-provider-google/pull/11470))
 * metastore: added support for encryption_config during service creation. ([#11468](https://github.com/hashicorp/terraform-provider-google/pull/11468))
-* privateca: support update on CertificateAuthority and Certificate ([#11476](https://github.com/hashicorp/terraform-provider-google/pull/11476))
+* privateca: added support for update on CertificateAuthority and Certificate ([#11476](https://github.com/hashicorp/terraform-provider-google/pull/11476))
 
 BUG FIXES:
 * Update mutex on google_apigee_instance_attachment to lock on org_id. ([#11467](https://github.com/hashicorp/terraform-provider-google/pull/11467))
