@@ -12,7 +12,7 @@ IMPROVEMENTS:
 * privateca: added support for update on CertificateAuthority and Certificate ([#11476](https://github.com/hashicorp/terraform-provider-google/pull/11476))
 
 BUG FIXES:
-* Update mutex on google_apigee_instance_attachment to lock on org_id. ([#11467](https://github.com/hashicorp/terraform-provider-google/pull/11467))
+* apigee: updated mutex on google_apigee_instance_attachment to lock on org_id. ([#11467](https://github.com/hashicorp/terraform-provider-google/pull/11467))
 * vpcaccess: fixed an issue where `google_vpc_access_connector` would be repeatedly recreated when `network` was not specified ([#11469](https://github.com/hashicorp/terraform-provider-google/pull/11469))
 
 ## 4.17.0 (April 11, 2022)
