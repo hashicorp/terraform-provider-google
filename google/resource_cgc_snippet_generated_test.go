@@ -147,7 +147,7 @@ func testAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(context map[string]in
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-sqlserver-instance%{random_suffix}"
   region           = "us-central1"
-  database_version = "SQLSERVER_2017_STANDARD"
+  database_version = "SQLSERVER_2019_STANDARD"
   root_password = "INSERT-PASSWORD-HERE"
   settings {
     tier = "db-custom-2-7680"
@@ -239,7 +239,7 @@ func testAccCGCSnippet_sqlSqlserverInstanceBackupExample(context map[string]inte
 resource "google_sql_database_instance" "default" {
   name             = "tf-test-sqlserver-instance-backup%{random_suffix}"
   region           = "us-central1"
-  database_version = "SQLSERVER_2017_STANDARD"
+  database_version = "SQLSERVER_2019_STANDARD"
   root_password = "INSERT-PASSWORD-HERE"
   settings {
     tier = "db-custom-2-7680"
@@ -283,7 +283,7 @@ func testAccCGCSnippet_sqlSqlserverInstanceAuthorizedNetworkExample(context map[
 resource "google_sql_database_instance" "default" {
   name = "tf-test-sqlserver-instance-with-authorized-network%{random_suffix}"
   region           = "us-central1"
-  database_version = "SQLSERVER_2017_STANDARD"
+  database_version = "SQLSERVER_2019_STANDARD"
   root_password = "INSERT-PASSWORD-HERE"
   settings {
     tier = "db-custom-2-7680"
@@ -330,7 +330,7 @@ func testAccCGCSnippet_sqlSqlserverInstanceBackupLocationExample(context map[str
 resource "google_sql_database_instance" "default" {
   name             = "tf-test-sqlserver-instance-with-backup-location%{random_suffix}"
   region           = "us-central1"
-  database_version = "SQLSERVER_2017_STANDARD"
+  database_version = "SQLSERVER_2019_STANDARD"
   root_password = "INSERT-PASSWORD-HERE"
   settings {
     tier = "db-custom-2-7680"
@@ -374,7 +374,7 @@ func testAccCGCSnippet_sqlSqlserverInstanceBackupRetentionExample(context map[st
 resource "google_sql_database_instance" "default" {
   name             = "tf-test-sqlserver-instance-backup-retention%{random_suffix}"
   region           = "us-central1"
-  database_version = "SQLSERVER_2017_STANDARD"
+  database_version = "SQLSERVER_2019_STANDARD"
   root_password = "INSERT-PASSWORD-HERE"
   settings {
     tier = "db-custom-2-7680"
