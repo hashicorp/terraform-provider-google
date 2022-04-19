@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added field `update_policy.most_disruptive_allowed_action` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`
+```
+```release-note:enhancement
+compute: added value `REFRESH` to field update_policy.minimal_action` in `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`
+```
