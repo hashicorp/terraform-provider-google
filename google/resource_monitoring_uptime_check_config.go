@@ -56,6 +56,11 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Required:    true,
 				Description: `The maximum amount of time to wait for the request to complete (must be between 1 and 60 seconds). Accepted formats https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration`,
 			},
+			"checker_type": {
+				Type:		schema.TypeString,
+				Optional:   true,
+				Description: `The type of checkers to use to execute the Uptime check. Accepted formats https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.uptimeCheckConfigs#checkertype`,
+			},
 			"content_matchers": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -300,6 +305,12 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
 		obj["timeout"] = timeoutProp
 	}
+	checkerTypeProp, err := expandMonitoringUptimeCheckConfigCheckerType(d.Get("checker_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("checker_type"); !isEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, checkerTypeProp)) {
+		obj["checkerType"] = checkerTypeProp
+	}
 	contentMatchersProp, err := expandMonitoringUptimeCheckConfigContentMatchers(d.Get("content_matchers"), d, config)
 	if err != nil {
 		return err
@@ -499,6 +510,12 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
 		obj["timeout"] = timeoutProp
+	}
+	checkerTypeProp, err := expandMonitoringUptimeCheckConfigCheckerType(d.Get("checker_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("checker_type"); !isEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, checkerTypeProp)) {
+		obj["checkerType"] = checkerTypeProp
 	}
 	contentMatchersProp, err := expandMonitoringUptimeCheckConfigContentMatchers(d.Get("content_matchers"), d, config)
 	if err != nil {
@@ -883,6 +900,9 @@ func expandMonitoringUptimeCheckConfigPeriod(v interface{}, d TerraformResourceD
 }
 
 func expandMonitoringUptimeCheckConfigTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+func expandMonitoringUptimeCheckConfigCheckerType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
