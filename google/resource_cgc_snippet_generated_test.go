@@ -570,6 +570,58 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
+func TestAccCGCSnippet_sqlSqlserverInstanceFlagsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlSqlserverInstanceFlagsExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlSqlserverInstanceFlagsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-sqlserver-instance%{random_suffix}"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2019_STANDARD"
+  root_password = "INSERT-PASSWORD-HERE"
+  settings {
+    database_flags {
+      name  = "1204"
+      value = "on"
+    }
+    database_flags {
+      name  = "remote access"
+      value = "on"
+    }
+    database_flags {
+      name  = "remote query timeout (s)"
+      value = "300"
+    }
+    tier = "db-custom-2-7680"
+  }
+  deletion_protection = "%{deletion_protection}"
+}
+`, context)
+}
+
 func TestAccCGCSnippet_storageNewBucketExample(t *testing.T) {
 	t.Parallel()
 
