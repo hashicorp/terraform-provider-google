@@ -932,10 +932,11 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
   zone               = "us-central1-c"
   target_size        = 3
   update_policy {
-    type                  = "PROACTIVE"
-    minimal_action        = "REPLACE"
-    max_surge_fixed       = 2
-    max_unavailable_fixed = 2
+    type                           = "PROACTIVE"
+    minimal_action                 = "REPLACE"
+    most_disruptive_allowed_action = "REPLACE"
+    max_surge_fixed                = 2
+    max_unavailable_fixed          = 2
   }
   named_port {
     name = "customhttp"
