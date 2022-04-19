@@ -391,13 +391,13 @@ specified, then this instance will have no external IPv6 Internet access. Struct
     network ip. If not given, one will be generated.
 
 * `network_tier` - (Optional) The [networking tier][network-tier] used for configuring
-    this instance template. This field can take the following values: PREMIUM or
-    STANDARD. If this field is not specified, it is assumed to be PREMIUM.
+    this instance template. This field can take the following values: PREMIUM,
+    STANDARD or FIXED_STANDARD. If this field is not specified, it is assumed to be PREMIUM.
 
 <a name="nested_ipv6_access_config"></a>The `ipv6_access_config` block supports:
 
 * `network_tier` - (Optional) The service-level to be provided for IPv6 traffic when the
-    subnet has an external subnet. Only PREMIUM tier is valid for IPv6.
+    subnet has an external subnet. Only PREMIUM and STANDARD tier is valid for IPv6.
 
 <a name="nested_alias_ip_range"></a>The `alias_ip_range` block supports:
 

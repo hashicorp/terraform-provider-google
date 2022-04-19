@@ -1,0 +1,12 @@
+```release-note:enhancement
+compute: added `FIXED_STANDARD` as a valid value to the field `network_interface.0.access_configs.0.network_tier` of  `google_compute_instance_template` resource
+```
+```release-note:enhancement
+compute: added `STANDARD` as a valid value to the field `network_interface.0.ipv6_access_configs.0.network_tier` of  `google_compute_instance_template` resource
+```
+```release-note:enhancement
+compute: added `FIXED_STANDARD` as a valid value to the field `network_interface.0.access_configs.0.network_tier` of  `google_compute_instance` resource
+```
+```release-note:enhancement
+compute: added `STANDARD` as a valid value to the field `network_interface.0.ipv6_access_configs.0.network_tier` of  `google_compute_instance` resource
+```

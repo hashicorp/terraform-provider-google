@@ -339,12 +339,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Description: `The IP address that will be 1:1 mapped to the instance's network ip. If not given, one will be generated.`,
 									},
 									"network_tier": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Computed:     true,
-										ForceNew:     true,
-										Description:  `The networking tier used for configuring this instance template. This field can take the following values: PREMIUM or STANDARD. If this field is not specified, it is assumed to be PREMIUM.`,
-										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+										Description: `The networking tier used for configuring this instance template. This field can take the following values: PREMIUM, STANDARD, FIXED_STANDARD. If this field is not specified, it is assumed to be PREMIUM.`,
 									},
 									// Possibly configurable- this was added so we don't break if it's inadvertently set
 									"public_ptr_domain_name": {
@@ -401,10 +400,9 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"network_tier": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: validation.StringInSlice([]string{"PREMIUM"}, false),
-										Description:  `The service-level to be provided for IPv6 traffic when the subnet has an external subnet. Only PREMIUM tier is valid for IPv6`,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The service-level to be provided for IPv6 traffic when the subnet has an external subnet. Only PREMIUM tier is valid for IPv6`,
 									},
 									// Possibly configurable- this was added so we don't break if it's inadvertently set
 									// (assuming the same ass access config)
