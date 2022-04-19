@@ -9,7 +9,10 @@ description: |-
 
 # google_service_account_key
 
-Creates and manages service account keys, which allow the use of a service account outside of Google Cloud. 
+Creates and manages service account keys, which allow the use of a service account with Google Cloud.
+
+-> **Warning**: This resource persists a sensitive credential in plaintext in the [remote state](https://www.terraform.io/language/state/sensitive-data) used by Terraform.
+Please take appropriate measures to protect your remote state.
 
 * [API documentation](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys)
 * How-to Guides
