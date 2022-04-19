@@ -96,7 +96,7 @@ authentication options [documented for Google Cloud](https://cloud.google.com/do
 
 Place your credentials in a Terraform Cloud [environment variable](https://www.terraform.io/docs/cloud/workspaces/variables.html):
 1. Create an environment variable called `GOOGLE_CREDENTIALS` in your Terraform Cloud workspace.
-2. Remove the newline characters from your JSON key file and then paste the credentials into the environment variable value field.
+2. Remove the newline characters from your JSON key file and then paste the credentials into the environment variable value field. You can use the tr command to strip newline characters. `cat key.json  | tr -s '\n' ' '`
 3. Mark the variable as **Sensitive** and click **Save variable**.
 
 All runs within the workspace will use the `GOOGLE_CREDENTIALS` variable to authenticate with Google Cloud Platform.
