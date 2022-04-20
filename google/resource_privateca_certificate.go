@@ -566,6 +566,7 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 						"config_values": {
 							Type:        schema.TypeList,
 							Computed:    true,
+							Deprecated:  "Deprecated in favor of `x509_description`.",
 							Description: `Describes some of the technical fields in a certificate.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -905,6 +906,217 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 								},
 							},
 						},
+						"x509_description": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `A structured description of the issued X.509 certificate.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"additional_extensions": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Describes custom X.509 extensions.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"value": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value of this X.509 extension. A base64-encoded string.`,
+												},
+												"critical": {
+													Type:     schema.TypeBool,
+													Computed: true,
+													Description: `Indicates whether or not this extension is critical (i.e., if the client does not know how to
+handle this extension, the client should consider this to be an error).`,
+												},
+												"object_id": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Describes values that are relevant in a CA certificate.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"object_id_path": {
+																Type:        schema.TypeList,
+																Computed:    true,
+																Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeInt,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"aia_ocsp_servers": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Description: `Describes Online Certificate Status Protocol (OCSP) endpoint addresses that appear in the
+"Authority Information Access" extension in the certificate.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"ca_options": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Describes values that are relevant in a CA certificate.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"is_ca": {
+													Type:        schema.TypeBool,
+													Computed:    true,
+													Description: `When true, the "CA" in Basic Constraints extension will be set to true.`,
+												},
+												"max_issuer_path_length": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Description: `Refers to the "path length constraint" in Basic Constraints extension. For a CA certificate, this value describes the depth of
+subordinate CA certificates that are allowed. If this value is less than 0, the request will fail.`,
+												},
+											},
+										},
+									},
+									"key_usage": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Indicates the intended use for keys that correspond to a certificate.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"base_key_usage": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Describes high-level ways in which a key may be used.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"cert_sign": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used to sign certificates.`,
+															},
+															"content_commitment": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used for cryptographic commitments. Note that this may also be referred to as "non-repudiation".`,
+															},
+															"crl_sign": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used sign certificate revocation lists.`,
+															},
+															"data_encipherment": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used to encipher data.`,
+															},
+															"decipher_only": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used to decipher only.`,
+															},
+															"digital_signature": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used for digital signatures.`,
+															},
+															"encipher_only": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used to encipher only.`,
+															},
+															"key_agreement": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used in a key agreement protocol.`,
+															},
+															"key_encipherment": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `The key may be used to encipher other keys.`,
+															},
+														},
+													},
+												},
+												"extended_key_usage": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Describes high-level ways in which a key may be used.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"client_auth": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.2. Officially described as "TLS WWW client authentication", though regularly used for non-WWW TLS.`,
+															},
+															"code_signing": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.3. Officially described as "Signing of downloadable executable code client authentication".`,
+															},
+															"email_protection": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.4. Officially described as "Email protection".`,
+															},
+															"ocsp_signing": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".`,
+															},
+															"server_auth": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.1. Officially described as "TLS WWW server authentication", though regularly used for non-WWW TLS.`,
+															},
+															"time_stamping": {
+																Type:        schema.TypeBool,
+																Computed:    true,
+																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.8. Officially described as "Binding the hash of an object to a time".`,
+															},
+														},
+													},
+												},
+												"unknown_extended_key_usages": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"object_id_path": {
+																Type:        schema.TypeList,
+																Computed:    true,
+																Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeInt,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"policy_ids": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"object_id_path": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeInt,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -914,14 +1126,28 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 				Description: `The time that this resource was created on the server.
 This is in RFC3339 text format.`,
 			},
+			"issuer_certificate_authority": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The resource name of the issuing CertificateAuthority in the format projects/*/locations/*/caPools/*/certificateAuthorities/*.`,
+			},
 			"pem_certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. The pem-encoded, signed X.509 certificate.`,
 			},
+			"pem_certificate_chain": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The chain that may be used to verify the X.509 certificate. Expected to be in issuer-to-root order according to RFC 5246.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"pem_certificates": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "Deprecated in favor of `pem_certificate_chain`.",
 				Description: `Required. Expected to be in leaf-to-root order according to RFC 5246.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -1080,6 +1306,9 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 
+	if err := d.Set("issuer_certificate_authority", flattenPrivatecaCertificateIssuerCertificateAuthority(res["issuerCertificateAuthority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
 	if err := d.Set("lifetime", flattenPrivatecaCertificateLifetime(res["lifetime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
@@ -1090,6 +1319,9 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("certificate_description", flattenPrivatecaCertificateCertificateDescription(res["certificateDescription"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err := d.Set("pem_certificate_chain", flattenPrivatecaCertificatePemCertificateChain(res["pemCertificateChain"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("pem_certificates", flattenPrivatecaCertificatePemCertificates(res["pemCertificates"], d, config)); err != nil {
@@ -1231,6 +1463,10 @@ func resourcePrivatecaCertificateImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenPrivatecaCertificateIssuerCertificateAuthority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenPrivatecaCertificateLifetime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -1273,6 +1509,8 @@ func flattenPrivatecaCertificateCertificateDescription(v interface{}, d *schema.
 	transformed := make(map[string]interface{})
 	transformed["subject_description"] =
 		flattenPrivatecaCertificateCertificateDescriptionSubjectDescription(original["subjectDescription"], d, config)
+	transformed["x509_description"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509Description(original["x509Description"], d, config)
 	transformed["config_values"] =
 		flattenPrivatecaCertificateCertificateDescriptionConfigValues(original["configValues"], d, config)
 	transformed["public_key"] =
@@ -1466,6 +1704,285 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionNotBefor
 }
 
 func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionNotAfterTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509Description(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["additional_extensions"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensions(original["additionalExtensions"], d, config)
+	transformed["policy_ids"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIds(original["policyIds"], d, config)
+	transformed["aia_ocsp_servers"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAiaOcspServers(original["aiaOcspServers"], d, config)
+	transformed["ca_options"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptions(original["caOptions"], d, config)
+	transformed["key_usage"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsage(original["keyUsage"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"critical":  flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsCritical(original["critical"], d, config),
+			"value":     flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsValue(original["value"], d, config),
+			"object_id": flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectId(original["objectId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsCritical(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["object_id_path"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectIdObjectIdPath(original["objectIdPath"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"object_id_path": flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIdsObjectIdPath(original["objectIdPath"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIdsObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAiaOcspServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["is_ca"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsIsCa(original["isCa"], d, config)
+	transformed["max_issuer_path_length"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsMaxIssuerPathLength(original["maxIssuerPathLength"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsIsCa(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsMaxIssuerPathLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["base_key_usage"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsage(original["baseKeyUsage"], d, config)
+	transformed["extended_key_usage"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsage(original["extendedKeyUsage"], d, config)
+	transformed["unknown_extended_key_usages"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsages(original["unknownExtendedKeyUsages"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["digital_signature"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDigitalSignature(original["digitalSignature"], d, config)
+	transformed["content_commitment"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageContentCommitment(original["contentCommitment"], d, config)
+	transformed["key_encipherment"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyEncipherment(original["keyEncipherment"], d, config)
+	transformed["data_encipherment"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDataEncipherment(original["dataEncipherment"], d, config)
+	transformed["key_agreement"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyAgreement(original["keyAgreement"], d, config)
+	transformed["cert_sign"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCertSign(original["certSign"], d, config)
+	transformed["crl_sign"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCrlSign(original["crlSign"], d, config)
+	transformed["encipher_only"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageEncipherOnly(original["encipherOnly"], d, config)
+	transformed["decipher_only"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDecipherOnly(original["decipherOnly"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDigitalSignature(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageContentCommitment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyEncipherment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDataEncipherment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyAgreement(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCertSign(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCrlSign(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageEncipherOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDecipherOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["server_auth"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageServerAuth(original["serverAuth"], d, config)
+	transformed["client_auth"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageClientAuth(original["clientAuth"], d, config)
+	transformed["code_signing"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageCodeSigning(original["codeSigning"], d, config)
+	transformed["email_protection"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageEmailProtection(original["emailProtection"], d, config)
+	transformed["time_stamping"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageTimeStamping(original["timeStamping"], d, config)
+	transformed["ocsp_signing"] =
+		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageOcspSigning(original["ocspSigning"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageServerAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageClientAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageCodeSigning(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageEmailProtection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageTimeStamping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageOcspSigning(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsages(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"object_id_path": flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsagesObjectIdPath(original["objectIdPath"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsagesObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1738,6 +2255,10 @@ func flattenPrivatecaCertificateCertificateDescriptionCertFingerprint(v interfac
 	return []interface{}{transformed}
 }
 func flattenPrivatecaCertificateCertificateDescriptionCertFingerprintSha256Hash(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificatePemCertificateChain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
