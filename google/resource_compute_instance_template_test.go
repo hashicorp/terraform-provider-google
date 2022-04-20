@@ -1053,6 +1053,35 @@ func TestAccComputeInstanceTemplate_queueCount(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_spot(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_spot(randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateAutomaticRestart(&instanceTemplate, false),
+					testAccCheckComputeInstanceTemplatePreemptible(&instanceTemplate, true),
+					testAccCheckComputeInstanceTemplateProvisioningModel(&instanceTemplate, "SPOT"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -1195,6 +1224,15 @@ func testAccCheckComputeInstanceTemplatePreemptible(instanceTemplate *compute.In
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Scheduling.Preemptible != preemptible {
 			return fmt.Errorf("Expected preemptible value %v, got %v", preemptible, instanceTemplate.Properties.Scheduling.Preemptible)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateProvisioningModel(instanceTemplate *compute.InstanceTemplate, provisioning_model string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.Scheduling.ProvisioningModel != provisioning_model {
+			return fmt.Errorf("Expected provisioning_model  %v, got %v", provisioning_model, instanceTemplate.Properties.Scheduling.ProvisioningModel)
 		}
 		return nil
 	}
@@ -2633,4 +2671,44 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, instanceTemplateName)
+}
+
+func testAccComputeInstanceTemplate_spot(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = true
+    automatic_restart = false
+    provisioning_model = "SPOT"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix)
 }
