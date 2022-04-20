@@ -28,7 +28,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityUpdate(t 
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
+				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool", "deletion_protection"},
 			},
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityEnd(context),
@@ -37,7 +37,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityUpdate(t 
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
+				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool", "deletion_protection"},
 			},
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityStart(context),
@@ -46,7 +46,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityUpdate(t 
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
+				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool", "deletion_protection"},
 			},
 		},
 	})
@@ -60,6 +60,7 @@ resource "google_privateca_certificate_authority" "default" {
 	pool = "%{pool_name}"
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
 	location = "%{pool_location}"
+	deletion_protection = false
 	config {
 		subject_config {
 		subject {
@@ -112,6 +113,7 @@ resource "google_privateca_certificate_authority" "default" {
 	pool = "%{pool_name}"
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
 	location = "%{pool_location}"
+	deletion_protection = false
 	config {
 		subject_config {
 		subject {

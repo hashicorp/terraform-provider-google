@@ -60,6 +60,7 @@ resource "google_privateca_certificate_authority" "default" {
 	pool = "%{pool_name}"
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
 	location = "%{pool_location}"
+	deletion_protection = false
 	config {
 		subject_config {
 			subject {
@@ -137,6 +138,7 @@ resource "google_privateca_certificate_authority" "default" {
 	pool = "%{pool_name}"
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
 	location = "%{pool_location}"
+	deletion_protection = false
 	config {
 		subject_config {
 			subject {

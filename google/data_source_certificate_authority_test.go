@@ -39,6 +39,7 @@ resource "google_privateca_certificate_authority" "default" {
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
   location = "%{pool_location}"
   type = "SUBORDINATE"
+  deletion_protection = false
   config {
     subject_config {
       subject {

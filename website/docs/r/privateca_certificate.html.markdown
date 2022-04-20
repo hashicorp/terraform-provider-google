@@ -39,6 +39,7 @@ resource "google_privateca_certificate_authority" "test-ca" {
   location = "us-central1"
   pool = ""
   ignore_active_certificates_on_deletion = true
+  deletion_protection = false
   config {
     subject_config {
       subject {
@@ -196,6 +197,7 @@ resource "google_privateca_certificate_authority" "test-ca" {
   pool = ""
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
+  deletion_protection = false
   config {
     subject_config {
       subject {
@@ -247,6 +249,7 @@ resource "google_privateca_certificate_authority" "test-ca" {
   pool = ""
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
+  deletion_protection = false
   config {
     subject_config {
       subject {
@@ -299,6 +302,7 @@ resource "google_privateca_certificate_authority" "authority" {
   pool = ""
   certificate_authority_id = "my-authority"
   location = "us-central1"
+  deletion_protection = false
   config {
     subject_config {
       subject {
