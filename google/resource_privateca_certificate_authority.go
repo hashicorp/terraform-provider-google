@@ -596,6 +596,11 @@ CertificateAuthority's certificate.`,
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
 fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -782,6 +787,12 @@ func resourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta inte
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_protection"); !ok {
+		if err := d.Set("deletion_protection", true); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading CertificateAuthority: %s", err)
 	}
@@ -912,6 +923,10 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 	}
 
 	var obj map[string]interface{}
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy CertificateAuthority without setting deletion_protection=false and running `terraform apply`")
+	}
+
 	if d.Get("state").(string) == "ENABLED" {
 		disableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
 		if err != nil {
@@ -974,6 +989,10 @@ func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
 	if err := d.Set("ignore_active_certificates_on_deletion", false); err != nil {
 		return nil, err
 	}

@@ -32,6 +32,10 @@ To get more information about CertificateAuthority, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/certificate-authority-service)
 
+~> **Warning:** On newer versions of the provider, you must explicitly set `deletion_protection=false`
+(and run `terraform apply` to write the field to state) in order to destroy a CertificateAuthority.
+It is recommended to not set this field (or set it to true) until you're ready to destroy.
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=privateca_certificate_authority_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -47,6 +51,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
+  deletion_protection = "true"
   config {
     subject_config {
       subject {
@@ -104,6 +109,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
+  deletion_protection = "true"
   config {
     subject_config {
       subject {
@@ -179,6 +185,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
+  deletion_protection = "true"
   key_spec {
     cloud_kms_key_version = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key/cryptoKeyVersions/1"
   }
@@ -544,6 +551,9 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the CertificateAuthority. Unless this field is set to false
+in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
 
 ## Attributes Reference
