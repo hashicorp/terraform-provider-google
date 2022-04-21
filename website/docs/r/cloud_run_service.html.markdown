@@ -673,6 +673,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_volumes).
 
 * `serving_state` -
+  (Deprecated)
   ServingState holds a value describing the state the resources
   are in for this Revision.
   It is expected
