@@ -424,6 +424,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 		obj["logConfig"] = logConfigProp
+		obj["enableFlowLogs"] = true
 	}
 	stackTypeProp, err := expandComputeSubnetworkStackType(d.Get("stack_type"), d, config)
 	if err != nil {
