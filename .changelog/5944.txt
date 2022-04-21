@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `subsetting` field to `google_compute_region_backend_service` (beta)
+```
