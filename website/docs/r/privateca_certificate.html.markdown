@@ -721,6 +721,7 @@ In addition to the arguments listed above, the following computed attributes are
   The chain that may be used to verify the X.509 certificate. Expected to be in issuer-to-root order according to RFC 5246.
 
 * `pem_certificates` -
+  (Deprecated)
   Required. Expected to be in leaf-to-root order according to RFC 5246.
 
 * `create_time` -
@@ -751,6 +752,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_x509_description).
 
 * `config_values` -
+  (Deprecated)
   Describes some of the technical fields in a certificate.
   Structure is [documented below](#nested_config_values).
 
