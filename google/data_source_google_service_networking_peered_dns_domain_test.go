@@ -53,6 +53,7 @@ resource "google_project_service" "host-compute" {
 resource "google_project_service" "host" {
   project = google_project.host.project_id
   service = "%s"
+  depends_on = [google_project_service.host-compute]
 }
 
 resource "google_compute_network" "test" {
