@@ -48,7 +48,7 @@ is "cancelled", but if a user sets `on_delete` to `"drain"` in the
 configuration, you may experience a long wait for your `terraform destroy` to
 complete.
 
-You can potentially short-circuit the wait by setting `skip_wait_for_job_termination`
+You can potentially short-circuit the wait by setting `skip_wait_on_job_termination`
 to `true`, but beware that unless you take active steps to ensure that the job
 `name` parameter changes between instances, the name will conflict and the launch
 of the new job will fail. One way to do this is with a
@@ -73,7 +73,7 @@ resource "google_dataflow_flex_template_job" "big_data_job" {
   name                          = "dataflow-flextemplates-job-${random_id.big_data_job_name_suffix.dec}"
   region                        = var.region
   container_spec_gcs_path       = "gs://my-bucket/templates/template.json"
-  skip_wait_for_job_termination = true
+  skip_wait_on_job_termination = true
   parameters = {
     inputSubscription = var.big_data_job_subscription_id
   }
@@ -106,7 +106,7 @@ labels will be ignored to prevent diffs on re-apply.
 * `on_delete` - (Optional) One of "drain" or "cancel". Specifies behavior of
 deletion during `terraform destroy`.  See above note.
 
-* `skip_wait_for_job_termination` - (Optional)  If set to `true`, terraform will
+* `skip_wait_on_job_termination` - (Optional)  If set to `true`, terraform will
 treat `DRAINING` and `CANCELLING` as terminal states when deleting the resource,
 and will remove the resource from terraform state and move on.  See above note.
 
