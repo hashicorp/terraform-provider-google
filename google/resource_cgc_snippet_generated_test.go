@@ -761,5 +761,15 @@ resource "google_storage_bucket_object" "default" {
   content_type = "text/plain"
   bucket       = google_storage_bucket.static.id
 }
+
+# Get object metadata
+data "google_storage_bucket_object" "default" {
+  name         = google_storage_bucket_object.default.name
+  bucket       = google_storage_bucket.static.id
+}
+
+output "object_metadata" {
+  value        = data.google_storage_bucket_object.default
+}
 `, context)
 }
