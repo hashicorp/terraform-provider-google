@@ -1053,6 +1053,32 @@ func TestAccComputeInstanceTemplate_queueCount(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_managedEnvoy(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_managedEnvoy(randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 	t.Parallel()
 
@@ -2671,6 +2697,86 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, instanceTemplateName)
+}
+
+func testAccComputeInstanceTemplate_managedEnvoy(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_default_service_account" "default" {
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+  }
+
+  metadata = {
+    gce-software-declaration = <<-EOF
+    {
+	  "softwareRecipes": [{
+	    "name": "install-gce-service-proxy-agent",
+	    "desired_state": "INSTALLED",
+	    "installSteps": [{
+	      "scriptRun": {
+	        "script": "#! /bin/bash\nZONE=$(curl --silent http://metadata.google.internal/computeMetadata/v1/instance/zone -H Metadata-Flavor:Google | cut -d/ -f4 )\nexport SERVICE_PROXY_AGENT_DIRECTORY=$(mktemp -d)\nsudo gsutil cp   gs://gce-service-proxy-"$ZONE"/service-proxy-agent/releases/service-proxy-agent-0.2.tgz   "$SERVICE_PROXY_AGENT_DIRECTORY"   || sudo gsutil cp     gs://gce-service-proxy/service-proxy-agent/releases/service-proxy-agent-0.2.tgz     "$SERVICE_PROXY_AGENT_DIRECTORY"\nsudo tar -xzf "$SERVICE_PROXY_AGENT_DIRECTORY"/service-proxy-agent-0.2.tgz -C "$SERVICE_PROXY_AGENT_DIRECTORY"\n"$SERVICE_PROXY_AGENT_DIRECTORY"/service-proxy-agent/service-proxy-agent-bootstrap.sh"
+	      }
+	    }]
+	  }]
+	}
+    EOF
+    gce-service-proxy        = <<-EOF
+    {
+      "api-version": "0.2",
+      "proxy-spec": {
+        "proxy-port": 15001,
+        "network": "my-network",
+        "tracing": "ON",
+        "access-log": "/var/log/envoy/access.log"
+      }
+      "service": {
+        "serving-ports": [80, 81]
+      },
+     "labels": {
+       "app_name": "bookserver_app",
+       "app_version": "STABLE"
+      }
+    }
+    EOF
+    enable-guest-attributes = "true"
+    enable-osconfig         = "true"
+
+  }
+
+  service_account {
+  	email  = data.google_compute_default_service_account.default.email
+    scopes = ["cloud-platform"]
+  }
+
+  labels = {
+    gce-service-proxy = "on"
+  }
+}
+`, suffix)
 }
 
 func testAccComputeInstanceTemplate_spot(suffix string) string {
