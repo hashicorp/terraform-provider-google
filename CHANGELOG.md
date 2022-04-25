@@ -3,14 +3,12 @@
 IMPROVEMENTS:
 * cloudbuild: made `CLOUD_LOGGING_ONLY` available as a cloud build logging option. ([#11511](https://github.com/hashicorp/terraform-provider-google/pull/11511))
 * compute: added `redirect_options` field for `google_compute_security_policy` rules ([#11492](https://github.com/hashicorp/terraform-provider-google/pull/11492))
-* compute: added `FIXED_STANDARD` as a valid value to the field `network_interface.0.access_configs.0.network_tier` of  `google_compute_instance_template` resource ([#11536](https://github.com/hashicorp/terraform-provider-google/pull/11536))
-* compute: added `FIXED_STANDARD` as a valid value to the field `network_interface.0.access_configs.0.network_tier` of  `google_compute_instance` resource ([#11536](https://github.com/hashicorp/terraform-provider-google/pull/11536))
-* compute: added `STANDARD` as a valid value to the field `network_interface.0.ipv6_access_configs.0.network_tier` of  `google_compute_instance_template` resource ([#11536](https://github.com/hashicorp/terraform-provider-google/pull/11536))
-* compute: added `STANDARD` as a valid value to the field `network_interface.0.ipv6_access_configs.0.network_tier` of  `google_compute_instance` resource ([#11536](https://github.com/hashicorp/terraform-provider-google/pull/11536))
+* compute: added `FIXED_STANDARD` and `STANDARD` as valid values to the field `network_interface.0.access_configs.0.network_tier` of  `google_compute_instance_template` resource ([#11536](https://github.com/hashicorp/terraform-provider-google/pull/11536))
+* compute: added `FIXED_STANDARD` and `STANDARD` as valid values to the field `network_interface.0.access_configs.0.network_tier` of  `google_compute_instance` resource ([#11536](https://github.com/hashicorp/terraform-provider-google/pull/11536))
 * filestore: added `kms_key_name` field to `google_filestore_instance` resource to support CMEK ([#11493](https://github.com/hashicorp/terraform-provider-google/pull/11493))
 * filestore: promoted enterprise features to GA ([#11493](https://github.com/hashicorp/terraform-provider-google/pull/11493))
 * logging: made `google_logging_*_bucket_config` deletable ([#11538](https://github.com/hashicorp/terraform-provider-google/pull/11538))
-* notebooks: updated container_images config to default_from_api ([#11491](https://github.com/hashicorp/terraform-provider-google/pull/11491))
+* notebooks: updated `container_images` on `google_notebooks_runtime` to default to the value returned by the API if not set ([#11491](https://github.com/hashicorp/terraform-provider-google/pull/11491))
 * provider: modified request retry logic to retry all per-minute quota limits returned with a 403 error code. Previously, only read requests were retried. This will generally affect Google Compute Engine resources. ([#11508](https://github.com/hashicorp/terraform-provider-google/pull/11508))
 
 BUG FIXES:
