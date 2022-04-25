@@ -622,6 +622,307 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
+func TestAccCGCSnippet_sqlInstanceHaExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlInstanceHaExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlInstanceHaExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "mysql_instance_ha" {
+  name             = "tf-test-mysql-instance-ha%{random_suffix}"
+  region           = "asia-northeast1"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier              = "db-f1-micro"
+    availability_type = "REGIONAL"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+      start_time         = "20:55"
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+
+resource "google_sql_database_instance" "postgres_instance_ha" {
+  name             = "tf-test-postgres-instance-ha%{random_suffix}"
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  settings {
+    tier              = "db-custom-2-7680"
+    availability_type = "REGIONAL"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+      start_time                     = "20:55"
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+
+resource "google_sql_database_instance" "default" {
+  name             = "tf-test-sqlserver-instance-ha%{random_suffix}"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2019_STANDARD"
+  root_password = "INSERT-PASSWORD-HERE"
+  settings {
+    tier              = "db-custom-2-7680"
+    availability_type = "REGIONAL"
+    backup_configuration {
+      enabled            = true
+      start_time         = "20:55"
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+`, context)
+}
+
+func TestAccCGCSnippet_sqlInstanceCmekExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlInstanceCmekExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlInstanceCmekExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project_service_identity" "gcp-sa-cloud-sql" {
+  provider = google-beta
+  service  = "sqladmin.googleapis.com"
+}
+
+resource "google_kms_key_ring" "keyring" {
+  name     = "tf-test-keyring-name%{random_suffix}"
+  location = "europe-north1"
+}
+
+resource "google_kms_crypto_key" "key" {
+  name     = "tf-test-crypto-key-name%{random_suffix}"
+  key_ring = google_kms_key_ring.keyring.id
+  purpose  = "ENCRYPT_DECRYPT"
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:${google_project_service_identity.gcp-sa-cloud-sql.email}",
+  ]
+}
+
+resource "google_sql_database_instance" "mysql_instance_with_cmek" {
+  name                = "tf-test-mysql-instance-cmek%{random_suffix}"
+  provider            = google-beta
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  encryption_key_name = google_kms_crypto_key.key.id
+  settings {
+    tier = "db-n1-standard-2"
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+
+resource "google_sql_database_instance" "postgres_instance_with_cmek" {
+  name                = "tf-test-postgres-instance-cmek%{random_suffix}"
+  provider            = google-beta
+  region              = "us-central1"
+  database_version    = "POSTGRES_14"
+  encryption_key_name = google_kms_crypto_key.key.id
+  settings {
+    tier = "db-custom-2-7680"
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+
+resource "google_sql_database_instance" "default" {
+  name                = "tf-test-sqlserver-instance-cmek%{random_suffix}"
+  provider            = google-beta
+  region              = "us-central1"
+  database_version    = "SQLSERVER_2019_STANDARD"
+  root_password       = "INSERT-PASSWORD-HERE "
+  encryption_key_name = google_kms_crypto_key.key.id
+  settings {
+    tier = "db-custom-2-7680"
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+`, context)
+}
+
+func TestAccCGCSnippet_sqlInstanceLabelsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlInstanceLabelsExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlInstanceLabelsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "mysql_instance_labels" {
+  name             = "tf-test-mysql-instance-labels%{random_suffix}"
+  region           = "us-central1"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier = "db-n1-standard-2"
+    user_labels = {
+      track        = "production"
+      billing-code = 34802
+    }
+  }
+  deletion_protection = "false"
+}
+
+resource "google_sql_database_instance" "postgres_instance_labels" {
+  name             = "tf-test-postgres-instance-labels%{random_suffix}"
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  settings {
+    tier = "db-custom-2-7680"
+    user_labels = {
+      track        = "production"
+      billing-code = 34802
+    }
+  }
+  deletion_protection = "false"
+}
+
+resource "google_sql_database_instance" "default" {
+  name             = "tf-test-sqlserver-instance-labels%{random_suffix}"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2019_STANDARD"
+  root_password    = "INSERT-PASSWORD-HERE"
+  settings {
+    tier = "db-custom-2-7680"
+    user_labels = {
+      track        = "production"
+      billing-code = 34802
+    }
+  }
+  deletion_protection = "false"
+}
+`, context)
+}
+
+func TestAccCGCSnippet_sqlInstancePitrExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_sqlInstancePitrExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_sqlInstancePitrExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "default" {
+  name             = "tf-test-mysql-instance-pitr%{random_suffix}"
+  region           = "asia-northeast1"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier = "db-f1-micro"
+    backup_configuration {
+      enabled                        = true
+      binary_log_enabled             = true
+      start_time                     = "20:55"
+      transaction_log_retention_days = "3"
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+
+resource "google_sql_database_instance" "postgres_instance_pitr" {
+  name             = ""
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  settings {
+    tier = "db-custom-2-7680"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+      start_time                     = "20:55"
+      transaction_log_retention_days = "3"
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+`, context)
+}
+
 func TestAccCGCSnippet_storageNewBucketExample(t *testing.T) {
 	t.Parallel()
 
