@@ -702,7 +702,7 @@ func TestAccCGCSnippet_sqlInstanceCmekExample(t *testing.T) {
 
 func testAccCGCSnippet_sqlInstanceCmekExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_project_service_identity" "gcp-sa-cloud-sql" {
+resource "google_project_service_identity" "gcp_sa_cloud_sql" {
   provider = google-beta
   service  = "sqladmin.googleapis.com"
 }
@@ -723,7 +723,7 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   members = [
-    "serviceAccount:${google_project_service_identity.gcp-sa-cloud-sql.email}",
+    "serviceAccount:${google_project_service_identity.gcp_sa_cloud_sql.email}",
   ]
 }
 
