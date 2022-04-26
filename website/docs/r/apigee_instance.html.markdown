@@ -271,6 +271,13 @@ The following arguments are supported:
   Customer Managed Encryption Key (CMEK) used for disk and volume encryption. Required for Apigee paid subscriptions only.
   Use the following format: `projects/([^/]+)/locations/([^/]+)/keyRings/([^/]+)/cryptoKeys/([^/]+)`
 
+* `consumer_accept_list` -
+  (Optional)
+  Optional. Customer accept list represents the list of projects (id/number) on customer
+  side that can privately connect to the service attachment. It is an optional field
+  which the customers can provide during the instance creation. By default, the customer
+  project associated with the Apigee organization will be included to the list.
+
 
 ## Attributes Reference
 
@@ -283,6 +290,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `port` -
   Output only. Port number of the exposed Apigee endpoint.
+
+* `service_attachment` -
+  Output only. Resource name of the service attachment created for the instance in
+  the format: projects/*/regions/*/serviceAttachments/* Apigee customers can privately
+  forward traffic to this service attachment using the PSC endpoints.
 
 
 ## Timeouts
