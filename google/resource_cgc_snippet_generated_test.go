@@ -116,6 +116,59 @@ resource "google_storage_bucket" "default" {
 `, context)
 }
 
+func TestAccCGCSnippet_spotInstanceBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_spotInstanceBasicExample(context),
+			},
+			{
+				ResourceName:      "google_compute_instance.spot_vm_instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_spotInstanceBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_compute_instance" "spot_vm_instance" {
+  name         = "tf-test-spot-instance-name%{random_suffix}"
+  machine_type = "f1-micro"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+  
+  scheduling {
+      preemptible = true
+      automatic_restart = false
+      provisioning_model = "SPOT"
+  }
+
+  network_interface {
+    # A default network is created for all GCP projects
+    network = "default"
+    access_config {
+    }
+  }
+}
+
+`, context)
+}
+
 func TestAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(t *testing.T) {
 	t.Parallel()
 
