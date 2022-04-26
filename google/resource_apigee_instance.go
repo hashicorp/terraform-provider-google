@@ -59,6 +59,19 @@ func resourceApigeeInstance() *schema.Resource {
 				Description: `The Apigee Organization associated with the Apigee instance,
 in the format 'organizations/{{org_name}}'.`,
 			},
+			"consumer_accept_list": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optional. Customer accept list represents the list of projects (id/number) on customer
+side that can privately connect to the service attachment. It is an optional field
+which the customers can provide during the instance creation. By default, the customer
+project associated with the Apigee organization will be included to the list.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -107,6 +120,13 @@ see [CidrRange](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. Port number of the exposed Apigee endpoint.`,
+			},
+			"service_attachment": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Output only. Resource name of the service attachment created for the instance in
+the format: projects/*/regions/*/serviceAttachments/* Apigee customers can privately
+forward traffic to this service attachment using the PSC endpoints.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -162,6 +182,12 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("disk_encryption_key_name"); !isEmptyValue(reflect.ValueOf(diskEncryptionKeyNameProp)) && (ok || !reflect.DeepEqual(v, diskEncryptionKeyNameProp)) {
 		obj["diskEncryptionKeyName"] = diskEncryptionKeyNameProp
+	}
+	consumerAcceptListProp, err := expandApigeeInstanceConsumerAcceptList(d.Get("consumer_accept_list"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_accept_list"); !isEmptyValue(reflect.ValueOf(consumerAcceptListProp)) && (ok || !reflect.DeepEqual(v, consumerAcceptListProp)) {
+		obj["consumerAcceptList"] = consumerAcceptListProp
 	}
 
 	lockName, err := replaceVars(d, config, "{{org_id}}/apigeeInstances")
@@ -270,6 +296,12 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("port", flattenApigeeInstancePort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("consumer_accept_list", flattenApigeeInstanceConsumerAcceptList(res["consumerAcceptList"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("service_attachment", flattenApigeeInstanceServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
@@ -399,6 +431,14 @@ func flattenApigeeInstancePort(v interface{}, d *schema.ResourceData, config *Co
 	return v
 }
 
+func flattenApigeeInstanceConsumerAcceptList(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenApigeeInstanceServiceAttachment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandApigeeInstanceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -424,5 +464,9 @@ func expandApigeeInstanceDisplayName(v interface{}, d TerraformResourceData, con
 }
 
 func expandApigeeInstanceDiskEncryptionKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeInstanceConsumerAcceptList(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
