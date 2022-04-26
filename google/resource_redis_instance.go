@@ -59,6 +59,14 @@ func isRedisVersionDecreasingFunc(old, new interface{}) bool {
 	return newVersion < oldVersion
 }
 
+// returns true if old=new or old='auto'
+func secondaryIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if (strings.ToLower(new) == "auto" && old != "") || old == new {
+		return true
+	}
+	return false
+}
+
 func resourceRedisInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceRedisInstanceCreate,
@@ -287,7 +295,6 @@ resolution and up to nine fractional digits.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: validateEnum([]string{"READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED", ""}),
 				Description: `Optional. Read replica mode. Can only be specified when trying to create the instance.
 If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
@@ -338,6 +345,16 @@ instance. If not provided, the service will choose an unused /29
 block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
 unique and non-overlapping with existing subnets in an authorized
 network.`,
+			},
+			"secondary_ip_range": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: secondaryIpDiffSuppress,
+				Description: `Optional. Additional IP range for node placement. Required when enabling read replicas on
+an existing instance. For DIRECT_PEERING mode value must be a CIDR range of size /28, or
+"auto". For PRIVATE_SERVICE_ACCESS mode value must be the name of an allocated address 
+range associated with the private service access connection, or "auto".`,
 			},
 			"tier": {
 				Type:         schema.TypeString,
@@ -593,6 +610,12 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("read_replicas_mode"); !isEmptyValue(reflect.ValueOf(readReplicasModeProp)) && (ok || !reflect.DeepEqual(v, readReplicasModeProp)) {
 		obj["readReplicasMode"] = readReplicasModeProp
 	}
+	secondaryIpRangeProp, err := expandRedisInstanceSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("secondary_ip_range"); !isEmptyValue(reflect.ValueOf(secondaryIpRangeProp)) && (ok || !reflect.DeepEqual(v, secondaryIpRangeProp)) {
+		obj["secondaryIpRange"] = secondaryIpRangeProp
+	}
 
 	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
 	if err != nil {
@@ -801,6 +824,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("read_replicas_mode", flattenRedisInstanceReadReplicasMode(res["readReplicasMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("secondary_ip_range", flattenRedisInstanceSecondaryIpRange(res["secondaryIpRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 
 	return nil
 }
@@ -869,6 +895,18 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("replica_count"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, replicaCountProp)) {
 		obj["replicaCount"] = replicaCountProp
 	}
+	readReplicasModeProp, err := expandRedisInstanceReadReplicasMode(d.Get("read_replicas_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("read_replicas_mode"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, readReplicasModeProp)) {
+		obj["readReplicasMode"] = readReplicasModeProp
+	}
+	secondaryIpRangeProp, err := expandRedisInstanceSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("secondary_ip_range"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, secondaryIpRangeProp)) {
+		obj["secondaryIpRange"] = secondaryIpRangeProp
+	}
 
 	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
 	if err != nil {
@@ -913,6 +951,14 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("replica_count") {
 		updateMask = append(updateMask, "replicaCount")
+	}
+
+	if d.HasChange("read_replicas_mode") {
+		updateMask = append(updateMask, "readReplicasMode")
+	}
+
+	if d.HasChange("secondary_ip_range") {
+		updateMask = append(updateMask, "secondaryIpRange")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -1440,6 +1486,10 @@ func flattenRedisInstanceReadReplicasMode(v interface{}, d *schema.ResourceData,
 	return v
 }
 
+func flattenRedisInstanceSecondaryIpRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandRedisInstanceAlternativeLocationId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1721,6 +1771,10 @@ func expandRedisInstanceReplicaCount(v interface{}, d TerraformResourceData, con
 }
 
 func expandRedisInstanceReadReplicasMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisInstanceSecondaryIpRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
