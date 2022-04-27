@@ -709,7 +709,7 @@ resource "google_project_service_identity" "gcp_sa_cloud_sql" {
 
 resource "google_kms_key_ring" "keyring" {
   name     = "tf-test-keyring-name%{random_suffix}"
-  location = "europe-north1"
+  location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "key" {
