@@ -1393,7 +1393,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	// Change back to getInstance(config, d) once updating alias ips is GA.
 	instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Instance %s", instance.Name))
+		return handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 	}
 
 	// Enable partial mode for the resource since it is possible
