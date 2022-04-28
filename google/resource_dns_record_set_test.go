@@ -244,6 +244,37 @@ func TestAccDNSRecordSet_uppercaseMX(t *testing.T) {
 	})
 }
 
+func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_routingPolicyWRR(zoneName, "127.0.0.10", 300, 0.1),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsRecordSet_routingPolicyGEO(zoneName, "127.0.0.10", 300, "us-central1"),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckDnsRecordSetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 
 	return func(s *terraform.State) error {
@@ -372,4 +403,60 @@ resource "google_dns_record_set" "foobar" {
   ttl = %d
 }
 `, name, name, name, ttl)
+}
+
+func testAccDnsRecordSet_routingPolicyWRR(zoneName, addr2 string, ttl int, weight float64) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+
+  routing_policy {
+    wrr {
+      weight       = 0.9
+      rrdatas      = ["127.0.0.1"]
+    }
+    wrr {
+      weight       = %g
+      rrdatas      = ["%s"]
+    }
+  }
+}
+`, zoneName, zoneName, zoneName, ttl, weight, addr2)
+}
+
+func testAccDnsRecordSet_routingPolicyGEO(zoneName, addr2 string, ttl int, location string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+
+  routing_policy {
+    geo {
+      location = "asia-east1"
+      rrdatas  = ["127.0.0.1"]
+    }
+    geo {
+      location = "%s"
+      rrdatas  = ["%s"]
+    }
+  }
+}
+`, zoneName, zoneName, zoneName, ttl, location, addr2)
 }
