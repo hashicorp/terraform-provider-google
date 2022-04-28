@@ -142,6 +142,10 @@ The following arguments are supported:
     
 <a name="nested_git"></a>The `git` block supports:
     
+* `gcp_service_account_email` -
+  (Optional)
+  The GCP Service Account Email used for auth when secretType is gcpServiceAccount.
+
 * `https_proxy` -
   (Optional)
   URL for the HTTPS proxy to be used when communicating with the Git repo.
