@@ -237,11 +237,18 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as https_trigger_url. Cannot be used with trigger_bucket and trigger_topic.`,
 			},
 
+			"require_https": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Boolean variable. Any HTTP request to the cloudfunction must use HTTPS.`,
+			},
+
 			"event_trigger": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"trigger_http"},
+				ConflictsWith: []string{"trigger_http", "require_https"},
 				MaxItems:      1,
 				Description:   `A source that fires events in response to a condition in another service. Cannot be used with trigger_http.`,
 				Elem: &schema.Resource{
@@ -469,6 +476,9 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.EventTrigger = expandEventTrigger(v.([]interface{}), project)
 	} else if v, ok := d.GetOk("trigger_http"); ok && v.(bool) {
 		function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
+		if v, ok := d.GetOk("require_https"); ok && v.(bool) {
+			function.HttpsTrigger.SecurityLevel = "SECURE_ALWAYS"
+		}
 	} else {
 		return fmt.Errorf("One of `event_trigger` or `trigger_http` is required: " +
 			"You must specify a trigger when deploying a new function.")
@@ -623,6 +633,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		if err := d.Set("https_trigger_url", function.HttpsTrigger.Url); err != nil {
 			return fmt.Errorf("Error setting https_trigger_url: %s", err)
+		}
+		if err := d.Set("require_https", function.HttpsTrigger.SecurityLevel == "SECURE_ALWAYS"); err != nil {
+			return fmt.Errorf("Error setting require_https: %s", err)
 		}
 	}
 
