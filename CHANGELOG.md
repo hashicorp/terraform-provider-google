@@ -9,7 +9,7 @@ FEATURES:
 IMPROVEMENTS:
 * apigee: added `consumer_accept_list` and `service_attachment` to `google_apigee_instance`. ([#11595](https://github.com/hashicorp/terraform-provider-google/pull/11595))
 * compute: added `provisioning_model` field to `google_compute_instance_template` and `google_compute_instance` resources to support Spot VM ([#11552](https://github.com/hashicorp/terraform-provider-google/pull/11552))
-* privateca: add `deletion_protection` for `google_privateca_certificate_authority`. ([#11551](https://github.com/hashicorp/terraform-provider-google/pull/11551))
+* privateca: added `deletion_protection` for `google_privateca_certificate_authority`. ([#11551](https://github.com/hashicorp/terraform-provider-google/pull/11551))
 * privateca: added new output fields on `google_privateca_certificate` including `issuer_certificate_authority`, `pem_certificate_chain` and `certificate_description.x509_description` ([#11553](https://github.com/hashicorp/terraform-provider-google/pull/11553))
 * redis: added multi read replica field `read_replicas_mode` and `secondary_ip_range` in `google_redis_instance` ([#11592](https://github.com/hashicorp/terraform-provider-google/pull/11592))
 
