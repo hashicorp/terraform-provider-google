@@ -1,4 +1,23 @@
 ## 4.20.0 (Unreleased)
+
+NOTES:
+* `google_privateca_certificate_authority` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource. ([#11551](https://github.com/hashicorp/terraform-provider-google/pull/11551))
+
+FEATURES:
+* **New Data Source:** `google_compute_disk` ([#11584](https://github.com/hashicorp/terraform-provider-google/pull/11584))
+
+IMPROVEMENTS:
+* apigee: added `consumer_accept_list` and `service_attachment` to ApigeeInstance. ([#11595](https://github.com/hashicorp/terraform-provider-google/pull/11595))
+* compute: added `provisioning_model` field to `google_compute_instance_template` and `google_compute_instance` resources to support Spot VM ([#11552](https://github.com/hashicorp/terraform-provider-google/pull/11552))
+* privateca: add `deletion_protection` for `google_privateca_certificate_authority`. ([#11551](https://github.com/hashicorp/terraform-provider-google/pull/11551))
+* privateca: added new output fields on `google_privateca_certificate` including `issuer_certificate_authority`, `pem_certificate_chain` and `certificate_description.x509_description` ([#11553](https://github.com/hashicorp/terraform-provider-google/pull/11553))
+* redis: added multi read replica field `read_replicas_mode` and `secondary_ip_range` in `google_redis_instance` ([#11592](https://github.com/hashicorp/terraform-provider-google/pull/11592))
+
+BUG FIXES:
+* compute: fixed a crash when `compute.instance` is not found ([#11602](https://github.com/hashicorp/terraform-provider-google/pull/11602))
+* sql: fixed bug where `encryption_key_name` was not being propagated to the API. ([#11601](https://github.com/hashicorp/terraform-provider-google/pull/11601))
+* provider: removed printing credentials to the console if malformed JSON is given ([#11599](https://github.com/hashicorp/terraform-provider-google/pull/11599))
+
 ## 4.19.0 (April 25, 2022)
 
 IMPROVEMENTS:
