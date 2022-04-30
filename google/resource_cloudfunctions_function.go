@@ -285,6 +285,18 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `URL which triggers function execution. Returned only if trigger_http is used.`,
 			},
 
+			"docker_repository": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The user managed Artifact Repository optionally with a customer managed encryption key. If specified, deployments will use Artifact Registry. If unspecified and the deployment is eligible to use Artifact Registry, GCF will create and use a repository named 'gcf-artifacts' for every deployed region.`,
+			},
+
+			"kms_key_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The Cloud KMS resource name of the customer managed encryption key that’s used to encrypt the contents of the Repository. Has the form: 'projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key'. If specified, you must also provide an artifact registry repository using the docker_repository field that was created with the same KMS crypto key.`,
+			},
+
 			"max_instances": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -498,6 +510,14 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.VpcConnectorEgressSettings = v.(string)
 	}
 
+	if v, ok := d.GetOk("docker_repository"); ok {
+		function.KmsKeyName = v.(string)
+	}
+
+	if v, ok := d.GetOk("kms_key_name"); ok {
+		function.DockerRepository = v.(string)
+	}
+
 	if v, ok := d.GetOk("max_instances"); ok {
 		function.MaxInstances = int64(v.(int))
 	}
@@ -629,6 +649,12 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("event_trigger", flattenEventTrigger(function.EventTrigger)); err != nil {
 		return fmt.Errorf("Error setting event_trigger: %s", err)
 	}
+	if err := d.Set("docker_repository", function.DockerRepository); err != nil {
+		return fmt.Errorf("Error setting docker_repository: %s", err)
+	}
+	if err := d.Set("kms_key_name", function.KmsKeyName); err != nil {
+		return fmt.Errorf("Error setting kms_key_name: %s", err)
+	}
 	if err := d.Set("max_instances", function.MaxInstances); err != nil {
 		return fmt.Errorf("Error setting max_instances: %s", err)
 	}
@@ -752,6 +778,16 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("event_trigger") {
 		function.EventTrigger = expandEventTrigger(d.Get("event_trigger").([]interface{}), project)
 		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
+	}
+
+	if d.HasChange("kms_key_name") {
+		function.KmsKeyName = d.Get("kms_key_name").(string)
+		updateMaskArr = append(updateMaskArr, "kms_key_name")
+	}
+
+	if d.HasChange("docker_repository") {
+		function.DockerRepository = d.Get("docker_repository").(string)
+		updateMaskArr = append(updateMaskArr, "docker_repository")
 	}
 
 	if d.HasChange("max_instances") {

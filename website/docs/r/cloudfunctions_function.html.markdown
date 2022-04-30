@@ -148,6 +148,10 @@ Eg. `"nodejs10"`, `"nodejs12"`, `"nodejs14"`, `"python37"`, `"python38"`, `"pyth
 * `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
   Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is [documented below](#nested_source_repository).
 
+* `docker_repository` - (Optional) The user managed Artifact Repository optionally with a customer managed encryption key. If specified, deployments will use Artifact Registry. If unspecified and the deployment is eligible to use Artifact Registry, GCF will create and use a repository named 'gcf-artifacts' for every deployed region.
+
+* `kms_key_name` - (Optional) The Cloud KMS resource name of the customer managed encryption key that’s used to encrypt the contents of the Repository. Has the form: 'projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key'. If specified, you must also provide an artifact registry repository using the docker_repository field that was created with the same KMS crypto key.
+
 * `max_instances` - (Optional) The limit on the maximum number of function instances that may coexist at a given time.
 
 * `min_instances` - (Optional) The limit on the minimum number of function instances that may coexist at a given time.
