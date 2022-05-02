@@ -146,6 +146,18 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				},
 			},
 
+			"docker_repository": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `User managed repository created in Artifact Registry optionally with a customer managed encryption key. If specified, deployments will use Artifact Registry for storing images built with Cloud Build.`,
+			},
+
+			"kms_key_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources.`,
+			},
+
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -498,6 +510,14 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.VpcConnectorEgressSettings = v.(string)
 	}
 
+	if v, ok := d.GetOk("docker_repository"); ok {
+		function.DockerRepository = v.(string)
+	}
+
+	if v, ok := d.GetOk("kms_key_name"); ok {
+		function.KmsKeyName = v.(string)
+	}
+
 	if v, ok := d.GetOk("max_instances"); ok {
 		function.MaxInstances = int64(v.(int))
 	}
@@ -629,6 +649,12 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("event_trigger", flattenEventTrigger(function.EventTrigger)); err != nil {
 		return fmt.Errorf("Error setting event_trigger: %s", err)
 	}
+	if err := d.Set("docker_repository", function.DockerRepository); err != nil {
+		return fmt.Errorf("Error setting docker_repository: %s", err)
+	}
+	if err := d.Set("kms_key_name", function.KmsKeyName); err != nil {
+		return fmt.Errorf("Error setting kms_key_name: %s", err)
+	}
 	if err := d.Set("max_instances", function.MaxInstances); err != nil {
 		return fmt.Errorf("Error setting max_instances: %s", err)
 	}
@@ -752,6 +778,16 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("event_trigger") {
 		function.EventTrigger = expandEventTrigger(d.Get("event_trigger").([]interface{}), project)
 		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
+	}
+
+	if d.HasChange("docker_repository") {
+		function.Runtime = d.Get("docker_repository").(string)
+		updateMaskArr = append(updateMaskArr, "dockerRepository")
+	}
+
+	if d.HasChange("kms_key_name") {
+		function.Runtime = d.Get("docker_repository").(string)
+		updateMaskArr = append(updateMaskArr, "kmsKeyName")
 	}
 
 	if d.HasChange("max_instances") {
