@@ -39,7 +39,7 @@ publishers:
       - glob: 'terraform-registry-manifest.json'
         name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
     signature: true
-    cmd: hc-releases upload-file {{ abs .ArtifactPath }}
+    cmd: hc-releases upload-file -header="x-terraform-protocol-version={{ .Env.PROTOCOL_VERSION }}" -header="x-terraform-protocol-versions={{ .Env.PROTOCOL_VERSIONS }}" {{ abs .ArtifactPath }}
     env:
       - AWS_DEFAULT_REGION={{ .Env.AWS_DEFAULT_REGION }}
       - AWS_REGION={{ .Env.AWS_REGION }}
