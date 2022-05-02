@@ -13,7 +13,7 @@
 #     are required, please file an issue at https:#github.com/hashicorp/terraform-provider-google/issues/new/choose
 #
 # ----------------------------------------------------------------------------
-subcategory: "BigqueryReservation"
+subcategory: "BigQuery Reservation"
 layout: "google"
 page_title: "Google: google_bigquery_reservation_assignment"
 sidebar_current: "docs-google-bigquery-reservation-assignment"
