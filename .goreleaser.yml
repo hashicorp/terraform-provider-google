@@ -4,7 +4,7 @@ archives:
 builds:
   - # Special binary naming is only necessary for Terraform CLI 0.12
     binary: '{{ .ProjectName }}_v{{ .Version }}_x5'
-  - env:
+    env:
       - CGO_ENABLED=0
     flags:
       - -trimpath
