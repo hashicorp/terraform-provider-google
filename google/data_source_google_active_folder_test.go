@@ -98,6 +98,26 @@ func testAccDataSourceGoogleActiveFolderCheck(data_source_name string, resource_
 	}
 }
 
+func TestAccDataSourceGoogleActiveFolder_no_parent(t *testing.T) {
+	org := getTestOrgFromEnv(t)
+
+	parent := fmt.Sprintf("organizations/%s", org)
+	displayName := "terraform-test-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceGoogleActiveFolderConfig_no_parent(parent, displayName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceGoogleActiveFolderConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
@@ -107,6 +127,19 @@ resource "google_folder" "foobar" {
 
 data "google_active_folder" "my_folder" {
   parent       = google_folder.foobar.parent
+  display_name = google_folder.foobar.display_name
+}
+`, parent, displayName)
+}
+
+func testAccDataSourceGoogleActiveFolderConfig_no_parent(parent string, displayName string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "foobar" {
+  parent       = "%s"
+  display_name = "%s"
+}
+
+data "google_active_folder" "my_folder" {
   display_name = google_folder.foobar.display_name
 }
 `, parent, displayName)

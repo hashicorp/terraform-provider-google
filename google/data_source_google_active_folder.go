@@ -14,7 +14,7 @@ func dataSourceGoogleActiveFolder() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"parent": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
@@ -35,10 +35,16 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	parent := d.Get("parent").(string)
 	displayName := d.Get("display_name").(string)
+	queryString := ""
 
-	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=\"%s\"", parent, displayName)
+	// parent is optional
+	if parent, ok := d.GetOk("parent"); ok {
+		queryString = fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=\"%s\"", parent.(string), displayName)
+	} else {
+		queryString = fmt.Sprintf("lifecycleState=ACTIVE AND displayName=\"%s\"", displayName)
+	}
+
 	searchRequest := &resourceManagerV2.SearchFoldersRequest{
 		Query: queryString,
 	}
