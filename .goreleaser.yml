@@ -32,17 +32,11 @@ builds:
       - -s -w -X internal/provider.Version={{.Version}}
     mod_timestamp: '{{ .CommitTimestamp }}'
 checksum:
-  extra_files:
-    - glob: 'terraform-registry-manifest.json'
-      name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
 publishers:
   - name: hc-releases
     checksum: true
-    extra_files:
-      - glob: 'terraform-registry-manifest.json'
-        name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
     signature: true
     cmd: hc-releases upload-file -header="x-terraform-protocol-version={{ .Env.PROTOCOL_VERSION }}" -header="x-terraform-protocol-versions={{ .Env.PROTOCOL_VERSIONS }}" {{ abs .ArtifactPath }}
     env:
@@ -52,9 +46,6 @@ publishers:
       - AWS_SECRET_ACCESS_KEY={{ .Env.AWS_SECRET_ACCESS_KEY }}
       - AWS_SESSION_TOKEN={{ .Env.AWS_SESSION_TOKEN }}
 release:
-  extra_files:
-    - glob: 'terraform-registry-manifest.json'
-      name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
   ids:
     - none
 signs:
@@ -67,6 +58,7 @@ signs:
       sign
       --dearmor
       --file ${artifact}
+      --signer {{ .Env.SIGNER }}
       --out ${signature}
     artifacts: checksum
   # Signature file with GPG Public Key ID in filename (i.e. terraform-provider-awscc_VERSION_SHA256SUMS.7685B676.sig)
@@ -80,6 +72,7 @@ signs:
       sign
       --dearmor
       --file ${artifact}
+      --signer {{ .Env.SIGNER }}
       --out ${signature}
     artifacts: checksum
 snapshot:
