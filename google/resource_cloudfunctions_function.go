@@ -15,6 +15,11 @@ import (
 	"time"
 )
 
+var allowedSecurityLevelSettings = []string{
+	"SECURE_ALWAYS",
+	"SECURE_OPTIONAL",
+}
+
 var allowedIngressSettings = []string{
 	"ALLOW_ALL",
 	"ALLOW_INTERNAL_AND_GCLB",
@@ -231,17 +236,25 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"trigger_http": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as https_trigger_url. Cannot be used with trigger_bucket and trigger_topic.`,
+				Type:         schema.TypeBool,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"security_level"},
+				Description:  `Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as https_trigger_url. Cannot be used with trigger_bucket and trigger_topic.`,
+			},
+
+			"security_level": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice(allowedSecurityLevelSettings, true),
+				Description:  `String value that controls whether HTTP and HTTPS trafic is allowed or just HTTPS. Allowed values are SECURE_OPTIONAL and SECURE_ALWAYS. Only can be used when trigger_http is set.`,
 			},
 
 			"event_trigger": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"trigger_http"},
+				ConflictsWith: []string{"trigger_http", "security_level"},
 				MaxItems:      1,
 				Description:   `A source that fires events in response to a condition in another service. Cannot be used with trigger_http.`,
 				Elem: &schema.Resource{
@@ -474,6 +487,13 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			"You must specify a trigger when deploying a new function.")
 	}
 
+	if v, ok := d.GetOk("security_level"); ok {
+		if function.HttpsTrigger == nil {
+			return fmt.Errorf("`security_level` requires `trigger_http` to be enabled")
+		}
+		function.HttpsTrigger.SecurityLevel = v.(string)
+	}
+
 	if v, ok := d.GetOk("ingress_settings"); ok {
 		function.IngressSettings = v.(string)
 	}
@@ -621,6 +641,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		if err := d.Set("trigger_http", true); err != nil {
 			return fmt.Errorf("Error setting trigger_http: %s", err)
 		}
+		if err := d.Set("security_level", function.HttpsTrigger.SecurityLevel); err != nil {
+			return fmt.Errorf("Error setting security_level: %s", err)
+		}
 		if err := d.Set("https_trigger_url", function.HttpsTrigger.Url); err != nil {
 			return fmt.Errorf("Error setting https_trigger_url: %s", err)
 		}
@@ -752,6 +775,14 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("event_trigger") {
 		function.EventTrigger = expandEventTrigger(d.Get("event_trigger").([]interface{}), project)
 		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
+	}
+
+	if d.HasChange("security_level") {
+		if function.HttpsTrigger == nil {
+			return fmt.Errorf("cannot update `security_level` as `trigger_http` is not enabled")
+		}
+		function.HttpsTrigger.SecurityLevel = d.Get("security_level").(string)
+		updateMaskArr = append(updateMaskArr, "httpsTrigger.securityLevel")
 	}
 
 	if d.HasChange("max_instances") {

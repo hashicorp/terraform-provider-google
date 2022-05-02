@@ -159,6 +159,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"entry_point", "helloGET"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"trigger_http", "true"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"security_level", "SECURE_ALWAYS"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
 						"test-env-variable-value", &function),
@@ -223,6 +225,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"min_instances", "5"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"ingress_settings", "ALLOW_ALL"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"security_level", "SECURE_OPTIONAL"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
 					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
 					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
@@ -699,6 +703,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
+  security_level        = "SECURE_ALWAYS"
   timeout               = 61
   entry_point           = "helloGET"
   ingress_settings      = "ALLOW_INTERNAL_ONLY"
@@ -737,6 +742,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
+  security_level        = "SECURE_OPTIONAL"
   runtime               = "nodejs10"
   timeout               = 91
   entry_point           = "helloGET"
@@ -906,8 +912,9 @@ resource "google_cloudfunctions_function" "function" {
     url = "https://source.developers.google.com/projects/%s/repos/cloudfunctions-test-do-not-delete/moveable-aliases/master/paths/"
   }
 
-  trigger_http = true
-  entry_point  = "helloGET"
+  trigger_http   = true
+  security_level = "SECURE_OPTIONAL"
+  entry_point    = "helloGET"
 }
 `, functionName, project)
 }
@@ -937,8 +944,9 @@ resource "google_cloudfunctions_function" "function" {
 
   service_account_email = data.google_compute_default_service_account.default.email
 
-  trigger_http = true
-  entry_point  = "helloGET"
+  trigger_http   = true
+  security_level = "SECURE_OPTIONAL"
+  entry_point    = "helloGET"
 }
 `, bucketName, zipFilePath, functionName)
 }
