@@ -246,7 +246,7 @@ func EventarcTriggerMatchingCriteriaSchema() *schema.Resource {
 			"value": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Required. The value for the attribute.",
+				Description: "Required. The value for the attribute. See https://cloud.google.com/eventarc/docs/creating-triggers#trigger-gcloud for available values.",
 			},
 
 			"operator": {

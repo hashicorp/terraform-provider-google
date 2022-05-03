@@ -124,6 +124,11 @@ resource "google_container_azure_client" "basic" {
 
 func testAccContainerAzureCluster_BasicHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
+data "google_container_azure_versions" "versions" {
+  project = "%{project_name}"
+  location = "us-west1"
+}
+
 resource "google_container_azure_cluster" "primary" {
   authorization {
     admin_users {
@@ -140,7 +145,7 @@ resource "google_container_azure_cluster" "primary" {
     }
 
     subnet_id = "/subscriptions/%{azure_sub}/resourceGroups/%{byo_prefix}-dev-byo/providers/Microsoft.Network/virtualNetworks/%{byo_prefix}-dev-vnet/subnets/default"
-    version   = "1.21.6-gke.1500"
+    version   = "${data.google_container_azure_versions.versions.valid_versions[0]}"
 
     database_encryption {
       key_id = "/subscriptions/%{azure_sub}/resourceGroups/%{byo_prefix}-dev-cluster/providers/Microsoft.KeyVault/vaults/%{byo_prefix}-dev-keyvault/keys/%{byo_prefix}-dev-key"

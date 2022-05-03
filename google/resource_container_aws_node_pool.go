@@ -212,6 +212,14 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"proxy_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Proxy configuration for outbound HTTP(S) traffic.",
+				MaxItems:    1,
+				Elem:        ContainerAwsNodePoolConfigProxyConfigSchema(),
+			},
+
 			"root_volume": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -263,6 +271,24 @@ func ContainerAwsNodePoolConfigConfigEncryptionSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The ARN of the AWS KMS key used to encrypt node pool configuration.",
+			},
+		},
+	}
+}
+
+func ContainerAwsNodePoolConfigProxyConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"secret_arn": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The ARN of the AWS Secret Manager secret that contains the HTTP(S) proxy configuration.",
+			},
+
+			"secret_version": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The version string of the AWS Secret Manager secret that contains the HTTP(S) proxy configuration.",
 			},
 		},
 	}
@@ -664,6 +690,7 @@ func expandContainerAwsNodePoolConfig(o interface{}) *containeraws.NodePoolConfi
 		IamInstanceProfile: dcl.String(obj["iam_instance_profile"].(string)),
 		InstanceType:       dcl.StringOrNil(obj["instance_type"].(string)),
 		Labels:             checkStringMap(obj["labels"]),
+		ProxyConfig:        expandContainerAwsNodePoolConfigProxyConfig(obj["proxy_config"]),
 		RootVolume:         expandContainerAwsNodePoolConfigRootVolume(obj["root_volume"]),
 		SecurityGroupIds:   expandStringArray(obj["security_group_ids"]),
 		SshConfig:          expandContainerAwsNodePoolConfigSshConfig(obj["ssh_config"]),
@@ -681,6 +708,7 @@ func flattenContainerAwsNodePoolConfig(obj *containeraws.NodePoolConfig) interfa
 		"iam_instance_profile": obj.IamInstanceProfile,
 		"instance_type":        obj.InstanceType,
 		"labels":               obj.Labels,
+		"proxy_config":         flattenContainerAwsNodePoolConfigProxyConfig(obj.ProxyConfig),
 		"root_volume":          flattenContainerAwsNodePoolConfigRootVolume(obj.RootVolume),
 		"security_group_ids":   obj.SecurityGroupIds,
 		"ssh_config":           flattenContainerAwsNodePoolConfigSshConfig(obj.SshConfig),
@@ -712,6 +740,34 @@ func flattenContainerAwsNodePoolConfigConfigEncryption(obj *containeraws.NodePoo
 	}
 	transformed := map[string]interface{}{
 		"kms_key_arn": obj.KmsKeyArn,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandContainerAwsNodePoolConfigProxyConfig(o interface{}) *containeraws.NodePoolConfigProxyConfig {
+	if o == nil {
+		return containeraws.EmptyNodePoolConfigProxyConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return containeraws.EmptyNodePoolConfigProxyConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &containeraws.NodePoolConfigProxyConfig{
+		SecretArn:     dcl.String(obj["secret_arn"].(string)),
+		SecretVersion: dcl.String(obj["secret_version"].(string)),
+	}
+}
+
+func flattenContainerAwsNodePoolConfigProxyConfig(obj *containeraws.NodePoolConfigProxyConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"secret_arn":     obj.SecretArn,
+		"secret_version": obj.SecretVersion,
 	}
 
 	return []interface{}{transformed}

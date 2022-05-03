@@ -127,7 +127,7 @@ The `matching_criteria` block supports:
     
 * `value` -
   (Required)
-  Required. The value for the attribute.
+  Required. The value for the attribute. See https://cloud.google.com/eventarc/docs/creating-triggers#trigger-gcloud for available values.
     
 - - -
 

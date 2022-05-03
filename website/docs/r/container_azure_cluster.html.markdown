@@ -128,7 +128,7 @@ The `authorization` block supports:
     
 * `admin_users` -
   (Required)
-  Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+  Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
     
 The `admin_users` block supports:
     
@@ -217,6 +217,10 @@ The `networking` block supports:
   (Optional)
   Optional. A human readable description of this cluster. Cannot be longer than 255 UTF-8 encoded bytes.
   
+* `logging_config` -
+  (Optional)
+  (Beta only) Logging configuration.
+  
 * `project` -
   (Optional)
   The project for the resource
@@ -260,6 +264,18 @@ The `root_volume` block supports:
 * `size_gib` -
   (Optional)
   Optional. The size of the disk, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
+    
+The `logging_config` block supports:
+    
+* `component_config` -
+  (Optional)
+  Configuration of the logging components.
+    
+The `component_config` block supports:
+    
+* `enable_components` -
+  (Optional)
+  Components of the logging configuration to be enabled.
     
 ## Attributes Reference
 

@@ -202,6 +202,15 @@ func ContainerAzureNodePoolConfigSchema() *schema.Resource {
 				Elem:        ContainerAzureNodePoolConfigSshConfigSchema(),
 			},
 
+			"proxy_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Proxy configuration for outbound HTTP(S) traffic.",
+				MaxItems:    1,
+				Elem:        ContainerAzureNodePoolConfigProxyConfigSchema(),
+			},
+
 			"root_volume": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -239,6 +248,26 @@ func ContainerAzureNodePoolConfigSshConfigSchema() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: "The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.",
+			},
+		},
+	}
+}
+
+func ContainerAzureNodePoolConfigProxyConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"resource_group_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The ARM ID the of the resource group containing proxy keyvault. Resource group ids are formatted as `/subscriptions/<subscription-id>/resourceGroups/<resource-group-name>`",
+			},
+
+			"secret_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The URL the of the proxy setting secret with its version. Secret ids are formatted as `https:<key-vault-name>.vault.azure.net/secrets/<secret-name>/<secret-version>`.",
 			},
 		},
 	}
@@ -584,10 +613,11 @@ func expandContainerAzureNodePoolConfig(o interface{}) *containerazure.NodePoolC
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &containerazure.NodePoolConfig{
-		SshConfig:  expandContainerAzureNodePoolConfigSshConfig(obj["ssh_config"]),
-		RootVolume: expandContainerAzureNodePoolConfigRootVolume(obj["root_volume"]),
-		Tags:       checkStringMap(obj["tags"]),
-		VmSize:     dcl.StringOrNil(obj["vm_size"].(string)),
+		SshConfig:   expandContainerAzureNodePoolConfigSshConfig(obj["ssh_config"]),
+		ProxyConfig: expandContainerAzureNodePoolConfigProxyConfig(obj["proxy_config"]),
+		RootVolume:  expandContainerAzureNodePoolConfigRootVolume(obj["root_volume"]),
+		Tags:        checkStringMap(obj["tags"]),
+		VmSize:      dcl.StringOrNil(obj["vm_size"].(string)),
 	}
 }
 
@@ -596,10 +626,11 @@ func flattenContainerAzureNodePoolConfig(obj *containerazure.NodePoolConfig) int
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"ssh_config":  flattenContainerAzureNodePoolConfigSshConfig(obj.SshConfig),
-		"root_volume": flattenContainerAzureNodePoolConfigRootVolume(obj.RootVolume),
-		"tags":        obj.Tags,
-		"vm_size":     obj.VmSize,
+		"ssh_config":   flattenContainerAzureNodePoolConfigSshConfig(obj.SshConfig),
+		"proxy_config": flattenContainerAzureNodePoolConfigProxyConfig(obj.ProxyConfig),
+		"root_volume":  flattenContainerAzureNodePoolConfigRootVolume(obj.RootVolume),
+		"tags":         obj.Tags,
+		"vm_size":      obj.VmSize,
 	}
 
 	return []interface{}{transformed}
@@ -626,6 +657,34 @@ func flattenContainerAzureNodePoolConfigSshConfig(obj *containerazure.NodePoolCo
 	}
 	transformed := map[string]interface{}{
 		"authorized_key": obj.AuthorizedKey,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandContainerAzureNodePoolConfigProxyConfig(o interface{}) *containerazure.NodePoolConfigProxyConfig {
+	if o == nil {
+		return containerazure.EmptyNodePoolConfigProxyConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return containerazure.EmptyNodePoolConfigProxyConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &containerazure.NodePoolConfigProxyConfig{
+		ResourceGroupId: dcl.String(obj["resource_group_id"].(string)),
+		SecretId:        dcl.String(obj["secret_id"].(string)),
+	}
+}
+
+func flattenContainerAzureNodePoolConfigProxyConfig(obj *containerazure.NodePoolConfigProxyConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"resource_group_id": obj.ResourceGroupId,
+		"secret_id":         obj.SecretId,
 	}
 
 	return []interface{}{transformed}
