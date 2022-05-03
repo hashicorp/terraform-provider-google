@@ -144,6 +144,11 @@ resource "google_container_aws_node_pool" "primary" {
 
     security_group_ids = ["sg-00000000000000000"]
 
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
     ssh_config {
       ec2_key_pair = "my--1p-dev-ssh"
     }
@@ -237,6 +242,14 @@ The `config` block supports:
   (Required)
   The name of the AWS IAM role assigned to nodes in the pool.
     
+* `image_type` -
+  (Optional)
+  (Beta only) The OS image type to use on node pool instances.
+    
+* `instance_placement` -
+  (Optional)
+  (Beta only) Details of placement information for an instance.
+    
 * `instance_type` -
   (Optional)
   Optional. The AWS instance type. When unspecified, it defaults to `m5.large`.
@@ -244,6 +257,10 @@ The `config` block supports:
 * `labels` -
   (Optional)
   Optional. The initial labels assigned to nodes of this node pool. An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+    
+* `proxy_config` -
+  (Optional)
+  Proxy configuration for outbound HTTP(S) traffic.
     
 * `root_volume` -
   (Optional)
@@ -289,6 +306,22 @@ The `max_pods_constraint` block supports:
   
 
 
+The `instance_placement` block supports:
+    
+* `tenancy` -
+  (Optional)
+  The tenancy for the instance. Possible values: TENANCY_UNSPECIFIED, DEFAULT, DEDICATED, HOST
+    
+The `proxy_config` block supports:
+    
+* `secret_arn` -
+  (Required)
+  The ARN of the AWS Secret Manager secret that contains the HTTP(S) proxy configuration.
+    
+* `secret_version` -
+  (Required)
+  The version string of the AWS Secret Manager secret that contains the HTTP(S) proxy configuration.
+    
 The `root_volume` block supports:
     
 * `iops` -

@@ -187,6 +187,11 @@ resource "google_container_aws_node_pool" "primary" {
 
     security_group_ids = ["%{aws_sg}"]
 
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
     ssh_config {
       ec2_key_pair = "%{byo_prefix}-1p-dev-ssh"
     }
@@ -337,6 +342,11 @@ resource "google_container_aws_node_pool" "primary" {
     }
 
     security_group_ids = ["%{aws_sg}"]
+
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
 
     ssh_config {
       ec2_key_pair = "%{byo_prefix}-1p-dev-ssh"
