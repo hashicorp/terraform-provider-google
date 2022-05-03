@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: removed validation checking against a fixed set of persistent disk types
+```
+```release-note:enhancement
+container: removed validation checking against a fixed set of persistent disk types
+```
+```release-note:enhancement
+dataproc: removed validation checking against a fixed set of persistent disk types
+```

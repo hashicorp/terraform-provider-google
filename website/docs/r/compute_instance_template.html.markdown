@@ -399,8 +399,8 @@ The following arguments are supported:
     of the disk (such as those managed by `google_compute_disk`) to attach.
 ~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
-* `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
-    `"local-ssd"`, `"pd-balanced"` or `"pd-standard"`.
+* `disk_type` - (Optional) The GCE disk type. Such as `"pd-ssd"`, `"local-ssd"`,
+    `"pd-balanced"` or `"pd-standard"`.
 
 * `disk_size_gb` - (Optional) The size of the image in gigabytes. If not
     specified, it will inherit the size of its base image. For SCRATCH disks,
