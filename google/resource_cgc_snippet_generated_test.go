@@ -170,6 +170,7 @@ resource "google_compute_instance" "spot_vm_instance" {
 }
 
 func TestAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -208,6 +209,17 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection =  "%{deletion_protection}"
 }
 # [END cloud_sql_sqlserver_instance_80_db_n1_s2]
+
+resource "random_password" "pwd" {
+    length = 16
+    special = false
+}
+
+resource "google_sql_user" "user" {
+    name = "user"
+    instance = google_sql_database_instance.instance.name
+    password = random_password.pwd.result
+}
 `, context)
 }
 
