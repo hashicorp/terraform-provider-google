@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -23,6 +24,31 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+func resourcePrivateCaCACustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.HasChange("desired_state") {
+		_, new := diff.GetChange("desired_state")
+
+		if isNewResource(diff) {
+			if diff.Get("type").(string) == "SUBORDINATE" {
+				return fmt.Errorf("`desired_state` can not be specified when creating a SUBORDINATE CA")
+			}
+			if new.(string) != "STAGED" && new.(string) != "ENABLED" {
+				return fmt.Errorf("`desired_state` can only be set to `STAGED` or `ENABLED` when creating a new CA")
+			}
+		} else {
+			if new == "STAGED" && diff.Get("state") != new {
+				return fmt.Errorf("Field `desired_state` can only be set to `STAGED` when creating a new CA")
+			}
+		}
+	}
+	return nil
+}
+
+func isNewResource(diff *schema.ResourceDiff) bool {
+	name := diff.Get("name")
+	return name.(string) == ""
+}
 
 func resourcePrivatecaCertificateAuthority() *schema.Resource {
 	return &schema.Resource{
@@ -40,6 +66,8 @@ func resourcePrivatecaCertificateAuthority() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: resourcePrivateCaCACustomDiff,
 
 		Schema: map[string]*schema.Schema{
 			"certificate_authority_id": {
@@ -601,6 +629,10 @@ fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045
 				Optional: true,
 				Default:  true,
 			},
+			"desired_state": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -719,24 +751,30 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	if d.Get("type").(string) != "SUBORDINATE" {
-		url, err = replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
-		if err != nil {
-			return err
-		}
+	staged := d.Get("type").(string) == "SELF_SIGNED"
 
-		log.Printf("[DEBUG] Enabling CertificateAuthority: %#v", obj)
+	// Enable the CA if `desired_state` is unspecified or specified as `ENABLED`.
+	if p, ok := d.GetOk("desired_state"); !ok || p.(string) == "ENABLED" {
+		// Skip enablement on SUBORDINATE CA for backward compatible.
+		if staged {
+			url, err = replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
+			if err != nil {
+				return err
+			}
 
-		res, err = sendRequest(config, "POST", billingProject, url, userAgent, nil)
-		if err != nil {
-			return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
-		}
+			log.Printf("[DEBUG] Enabling CertificateAuthority: %#v", obj)
 
-		err = privatecaOperationWaitTimeWithResponse(
-			config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
-			d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return fmt.Errorf("Error waiting to enable CertificateAuthority: %s", err)
+			res, err = sendRequest(config, "POST", billingProject, url, userAgent, nil)
+			if err != nil {
+				return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
+			}
+
+			err = privatecaOperationWaitTimeWithResponse(
+				config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
+				d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return fmt.Errorf("Error waiting to enable CertificateAuthority: %s", err)
+			}
 		}
 	}
 
@@ -876,6 +914,56 @@ func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta in
 	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+	if d.HasChange("desired_state") {
+		// Currently, most CA state update operations are not idempotent.
+		// Try to change state only if the current `state` does not match the `desired_state`.
+		if p, ok := d.GetOk("desired_state"); ok && p.(string) != d.Get("state").(string) {
+			switch p.(string) {
+			case "ENABLED":
+				enableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
+				if err != nil {
+					return err
+				}
+
+				log.Printf("[DEBUG] Enabling CA: %#v", obj)
+
+				res, err := sendRequest(config, "POST", billingProject, enableUrl, userAgent, nil)
+				if err != nil {
+					return fmt.Errorf("Error enabling CA: %s", err)
+				}
+
+				var opRes map[string]interface{}
+				err = privatecaOperationWaitTimeWithResponse(
+					config, res, &opRes, project, "Enabling CA", userAgent,
+					d.Timeout(schema.TimeoutCreate))
+				if err != nil {
+					return fmt.Errorf("Error waiting to enable CA: %s", err)
+				}
+			case "DISABLED":
+				disableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
+				if err != nil {
+					return err
+				}
+
+				log.Printf("[DEBUG] Disabling CA: %#v", obj)
+
+				dRes, err := sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
+				if err != nil {
+					return fmt.Errorf("Error disabling CA: %s", err)
+				}
+
+				var opRes map[string]interface{}
+				err = privatecaOperationWaitTimeWithResponse(
+					config, dRes, &opRes, project, "Disabling CA", userAgent,
+					d.Timeout(schema.TimeoutDelete))
+				if err != nil {
+					return fmt.Errorf("Error waiting to disable CA: %s", err)
+				}
+			default:
+				return fmt.Errorf("Unsupported value in field `desired_state`")
+			}
+		}
 	}
 
 	// err == nil indicates that the billing_project value was found
