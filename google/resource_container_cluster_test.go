@@ -617,8 +617,31 @@ func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(t *testing
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName),
+				Config:      testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName, "us-central1-a", false),
 				ExpectError: regexp.MustCompile("master_ipv4_cidr_block must be set if enable_private_nodes is true"),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock_withAutopilot(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	containerNetName := fmt.Sprintf("tf-test-container-net-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName, "us-central1", true),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_private_cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -3448,7 +3471,7 @@ resource "google_container_cluster" "with_resource_usage_export_config" {
 `, datasetId, clusterName)
 }
 
-func testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName string, clusterName string) string {
+func testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName, location string, autopilotEnabled bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
   name                    = "%s"
@@ -3475,7 +3498,7 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 
 resource "google_container_cluster" "with_private_cluster" {
   name               = "%s"
-  location           = "us-central1-a"
+  location           = "%s"
   initial_node_count = 1
 
   networking_mode = "VPC_NATIVE"
@@ -3487,6 +3510,8 @@ resource "google_container_cluster" "with_private_cluster" {
     enable_private_nodes    = true
   }
 
+  enable_autopilot = %t
+
   master_authorized_networks_config {}
 
   ip_allocation_policy {
@@ -3494,7 +3519,7 @@ resource "google_container_cluster" "with_private_cluster" {
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
 }
-`, containerNetName, clusterName)
+`, containerNetName, clusterName, location, autopilotEnabled)
 }
 
 func testAccContainerCluster_withPrivateClusterConfig(containerNetName string, clusterName string) string {
