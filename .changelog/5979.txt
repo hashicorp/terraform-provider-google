@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed Autopilot cluster couldn't omit master ipv4 cidr in `google_container_cluster`
+```
