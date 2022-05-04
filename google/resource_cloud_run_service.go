@@ -612,6 +612,18 @@ false when RevisionName is non-empty.`,
 							Optional:    true,
 							Description: `RevisionName of a specific revision to which to send this portion of traffic.`,
 						},
+						"tag": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Tag is optionally used to expose a dedicated url for referencing this target exclusively.`,
+						},
+						"url": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `URL displays the URL for accessing tagged traffic targets. URL is displayed in status, 
+and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname, 
+but may not contain anything else (e.g. basic auth, url path, etc.)`,
+						},
 					},
 				},
 			},
@@ -1183,7 +1195,9 @@ func flattenCloudRunServiceSpecTraffic(v interface{}, d *schema.ResourceData, co
 		transformed = append(transformed, map[string]interface{}{
 			"revision_name":   flattenCloudRunServiceSpecTrafficRevisionName(original["revisionName"], d, config),
 			"percent":         flattenCloudRunServiceSpecTrafficPercent(original["percent"], d, config),
+			"tag":             flattenCloudRunServiceSpecTrafficTag(original["tag"], d, config),
 			"latest_revision": flattenCloudRunServiceSpecTrafficLatestRevision(original["latestRevision"], d, config),
+			"url":             flattenCloudRunServiceSpecTrafficUrl(original["url"], d, config),
 		})
 	}
 	return transformed
@@ -1209,7 +1223,15 @@ func flattenCloudRunServiceSpecTrafficPercent(v interface{}, d *schema.ResourceD
 	return v // let terraform core handle it otherwise
 }
 
+func flattenCloudRunServiceSpecTrafficTag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenCloudRunServiceSpecTrafficLatestRevision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTrafficUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1964,11 +1986,25 @@ func expandCloudRunServiceSpecTraffic(v interface{}, d TerraformResourceData, co
 			transformed["percent"] = transformedPercent
 		}
 
+		transformedTag, err := expandCloudRunServiceSpecTrafficTag(original["tag"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTag); val.IsValid() && !isEmptyValue(val) {
+			transformed["tag"] = transformedTag
+		}
+
 		transformedLatestRevision, err := expandCloudRunServiceSpecTrafficLatestRevision(original["latest_revision"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedLatestRevision); val.IsValid() && !isEmptyValue(val) {
 			transformed["latestRevision"] = transformedLatestRevision
+		}
+
+		transformedUrl, err := expandCloudRunServiceSpecTrafficUrl(original["url"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !isEmptyValue(val) {
+			transformed["url"] = transformedUrl
 		}
 
 		req = append(req, transformed)
@@ -1984,7 +2020,15 @@ func expandCloudRunServiceSpecTrafficPercent(v interface{}, d TerraformResourceD
 	return v, nil
 }
 
+func expandCloudRunServiceSpecTrafficTag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCloudRunServiceSpecTrafficLatestRevision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTrafficUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

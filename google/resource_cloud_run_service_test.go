@@ -92,7 +92,6 @@ resource "google_cloud_run_service" "default" {
     spec {
       containers {
         image = "gcr.io/cloudrun/hello"
-        args  = ["arrgs"]
         ports {
           container_port = 8080
         }
@@ -105,6 +104,7 @@ resource "google_cloud_run_service" "default" {
   traffic {
     percent         = 100
     latest_revision = true
+    tag             = "magic-module"
   }
 
   lifecycle {
