@@ -1,4 +1,21 @@
 ## 4.20.0 (Unreleased)
+
+IMPROVEMENTS:
+* cloudfunctions: added CMEK support for Cloud Functions ([#11627](https://github.com/hashicorp/terraform-provider-google/pull/11627))
+* compute: added `service_directory_registrations` to `google_compute_forwarding_rule` resource ([#11635](https://github.com/hashicorp/terraform-provider-google/pull/11635))
+* compute: removed validation checking against a fixed set of persistent disk types ([#11630](https://github.com/hashicorp/terraform-provider-google/pull/11630))
+* container: removed validation checking against a fixed set of persistent disk types ([#11630](https://github.com/hashicorp/terraform-provider-google/pull/11630))
+* containeraws: added `image_type` and `instance_placement` to `google_container_aws_node_pool` resource (beta) ([#11635](https://github.com/hashicorp/terraform-provider-google/pull/11635))
+* containeraws: added `instance_placement` and `logging_config` to `google_container_aws_cluster` resource (beta) ([#11635](https://github.com/hashicorp/terraform-provider-google/pull/11635))
+* containeraws: added `proxy_config` to `google_container_aws_node_pool` resource ([#11635](https://github.com/hashicorp/terraform-provider-google/pull/11635))
+* containerazure: added `proxy_config` to `google_container_azure_node_pool` resource ([#11635](https://github.com/hashicorp/terraform-provider-google/pull/11635))
+* dataproc: removed validation checking against a fixed set of persistent disk types ([#11630](https://github.com/hashicorp/terraform-provider-google/pull/11630))
+* dns: added `routing_policy` to `google_dns_record_set` resource ([#11610](https://github.com/hashicorp/terraform-provider-google/pull/11610))
+
+BUG FIXES:
+* compute: fixed a crash when `compute.instance` is not found ([#11602](https://github.com/hashicorp/terraform-provider-google/pull/11602))
+* provider: removed printing credentials to the console if malformed JSON is given ([#11614](https://github.com/hashicorp/terraform-provider-google/pull/11614))
+
 ## 4.19.0 (April 25, 2022)
 
 IMPROVEMENTS:
