@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed extra diffs generated on `google_security_policy` `rules` when modifying a rule
+```
