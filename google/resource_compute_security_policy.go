@@ -106,6 +106,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 									"versioned_expr": {
 										Type:         schema.TypeString,
 										Optional:     true,
+										Default:      "",
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
 										Description:  `Predefined rule expression. If this field is specified, config must also be specified. Available options:   SRC_IPS_V1: Must specify the corresponding src_ip_ranges field in config.`,
 									},
@@ -145,6 +146,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 
 						"description": {
 							Type:        schema.TypeString,
+							Default:     "",
 							Optional:    true,
 							Description: `An optional description of this rule. Max size is 64.`,
 						},
