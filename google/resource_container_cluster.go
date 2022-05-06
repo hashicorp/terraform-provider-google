@@ -545,6 +545,22 @@ func resourceContainerCluster() *schema.Resource {
 										Required:     true,
 										ValidateFunc: validateRFC3339Date,
 									},
+									"exclusion_options": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										MaxItems:    1,
+										Description: `Maintenance exclusion related options.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"scope": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: validation.StringInSlice([]string{"NO_UPGRADES", "NO_MINOR_UPGRADES", "NO_MINOR_OR_NODE_UPGRADES"}, false),
+													Description:  `The scope of automatic upgrades to restrict in the exclusion window.`,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -2697,6 +2713,15 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 				StartTime: exclusion["start_time"].(string),
 				EndTime:   exclusion["end_time"].(string),
 			}
+			if exclusionOptions, ok := exclusion["exclusion_options"]; ok && len(exclusionOptions.([]interface{})) > 0 {
+				meo := exclusionOptions.([]interface{})[0].(map[string]interface{})
+				mex := exclusions[exclusion["exclusion_name"].(string)]
+				mex.MaintenanceExclusionOptions = &container.MaintenanceExclusionOptions{
+					Scope:           meo["scope"].(string),
+					ForceSendFields: []string{"Scope"},
+				}
+				exclusions[exclusion["exclusion_name"].(string)] = mex
+			}
 		}
 	}
 
@@ -3260,11 +3285,26 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 	exclusions := []map[string]interface{}{}
 	if mp.Window.MaintenanceExclusions != nil {
 		for wName, window := range mp.Window.MaintenanceExclusions {
-			exclusions = append(exclusions, map[string]interface{}{
+			exclusion := map[string]interface{}{
 				"start_time":     window.StartTime,
 				"end_time":       window.EndTime,
 				"exclusion_name": wName,
-			})
+			}
+			if window.MaintenanceExclusionOptions != nil {
+				// When the scope is set to NO_UPGRADES which is the default value,
+				// the maintenance exclusion returned by GCP will be empty.
+				// This seems like a bug. To workaround this, assign NO_UPGRADES to the scope explicitly
+				scope := "NO_UPGRADES"
+				if window.MaintenanceExclusionOptions.Scope != "" {
+					scope = window.MaintenanceExclusionOptions.Scope
+				}
+				exclusion["exclusion_options"] = []map[string]interface{}{
+					{
+						"scope": scope,
+					},
+				}
+			}
+			exclusions = append(exclusions, exclusion)
 		}
 	}
 

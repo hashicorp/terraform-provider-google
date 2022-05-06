@@ -1262,6 +1262,147 @@ func TestAccContainerCluster_withMaintenanceExclusionWindow(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMaintenanceExclusionOptions(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	resourceName := "google_container_cluster.with_maintenance_exclusion_options"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z", "NO_MINOR_UPGRADES", "NO_MINOR_OR_NODE_UPGRADES"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope", "NO_MINOR_UPGRADES"),
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope", "NO_MINOR_OR_NODE_UPGRADES"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_deleteMaintenanceExclusionOptions(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	resourceName := "google_container_cluster.with_maintenance_exclusion_options"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z", "NO_UPGRADES", "NO_MINOR_OR_NODE_UPGRADES"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope", "NO_UPGRADES"),
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope", "NO_MINOR_OR_NODE_UPGRADES"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_NoExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_updateMaintenanceExclusionOptions(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	resourceName := "google_container_cluster.with_maintenance_exclusion_options"
+
+	// step1: create a new cluster and initialize the maintenceExclusion without exclusion scopes,
+	// step2: add exclusion scopes to the maintenancePolicy,
+	// step3: update the maintenceExclusion with new scopes
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_NoExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z", "NO_MINOR_UPGRADES", "NO_MINOR_OR_NODE_UPGRADES"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope", "NO_MINOR_UPGRADES"),
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope", "NO_MINOR_OR_NODE_UPGRADES"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_updateExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z", "NO_UPGRADES", "NO_MINOR_UPGRADES"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope", "NO_UPGRADES"),
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope", "NO_MINOR_UPGRADES"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_deleteExclusionWindow(t *testing.T) {
 	t.Parallel()
 	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -3281,6 +3422,105 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
  }
 }
 `, clusterName, w1startTime, w1endTime, w1startTime, w1endTime, w2startTime, w2endTime)
+}
+
+func testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow(cclusterName string, w1startTime, w1endTime, w2startTime, w2endTime string, scope1, scope2 string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_maintenance_exclusion_options" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  maintenance_policy {
+	recurring_window {
+		start_time = "%s"
+		end_time = "%s"
+		recurrence = "FREQ=DAILY"
+	}
+	maintenance_exclusion {
+		exclusion_name = "batch job"
+		start_time = "%s"
+		end_time = "%s"
+		exclusion_options {
+			scope = "%s"
+    	}
+	}
+	maintenance_exclusion {
+		exclusion_name = "holiday data load"
+		start_time = "%s"
+		end_time = "%s"
+		exclusion_options {
+			scope = "%s"
+    	}
+	}
+ }
+}
+`, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, scope1, w2startTime, w2endTime, scope2)
+}
+
+func testAccContainerCluster_NoExclusionOptions_RecurringMaintenanceWindow(cclusterName string, w1startTime, w1endTime, w2startTime, w2endTime string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_maintenance_exclusion_options" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  maintenance_policy {
+	recurring_window {
+		start_time = "%s"
+		end_time = "%s"
+		recurrence = "FREQ=DAILY"
+	}
+	maintenance_exclusion {
+		exclusion_name = "batch job"
+		start_time = "%s"
+		end_time = "%s"
+	}
+	maintenance_exclusion {
+		exclusion_name = "holiday data load"
+		start_time = "%s"
+		end_time = "%s"
+	}
+ }
+}
+`, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, w2startTime, w2endTime)
+}
+
+func testAccContainerCluster_updateExclusionOptions_RecurringMaintenanceWindow(cclusterName string, w1startTime, w1endTime, w2startTime, w2endTime string, scope1, scope2 string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_maintenance_exclusion_options" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  maintenance_policy {
+	recurring_window {
+		start_time = "%s"
+		end_time = "%s"
+		recurrence = "FREQ=DAILY"
+	}
+	maintenance_exclusion {
+		exclusion_name = "batch job"
+		start_time = "%s"
+		end_time = "%s"
+		exclusion_options {
+			scope = "%s"
+    	}
+	}
+	maintenance_exclusion {
+		exclusion_name = "holiday data load"
+		start_time = "%s"
+		end_time = "%s"
+		exclusion_options {
+			scope = "%s"
+    	}
+	}
+ }
+}
+`, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, scope1, w2startTime, w2endTime, scope2)
 }
 
 func testAccContainerCluster_withExclusion_NoMaintenanceWindow(clusterName string, w1startTime, w1endTime string) string {
