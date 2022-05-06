@@ -541,6 +541,13 @@ maintenance_policy {
 
 * `maintenance_exclusion` - Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows. A cluster can have up to three maintenance exclusions at a time [Maintenance Window and Exclusions](https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions)
 
+<a name="nested_maintenance_exclusion"></a>The `maintenance_exclusion` block supports:
+* `exclusion_options` - (Optional) MaintenanceExclusionOptions provides maintenance exclusion related options.
+
+
+<a name="nested_exclusion_options"></a>The `exclusion_options` block supports:
+* `scope` - (Required) The scope of automatic upgrades to restrict in the exclusion window. One of: **NO_UPGRADES | NO_MINOR_UPGRADES | NO_MINOR_OR_NODE_UPGRADES**
+
 Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
 the initial date that the window starts, and the end time is used for calculating duration.Specify `recurrence` in
 [RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
@@ -559,11 +566,17 @@ maintenance_policy {
     exclusion_name = "batch job"
     start_time = "2019-01-01T00:00:00Z"
     end_time = "2019-01-02T00:00:00Z"
+    exclusion_options {
+      scope = "NO_UPGRADES"
+    }
   }
   maintenance_exclusion{
     exclusion_name = "holiday data load"
     start_time = "2019-05-01T00:00:00Z"
     end_time = "2019-05-02T00:00:00Z"
+    exclusion_options {
+      scope = "NO_MINOR_UPGRADES"
+    }
   }
 }
 ```
