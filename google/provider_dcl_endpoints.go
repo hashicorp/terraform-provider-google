@@ -49,6 +49,15 @@ var CloudBuildWorkerPoolEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var ClouddeployEndpointEntryKey = "clouddeploy_custom_endpoint"
+var ClouddeployEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var CloudResourceManagerEndpointEntryKey = "cloud_resource_manager_custom_endpoint"
 var CloudResourceManagerEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -161,6 +170,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 //ApikeysBasePath string
 //AssuredWorkloadsBasePath string
 //CloudBuildWorkerPoolBasePath string
+//ClouddeployBasePath string
 //CloudResourceManagerBasePath string
 //ComputeBasePath string
 //ContainerAwsBasePath string
@@ -178,6 +188,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // ApikeysEndpointEntryKey:               ApikeysEndpointEntry,
 // AssuredWorkloadsEndpointEntryKey:               AssuredWorkloadsEndpointEntry,
 // CloudBuildWorkerPoolEndpointEntryKey:               CloudBuildWorkerPoolEndpointEntry,
+// ClouddeployEndpointEntryKey:               ClouddeployEndpointEntry,
 // CloudResourceManagerEndpointEntryKey:               CloudResourceManagerEndpointEntry,
 // ComputeEndpointEntryKey:               ComputeEndpointEntry,
 // ContainerAwsEndpointEntryKey:               ContainerAwsEndpointEntry,
@@ -195,6 +206,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
 // config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 // config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
+// config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
 // config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
 // config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
 // config.ContainerAwsBasePath = d.Get(ContainerAwsEndpointEntryKey).(string)
