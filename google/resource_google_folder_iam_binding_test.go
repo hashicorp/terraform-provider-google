@@ -5,7 +5,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -255,25 +254,33 @@ func testAccCheckGoogleFolderIamBindingExists(t *testing.T, expected *cloudresou
 }
 
 func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config *Config) (*cloudresourcemanager.Policy, error) {
-	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, displayName)
-	searchRequest := &resourceManagerV2.SearchFoldersRequest{
-		Query: queryString,
-	}
-	searchResponse, err := config.NewResourceManagerV2Client(config.userAgent).Folders.Search(searchRequest).Do()
-	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
-			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
+	var folderMatch *resourceManagerV2.Folder
+	token := ""
+
+	for paginate := true; paginate; {
+		resp, err := config.NewResourceManagerV2Client(config.userAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
+		if err != nil {
+			return nil, fmt.Errorf("Error reading folder list: %s", err)
 		}
 
-		return nil, errwrap.Wrapf("Error reading folders: {{err}}", err)
+		for _, folder := range resp.Folders {
+			if folder.DisplayName == displayName {
+				if folderMatch != nil {
+					return nil, fmt.Errorf("More than one matching folder found")
+				}
+				folderMatch = folder
+			}
+		}
+
+		token = resp.NextPageToken
+		paginate = token != ""
 	}
 
-	folders := searchResponse.Folders
-	if len(folders) != 1 {
-		return nil, fmt.Errorf("expected exactly 1 folder, found %d", len(folders))
+	if folderMatch == nil {
+		return nil, fmt.Errorf("Folder not found: %s", displayName)
 	}
 
-	return getFolderIamPolicyByFolderName(folders[0].Name, config.userAgent, config)
+	return getFolderIamPolicyByFolderName(folderMatch.Name, config.userAgent, config)
 }
 
 func testAccFolderIamBasic(org, fname string) string {
