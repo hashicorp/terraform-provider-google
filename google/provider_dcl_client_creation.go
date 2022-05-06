@@ -23,6 +23,7 @@ import (
 	assuredworkloads "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/assuredworkloads"
 	bigqueryreservation "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/bigqueryreservation"
 	cloudbuild "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/cloudbuild"
+	clouddeploy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/clouddeploy"
 	cloudresourcemanager "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/cloudresourcemanager"
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 	containeraws "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containeraws"
@@ -128,6 +129,29 @@ func NewDCLCloudbuildClient(config *Config, userAgent, billingProject string, ti
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return cloudbuild.NewClient(dclConfig)
+}
+
+func NewDCLClouddeployClient(config *Config, userAgent, billingProject string, timeout time.Duration) *clouddeploy.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.ClouddeployBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return clouddeploy.NewClient(dclConfig)
 }
 
 func NewDCLCloudResourceManagerClient(config *Config, userAgent, billingProject string, timeout time.Duration) *cloudresourcemanager.Client {

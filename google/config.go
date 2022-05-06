@@ -245,6 +245,7 @@ type Config struct {
 	// start DCLBasePaths
 	// dataprocBasePath is implemented in mm
 	AssuredWorkloadsBasePath     string
+	ClouddeployBasePath          string
 	CloudResourceManagerBasePath string
 	ContainerAwsBasePath         string
 	ContainerAzureBasePath       string
