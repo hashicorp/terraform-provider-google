@@ -86,12 +86,12 @@ func resourceStorageBucketObject() *schema.Resource {
 			},
 
 			"content": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"source"},
-				Sensitive:     true,
-				Description:   `Data as string to be uploaded. Must be defined if source is not. Note: The content field is marked as sensitive. To view the raw contents of the object, please define an output.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"source"},
+				Sensitive:    true,
+				Description:  `Data as string to be uploaded. Must be defined if source is not. Note: The content field is marked as sensitive. To view the raw contents of the object, please define an output.`,
 			},
 
 			"crc32c": {
@@ -107,11 +107,11 @@ func resourceStorageBucketObject() *schema.Resource {
 			},
 
 			"source": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"content"},
-				Description:   `A path to the data you want to upload. Must be defined if content is not.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"content"},
+				Description:  `A path to the data you want to upload. Must be defined if content is not.`,
 			},
 
 			// Detect changes to local file or changes made outside of Terraform to the file stored on the server.
