@@ -68,14 +68,14 @@ var IamCredentialsCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[IamCredentialsBasePathKey]),
 }
 
-var ResourceManagerV2CustomEndpointEntryKey = "resource_manager_v2_custom_endpoint"
-var ResourceManagerV2CustomEndpointEntry = &schema.Schema{
+var ResourceManagerV3CustomEndpointEntryKey = "resource_manager_v3_custom_endpoint"
+var ResourceManagerV3CustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,
 	Optional:     true,
 	ValidateFunc: validateCustomEndpoint,
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_RESOURCE_MANAGER_V2_CUSTOM_ENDPOINT",
-	}, DefaultBasePaths[ResourceManagerV2BasePathKey]),
+		"GOOGLE_RESOURCE_MANAGER_V3_CUSTOM_ENDPOINT",
+	}, DefaultBasePaths[ResourceManagerV3BasePathKey]),
 }
 
 var ServiceNetworkingCustomEndpointEntryKey = "service_networking_custom_endpoint"
