@@ -731,16 +731,17 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name                  = "%s"
-  description           = "test function updated"
-  available_memory_mb   = 256
-  source_archive_bucket = google_storage_bucket.bucket.name
-  source_archive_object = google_storage_bucket_object.archive.name
-  trigger_http          = true
-  runtime               = "nodejs10"
-  timeout               = 91
-  entry_point           = "helloGET"
-  ingress_settings      = "ALLOW_ALL"
+  name                         = "%s"
+  description                  = "test function updated"
+  available_memory_mb          = 256
+  source_archive_bucket        = google_storage_bucket.bucket.name
+  source_archive_object        = google_storage_bucket_object.archive.name
+  trigger_http                 = true
+  https_trigger_security_level = "SECURE_ALWAYS"
+  runtime                      = "nodejs10"
+  timeout                      = 91
+  entry_point                  = "helloGET"
+  ingress_settings             = "ALLOW_ALL"
   labels = {
     my-label    = "my-updated-label-value"
     a-new-label = "a-new-label-value"
