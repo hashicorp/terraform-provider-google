@@ -103,9 +103,9 @@ resource "google_clouddeploy_target" "primary" {
   }
 
   labels = {
-    my_second_label = "example-label-2"
-
     my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
   }
 
   project          = "%{project_name}"
@@ -156,9 +156,9 @@ resource "google_clouddeploy_target" "primary" {
   name     = "tf-test-target%{random_suffix}"
 
   annotations = {
-    my_third_annotation = "example-annotation-3"
-
     my_second_annotation = "updated-example-annotation-2"
+
+    my_third_annotation = "example-annotation-3"
   }
 
   description = "updated description"

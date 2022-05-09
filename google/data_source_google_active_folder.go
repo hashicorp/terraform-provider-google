@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
+	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 func dataSourceGoogleActiveFolder() *schema.Resource {
@@ -35,19 +35,19 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	var folderMatch *resourceManagerV2.Folder
+	var folderMatch *resourceManagerV3.Folder
 	parent := d.Get("parent").(string)
 	displayName := d.Get("display_name").(string)
 	token := ""
 
 	for paginate := true; paginate; {
-		resp, err := config.NewResourceManagerV2Client(userAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
+		resp, err := config.NewResourceManagerV3Client(userAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
 		if err != nil {
 			return fmt.Errorf("error reading folder list: %s", err)
 		}
 
 		for _, folder := range resp.Folders {
-			if folder.DisplayName == displayName && folder.LifecycleState == "ACTIVE" {
+			if folder.DisplayName == displayName && folder.State == "ACTIVE" {
 				if folderMatch != nil {
 					return fmt.Errorf("more than one matching folder found")
 				}
