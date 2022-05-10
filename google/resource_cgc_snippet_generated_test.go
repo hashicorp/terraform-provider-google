@@ -145,6 +145,7 @@ func testAccCGCSnippet_spotInstanceBasicExample(context map[string]interface{}) 
 resource "google_compute_instance" "spot_vm_instance" {
   name         = "tf-test-spot-instance-name%{random_suffix}"
   machine_type = "f1-micro"
+  zone         = "us-central1-c"
 
   boot_disk {
     initialize_params {
