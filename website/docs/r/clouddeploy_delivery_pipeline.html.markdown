@@ -33,9 +33,9 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
   name     = "pipeline"
 
   annotations = {
-    my_first_annotation = "example-annotation-1"
-
     my_second_annotation = "example-annotation-2"
+
+    my_first_annotation = "example-annotation-1"
   }
 
   description = "basic description"
