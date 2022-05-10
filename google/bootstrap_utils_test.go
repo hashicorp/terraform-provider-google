@@ -211,6 +211,47 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 	return sa.Email
 }
 
+const SharedTestADDomainPrefix = "tf-bootstrap-ad"
+
+func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string) string {
+	project := getTestProjectFromEnv()
+	sharedADDomain := fmt.Sprintf("%s.%s.com", SharedTestADDomainPrefix, testId)
+	adDomainName := fmt.Sprintf("projects/%s/locations/global/domains/%s", project, sharedADDomain)
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared test active directory domain %q", adDomainName)
+	getURL := fmt.Sprintf("%s%s", config.ActiveDirectoryBasePath, adDomainName)
+	_, err := sendRequestWithTimeout(config, "GET", project, getURL, config.userAgent, nil, 4*time.Minute)
+	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] AD domain %q not found, bootstrapping", sharedADDomain)
+		postURL := fmt.Sprintf("%sprojects/%s/locations/global/domains?domainName=%s", config.ActiveDirectoryBasePath, project, sharedADDomain)
+		domainObj := map[string]interface{}{
+			"locations":          []string{"us-central1"},
+			"reservedIpRange":    "10.0.1.0/24",
+			"authorizedNetworks": []string{fmt.Sprintf("projects/%s/global/networks/%s", project, networkName)},
+		}
+
+		_, err := sendRequestWithTimeout(config, "POST", project, postURL, config.userAgent, domainObj, 60*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared active directory domain %q: %s", adDomainName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for active directory domain creation to finish")
+	}
+
+	_, err = sendRequestWithTimeout(config, "GET", project, getURL, config.userAgent, nil, 4*time.Minute)
+
+	if err != nil {
+		t.Fatalf("Error getting shared active directory domain %q: %s", adDomainName, err)
+	}
+
+	return sharedADDomain
+}
+
 const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 
 // BootstrapSharedTestNetwork will return a shared compute network
