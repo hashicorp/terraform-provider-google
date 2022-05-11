@@ -244,6 +244,43 @@ resource "google_storage_bucket_object" "appengine_neg" {
 `, context)
 }
 
+func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_endpoint_group.psc_neg",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_region_network_endpoint_group" "psc_neg" {
+  name                  = "tf-test-psc-neg%{random_suffix}"
+  region                = "asia-northeast3"
+
+  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
+  psc_target_service    = "asia-northeast3-cloudkms.googleapis.com"
+}
+`, context)
+}
+
 func testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
