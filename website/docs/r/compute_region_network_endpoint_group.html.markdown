@@ -195,6 +195,23 @@ resource "google_storage_bucket_object" "appengine_neg" {
   source = "./test-fixtures/appengine/hello-world.zip"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_network_endpoint_group_psc&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Endpoint Group Psc
+
+
+```hcl
+resource "google_compute_region_network_endpoint_group" "psc_neg" {
+  name                  = "psc-neg"
+  region                = "asia-northeast3"
+
+  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
+  psc_target_service    = "asia-northeast3-cloudkms.googleapis.com"
+}
+```
 
 ## Argument Reference
 
@@ -228,7 +245,12 @@ The following arguments are supported:
   (Optional)
   Type of network endpoints in this network endpoint group. Defaults to SERVERLESS
   Default value is `SERVERLESS`.
-  Possible values are `SERVERLESS`.
+  Possible values are `SERVERLESS` and `PRIVATE_SERVICE_CONNECT`.
+
+* `psc_target_service` -
+  (Optional)
+  The target service url used to set up private service connection to
+  a Google API or a PSC Producer Service Attachment.
 
 * `cloud_run` -
   (Optional)
