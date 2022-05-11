@@ -61,6 +61,8 @@ resource "google_monitoring_uptime_check_config" "http" {
   content_matchers {
     content = "example"
   }
+
+  checker_type = "STATIC_IP_CHECKERS"
 }
 ```
 ## Example Usage - Uptime Check Config Https
@@ -149,6 +151,11 @@ The following arguments are supported:
 * `selected_regions` -
   (Optional)
   The list of regions from which the check will be run. Some regions contain one location, and others contain more than one. If this field is specified, enough regions to include a minimum of 3 locations must be provided, or an error message is returned. Not specifying this field will result in uptime checks running from all regions.
+
+* `checker_type` -
+  (Optional)
+  The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS.
+  Possible values are `STATIC_IP_CHECKERS` and `VPC_CHECKERS`.
 
 * `http_check` -
   (Optional)

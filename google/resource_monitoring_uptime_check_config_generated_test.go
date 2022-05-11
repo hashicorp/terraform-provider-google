@@ -73,6 +73,8 @@ resource "google_monitoring_uptime_check_config" "http" {
   content_matchers {
     content = "example"
   }
+
+  checker_type = "STATIC_IP_CHECKERS"
 }
 `, context)
 }

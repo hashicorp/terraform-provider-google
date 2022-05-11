@@ -56,6 +56,14 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Required:    true,
 				Description: `The maximum amount of time to wait for the request to complete (must be between 1 and 60 seconds). Accepted formats https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration`,
 			},
+			"checker_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"STATIC_IP_CHECKERS", "VPC_CHECKERS", ""}),
+				Description:  `The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS. Possible values: ["STATIC_IP_CHECKERS", "VPC_CHECKERS"]`,
+			},
 			"content_matchers": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -312,6 +320,12 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("selected_regions"); !isEmptyValue(reflect.ValueOf(selectedRegionsProp)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
+	checkerTypeProp, err := expandMonitoringUptimeCheckConfigCheckerType(d.Get("checker_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("checker_type"); !isEmptyValue(reflect.ValueOf(checkerTypeProp)) && (ok || !reflect.DeepEqual(v, checkerTypeProp)) {
+		obj["checkerType"] = checkerTypeProp
+	}
 	httpCheckProp, err := expandMonitoringUptimeCheckConfigHttpCheck(d.Get("http_check"), d, config)
 	if err != nil {
 		return err
@@ -454,6 +468,9 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
+	}
+	if err := d.Set("checker_type", flattenMonitoringUptimeCheckConfigCheckerType(res["checkerType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("http_check", flattenMonitoringUptimeCheckConfigHttpCheck(res["httpCheck"], d, config)); err != nil {
@@ -694,6 +711,10 @@ func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.
 	return v
 }
 
+func flattenMonitoringUptimeCheckConfigCheckerType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -924,6 +945,10 @@ func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d Te
 }
 
 func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigCheckerType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
