@@ -13,7 +13,7 @@ IMPROVEMENTS:
 * dns: added `routing_policy` to `google_dns_record_set` resource ([#11610](https://github.com/hashicorp/terraform-provider-google/pull/11610))
 
 BUG FIXES:
-* compute: fixed a crash when `compute.instance` is not found ([#11602](https://github.com/hashicorp/terraform-provider-google/pull/11602))
+* compute: fixed a crash in `google_compute_instance` when the instance is deleted outside of Terraform ([#11602](https://github.com/hashicorp/terraform-provider-google/pull/11602))
 * provider: removed printing credentials to the console if malformed JSON is given ([#11614](https://github.com/hashicorp/terraform-provider-google/pull/11614))
 
 ## 4.19.0 (April 25, 2022)
