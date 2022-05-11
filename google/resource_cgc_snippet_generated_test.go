@@ -170,6 +170,56 @@ resource "google_compute_instance" "spot_vm_instance" {
 `, context)
 }
 
+func TestAccCGCSnippet_instanceCustomHostnameExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_instanceCustomHostnameExample(context),
+			},
+			{
+				ResourceName:      "google_compute_instance.custom_hostname_instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_instanceCustomHostnameExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_compute_instance" "custom_hostname_instance" {
+  name         = "tf-test-custom-hostname-instance-name%{random_suffix}"
+  machine_type = "f1-micro"
+  zone = "us-central1-c"
+
+  # Set a custom hostname below 
+  hostname = "hashicorptest.com"
+  
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+  network_interface {
+    # A default network is created for all GCP projects
+    network = "default"
+    access_config {
+    }
+  }
+}
+
+`, context)
+}
+
 func TestAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()

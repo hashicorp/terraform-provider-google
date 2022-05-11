@@ -156,9 +156,9 @@ resource "google_clouddeploy_target" "primary" {
   name     = "tf-test-target%{random_suffix}"
 
   annotations = {
-    my_second_annotation = "updated-example-annotation-2"
-
     my_third_annotation = "example-annotation-3"
+
+    my_second_annotation = "updated-example-annotation-2"
   }
 
   description = "updated description"
@@ -195,9 +195,9 @@ resource "google_clouddeploy_target" "primary" {
   name     = "tf-test-target%{random_suffix}"
 
   annotations = {
-    my_third_annotation = "example-annotation-3"
-
     my_second_annotation = "updated-example-annotation-2"
+
+    my_third_annotation = "example-annotation-3"
   }
 
   description = "updated description"
