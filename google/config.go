@@ -171,6 +171,7 @@ type Config struct {
 	BigtableBasePath             string
 	BillingBasePath              string
 	BinaryAuthorizationBasePath  string
+	CertificateManagerBasePath   string
 	CloudAssetBasePath           string
 	CloudBuildBasePath           string
 	CloudFunctionsBasePath       string
@@ -271,6 +272,7 @@ const BigqueryReservationBasePathKey = "BigqueryReservation"
 const BigtableBasePathKey = "Bigtable"
 const BillingBasePathKey = "Billing"
 const BinaryAuthorizationBasePathKey = "BinaryAuthorization"
+const CertificateManagerBasePathKey = "CertificateManager"
 const CloudAssetBasePathKey = "CloudAsset"
 const CloudBuildBasePathKey = "CloudBuild"
 const CloudFunctionsBasePathKey = "CloudFunctions"
@@ -353,6 +355,7 @@ var DefaultBasePaths = map[string]string{
 	BigtableBasePathKey:             "https://bigtableadmin.googleapis.com/v2/",
 	BillingBasePathKey:              "https://billingbudgets.googleapis.com/v1/",
 	BinaryAuthorizationBasePathKey:  "https://binaryauthorization.googleapis.com/v1/",
+	CertificateManagerBasePathKey:   "https://certificatemanager.googleapis.com/v1/",
 	CloudAssetBasePathKey:           "https://cloudasset.googleapis.com/v1/",
 	CloudBuildBasePathKey:           "https://cloudbuild.googleapis.com/v1/",
 	CloudFunctionsBasePathKey:       "https://cloudfunctions.googleapis.com/v1/",
@@ -1197,6 +1200,7 @@ func ConfigureBasePaths(c *Config) {
 	c.BigtableBasePath = DefaultBasePaths[BigtableBasePathKey]
 	c.BillingBasePath = DefaultBasePaths[BillingBasePathKey]
 	c.BinaryAuthorizationBasePath = DefaultBasePaths[BinaryAuthorizationBasePathKey]
+	c.CertificateManagerBasePath = DefaultBasePaths[CertificateManagerBasePathKey]
 	c.CloudAssetBasePath = DefaultBasePaths[CloudAssetBasePathKey]
 	c.CloudBuildBasePath = DefaultBasePaths[CloudBuildBasePathKey]
 	c.CloudFunctionsBasePath = DefaultBasePaths[CloudFunctionsBasePathKey]
