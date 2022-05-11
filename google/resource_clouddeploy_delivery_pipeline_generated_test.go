@@ -106,17 +106,17 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
   name     = "tf-test-pipeline%{random_suffix}"
 
   annotations = {
-    my_third_annotation = "example-annotation-3"
-
     my_second_annotation = "updated-example-annotation-2"
+
+    my_third_annotation = "example-annotation-3"
   }
 
   description = "updated description"
 
   labels = {
-    my_second_label = "updated-example-label-2"
-
     my_third_label = "example-label-3"
+
+    my_second_label = "updated-example-label-2"
   }
 
   project = "%{project_name}"
