@@ -268,7 +268,7 @@ is set to true.`,
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     true,
-							Description: `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
+							Description: `Enables auto-resizing of the storage size. Defaults to true. Set to false if you want to set disk_size.`,
 						},
 						"disk_autoresize_limit": {
 							Type:        schema.TypeInt,
@@ -281,7 +281,7 @@ is set to true.`,
 							Optional: true,
 							// Default is likely 10gb, but it is undocumented and may change.
 							Computed:    true,
-							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.`,
+							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. If you want to set this field, set disk_autoresize to false.`,
 						},
 						"disk_type": {
 							Type:        schema.TypeString,
