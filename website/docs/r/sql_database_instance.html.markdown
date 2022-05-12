@@ -238,9 +238,9 @@ The `settings` block supports:
 
 * `collation` - (Optional) The name of server instance collation.
 
-* `disk_autoresize` - (Optional, Default: `true`) Configuration to increase storage size automatically.  Note that future `terraform apply` calls will attempt to resize the disk to the value specified in `disk_size` - if this is set, do not set `disk_size`.
+* `disk_autoresize` - (Optional, Default: `true`) Enables auto-resizing of the storage size. Set to false if you want to set `disk_size`.
 
-* `disk_size` - (Optional, Default: `10`) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.
+* `disk_size` - (Optional, Default: `10`) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. If you want to set this field, set `disk_autoresize` to false.
 
 * `disk_type` - (Optional, Default: `PD_SSD`) The type of data disk: PD_SSD or PD_HDD.
 
