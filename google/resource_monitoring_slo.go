@@ -894,6 +894,9 @@ func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("slo_id", flattenMonitoringSloSloId(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Slo: %s", err)
 	}
+	if err := d.Set("service", flattenMonitoringSloService(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 
 	return nil
 }
@@ -1582,6 +1585,14 @@ func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *Co
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
+}
+
+func flattenMonitoringSloService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	parts := strings.Split(v.(string), "/")
+	return parts[len(parts)-3]
 }
 
 func expandMonitoringSloDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
