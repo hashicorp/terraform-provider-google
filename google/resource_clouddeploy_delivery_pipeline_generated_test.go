@@ -114,9 +114,9 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
   description = "updated description"
 
   labels = {
-    my_second_label = "updated-example-label-2"
-
     my_third_label = "example-label-3"
+
+    my_second_label = "updated-example-label-2"
   }
 
   project = "%{project_name}"

@@ -24,8 +24,6 @@ description: |-
 
 A connection allows BigQuery connections to external data sources..
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Connection, see:
 
@@ -46,7 +44,6 @@ state as plain-text. [Read more about sensitive data in state](/language/state/s
 
 ```hcl
 resource "google_sql_database_instance" "instance" {
-    provider         = google-beta
     name             = "my-database-instance"
     database_version = "POSTGRES_11"
     region           = "us-central1"
@@ -58,7 +55,6 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database" "db" {
-    provider = google-beta
     instance = google_sql_database_instance.instance.name
     name     = "db"
 }
@@ -69,14 +65,12 @@ resource "random_password" "pwd" {
 }
 
 resource "google_sql_user" "user" {
-    provider = google-beta
     name = "user"
     instance = google_sql_database_instance.instance.name
     password = random_password.pwd.result
 }
 
 resource "google_bigquery_connection" "connection" {
-    provider      = google-beta
     friendly_name = "👋"
     description   = "a riveting description"
     cloud_sql {
@@ -100,7 +94,6 @@ resource "google_bigquery_connection" "connection" {
 
 ```hcl
 resource "google_sql_database_instance" "instance" {
-    provider         = google-beta
     name             = "my-database-instance"
     database_version = "POSTGRES_11"
     region           = "us-central1"
@@ -112,7 +105,6 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database" "db" {
-    provider = google-beta
     instance = google_sql_database_instance.instance.name
     name     = "db"
 }
@@ -123,14 +115,12 @@ resource "random_password" "pwd" {
 }
 
 resource "google_sql_user" "user" {
-    provider = google-beta
     name = "user"
     instance = google_sql_database_instance.instance.name
     password = random_password.pwd.result
 }
 
 resource "google_bigquery_connection" "connection" {
-    provider      = google-beta
     connection_id = "my-connection"
     location      = "US"
     friendly_name = "👋"
@@ -146,16 +136,64 @@ resource "google_bigquery_connection" "connection" {
     }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_connection_cloud_resource&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Cloud Resource
+
+
+```hcl
+resource "google_bigquery_connection" "connection" {
+   connection_id = "my-connection"
+   location      = "US"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   cloud_resource {}
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
 
+
+- - -
+
+
+* `connection_id` -
+  (Optional)
+  Optional connection id that should be assigned to the created connection.
+
+* `location` -
+  (Optional)
+  The geographic location where the connection should reside.
+  Cloud SQL instance must be in the same location as the connection
+  with following exceptions: Cloud SQL us-central1 maps to BigQuery US, Cloud SQL europe-west1 maps to BigQuery EU.
+  Examples: US, EU, asia-northeast1, us-central1, europe-west1. The default value is US.
+
+* `friendly_name` -
+  (Optional)
+  A descriptive name for the connection
+
+* `description` -
+  (Optional)
+  A descriptive description for the connection
+
 * `cloud_sql` -
-  (Required)
+  (Optional)
   Cloud SQL properties.
   Structure is [documented below](#nested_cloud_sql).
+
+* `cloud_resource` -
+  (Optional)
+  Cloud Resource properties.
+  Structure is [documented below](#nested_cloud_resource).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
 
 
 <a name="nested_cloud_sql"></a>The `cloud_sql` block supports:
@@ -190,31 +228,10 @@ The following arguments are supported:
   Password for database.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-- - -
+<a name="nested_cloud_resource"></a>The `cloud_resource` block supports:
 
-
-* `connection_id` -
-  (Optional)
-  Optional connection id that should be assigned to the created connection.
-
-* `location` -
-  (Optional)
-  The geographic location where the connection should reside.
-  Cloud SQL instance must be in the same location as the connection
-  with following exceptions: Cloud SQL us-central1 maps to BigQuery US, Cloud SQL europe-west1 maps to BigQuery EU.
-  Examples: US, EU, asia-northeast1, us-central1, europe-west1. The default value is US.
-
-* `friendly_name` -
-  (Optional)
-  A descriptive name for the connection
-
-* `description` -
-  (Optional)
-  A descriptive description for the connection
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
+* `service_account_id` -
+  The account ID of the service created for the purpose of this connection.
 
 ## Attributes Reference
 
