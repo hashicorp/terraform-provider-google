@@ -103,7 +103,6 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
 			privateNetworkCustomizeDiff,
 			pitrPostgresOnlyCustomizeDiff,
-			insightsPostgresOnlyCustomizeDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -735,15 +734,6 @@ func pitrPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff,
 	dbVersion := diff.Get("database_version").(string)
 	if pitr && !strings.Contains(dbVersion, "POSTGRES") {
 		return fmt.Errorf("point_in_time_recovery_enabled is only available for Postgres. You may want to consider using binary_log_enabled instead.")
-	}
-	return nil
-}
-
-func insightsPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-	insights := diff.Get("settings.0.insights_config.0.query_insights_enabled").(bool)
-	dbVersion := diff.Get("database_version").(string)
-	if insights && !strings.Contains(dbVersion, "POSTGRES") {
-		return fmt.Errorf("query_insights_enabled is only available for Postgres now.")
 	}
 	return nil
 }
