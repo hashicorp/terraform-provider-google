@@ -8,10 +8,6 @@ on:
 permissions:
   contents: write
 
-env:
-  PROTOCOL_VERSION: "5.0"
-  PROTOCOL_VERSIONS: "5.0"
-
 jobs:
   go-version:
     runs-on: ubuntu-latest
