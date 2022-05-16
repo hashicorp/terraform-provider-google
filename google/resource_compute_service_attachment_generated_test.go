@@ -55,6 +55,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
+  domain_names             = ["gcp.tfacc.hashicorptest.com."]
   enable_proxy_protocol    = true
   connection_preference    = "ACCEPT_AUTOMATIC"
   nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
@@ -163,6 +164,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
+  domain_names             = ["gcp.tfacc.hashicorptest.com."]
   enable_proxy_protocol    = true
   connection_preference    = "ACCEPT_MANUAL"
   nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
