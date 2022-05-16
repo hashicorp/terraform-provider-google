@@ -171,6 +171,13 @@ The following arguments are supported:
   (Optional)
   Minimum number of ports allocated to a VM from this NAT.
 
+* `enable_dynamic_port_allocation` -
+  (Optional)
+  Enable Dynamic Port Allocation.
+  If minPorts is set, minPortsPerVm must be set to a power of two greater than or equal to 32. 
+  If minPortsPerVm is not set, a minimum of 32 ports will be allocated to a VM from this NAT config.
+  Mutually exclusive with enableEndpointIndependentMapping.
+
 * `udp_idle_timeout_sec` -
   (Optional)
   Timeout (in seconds) for UDP connections. Defaults to 30s if not set.
