@@ -44,7 +44,7 @@ publishers:
       - glob: 'terraform-registry-manifest.json'
         name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
     signature: true
-    cmd: hc-releases upload -product {{ .ProjectName }} -version {{ .Version }} -file={{ .ArtifactPath }}={{ .ArtifactName }} -header="x-terraform-protocol-version={{ .Env.PROTOCOL_VERSION }}" -header="x-terraform-protocol-versions={{ .Env.PROTOCOL_VERSIONS }}"
+    cmd: hc-releases upload -product {{ .ProjectName }} -version {{ .Version }} -file={{ .ArtifactPath }}={{ .ArtifactName }} -header="x-terraform-protocol-version=5.0" -header="x-terraform-protocol-versions=5.0"
     env:
       - HC_RELEASES_HOST={{ .Env.HC_RELEASES_HOST }}
       - HC_RELEASES_KEY={{ .Env.HC_RELEASES_KEY }}
