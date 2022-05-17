@@ -61,7 +61,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
   description = "a new function"
  
   build_config {
-    runtime = "nodejs12"
+    runtime = "nodejs16"
     entry_point = "helloHttp"
     source {
       storage_source {
@@ -113,7 +113,7 @@ resource "google_cloudfunctions2_function" "terraform-test" {
   description = "a new function"
  
   build_config {
-    runtime = "nodejs12"
+    runtime = "nodejs16"
     entry_point = "helloHttp"
     environment_variables = {
         BUILD_CONFIG_TEST = "build_test"
