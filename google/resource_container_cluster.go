@@ -424,6 +424,13 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew:    true,
 							Description: `The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format gke-security-groups@yourdomain.com.`,
 						},
+						"enabled": {
+							Type: schema.TypeBool,
+							Optional: true,
+							Default: true,
+							ForceNew: false,
+							Description: `Whether to enable or disable RBAC security group usage. Default is true.`,
+						}
 					},
 				},
 			},
@@ -2824,8 +2831,12 @@ func expandAuthenticatorGroupsConfig(configured interface{}) *container.Authenti
 	result := &container.AuthenticatorGroupsConfig{}
 	config := l[0].(map[string]interface{})
 	if securityGroup, ok := config["security_group"]; ok {
-		result.Enabled = true
 		result.SecurityGroup = securityGroup.(string)
+		if enabled, ok := config["enabled"]; ok {
+			result.Enabled = enabled.(bool)
+		} else {
+			result.Enabled= true
+		}
 	}
 	return result
 }
@@ -3174,6 +3185,7 @@ func flattenAuthenticatorGroupsConfig(c *container.AuthenticatorGroupsConfig) []
 	return []map[string]interface{}{
 		{
 			"security_group": c.SecurityGroup,
+			"enabled": c.Enabled,
 		},
 	}
 }
