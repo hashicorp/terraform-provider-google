@@ -413,7 +413,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
+				ForceNew:    false,
 				MaxItems:    1,
 				Description: `Configuration for the Google Groups for GKE feature.`,
 				Elem: &schema.Resource{
