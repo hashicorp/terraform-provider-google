@@ -136,9 +136,9 @@ resource "google_clouddeploy_target" "primary" {
   }
 
   labels = {
-    my_second_label = "updated-example-label-2"
-
     my_third_label = "example-label-3"
+
+    my_second_label = "updated-example-label-2"
   }
 
   project          = "%{project_name}"
@@ -175,9 +175,9 @@ resource "google_clouddeploy_target" "primary" {
   }
 
   labels = {
-    my_third_label = "example-label-3"
-
     my_second_label = "updated-example-label-2"
+
+    my_third_label = "example-label-3"
   }
 
   project          = "%{project_name}"
