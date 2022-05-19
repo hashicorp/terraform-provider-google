@@ -146,6 +146,13 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				},
 			},
 
+			"docker_registry": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Docker Registry to use for storing the function's Docker images. Allowed values are CONTAINER_REGISTRY (default) and ARTIFACT_REGISTRY.`,
+			},
+
 			"docker_repository": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -518,6 +525,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.VpcConnectorEgressSettings = v.(string)
 	}
 
+	if v, ok := d.GetOk("docker_registry"); ok {
+		function.DockerRegistry = v.(string)
+	}
+
 	if v, ok := d.GetOk("docker_repository"); ok {
 		function.DockerRepository = v.(string)
 	}
@@ -660,6 +671,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("event_trigger", flattenEventTrigger(function.EventTrigger)); err != nil {
 		return fmt.Errorf("Error setting event_trigger: %s", err)
 	}
+	if err := d.Set("docker_registry", function.DockerRegistry); err != nil {
+		return fmt.Errorf("Error setting docker_registry: %s", err)
+	}
 	if err := d.Set("docker_repository", function.DockerRepository); err != nil {
 		return fmt.Errorf("Error setting docker_repository: %s", err)
 	}
@@ -794,6 +808,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("https_trigger_security_level") {
 		function.HttpsTrigger.SecurityLevel = d.Get("https_trigger_security_level").(string)
 		updateMaskArr = append(updateMaskArr, "httpsTrigger", "httpsTrigger.securityLevel")
+	}
+
+	if d.HasChange("docker_registry") {
+		function.DockerRegistry = d.Get("docker_registry").(string)
+		updateMaskArr = append(updateMaskArr, "dockerRegistry")
 	}
 
 	if d.HasChange("docker_repository") {
