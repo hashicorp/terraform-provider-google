@@ -42,10 +42,77 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"aws": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Connection properties specific to Amazon Web Services.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"access_role": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Authentication using Google owned service account to assume into customer's AWS IAM Role.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"iam_role_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The user’s AWS IAM Role that trusts the Google-owned AWS IAM user Connection.`,
+									},
+									"identity": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `A unique Google-owned and Google-generated identity for the Connection. This identity will be used to access the user's AWS IAM Role.`,
+									},
+								},
+							},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+			},
+			"azure": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Container for connection properties specific to Azure.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"customer_tenant_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The id of customer's directory that host the data.`,
+						},
+						"application": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the Azure Active Directory Application.`,
+						},
+						"client_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The client id of the Azure Active Directory Application.`,
+						},
+						"object_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The object id of the Azure Active Directory Application.`,
+						},
+						"redirect_uri": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The URL user will be redirected to after granting consent during connection setup.`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+			},
 			"cloud_resource": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `Cloud Resource properties.`,
+				Description: `Container for connection properties for delegation of access to GCP resources.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -56,12 +123,33 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "cloud_resource"},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+			},
+			"cloud_spanner": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Connection properties specific to Cloud Spanner`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"database": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Cloud Spanner database in the form 'project/instance/database'`,
+						},
+						"use_parallelism": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If parallelism should be used when reading from Cloud Spanner`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
 			},
 			"cloud_sql": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `Cloud SQL properties.`,
+				Description: `A nested object resource`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -104,7 +192,7 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "cloud_resource"},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
 			},
 			"connection_id": {
 				Type:        schema.TypeString,
@@ -130,8 +218,10 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 				Description: `The geographic location where the connection should reside.
 Cloud SQL instance must be in the same location as the connection
 with following exceptions: Cloud SQL us-central1 maps to BigQuery US, Cloud SQL europe-west1 maps to BigQuery EU.
-Examples: US, EU, asia-northeast1, us-central1, europe-west1. The default value is US.`,
-				Default: "US",
+Examples: US, EU, asia-northeast1, us-central1, europe-west1.
+Spanner Connections same as spanner region
+AWS allowed regions are aws-us-east-1
+Azure allowed regions are azure-eastus2`,
 			},
 			"has_credential": {
 				Type:        schema.TypeBool,
@@ -186,6 +276,24 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("cloud_sql"); !isEmptyValue(reflect.ValueOf(cloudSqlProp)) && (ok || !reflect.DeepEqual(v, cloudSqlProp)) {
 		obj["cloudSql"] = cloudSqlProp
+	}
+	awsProp, err := expandBigqueryConnectionConnectionAws(d.Get("aws"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("aws"); !isEmptyValue(reflect.ValueOf(awsProp)) && (ok || !reflect.DeepEqual(v, awsProp)) {
+		obj["aws"] = awsProp
+	}
+	azureProp, err := expandBigqueryConnectionConnectionAzure(d.Get("azure"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("azure"); !isEmptyValue(reflect.ValueOf(azureProp)) && (ok || !reflect.DeepEqual(v, azureProp)) {
+		obj["azure"] = azureProp
+	}
+	cloudSpannerProp, err := expandBigqueryConnectionConnectionCloudSpanner(d.Get("cloud_spanner"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cloud_spanner"); !isEmptyValue(reflect.ValueOf(cloudSpannerProp)) && (ok || !reflect.DeepEqual(v, cloudSpannerProp)) {
+		obj["cloudSpanner"] = cloudSpannerProp
 	}
 	cloudResourceProp, err := expandBigqueryConnectionConnectionCloudResource(d.Get("cloud_resource"), d, config)
 	if err != nil {
@@ -305,6 +413,15 @@ func resourceBigqueryConnectionConnectionRead(d *schema.ResourceData, meta inter
 	if err := d.Set("cloud_sql", flattenBigqueryConnectionConnectionCloudSql(res["cloudSql"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
+	if err := d.Set("aws", flattenBigqueryConnectionConnectionAws(res["aws"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err := d.Set("azure", flattenBigqueryConnectionConnectionAzure(res["azure"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err := d.Set("cloud_spanner", flattenBigqueryConnectionConnectionCloudSpanner(res["cloudSpanner"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
 	if err := d.Set("cloud_resource", flattenBigqueryConnectionConnectionCloudResource(res["cloudResource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
@@ -346,6 +463,24 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("cloud_sql"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cloudSqlProp)) {
 		obj["cloudSql"] = cloudSqlProp
 	}
+	awsProp, err := expandBigqueryConnectionConnectionAws(d.Get("aws"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("aws"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, awsProp)) {
+		obj["aws"] = awsProp
+	}
+	azureProp, err := expandBigqueryConnectionConnectionAzure(d.Get("azure"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("azure"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, azureProp)) {
+		obj["azure"] = azureProp
+	}
+	cloudSpannerProp, err := expandBigqueryConnectionConnectionCloudSpanner(d.Get("cloud_spanner"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cloud_spanner"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cloudSpannerProp)) {
+		obj["cloudSpanner"] = cloudSpannerProp
+	}
 	cloudResourceProp, err := expandBigqueryConnectionConnectionCloudResource(d.Get("cloud_resource"), d, config)
 	if err != nil {
 		return err
@@ -376,6 +511,18 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("cloud_sql") {
 		updateMask = append(updateMask, "cloudSql")
+	}
+
+	if d.HasChange("aws") {
+		updateMask = append(updateMask, "aws")
+	}
+
+	if d.HasChange("azure") {
+		updateMask = append(updateMask, "azure")
+	}
+
+	if d.HasChange("cloud_spanner") {
+		updateMask = append(updateMask, "cloudSpanner")
 	}
 
 	if d.HasChange("cloud_resource") {
@@ -522,6 +669,106 @@ func flattenBigqueryConnectionConnectionCloudSqlType(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenBigqueryConnectionConnectionAws(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["access_role"] =
+		flattenBigqueryConnectionConnectionAwsAccessRole(original["accessRole"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionAwsAccessRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["iam_role_id"] =
+		flattenBigqueryConnectionConnectionAwsAccessRoleIamRoleId(original["iamRoleId"], d, config)
+	transformed["identity"] =
+		flattenBigqueryConnectionConnectionAwsAccessRoleIdentity(original["identity"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionAwsAccessRoleIamRoleId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionAwsAccessRoleIdentity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionAzure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["application"] =
+		flattenBigqueryConnectionConnectionAzureApplication(original["application"], d, config)
+	transformed["client_id"] =
+		flattenBigqueryConnectionConnectionAzureClientId(original["clientId"], d, config)
+	transformed["object_id"] =
+		flattenBigqueryConnectionConnectionAzureObjectId(original["objectId"], d, config)
+	transformed["customer_tenant_id"] =
+		flattenBigqueryConnectionConnectionAzureCustomerTenantId(original["customerTenantId"], d, config)
+	transformed["redirect_uri"] =
+		flattenBigqueryConnectionConnectionAzureRedirectUri(original["redirectUri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionAzureApplication(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionAzureClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionAzureObjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionCloudSpanner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["database"] =
+		flattenBigqueryConnectionConnectionCloudSpannerDatabase(original["database"], d, config)
+	transformed["use_parallelism"] =
+		flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(original["useParallelism"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenBigqueryConnectionConnectionCloudResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -634,6 +881,160 @@ func expandBigqueryConnectionConnectionCloudSqlCredentialPassword(v interface{},
 }
 
 func expandBigqueryConnectionConnectionCloudSqlType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAws(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAccessRole, err := expandBigqueryConnectionConnectionAwsAccessRole(original["access_role"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessRole); val.IsValid() && !isEmptyValue(val) {
+		transformed["accessRole"] = transformedAccessRole
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionAwsAccessRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIamRoleId, err := expandBigqueryConnectionConnectionAwsAccessRoleIamRoleId(original["iam_role_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIamRoleId); val.IsValid() && !isEmptyValue(val) {
+		transformed["iamRoleId"] = transformedIamRoleId
+	}
+
+	transformedIdentity, err := expandBigqueryConnectionConnectionAwsAccessRoleIdentity(original["identity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentity); val.IsValid() && !isEmptyValue(val) {
+		transformed["identity"] = transformedIdentity
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionAwsAccessRoleIamRoleId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAwsAccessRoleIdentity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAzure(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedApplication, err := expandBigqueryConnectionConnectionAzureApplication(original["application"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApplication); val.IsValid() && !isEmptyValue(val) {
+		transformed["application"] = transformedApplication
+	}
+
+	transformedClientId, err := expandBigqueryConnectionConnectionAzureClientId(original["client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientId); val.IsValid() && !isEmptyValue(val) {
+		transformed["clientId"] = transformedClientId
+	}
+
+	transformedObjectId, err := expandBigqueryConnectionConnectionAzureObjectId(original["object_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedObjectId); val.IsValid() && !isEmptyValue(val) {
+		transformed["objectId"] = transformedObjectId
+	}
+
+	transformedCustomerTenantId, err := expandBigqueryConnectionConnectionAzureCustomerTenantId(original["customer_tenant_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomerTenantId); val.IsValid() && !isEmptyValue(val) {
+		transformed["customerTenantId"] = transformedCustomerTenantId
+	}
+
+	transformedRedirectUri, err := expandBigqueryConnectionConnectionAzureRedirectUri(original["redirect_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRedirectUri); val.IsValid() && !isEmptyValue(val) {
+		transformed["redirectUri"] = transformedRedirectUri
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionAzureApplication(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAzureClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAzureObjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSpanner(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDatabase, err := expandBigqueryConnectionConnectionCloudSpannerDatabase(original["database"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatabase); val.IsValid() && !isEmptyValue(val) {
+		transformed["database"] = transformedDatabase
+	}
+
+	transformedUseParallelism, err := expandBigqueryConnectionConnectionCloudSpannerUseParallelism(original["use_parallelism"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseParallelism); val.IsValid() && !isEmptyValue(val) {
+		transformed["useParallelism"] = transformedUseParallelism
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -27,7 +27,7 @@ A connection allows BigQuery connections to external data sources..
 
 To get more information about Connection, see:
 
-* [API documentation](https://cloud.google.com/bigquery/docs/reference/bigqueryconnection/rest/v1beta1/projects.locations.connections/create)
+* [API documentation](https://cloud.google.com/bigquery/docs/reference/bigqueryconnection/rest/v1/projects.locations.connections/create)
 * How-to Guides
     * [Cloud SQL federated queries](https://cloud.google.com/bigquery/docs/cloud-sql-federated-queries)
 
@@ -73,6 +73,7 @@ resource "google_sql_user" "user" {
 resource "google_bigquery_connection" "connection" {
     friendly_name = "👋"
     description   = "a riveting description"
+    location      = "US"
     cloud_sql {
         instance_id = google_sql_database_instance.instance.connection_name
         database    = google_sql_database.db.name
@@ -153,6 +154,65 @@ resource "google_bigquery_connection" "connection" {
    cloud_resource {}
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_connection_aws&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Aws
+
+
+```hcl
+resource "google_bigquery_connection" "connection" {
+   connection_id = "my-connection"
+   location      = "aws-us-east-1"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   aws { 
+      access_role {
+         iam_role_id =  "arn:aws:iam::999999999999:role/omnirole"
+      }
+   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_connection_azure&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Azure
+
+
+```hcl
+resource "google_bigquery_connection" "connection" {
+   connection_id = "my-connection"
+   location      = "azure-eastus2"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   azure {
+      customer_tenant_id = "customer-tenant-id"
+   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_connection_cloudspanner&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Cloudspanner
+
+
+```hcl
+resource "google_bigquery_connection" "connection" {
+   connection_id = "my-connection"
+   location      = "US"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   cloud_spanner { 
+      database = "projects/project/instances/instance/databases/database"
+   }
+}
+```
 
 ## Argument Reference
 
@@ -172,7 +232,10 @@ The following arguments are supported:
   The geographic location where the connection should reside.
   Cloud SQL instance must be in the same location as the connection
   with following exceptions: Cloud SQL us-central1 maps to BigQuery US, Cloud SQL europe-west1 maps to BigQuery EU.
-  Examples: US, EU, asia-northeast1, us-central1, europe-west1. The default value is US.
+  Examples: US, EU, asia-northeast1, us-central1, europe-west1.
+  Spanner Connections same as spanner region
+  AWS allowed regions are aws-us-east-1
+  Azure allowed regions are azure-eastus2
 
 * `friendly_name` -
   (Optional)
@@ -184,12 +247,27 @@ The following arguments are supported:
 
 * `cloud_sql` -
   (Optional)
-  Cloud SQL properties.
+  A nested object resource
   Structure is [documented below](#nested_cloud_sql).
+
+* `aws` -
+  (Optional)
+  Connection properties specific to Amazon Web Services.
+  Structure is [documented below](#nested_aws).
+
+* `azure` -
+  (Optional)
+  Container for connection properties specific to Azure.
+  Structure is [documented below](#nested_azure).
+
+* `cloud_spanner` -
+  (Optional)
+  Connection properties specific to Cloud Spanner
+  Structure is [documented below](#nested_cloud_spanner).
 
 * `cloud_resource` -
   (Optional)
-  Cloud Resource properties.
+  Container for connection properties for delegation of access to GCP resources.
   Structure is [documented below](#nested_cloud_resource).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -227,6 +305,51 @@ The following arguments are supported:
   (Required)
   Password for database.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_aws"></a>The `aws` block supports:
+
+* `access_role` -
+  (Required)
+  Authentication using Google owned service account to assume into customer's AWS IAM Role.
+  Structure is [documented below](#nested_access_role).
+
+
+<a name="nested_access_role"></a>The `access_role` block supports:
+
+* `iam_role_id` -
+  (Required)
+  The user’s AWS IAM Role that trusts the Google-owned AWS IAM user Connection.
+
+* `identity` -
+  A unique Google-owned and Google-generated identity for the Connection. This identity will be used to access the user's AWS IAM Role.
+
+<a name="nested_azure"></a>The `azure` block supports:
+
+* `application` -
+  The name of the Azure Active Directory Application.
+
+* `client_id` -
+  The client id of the Azure Active Directory Application.
+
+* `object_id` -
+  The object id of the Azure Active Directory Application.
+
+* `customer_tenant_id` -
+  (Required)
+  The id of customer's directory that host the data.
+
+* `redirect_uri` -
+  The URL user will be redirected to after granting consent during connection setup.
+
+<a name="nested_cloud_spanner"></a>The `cloud_spanner` block supports:
+
+* `database` -
+  (Required)
+  Cloud Spanner database in the form `project/instance/database'
+
+* `use_parallelism` -
+  (Optional)
+  If parallelism should be used when reading from Cloud Spanner
 
 <a name="nested_cloud_resource"></a>The `cloud_resource` block supports:
 
