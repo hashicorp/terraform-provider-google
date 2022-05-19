@@ -84,10 +84,12 @@ with a COLLOCATED policy, then exactly 'vm_count' instances must be created at t
 attached. Possible values: ["COLLOCATED"]`,
 						},
 						"vm_count": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ForceNew:     true,
-							Description:  `Number of vms in this placement group.`,
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Description: `Number of VMs in this placement group. Google does not recommend that you use this field
+unless you use a compact policy and you want your policy to work only if it contains this
+exact number of VMs.`,
 							AtLeastOneOf: []string{"group_placement_policy.0.vm_count", "group_placement_policy.0.availability_domain_count"},
 						},
 					},

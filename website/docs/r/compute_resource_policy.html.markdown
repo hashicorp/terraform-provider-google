@@ -283,7 +283,9 @@ The following arguments are supported:
 
 * `vm_count` -
   (Optional)
-  Number of vms in this placement group.
+  Number of VMs in this placement group. Google does not recommend that you use this field
+  unless you use a compact policy and you want your policy to work only if it contains this
+  exact number of VMs.
 
 * `availability_domain_count` -
   (Optional)
