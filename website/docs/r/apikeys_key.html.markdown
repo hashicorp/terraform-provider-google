@@ -164,9 +164,7 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  The resource name of the key. The name must be unique within the project, must conform with RFC-1034, is restricted to lower-cased letters, and has a maximum length of 63 characters. In another word, the name must match the regular expression: [a-z]([a-z0-9-]{0,61}[a-z0-9])?.
-  
-
+  The resource name of the key. The name must be unique within the project, must conform with RFC-1034, is restricted to lower-cased letters, and has a maximum length of 63 characters. In another words, the name must match the regular expression: [a-z]([a-z0-9-]{0,61}[a-z0-9])?. Please note that this field is used as an uuid on the Google side and that the values are not freed immediately upon resource deletion, you might therefore want to randomize this field.
 
 The `allowed_applications` block supports:
     
