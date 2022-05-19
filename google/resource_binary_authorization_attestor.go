@@ -150,8 +150,9 @@ encoding of the public key.`,
 'https://tools.ietf.org/html/rfc7468#section-13'`,
 												},
 												"signature_algorithm": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:             schema.TypeString,
+													Optional:         true,
+													DiffSuppressFunc: compareSignatureAlgorithm,
 													Description: `The signature algorithm used to verify a message against
 a signature using this key. These signature algorithm must
 match the structure and any object identifiers encoded in
