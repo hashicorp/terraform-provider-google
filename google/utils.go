@@ -517,3 +517,11 @@ func checkStringMap(v interface{}) map[string]string {
 	}
 	return convertStringMap(v.(map[string]interface{}))
 }
+
+// return a fake 404 so requests get retried or nested objects are considered deleted
+func fake404(reasonResourceType, resourceName string) *googleapi.Error {
+	return &googleapi.Error{
+		Code:    404,
+		Message: fmt.Sprintf("%v object %v not found", reasonResourceType, resourceName),
+	}
+}

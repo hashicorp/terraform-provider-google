@@ -953,11 +953,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 			return nil, err
 		}
 		if res == nil {
-			// Decoded object not found, spoof a 404 error for poll
-			return nil, &googleapi.Error{
-				Code:    404,
-				Message: "could not find object CloudRunService",
-			}
+			return nil, fake404("decoded", "CloudRunService")
 		}
 
 		return res, nil
