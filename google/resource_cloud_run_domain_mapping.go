@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 var domainMappingGoogleProvidedLabels = []string{
@@ -379,11 +378,7 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 			return nil, err
 		}
 		if res == nil {
-			// Decoded object not found, spoof a 404 error for poll
-			return nil, &googleapi.Error{
-				Code:    404,
-				Message: "could not find object CloudRunDomainMapping",
-			}
+			return nil, fake404("decoded", "CloudRunDomainMapping")
 		}
 
 		return res, nil

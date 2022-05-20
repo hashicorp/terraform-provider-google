@@ -41,9 +41,9 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
   description = "basic description"
 
   labels = {
-    my_first_label = "example-label-1"
-
     my_second_label = "example-label-2"
+
+    my_first_label = "example-label-1"
   }
 
   project = "my-project-name"

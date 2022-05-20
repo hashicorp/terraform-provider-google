@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
@@ -1243,10 +1242,7 @@ func resourceComputeRouterNatPatchDeleteEncoder(d *schema.ResourceData, meta int
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "RouterNat not found in list",
-		}
+		return nil, fake404("nested", "ComputeRouterNat")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)

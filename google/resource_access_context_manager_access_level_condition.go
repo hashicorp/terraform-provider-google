@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceAccessContextManagerAccessLevelCondition() *schema.Resource {
@@ -321,11 +320,7 @@ func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.Resource
 		}
 
 		if res == nil {
-			// Nested object not found, spoof a 404 error for poll
-			return nil, &googleapi.Error{
-				Code:    404,
-				Message: "nested object AccessContextManagerAccessLevelCondition not found",
-			}
+			return nil, fake404("nested", "AccessContextManagerAccessLevelCondition")
 		}
 
 		return res, nil
@@ -815,10 +810,7 @@ func resourceAccessContextManagerAccessLevelConditionPatchDeleteEncoder(d *schem
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "AccessLevelCondition not found in list",
-		}
+		return nil, fake404("nested", "AccessContextManagerAccessLevelCondition")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)
