@@ -19,12 +19,12 @@ IMPROVEMENTS:
 * privateca: add a new field `desired_state` to manage CertificateAuthority state. ([#11638](https://github.com/hashicorp/terraform-provider-google/pull/11638))
 * sql: added `active_directory_config` field in `google_sql_database_instance` ([#11678](https://github.com/hashicorp/terraform-provider-google/pull/11678))
 * sql: removed requirement that Cloud SQL Insight is only allowed for Postgres in `google_sql_database_instance` ([#11699](https://github.com/hashicorp/terraform-provider-google/pull/11699))
-* storage: not specifying `content` or `source` for `google_storage_bucket_object` now fails at plan-time instead of apply-time. ([#11663](https://github.com/hashicorp/terraform-provider-google/pull/11663))
 
 BUG FIXES:
 * compute: fixed extra diffs generated on `google_security_policy` `rules` when modifying a rule ([#11656](https://github.com/hashicorp/terraform-provider-google/pull/11656))
 * container: fixed Autopilot cluster couldn't omit master ipv4 cidr in `google_container_cluster` ([#11639](https://github.com/hashicorp/terraform-provider-google/pull/11639))
 * resourcemanager: fixed a bug in wrongly writing to state when creation failed on `google_project_organization_policy` ([#11676](https://github.com/hashicorp/terraform-provider-google/pull/11676))
+* storage: not specifying `content` or `source` for `google_storage_bucket_object` now fails at plan-time instead of apply-time. ([#11663](https://github.com/hashicorp/terraform-provider-google/pull/11663))
 
 
 ## 4.19.0 (April 25, 2022)
