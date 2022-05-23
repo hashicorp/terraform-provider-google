@@ -1,4 +1,32 @@
-## 4.20.0 (Unreleased)
+FEATURES:
+* **New Resource:** `google_bigquery_connection` ([#11701](https://github.com/hashicorp/terraform-provider-google/pull/11701))
+* **New Resource:** `google_certificate_manager_certificate` ([#11685](https://github.com/hashicorp/terraform-provider-google/pull/11685))
+* **New Resource:** `google_certificate_manager_dns_authorization` ([#11685](https://github.com/hashicorp/terraform-provider-google/pull/11685))
+* **New Resource:** `google_clouddeploy_delivery_pipeline` ([#11658](https://github.com/hashicorp/terraform-provider-google/pull/11658))
+* **New Resource:** `google_clouddeploy_target` ([#11658](https://github.com/hashicorp/terraform-provider-google/pull/11658))
+
+IMPROVEMENTS:
+* bigquery: Added connection of type cloud_resource for `google_bigquery_connection` ([#11701](https://github.com/hashicorp/terraform-provider-google/pull/11701))
+* cloudfunctions: added `https_trigger_security_level` to `google_cloudfunctions_function` ([#11672](https://github.com/hashicorp/terraform-provider-google/pull/11672))
+* cloudrun: added `traffic.tag` and `traffic.url` fields to `google_cloud_run_service` ([#11641](https://github.com/hashicorp/terraform-provider-google/pull/11641))
+* compute: Added `enable_dynamic_port_allocation` to `google_compute_router_nat` ([#11707](https://github.com/hashicorp/terraform-provider-google/pull/11707))
+* compute: added field `update_policy.most_disruptive_allowed_action` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` ([#11640](https://github.com/hashicorp/terraform-provider-google/pull/11640))
+* compute: added support for NEG type `PRIVATE_SERVICE_CONNECT` in `NetworkEndpointGroup` ([#11687](https://github.com/hashicorp/terraform-provider-google/pull/11687))
+* compute: added support for `domain_names` attribute in `google_compute_service_attachment` ([#11702](https://github.com/hashicorp/terraform-provider-google/pull/11702))
+* compute: added value `REFRESH` to field update_policy.minimal_action` in `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` ([#11640](https://github.com/hashicorp/terraform-provider-google/pull/11640))
+* container: added field `exclusion_options` to `google_container_cluster` ([#11662](https://github.com/hashicorp/terraform-provider-google/pull/11662))
+* monitoring: Added `checker_type` field to `google_monitoring_uptime_check_config` resource ([#11686](https://github.com/hashicorp/terraform-provider-google/pull/11686))
+* privateca: add a new field `desired_state` to manage CertificateAuthority state. ([#11638](https://github.com/hashicorp/terraform-provider-google/pull/11638))
+* sql: added `active_directory_config` field in `google_sql_database_instance` ([#11678](https://github.com/hashicorp/terraform-provider-google/pull/11678))
+* sql: removed requirement that Cloud SQL Insight is only allowed for Postgres in `google_sql_database_instance` ([#11699](https://github.com/hashicorp/terraform-provider-google/pull/11699))
+
+BUG FIXES:
+* compute: fixed extra diffs generated on `google_security_policy` `rules` when modifying a rule ([#11656](https://github.com/hashicorp/terraform-provider-google/pull/11656))
+* container: fixed Autopilot cluster couldn't omit master ipv4 cidr in `google_container_cluster` ([#11639](https://github.com/hashicorp/terraform-provider-google/pull/11639))
+* resourcemanager: fixed a bug in wrongly writing to state when creation failed on `google_project_organization_policy` ([#11676](https://github.com/hashicorp/terraform-provider-google/pull/11676))
+* storage: not specifying `content` or `source` for `google_storage_bucket_object` now fails at plan-time instead of apply-time. ([#11663](https://github.com/hashicorp/terraform-provider-google/pull/11663))
+
+
 ## 4.19.0 (April 25, 2022)
 
 IMPROVEMENTS:
