@@ -887,5 +887,14 @@ data "google_storage_bucket_object" "default" {
 output "object_metadata" {
   value        = data.google_storage_bucket_object.default
 }
+
+# Get bucket metadata
+data "google_storage_bucket" "default" {
+  name         = google_storage_bucket.static.id
+}
+
+output "bucket_metadata" {
+  value        = data.google_storage_bucket.default
+}
 `, context)
 }
