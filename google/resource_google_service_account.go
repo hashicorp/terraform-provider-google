@@ -115,7 +115,33 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading service account after creation: %s", err)
 	}
 
+	// We poll until the resource is found due to eventual consistency issue
+	// on part of the api https://cloud.google.com/iam/docs/overview#consistency
+	err = PollingWaitTime(resourceServiceAccountPollRead(d, meta), PollCheckForExistence, "Creating Service Account", d.Timeout(schema.TimeoutCreate), 1)
+
+	if err != nil {
+		return err
+	}
+
 	return resourceGoogleServiceAccountRead(d, meta)
+}
+
+func resourceServiceAccountPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		// Confirm the service account exists
+		_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Get(d.Id()).Do()
+
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
 }
 
 func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
