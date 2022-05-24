@@ -833,6 +833,8 @@ func Provider() *schema.Provider {
 			"google_storage_object_signed_url":                    dataSourceGoogleSignedUrl(),
 			"google_storage_project_service_account":              dataSourceGoogleStorageProjectServiceAccount(),
 			"google_storage_transfer_project_service_account":     dataSourceGoogleStorageTransferProjectServiceAccount(),
+			"google_tags_tag_key":                                 dataSourceGoogleTagsTagKey(),
+			"google_tags_tag_value":                               dataSourceGoogleTagsTagValue(),
 			"google_tpu_tensorflow_versions":                      dataSourceTpuTensorflowVersions(),
 			"google_redis_instance":                               dataSourceGoogleRedisInstance(),
 			// ####### END datasources ###########
