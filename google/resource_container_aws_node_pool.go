@@ -239,7 +239,6 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 			"ssh_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The SSH configuration.",
 				MaxItems:    1,
 				Elem:        ContainerAwsNodePoolConfigSshConfigSchema(),
@@ -333,7 +332,6 @@ func ContainerAwsNodePoolConfigSshConfigSchema() *schema.Resource {
 			"ec2_key_pair": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The name of the EC2 key pair used to login into cluster machines.",
 			},
 		},
