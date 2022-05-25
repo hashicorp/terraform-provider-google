@@ -146,6 +146,12 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				Description: "Used internally during label updates.",
 			},
 
+			"psc_connection_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "[Output Only] Server-defined Private Service Connection ID for the resource.",
+			},
+
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -274,6 +280,7 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		Labels:              checkStringMap(d.Get("labels")),
 		LoadBalancingScheme: compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
 		MetadataFilter:      expandComputeGlobalForwardingRuleMetadataFilterArray(d.Get("metadata_filters")),
+		PscConnectionId:     dcl.String(d.Get("psc_connection_id").(string)),
 		Network:             dcl.StringOrNil(d.Get("network").(string)),
 		PortRange:           dcl.String(d.Get("port_range").(string)),
 		Project:             dcl.String(project),
@@ -333,6 +340,9 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	}
 	if err = d.Set("port_range", res.PortRange); err != nil {
 		return fmt.Errorf("error setting port_range in state: %s", err)
+	}
+	if err = d.Set("psc_connection_id", res.PscConnectionId); err != nil {
+		return fmt.Errorf("error setting psc_connection_id in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
