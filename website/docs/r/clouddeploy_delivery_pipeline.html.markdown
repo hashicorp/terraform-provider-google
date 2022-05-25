@@ -26,7 +26,7 @@ description: |-
 The Clouddeploy DeliveryPipeline resource
 
 ## Example Usage - delivery_pipeline
-tests creating and updating a delivery pipeline
+Creates a basic Cloud Deploy delivery pipeline
 ```hcl
 resource "google_clouddeploy_delivery_pipeline" "primary" {
   location = "us-west1"

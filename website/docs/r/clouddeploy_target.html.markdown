@@ -26,7 +26,7 @@ description: |-
 The Clouddeploy Target resource
 
 ## Example Usage - target
-tests creating and updating a target
+Creates a basic Cloud Deploy target
 ```hcl
 resource "google_clouddeploy_target" "primary" {
   location = "us-west1"
