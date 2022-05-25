@@ -799,6 +799,10 @@ The following arguments are supported:
   If false, the query string will be excluded from the cache
   key entirely.
 
+* `include_named_cookies` -
+  (Optional)
+  Names of cookies to include in cache keys.
+
 * `query_string_blacklist` -
   (Optional)
   Names of query string parameters to exclude in cache keys.
@@ -806,9 +810,6 @@ The following arguments are supported:
   query_string_whitelist or query_string_blacklist, not both.
   '&' and '=' will be percent encoded and not treated as
   delimiters.
-* `include_named_cookies` -
-  (Optional)
-  Names of cookies to include in cache keys.
 
 * `query_string_whitelist` -
   (Optional)

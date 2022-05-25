@@ -707,6 +707,10 @@ The following arguments are supported:
   If false, the query string will be excluded from the cache
   key entirely.
 
+* `include_named_cookies` -
+  (Optional)
+  Names of cookies to include in cache keys.
+
 * `query_string_blacklist` -
   (Optional)
   Names of query string parameters to exclude in cache keys.
