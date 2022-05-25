@@ -806,6 +806,9 @@ The following arguments are supported:
   query_string_whitelist or query_string_blacklist, not both.
   '&' and '=' will be percent encoded and not treated as
   delimiters.
+* `include_named_cookies` -
+  (Optional)
+  Names of cookies to include in cache keys.
 
 * `query_string_whitelist` -
   (Optional)
