@@ -87,6 +87,58 @@ resource "google_compute_security_policy" "policy" {
 	type = "CLOUD_ARMOR_EDGE"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_bucket_query_string_whitelist&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Bucket Query String Whitelist
+
+
+```hcl
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "image-backend-bucket"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  cdn_policy {
+    cache_key_policy {
+        query_string_whitelist = ["image-version"]
+    }
+  }
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "image-backend-bucket"
+  location = "EU"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_bucket_include_http_headers&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Bucket Include Http Headers
+
+
+```hcl
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "image-backend-bucket"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  cdn_policy {
+    cache_key_policy {
+        include_http_headers = ["X-My-Header-Field"]
+    }
+  }
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "image-backend-bucket"
+  location = "EU"
+}
+```
 
 ## Argument Reference
 
@@ -139,6 +191,11 @@ The following arguments are supported:
 
 <a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
 
+* `cache_key_policy` -
+  (Optional)
+  The CacheKeyPolicy for this CdnPolicy.
+  Structure is [documented below](#nested_cache_key_policy).
+
 * `signed_url_cache_max_age_sec` -
   (Optional)
   Maximum number of seconds the response to a signed URL request will
@@ -183,6 +240,19 @@ The following arguments are supported:
   (Optional)
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
+
+<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
+
+* `query_string_whitelist` -
+  (Optional)
+  Names of query string parameters to include in cache keys.
+  Default parameters are always included. '&' and '=' will
+  be percent encoded and not treated as delimiters.
+
+* `include_http_headers` -
+  (Optional)
+  Allows HTTP request headers (by name) to be used in the
+  cache key.
 
 <a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
