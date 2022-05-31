@@ -105,6 +105,7 @@ func resourceContainerCluster() *schema.Resource {
 			resourceNodeConfigEmptyGuestAccelerator,
 			containerClusterAutopilotCustomizeDiff,
 			containerClusterNodeVersionRemoveDefaultCustomizeDiff,
+			containerClusterNetworkPolicyEmptyCustomizeDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -688,12 +689,12 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"network_policy": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Computed:      true,
-				MaxItems:      1,
-				Description:   `Configuration options for the NetworkPolicy feature.`,
-				ConflictsWith: []string{"enable_autopilot"},
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Description:      `Configuration options for the NetworkPolicy feature.`,
+				ConflictsWith:    []string{"enable_autopilot"},
+				DiffSuppressFunc: containerClusterNetworkPolicyDiffSuppress,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -2890,11 +2891,11 @@ func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.Mas
 }
 
 func expandNetworkPolicy(configured interface{}) *container.NetworkPolicy {
+	result := &container.NetworkPolicy{}
 	l := configured.([]interface{})
 	if len(l) == 0 {
-		return nil
+		return result
 	}
-	result := &container.NetworkPolicy{}
 	config := l[0].(map[string]interface{})
 	if enabled, ok := config["enabled"]; ok && enabled.(bool) {
 		result.Enabled = true
@@ -3646,4 +3647,30 @@ func containerClusterNodeVersionRemoveDefaultCustomizeDiff(_ context.Context, d 
 		return fmt.Errorf("node_version can only be specified if remove_default_node_pool is not true")
 	}
 	return nil
+}
+
+func containerClusterNetworkPolicyEmptyCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	// we want to set computed only in the case that there wasn't a previous network_policy configured
+	// because we default a returned empty network policy to a configured false, this will only apply
+	// on the first run, if network_policy is not configured - all other runs will store empty configurations
+	// as enabled=false and provider=PROVIDER_UNSPECIFIED
+	o, n := d.GetChange("network_policy")
+	if o == nil && n == nil {
+		return d.SetNewComputed("network_policy")
+	}
+	return nil
+}
+
+func containerClusterNetworkPolicyDiffSuppress(k, old, new string, r *schema.ResourceData) bool {
+	// if network_policy configuration is empty, we store it as populated and enabled=false, and
+	// provider=PROVIDER_UNSPECIFIED, in the case that it was previously stored with this state,
+	// and the configuration removed, we want to suppress the diff
+	if k == "network_policy.#" && old == "1" && new == "0" {
+		o, _ := r.GetChange("network_policy.0.enabled")
+		if !o.(bool) {
+			return true
+		}
+	}
+
+	return false
 }
