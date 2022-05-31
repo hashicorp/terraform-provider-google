@@ -68,6 +68,37 @@ last character, which cannot be a dash.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"cache_key_policy": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The CacheKeyPolicy for this CdnPolicy.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"include_http_headers": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Allows HTTP request headers (by name) to be used in the
+cache key.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_http_headers"},
+									},
+									"query_string_whitelist": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Names of query string parameters to include in cache keys.
+Default parameters are always included. '&' and '=' will
+be percent encoded and not treated as delimiters.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_http_headers"},
+									},
+								},
+							},
+						},
 						"cache_mode": {
 							Type:         schema.TypeString,
 							Computed:     true,
@@ -558,6 +589,8 @@ func flattenComputeBackendBucketCdnPolicy(v interface{}, d *schema.ResourceData,
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["cache_key_policy"] =
+		flattenComputeBackendBucketCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
 	transformed["signed_url_cache_max_age_sec"] =
 		flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
 	transformed["default_ttl"] =
@@ -576,6 +609,29 @@ func flattenComputeBackendBucketCdnPolicy(v interface{}, d *schema.ResourceData,
 		flattenComputeBackendBucketCdnPolicyServeWhileStale(original["serveWhileStale"], d, config)
 	return []interface{}{transformed}
 }
+func flattenComputeBackendBucketCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["query_string_whitelist"] =
+		flattenComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
+	transformed["include_http_headers"] =
+		flattenComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(original["includeHttpHeaders"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -759,6 +815,13 @@ func expandComputeBackendBucketCdnPolicy(v interface{}, d TerraformResourceData,
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedCacheKeyPolicy, err := expandComputeBackendBucketCdnPolicyCacheKeyPolicy(original["cache_key_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["cacheKeyPolicy"] = transformedCacheKeyPolicy
+	}
+
 	transformedSignedUrlCacheMaxAgeSec, err := expandComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(original["signed_url_cache_max_age_sec"], d, config)
 	if err != nil {
 		return nil, err
@@ -816,6 +879,40 @@ func expandComputeBackendBucketCdnPolicy(v interface{}, d TerraformResourceData,
 	}
 
 	return transformed, nil
+}
+
+func expandComputeBackendBucketCdnPolicyCacheKeyPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQueryStringWhitelist, err := expandComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["query_string_whitelist"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
+	}
+
+	transformedIncludeHttpHeaders, err := expandComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(original["include_http_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeHttpHeaders"] = transformedIncludeHttpHeaders
+	}
+
+	return transformed, nil
+}
+
+func expandComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
