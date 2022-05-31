@@ -1,5 +1,19 @@
 ## 4.23.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_tags_tag_key` ([#11753](https://github.com/hashicorp/terraform-provider-google/pull/11753))
+* **New Data Source:** `google_tags_tag_value` ([#11753](https://github.com/hashicorp/terraform-provider-google/pull/11753))
+* **New Resource:** `google_dataplex_lake` ([#11769](https://github.com/hashicorp/terraform-provider-google/pull/11769))
+
+IMPROVEMENTS:
+* bigqueryconnection: updated connection types to support v1 ga ([#11728](https://github.com/hashicorp/terraform-provider-google/pull/11728))
+* cloudfunctions: added docker registry support for Cloud Functions ([#11729](https://github.com/hashicorp/terraform-provider-google/pull/11729))
+* memcache: added `maintenance_policy` and `maintenance_schedule` to `google_memcache_instance` ([#11759](https://github.com/hashicorp/terraform-provider-google/pull/11759))
+
+BUG FIXES:
+* binaryauthorization: fixed permadiff in `google_binary_authorization_attestor` ([#11731](https://github.com/hashicorp/terraform-provider-google/pull/11731))
+* service: added re-polling for service account after creation, 404s sometimes due to [eventual consistency](https://cloud.google.com/iam/docs/overview#consistency) ([#11749](https://github.com/hashicorp/terraform-provider-google/pull/11749))
+
 ## 4.22.0 (May 24, 2022)
 
 FEATURES:
