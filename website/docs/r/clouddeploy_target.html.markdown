@@ -13,7 +13,7 @@
 #     are required, please file an issue at https:#github.com/hashicorp/terraform-provider-google/issues/new/choose
 #
 # ----------------------------------------------------------------------------
-subcategory: "Clouddeploy"
+subcategory: "Cloud Deploy"
 layout: "google"
 page_title: "Google: google_clouddeploy_target"
 sidebar_current: "docs-google-clouddeploy-target"
