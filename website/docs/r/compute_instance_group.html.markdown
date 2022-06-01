@@ -135,9 +135,8 @@ The following arguments are supported:
 * `description` - (Optional) An optional textual description of the instance
     group.
 
-* `instances` - (Optional) List of instances in the group. They should be given
-    as either self_link or id. When adding instances they must all be in the same
-    network and zone as the instance group.
+* `instances` - (Optional) The list of instances in the group, in `self_link` format.
+    When adding instances they must all be in the same network and zone as the instance group.
 
 * `named_port` - (Optional) The named port configuration. See the section below
     for details on configuration. Structure is [documented below](#nested_named_port).
