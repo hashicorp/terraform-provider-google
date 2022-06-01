@@ -299,7 +299,7 @@ resource "google_cloud_run_service" "default" {
         image = "gcr.io/cloudrun/hello"
         env {
           name = "SECRET_ENV_VAR"
-	  value_from {
+          value_from {
             secret_key_ref {
               name = google_secret_manager_secret.secret.secret_id
               key = "1"
@@ -324,7 +324,7 @@ resource "google_cloud_run_service" "default" {
 
   lifecycle {
     ignore_changes = [
-        metadata.0.annotations,
+      metadata.0.annotations,
     ]
   }
 
@@ -365,22 +365,22 @@ resource "google_cloud_run_service" "default" {
     spec {
       containers {
         image = "gcr.io/cloudrun/hello"
-	volume_mounts {
-	  name = "a-volume"
-	  mount_path = "/secrets"
-	}
+        volume_mounts {
+          name = "a-volume"
+          mount_path = "/secrets"
+        }
       }
       volumes {
         name = "a-volume"
-	secret {
-	  secret_name = google_secret_manager_secret.secret.secret_id
-	  default_mode = 292 # 0444
-	  items {
+        secret {
+          secret_name = google_secret_manager_secret.secret.secret_id
+          default_mode = 292 # 0444
+          items {
             key = "1"
-	    path = "my-secret"
-	    mode = 256 # 0400
-	  }
-	}
+            path = "my-secret"
+            mode = 256 # 0400
+          }
+        }
       }
     }
   }
@@ -399,7 +399,7 @@ resource "google_cloud_run_service" "default" {
 
   lifecycle {
     ignore_changes = [
-        metadata.0.annotations,
+      metadata.0.annotations,
     ]
   }
 
