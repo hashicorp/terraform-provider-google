@@ -1,7 +1,6 @@
 module github.com/hashicorp/terraform-provider-google
 require (
 	cloud.google.com/go/bigtable v1.13.0
-	cloud.google.com/go/iam v0.1.1 // indirect
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.8.2
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/client9/misspell v0.3.4
@@ -21,11 +20,10 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.2.2 // indirect
 	golang.org/x/mod v0.5.0 // indirect
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
-	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
-	google.golang.org/api v0.70.0
-	google.golang.org/grpc v1.45.0
+	golang.org/x/net v0.0.0-20220526153639-5463443f8c37
+	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
+	google.golang.org/api v0.82.0
+	google.golang.org/grpc v1.46.2
 )
-
 
 go 1.16
