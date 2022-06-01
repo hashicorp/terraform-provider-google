@@ -1245,6 +1245,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
   node_config {
+    spot         = true
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
