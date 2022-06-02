@@ -316,7 +316,7 @@ The following arguments are supported:
   The configuration settings for Cloud Composer maintenance windows.
  
 * `master_authorized_networks_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration options for the master authorized networks feature. Enabled 
   master authorized networks will disallow all external traffic to access 
   Kubernetes master through HTTPS except traffic from the given CIDR blocks, 
@@ -676,7 +676,7 @@ The `config` block supports:
   and `ENVIRONMENT_SIZE_LARGE`.
 
 * `master_authorized_networks_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration options for the master authorized networks feature. Enabled
   master authorized networks will disallow all external traffic to access
   Kubernetes master through HTTPS except traffic from the given CIDR blocks,

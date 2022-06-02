@@ -58,6 +58,7 @@ var (
 		"config.0.maintenance_window",
 		"config.0.workloads_config",
 		"config.0.environment_size",
+		"config.0.master_authorized_networks_config",
 	}
 
 	composerPrivateEnvironmentConfig = []string{
@@ -88,6 +89,21 @@ var (
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `A description of this ip range.`,
+			},
+		},
+	}
+
+	cidrBlocks = &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"display_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `display_name is a field for users to identify CIDR blocks.`,
+			},
+			"cidr_block": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `cidr_block must be specified in CIDR notation.`,
 			},
 		},
 	}
@@ -643,6 +659,28 @@ func resourceComposerEnvironment() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"ENVIRONMENT_SIZE_SMALL", "ENVIRONMENT_SIZE_MEDIUM", "ENVIRONMENT_SIZE_LARGE"}, false),
 							Description:  `The size of the Cloud Composer environment. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
 						},
+						"master_authorized_networks_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `Configuration options for the master authorized networks feature. Enabled master authorized networks will disallow all external traffic to access Kubernetes master through HTTPS except traffic from the given CIDR blocks, Google Compute Engine Public IPs and Google Prod IPs.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether or not master authorized networks is enabled.`,
+									},
+									"cidr_blocks": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										Elem:        cidrBlocks,
+										Description: `cidr_blocks define up to 50 external networks that could access Kubernetes master through HTTPS.`,
+									},
+								},
+							},
+						},
 						"airflow_uri": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -926,6 +964,16 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				return err
 			}
 		}
+		if d.HasChange("config.0.master_authorized_networks_config") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.MasterAuthorizedNetworksConfig = config.MasterAuthorizedNetworksConfig
+			}
+			err = resourceComposerEnvironmentPatchField("config.MasterAuthorizedNetworksConfig", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	if d.HasChange("labels") {
@@ -1051,6 +1099,7 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["maintenance_window"] = flattenComposerEnvironmentConfigMaintenanceWindow(envCfg.MaintenanceWindow)
 	transformed["workloads_config"] = flattenComposerEnvironmentConfigWorkloadsConfig(envCfg.WorkloadsConfig)
 	transformed["environment_size"] = envCfg.EnvironmentSize
+	transformed["master_authorized_networks_config"] = flattenComposerEnvironmentConfigMasterAuthorizedNetworksConfig(envCfg.MasterAuthorizedNetworksConfig)
 	return []interface{}{transformed}
 }
 
@@ -1244,6 +1293,27 @@ func flattenComposerEnvironmentConfigSoftwareConfig(softwareCfg *composer.Softwa
 	return []interface{}{transformed}
 }
 
+func flattenComposerEnvironmentConfigMasterAuthorizedNetworksConfig(masterAuthNetsCfg *composer.MasterAuthorizedNetworksConfig) interface{} {
+	if masterAuthNetsCfg == nil {
+		return nil
+	}
+
+	transformed := make([]interface{}, 0, len(masterAuthNetsCfg.CidrBlocks))
+	for _, cidrBlock := range masterAuthNetsCfg.CidrBlocks {
+		data := map[string]interface{}{
+			"display_name": cidrBlock.DisplayName,
+			"cidr_block":   cidrBlock.CidrBlock,
+		}
+		transformed = append(transformed, data)
+	}
+
+	masterAuthorizedNetworksConfig := make(map[string]interface{})
+	masterAuthorizedNetworksConfig["enabled"] = masterAuthNetsCfg.Enabled
+	masterAuthorizedNetworksConfig["cidr_blocks"] = schema.NewSet(schema.HashResource(cidrBlocks), transformed)
+
+	return []interface{}{masterAuthorizedNetworksConfig}
+}
+
 func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.EnvironmentConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
@@ -1318,6 +1388,11 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 		return nil, err
 	}
 	transformed.EnvironmentSize = transformedEnvironmentSize
+	transformedMasterAuthorizedNetworksConfig, err := expandComposerEnvironmentConfigMasterAuthorizedNetworksConfig(original["master_authorized_networks_config"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.MasterAuthorizedNetworksConfig = transformedMasterAuthorizedNetworksConfig
 	return transformed, nil
 }
 
@@ -1354,6 +1429,33 @@ func expandComposerEnvironmentConfigWebServerNetworkAccessControl(v interface{},
 	}
 
 	transformed.AllowedIpRanges = allowedIpRanges
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigMasterAuthorizedNetworksConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.MasterAuthorizedNetworksConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	cidrBlocksRaw := original["cidr_blocks"].(*schema.Set).List()
+
+	transformed := &composer.MasterAuthorizedNetworksConfig{}
+	cidrBlocks := make([]*composer.CidrBlock, 0, len(original))
+
+	for _, originalCidrBlock := range cidrBlocksRaw {
+		originalCidrBlockRaw := originalCidrBlock.(map[string]interface{})
+		transformedCidrBlock := &composer.CidrBlock{}
+		if v, ok := originalCidrBlockRaw["display_name"]; ok {
+			transformedCidrBlock.DisplayName = v.(string)
+		}
+		transformedCidrBlock.CidrBlock = originalCidrBlockRaw["cidr_block"].(string)
+		cidrBlocks = append(cidrBlocks, transformedCidrBlock)
+	}
+	transformed.Enabled = original["enabled"].(bool)
+	transformed.CidrBlocks = cidrBlocks
 	return transformed, nil
 }
 
