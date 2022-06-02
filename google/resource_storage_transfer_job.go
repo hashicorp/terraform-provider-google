@@ -999,9 +999,6 @@ func expandTransferOptions(options []interface{}) *storagetransfer.TransferOptio
 }
 
 func flattenTransferOption(option *storagetransfer.TransferOptions) []map[string]interface{} {
-	if option.DeleteObjectsFromSourceAfterTransfer == false && option.DeleteObjectsUniqueInSink == false && option.OverwriteObjectsAlreadyExistingInSink == false {
-		return nil
-	}
 	data := map[string]interface{}{
 		"delete_objects_from_source_after_transfer":  option.DeleteObjectsFromSourceAfterTransfer,
 		"delete_objects_unique_in_sink":              option.DeleteObjectsUniqueInSink,
@@ -1042,7 +1039,9 @@ func flattenTransferSpec(transferSpec *storagetransfer.TransferSpec, d *schema.R
 	if transferSpec.ObjectConditions != nil {
 		data["object_conditions"] = flattenObjectCondition(transferSpec.ObjectConditions)
 	}
-	if transferSpec.TransferOptions != nil {
+	if transferSpec.TransferOptions != nil &&
+		(usingPosix(transferSpec) == false ||
+			(usingPosix(transferSpec) == true && reflect.DeepEqual(transferSpec.TransferOptions, &storagetransfer.TransferOptions{}) == false)) {
 		data["transfer_options"] = flattenTransferOption(transferSpec.TransferOptions)
 	}
 	if transferSpec.GcsDataSource != nil {
@@ -1058,4 +1057,8 @@ func flattenTransferSpec(transferSpec *storagetransfer.TransferSpec, d *schema.R
 	}
 
 	return []map[string][]map[string]interface{}{data}
+}
+
+func usingPosix(transferSpec *storagetransfer.TransferSpec) bool {
+	return transferSpec.PosixDataSource != nil || transferSpec.PosixDataSink != nil
 }
