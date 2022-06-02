@@ -1,0 +1,3 @@
+```release-note:bug
+certificatemanager: fixed bug where `DEFAULT` scope would permadiff and force replace the certificate.
+```

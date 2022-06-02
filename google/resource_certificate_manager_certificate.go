@@ -24,6 +24,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func certManagerDefaultScopeDiffSuppress(_, old, new string, diff *schema.ResourceData) bool {
+	if old == "" && new == "DEFAULT" || old == "DEFAULT" && new == "" {
+		return true
+	}
+	return false
+}
+
 func resourceCertificateManagerCertificate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCertificateManagerCertificateCreate,
@@ -100,10 +107,11 @@ Wildcard domains are only supported with DNS challenge resolution`,
 				ExactlyOneOf: []string{"self_managed", "managed"},
 			},
 			"scope": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"DEFAULT", "EDGE_CACHE", ""}),
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     validateEnum([]string{"DEFAULT", "EDGE_CACHE", ""}),
+				DiffSuppressFunc: certManagerDefaultScopeDiffSuppress,
 				Description: `The scope of the certificate.
 
 Certificates with default scope are served from core Google data centers.
