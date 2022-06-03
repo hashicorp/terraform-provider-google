@@ -75,11 +75,33 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Required:    true,
 							Description: `String or regex content to match (max 1024 bytes)`,
 						},
+						"json_path_matcher": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Information needed to perform a JSONPath content match. Used for 'ContentMatcherOption::MATCHES_JSON_PATH' and 'ContentMatcherOption::NOT_MATCHES_JSON_PATH'.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"json_path": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `JSONPath within the response output pointing to the expected 'ContentMatcher::content' to match against.`,
+									},
+									"json_matcher": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"EXACT_MATCH", "REGEX_MATCH", ""}),
+										Description:  `Options to perform JSONPath content matching. Default value: "EXACT_MATCH" Possible values: ["EXACT_MATCH", "REGEX_MATCH"]`,
+										Default:      "EXACT_MATCH",
+									},
+								},
+							},
+						},
 						"matcher": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", ""}),
-							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX"]`,
+							ValidateFunc: validateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH", ""}),
+							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH"]`,
 							Default:      "CONTAINS_STRING",
 						},
 					},
@@ -181,7 +203,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer`,
+				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance aws_elb_load_balancer  k8s_service  servicedirectory_service`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -693,8 +715,9 @@ func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"content": flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
-			"matcher": flattenMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config),
+			"content":           flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
+			"matcher":           flattenMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config),
+			"json_path_matcher": flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(original["jsonPathMatcher"], d, config),
 		})
 	}
 	return transformed
@@ -704,6 +727,29 @@ func flattenMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d *
 }
 
 func flattenMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["json_path"] =
+		flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(original["jsonPath"], d, config)
+	transformed["json_matcher"] =
+		flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(original["jsonMatcher"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -931,6 +977,13 @@ func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d Terraform
 			transformed["matcher"] = transformedMatcher
 		}
 
+		transformedJsonPathMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(original["json_path_matcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedJsonPathMatcher); val.IsValid() && !isEmptyValue(val) {
+			transformed["jsonPathMatcher"] = transformedJsonPathMatcher
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -941,6 +994,40 @@ func expandMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d Te
 }
 
 func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedJsonPath, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(original["json_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["jsonPath"] = transformedJsonPath
+	}
+
+	transformedJsonMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(original["json_matcher"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonMatcher); val.IsValid() && !isEmptyValue(val) {
+		transformed["jsonMatcher"] = transformedJsonMatcher
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
