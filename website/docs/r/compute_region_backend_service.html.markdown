@@ -815,6 +815,10 @@ The following arguments are supported:
   '&' and '=' will be percent encoded and not treated as
   delimiters.
 
+* `include_named_cookies` -
+  (Optional)
+  Names of cookies to include in cache keys.
+
 <a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -

@@ -184,13 +184,22 @@ When the load balancing scheme is INTERNAL, this field is not used.`,
 										Type:         schema.TypeBool,
 										Optional:     true,
 										Description:  `If true requests to different hosts will be cached separately.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
+									},
+									"include_named_cookies": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Names of cookies to include in cache keys.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"include_protocol": {
 										Type:         schema.TypeBool,
 										Optional:     true,
 										Description:  `If true, http and https requests will be cached separately.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"include_query_string": {
 										Type:     schema.TypeBool,
@@ -202,7 +211,7 @@ string will be included.
 
 If false, the query string will be excluded from the cache
 key entirely.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"query_string_blacklist": {
 										Type:     schema.TypeSet,
@@ -217,7 +226,7 @@ delimiters.`,
 											Type: schema.TypeString,
 										},
 										Set:          schema.HashString,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"query_string_whitelist": {
 										Type:     schema.TypeSet,
@@ -232,7 +241,7 @@ delimiters.`,
 											Type: schema.TypeString,
 										},
 										Set:          schema.HashString,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 								},
 							},
@@ -2015,6 +2024,8 @@ func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d 
 		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d, config)
 	transformed["query_string_whitelist"] =
 		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
+	transformed["include_named_cookies"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(original["includeNamedCookies"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -2041,6 +2052,10 @@ func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhiteli
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -3098,6 +3113,13 @@ func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d T
 		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
 	}
 
+	transformedIncludeNamedCookies, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(original["include_named_cookies"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeNamedCookies"] = transformedIncludeNamedCookies
+	}
+
 	return transformed, nil
 }
 
@@ -3120,6 +3142,10 @@ func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklis
 
 func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -107,6 +107,51 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          = "tf-test-backend-service%{random_suffix}"
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "CACHE_ALL_STATIC"
+    default_ttl = 3600
+    client_ttl  = 7200
+    max_ttl     = 10800
+    cache_key_policy {
+      include_host = true
+      include_protocol = true
+      include_query_string = true
+      include_named_cookies = ["__next_preview_data", "__prerender_bypass"]
+    }
+  }
+}
+`, context)
+}
+
 func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 	t.Parallel()
 
