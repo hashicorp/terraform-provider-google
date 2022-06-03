@@ -59,7 +59,12 @@ resource "google_monitoring_uptime_check_config" "http" {
   }
 
   content_matchers {
-    content = "example"
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
   }
 
   checker_type = "STATIC_IP_CHECKERS"
@@ -90,6 +95,11 @@ resource "google_monitoring_uptime_check_config" "https" {
 
   content_matchers {
     content = "example"
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "REGEX_MATCH"
+    }
   }
 }
 ```
@@ -174,7 +184,7 @@ The following arguments are supported:
 
 * `monitored_resource` -
   (Optional)
-  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer
+  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance aws_elb_load_balancer  k8s_service  servicedirectory_service
   Structure is [documented below](#nested_monitored_resource).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -191,7 +201,25 @@ The following arguments are supported:
   (Optional)
   The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
   Default value is `CONTAINS_STRING`.
-  Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, and `NOT_MATCHES_REGEX`.
+  Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, `NOT_MATCHES_REGEX`, `MATCHES_JSON_PATH`, and `NOT_MATCHES_JSON_PATH`.
+
+* `json_path_matcher` -
+  (Optional)
+  Information needed to perform a JSONPath content match. Used for `ContentMatcherOption::MATCHES_JSON_PATH` and `ContentMatcherOption::NOT_MATCHES_JSON_PATH`.
+  Structure is [documented below](#nested_json_path_matcher).
+
+
+<a name="nested_json_path_matcher"></a>The `json_path_matcher` block supports:
+
+* `json_path` -
+  (Required)
+  JSONPath within the response output pointing to the expected `ContentMatcher::content` to match against.
+
+* `json_matcher` -
+  (Optional)
+  Options to perform JSONPath content matching.
+  Default value is `EXACT_MATCH`.
+  Possible values are `EXACT_MATCH` and `REGEX_MATCH`.
 
 <a name="nested_http_check"></a>The `http_check` block supports:
 
