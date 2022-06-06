@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `connection_id` to `external_data_configuration` for `google_bigquery_table`
+```

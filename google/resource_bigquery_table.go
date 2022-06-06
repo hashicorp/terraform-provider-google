@@ -605,6 +605,16 @@ func resourceBigQueryTable() *schema.Resource {
 							Optional:    true,
 							Description: `The maximum number of bad records that BigQuery can ignore when reading data.`,
 						},
+						// ConnectionId: [Optional] The connection specifying the credentials
+						// to be used to read external storage, such as Azure Blob,
+						// Cloud Storage, or S3. The connectionId can have the form
+						// "{{project}}.{{location}}.{{connection_id}}" or
+						// "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".
+						"connection_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connectionId can have the form "{{project}}.{{location}}.{{connection_id}}" or "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".`,
+						},
 					},
 				},
 			},
@@ -1330,6 +1340,9 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	if v, ok := raw["source_format"]; ok {
 		edc.SourceFormat = v.(string)
 	}
+	if v, ok := raw["connection_id"]; ok {
+		edc.ConnectionId = v.(string)
+	}
 
 	return edc, nil
 
@@ -1366,6 +1379,10 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.SourceFormat != "" {
 		result["source_format"] = edc.SourceFormat
+	}
+
+	if edc.ConnectionId != "" {
+		result["connection_id"] = edc.ConnectionId
 	}
 
 	return []map[string]interface{}{result}, nil
