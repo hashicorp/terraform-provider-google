@@ -427,6 +427,10 @@ resource "google_monitoring_slo" "primary" {
       threshold = "1s"
     }
   }
+  user_labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 `
 }
