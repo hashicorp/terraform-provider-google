@@ -1,5 +1,8 @@
 ## 4.24.0 (Unreleased)
 
+IMPROVEMENTS:
+* compute: added `cache_key_policy` field to `google_compute_backend_bucket` resource ([#11791](https://github.com/hashicorp/terraform-provider-google/pull/11791))
+
 ## 4.23.0 (June 1, 2022)
 
 FEATURES:
@@ -15,9 +18,6 @@ IMPROVEMENTS:
 BUG FIXES:
 * binaryauthorization: fixed permadiff in `google_binary_authorization_attestor` ([#11731](https://github.com/hashicorp/terraform-provider-google/pull/11731))
 * service: added re-polling for service account after creation, 404s sometimes due to [eventual consistency](https://cloud.google.com/iam/docs/overview#consistency) ([#11749](https://github.com/hashicorp/terraform-provider-google/pull/11749))
-
-IMPROVEMENTS:
-* compute: added `cache_key_policy` field to `google_compute_backend_bucket` resource ([#11791](https://github.com/hashicorp/terraform-provider-google/pull/11791))
 
 ## 4.22.0 (May 24, 2022)
 
