@@ -68,6 +68,11 @@ resource "google_monitoring_slo" "appeng_slo" {
       threshold = "1s"
     }
   }
+
+  user_labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 `, context)
 }

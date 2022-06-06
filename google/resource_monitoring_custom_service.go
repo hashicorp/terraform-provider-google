@@ -73,6 +73,17 @@ https://cloud.google.com/apis/design/resource_names.`,
 					},
 				},
 			},
+			"user_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels which have been used to annotate the service. Label keys must start
+with a letter. Label keys and values may contain lowercase letters,
+numbers, underscores, and dashes. Label keys and values have a maximum
+length of 63 characters, and must be less than 128 bytes in size. Up to 64
+label entries may be stored. For labels which do not have a semantic value,
+the empty string may be supplied for the label value.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -103,6 +114,12 @@ func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
+	}
+	userLabelsProp, err := expandMonitoringServiceUserLabels(d.Get("user_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("user_labels"); ok || !reflect.DeepEqual(v, userLabelsProp) {
+		obj["userLabels"] = userLabelsProp
 	}
 	telemetryProp, err := expandMonitoringServiceTelemetry(d.Get("telemetry"), d, config)
 	if err != nil {
@@ -201,6 +218,9 @@ func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("display_name", flattenMonitoringServiceDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("user_labels", flattenMonitoringServiceUserLabels(res["userLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("telemetry", flattenMonitoringServiceTelemetry(res["telemetry"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -233,6 +253,12 @@ func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	userLabelsProp, err := expandMonitoringServiceUserLabels(d.Get("user_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("user_labels"); ok || !reflect.DeepEqual(v, userLabelsProp) {
+		obj["userLabels"] = userLabelsProp
+	}
 	telemetryProp, err := expandMonitoringServiceTelemetry(d.Get("telemetry"), d, config)
 	if err != nil {
 		return err
@@ -255,6 +281,10 @@ func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("user_labels") {
+		updateMask = append(updateMask, "userLabels")
 	}
 
 	if d.HasChange("telemetry") {
@@ -340,6 +370,10 @@ func flattenMonitoringServiceDisplayName(v interface{}, d *schema.ResourceData, 
 	return v
 }
 
+func flattenMonitoringServiceUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringServiceTelemetry(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -366,6 +400,17 @@ func flattenMonitoringServiceServiceId(v interface{}, d *schema.ResourceData, co
 
 func expandMonitoringServiceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandMonitoringServiceUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandMonitoringServiceTelemetry(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

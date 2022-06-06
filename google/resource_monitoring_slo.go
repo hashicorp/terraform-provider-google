@@ -714,6 +714,16 @@ integer fraction of a day and at least 60s.`,
 				ValidateFunc: validateRegexp(`^[a-z0-9\-]+$`),
 				Description:  `The id to use for this ServiceLevelObjective. If omitted, an id will be generated instead.`,
 			},
+			"user_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `This field is intended to be used for organizing and identifying the AlertPolicy
+objects.The field can contain up to 64 entries. Each key and value is limited
+to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
+can contain only lowercase letters, numerals, underscores, and dashes. Keys
+must begin with a letter.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -762,6 +772,12 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("calendar_period"); !isEmptyValue(reflect.ValueOf(calendarPeriodProp)) && (ok || !reflect.DeepEqual(v, calendarPeriodProp)) {
 		obj["calendarPeriod"] = calendarPeriodProp
+	}
+	userLabelsProp, err := expandMonitoringSloUserLabels(d.Get("user_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("user_labels"); ok || !reflect.DeepEqual(v, userLabelsProp) {
+		obj["userLabels"] = userLabelsProp
 	}
 	serviceLevelIndicatorProp, err := expandMonitoringSloServiceLevelIndicator(nil, d, config)
 	if err != nil {
@@ -876,6 +892,9 @@ func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("calendar_period", flattenMonitoringSloCalendarPeriod(res["calendarPeriod"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Slo: %s", err)
 	}
+	if err := d.Set("user_labels", flattenMonitoringSloUserLabels(res["userLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
 	if flattenedProp := flattenMonitoringSloServiceLevelIndicator(res["serviceLevelIndicator"], d, config); flattenedProp != nil {
@@ -938,6 +957,12 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("calendar_period"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, calendarPeriodProp)) {
 		obj["calendarPeriod"] = calendarPeriodProp
 	}
+	userLabelsProp, err := expandMonitoringSloUserLabels(d.Get("user_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("user_labels"); ok || !reflect.DeepEqual(v, userLabelsProp) {
+		obj["userLabels"] = userLabelsProp
+	}
 	serviceLevelIndicatorProp, err := expandMonitoringSloServiceLevelIndicator(nil, d, config)
 	if err != nil {
 		return err
@@ -979,6 +1004,10 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("calendar_period") {
 		updateMask = append(updateMask, "calendarPeriod")
+	}
+
+	if d.HasChange("user_labels") {
+		updateMask = append(updateMask, "userLabels")
 	}
 
 	if d.HasChange("basic_sli") {
@@ -1115,6 +1144,10 @@ func expandMonitoringSloRollingPeriodDays(v interface{}, d TerraformResourceData
 }
 
 func flattenMonitoringSloCalendarPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1608,6 +1641,17 @@ func flattenMonitoringSloRollingPeriodDays(v interface{}, d *schema.ResourceData
 
 func expandMonitoringSloCalendarPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandMonitoringSloUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandMonitoringSloServiceLevelIndicator(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

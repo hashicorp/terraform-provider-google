@@ -52,6 +52,11 @@ resource "google_monitoring_custom_service" "custom" {
   telemetry {
   	resource_name = "//product.googleapis.com/foo/foo/services/test"
   }
+
+  user_labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 ```
 
@@ -67,6 +72,15 @@ The following arguments are supported:
 * `display_name` -
   (Optional)
   Name used for UI elements listing this Service.
+
+* `user_labels` -
+  (Optional)
+  Labels which have been used to annotate the service. Label keys must start
+  with a letter. Label keys and values may contain lowercase letters,
+  numbers, underscores, and dashes. Label keys and values have a maximum
+  length of 63 characters, and must be less than 128 bytes in size. Up to 64
+  label entries may be stored. For labels which do not have a semantic value,
+  the empty string may be supplied for the label value.
 
 * `telemetry` -
   (Optional)

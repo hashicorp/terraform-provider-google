@@ -66,6 +66,11 @@ resource "google_monitoring_slo" "appeng_slo" {
       threshold = "1s"
     }
   }
+
+  user_labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 ```
 ## Example Usage - Monitoring Slo Request Based
@@ -273,6 +278,14 @@ The following arguments are supported:
   A calendar period, semantically "since the start of the current
   <calendarPeriod>".
   Possible values are `DAY`, `WEEK`, `FORTNIGHT`, and `MONTH`.
+
+* `user_labels` -
+  (Optional)
+  This field is intended to be used for organizing and identifying the AlertPolicy
+  objects.The field can contain up to 64 entries. Each key and value is limited
+  to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
+  can contain only lowercase letters, numerals, underscores, and dashes. Keys
+  must begin with a letter.
 
 * `basic_sli` -
   (Optional)
