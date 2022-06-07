@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed perma-diff for updated labels in `google_dns_managed_zone`
+```

@@ -424,9 +424,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/managedZones/{{name}}`
 
+* `managed_zone_id` -
+  Unique identifier for the resource; defined by the server.
+
 * `name_servers` -
   Delegate your managed_zone to these virtual name servers;
   defined by the server
+
+* `creation_time` -
+  The time that this resource was created on the server.
+  This is in RFC3339 text format.
 
 
 ## Timeouts
