@@ -708,22 +708,8 @@ func Provider() *schema.Provider {
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
 
 			// dcl
-			AssuredWorkloadsEndpointEntryKey:             AssuredWorkloadsEndpointEntry,
-			ClouddeployEndpointEntryKey:                  ClouddeployEndpointEntry,
-			CloudResourceManagerEndpointEntryKey:         CloudResourceManagerEndpointEntry,
-			DataplexEndpointEntryKey:                     DataplexEndpointEntry,
-			EventarcEndpointEntryKey:                     EventarcEndpointEntry,
-			FirebaserulesEndpointEntryKey:                FirebaserulesEndpointEntry,
-			GkeHubFeatureCustomEndpointEntryKey:          GkeHubFeatureCustomEndpointEntry,
-			NetworkConnectivityEndpointEntryKey:          NetworkConnectivityEndpointEntry,
-			OrgPolicyEndpointEntryKey:                    OrgPolicyEndpointEntry,
-			PrivatecaCertificateTemplateEndpointEntryKey: PrivatecaCertificateTemplateCustomEndpointEntry,
-			RecaptchaEnterpriseEndpointEntryKey:          RecaptchaEnterpriseEndpointEntry,
-			ContainerAwsCustomEndpointEntryKey:           ContainerAwsCustomEndpointEntry,
-			ContainerAzureCustomEndpointEntryKey:         ContainerAzureCustomEndpointEntry,
-			ApikeysEndpointEntryKey:                      ApikeysEndpointEntry,
-
-			CloudBuildWorkerPoolEndpointEntryKey: CloudBuildWorkerPoolEndpointEntry,
+			ContainerAwsCustomEndpointEntryKey:   ContainerAwsCustomEndpointEntry,
+			ContainerAzureCustomEndpointEntryKey: ContainerAzureCustomEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -846,6 +832,8 @@ func Provider() *schema.Provider {
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		return providerConfigure(ctx, d, provider)
 	}
+
+	configureDCLProvider(provider)
 
 	return provider
 }
@@ -1518,20 +1506,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
 	// dcl
-	config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
-	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
-	config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
-	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
-	config.DataplexBasePath = d.Get(DataplexEndpointEntryKey).(string)
-	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
-	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
-	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)
-	config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)
-	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
-	config.PrivatecaBasePath = d.Get(PrivatecaCertificateTemplateEndpointEntryKey).(string)
 	config.ContainerAwsBasePath = d.Get(ContainerAwsCustomEndpointEntryKey).(string)
 	config.ContainerAzureBasePath = d.Get(ContainerAzureCustomEndpointEntryKey).(string)
-	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
@@ -1541,7 +1517,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		return nil, diag.FromErr(err)
 	}
 
-	return &config, nil
+	return providerDCLConfigure(d, &config), nil
 }
 
 func validateCredentials(v interface{}, k string) (warnings []string, errors []error) {
