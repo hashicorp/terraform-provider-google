@@ -87,6 +87,12 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
 
 
 ```hcl
+resource "google_service_account" "account" {
+  provider = google-beta
+  account_id = "test-service-account"
+  display_name = "Test Service Account"
+}
+
 resource "google_pubsub_topic" "sub" {
   provider = google-beta
   name = "pubsub"
@@ -136,6 +142,7 @@ resource "google_cloudfunctions2_function" "terraform-test" {
     }
     ingress_settings = "ALLOW_INTERNAL_ONLY"
     all_traffic_on_latest_revision = true
+    service_account_email = google_service_account.account.email
   }
 
   event_trigger {
@@ -143,6 +150,7 @@ resource "google_cloudfunctions2_function" "terraform-test" {
     event_type = "google.cloud.pubsub.topic.v1.messagePublished"
     pubsub_topic = google_pubsub_topic.sub.id
     retry_policy = "RETRY_POLICY_RETRY"
+    service_account_email = google_service_account.account.email
   }
 }
 ```
@@ -345,6 +353,7 @@ The following arguments are supported:
   URIs of the Service deployed
 
 * `service_account_email` -
+  (Optional)
   The email of the service account for this function.
 
 * `all_traffic_on_latest_revision` -
@@ -373,6 +382,7 @@ The following arguments are supported:
   as the transport topic for the event delivery.
 
 * `service_account_email` -
+  (Optional)
   The email of the service account for this function.
 
 * `retry_policy` -
