@@ -18,12 +18,12 @@ layout: "google"
 page_title: "Google: google_clouddeploy_delivery_pipeline"
 sidebar_current: "docs-google-clouddeploy-delivery-pipeline"
 description: |-
-  The Clouddeploy DeliveryPipeline resource
+  The Cloud Deploy `DeliveryPipeline` resource
 ---
 
 # google_clouddeploy_delivery_pipeline
 
-The Clouddeploy DeliveryPipeline resource
+The Cloud Deploy `DeliveryPipeline` resource
 
 ## Example Usage - delivery_pipeline
 Creates a basic Cloud Deploy delivery pipeline
