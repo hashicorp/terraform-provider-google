@@ -67,33 +67,6 @@ var CloudResourceManagerEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
-var ComputeEndpointEntryKey = "compute_custom_endpoint"
-var ComputeEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
-var ContainerAwsEndpointEntryKey = "container_aws_custom_endpoint"
-var ContainerAwsEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CONTAINER_AWS_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
-var ContainerAzureEndpointEntryKey = "container_azure_custom_endpoint"
-var ContainerAzureEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CONTAINER_AZURE_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
 var DataplexEndpointEntryKey = "dataplex_custom_endpoint"
 var DataplexEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -121,15 +94,6 @@ var FirebaserulesEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
-var LoggingEndpointEntryKey = "logging_custom_endpoint"
-var LoggingEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_LOGGING_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
 var NetworkConnectivityEndpointEntryKey = "network_connectivity_custom_endpoint"
 var NetworkConnectivityEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -148,24 +112,6 @@ var OrgPolicyEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
-var OSConfigEndpointEntryKey = "os_config_custom_endpoint"
-var OSConfigEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_OS_CONFIG_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
-var PrivatecaEndpointEntryKey = "privateca_custom_endpoint"
-var PrivatecaEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
 var RecaptchaEnterpriseEndpointEntryKey = "recaptcha_enterprise_custom_endpoint"
 var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -175,59 +121,46 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
-//Add new values to config.go.erb config object declaration
-//ApikeysBasePath string
-//AssuredWorkloadsBasePath string
-//CloudBuildWorkerPoolBasePath string
-//ClouddeployBasePath string
-//CloudResourceManagerBasePath string
-//ComputeBasePath string
-//ContainerAwsBasePath string
-//ContainerAzureBasePath string
-//DataplexBasePath string
-//EventarcBasePath string
-//FirebaserulesBasePath string
-//LoggingBasePath string
-//NetworkConnectivityBasePath string
-//OrgPolicyBasePath string
-//OSConfigBasePath string
-//PrivatecaBasePath string
-//RecaptchaEnterpriseBasePath string
+type DCLConfig struct {
+	ApikeysBasePath              string
+	AssuredWorkloadsBasePath     string
+	CloudBuildWorkerPoolBasePath string
+	ClouddeployBasePath          string
+	CloudResourceManagerBasePath string
+	DataplexBasePath             string
+	EventarcBasePath             string
+	FirebaserulesBasePath        string
+	NetworkConnectivityBasePath  string
+	OrgPolicyBasePath            string
+	RecaptchaEnterpriseBasePath  string
+}
 
-//Add new values to provider.go.erb schema initialization
-// ApikeysEndpointEntryKey:               ApikeysEndpointEntry,
-// AssuredWorkloadsEndpointEntryKey:               AssuredWorkloadsEndpointEntry,
-// CloudBuildWorkerPoolEndpointEntryKey:               CloudBuildWorkerPoolEndpointEntry,
-// ClouddeployEndpointEntryKey:               ClouddeployEndpointEntry,
-// CloudResourceManagerEndpointEntryKey:               CloudResourceManagerEndpointEntry,
-// ComputeEndpointEntryKey:               ComputeEndpointEntry,
-// ContainerAwsEndpointEntryKey:               ContainerAwsEndpointEntry,
-// ContainerAzureEndpointEntryKey:               ContainerAzureEndpointEntry,
-// DataplexEndpointEntryKey:               DataplexEndpointEntry,
-// EventarcEndpointEntryKey:               EventarcEndpointEntry,
-// FirebaserulesEndpointEntryKey:               FirebaserulesEndpointEntry,
-// LoggingEndpointEntryKey:               LoggingEndpointEntry,
-// NetworkConnectivityEndpointEntryKey:               NetworkConnectivityEndpointEntry,
-// OrgPolicyEndpointEntryKey:               OrgPolicyEndpointEntry,
-// OSConfigEndpointEntryKey:               OSConfigEndpointEntry,
-// PrivatecaEndpointEntryKey:               PrivatecaEndpointEntry,
-// RecaptchaEnterpriseEndpointEntryKey:               RecaptchaEnterpriseEndpointEntry,
+func configureDCLProvider(provider *schema.Provider) {
+	provider.Schema[ApikeysEndpointEntryKey] = ApikeysEndpointEntry
+	provider.Schema[AssuredWorkloadsEndpointEntryKey] = AssuredWorkloadsEndpointEntry
+	provider.Schema[CloudBuildWorkerPoolEndpointEntryKey] = CloudBuildWorkerPoolEndpointEntry
+	provider.Schema[ClouddeployEndpointEntryKey] = ClouddeployEndpointEntry
+	provider.Schema[CloudResourceManagerEndpointEntryKey] = CloudResourceManagerEndpointEntry
+	provider.Schema[DataplexEndpointEntryKey] = DataplexEndpointEntry
+	provider.Schema[EventarcEndpointEntryKey] = EventarcEndpointEntry
+	provider.Schema[FirebaserulesEndpointEntryKey] = FirebaserulesEndpointEntry
+	provider.Schema[NetworkConnectivityEndpointEntryKey] = NetworkConnectivityEndpointEntry
+	provider.Schema[OrgPolicyEndpointEntryKey] = OrgPolicyEndpointEntry
+	provider.Schema[RecaptchaEnterpriseEndpointEntryKey] = RecaptchaEnterpriseEndpointEntry
+}
 
-//Add new values to provider.go.erb - provider block read
-// config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
-// config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
-// config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
-// config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
-// config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
-// config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
-// config.ContainerAwsBasePath = d.Get(ContainerAwsEndpointEntryKey).(string)
-// config.ContainerAzureBasePath = d.Get(ContainerAzureEndpointEntryKey).(string)
-// config.DataplexBasePath = d.Get(DataplexEndpointEntryKey).(string)
-// config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
-// config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
-// config.LoggingBasePath = d.Get(LoggingEndpointEntryKey).(string)
-// config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)
-// config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
-// config.OSConfigBasePath = d.Get(OSConfigEndpointEntryKey).(string)
-// config.PrivatecaBasePath = d.Get(PrivatecaEndpointEntryKey).(string)
-// config.RecaptchaEnterpriseBasePath = d.Get(RecaptchaEnterpriseEndpointEntryKey).(string)
+func providerDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
+	config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
+	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
+	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
+	config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
+	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
+	config.DataplexBasePath = d.Get(DataplexEndpointEntryKey).(string)
+	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
+	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
+	config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)
+	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
+	config.RecaptchaEnterpriseBasePath = d.Get(RecaptchaEnterpriseEndpointEntryKey).(string)
+	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
+	return config
+}
