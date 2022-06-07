@@ -102,6 +102,19 @@ The following arguments are supported:
   Maximum Transmission Unit in bytes. The minimum value for this field is 1460
   and the maximum value is 1500 bytes.
 
+* `enable_ula_internal_ipv6` -
+  (Optional)
+  Enable ULA internal ipv6 on this network. Enabling this feature will assign 
+  a /48 from google defined ULA prefix fd20::/20.
+
+* `internal_ipv6_range` -
+  (Optional)
+  When enabling ula internal ipv6, caller optionally can specify the /48 range 
+  they want from the google defined ULA prefix fd20::/20. The input must be a 
+  valid /48 ULA IPv6 address and must be within the fd20::/20. Operation will 
+  fail if the speficied /48 is already in used by another resource. 
+  If the field is not speficied, then a /48 range will be randomly allocated from fd20::/20 and returned via this field.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
