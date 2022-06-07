@@ -18,12 +18,12 @@ layout: "google"
 page_title: "Google: google_clouddeploy_target"
 sidebar_current: "docs-google-clouddeploy-target"
 description: |-
-  The Clouddeploy Target resource
+  The Cloud Deploy `Target` resource
 ---
 
 # google_clouddeploy_target
 
-The Clouddeploy Target resource
+The Cloud Deploy `Target` resource
 
 ## Example Usage - target
 Creates a basic Cloud Deploy target
