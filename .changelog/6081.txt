@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: promoted `config.privately_used_public_ips` and `config.ip_masq_agent` in `google_composer_environment` resource to GA.
+```
