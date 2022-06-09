@@ -384,6 +384,12 @@ The following arguments are supported:
   then this `EgressTo` rule will authorize access to all resources outside 
   the perimeter.
 
+* `external_resources` -
+  (Optional)
+  A list of external resources that are allowed to be accessed. A request
+  matches if it contains an external resource in this list (Example:
+  s3://bucket/path). Currently '*' is not allowed.
+
 * `operations` -
   (Optional)
   A list of `ApiOperations` that this egress rule applies to. A request matches 
@@ -630,6 +636,12 @@ The following arguments are supported:
   if it contains a resource in this list. If * is specified for resources, 
   then this `EgressTo` rule will authorize access to all resources outside 
   the perimeter.
+
+* `external_resources` -
+  (Optional)
+  A list of external resources that are allowed to be accessed. A request
+  matches if it contains an external resource in this list (Example:
+  s3://bucket/path). Currently '*' is not allowed.
 
 * `operations` -
   (Optional)

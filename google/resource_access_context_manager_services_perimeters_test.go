@@ -19,7 +19,7 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 		CheckDestroy: testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeters_basic(org, "my policy", "level", "storage_perimeter", "bigtable_perimeter"),
+				Config: testAccAccessContextManagerServicePerimeters_basic(org, "my policy", "level", "storage_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeters.test-access",
@@ -27,7 +27,7 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeters_update(org, "my policy", "level", "storage_perimeter", "bigquery_perimeter", "bigtable_perimeter"),
+				Config: testAccAccessContextManagerServicePerimeters_update(org, "my policy", "level", "storage_perimeter", "bigquery_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeters.test-access",
@@ -70,7 +70,7 @@ func testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t *testing
 	}
 }
 
-func testAccAccessContextManagerServicePerimeters_basic(org, policyTitle, levelTitleName, perimeterTitleName1, perimeterTitleName2 string) string {
+func testAccAccessContextManagerServicePerimeters_basic(org, policyTitle, levelTitleName, perimeterTitleName1, perimeterTitleName2, perimeterTitleName3 string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
@@ -110,11 +110,31 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
       restricted_services = ["bigtable.googleapis.com"]
     }
   }
+
+  service_perimeters {
+    name           = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/servicePerimeters/%s"
+    title          = "%s"
+    perimeter_type = "PERIMETER_TYPE_REGULAR"
+    status {
+      restricted_services = ["bigquery.googleapis.com"]
+      egress_policies {
+        egress_to {
+          external_resources = ["s3://bucket1"]
+          operations {
+            service_name = "bigquery.googleapis.com"
+            method_selectors {
+              method = "*"
+            }
+          }
+        }
+      }
+    }
+  }
 }
-`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName1, perimeterTitleName1, perimeterTitleName2, perimeterTitleName2)
+`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName1, perimeterTitleName1, perimeterTitleName2, perimeterTitleName2, perimeterTitleName3, perimeterTitleName3)
 }
 
-func testAccAccessContextManagerServicePerimeters_update(org, policyTitle, levelTitleName, perimeterTitleName1, perimeterTitleName2, perimeterTitleName3 string) string {
+func testAccAccessContextManagerServicePerimeters_update(org, policyTitle, levelTitleName, perimeterTitleName1, perimeterTitleName2, perimeterTitleName3, perimeterTitleName4 string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
@@ -165,8 +185,28 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
       restricted_services = ["bigtable.googleapis.com"]
     }
   }
+
+  service_perimeters {
+    name           = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/servicePerimeters/%s"
+    title          = "%s"
+    perimeter_type = "PERIMETER_TYPE_REGULAR"
+    status {
+      restricted_services = ["bigquery.googleapis.com"]
+      egress_policies {
+        egress_to {
+          external_resources = ["s3://bucket2"]
+          operations {
+            service_name = "bigquery.googleapis.com"
+            method_selectors {
+              method = "*"
+            }
+          }
+        }
+      }
+    }
+  }
 }
-`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName1, perimeterTitleName1, perimeterTitleName2, perimeterTitleName2, perimeterTitleName3, perimeterTitleName3)
+`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName1, perimeterTitleName1, perimeterTitleName2, perimeterTitleName2, perimeterTitleName3, perimeterTitleName3, perimeterTitleName4, perimeterTitleName4)
 }
 
 func testAccAccessContextManagerServicePerimeters_empty(org, policyTitle, levelTitleName string) string {
