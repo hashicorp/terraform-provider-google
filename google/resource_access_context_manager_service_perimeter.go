@@ -164,6 +164,16 @@ cause this 'EgressPolicy' to apply.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"external_resources": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of external resources that are allowed to be accessed. A request
+matches if it contains an external resource in this list (Example:
+s3://bucket/path). Currently '*' is not allowed.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 												"operations": {
 													Type:     schema.TypeList,
 													Optional: true,
@@ -489,6 +499,16 @@ cause this 'EgressPolicy' to apply.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"external_resources": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of external resources that are allowed to be accessed. A request
+matches if it contains an external resource in this list (Example:
+s3://bucket/path). Currently '*' is not allowed.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 												"operations": {
 													Type:     schema.TypeList,
 													Optional: true,
@@ -1404,11 +1424,17 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v i
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
 		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(original["resources"], d, config)
+	transformed["external_resources"] =
+		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(original["externalResources"], d, config)
 	transformed["operations"] =
 		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1713,11 +1739,17 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v int
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
 		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(original["resources"], d, config)
+	transformed["external_resources"] =
+		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(original["externalResources"], d, config)
 	transformed["operations"] =
 		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2179,6 +2211,13 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v in
 		transformed["resources"] = transformedResources
 	}
 
+	transformedExternalResources, err := expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(original["external_resources"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExternalResources); val.IsValid() && !isEmptyValue(val) {
+		transformed["externalResources"] = transformedExternalResources
+	}
+
 	transformedOperations, err := expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
@@ -2190,6 +2229,10 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v in
 }
 
 func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2649,6 +2692,13 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v inte
 		transformed["resources"] = transformedResources
 	}
 
+	transformedExternalResources, err := expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(original["external_resources"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExternalResources); val.IsValid() && !isEmptyValue(val) {
+		transformed["externalResources"] = transformedExternalResources
+	}
+
 	transformedOperations, err := expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
@@ -2660,6 +2710,10 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v inte
 }
 
 func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
