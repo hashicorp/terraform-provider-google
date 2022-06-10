@@ -2,22 +2,18 @@
 
 IMPROVEMENTS:
 * bigquery: added `connection_id` to `external_data_configuration` for `google_bigquery_table` ([#11836](https://github.com/hashicorp/terraform-provider-google/pull/11836))
-* cloudfunctions2: Made `google_cloudfunctions2_function.event_trigger.service_account_email` and `google_cloudfunctions2_function.service_config.service_account_email` configurable. (beta) ([#11841](https://github.com/hashicorp/terraform-provider-google/pull/11841))
 * composer: promoted `config.master_authorized_networks_config` in `google_composer_environment` resource to GA. ([#11810](https://github.com/hashicorp/terraform-provider-google/pull/11810))
 * compute: added `advanced_options_config` to `google_compute_security_policy` ([#11809](https://github.com/hashicorp/terraform-provider-google/pull/11809))
 * compute: added `cache_key_policy` field to `google_compute_backend_bucket` resource ([#11791](https://github.com/hashicorp/terraform-provider-google/pull/11791))
 * compute: added `include_named_cookies` to `cdn_policy` on `compute_backend_service` resource ([#11818](https://github.com/hashicorp/terraform-provider-google/pull/11818))
 * compute: added internal IPv6 support on `google_compute_network` and `google_compute_subnetwork` ([#11842](https://github.com/hashicorp/terraform-provider-google/pull/11842))
-* container: add `managed_prometheus` to `monitoring_config` in `google_container_cluster` (beta) ([#11847](https://github.com/hashicorp/terraform-provider-google/pull/11847))
 * container: added `spot` field to `node_config` sub-resource ([#11796](https://github.com/hashicorp/terraform-provider-google/pull/11796))
-* google_gke_hub_feature_membership: Changes to add `prevent_drift` field to `google_gke_hub_feature_membership:configmanagement:config_sync` resource (beta) ([#11844](https://github.com/hashicorp/terraform-provider-google/pull/11844))
-* monitoring: added support for JSONPath content matchers for Uptime Checks ([#11829](https://github.com/hashicorp/terraform-provider-google/pull/11829))
-* monitoring: added support for user_labels in `google_monitoring_slo` ([#11833](https://github.com/hashicorp/terraform-provider-google/pull/11833)
+* monitoring: added support for JSONPath content matchers to `google_monitoring_uptime_check_config` resource ([#11829](https://github.com/hashicorp/terraform-provider-google/pull/11829))
+* monitoring: added support for `user_labels` in `google_monitoring_slo` resource ([#11833](https://github.com/hashicorp/terraform-provider-google/pull/11833)
 * sql: added `sql_server_user_details` field to `google_sql_user` resource ([#11834](https://github.com/hashicorp/terraform-provider-google/pull/11834))
 
 BUG FIXES:
 * certificatemanager: fixed bug where `DEFAULT` scope would permadiff and force replace the certificate. ([#11811](https://github.com/hashicorp/terraform-provider-google/pull/11811))
-* cloudrun: fixed indentation in Terraform examples ([#11800](https://github.com/hashicorp/terraform-provider-google/pull/11800))
 * dns: fixed perma-diff for updated labels in `google_dns_managed_zone` ([#11846](https://github.com/hashicorp/terraform-provider-google/pull/11846))
 * storagetransfer: fixed perm diff on transfer_options for `google_storage_transfer_job` ([#11812](https://github.com/hashicorp/terraform-provider-google/pull/11812))
 
