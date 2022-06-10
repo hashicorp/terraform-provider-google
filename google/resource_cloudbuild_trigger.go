@@ -834,6 +834,14 @@ of the ignoredFiles globs, then we do not trigger a build.`,
 					Type: schema.TypeString,
 				},
 			},
+			"include_build_logs": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateEnum([]string{"INCLUDE_BUILD_LOGS_UNSPECIFIED", "INCLUDE_BUILD_LOGS_WITH_STATUS", ""}),
+				Description: `Build logs will be sent back to GitHub as part of the checkrun
+result.  Values can be INCLUDE_BUILD_LOGS_UNSPECIFIED or
+INCLUDE_BUILD_LOGS_WITH_STATUS Possible values: ["INCLUDE_BUILD_LOGS_UNSPECIFIED", "INCLUDE_BUILD_LOGS_WITH_STATUS"]`,
+			},
 			"included_files": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -1105,6 +1113,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(serviceAccountProp)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
 		obj["serviceAccount"] = serviceAccountProp
 	}
+	includeBuildLogsProp, err := expandCloudBuildTriggerIncludeBuildLogs(d.Get("include_build_logs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("include_build_logs"); !isEmptyValue(reflect.ValueOf(includeBuildLogsProp)) && (ok || !reflect.DeepEqual(v, includeBuildLogsProp)) {
+		obj["includeBuildLogs"] = includeBuildLogsProp
+	}
 	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
 		return err
@@ -1289,6 +1303,9 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("service_account", flattenCloudBuildTriggerServiceAccount(res["serviceAccount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
+	if err := d.Set("include_build_logs", flattenCloudBuildTriggerIncludeBuildLogs(res["includeBuildLogs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Trigger: %s", err)
+	}
 	if err := d.Set("filename", flattenCloudBuildTriggerFilename(res["filename"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
@@ -1380,6 +1397,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
 		obj["serviceAccount"] = serviceAccountProp
+	}
+	includeBuildLogsProp, err := expandCloudBuildTriggerIncludeBuildLogs(d.Get("include_build_logs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("include_build_logs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, includeBuildLogsProp)) {
+		obj["includeBuildLogs"] = includeBuildLogsProp
 	}
 	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
@@ -1564,6 +1587,10 @@ func flattenCloudBuildTriggerSubstitutions(v interface{}, d *schema.ResourceData
 }
 
 func flattenCloudBuildTriggerServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerIncludeBuildLogs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2394,6 +2421,10 @@ func expandCloudBuildTriggerSubstitutions(v interface{}, d TerraformResourceData
 }
 
 func expandCloudBuildTriggerServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerIncludeBuildLogs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
