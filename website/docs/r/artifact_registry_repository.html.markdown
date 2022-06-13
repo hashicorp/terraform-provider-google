@@ -117,15 +117,10 @@ The following arguments are supported:
 
 * `format` -
   (Required)
-  The format of packages that are stored in the repository. You can only create
-  alpha formats if you are a member of the [alpha user group](https://cloud.google.com/artifact-registry/docs/supported-formats#alpha-access).
-  - DOCKER
-  - MAVEN ([Preview](https://cloud.google.com/products#product-launch-stages))
-  - NPM ([Preview](https://cloud.google.com/products#product-launch-stages))
-  - PYTHON ([Preview](https://cloud.google.com/products#product-launch-stages))
-  - APT ([alpha](https://cloud.google.com/products#product-launch-stages))
-  - YUM ([alpha](https://cloud.google.com/products#product-launch-stages))
-  - HELM ([alpha](https://cloud.google.com/products#product-launch-stages))
+  The format of packages that are stored in the repository. Supported formats
+  can be found [here](https://cloud.google.com/artifact-registry/docs/supported-formats).
+  You can only create alpha formats if you are a member of the
+  [alpha user group](https://cloud.google.com/artifact-registry/docs/supported-formats#alpha-access).
 
 
 - - -
