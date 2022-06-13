@@ -275,6 +275,37 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 	})
 }
 
+func TestAccDNSRecordSet_changeRouting(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsRecordSet_routingPolicyGEO(zoneName, "127.0.0.10", 300, "us-central1"),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckDnsRecordSetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 
 	return func(s *terraform.State) error {
