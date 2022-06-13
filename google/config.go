@@ -136,7 +136,6 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 // Config is the configuration structure used to instantiate the Google
 // provider.
 type Config struct {
-	DCLConfig
 	AccessToken                        string
 	Credentials                        string
 	ImpersonateServiceAccount          string
@@ -242,12 +241,26 @@ type Config struct {
 	StorageTransferBasePath   string
 	BigtableAdminBasePath     string
 
-	// dcl
-	ContainerAwsBasePath   string
-	ContainerAzureBasePath string
-
 	requestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
+
+	// start DCLBasePaths
+	// dataprocBasePath is implemented in mm
+	AssuredWorkloadsBasePath     string
+	ClouddeployBasePath          string
+	CloudResourceManagerBasePath string
+	ContainerAwsBasePath         string
+	ContainerAzureBasePath       string
+	DataplexBasePath             string
+	EventarcBasePath             string
+	FirebaserulesBasePath        string
+	GkeHubBasePath               string
+	NetworkConnectivityBasePath  string
+	OrgPolicyBasePath            string
+	RecaptchaEnterpriseBasePath  string
+	ApikeysBasePath              string
+	// CloudBuild WorkerPool uses a different endpoint (v1beta1) than any other CloudBuild resources
+	CloudBuildWorkerPoolBasePath string
 }
 
 const AccessApprovalBasePathKey = "AccessApproval"
