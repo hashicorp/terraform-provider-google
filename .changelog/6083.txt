@@ -1,0 +1,6 @@
+```release-note:new-resource
+google_documentai_processor
+```
+```release-note:new-resource
+google_documentai_processor_default_version
+```
