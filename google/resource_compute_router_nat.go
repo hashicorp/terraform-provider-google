@@ -182,13 +182,13 @@ valid static external IPs that have been assigned to the NAT.`,
 			},
 			"enable_dynamic_port_allocation": {
 				Type:     schema.TypeBool,
+				Computed: true,
 				Optional: true,
 				Description: `Enable Dynamic Port Allocation.
 If minPorts is set, minPortsPerVm must be set to a power of two greater than or equal to 32. 
 If minPortsPerVm is not set, a minimum of 32 ports will be allocated to a VM from this NAT config.
 
 Mutually exclusive with enableEndpointIndependentMapping.`,
-				Default: false,
 			},
 			"enable_endpoint_independent_mapping": {
 				Type:     schema.TypeBool,
