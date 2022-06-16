@@ -1,4 +1,42 @@
-## 4.25.0 (Unreleased)
+## 4.26.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_cloudfunctions2_function_iam_binding` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
+* **New Resource:** `google_cloudfunctions2_function_iam_member` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
+* **New Resource:** `google_cloudfunctions2_function_iam_policy` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
+* **New Resource:** compute:  Added resource `google_compute_region_ssl_policy`. Added `ssl_policy` field to `google_compute_region_target_https_proxy` (beta) ([#11852](https://github.com/hashicorp/terraform-provider-google/pull/11852))
+* **New Resource:** google_documentai_processor ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+* **New Resource:** google_documentai_processor_default_version ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+
+IMPROVEMENTS:
+* accesscontextmanager: Added `external_resources` to `egress_to` in `google_access_context_manager_service_perimeter` and `google_access_context_manager_service_perimeters` resource ([#11857](https://github.com/hashicorp/terraform-provider-google/pull/11857))
+* apigateway: added `grpc_services` and `managed_service_configs` to `google_api_gateway_api_config` (beta) ([#11878](https://github.com/hashicorp/terraform-provider-google/pull/11878))
+* cloudbuild: Added `include_build_logs` to `google_cloudbuild_trigger` ([#11866](https://github.com/hashicorp/terraform-provider-google/pull/11866))
+* composer: promoted `config.privately_used_public_ips` and `config.ip_masq_agent` in `google_composer_environment` resource to GA. ([#11849](https://github.com/hashicorp/terraform-provider-google/pull/11849))
+* container: add `managed_prometheus` to `monitoring_config` in `google_container_cluster` (beta) ([#11847](https://github.com/hashicorp/terraform-provider-google/pull/11847))
+* google_cloud_run_service: added samples for pubsub tutorials ([#11874](https://github.com/hashicorp/terraform-provider-google/pull/11874))
+
+BUG FIXES:
+* dns: fixed a bug where `google_dns_record_set` resource can not be changed from default routing to Geo routing policy. ([#11872](https://github.com/hashicorp/terraform-provider-google/pull/11872))
+
+## 4.25.0 (June 15, 2022)
+
+IMPROVEMENTS:
+* bigquery: added `connection_id` to `external_data_configuration` for `google_bigquery_table` ([#11836](https://github.com/hashicorp/terraform-provider-google/pull/11836))
+* composer: promoted `config.master_authorized_networks_config` in `google_composer_environment` resource to GA. ([#11810](https://github.com/hashicorp/terraform-provider-google/pull/11810))
+* compute: added `advanced_options_config` to `google_compute_security_policy` ([#11809](https://github.com/hashicorp/terraform-provider-google/pull/11809))
+* compute: added `cache_key_policy` field to `google_compute_backend_bucket` resource ([#11791](https://github.com/hashicorp/terraform-provider-google/pull/11791))
+* compute: added `include_named_cookies` to `cdn_policy` on `compute_backend_service` resource ([#11818](https://github.com/hashicorp/terraform-provider-google/pull/11818))
+* compute: added internal IPv6 support on `google_compute_network` and `google_compute_subnetwork` ([#11842](https://github.com/hashicorp/terraform-provider-google/pull/11842))
+* container: added `spot` field to `node_config` sub-resource ([#11796](https://github.com/hashicorp/terraform-provider-google/pull/11796))
+* monitoring: added support for JSONPath content matchers to `google_monitoring_uptime_check_config` resource ([#11829](https://github.com/hashicorp/terraform-provider-google/pull/11829))
+* monitoring: added support for `user_labels` in `google_monitoring_slo` resource ([#11833](https://github.com/hashicorp/terraform-provider-google/pull/11833)
+* sql: added `sql_server_user_details` field to `google_sql_user` resource ([#11834](https://github.com/hashicorp/terraform-provider-google/pull/11834))
+
+BUG FIXES:
+* certificatemanager: fixed bug where `DEFAULT` scope would permadiff and force replace the certificate. ([#11811](https://github.com/hashicorp/terraform-provider-google/pull/11811))
+* dns: fixed perma-diff for updated labels in `google_dns_managed_zone` ([#11846](https://github.com/hashicorp/terraform-provider-google/pull/11846))
+* storagetransfer: fixed perm diff on transfer_options for `google_storage_transfer_job` ([#11812](https://github.com/hashicorp/terraform-provider-google/pull/11812))
 
 ## 4.24.0 (June 6, 2022)
 
