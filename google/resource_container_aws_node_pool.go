@@ -200,7 +200,6 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The AWS instance type. When unspecified, it defaults to `m5.large`.",
 			},
 

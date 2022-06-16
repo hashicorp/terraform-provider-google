@@ -1208,6 +1208,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 
+* `psc_connection_id` -
+  The PSC connection id of the PSC Forwarding Rule.
+
+* `psc_connection_status` -
+  The PSC connection status of the PSC Forwarding Rule. Possible values: STATUS_UNSPECIFIED, PENDING, ACCEPTED, REJECTED, CLOSED
+
 * `label_fingerprint` -
   ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
