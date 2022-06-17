@@ -20,19 +20,19 @@ import (
 	"log"
 	"testing"
 
-	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
+	containeraws "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containeraws"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func init() {
-	resource.AddTestSweepers("ComputeGlobalForwardingRule", &resource.Sweeper{
-		Name: "ComputeGlobalForwardingRule",
-		F:    testSweepComputeGlobalForwardingRule,
+	resource.AddTestSweepers("ContainerAwsCluster", &resource.Sweeper{
+		Name: "ContainerAwsCluster",
+		F:    testSweepContainerAwsCluster,
 	})
 }
 
-func testSweepComputeGlobalForwardingRule(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeGlobalForwardingRule")
+func testSweepContainerAwsCluster(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ContainerAwsCluster")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -58,14 +58,14 @@ func testSweepComputeGlobalForwardingRule(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLComputeClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllForwardingRule(context.Background(), d["project"], d["location"], isDeletableComputeGlobalForwardingRule)
+	client := NewDCLContainerAwsClient(config, config.userAgent, "", 0)
+	err = client.DeleteAllCluster(context.Background(), d["project"], d["location"], isDeletableContainerAwsCluster)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletableComputeGlobalForwardingRule(r *compute.ForwardingRule) bool {
+func isDeletableContainerAwsCluster(r *containeraws.Cluster) bool {
 	return isSweepableTestResource(*r.Name)
 }
