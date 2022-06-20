@@ -151,7 +151,7 @@ cluster.
     [google_container_cluster](container_cluster.html#nested_node_config) for schema.
 
 * `network_config` - (Optional) The network configuration of the pool. See
-    [google_container_cluster](container_cluster.html) for schema.
+    [google_container_cluster](container_cluster.html#nested_network_config) for schema.
 
 * `node_count` - (Optional) The number of nodes per instance group. This field can be used to
     update the number of nodes per instance group but should not be used alongside `autoscaling`.
