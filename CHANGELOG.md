@@ -9,7 +9,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * accesscontextmanager: Added `external_resources` to `egress_to` in `google_access_context_manager_service_perimeter` and `google_access_context_manager_service_perimeters` resource ([#11857](https://github.com/hashicorp/terraform-provider-google/pull/11857))
-* apigateway: Added `grpc_services` and `managed_service_configs` to `google_api_gateway_api_config` (beta) ([#11878](https://github.com/hashicorp/terraform-provider-google/pull/11878))
 * cloudbuild: Added `include_build_logs` to `google_cloudbuild_trigger` ([#11866](https://github.com/hashicorp/terraform-provider-google/pull/11866))
 * composer: Promoted `config.privately_used_public_ips` and `config.ip_masq_agent` in `google_composer_environment` resource to GA. ([#11849](https://github.com/hashicorp/terraform-provider-google/pull/11849))
 
