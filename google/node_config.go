@@ -36,12 +36,11 @@ func schemaNodeConfig() *schema.Schema {
 				},
 
 				"disk_type": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					Computed:     true,
-					ForceNew:     true,
-					ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-balanced", "pd-ssd"}, false),
-					Description:  `Type of the disk attached to each node.`,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
+					Description: `Type of the disk attached to each node. Such as pd-standard, pd-balanced or pd-ssd`,
 				},
 
 				"guest_accelerator": {
@@ -187,6 +186,14 @@ func schemaNodeConfig() *schema.Schema {
 					ForceNew:    true,
 					Default:     false,
 					Description: `Whether the nodes are created as preemptible VM instances.`,
+				},
+
+				"spot": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					ForceNew:    true,
+					Default:     false,
+					Description: `Whether the nodes are created as spot VM instances.`,
 				},
 
 				"service_account": {
@@ -417,6 +424,9 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 	// Preemptible Is Optional+Default, so it always has a value
 	nc.Preemptible = nodeConfig["preemptible"].(bool)
 
+	// Spot Is Optional+Default, so it always has a value
+	nc.Spot = nodeConfig["spot"].(bool)
+
 	if v, ok := nodeConfig["min_cpu_platform"]; ok {
 		nc.MinCpuPlatform = v.(string)
 	}
@@ -491,6 +501,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"labels":                   c.Labels,
 		"tags":                     c.Tags,
 		"preemptible":              c.Preemptible,
+		"spot":                     c.Spot,
 		"min_cpu_platform":         c.MinCpuPlatform,
 		"shielded_instance_config": flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
 		"taint":                    flattenTaints(c.Taints),

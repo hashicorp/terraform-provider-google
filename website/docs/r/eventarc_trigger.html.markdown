@@ -61,9 +61,12 @@ resource "google_cloud_run_service" "default" {
 		spec {
 			containers {
 				image = "gcr.io/cloudrun/hello"
-				args  = ["arrgs"]
+				ports {
+					container_port = 8080
+				}
 			}
-		container_concurrency = 50
+			container_concurrency = 50
+			timeout_seconds = 100
 		}
 	}
 
@@ -127,7 +130,7 @@ The `matching_criteria` block supports:
     
 * `value` -
   (Required)
-  Required. The value for the attribute.
+  Required. The value for the attribute. See https://cloud.google.com/eventarc/docs/creating-triggers#trigger-gcloud for available values.
     
 - - -
 

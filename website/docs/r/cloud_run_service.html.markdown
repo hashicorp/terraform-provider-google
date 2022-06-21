@@ -299,7 +299,7 @@ resource "google_cloud_run_service" "default" {
         image = "gcr.io/cloudrun/hello"
         env {
           name = "SECRET_ENV_VAR"
-	  value_from {
+          value_from {
             secret_key_ref {
               name = google_secret_manager_secret.secret.secret_id
               key = "1"
@@ -324,7 +324,7 @@ resource "google_cloud_run_service" "default" {
 
   lifecycle {
     ignore_changes = [
-        metadata.0.annotations,
+      metadata.0.annotations,
     ]
   }
 
@@ -365,22 +365,22 @@ resource "google_cloud_run_service" "default" {
     spec {
       containers {
         image = "gcr.io/cloudrun/hello"
-	volume_mounts {
-	  name = "a-volume"
-	  mount_path = "/secrets"
-	}
+        volume_mounts {
+          name = "a-volume"
+          mount_path = "/secrets"
+        }
       }
       volumes {
         name = "a-volume"
-	secret {
-	  secret_name = google_secret_manager_secret.secret.secret_id
-	  default_mode = 292 # 0444
-	  items {
+        secret {
+          secret_name = google_secret_manager_secret.secret.secret_id
+          default_mode = 292 # 0444
+          items {
             key = "1"
-	    path = "my-secret"
-	    mode = 256 # 0400
-	  }
-	}
+            path = "my-secret"
+            mode = 256 # 0400
+          }
+        }
       }
     }
   }
@@ -399,7 +399,7 @@ resource "google_cloud_run_service" "default" {
 
   lifecycle {
     ignore_changes = [
-        metadata.0.annotations,
+      metadata.0.annotations,
     ]
   }
 
@@ -560,12 +560,21 @@ The following arguments are supported:
   (Required)
   Percent specifies percent of the traffic to this Revision or Configuration.
 
+* `tag` -
+  (Optional)
+  Tag is optionally used to expose a dedicated url for referencing this target exclusively.
+
 * `latest_revision` -
   (Optional)
   LatestRevision may be optionally provided to indicate that the latest ready
   Revision of the Configuration should be used for this traffic target. When
   provided LatestRevision must be true if RevisionName is empty; it must be
   false when RevisionName is non-empty.
+
+* `url` -
+  URL displays the URL for accessing tagged traffic targets. URL is displayed in status, 
+  and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname, 
+  but may not contain anything else (e.g. basic auth, url path, etc.)
 
 <a name="nested_template"></a>The `template` block supports:
 
@@ -850,14 +859,11 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  The name of the secret in Cloud Secret Manager. By default, the secret
-  is assumed to be in the same project.
-  If the secret is in another project, you must define an alias.
-  You set the <alias> in this field, and create an annotation with the
-  following structure
-  "run.googleapis.com/secrets" = "<alias>:projects/<project-id|project-number>/secrets/<secret-name>".
-  If multiple alias definitions are needed, they must be separated by
-  commas in the annotation field.
+  The name of the secret in Cloud Secret Manager. By default, the secret is assumed to be in the same project. 
+  If the secret is in another project, you must define an alias. 
+  An alias definition has the form: :projects/<project-id|project-number>/secrets/. 
+  If multiple alias definitions are needed, they must be separated by commas. 
+  The alias definitions must be set on the run.googleapis.com/secrets annotation.
 
 <a name="nested_ports"></a>The `ports` block supports:
 

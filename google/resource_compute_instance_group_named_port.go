@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeInstanceGroupNamedPort() *schema.Resource {
@@ -449,10 +448,7 @@ func resourceComputeInstanceGroupNamedPortPatchDeleteEncoder(d *schema.ResourceD
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "InstanceGroupNamedPort not found in list",
-		}
+		return nil, fake404("nested", "ComputeInstanceGroupNamedPort")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)

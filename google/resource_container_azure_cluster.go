@@ -195,7 +195,7 @@ func ContainerAzureClusterAuthorizationSchema() *schema.Resource {
 			"admin_users": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
+				Description: "Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
 				Elem:        ContainerAzureClusterAuthorizationAdminUsersSchema(),
 			},
 		},

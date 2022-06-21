@@ -81,7 +81,38 @@ func TestAccMonitoringUptimeCheckConfig_changeNonUpdatableFields(t *testing.T) {
 	})
 }
 
-func testAccMonitoringUptimeCheckConfig_update(suffix, path, project, pwd, host string) string {
+func TestAccMonitoringUptimeCheckConfig_jsonPathUpdate(t *testing.T) {
+	t.Parallel()
+	project := getTestProjectFromEnv()
+	host := "192.168.1.1"
+	suffix := randString(t, 4)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringUptimeCheckConfig_jsonPathUpdate(suffix, project, host, "123", "$.path", "EXACT_MATCH"),
+			},
+			{
+				ResourceName:      "google_monitoring_uptime_check_config.http",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccMonitoringUptimeCheckConfig_jsonPathUpdate(suffix, project, host, "content", "$.different", "REGEX_MATCH"),
+			},
+			{
+				ResourceName:      "google_monitoring_uptime_check_config.http",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMonitoringUptimeCheckConfig_update(suffix, path, pwd, project, host string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check-%s"
@@ -110,6 +141,39 @@ resource "google_monitoring_uptime_check_config" "http" {
     matcher = "CONTAINS_STRING"
   }
 }
-`, suffix, path, project, pwd, host,
+`, suffix, path, pwd, project, host,
+	)
+}
+
+func testAccMonitoringUptimeCheckConfig_jsonPathUpdate(suffix, project, host, content, json_path, json_path_matcher string) string {
+	return fmt.Sprintf(`
+resource "google_monitoring_uptime_check_config" "http" {
+  display_name = "http-uptime-check-%s"
+  timeout      = "60s"
+
+  http_check {
+    path = "a-path"
+    port = "80"
+    request_method = "GET"
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "%s"
+      host       = "%s"
+    }
+  }
+
+  content_matchers {
+    content = "%s"
+    matcher = "MATCHES_JSON_PATH"
+	json_path_matcher {
+		json_path = "%s"
+		json_matcher = "%s"
+	}
+  }
+}
+`, suffix, project, host, content, json_path, json_path_matcher,
 	)
 }

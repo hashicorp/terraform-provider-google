@@ -146,6 +146,18 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				Description: "Used internally during label updates.",
 			},
 
+			"psc_connection_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The PSC connection id of the PSC Forwarding Rule.",
+			},
+
+			"psc_connection_status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The PSC connection status of the PSC Forwarding Rule. Possible values: STATUS_UNSPECIFIED, PENDING, ACCEPTED, REJECTED, CLOSED",
+			},
+
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -339,6 +351,12 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	}
 	if err = d.Set("label_fingerprint", res.LabelFingerprint); err != nil {
 		return fmt.Errorf("error setting label_fingerprint in state: %s", err)
+	}
+	if err = d.Set("psc_connection_id", res.PscConnectionId); err != nil {
+		return fmt.Errorf("error setting psc_connection_id in state: %s", err)
+	}
+	if err = d.Set("psc_connection_status", res.PscConnectionStatus); err != nil {
+		return fmt.Errorf("error setting psc_connection_status in state: %s", err)
 	}
 	if err = d.Set("self_link", res.SelfLink); err != nil {
 		return fmt.Errorf("error setting self_link in state: %s", err)

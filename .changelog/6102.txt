@@ -1,0 +1,3 @@
+```release-note:new-resource
+compute:  Added resource `google_compute_region_ssl_policy`. Added `ssl_policy` field to `google_compute_region_target_https_proxy` (beta)
+```

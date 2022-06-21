@@ -103,7 +103,6 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
 			privateNetworkCustomizeDiff,
 			pitrPostgresOnlyCustomizeDiff,
-			insightsPostgresOnlyCustomizeDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -143,6 +142,20 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Optional:    true,
 							Default:     "ALWAYS",
 							Description: `This specifies when the instance should be active. Can be either ALWAYS, NEVER or ON_DEMAND.`,
+						},
+						"active_directory_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"domain": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Domain name of the Active Directory for SQL Server (e.g., mydomain.com).`,
+									},
+								},
+							},
 						},
 						"availability_type": {
 							Type:         schema.TypeString,
@@ -254,7 +267,7 @@ is set to true.`,
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     true,
-							Description: `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
+							Description: `Enables auto-resizing of the storage size. Defaults to true. Set to false if you want to set disk_size.`,
 						},
 						"disk_autoresize_limit": {
 							Type:        schema.TypeInt,
@@ -267,7 +280,7 @@ is set to true.`,
 							Optional: true,
 							// Default is likely 10gb, but it is undocumented and may change.
 							Computed:    true,
-							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.`,
+							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. If you want to set this field, set disk_autoresize to false.`,
 						},
 						"disk_type": {
 							Type:        schema.TypeString,
@@ -434,7 +447,7 @@ is set to true.`,
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
+				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
 
 			"root_password": {
@@ -725,15 +738,6 @@ func pitrPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff,
 	return nil
 }
 
-func insightsPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-	insights := diff.Get("settings.0.insights_config.0.query_insights_enabled").(bool)
-	dbVersion := diff.Get("database_version").(string)
-	if insights && !strings.Contains(dbVersion, "POSTGRES") {
-		return fmt.Errorf("query_insights_enabled is only available for Postgres now.")
-	}
-	return nil
-}
-
 func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -935,22 +939,23 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}) *sqladmin.Setti
 	_settings := configured[0].(map[string]interface{})
 	settings := &sqladmin.Settings{
 		// Version is unset in Create but is set during update
-		SettingsVersion:     int64(_settings["version"].(int)),
-		Tier:                _settings["tier"].(string),
-		ForceSendFields:     []string{"StorageAutoResize"},
-		ActivationPolicy:    _settings["activation_policy"].(string),
-		AvailabilityType:    _settings["availability_type"].(string),
-		Collation:           _settings["collation"].(string),
-		DataDiskSizeGb:      int64(_settings["disk_size"].(int)),
-		DataDiskType:        _settings["disk_type"].(string),
-		PricingPlan:         _settings["pricing_plan"].(string),
-		UserLabels:          convertStringMap(_settings["user_labels"].(map[string]interface{})),
-		BackupConfiguration: expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
-		DatabaseFlags:       expandDatabaseFlags(_settings["database_flags"].([]interface{})),
-		IpConfiguration:     expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
-		LocationPreference:  expandLocationPreference(_settings["location_preference"].([]interface{})),
-		MaintenanceWindow:   expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
-		InsightsConfig:      expandInsightsConfig(_settings["insights_config"].([]interface{})),
+		SettingsVersion:       int64(_settings["version"].(int)),
+		Tier:                  _settings["tier"].(string),
+		ForceSendFields:       []string{"StorageAutoResize"},
+		ActivationPolicy:      _settings["activation_policy"].(string),
+		ActiveDirectoryConfig: expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
+		AvailabilityType:      _settings["availability_type"].(string),
+		Collation:             _settings["collation"].(string),
+		DataDiskSizeGb:        int64(_settings["disk_size"].(int)),
+		DataDiskType:          _settings["disk_type"].(string),
+		PricingPlan:           _settings["pricing_plan"].(string),
+		UserLabels:            convertStringMap(_settings["user_labels"].(map[string]interface{})),
+		BackupConfiguration:   expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
+		DatabaseFlags:         expandDatabaseFlags(_settings["database_flags"].([]interface{})),
+		IpConfiguration:       expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
+		LocationPreference:    expandLocationPreference(_settings["location_preference"].([]interface{})),
+		MaintenanceWindow:     expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
+		InsightsConfig:        expandInsightsConfig(_settings["insights_config"].([]interface{})),
 	}
 
 	resize := _settings["disk_autoresize"].(bool)
@@ -1098,6 +1103,18 @@ func expandBackupRetentionSettings(configured interface{}) *sqladmin.BackupReten
 	return &sqladmin.BackupRetentionSettings{
 		RetainedBackups: int64(config["retained_backups"].(int)),
 		RetentionUnit:   config["retention_unit"].(string),
+	}
+}
+
+func expandActiveDirectoryConfig(configured interface{}) *sqladmin.SqlActiveDirectoryConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &sqladmin.SqlActiveDirectoryConfig{
+		Domain: config["domain"].(string),
 	}
 }
 
@@ -1337,6 +1354,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		"user_labels":       settings.UserLabels,
 	}
 
+	if settings.ActiveDirectoryConfig != nil {
+		data["active_directory_config"] = flattenActiveDirectoryConfig(settings.ActiveDirectoryConfig)
+	}
+
 	if settings.BackupConfiguration != nil {
 		data["backup_configuration"] = flattenBackupConfiguration(settings.BackupConfiguration)
 	}
@@ -1393,6 +1414,17 @@ func flattenBackupRetentionSettings(b *sqladmin.BackupRetentionSettings) []map[s
 		{
 			"retained_backups": b.RetainedBackups,
 			"retention_unit":   b.RetentionUnit,
+		},
+	}
+}
+
+func flattenActiveDirectoryConfig(sqlActiveDirectoryConfig *sqladmin.SqlActiveDirectoryConfig) []map[string]interface{} {
+	if sqlActiveDirectoryConfig == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"domain": sqlActiveDirectoryConfig.Domain,
 		},
 	}
 }

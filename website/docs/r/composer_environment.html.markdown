@@ -57,7 +57,6 @@ resource "google_composer_environment" "test" {
 resource "google_composer_environment" "test" {
   name   = "example-composer-env"
   region = "us-central1"
- 
  config {
     software_config {
       image_version = "composer-2-airflow-2"
@@ -72,23 +71,23 @@ resource "google_composer_environment" "test" {
 For more information, see the [Access Control](https://cloud.devsite.corp.google.com/composer/docs/how-to/access-control) page in the Cloud Composer documentation.
 You may need to assign additional roles depending on what the Airflow DAGs will be running.
 
-**NOTE** We STRONGLY recommend you read the [Cloud Composer guides](https://cloud.google.com/composer/docs/how-to) 
-as the Environment 
-resource requires a long deployment process and involves several layers of 
-Google Cloud infrastructure, including a Kubernetes Engine cluster, Cloud 
-Storage, and Compute networking resources. Composer manages most of these 
-resources fully and as a result, Terraform may not be able to automatically 
+**NOTE** We STRONGLY recommend you read the [Cloud Composer guides](https://cloud.google.com/composer/docs/how-to)
+as the Environment
+resource requires a long deployment process and involves several layers of
+Google Cloud infrastructure, including a Kubernetes Engine cluster, Cloud
+Storage, and Compute networking resources. Composer manages most of these
+resources fully and as a result, Terraform may not be able to automatically
 find or manage the underlying resources. In particular:
-* It can take up to 50 minutes to create or update an environment resource and 
-some errors may be detected later in the process. Also, some error messages may 
-not be clear at first sight because they involve issues with the underlying 
-resources. If you encounter such errors, please review Composer logs and verify 
-if your configuration is valid against Cloud Composer before filing bugs 
+* It can take up to 50 minutes to create or update an environment resource and
+some errors may be detected later in the process. Also, some error messages may
+not be clear at first sight because they involve issues with the underlying
+resources. If you encounter such errors, please review Composer logs and verify
+if your configuration is valid against Cloud Composer before filing bugs
 against the Terraform provider.
-* Environments create Google Cloud Storage buckets that contain your DAGs and 
-other work files. These buckets do not get deleted automatically on environment 
-deletion. This is by design; it ensures that DAGs source code and other 
-valuable data don’t get lost when an environment is deleted. [More about 
+* Environments create Google Cloud Storage buckets that contain your DAGs and
+other work files. These buckets do not get deleted automatically on environment
+deletion. This is by design; it ensures that DAGs source code and other
+valuable data don’t get lost when an environment is deleted. [More about
 Composer's use of Cloud Storage](https://cloud.google.com/composer/docs/concepts/cloud-storage).
 * Please review the [known issues](https://cloud.google.com/composer/docs/known-issues) for Cloud Composer if you are having problems.
 
@@ -100,44 +99,44 @@ resource "google_composer_environment" "test" {
   region = "us-central1"
   config {
     node_count = 4
- 
+
     node_config {
       zone         = "us-central1-a"
       machine_type = "n1-standard-1"
- 
+
       network    = google_compute_network.test.id
       subnetwork = google_compute_subnetwork.test.id
- 
+
       service_account = google_service_account.test.name
     }
- 
+
     database_config {
       machine_type = "db-n1-standard-2"
     }
- 
+
     web_server_config {
       machine_type = "composer-n1-webserver-2"
     }
   }
 }
- 
+
 resource "google_compute_network" "test" {
   name                    = "composer-test-network"
   auto_create_subnetworks = false
 }
- 
+
 resource "google_compute_subnetwork" "test" {
   name          = "composer-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.test.id
 }
- 
+
 resource "google_service_account" "test" {
   account_id   = "composer-env-account"
   display_name = "Test Service Account for Composer Environment"
 }
- 
+
 resource "google_project_iam_member" "composer-worker" {
   role   = "roles/composer.worker"
   member = "serviceAccount:${google_service_account.test.email}"
@@ -150,16 +149,16 @@ resource "google_project_iam_member" "composer-worker" {
 provider "google" {
   project = "bigdata-writers"
 }
- 
+
 resource "google_composer_environment" "test" {
   name   = "example-composer-env-tf-c2"
   region = "us-central1"
   config {
- 
+
     software_config {
       image_version = "composer-2-airflow-2"
     }
- 
+
     workloads_config {
       scheduler {
         cpu        = 0.5
@@ -179,11 +178,11 @@ resource "google_composer_environment" "test" {
         min_count  = 1
         max_count  = 3
       }
- 
- 
+
+
     }
     environment_size = "ENVIRONMENT_SIZE_SMALL"
- 
+
     node_config {
       network    = google_compute_network.test.id
       subnetwork = google_compute_subnetwork.test.id
@@ -191,24 +190,24 @@ resource "google_composer_environment" "test" {
     }
   }
 }
- 
+
 resource "google_compute_network" "test" {
   name                    = "composer-test-network3"
   auto_create_subnetworks = false
 }
- 
+
 resource "google_compute_subnetwork" "test" {
   name          = "composer-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.test.id
 }
- 
+
 resource "google_service_account" "test" {
   account_id   = "composer-env-account"
   display_name = "Test Service Account for Composer Environment"
 }
- 
+
 resource "google_project_iam_member" "composer-worker" {
   project = "your-project-id"
   role    = "roles/composer.worker"
@@ -222,19 +221,19 @@ resource "google_project_iam_member" "composer-worker" {
 resource "google_composer_environment" "test" {
   name   = "mycomposer"
   region = "us-central1"
- 
+
   config {
     software_config {
       scheduler_count = 2 // only in Composer 1 with Airflow 2, use workloads_config in Composer 2
       airflow_config_overrides = {
         core-dags_are_paused_at_creation = "True"
       }
- 
+
       pypi_packages = {
         numpy = ""
         scipy = "==1.1.0"
       }
- 
+
       env_variables = {
         FOO = "bar"
       }
@@ -314,12 +313,12 @@ The following arguments are supported:
 * `maintenance_window` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The configuration settings for Cloud Composer maintenance windows.
- 
+
 * `master_authorized_networks_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  Configuration options for the master authorized networks feature. Enabled 
-  master authorized networks will disallow all external traffic to access 
-  Kubernetes master through HTTPS except traffic from the given CIDR blocks, 
+  (Optional)
+  Configuration options for the master authorized networks feature. Enabled
+  master authorized networks will disallow all external traffic to access
+  Kubernetes master through HTTPS except traffic from the given CIDR blocks,
   Google Compute Engine Public IPs and Google Prod IPs. Structure is
   [documented below](#nested_master_authorized_networks_config).
 
@@ -397,7 +396,7 @@ The following arguments are supported:
   Cannot be updated.
 
 * `enable_ip_masq_agent` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
+  (Optional)
   Cloud Composer 1 only)
   Deploys 'ip-masq-agent' daemon set in the GKE cluster and defines
   nonMasqueradeCIDRs equals to pod IP range so IP masquerading is used for
@@ -492,7 +491,7 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   The CIDR block from which IP range for web server will be reserved. Needs to be disjoint from `master_ipv4_cidr_block` and `cloud_sql_ipv4_cidr_block`.
 
 * `enable_privately_used_public_ips` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   When enabled, IPs from public (non-RFC1918) ranges can be used for
   `ip_allocation_policy.cluster_ipv4_cidr_block` and `ip_allocation_policy.service_ipv4_cidr_block`.
 
@@ -597,7 +596,7 @@ The `web_server_network_access_control` supports:
 * `enabled` -
   (Required)
   Whether or not master authorized networks is enabled.
- 
+
 * `cidr_blocks` -
   `cidr_blocks `define up to 50 external networks that could access Kubernetes master through HTTPS. Structure is [documented below](#nested_cidr_blocks).
 
@@ -676,7 +675,7 @@ The `config` block supports:
   and `ENVIRONMENT_SIZE_LARGE`.
 
 * `master_authorized_networks_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration options for the master authorized networks feature. Enabled
   master authorized networks will disallow all external traffic to access
   Kubernetes master through HTTPS except traffic from the given CIDR blocks,
@@ -802,12 +801,12 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   When enabled, IPs from public (non-RFC1918) ranges can be used for
   `ip_allocation_policy.cluster_ipv4_cidr_block` and `ip_allocation_policy.service_ipv4_cidr_block`.
-  
-* `cloud_composer_connection_subnetwork"` -
+
+* `cloud_composer_connection_subnetwork` -
   (Optional)
   When specified, the environment will use Private Service Connect instead of VPC peerings to connect
-  to Cloud SQL in the Tenant Project, and the PSC endpoint in the Customer Project will use an IP 
-  address from this subnetwork. This field is supported for Cloud Composer environments in 
+  to Cloud SQL in the Tenant Project, and the PSC endpoint in the Customer Project will use an IP
+  address from this subnetwork. This field is supported for Cloud Composer environments in
   versions `composer-2.*.*-airflow-*.*.*` and newer.
 
 

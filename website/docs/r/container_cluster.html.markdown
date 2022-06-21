@@ -489,7 +489,13 @@ as "Intel Haswell" or "Intel Sandy Bridge".
 
 <a name="nested_monitoring_config"></a>The `monitoring_config` block supports:
 
-*  `enable_components` - (Required) The GKE components exposing logs. `SYSTEM_COMPONENTS` and in beta provider, both `SYSTEM_COMPONENTS` and `WORKLOADS` are supported.
+*  `enable_components` - (Optional) The GKE components exposing metrics. `SYSTEM_COMPONENTS` and in beta provider, both `SYSTEM_COMPONENTS` and `WORKLOADS` are supported. (`WORKLOADS` is deprecated and removed in GKE 1.24.)
+
+*  `managed_prometheus` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for Managed Service for Prometheus. Structure is [documented below](#nested_managed_prometheus).
+
+<a name="nested_managed_prometheus"></a>The `managed_prometheus` block supports:
+
+* `enabled` - (Required) Whether or not the managed collection is enabled.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.
@@ -541,6 +547,13 @@ maintenance_policy {
 
 * `maintenance_exclusion` - Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows. A cluster can have up to three maintenance exclusions at a time [Maintenance Window and Exclusions](https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions)
 
+<a name="nested_maintenance_exclusion"></a>The `maintenance_exclusion` block supports:
+* `exclusion_options` - (Optional) MaintenanceExclusionOptions provides maintenance exclusion related options.
+
+
+<a name="nested_exclusion_options"></a>The `exclusion_options` block supports:
+* `scope` - (Required) The scope of automatic upgrades to restrict in the exclusion window. One of: **NO_UPGRADES | NO_MINOR_UPGRADES | NO_MINOR_OR_NODE_UPGRADES**
+
 Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
 the initial date that the window starts, and the end time is used for calculating duration.Specify `recurrence` in
 [RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
@@ -559,11 +572,17 @@ maintenance_policy {
     exclusion_name = "batch job"
     start_time = "2019-01-01T00:00:00Z"
     end_time = "2019-01-02T00:00:00Z"
+    exclusion_options {
+      scope = "NO_UPGRADES"
+    }
   }
   maintenance_exclusion{
     exclusion_name = "holiday data load"
     start_time = "2019-05-01T00:00:00Z"
     end_time = "2019-05-02T00:00:00Z"
+    exclusion_options {
+      scope = "NO_MINOR_UPGRADES"
+    }
   }
 }
 ```
@@ -706,8 +725,8 @@ gvnic {
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.
 
-* `spot` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) A boolean
-    that represents whether the underlying node VMs are spot. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms)
+* `spot` - (Optional) A boolean that represents whether the underlying node VMs are spot.
+    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms)
     for more information. Defaults to false.
 
 * `sandbox_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) [GKE Sandbox](https://cloud.google.com/kubernetes-engine/docs/how-to/sandbox-pods) configuration. When enabling this feature you must specify `image_type = "COS_CONTAINERD"` and `node_version = "1.12.7-gke.17"` or later to use it.

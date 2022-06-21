@@ -106,6 +106,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 									"versioned_expr": {
 										Type:         schema.TypeString,
 										Optional:     true,
+										Default:      "",
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
 										Description:  `Predefined rule expression. If this field is specified, config must also be specified. Available options:   SRC_IPS_V1: Must specify the corresponding src_ip_ranges field in config.`,
 									},
@@ -145,6 +146,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 
 						"description": {
 							Type:        schema.TypeString,
+							Default:     "",
 							Optional:    true,
 							Description: `An optional description of this rule. Max size is 64.`,
 						},
@@ -170,6 +172,32 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The URI of the created resource.`,
+			},
+
+			"advanced_options_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: `Advanced Options Config of this security policy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"json_parsing": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"DISABLED", "STANDARD"}, false),
+							Description:  `JSON body parsing. Supported values include: "DISABLED", "STANDARD".`,
+						},
+						"log_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NORMAL", "VERBOSE"}, false),
+							Description:  `Logging level. Supported values include: "NORMAL", "VERBOSE".`,
+						},
+					},
+				},
 			},
 		},
 
@@ -217,6 +245,10 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 
 	if v, ok := d.GetOk("rule"); ok {
 		securityPolicy.Rules = expandSecurityPolicyRules(v.(*schema.Set).List())
+	}
+
+	if v, ok := d.GetOk("advanced_options_config"); ok {
+		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(v.([]interface{}))
 	}
 
 	log.Printf("[DEBUG] SecurityPolicy insert request: %#v", securityPolicy)
@@ -285,6 +317,9 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("self_link", ConvertSelfLinkToV1(securityPolicy.SelfLink)); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
+	if err := d.Set("advanced_options_config", flattenSecurityPolicyAdvancedOptionsConfig(securityPolicy.AdvancedOptionsConfig)); err != nil {
+		return fmt.Errorf("Error setting advanced_options_config: %s", err)
+	}
 
 	return nil
 }
@@ -315,6 +350,11 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("description") {
 		securityPolicy.Description = d.Get("description").(string)
 		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Description")
+	}
+
+	if d.HasChange("advanced_options_config") {
+		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config").([]interface{}))
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdvancedOptionsConfig", "advancedOptionsConfig.jsonParsing", "advancedOptionsConfig.logLevel")
 	}
 
 	if len(securityPolicy.ForceSendFields) > 0 {
@@ -541,6 +581,31 @@ func flattenMatchExpr(match *compute.SecurityPolicyRuleMatcher) []map[string]int
 		// "title":       match.Expr.Title,
 		// "description": match.Expr.Description,
 		// "location":    match.Expr.Location,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyAdvancedOptionsConfig(configured []interface{}) *compute.SecurityPolicyAdvancedOptionsConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyAdvancedOptionsConfig{
+		JsonParsing: data["json_parsing"].(string),
+		LogLevel:    data["log_level"].(string),
+	}
+}
+
+func flattenSecurityPolicyAdvancedOptionsConfig(conf *compute.SecurityPolicyAdvancedOptionsConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"json_parsing": conf.JsonParsing,
+		"log_level":    conf.LogLevel,
 	}
 
 	return []map[string]interface{}{data}

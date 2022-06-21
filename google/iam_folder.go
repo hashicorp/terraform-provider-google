@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
+	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 var IamFolderSchema = map[string]*schema.Schema{
@@ -62,7 +62,7 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 		return err
 	}
 
-	_, err = u.Config.NewResourceManagerV2Client(userAgent).Folders.SetIamPolicy(u.folderId, &resourceManagerV2.SetIamPolicyRequest{
+	_, err = u.Config.NewResourceManagerV3Client(userAgent).Folders.SetIamPolicy(u.folderId, &resourceManagerV3.SetIamPolicyRequest{
 		Policy:     v2Policy,
 		UpdateMask: "bindings,etag,auditConfigs",
 	}).Do()
@@ -95,8 +95,8 @@ func canonicalFolderId(folder string) string {
 }
 
 // v1 and v2 policy are identical
-func v1PolicyToV2(in *cloudresourcemanager.Policy) (*resourceManagerV2.Policy, error) {
-	out := &resourceManagerV2.Policy{}
+func v1PolicyToV2(in *cloudresourcemanager.Policy) (*resourceManagerV3.Policy, error) {
+	out := &resourceManagerV3.Policy{}
 	err := Convert(in, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a v2 policy: {{err}}", err)
@@ -104,7 +104,7 @@ func v1PolicyToV2(in *cloudresourcemanager.Policy) (*resourceManagerV2.Policy, e
 	return out, nil
 }
 
-func v2PolicyToV1(in *resourceManagerV2.Policy) (*cloudresourcemanager.Policy, error) {
+func v2PolicyToV1(in *resourceManagerV3.Policy) (*cloudresourcemanager.Policy, error) {
 	out := &cloudresourcemanager.Policy{}
 	err := Convert(in, out)
 	if err != nil {
@@ -115,9 +115,9 @@ func v2PolicyToV1(in *resourceManagerV2.Policy) (*cloudresourcemanager.Policy, e
 
 // Retrieve the existing IAM Policy for a folder
 func getFolderIamPolicyByFolderName(folderName, userAgent string, config *Config) (*cloudresourcemanager.Policy, error) {
-	p, err := config.NewResourceManagerV2Client(userAgent).Folders.GetIamPolicy(folderName,
-		&resourceManagerV2.GetIamPolicyRequest{
-			Options: &resourceManagerV2.GetPolicyOptions{
+	p, err := config.NewResourceManagerV3Client(userAgent).Folders.GetIamPolicy(folderName,
+		&resourceManagerV3.GetIamPolicyRequest{
+			Options: &resourceManagerV3.GetPolicyOptions{
 				RequestedPolicyVersion: iamPolicyVersion,
 			},
 		}).Do()

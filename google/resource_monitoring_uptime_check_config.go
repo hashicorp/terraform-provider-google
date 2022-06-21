@@ -56,6 +56,14 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Required:    true,
 				Description: `The maximum amount of time to wait for the request to complete (must be between 1 and 60 seconds). Accepted formats https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration`,
 			},
+			"checker_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"STATIC_IP_CHECKERS", "VPC_CHECKERS", ""}),
+				Description:  `The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS. Possible values: ["STATIC_IP_CHECKERS", "VPC_CHECKERS"]`,
+			},
 			"content_matchers": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -67,11 +75,33 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Required:    true,
 							Description: `String or regex content to match (max 1024 bytes)`,
 						},
+						"json_path_matcher": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Information needed to perform a JSONPath content match. Used for 'ContentMatcherOption::MATCHES_JSON_PATH' and 'ContentMatcherOption::NOT_MATCHES_JSON_PATH'.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"json_path": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `JSONPath within the response output pointing to the expected 'ContentMatcher::content' to match against.`,
+									},
+									"json_matcher": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"EXACT_MATCH", "REGEX_MATCH", ""}),
+										Description:  `Options to perform JSONPath content matching. Default value: "EXACT_MATCH" Possible values: ["EXACT_MATCH", "REGEX_MATCH"]`,
+										Default:      "EXACT_MATCH",
+									},
+								},
+							},
+						},
 						"matcher": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", ""}),
-							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX"]`,
+							ValidateFunc: validateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH", ""}),
+							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH"]`,
 							Default:      "CONTAINS_STRING",
 						},
 					},
@@ -173,7 +203,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer`,
+				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance aws_elb_load_balancer  k8s_service  servicedirectory_service`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -311,6 +341,12 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("selected_regions"); !isEmptyValue(reflect.ValueOf(selectedRegionsProp)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
+	}
+	checkerTypeProp, err := expandMonitoringUptimeCheckConfigCheckerType(d.Get("checker_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("checker_type"); !isEmptyValue(reflect.ValueOf(checkerTypeProp)) && (ok || !reflect.DeepEqual(v, checkerTypeProp)) {
+		obj["checkerType"] = checkerTypeProp
 	}
 	httpCheckProp, err := expandMonitoringUptimeCheckConfigHttpCheck(d.Get("http_check"), d, config)
 	if err != nil {
@@ -454,6 +490,9 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
+	}
+	if err := d.Set("checker_type", flattenMonitoringUptimeCheckConfigCheckerType(res["checkerType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("http_check", flattenMonitoringUptimeCheckConfigHttpCheck(res["httpCheck"], d, config)); err != nil {
@@ -676,8 +715,9 @@ func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"content": flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
-			"matcher": flattenMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config),
+			"content":           flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
+			"matcher":           flattenMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config),
+			"json_path_matcher": flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(original["jsonPathMatcher"], d, config),
 		})
 	}
 	return transformed
@@ -690,7 +730,34 @@ func flattenMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d *
 	return v
 }
 
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["json_path"] =
+		flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(original["jsonPath"], d, config)
+	transformed["json_matcher"] =
+		flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(original["jsonMatcher"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigCheckerType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -910,6 +977,13 @@ func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d Terraform
 			transformed["matcher"] = transformedMatcher
 		}
 
+		transformedJsonPathMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(original["json_path_matcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedJsonPathMatcher); val.IsValid() && !isEmptyValue(val) {
+			transformed["jsonPathMatcher"] = transformedJsonPathMatcher
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -923,7 +997,45 @@ func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d Te
 	return v, nil
 }
 
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedJsonPath, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(original["json_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["jsonPath"] = transformedJsonPath
+	}
+
+	transformedJsonMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(original["json_matcher"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonMatcher); val.IsValid() && !isEmptyValue(val) {
+		transformed["jsonMatcher"] = transformedJsonMatcher
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigCheckerType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

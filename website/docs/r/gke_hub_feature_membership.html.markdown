@@ -134,7 +134,10 @@ The following arguments are supported:
     
 * `git` -
   (Optional) Structure is [documented below](#nested_git).
-  
+
+* `prevent_drift` -
+  (Optional)
+  Supported from ACM versions 1.10.0 onwards. Set to true to enable the Config Sync admission webhook to prevent drifts. If set to "false", disables the Config Sync admission webhook and does not prevent drifts.
     
 * `source_format` -
   (Optional)

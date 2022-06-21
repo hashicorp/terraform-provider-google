@@ -173,6 +173,15 @@ func resourceComputeForwardingRule() *schema.Resource {
 				Description:      "The location of this resource.",
 			},
 
+			"service_directory_registrations": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Service Directory resources to register this forwarding rule with. Currently, only supports a single Service Directory resource.",
+				Elem:        ComputeForwardingRuleServiceDirectoryRegistrationsSchema(),
+			},
+
 			"service_label": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -209,6 +218,18 @@ func resourceComputeForwardingRule() *schema.Resource {
 				Description: "Used internally during label updates.",
 			},
 
+			"psc_connection_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The PSC connection id of the PSC Forwarding Rule.",
+			},
+
+			"psc_connection_status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The PSC connection status of the PSC Forwarding Rule. Possible values: STATUS_UNSPECIFIED, PENDING, ACCEPTED, REJECTED, CLOSED",
+			},
+
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -219,6 +240,27 @@ func resourceComputeForwardingRule() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "[Output Only] The internal fully qualified service name for this Forwarding Rule. This field is only used for internal load balancing.",
+			},
+		},
+	}
+}
+
+func ComputeForwardingRuleServiceDirectoryRegistrationsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"namespace": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Service Directory namespace to register the forwarding rule under.",
+			},
+
+			"service": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Service Directory service to register the forwarding rule under.",
 			},
 		},
 	}
@@ -236,25 +278,26 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	obj := &compute.ForwardingRule{
-		Name:                 dcl.String(d.Get("name").(string)),
-		AllPorts:             dcl.Bool(d.Get("all_ports").(bool)),
-		AllowGlobalAccess:    dcl.Bool(d.Get("allow_global_access").(bool)),
-		BackendService:       dcl.String(d.Get("backend_service").(string)),
-		Description:          dcl.String(d.Get("description").(string)),
-		IPAddress:            dcl.StringOrNil(d.Get("ip_address").(string)),
-		IPProtocol:           compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
-		IsMirroringCollector: dcl.Bool(d.Get("is_mirroring_collector").(bool)),
-		Labels:               checkStringMap(d.Get("labels")),
-		LoadBalancingScheme:  compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
-		Network:              dcl.StringOrNil(d.Get("network").(string)),
-		NetworkTier:          compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
-		PortRange:            dcl.String(d.Get("port_range").(string)),
-		Ports:                expandStringArray(d.Get("ports")),
-		Project:              dcl.String(project),
-		Location:             dcl.String(region),
-		ServiceLabel:         dcl.String(d.Get("service_label").(string)),
-		Subnetwork:           dcl.StringOrNil(d.Get("subnetwork").(string)),
-		Target:               dcl.String(d.Get("target").(string)),
+		Name:                          dcl.String(d.Get("name").(string)),
+		AllPorts:                      dcl.Bool(d.Get("all_ports").(bool)),
+		AllowGlobalAccess:             dcl.Bool(d.Get("allow_global_access").(bool)),
+		BackendService:                dcl.String(d.Get("backend_service").(string)),
+		Description:                   dcl.String(d.Get("description").(string)),
+		IPAddress:                     dcl.StringOrNil(d.Get("ip_address").(string)),
+		IPProtocol:                    compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
+		IsMirroringCollector:          dcl.Bool(d.Get("is_mirroring_collector").(bool)),
+		Labels:                        checkStringMap(d.Get("labels")),
+		LoadBalancingScheme:           compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
+		Network:                       dcl.StringOrNil(d.Get("network").(string)),
+		NetworkTier:                   compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
+		PortRange:                     dcl.String(d.Get("port_range").(string)),
+		Ports:                         expandStringArray(d.Get("ports")),
+		Project:                       dcl.String(project),
+		Location:                      dcl.String(region),
+		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
+		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
+		Target:                        dcl.String(d.Get("target").(string)),
 	}
 
 	id, err := replaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
@@ -306,25 +349,26 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	}
 
 	obj := &compute.ForwardingRule{
-		Name:                 dcl.String(d.Get("name").(string)),
-		AllPorts:             dcl.Bool(d.Get("all_ports").(bool)),
-		AllowGlobalAccess:    dcl.Bool(d.Get("allow_global_access").(bool)),
-		BackendService:       dcl.String(d.Get("backend_service").(string)),
-		Description:          dcl.String(d.Get("description").(string)),
-		IPAddress:            dcl.StringOrNil(d.Get("ip_address").(string)),
-		IPProtocol:           compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
-		IsMirroringCollector: dcl.Bool(d.Get("is_mirroring_collector").(bool)),
-		Labels:               checkStringMap(d.Get("labels")),
-		LoadBalancingScheme:  compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
-		Network:              dcl.StringOrNil(d.Get("network").(string)),
-		NetworkTier:          compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
-		PortRange:            dcl.String(d.Get("port_range").(string)),
-		Ports:                expandStringArray(d.Get("ports")),
-		Project:              dcl.String(project),
-		Location:             dcl.String(region),
-		ServiceLabel:         dcl.String(d.Get("service_label").(string)),
-		Subnetwork:           dcl.StringOrNil(d.Get("subnetwork").(string)),
-		Target:               dcl.String(d.Get("target").(string)),
+		Name:                          dcl.String(d.Get("name").(string)),
+		AllPorts:                      dcl.Bool(d.Get("all_ports").(bool)),
+		AllowGlobalAccess:             dcl.Bool(d.Get("allow_global_access").(bool)),
+		BackendService:                dcl.String(d.Get("backend_service").(string)),
+		Description:                   dcl.String(d.Get("description").(string)),
+		IPAddress:                     dcl.StringOrNil(d.Get("ip_address").(string)),
+		IPProtocol:                    compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
+		IsMirroringCollector:          dcl.Bool(d.Get("is_mirroring_collector").(bool)),
+		Labels:                        checkStringMap(d.Get("labels")),
+		LoadBalancingScheme:           compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
+		Network:                       dcl.StringOrNil(d.Get("network").(string)),
+		NetworkTier:                   compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
+		PortRange:                     dcl.String(d.Get("port_range").(string)),
+		Ports:                         expandStringArray(d.Get("ports")),
+		Project:                       dcl.String(project),
+		Location:                      dcl.String(region),
+		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
+		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
+		Target:                        dcl.String(d.Get("target").(string)),
 	}
 
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -397,6 +441,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err = d.Set("region", res.Location); err != nil {
 		return fmt.Errorf("error setting region in state: %s", err)
 	}
+	if err = d.Set("service_directory_registrations", flattenComputeForwardingRuleServiceDirectoryRegistrationsArray(res.ServiceDirectoryRegistrations)); err != nil {
+		return fmt.Errorf("error setting service_directory_registrations in state: %s", err)
+	}
 	if err = d.Set("service_label", res.ServiceLabel); err != nil {
 		return fmt.Errorf("error setting service_label in state: %s", err)
 	}
@@ -411,6 +458,12 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	}
 	if err = d.Set("label_fingerprint", res.LabelFingerprint); err != nil {
 		return fmt.Errorf("error setting label_fingerprint in state: %s", err)
+	}
+	if err = d.Set("psc_connection_id", res.PscConnectionId); err != nil {
+		return fmt.Errorf("error setting psc_connection_id in state: %s", err)
+	}
+	if err = d.Set("psc_connection_status", res.PscConnectionStatus); err != nil {
+		return fmt.Errorf("error setting psc_connection_status in state: %s", err)
 	}
 	if err = d.Set("self_link", res.SelfLink); err != nil {
 		return fmt.Errorf("error setting self_link in state: %s", err)
@@ -433,25 +486,26 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	obj := &compute.ForwardingRule{
-		Name:                 dcl.String(d.Get("name").(string)),
-		AllPorts:             dcl.Bool(d.Get("all_ports").(bool)),
-		AllowGlobalAccess:    dcl.Bool(d.Get("allow_global_access").(bool)),
-		BackendService:       dcl.String(d.Get("backend_service").(string)),
-		Description:          dcl.String(d.Get("description").(string)),
-		IPAddress:            dcl.StringOrNil(d.Get("ip_address").(string)),
-		IPProtocol:           compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
-		IsMirroringCollector: dcl.Bool(d.Get("is_mirroring_collector").(bool)),
-		Labels:               checkStringMap(d.Get("labels")),
-		LoadBalancingScheme:  compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
-		Network:              dcl.StringOrNil(d.Get("network").(string)),
-		NetworkTier:          compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
-		PortRange:            dcl.String(d.Get("port_range").(string)),
-		Ports:                expandStringArray(d.Get("ports")),
-		Project:              dcl.String(project),
-		Location:             dcl.String(region),
-		ServiceLabel:         dcl.String(d.Get("service_label").(string)),
-		Subnetwork:           dcl.StringOrNil(d.Get("subnetwork").(string)),
-		Target:               dcl.String(d.Get("target").(string)),
+		Name:                          dcl.String(d.Get("name").(string)),
+		AllPorts:                      dcl.Bool(d.Get("all_ports").(bool)),
+		AllowGlobalAccess:             dcl.Bool(d.Get("allow_global_access").(bool)),
+		BackendService:                dcl.String(d.Get("backend_service").(string)),
+		Description:                   dcl.String(d.Get("description").(string)),
+		IPAddress:                     dcl.StringOrNil(d.Get("ip_address").(string)),
+		IPProtocol:                    compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
+		IsMirroringCollector:          dcl.Bool(d.Get("is_mirroring_collector").(bool)),
+		Labels:                        checkStringMap(d.Get("labels")),
+		LoadBalancingScheme:           compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
+		Network:                       dcl.StringOrNil(d.Get("network").(string)),
+		NetworkTier:                   compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
+		PortRange:                     dcl.String(d.Get("port_range").(string)),
+		Ports:                         expandStringArray(d.Get("ports")),
+		Project:                       dcl.String(project),
+		Location:                      dcl.String(region),
+		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
+		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
+		Target:                        dcl.String(d.Get("target").(string)),
 	}
 	directive := UpdateDirective
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -498,25 +552,26 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 	}
 
 	obj := &compute.ForwardingRule{
-		Name:                 dcl.String(d.Get("name").(string)),
-		AllPorts:             dcl.Bool(d.Get("all_ports").(bool)),
-		AllowGlobalAccess:    dcl.Bool(d.Get("allow_global_access").(bool)),
-		BackendService:       dcl.String(d.Get("backend_service").(string)),
-		Description:          dcl.String(d.Get("description").(string)),
-		IPAddress:            dcl.StringOrNil(d.Get("ip_address").(string)),
-		IPProtocol:           compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
-		IsMirroringCollector: dcl.Bool(d.Get("is_mirroring_collector").(bool)),
-		Labels:               checkStringMap(d.Get("labels")),
-		LoadBalancingScheme:  compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
-		Network:              dcl.StringOrNil(d.Get("network").(string)),
-		NetworkTier:          compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
-		PortRange:            dcl.String(d.Get("port_range").(string)),
-		Ports:                expandStringArray(d.Get("ports")),
-		Project:              dcl.String(project),
-		Location:             dcl.String(region),
-		ServiceLabel:         dcl.String(d.Get("service_label").(string)),
-		Subnetwork:           dcl.StringOrNil(d.Get("subnetwork").(string)),
-		Target:               dcl.String(d.Get("target").(string)),
+		Name:                          dcl.String(d.Get("name").(string)),
+		AllPorts:                      dcl.Bool(d.Get("all_ports").(bool)),
+		AllowGlobalAccess:             dcl.Bool(d.Get("allow_global_access").(bool)),
+		BackendService:                dcl.String(d.Get("backend_service").(string)),
+		Description:                   dcl.String(d.Get("description").(string)),
+		IPAddress:                     dcl.StringOrNil(d.Get("ip_address").(string)),
+		IPProtocol:                    compute.ForwardingRuleIPProtocolEnumRef(d.Get("ip_protocol").(string)),
+		IsMirroringCollector:          dcl.Bool(d.Get("is_mirroring_collector").(bool)),
+		Labels:                        checkStringMap(d.Get("labels")),
+		LoadBalancingScheme:           compute.ForwardingRuleLoadBalancingSchemeEnumRef(d.Get("load_balancing_scheme").(string)),
+		Network:                       dcl.StringOrNil(d.Get("network").(string)),
+		NetworkTier:                   compute.ForwardingRuleNetworkTierEnumRef(d.Get("network_tier").(string)),
+		PortRange:                     dcl.String(d.Get("port_range").(string)),
+		Ports:                         expandStringArray(d.Get("ports")),
+		Project:                       dcl.String(project),
+		Location:                      dcl.String(region),
+		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
+		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
+		Target:                        dcl.String(d.Get("target").(string)),
 	}
 
 	log.Printf("[DEBUG] Deleting ForwardingRule %q", d.Id())
@@ -564,4 +619,62 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func expandComputeForwardingRuleServiceDirectoryRegistrationsArray(o interface{}) []compute.ForwardingRuleServiceDirectoryRegistrations {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return nil
+	}
+
+	items := make([]compute.ForwardingRuleServiceDirectoryRegistrations, 0, len(objs))
+	for _, item := range objs {
+		i := expandComputeForwardingRuleServiceDirectoryRegistrations(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandComputeForwardingRuleServiceDirectoryRegistrations(o interface{}) *compute.ForwardingRuleServiceDirectoryRegistrations {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &compute.ForwardingRuleServiceDirectoryRegistrations{
+		Namespace: dcl.StringOrNil(obj["namespace"].(string)),
+		Service:   dcl.String(obj["service"].(string)),
+	}
+}
+
+func flattenComputeForwardingRuleServiceDirectoryRegistrationsArray(objs []compute.ForwardingRuleServiceDirectoryRegistrations) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenComputeForwardingRuleServiceDirectoryRegistrations(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenComputeForwardingRuleServiceDirectoryRegistrations(obj *compute.ForwardingRuleServiceDirectoryRegistrations) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"namespace": obj.Namespace,
+		"service":   obj.Service,
+	}
+
+	return transformed
+
 }

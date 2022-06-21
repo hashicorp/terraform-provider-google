@@ -49,6 +49,15 @@ var CloudBuildWorkerPoolEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var ClouddeployEndpointEntryKey = "clouddeploy_custom_endpoint"
+var ClouddeployEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var CloudResourceManagerEndpointEntryKey = "cloud_resource_manager_custom_endpoint"
 var CloudResourceManagerEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -82,6 +91,15 @@ var ContainerAzureEndpointEntry = &schema.Schema{
 	Optional: true,
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_CONTAINER_AZURE_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
+var DataplexEndpointEntryKey = "dataplex_custom_endpoint"
+var DataplexEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_DATAPLEX_CUSTOM_ENDPOINT",
 	}, ""),
 }
 
@@ -161,10 +179,12 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 //ApikeysBasePath string
 //AssuredWorkloadsBasePath string
 //CloudBuildWorkerPoolBasePath string
+//ClouddeployBasePath string
 //CloudResourceManagerBasePath string
 //ComputeBasePath string
 //ContainerAwsBasePath string
 //ContainerAzureBasePath string
+//DataplexBasePath string
 //EventarcBasePath string
 //FirebaserulesBasePath string
 //LoggingBasePath string
@@ -178,10 +198,12 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // ApikeysEndpointEntryKey:               ApikeysEndpointEntry,
 // AssuredWorkloadsEndpointEntryKey:               AssuredWorkloadsEndpointEntry,
 // CloudBuildWorkerPoolEndpointEntryKey:               CloudBuildWorkerPoolEndpointEntry,
+// ClouddeployEndpointEntryKey:               ClouddeployEndpointEntry,
 // CloudResourceManagerEndpointEntryKey:               CloudResourceManagerEndpointEntry,
 // ComputeEndpointEntryKey:               ComputeEndpointEntry,
 // ContainerAwsEndpointEntryKey:               ContainerAwsEndpointEntry,
 // ContainerAzureEndpointEntryKey:               ContainerAzureEndpointEntry,
+// DataplexEndpointEntryKey:               DataplexEndpointEntry,
 // EventarcEndpointEntryKey:               EventarcEndpointEntry,
 // FirebaserulesEndpointEntryKey:               FirebaserulesEndpointEntry,
 // LoggingEndpointEntryKey:               LoggingEndpointEntry,
@@ -195,10 +217,12 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
 // config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 // config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
+// config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
 // config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
 // config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
 // config.ContainerAwsBasePath = d.Get(ContainerAwsEndpointEntryKey).(string)
 // config.ContainerAzureBasePath = d.Get(ContainerAzureEndpointEntryKey).(string)
+// config.DataplexBasePath = d.Get(DataplexEndpointEntryKey).(string)
 // config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 // config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
 // config.LoggingBasePath = d.Get(LoggingEndpointEntryKey).(string)

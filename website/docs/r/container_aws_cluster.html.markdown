@@ -155,7 +155,7 @@ The `authorization` block supports:
     
 * `admin_users` -
   (Required)
-  Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. At most one user can be specified. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+  Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
     
 The `admin_users` block supports:
     
@@ -180,6 +180,10 @@ The `control_plane` block supports:
 * `iam_instance_profile` -
   (Required)
   The name of the AWS IAM instance pofile to assign to each control plane replica.
+    
+* `instance_placement` -
+  (Optional)
+  (Beta only) Details of placement information for an instance.
     
 * `instance_type` -
   (Optional)
@@ -272,12 +276,22 @@ The `networking` block supports:
   (Optional)
   Optional. A human readable description of this cluster. Cannot be longer than 255 UTF-8 encoded bytes.
   
+* `logging_config` -
+  (Optional)
+  (Beta only) Logging configuration.
+  
 * `project` -
   (Optional)
   The project for the resource
   
 
 
+The `instance_placement` block supports:
+    
+* `tenancy` -
+  (Optional)
+  The tenancy for the instance. Possible values: TENANCY_UNSPECIFIED, DEFAULT, DEDICATED, HOST
+    
 The `main_volume` block supports:
     
 * `iops` -
@@ -329,6 +343,18 @@ The `ssh_config` block supports:
 * `ec2_key_pair` -
   (Required)
   The name of the EC2 key pair used to login into cluster machines.
+    
+The `logging_config` block supports:
+    
+* `component_config` -
+  (Optional)
+  Configuration of the logging components.
+    
+The `component_config` block supports:
+    
+* `enable_components` -
+  (Optional)
+  Components of the logging configuration to be enabled.
     
 ## Attributes Reference
 

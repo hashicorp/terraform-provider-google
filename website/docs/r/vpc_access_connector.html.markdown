@@ -106,6 +106,7 @@ resource "google_vpc_access_connector" "connector" {
   provider      = google-beta
   region        = "us-west1"
   ip_cidr_range = "10.8.0.0/28"
+  max_throughput= 300
   network       = google_compute_network.default.name
   depends_on    = [google_project_service.vpcaccess_api]
 }
@@ -156,7 +157,7 @@ resource "google_cloud_run_service" "gcr_service" {
         # Use the VPC Connector
         "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector.name
         # all egress from the service should go through the VPC Connector
-        "run.googleapis.com/vpc-access-egress" = "all"
+        "run.googleapis.com/vpc-access-egress" = "all-traffic"
       }
     }
   }

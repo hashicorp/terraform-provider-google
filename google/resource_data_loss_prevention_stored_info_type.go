@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceDataLossPreventionStoredInfoType() *schema.Resource {
@@ -356,11 +355,7 @@ func resourceDataLossPreventionStoredInfoTypePollRead(d *schema.ResourceData, me
 			return nil, err
 		}
 		if res == nil {
-			// Decoded object not found, spoof a 404 error for poll
-			return nil, &googleapi.Error{
-				Code:    404,
-				Message: "could not find object DataLossPreventionStoredInfoType",
-			}
+			return nil, fake404("decoded", "DataLossPreventionStoredInfoType")
 		}
 
 		return res, nil

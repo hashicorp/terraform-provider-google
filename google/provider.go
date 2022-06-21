@@ -197,6 +197,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_BIG_QUERY_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[BigQueryBasePathKey]),
 			},
+			"bigquery_connection_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BIGQUERY_CONNECTION_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[BigqueryConnectionBasePathKey]),
+			},
 			"bigquery_data_transfer_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -236,6 +244,14 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[BinaryAuthorizationBasePathKey]),
+			},
+			"certificate_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CERTIFICATE_MANAGER_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[CertificateManagerBasePathKey]),
 			},
 			"cloud_asset_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -388,6 +404,14 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DNS_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[DNSBasePathKey]),
+			},
+			"document_ai_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DOCUMENT_AI_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[DocumentAIBasePathKey]),
 			},
 			"essential_contacts_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -684,7 +708,7 @@ func Provider() *schema.Provider {
 			ContainerCustomEndpointEntryKey:         ContainerCustomEndpointEntry,
 			DataflowCustomEndpointEntryKey:          DataflowCustomEndpointEntry,
 			IamCredentialsCustomEndpointEntryKey:    IamCredentialsCustomEndpointEntry,
-			ResourceManagerV2CustomEndpointEntryKey: ResourceManagerV2CustomEndpointEntry,
+			ResourceManagerV3CustomEndpointEntryKey: ResourceManagerV3CustomEndpointEntry,
 			IAMCustomEndpointEntryKey:               IAMCustomEndpointEntry,
 			ServiceNetworkingCustomEndpointEntryKey: ServiceNetworkingCustomEndpointEntry,
 			ServiceUsageCustomEndpointEntryKey:      ServiceUsageCustomEndpointEntry,
@@ -693,7 +717,9 @@ func Provider() *schema.Provider {
 
 			// dcl
 			AssuredWorkloadsEndpointEntryKey:             AssuredWorkloadsEndpointEntry,
+			ClouddeployEndpointEntryKey:                  ClouddeployEndpointEntry,
 			CloudResourceManagerEndpointEntryKey:         CloudResourceManagerEndpointEntry,
+			DataplexEndpointEntryKey:                     DataplexEndpointEntry,
 			EventarcEndpointEntryKey:                     EventarcEndpointEntry,
 			FirebaserulesEndpointEntryKey:                FirebaserulesEndpointEntry,
 			GkeHubFeatureCustomEndpointEntryKey:          GkeHubFeatureCustomEndpointEntry,
@@ -816,6 +842,8 @@ func Provider() *schema.Provider {
 			"google_storage_object_signed_url":                    dataSourceGoogleSignedUrl(),
 			"google_storage_project_service_account":              dataSourceGoogleStorageProjectServiceAccount(),
 			"google_storage_transfer_project_service_account":     dataSourceGoogleStorageTransferProjectServiceAccount(),
+			"google_tags_tag_key":                                 dataSourceGoogleTagsTagKey(),
+			"google_tags_tag_value":                               dataSourceGoogleTagsTagValue(),
 			"google_tpu_tensorflow_versions":                      dataSourceTpuTensorflowVersions(),
 			"google_redis_instance":                               dataSourceGoogleRedisInstance(),
 			// ####### END datasources ###########
@@ -830,9 +858,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 217
+// Generated resources: 222
 // Generated IAM resources: 108
-// Total generated resources: 325
+// Total generated resources: 330
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -881,6 +909,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_table_iam_member":                             ResourceIamMember(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc),
 			"google_bigquery_table_iam_policy":                             ResourceIamPolicy(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc),
 			"google_bigquery_routine":                                      resourceBigQueryRoutine(),
+			"google_bigquery_connection":                                   resourceBigqueryConnectionConnection(),
 			"google_bigquery_data_transfer_config":                         resourceBigqueryDataTransferConfig(),
 			"google_bigquery_reservation":                                  resourceBigqueryReservationReservation(),
 			"google_bigtable_app_profile":                                  resourceBigtableAppProfile(),
@@ -890,6 +919,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_binary_authorization_attestor_iam_member":              ResourceIamMember(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_attestor_iam_policy":              ResourceIamPolicy(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_policy":                           resourceBinaryAuthorizationPolicy(),
+			"google_certificate_manager_dns_authorization":                 resourceCertificateManagerDnsAuthorization(),
+			"google_certificate_manager_certificate":                       resourceCertificateManagerCertificate(),
 			"google_cloud_asset_project_feed":                              resourceCloudAssetProjectFeed(),
 			"google_cloud_asset_folder_feed":                               resourceCloudAssetFolderFeed(),
 			"google_cloud_asset_organization_feed":                         resourceCloudAssetOrganizationFeed(),
@@ -1018,6 +1049,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dialogflow_cx_environment":                             resourceDialogflowCXEnvironment(),
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
 			"google_dns_policy":                                            resourceDNSPolicy(),
+			"google_document_ai_processor":                                 resourceDocumentAIProcessor(),
+			"google_document_ai_processor_default_version":                 resourceDocumentAIProcessorDefaultVersion(),
 			"google_essential_contacts_contact":                            resourceEssentialContactsContact(),
 			"google_filestore_instance":                                    resourceFilestoreInstance(),
 			"google_firestore_index":                                       resourceFirestoreIndex(),
@@ -1240,6 +1273,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_apikeys_key":                         resourceApikeysKey(),
 			"google_assured_workloads_workload":          resourceAssuredWorkloadsWorkload(),
 			"google_cloudbuild_worker_pool":              resourceCloudbuildWorkerPool(),
+			"google_clouddeploy_delivery_pipeline":       resourceClouddeployDeliveryPipeline(),
+			"google_clouddeploy_target":                  resourceClouddeployTarget(),
 			"google_compute_firewall_policy_association": resourceComputeFirewallPolicyAssociation(),
 			"google_compute_firewall_policy":             resourceComputeFirewallPolicy(),
 			"google_compute_firewall_policy_rule":        resourceComputeFirewallPolicyRule(),
@@ -1248,6 +1283,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_container_azure_client":              resourceContainerAzureClient(),
 			"google_container_azure_cluster":             resourceContainerAzureCluster(),
 			"google_container_azure_node_pool":           resourceContainerAzureNodePool(),
+			"google_dataplex_lake":                       resourceDataplexLake(),
 			"google_dataproc_workflow_template":          resourceDataprocWorkflowTemplate(),
 			"google_eventarc_trigger":                    resourceEventarcTrigger(),
 			"google_firebaserules_release":               resourceFirebaserulesRelease(),
@@ -1415,11 +1451,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ApigeeBasePath = d.Get("apigee_custom_endpoint").(string)
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
 	config.BigQueryBasePath = d.Get("big_query_custom_endpoint").(string)
+	config.BigqueryConnectionBasePath = d.Get("bigquery_connection_custom_endpoint").(string)
 	config.BigqueryDataTransferBasePath = d.Get("bigquery_data_transfer_custom_endpoint").(string)
 	config.BigqueryReservationBasePath = d.Get("bigquery_reservation_custom_endpoint").(string)
 	config.BigtableBasePath = d.Get("bigtable_custom_endpoint").(string)
 	config.BillingBasePath = d.Get("billing_custom_endpoint").(string)
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
+	config.CertificateManagerBasePath = d.Get("certificate_manager_custom_endpoint").(string)
 	config.CloudAssetBasePath = d.Get("cloud_asset_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
@@ -1439,6 +1477,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DialogflowBasePath = d.Get("dialogflow_custom_endpoint").(string)
 	config.DialogflowCXBasePath = d.Get("dialogflow_cx_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
+	config.DocumentAIBasePath = d.Get("document_ai_custom_endpoint").(string)
 	config.EssentialContactsBasePath = d.Get("essential_contacts_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
@@ -1482,7 +1521,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ContainerBasePath = d.Get(ContainerCustomEndpointEntryKey).(string)
 	config.DataflowBasePath = d.Get(DataflowCustomEndpointEntryKey).(string)
 	config.IamCredentialsBasePath = d.Get(IamCredentialsCustomEndpointEntryKey).(string)
-	config.ResourceManagerV2BasePath = d.Get(ResourceManagerV2CustomEndpointEntryKey).(string)
+	config.ResourceManagerV3BasePath = d.Get(ResourceManagerV3CustomEndpointEntryKey).(string)
 	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
 	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
@@ -1492,7 +1531,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	// dcl
 	config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
 	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
+	config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
 	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
+	config.DataplexBasePath = d.Get(DataplexEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
 	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)

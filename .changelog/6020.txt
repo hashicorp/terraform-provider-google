@@ -1,0 +1,6 @@
+```release-note:enhancement
+bigquery connection: Added connection of type cloud_resource for `google_bigquery_connection`
+```
+```release-note:enhancement
+bigquery connection: Made `google_bigquery_connection` part of GA terraform provider.
+```

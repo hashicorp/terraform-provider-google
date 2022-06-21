@@ -54,7 +54,7 @@ func testAccMemcacheInstance_memcacheInstanceBasicExample(context map[string]int
 	return Nprintf(`
 // This example assumes this network already exists.
 // The API creates a tenant network per network authorized for a
-// Redis instance and that network is not deleted when the user-created
+// Memcache instance and that network is not deleted when the user-created
 // network (authorized_network) is deleted, so this prevents issues
 // with tenant network quota.
 // If this network hasn't been created and you are using this example in your
@@ -88,6 +88,19 @@ resource "google_memcache_instance" "instance" {
   }
   node_count = 1
   memcache_version = "MEMCACHE_1_5"
+
+  maintenance_policy {
+    weekly_maintenance_window {
+      day      = "SATURDAY"
+      duration = "14400s"
+      start_time {
+        hours = 0
+        minutes = 30
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
 }
 `, context)
 }

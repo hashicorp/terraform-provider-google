@@ -63,6 +63,17 @@ resource "google_gke_hub_feature" "feature" {
 }
 ```
 
+## Example Usage - Enable Anthos Service Mesh
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  provider = google-beta
+
+  name = "servicemesh"
+  location = "global"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -76,31 +87,31 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   GCP labels for this Feature.
-  
+
 * `name` -
   (Optional)
   The full, unique name of this Feature resource
-  
+
 * `project` -
   (Optional)
   The project for the resource
-  
+
 * `spec` -
   (Optional)
   Optional. Hub-wide Feature configuration. If this Feature does not support any Hub-wide configuration, this field may be unused.
-  
+
 
 The `spec` block supports:
-    
+
 * `multiclusteringress` -
   (Optional)
   Multicluster Ingress-specific spec.
     The `multiclusteringress` block supports:
-    
+
 * `config_membership` -
   (Optional)
   Fully-qualified Membership name which hosts the MultiClusterIngress CRD. Example: `projects/foo-proj/locations/global/memberships/bar`
-    
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -109,13 +120,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Output only. When the Feature resource was created.
-  
+
 * `delete_time` -
   Output only. When the Feature resource was deleted.
-  
+
 * `update_time` -
   Output only. When the Feature resource was last updated.
-  
+
 ## Timeouts
 
 This resource provides the following

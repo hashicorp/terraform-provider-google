@@ -167,7 +167,7 @@ func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 	})
 }
 
-func TestAccComputeRouterNat_withDisabledIndependentEndpointMapping(t *testing.T) {
+func TestAccComputeRouterNat_withPortAllocationMethods(t *testing.T) {
 	t.Parallel()
 
 	testId := randString(t, 10)
@@ -179,7 +179,7 @@ func TestAccComputeRouterNat_withDisabledIndependentEndpointMapping(t *testing.T
 		CheckDestroy: testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName, true),
+				Config: testAccComputeRouterNatWithAllocationMethod(routerName, true, false),
 			},
 			{
 				ResourceName:      "google_compute_router_nat.foobar",
@@ -187,7 +187,7 @@ func TestAccComputeRouterNat_withDisabledIndependentEndpointMapping(t *testing.T
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName, false),
+				Config: testAccComputeRouterNatWithAllocationMethod(routerName, false, false),
 			},
 			{
 				ResourceName:      "google_compute_router_nat.foobar",
@@ -195,7 +195,15 @@ func TestAccComputeRouterNat_withDisabledIndependentEndpointMapping(t *testing.T
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName, true),
+				Config: testAccComputeRouterNatWithAllocationMethod(routerName, true, false),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatWithAllocationMethod(routerName, false, true),
 			},
 			{
 				ResourceName:      "google_compute_router_nat.foobar",
@@ -552,7 +560,7 @@ resource "google_compute_router_nat" "foobar" {
 `, routerName, routerName, routerName, routerName, routerName)
 }
 
-func testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName string, enabled bool) string {
+func testAccComputeRouterNatWithAllocationMethod(routerName string, enableEndpointIndependentMapping, enableDynamicPortAllocation bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
   name                    = "%s-net"
@@ -592,8 +600,9 @@ resource "google_compute_router_nat" "foobar" {
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
   enable_endpoint_independent_mapping = %t
+  enable_dynamic_port_allocation = %t
 }
-`, routerName, routerName, routerName, routerName, routerName, enabled)
+`, routerName, routerName, routerName, routerName, routerName, enableEndpointIndependentMapping, enableDynamicPortAllocation)
 }
 
 func testAccComputeRouterNatKeepRouter(routerName string) string {

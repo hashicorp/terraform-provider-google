@@ -1161,6 +1161,12 @@ The following arguments are supported:
   specified, it is assumed to be PREMIUM.
   Possible values are `PREMIUM` and `STANDARD`.
 
+* `service_directory_registrations` -
+  (Optional)
+  Service Directory resources to register this forwarding rule with. Currently,
+  only supports a single Service Directory resource.
+  Structure is [documented below](#nested_service_directory_registrations).
+
 * `service_label` -
   (Optional)
   An optional prefix to the service name for this Forwarding Rule.
@@ -1183,6 +1189,16 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+<a name="nested_service_directory_registrations"></a>The `service_directory_registrations` block supports:
+
+* `namespace` -
+  (Optional)
+  Service Directory namespace to register the forwarding rule under.
+
+* `service` -
+  (Optional)
+  Service Directory service to register the forwarding rule under.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -1191,6 +1207,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `psc_connection_id` -
+  The PSC connection id of the PSC Forwarding Rule.
+
+* `psc_connection_status` -
+  The PSC connection status of the PSC Forwarding Rule. Possible values: STATUS_UNSPECIFIED, PENDING, ACCEPTED, REJECTED, CLOSED
 
 * `label_fingerprint` -
   ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

@@ -38,7 +38,7 @@ To get more information about BackendService, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 
 ~> **Warning:** All arguments including `iap.oauth2_client_secret` and `iap.oauth2_client_secret_sha256` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/language/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -84,6 +84,32 @@ resource "google_compute_http_health_check" "default" {
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_cache_include_named_cookies&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Cache Include Named Cookies
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "CACHE_ALL_STATIC"
+    default_ttl = 3600
+    client_ttl  = 7200
+    max_ttl     = 10800
+    cache_key_policy {
+      include_host = true
+      include_protocol = true
+      include_query_string = true
+      include_named_cookies = ["__next_preview_data", "__prerender_bypass"]
+    }
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -722,6 +748,10 @@ The following arguments are supported:
   query_string_whitelist or query_string_blacklist, not both.
   '&' and '=' will be percent encoded and not treated as
   delimiters.
+
+* `include_named_cookies` -
+  (Optional)
+  Names of cookies to include in cache keys.
 
 <a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 

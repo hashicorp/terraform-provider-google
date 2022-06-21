@@ -1,7 +1,7 @@
 ---
 layout: "google"
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_router"
+page_title: "Google: google_compute_router_status"
 sidebar_current: "docs-google-datasource-compute-router-status"
 description: |-
   Get a Cloud Router's Status.

@@ -99,7 +99,7 @@ Example value: "v1", "v2".`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"app_engine", "cloud_function", "cloud_run"},
+				ConflictsWith: []string{"cloud_run", "cloud_function"},
 			},
 			"cloud_function": {
 				Type:     schema.TypeList,
@@ -134,7 +134,7 @@ will parse them to { function = "function1" } and { function = "function2" } res
 						},
 					},
 				},
-				ExactlyOneOf: []string{"app_engine", "cloud_function", "cloud_run"},
+				ConflictsWith: []string{"cloud_run", "app_engine"},
 			},
 			"cloud_run": {
 				Type:     schema.TypeList,
@@ -179,7 +179,7 @@ and { service="bar2", tag="foo2" } respectively.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_run", "cloud_function", "app_engine"},
+				ConflictsWith: []string{"app_engine", "cloud_function"},
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -192,9 +192,16 @@ you create the resource.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"SERVERLESS", ""}),
-				Description:  `Type of network endpoints in this network endpoint group. Defaults to SERVERLESS Default value: "SERVERLESS" Possible values: ["SERVERLESS"]`,
+				ValidateFunc: validateEnum([]string{"SERVERLESS", "PRIVATE_SERVICE_CONNECT", ""}),
+				Description:  `Type of network endpoints in this network endpoint group. Defaults to SERVERLESS Default value: "SERVERLESS" Possible values: ["SERVERLESS", "PRIVATE_SERVICE_CONNECT"]`,
 				Default:      "SERVERLESS",
+			},
+			"psc_target_service": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The target service url used to set up private service connection to
+a Google API or a PSC Producer Service Attachment.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -236,6 +243,12 @@ func resourceComputeRegionNetworkEndpointGroupCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("network_endpoint_type"); !isEmptyValue(reflect.ValueOf(networkEndpointTypeProp)) && (ok || !reflect.DeepEqual(v, networkEndpointTypeProp)) {
 		obj["networkEndpointType"] = networkEndpointTypeProp
+	}
+	pscTargetServiceProp, err := expandComputeRegionNetworkEndpointGroupPscTargetService(d.Get("psc_target_service"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("psc_target_service"); !isEmptyValue(reflect.ValueOf(pscTargetServiceProp)) && (ok || !reflect.DeepEqual(v, pscTargetServiceProp)) {
+		obj["pscTargetService"] = pscTargetServiceProp
 	}
 	cloudRunProp, err := expandComputeRegionNetworkEndpointGroupCloudRun(d.Get("cloud_run"), d, config)
 	if err != nil {
@@ -351,6 +364,9 @@ func resourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 	if err := d.Set("network_endpoint_type", flattenComputeRegionNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
 	}
+	if err := d.Set("psc_target_service", flattenComputeRegionNetworkEndpointGroupPscTargetService(res["pscTargetService"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
 	if err := d.Set("cloud_run", flattenComputeRegionNetworkEndpointGroupCloudRun(res["cloudRun"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
 	}
@@ -448,6 +464,10 @@ func flattenComputeRegionNetworkEndpointGroupNetworkEndpointType(v interface{}, 
 	return v
 }
 
+func flattenComputeRegionNetworkEndpointGroupPscTargetService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionNetworkEndpointGroupCloudRun(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -542,6 +562,10 @@ func expandComputeRegionNetworkEndpointGroupDescription(v interface{}, d Terrafo
 }
 
 func expandComputeRegionNetworkEndpointGroupNetworkEndpointType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkEndpointGroupPscTargetService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

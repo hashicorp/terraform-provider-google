@@ -1,0 +1,21 @@
+```release-note: enhancement
+compute: added `service_directory_registrations` to `google_compute_forwarding_rule` resource
+```
+```release-note:enhancement
+containeraws: added `proxy_config` to `google_container_aws_node_pool` resource
+```
+```release-note:enhancement
+containerazure: added `proxy_config` to `google_container_azure_node_pool` resource
+```
+```release-note:enhancement
+containeraws: added `instance_placement` and `logging_config` to `google_container_aws_cluster` resource (beta)
+```
+```release-note:enhancement
+containeraws: added `image_type` and `instance_placement` to `google_container_aws_node_pool` resource (beta)
+```
+```release-note:enhancement
+containerazure: added `logging_config` to `google_container_azure_cluster` resource (beta)
+```
+```release-note:enhancement
+containerazure: added `image_type` to `google_container_azure_node_pool` resource (beta)
+```

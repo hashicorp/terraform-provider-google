@@ -104,9 +104,12 @@ resource "google_cloud_run_service" "default" {
 		spec {
 			containers {
 				image = "gcr.io/cloudrun/hello"
-				args  = ["arrgs"]
+				ports {
+					container_port = 8080
+				}
 			}
-		container_concurrency = 50
+			container_concurrency = 50
+			timeout_seconds = 100
 		}
 	}
 
@@ -157,9 +160,12 @@ resource "google_cloud_run_service" "default" {
 		spec {
 			containers {
 				image = "gcr.io/cloudrun/hello"
-				args  = ["arrgs"]
+				ports {
+					container_port = 8080
+				}
 			}
-		container_concurrency = 50
+			container_concurrency = 50
+			timeout_seconds = 100
 		}
 	}
 
@@ -181,9 +187,12 @@ resource "google_cloud_run_service" "default2" {
 		spec {
 			containers {
 				image = "gcr.io/cloudrun/hello"
-				args  = ["arrgs"]
+				ports {
+					container_port = 8080
+				}
 			}
-		container_concurrency = 50
+			container_concurrency = 50
+			timeout_seconds = 100
 		}
 	}
 
@@ -243,9 +252,12 @@ resource "google_cloud_run_service" "default" {
 		spec {
 			containers {
 				image = "gcr.io/cloudrun/hello"
-				args  = ["arrgs"]
+				ports {
+					container_port = 8080
+				}
 			}
-		container_concurrency = 50
+			container_concurrency = 50
+			timeout_seconds = 100
 		}
 	}
 
@@ -267,9 +279,12 @@ resource "google_cloud_run_service" "default2" {
 		spec {
 			containers {
 				image = "gcr.io/cloudrun/hello"
-				args  = ["arrgs"]
+				ports {
+					container_port = 8080
+				}
 			}
-		container_concurrency = 50
+			container_concurrency = 50
+			timeout_seconds = 100
 		}
 	}
 

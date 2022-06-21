@@ -118,6 +118,18 @@ attachment.`,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"domain_names": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `If specified, the domain name will be used during the integration between
+the PSC connected endpoints and the Cloud DNS. For example, this is a
+valid domain name: "p.mycompany.com.". Current max number of domain names
+supported is 1.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -217,6 +229,12 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); !isEmptyValue(reflect.ValueOf(enableProxyProtocolProp)) && (ok || !reflect.DeepEqual(v, enableProxyProtocolProp)) {
 		obj["enableProxyProtocol"] = enableProxyProtocolProp
+	}
+	domainNamesProp, err := expandComputeServiceAttachmentDomainNames(d.Get("domain_names"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("domain_names"); !isEmptyValue(reflect.ValueOf(domainNamesProp)) && (ok || !reflect.DeepEqual(v, domainNamesProp)) {
+		obj["domainNames"] = domainNamesProp
 	}
 	consumerRejectListsProp, err := expandComputeServiceAttachmentConsumerRejectLists(d.Get("consumer_reject_lists"), d, config)
 	if err != nil {
@@ -339,6 +357,9 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("enable_proxy_protocol", flattenComputeServiceAttachmentEnableProxyProtocol(res["enableProxyProtocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err := d.Set("domain_names", flattenComputeServiceAttachmentDomainNames(res["domainNames"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("consumer_reject_lists", flattenComputeServiceAttachmentConsumerRejectLists(res["consumerRejectLists"], d, config)); err != nil {
@@ -573,6 +594,10 @@ func flattenComputeServiceAttachmentEnableProxyProtocol(v interface{}, d *schema
 	return v
 }
 
+func flattenComputeServiceAttachmentDomainNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeServiceAttachmentConsumerRejectLists(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -665,6 +690,10 @@ func expandComputeServiceAttachmentNatSubnets(v interface{}, d TerraformResource
 }
 
 func expandComputeServiceAttachmentEnableProxyProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeServiceAttachmentDomainNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

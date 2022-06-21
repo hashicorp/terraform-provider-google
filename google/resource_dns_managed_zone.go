@@ -245,6 +245,17 @@ blocks in an update and then apply another update adding all of them back simult
 while private zones are visible only to Virtual Private Cloud resources. Default value: "public" Possible values: ["private", "public"]`,
 				Default: "public",
 			},
+			"creation_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The time that this resource was created on the server.
+This is in RFC3339 text format.`,
+			},
+			"managed_zone_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Unique identifier for the resource; defined by the server.`,
+			},
 			"name_servers": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -453,10 +464,16 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("dnssec_config", flattenDNSManagedZoneDnssecConfig(res["dnssecConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
+	if err := d.Set("managed_zone_id", flattenDNSManagedZoneManagedZoneID(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
 	if err := d.Set("name", flattenDNSManagedZoneName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("name_servers", flattenDNSManagedZoneNameServers(res["nameServers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err := d.Set("creation_time", flattenDNSManagedZoneCreationTime(res["creationTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("labels", flattenDNSManagedZoneLabels(res["labels"], d, config)); err != nil {
@@ -500,17 +517,35 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	dnsNameProp, err := expandDNSManagedZoneDnsName(d.Get("dns_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dns_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnsNameProp)) {
+		obj["dnsName"] = dnsNameProp
+	}
 	dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
 		obj["dnssecConfig"] = dnssecConfigProp
 	}
+	nameProp, err := expandDNSManagedZoneName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	visibilityProp, err := expandDNSManagedZoneVisibility(d.Get("visibility"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("visibility"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, visibilityProp)) {
+		obj["visibility"] = visibilityProp
 	}
 	privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
 	if err != nil {
@@ -531,6 +566,11 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["peeringConfig"] = peeringConfigProp
 	}
 
+	obj, err = resourceDNSManagedZoneUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return err
@@ -543,7 +583,7 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
@@ -775,11 +815,32 @@ func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d *sche
 	return v
 }
 
+func flattenDNSManagedZoneManagedZoneID(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenDNSManagedZoneName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
 func flattenDNSManagedZoneNameServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDNSManagedZoneCreationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1222,4 +1283,18 @@ func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d T
 		return "", err
 	}
 	return ConvertSelfLinkToV1(url), nil
+}
+
+func resourceDNSManagedZoneUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// The upstream update method (https://cloud.google.com/dns/docs/reference/v1/managedZones/update)
+	// requires the full ManagedZones object, therefore, we need to keep some input only values in the struct
+	// and then reuse it in the update
+	nameServers, ok := d.GetOkExists("name_servers")
+	if !ok {
+		nameServers = []string{}
+	}
+	obj["nameServers"] = nameServers
+	obj["id"] = d.Get("managed_zone_id")
+	obj["creationTime"] = d.Get("creation_time")
+	return obj, nil
 }

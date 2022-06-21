@@ -45,6 +45,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
+  domain_names             = ["gcp.tfacc.hashicorptest.com."]
   enable_proxy_protocol    = true
   connection_preference    = "ACCEPT_AUTOMATIC"
   nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
@@ -133,6 +134,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
+  domain_names             = ["gcp.tfacc.hashicorptest.com."]
   enable_proxy_protocol    = true
   connection_preference    = "ACCEPT_MANUAL"
   nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
@@ -257,6 +259,13 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `domain_names` -
+  (Optional)
+  If specified, the domain name will be used during the integration between
+  the PSC connected endpoints and the Cloud DNS. For example, this is a
+  valid domain name: "p.mycompany.com.". Current max number of domain names
+  supported is 1.
 
 * `consumer_reject_lists` -
   (Optional)

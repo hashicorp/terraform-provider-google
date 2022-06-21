@@ -172,6 +172,25 @@ resource "google_project_iam_member" "logs_writer" {
   member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
 }
 ```
+## Example Usage - Cloudbuild Trigger Include Build Logs
+
+
+```hcl
+resource "google_cloudbuild_trigger" "include-build-logs-trigger" {
+  name     = "include-build-logs-trigger"
+  filename = "cloudbuild.yaml"
+
+  github {
+    owner = "hashicorp"
+    name  = "terraform-provider-google-beta"
+    push {
+      branch = "^main$"
+    }
+  }
+
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_pubsub_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -355,6 +374,13 @@ The following arguments are supported:
   If no service account is set, then the standard Cloud Build service account
   ([PROJECT_NUM]@system.gserviceaccount.com) will be used instead.
   Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}
+
+* `include_build_logs` -
+  (Optional)
+  Build logs will be sent back to GitHub as part of the checkrun
+  result.  Values can be INCLUDE_BUILD_LOGS_UNSPECIFIED or
+  INCLUDE_BUILD_LOGS_WITH_STATUS
+  Possible values are `INCLUDE_BUILD_LOGS_UNSPECIFIED` and `INCLUDE_BUILD_LOGS_WITH_STATUS`.
 
 * `filename` -
   (Optional)

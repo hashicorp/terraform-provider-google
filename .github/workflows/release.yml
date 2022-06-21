@@ -5,59 +5,47 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
-env:
-  GOPROXY: https://proxy.golang.org/
-  PROTOCOL_VERSION: "5.0"
-  PROTOCOL_VERSIONS: "5.0"
-  SIGNER: interim_signing_subkey_7685B676
+permissions:
+  contents: write
 
 jobs:
-  Release:
+  go-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.go-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: go-version
+        run: echo "::set-output name=version::$(cat ./.go-version)"
+  release-notes:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Read go version
-        id: go-version
-        run: |
-          content=`cat ./.go-version`
-          echo "::set-output name=content::$content"
-      - uses: actions/setup-go@v2
+      - name: Generate Release Notes
+        run: sed -n -e "1{/# /d;}" -e "2{/^$/d;}" -e "/# $(git describe --abbrev=0 --exclude="$(git describe --abbrev=0 --match='v*.*.*' --tags)" --match='v*.*.*' --tags | tr -d v)/q;p" CHANGELOG.md > release-notes.txt
+      - uses: actions/upload-artifact@v2
         with:
-          # TODO: Replace with go-version-from-file when it is supported
-          # https://github.com/actions/setup-go/pull/62
-          go-version: ${{ steps.go-version.outputs.content }}
-      - uses: hashicorp/setup-hc-releases@v1
-        with:
-          github-token: ${{ secrets.HASHI_RELEASES_GITHUB_TOKEN }}
-          signer: ${{ env.SIGNER }}
-      - uses: hashicorp/setup-signore@v2
-        with:
-          github-token: ${{ secrets.HASHI_SIGNORE_GITHUB_TOKEN }}
-          signer: interim_signing_subkey_768B676
-      - name: Release Notes
-        run: sed -n -e "1{/# /d;}" -e "2{/^$/d;}" -e "/# \[$(git describe --abbrev=0 --exclude="$(git describe --abbrev=0 --match='v*.*.*' --tags)" --match='v*.*.*' --tags | tr -d v)/q;p" CHANGELOG.md > /tmp/RELEASE-NOTES.md
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.TF_PROVIDER_RELEASE_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.TF_PROVIDER_RELEASE_AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.TF_PROVIDER_RELEASE_AWS_ROLE_ARN }}
-          role-duration-seconds: 3600
-          # TODO: allow session tagging once IAM permission changes addressed
-          # Reference: https://github.com/hashicorp/hc-releases/issues/124
-          role-skip-session-tagging: true
-      - name: goreleaser release
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          args: release --release-notes /tmp/RELEASE-NOTES.md --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SIGNORE_CLIENT_ID: ${{ secrets.SIGNORE_CLIENT_ID }}
-          SIGNORE_CLIENT_SECRET: ${{ secrets.SIGNORE_CLIENT_SECRET }}
-      - name: hc-releases publish
-        run: hc-releases publish -product=${{ github.event.repository.name }}
-        env:
-          FASTLY_API_TOKEN: ${{ secrets.HASHI_FASTLY_PURGE_TOKEN }}
-          TERRAFORM_REGISTRY_SYNC_TOKEN: ${{ secrets.TF_PROVIDER_RELEASE_TERRAFORM_REGISTRY_SYNC_TOKEN }}
+          name: release-notes
+          path: release-notes.txt
+          retention-days: 1
+  terraform-provider-release:
+    name: 'Terraform Provider Release'
+    needs: [go-version, release-notes]
+    uses: hashicorp/ghaction-terraform-provider-release/.github/workflows/hashicorp.yml@v2
+    secrets:
+      hc-releases-github-token: '${{ secrets.HASHI_RELEASES_GITHUB_TOKEN }}'
+      hc-releases-host-staging: '${{ secrets.HC_RELEASES_HOST_STAGING }}'
+      hc-releases-host-prod: '${{ secrets.HC_RELEASES_HOST_PROD }}'
+      hc-releases-key-prod: '${{ secrets.HC_RELEASES_KEY_PROD }}'
+      hc-releases-key-staging: '${{ secrets.HC_RELEASES_KEY_STAGING }}'
+      hc-releases-terraform-registry-sync-token: '${{ secrets.TF_PROVIDER_RELEASE_TERRAFORM_REGISTRY_SYNC_TOKEN }}'
+      setup-signore-github-token: '${{ secrets.HASHI_SIGNORE_GITHUB_TOKEN }}'
+      signore-client-id: '${{ secrets.SIGNORE_CLIENT_ID }}'
+      signore-client-secret: '${{ secrets.SIGNORE_CLIENT_SECRET }}'
+    with:
+      release-notes: true
+      setup-go-version: '${{ needs.go-version.outputs.version }}'
+      # Product Version (e.g. v1.2.3 or github.ref_name)
+      product-version: '${{ github.ref_name }}'

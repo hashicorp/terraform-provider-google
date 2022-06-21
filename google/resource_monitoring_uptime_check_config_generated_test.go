@@ -71,8 +71,15 @@ resource "google_monitoring_uptime_check_config" "http" {
   }
 
   content_matchers {
-    content = "example"
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
   }
+
+  checker_type = "STATIC_IP_CHECKERS"
 }
 `, context)
 }
@@ -125,6 +132,11 @@ resource "google_monitoring_uptime_check_config" "https" {
 
   content_matchers {
     content = "example"
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "REGEX_MATCH"
+    }
   }
 }
 `, context)

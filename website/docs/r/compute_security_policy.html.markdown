@@ -64,6 +64,18 @@ The following arguments are supported:
     rule (rule with priority 2147483647 and match "\*"). If no rules are provided when creating a
     security policy, a default rule with action "allow" will be added. Structure is [documented below](#nested_rule).
 
+* `advanced_options_config` - (Optional) [Advanced Configuration Options](https://cloud.google.com/armor/docs/security-policy-overview#json-parsing).
+
+<a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
+
+* `json_parsing` - Whether or not to JSON parse the payload body. Defaults to `DISABLED`.
+  * DISABLED - Don't parse JSON payloads in POST bodies.
+  * STANDARD - Parse JSON payloads in POST bodies.
+
+* `log_level` - Log level to use. Defaults to `NORMAL`.
+  * NORMAL - Normal log level.
+  * VERBOSE - Verbose log level.
+
 * `adaptive_protection_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for [Google Cloud Armor Adaptive Protection](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_adaptive_protection_config).
 
 * `type` - The type indicates the intended use of the security policy.

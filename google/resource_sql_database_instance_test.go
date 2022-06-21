@@ -1027,6 +1027,32 @@ func TestAccSqlDatabaseInstance_insights(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_ActiveDirectory(t *testing.T) {
+	t.Parallel()
+	databaseName := "tf-test-" + randString(t, 10)
+	networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-test-ad")
+	addressName := "tf-test-" + randString(t, 10)
+	rootPassword := randString(t, 15)
+	adDomainName := BootstrapSharedTestADDomain(t, "test-domain", networkName)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_ActiveDirectoryConfig(databaseName, networkName, addressName, rootPassword, adDomainName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance-with-ad",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+		},
+	})
+}
+
 var testGoogleSqlDatabaseInstance_basic2 = `
 resource "google_sql_database_instance" "instance" {
   region              = "us-central1"
@@ -1062,6 +1088,47 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `
+
+func testGoogleSqlDatabaseInstance_ActiveDirectoryConfig(databaseName, networkName, addressRangeName, rootPassword, adDomainName string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_compute_global_address" "foobar" {
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.servicenet.self_link
+}
+
+resource "google_service_networking_connection" "foobar" {
+  network                 = data.google_compute_network.servicenet.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.foobar.name]
+}
+
+resource "google_sql_database_instance" "instance-with-ad" {
+  depends_on = [google_service_networking_connection.foobar]
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password    = "%s"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-2-7680"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+
+    active_directory_config {
+      domain = "%s"
+    }
+  }
+}`, networkName, addressRangeName, databaseName, rootPassword, adDomainName)
+}
 
 func testGoogleSqlDatabaseInstanceConfig_withoutReplica(instanceName string) string {
 	return fmt.Sprintf(`

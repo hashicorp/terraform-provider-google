@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: Added `external_resources` to `egress_to` in `google_access_context_manager_service_perimeter` and `google_access_context_manager_service_perimeters` resource
+```

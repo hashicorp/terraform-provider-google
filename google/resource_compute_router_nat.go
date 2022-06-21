@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
@@ -180,6 +179,16 @@ valid static external IPs that have been assigned to the NAT.`,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
 				// Default schema.HashSchema is used.
+			},
+			"enable_dynamic_port_allocation": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Description: `Enable Dynamic Port Allocation.
+If minPorts is set, minPortsPerVm must be set to a power of two greater than or equal to 32. 
+If minPortsPerVm is not set, a minimum of 32 ports will be allocated to a VM from this NAT config.
+
+Mutually exclusive with enableEndpointIndependentMapping.`,
 			},
 			"enable_endpoint_independent_mapping": {
 				Type:     schema.TypeBool,
@@ -366,6 +375,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(minPortsPerVmProp)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
 		obj["minPortsPerVm"] = minPortsPerVmProp
 	}
+	enableDynamicPortAllocationProp, err := expandNestedComputeRouterNatEnableDynamicPortAllocation(d.Get("enable_dynamic_port_allocation"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_dynamic_port_allocation"); !isEmptyValue(reflect.ValueOf(enableDynamicPortAllocationProp)) && (ok || !reflect.DeepEqual(v, enableDynamicPortAllocationProp)) {
+		obj["enableDynamicPortAllocation"] = enableDynamicPortAllocationProp
+	}
 	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
@@ -528,6 +543,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("min_ports_per_vm", flattenNestedComputeRouterNatMinPortsPerVm(res["minPortsPerVm"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
+	if err := d.Set("enable_dynamic_port_allocation", flattenNestedComputeRouterNatEnableDynamicPortAllocation(res["enableDynamicPortAllocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
 	if err := d.Set("udp_idle_timeout_sec", flattenNestedComputeRouterNatUdpIdleTimeoutSec(res["udpIdleTimeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
@@ -601,6 +619,12 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
 		obj["minPortsPerVm"] = minPortsPerVmProp
+	}
+	enableDynamicPortAllocationProp, err := expandNestedComputeRouterNatEnableDynamicPortAllocation(d.Get("enable_dynamic_port_allocation"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_dynamic_port_allocation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableDynamicPortAllocationProp)) {
+		obj["enableDynamicPortAllocation"] = enableDynamicPortAllocationProp
 	}
 	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
 	if err != nil {
@@ -844,6 +868,10 @@ func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.Resourc
 	return v // let terraform core handle it otherwise
 }
 
+func flattenNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return 30
@@ -1032,6 +1060,10 @@ func expandNestedComputeRouterNatMinPortsPerVm(v interface{}, d TerraformResourc
 	return v, nil
 }
 
+func expandNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1210,10 +1242,7 @@ func resourceComputeRouterNatPatchDeleteEncoder(d *schema.ResourceData, meta int
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "RouterNat not found in list",
-		}
+		return nil, fake404("nested", "ComputeRouterNat")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)

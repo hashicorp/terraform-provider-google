@@ -144,6 +144,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function"),
 					resource.TestCheckResourceAttr(funcResourceName,
+						"docker_registry", "CONTAINER_REGISTRY"),
+					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"max_instances", "10"),
@@ -215,6 +217,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"available_memory_mb", "256"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function updated"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"docker_registry", "CONTAINER_REGISTRY"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "91"),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -695,6 +699,7 @@ resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
   runtime               = "nodejs10"
   description           = "test function"
+  docker_registry       = "CONTAINER_REGISTRY"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -731,16 +736,18 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name                  = "%s"
-  description           = "test function updated"
-  available_memory_mb   = 256
-  source_archive_bucket = google_storage_bucket.bucket.name
-  source_archive_object = google_storage_bucket_object.archive.name
-  trigger_http          = true
-  runtime               = "nodejs10"
-  timeout               = 91
-  entry_point           = "helloGET"
-  ingress_settings      = "ALLOW_ALL"
+  name                         = "%s"
+  description                  = "test function updated"
+  docker_registry              = "CONTAINER_REGISTRY"
+  available_memory_mb          = 256
+  source_archive_bucket        = google_storage_bucket.bucket.name
+  source_archive_object        = google_storage_bucket_object.archive.name
+  trigger_http                 = true
+  https_trigger_security_level = "SECURE_ALWAYS"
+  runtime                      = "nodejs10"
+  timeout                      = 91
+  entry_point                  = "helloGET"
+  ingress_settings             = "ALLOW_ALL"
   labels = {
     my-label    = "my-updated-label-value"
     a-new-label = "a-new-label-value"

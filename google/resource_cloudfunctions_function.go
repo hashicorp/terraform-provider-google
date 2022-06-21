@@ -146,6 +146,25 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				},
 			},
 
+			"docker_registry": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Docker Registry to use for storing the function's Docker images. Allowed values are CONTAINER_REGISTRY (default) and ARTIFACT_REGISTRY.`,
+			},
+
+			"docker_repository": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `User managed repository created in Artifact Registry optionally with a customer managed encryption key. If specified, deployments will use Artifact Registry for storing images built with Cloud Build.`,
+			},
+
+			"kms_key_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources.`,
+			},
+
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -285,16 +304,11 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `URL which triggers function execution. Returned only if trigger_http is used.`,
 			},
 
-			"docker_repository": {
+			"https_trigger_security_level": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The user managed Artifact Repository optionally with a customer managed encryption key. If specified, deployments will use Artifact Registry. If unspecified and the deployment is eligible to use Artifact Registry, GCF will create and use a repository named 'gcf-artifacts' for every deployed region.`,
-			},
-
-			"kms_key_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The Cloud KMS resource name of the customer managed encryption key that’s used to encrypt the contents of the Repository. Has the form: 'projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key'. If specified, you must also provide an artifact registry repository using the docker_repository field that was created with the same KMS crypto key.`,
+				Computed:    true,
+				Description: `The security level for the function. Defaults to SECURE_OPTIONAL. Valid only if trigger_http is used.`,
 			},
 
 			"max_instances": {
@@ -481,6 +495,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.EventTrigger = expandEventTrigger(v.([]interface{}), project)
 	} else if v, ok := d.GetOk("trigger_http"); ok && v.(bool) {
 		function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
+		function.HttpsTrigger.SecurityLevel = d.Get("https_trigger_security_level").(string)
 	} else {
 		return fmt.Errorf("One of `event_trigger` or `trigger_http` is required: " +
 			"You must specify a trigger when deploying a new function.")
@@ -510,12 +525,16 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.VpcConnectorEgressSettings = v.(string)
 	}
 
+	if v, ok := d.GetOk("docker_registry"); ok {
+		function.DockerRegistry = v.(string)
+	}
+
 	if v, ok := d.GetOk("docker_repository"); ok {
-		function.KmsKeyName = v.(string)
+		function.DockerRepository = v.(string)
 	}
 
 	if v, ok := d.GetOk("kms_key_name"); ok {
-		function.DockerRepository = v.(string)
+		function.KmsKeyName = v.(string)
 	}
 
 	if v, ok := d.GetOk("max_instances"); ok {
@@ -644,10 +663,16 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		if err := d.Set("https_trigger_url", function.HttpsTrigger.Url); err != nil {
 			return fmt.Errorf("Error setting https_trigger_url: %s", err)
 		}
+		if err := d.Set("https_trigger_security_level", function.HttpsTrigger.SecurityLevel); err != nil {
+			return fmt.Errorf("Error setting https_trigger_security_level: %s", err)
+		}
 	}
 
 	if err := d.Set("event_trigger", flattenEventTrigger(function.EventTrigger)); err != nil {
 		return fmt.Errorf("Error setting event_trigger: %s", err)
+	}
+	if err := d.Set("docker_registry", function.DockerRegistry); err != nil {
+		return fmt.Errorf("Error setting docker_registry: %s", err)
 	}
 	if err := d.Set("docker_repository", function.DockerRepository); err != nil {
 		return fmt.Errorf("Error setting docker_repository: %s", err)
@@ -780,14 +805,24 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
 	}
 
-	if d.HasChange("kms_key_name") {
-		function.KmsKeyName = d.Get("kms_key_name").(string)
-		updateMaskArr = append(updateMaskArr, "kms_key_name")
+	if d.HasChange("https_trigger_security_level") {
+		function.HttpsTrigger.SecurityLevel = d.Get("https_trigger_security_level").(string)
+		updateMaskArr = append(updateMaskArr, "httpsTrigger", "httpsTrigger.securityLevel")
+	}
+
+	if d.HasChange("docker_registry") {
+		function.DockerRegistry = d.Get("docker_registry").(string)
+		updateMaskArr = append(updateMaskArr, "dockerRegistry")
 	}
 
 	if d.HasChange("docker_repository") {
-		function.DockerRepository = d.Get("docker_repository").(string)
-		updateMaskArr = append(updateMaskArr, "docker_repository")
+		function.Runtime = d.Get("docker_repository").(string)
+		updateMaskArr = append(updateMaskArr, "dockerRepository")
+	}
+
+	if d.HasChange("kms_key_name") {
+		function.Runtime = d.Get("docker_repository").(string)
+		updateMaskArr = append(updateMaskArr, "kmsKeyName")
 	}
 
 	if d.HasChange("max_instances") {

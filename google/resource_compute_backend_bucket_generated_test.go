@@ -161,6 +161,96 @@ resource "google_compute_security_policy" "policy" {
 `, context)
 }
 
+func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  cdn_policy {
+    cache_key_policy {
+        query_string_whitelist = ["image-version"]
+    }
+  }
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "tf-test-image-backend-bucket%{random_suffix}"
+  location = "EU"
+}
+`, context)
+}
+
+func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  cdn_policy {
+    cache_key_policy {
+        include_http_headers = ["X-My-Header-Field"]
+    }
+  }
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "tf-test-image-backend-bucket%{random_suffix}"
+  location = "EU"
+}
+`, context)
+}
+
 func testAccCheckComputeBackendBucketDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

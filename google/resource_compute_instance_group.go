@@ -61,7 +61,7 @@ func resourceComputeInstanceGroup() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         selfLinkRelativePathHash,
-				Description: `List of instances in the group. They should be given as self_link URLs. When adding instances they must all be in the same network and zone as the instance group.`,
+				Description: `The list of instances in the group, in self_link format. When adding instances they must all be in the same network and zone as the instance group.`,
 			},
 
 			"named_port": {
