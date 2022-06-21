@@ -1,4 +1,21 @@
-## 4.26.0 (Unreleased)
+## 4.27.0 (Unreleased)
+
+## 4.26.0 (June 21, 2022)
+
+FEATURES:
+* **New Resource:** `google_cloudfunctions2_function_iam_binding` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
+* **New Resource:** `google_cloudfunctions2_function_iam_member` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
+* **New Resource:** `google_cloudfunctions2_function_iam_policy` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
+* **New Resource:** `google_documentai_processor` ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+* **New Resource:** `google_documentai_processor_default_version` ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+
+IMPROVEMENTS:
+* accesscontextmanager: Added `external_resources` to `egress_to` in `google_access_context_manager_service_perimeter` and `google_access_context_manager_service_perimeters` resource ([#11857](https://github.com/hashicorp/terraform-provider-google/pull/11857))
+* cloudbuild: Added `include_build_logs` to `google_cloudbuild_trigger` ([#11866](https://github.com/hashicorp/terraform-provider-google/pull/11866))
+* composer: Promoted `config.privately_used_public_ips` and `config.ip_masq_agent` in `google_composer_environment` resource to GA. ([#11849](https://github.com/hashicorp/terraform-provider-google/pull/11849))
+
+BUG FIXES:
+* dns: fixed a bug where `google_dns_record_set` resource can not be changed from default routing to Geo routing policy. ([#11872](https://github.com/hashicorp/terraform-provider-google/pull/11872))
 
 ## 4.25.0 (June 15, 2022)
 
