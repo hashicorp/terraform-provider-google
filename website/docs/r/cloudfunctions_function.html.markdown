@@ -219,6 +219,10 @@ exported:
 
 * `id` - an identifier for the resource with format `{{name}}`
 
+* `version_id` - Version identifier of the Cloud Function. Each deployment attempt results in a new version of a function being created.
+
+* `update_time` - Last updated timestamp of a Cloud Function.
+
 * `https_trigger_url` - URL which triggers function execution. Returned only if `trigger_http` is used.
 
 * `source_repository.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.

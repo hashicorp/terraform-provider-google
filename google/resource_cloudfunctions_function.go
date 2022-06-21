@@ -193,6 +193,20 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `Name of the function that will be executed when the Google Cloud Function is triggered.`,
 			},
 
+			"version_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The version identifier of the Cloud Function. Each deployment attempt results in a new version of a function being created.`,
+			},
+
+			"update_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The last update timestamp of a Cloud Function.`,
+			},
+
 			"ingress_settings": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -606,6 +620,12 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	if err := d.Set("timeout", timeout); err != nil {
 		return fmt.Errorf("Error setting timeout: %s", err)
+	}
+	if err := d.Set("version_id", function.VersionId); err != nil {
+		return fmt.Errorf("Error setting version_id: %s", err)
+	}
+	if err := d.Set("update_time", function.UpdateTime); err != nil {
+		return fmt.Errorf("Error setting update_time: %s", err)
 	}
 	if err := d.Set("ingress_settings", function.IngressSettings); err != nil {
 		return fmt.Errorf("Error setting ingress_settings: %s", err)
