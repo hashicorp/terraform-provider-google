@@ -802,7 +802,7 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   When enabled, IPs from public (non-RFC1918) ranges can be used for
   `ip_allocation_policy.cluster_ipv4_cidr_block` and `ip_allocation_policy.service_ipv4_cidr_block`.
 
-* `cloud_composer_connection_subnetwork"` -
+* `cloud_composer_connection_subnetwork` -
   (Optional)
   When specified, the environment will use Private Service Connect instead of VPC peerings to connect
   to Cloud SQL in the Tenant Project, and the PSC endpoint in the Customer Project will use an IP
