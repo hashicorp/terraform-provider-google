@@ -356,31 +356,6 @@ func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
 	})
 }
 
-func TestAccCloudFunctionsFunction_kmsKey(t *testing.T) {
-	t.Parallel()
-
-	funcResourceName := "google_cloudfunctions_function.function"
-	functionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	proj := getTestProjectFromEnv()
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCloudFunctionsFunction_kmsKey(functionName, proj),
-			},
-			{
-				ResourceName:            funcResourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"build_environment_variables"},
-			},
-		},
-	})
-}
-
 func TestAccCloudFunctionsFunction_serviceAccountEmail(t *testing.T) {
 	t.Parallel()
 
@@ -918,26 +893,6 @@ resource "google_cloudfunctions_function" "function" {
 }
 
 func testAccCloudFunctionsFunction_sourceRepo(functionName, project string) string {
-	return fmt.Sprintf(`
-resource "google_cloudfunctions_function" "function" {
-  name    = "%s"
-  runtime = "nodejs10"
-
-  source_repository {
-    // There isn't yet an API that'll allow us to create a source repository and
-    // put code in it, so we created this repository outside the test to be used
-    // here. If this test is run outside of CI, you may need to create your own
-    // source repo.
-    url = "https://source.developers.google.com/projects/%s/repos/cloudfunctions-test-do-not-delete/moveable-aliases/master/paths/"
-  }
-
-  trigger_http = true
-  entry_point  = "helloGET"
-}
-`, functionName, project)
-}
-
-func testAccCloudFunctionsFunction_kmsKey(functionName, project string) string {
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name    = "%s"
