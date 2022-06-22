@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: fixed a permadiff in `google_bigquery_job.query. destination_table`
+```
