@@ -664,6 +664,7 @@ The BigQuery Service Account associated with your project requires access to thi
 						},
 						"destination_table": {
 							Type:     schema.TypeList,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Description: `Describes the table where the query results should be stored.
