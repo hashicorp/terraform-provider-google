@@ -29,6 +29,12 @@ func dataSourceSqlBackupRun() *schema.Resource {
 				Computed:    true,
 				Description: `Location of the backups.`,
 			},
+			"project": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Project ID of the project that contains the instance.`,
+			},
 			"start_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
