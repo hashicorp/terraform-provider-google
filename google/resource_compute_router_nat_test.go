@@ -210,6 +210,14 @@ func TestAccComputeRouterNat_withPortAllocationMethods(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeRouterNatWithAllocationMethodWithParameters(routerName, false, true, 256, 8192),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -603,6 +611,53 @@ resource "google_compute_router_nat" "foobar" {
   enable_dynamic_port_allocation = %t
 }
 `, routerName, routerName, routerName, routerName, routerName, enableEndpointIndependentMapping, enableDynamicPortAllocation)
+}
+
+func testAccComputeRouterNatWithAllocationMethodWithParameters(routerName string, enableEndpointIndependentMapping, enableDynamicPortAllocation bool, minPortsPerVm, maxPortsPerVm uint32) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%s-net"
+  auto_create_subnetworks = "false"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+  name   = "router-nat-%s-addr"
+  region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                               = "%s"
+  router                             = google_compute_router.foobar.name
+  region                             = google_compute_router.foobar.region
+  nat_ip_allocate_option             = "MANUAL_ONLY"
+  nat_ips                            = [google_compute_address.foobar.self_link]
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = google_compute_subnetwork.foobar.name
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+  enable_endpoint_independent_mapping = %t
+  enable_dynamic_port_allocation = %t
+  min_ports_per_vm = %d
+  max_ports_per_vm = %d
+}
+`, routerName, routerName, routerName, routerName, routerName, enableEndpointIndependentMapping, enableDynamicPortAllocation, minPortsPerVm, maxPortsPerVm)
 }
 
 func testAccComputeRouterNatKeepRouter(routerName string) string {
