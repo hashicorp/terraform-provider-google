@@ -157,6 +157,30 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 								},
 							},
 						},
+						"sql_server_audit_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bucket": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The name of the destination bucket (e.g., gs://mybucket).`,
+									},
+									"retention_interval": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `How long to keep generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"..`,
+									},
+									"upload_interval": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `How often to upload generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+									},
+								},
+							},
+						},
 						"availability_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -944,6 +968,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}) *sqladmin.Setti
 		ForceSendFields:       []string{"StorageAutoResize"},
 		ActivationPolicy:      _settings["activation_policy"].(string),
 		ActiveDirectoryConfig: expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
+		SqlServerAuditConfig:  expandSqlServerAuditConfig(_settings["sql_server_audit_config"].([]interface{})),
 		AvailabilityType:      _settings["availability_type"].(string),
 		Collation:             _settings["collation"].(string),
 		DataDiskSizeGb:        int64(_settings["disk_size"].(int)),
@@ -1115,6 +1140,20 @@ func expandActiveDirectoryConfig(configured interface{}) *sqladmin.SqlActiveDire
 	config := l[0].(map[string]interface{})
 	return &sqladmin.SqlActiveDirectoryConfig{
 		Domain: config["domain"].(string),
+	}
+}
+
+func expandSqlServerAuditConfig(configured interface{}) *sqladmin.SqlServerAuditConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &sqladmin.SqlServerAuditConfig{
+		Bucket:            config["bucket"].(string),
+		RetentionInterval: config["retention_interval"].(string),
+		UploadInterval:    config["upload_interval"].(string),
 	}
 }
 
@@ -1358,6 +1397,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["active_directory_config"] = flattenActiveDirectoryConfig(settings.ActiveDirectoryConfig)
 	}
 
+	if settings.SqlServerAuditConfig != nil {
+		data["sql_server_audit_config"] = flattenSqlServerAuditConfig(settings.SqlServerAuditConfig)
+	}
+
 	if settings.BackupConfiguration != nil {
 		data["backup_configuration"] = flattenBackupConfiguration(settings.BackupConfiguration)
 	}
@@ -1425,6 +1468,19 @@ func flattenActiveDirectoryConfig(sqlActiveDirectoryConfig *sqladmin.SqlActiveDi
 	return []map[string]interface{}{
 		{
 			"domain": sqlActiveDirectoryConfig.Domain,
+		},
+	}
+}
+
+func flattenSqlServerAuditConfig(sqlServerAuditConfig *sqladmin.SqlServerAuditConfig) []map[string]interface{} {
+	if sqlServerAuditConfig == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"bucket":             sqlServerAuditConfig.Bucket,
+			"retention_interval": sqlServerAuditConfig.RetentionInterval,
+			"upload_interval":    sqlServerAuditConfig.UploadInterval,
 		},
 	}
 }
