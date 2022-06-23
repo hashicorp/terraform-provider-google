@@ -118,17 +118,6 @@ var BigtableAdminCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[BigtableAdminBasePathKey]),
 }
 
-// GkeHubFeature uses a different base path "v1beta" than GkeHubMembership "v1beta1"
-var GkeHubFeatureCustomEndpointEntryKey = "gkehub_feature_custom_endpoint"
-var GkeHubFeatureCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_GKEHUB_FEATURE_CUSTOM_ENDPOINT",
-	}, DefaultBasePaths[GkeHubFeatureBasePathKey]),
-}
-
 var PrivatecaCertificateTemplateEndpointEntryKey = "privateca_custom_endpoint"
 var PrivatecaCertificateTemplateCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,
