@@ -60,6 +60,7 @@ var (
 		"addons_config.0.network_policy_config",
 		"addons_config.0.cloudrun_config",
 		"addons_config.0.gcp_filestore_csi_driver_config",
+		"addons_config.0.dns_cache_config",
 	}
 
 	forceNewClusterNodeConfigFields = []string{
@@ -263,6 +264,23 @@ func resourceContainerCluster() *schema.Resource {
 										Type:         schema.TypeString,
 										ValidateFunc: validation.StringInSlice([]string{"LOAD_BALANCER_TYPE_INTERNAL"}, false),
 										Optional:     true,
+									},
+								},
+							},
+						},
+						"dns_cache_config": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							Computed:      true,
+							AtLeastOneOf:  addonsConfigKeys,
+							MaxItems:      1,
+							Description:   `The status of the NodeLocal DNSCache addon. It is disabled by default. Set enabled = true to enable.`,
+							ConflictsWith: []string{"enable_autopilot"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
 									},
 								},
 							},
@@ -584,6 +602,38 @@ func resourceContainerCluster() *schema.Resource {
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
 								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS"}, false),
+							},
+						},
+					},
+				},
+			},
+
+			"notification_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `The notification config for sending cluster upgrade notifications`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pubsub": {
+							Type:        schema.TypeList,
+							Required:    true,
+							MaxItems:    1,
+							Description: `Notification config for Cloud Pub/Sub`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether or not the notification config is enabled`,
+									},
+									"topic": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The pubsub topic to push upgrade notifications to. Must be in the same project as the cluster. Must be in the format: projects/{project}/topics/{topic}.`,
+									},
+								},
 							},
 						},
 					},
@@ -1249,9 +1299,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			PrivateIpv6GoogleAccess:   d.Get("private_ipv6_google_access").(string),
 			DnsConfig:                 expandDnsConfig(d.Get("dns_config")),
 		},
-		MasterAuth:        expandMasterAuth(d.Get("master_auth")),
-		ConfidentialNodes: expandConfidentialNodes(d.Get("confidential_nodes")),
-		ResourceLabels:    expandStringMap(d, "resource_labels"),
+		MasterAuth:         expandMasterAuth(d.Get("master_auth")),
+		NotificationConfig: expandNotificationConfig(d.Get("notification_config")),
+		ConfidentialNodes:  expandConfidentialNodes(d.Get("confidential_nodes")),
+		ResourceLabels:     expandStringMap(d, "resource_labels"),
 	}
 
 	v := d.Get("enable_shielded_nodes")
@@ -1592,6 +1643,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
+		return err
+	}
+	if err := d.Set("notification_config", flattenNotificationConfig(cluster.NotificationConfig)); err != nil {
 		return err
 	}
 	if err := d.Set("confidential_nodes", flattenConfidentialNodes(cluster.ConfidentialNodes)); err != nil {
@@ -2238,6 +2292,38 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("notification_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNotificationConfig: expandNotificationConfig(d.Get("notification_config")),
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating notification_config")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating Notification Config", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating notification_config")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Notification Config has been updated to %#v", d.Id(), req.Update.DesiredNotificationConfig)
+	}
+
 	if d.HasChange("vertical_pod_autoscaling") {
 		if ac, ok := d.GetOk("vertical_pod_autoscaling"); ok {
 			req := &container.UpdateClusterRequest{
@@ -2629,6 +2715,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["dns_cache_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.DnsCacheConfig = &container.DnsCacheConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
 	return ac
 }
 
@@ -2829,6 +2923,37 @@ func expandAuthenticatorGroupsConfig(configured interface{}) *container.Authenti
 		result.SecurityGroup = securityGroup.(string)
 	}
 	return result
+}
+
+func expandNotificationConfig(configured interface{}) *container.NotificationConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return &container.NotificationConfig{
+			Pubsub: &container.PubSub{
+				Enabled: false,
+			},
+		}
+	}
+
+	notificationConfig := l[0].(map[string]interface{})
+	if v, ok := notificationConfig["pubsub"]; ok {
+		if len(v.([]interface{})) > 0 {
+			pubsub := notificationConfig["pubsub"].([]interface{})[0].(map[string]interface{})
+
+			return &container.NotificationConfig{
+				Pubsub: &container.PubSub{
+					Enabled: pubsub["enabled"].(bool),
+					Topic:   pubsub["topic"].(string),
+				},
+			}
+		}
+	}
+
+	return &container.NotificationConfig{
+		Pubsub: &container.PubSub{
+			Enabled: false,
+		},
+	}
 }
 
 func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
@@ -3081,6 +3206,22 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 	return mc
 }
 
+func flattenNotificationConfig(c *container.NotificationConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"pubsub": []map[string]interface{}{
+				{
+					"enabled": c.Pubsub.Enabled,
+					"topic":   c.Pubsub.Topic,
+				},
+			},
+		},
+	}
+}
 func flattenConfidentialNodes(c *container.ConfidentialNodes) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
@@ -3152,6 +3293,14 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			cloudRunConfig["load_balancer_type"] = "LOAD_BALANCER_TYPE_INTERNAL"
 		}
 		result["cloudrun_config"] = []map[string]interface{}{cloudRunConfig}
+	}
+
+	if c.DnsCacheConfig != nil {
+		result["dns_cache_config"] = []map[string]interface{}{
+			{
+				"enabled": c.DnsCacheConfig.Enabled,
+			},
+		}
 	}
 
 	return []map[string]interface{}{result}

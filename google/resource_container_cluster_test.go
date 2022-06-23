@@ -195,6 +195,54 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNotificationConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	topic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
+	newTopic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNotificationConfig(clusterName, topic),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withNotificationConfig(clusterName, newTopic),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_disableNotificationConfig(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withNotificationConfig(clusterName, newTopic),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withConfidentialNodes(t *testing.T) {
 	t.Parallel()
 
@@ -2330,6 +2378,9 @@ resource "google_container_cluster" "primary" {
     cloudrun_config {
       disabled = true
     }
+	dns_cache_config {
+      enabled = false
+    }
   }
 }
 `, projectID, clusterName)
@@ -2368,6 +2419,9 @@ resource "google_container_cluster" "primary" {
     cloudrun_config {
       disabled = false
     }
+	dns_cache_config {
+      enabled = true
+	}
   }
 }
 `, projectID, clusterName)
@@ -2407,6 +2461,42 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, projectID, clusterName)
+}
+
+func testAccContainerCluster_withNotificationConfig(clusterName string, topic string) string {
+	return fmt.Sprintf(`
+
+resource "google_pubsub_topic" "%s" {
+  name = "%s"
+}
+
+resource "google_container_cluster" "notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  notification_config {
+	pubsub {
+	  enabled = true
+	  topic = google_pubsub_topic.%s.id
+	}
+  }
+}
+`, topic, topic, clusterName, topic)
+}
+
+func testAccContainerCluster_disableNotificationConfig(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  notification_config {
+	pubsub {
+	  enabled = false
+	}
+  }
+}
+`, clusterName)
 }
 
 func testAccContainerCluster_withConfidentialNodes(clusterName string, npName string) string {

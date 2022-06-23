@@ -20,19 +20,19 @@ import (
 	"log"
 	"testing"
 
-	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
+	cloudbuild "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/cloudbuild"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func init() {
-	resource.AddTestSweepers("ComputeGlobalForwardingRule", &resource.Sweeper{
-		Name: "ComputeGlobalForwardingRule",
-		F:    testSweepComputeGlobalForwardingRule,
+	resource.AddTestSweepers("CloudbuildWorkerPool", &resource.Sweeper{
+		Name: "CloudbuildWorkerPool",
+		F:    testSweepCloudbuildWorkerPool,
 	})
 }
 
-func testSweepComputeGlobalForwardingRule(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeGlobalForwardingRule")
+func testSweepCloudbuildWorkerPool(region string) error {
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for CloudbuildWorkerPool")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -58,14 +58,14 @@ func testSweepComputeGlobalForwardingRule(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLComputeClient(config, config.userAgent, "", 0)
-	err = client.DeleteAllForwardingRule(context.Background(), d["project"], d["location"], isDeletableComputeGlobalForwardingRule)
+	client := NewDCLCloudbuildClient(config, config.userAgent, "", 0)
+	err = client.DeleteAllWorkerPool(context.Background(), d["project"], d["location"], isDeletableCloudbuildWorkerPool)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func isDeletableComputeGlobalForwardingRule(r *compute.ForwardingRule) bool {
+func isDeletableCloudbuildWorkerPool(r *cloudbuild.WorkerPool) bool {
 	return isSweepableTestResource(*r.Name)
 }
