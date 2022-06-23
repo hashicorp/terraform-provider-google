@@ -26,7 +26,7 @@ Fields that are only available in beta versions of the Google Cloud Platform API
 
 ### Running Tests
 
-Configuring tests is similar to configuring the provider; see the [Provider Configuration Reference](https://www.terraform.io/docs/providers/google/provider_reference.html#configuration-reference) for more details. Tests generally assume the following environment variables must be set in order to run tests:
+Configuring tests is similar to configuring the provider; see the [Provider Configuration Reference](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference) for more details. Tests generally assume the following environment variables must be set in order to run tests:
 
 ```
 GOOGLE_PROJECT
