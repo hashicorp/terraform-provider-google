@@ -352,7 +352,7 @@ resource "google_compute_instance_group_manager" "default" {
   zone     = "us-central1-c"
   named_port {
     name = "tcp"
-    port = 110
+    port = 80
   }
   version {
     instance_template = google_compute_instance_template.default.id
