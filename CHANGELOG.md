@@ -1,5 +1,19 @@
 ## 4.27.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** google_documentai_processor ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+* **New Resource:** google_documentai_processor_default_version ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+
+IMPROVEMENTS:
+* clouddeploy: added `suspend` field to `google_clouddeploy_delivery_pipeline` resource ([#11914](https://github.com/hashicorp/terraform-provider-google/pull/11914))
+* compute: added maxPortsPerVm field to `google_compute_router_nat` resource ([#11933](https://github.com/hashicorp/terraform-provider-google/pull/11933))
+* compute: added `psc_connection_id` and `psc_connection_status` output fields to `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` resources ([#11892](https://github.com/hashicorp/terraform-provider-google/pull/11892))
+* containeraws: made `config.instance_type` field updatable in `google_container_aws_node_pool` ([#11892](https://github.com/hashicorp/terraform-provider-google/pull/11892))
+
+BUG FIXES:
+* compute: fixed default handling for `enableDynamicPortAllocation` to be managed by the api ([#11887](https://github.com/hashicorp/terraform-provider-google/pull/11887))
+* vertexai: Fixed a bug where terraform crashes when `force_destroy` is set in `google_vertex_ai_featurestore` resource ([#11928](https://github.com/hashicorp/terraform-provider-google/pull/11928))
+
 ## 4.26.0 (June 21, 2022)
 
 FEATURES:
