@@ -106,7 +106,6 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database" "db" {
-    provider = google-beta
     instance = google_sql_database_instance.instance.name
     name     = "db2"
 }
@@ -117,14 +116,12 @@ resource "random_password" "pwd" {
 }
 
 resource "google_sql_user" "user" {
-    provider = google-beta
     name = "username"
     instance = google_sql_database_instance.instance.name
     password = random_password.pwd.result
 }
 
 resource "google_bigquery_connection" "connection" {
-    provider      = google-beta
     connection_id = "tf-test-my-connection%{random_suffix}"
     location      = "US"
     friendly_name = "👋👋"
