@@ -721,13 +721,21 @@ func TestAccComposerEnvironmentAirflow2_withSoftwareConfig(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComposerEnvironmentUpdate_airflow2SoftwareCfg(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
 			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_airflow2SoftwareCfg(envName, network, subnetwork),
+				Config:             testAccComposerEnvironmentUpdate_airflow2SoftwareCfg(envName, network, subnetwork),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -1694,6 +1702,40 @@ resource "google_compute_subnetwork" "test" {
 	ip_cidr_range = "10.2.0.0/16"
 	region        = "us-central1"
 	network       = google_compute_network.test.self_link
+}
+`, name, network, subnetwork)
+}
+
+func testAccComposerEnvironmentUpdate_airflow2SoftwareCfg(name, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-central1"
+  config {
+    node_config {
+      network    = google_compute_network.test.self_link
+      subnetwork = google_compute_subnetwork.test.self_link
+      zone       = "us-central1-a"
+    }
+    software_config {
+      image_version  = "composer-1-airflow-2"
+      scheduler_count = 3
+    }
+  }
+}
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
