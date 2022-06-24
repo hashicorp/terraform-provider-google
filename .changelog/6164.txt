@@ -1,0 +1,3 @@
+```release-note:bug
+composer: fixed permadiff on `private_environment_config.cloud_composer_connection_subnetwork`
+```
