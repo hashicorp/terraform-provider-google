@@ -1,9 +1,5 @@
 ## 4.27.0 (Unreleased)
 
-FEATURES:
-* **New Resource:** google_documentai_processor ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
-* **New Resource:** google_documentai_processor_default_version ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
-
 IMPROVEMENTS:
 * clouddeploy: added `suspend` field to `google_clouddeploy_delivery_pipeline` resource ([#11914](https://github.com/hashicorp/terraform-provider-google/pull/11914))
 * compute: added maxPortsPerVm field to `google_compute_router_nat` resource ([#11933](https://github.com/hashicorp/terraform-provider-google/pull/11933))
