@@ -7,7 +7,7 @@ IMPROVEMENTS:
 * containeraws: made `config.instance_type` field updatable in `google_container_aws_node_pool` ([#11892](https://github.com/hashicorp/terraform-provider-google/pull/11892))
 
 BUG FIXES:
-* compute: fixed default handling for `enableDynamicPortAllocation` to be managed by the api ([#11887](https://github.com/hashicorp/terraform-provider-google/pull/11887))
+* compute: fixed default handling for `enable_dynamic_port_allocation ` to be managed by the api ([#11887](https://github.com/hashicorp/terraform-provider-google/pull/11887))
 * vertexai: Fixed a bug where terraform crashes when `force_destroy` is set in `google_vertex_ai_featurestore` resource ([#11928](https://github.com/hashicorp/terraform-provider-google/pull/11928))
 
 ## 4.26.0 (June 21, 2022)
