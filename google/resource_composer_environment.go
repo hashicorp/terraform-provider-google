@@ -849,6 +849,21 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			return err
 		}
 
+		if d.HasChange("config.0.software_config.0.scheduler_count") {
+			patchObj := &composer.Environment{
+				Config: &composer.EnvironmentConfig{
+					SoftwareConfig: &composer.SoftwareConfig{},
+				},
+			}
+			if config != nil && config.SoftwareConfig != nil {
+				patchObj.Config.SoftwareConfig.SchedulerCount = config.SoftwareConfig.SchedulerCount
+			}
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.schedulerCount", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+
 		if d.HasChange("config.0.software_config.0.airflow_config_overrides") {
 			patchObj := &composer.Environment{
 				Config: &composer.EnvironmentConfig{
