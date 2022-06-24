@@ -912,8 +912,11 @@ partial URL.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateEnum([]string{"UTILIZATION", "RATE", "CONNECTION", ""}),
-				Description:  `Specifies the balancing mode for this backend. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
-				Default:      "CONNECTION",
+				Description: `Specifies the balancing mode for this backend.
+
+See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
+for an explanation of load balancing modes. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+				Default: "CONNECTION",
 			},
 			"capacity_scaler": {
 				Type:     schema.TypeFloat,
