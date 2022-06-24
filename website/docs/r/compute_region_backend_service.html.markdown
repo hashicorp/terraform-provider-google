@@ -520,6 +520,8 @@ The following arguments are supported:
 * `balancing_mode` -
   (Optional)
   Specifies the balancing mode for this backend.
+  See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
+  for an explanation of load balancing modes.
   Default value is `CONNECTION`.
   Possible values are `UTILIZATION`, `RATE`, and `CONNECTION`.
 
