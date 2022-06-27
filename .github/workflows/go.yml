@@ -32,5 +32,4 @@ jobs:
     - name: Test
       run: |
         make docscheck
-        make lint
         make test
