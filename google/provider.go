@@ -1277,6 +1277,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_firebaserules_release":               resourceFirebaserulesRelease(),
 			"google_firebaserules_ruleset":               resourceFirebaserulesRuleset(),
 			"google_logging_log_view":                    resourceLoggingLogView(),
+			"google_monitoring_monitored_project":        resourceMonitoringMonitoredProject(),
 			"google_network_connectivity_hub":            resourceNetworkConnectivityHub(),
 			"google_network_connectivity_spoke":          resourceNetworkConnectivitySpoke(),
 			"google_org_policy_policy":                   resourceOrgPolicyPolicy(),
