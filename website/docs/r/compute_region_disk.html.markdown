@@ -193,7 +193,7 @@ The following arguments are supported:
   encryption key that protects this resource.
 
 * `kms_key_name` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The name of the encryption key that is stored in Google Cloud KMS.
 
 <a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
