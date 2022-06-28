@@ -18,12 +18,12 @@ layout: "google"
 page_title: "Google: google_monitoring_monitored_project"
 sidebar_current: "docs-google-monitoring-monitored-project"
 description: |-
-  Beta only: Monitored Project allows you to set a project as monitored by a _metrics scope_, which is a term for a project used to group the metrics of multiple projects, potentially across multiple organizations.  This enables you to view these groups in the Monitoring page of the cloud console.
+  Monitored Project allows you to set a project as monitored by a _metrics scope_, which is a term for a project used to group the metrics of multiple projects, potentially across multiple organizations.  This enables you to view these groups in the Monitoring page of the cloud console.
 ---
 
 # google_monitoring_monitored_project
 
-Beta only: Monitored Project allows you to set a project as monitored by a _metrics scope_, which is a term for a project used to group the metrics of multiple projects, potentially across multiple organizations.  This enables you to view these groups in the Monitoring page of the cloud console.
+Monitored Project allows you to set a project as monitored by a _metrics scope_, which is a term for a project used to group the metrics of multiple projects, potentially across multiple organizations.  This enables you to view these groups in the Monitoring page of the cloud console.
 
 For more information, see:
 * [Understanding metrics scopes](https://cloud.google.com/monitoring/settings#concept-scope)
@@ -34,14 +34,14 @@ A basic example of a monitoring monitored project
 resource "google_monitoring_monitored_project" "primary" {
   metrics_scope = "existing-metrics-scope-project"
   name          = google_project.basic.name
-  provider      = google-beta
 }
+
 resource "google_project" "basic" {
   project_id = "my-monitored-project"
   name       = "my-monitored-project"
   org_id     = "123456789"
-  provider   = google-beta
 }
+
 
 ```
 

@@ -1,0 +1,3 @@
+```release-note:new-resource
+monitoring: Promoted 'monitoredproject' to GA
+```
