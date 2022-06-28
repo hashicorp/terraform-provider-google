@@ -78,12 +78,13 @@ resource "google_cloudfunctions_function" "function" {
   description = "My function"
   runtime     = "nodejs16"
 
-  available_memory_mb   = 128
-  source_archive_bucket = google_storage_bucket.bucket.name
-  source_archive_object = google_storage_bucket_object.archive.name
-  trigger_http          = true
-  timeout               = 60
-  entry_point           = "helloGET"
+  available_memory_mb          = 128
+  source_archive_bucket        = google_storage_bucket.bucket.name
+  source_archive_object        = google_storage_bucket_object.archive.name
+  trigger_http                 = true
+  https_trigger_security_level = "SECURE_ALWAYS"
+  timeout                      = 60
+  entry_point                  = "helloGET"
   labels = {
     my-label = "my-label-value"
   }
@@ -126,6 +127,11 @@ Eg. `"nodejs16"`, `"python39"`, `"dotnet3"`, `"go116"`, `"java11"`, `"ruby30"`, 
 * `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is [documented below](#nested_event_trigger). Cannot be used with `trigger_http`.
 
 * `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `event_trigger`.
+
+* `https_trigger_security_level` - (Optional) The security level for the function. The following options are available:
+
+    * `SECURE_ALWAYS` Requests for a URL that match this handler that do not use HTTPS are automatically redirected to the HTTPS URL with the same path. Query parameters are reserved for the redirect.
+    * `SECURE_OPTIONAL` Both HTTP and HTTPS requests with URLs that match the handler succeed without redirects. The application can examine the request to determine which protocol was used and respond accordingly.
 
 * `ingress_settings` - (Optional) String value that controls what traffic can reach the function. Allowed values are `ALLOW_ALL`, `ALLOW_INTERNAL_AND_GCLB` and `ALLOW_INTERNAL_ONLY`. Check [ingress documentation](https://cloud.google.com/functions/docs/networking/network-settings#ingress_settings) to see the impact of each settings value. Changes to this field will recreate the cloud function.
 
