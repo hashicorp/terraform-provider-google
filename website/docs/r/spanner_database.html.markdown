@@ -38,10 +38,6 @@ On older versions, it is strongly recommended to set `lifecycle { prevent_destro
 on databases in order to prevent accidental data loss. See [Terraform docs](https://www.terraform.io/docs/configuration/resources.html#prevent_destroy)
 for more information on lifecycle parameters.
 
-Note: Databases that are created with POSTGRESQL dialect do not support 
-extra DDL statements in the `CreateDatabase` call. You must therefore re-apply 
-terraform with ddl on the same database after creation.
-
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=spanner_database_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -60,6 +56,7 @@ resource "google_spanner_instance" "main" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
   name     = "my-database"
+  version_retention_period = "3d"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
     "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
@@ -86,6 +83,14 @@ The following arguments are supported:
 - - -
 
 
+* `version_retention_period` -
+  (Optional)
+  The retention period for the database. The retention period must be between 1 hour
+  and 7 days, and can be specified in days, hours, minutes, or seconds. For example,
+  the values 1d, 24h, 1440m, and 86400s are equivalent. Default value is 1h.
+  If this property is used, you must avoid adding new DDL statements to `ddl` that
+  update the database's version_retention_period.
+
 * `ddl` -
   (Optional)
   An optional list of DDL statements to run inside the newly created
@@ -101,10 +106,7 @@ The following arguments are supported:
 * `database_dialect` -
   (Optional)
   The dialect of the Cloud Spanner Database.
-  If it is not provided, "GOOGLE_STANDARD_SQL" will be used. 
-  Note: Databases that are created with POSTGRESQL dialect do not support 
-  extra DDL statements in the `CreateDatabase` call. You must therefore re-apply 
-  terraform with ddl on the same database after creation.
+  If it is not provided, "GOOGLE_STANDARD_SQL" will be used.
   Possible values are `GOOGLE_STANDARD_SQL` and `POSTGRESQL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

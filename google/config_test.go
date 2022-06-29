@@ -2,7 +2,6 @@ package google
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -64,7 +63,7 @@ func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
 
 func TestAccConfigLoadValidate_credentials(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	testAccPreCheck(t)
 
@@ -92,7 +91,7 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 
 func TestAccConfigLoadValidate_impersonated(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	testAccPreCheck(t)
 
@@ -122,7 +121,7 @@ func TestAccConfigLoadValidate_impersonated(t *testing.T) {
 
 func TestAccConfigLoadValidate_accessTokenImpersonated(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	testAccPreCheck(t)
 
@@ -162,7 +161,7 @@ func TestAccConfigLoadValidate_accessTokenImpersonated(t *testing.T) {
 
 func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	testAccPreCheck(t)
 

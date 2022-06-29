@@ -18,7 +18,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	cases := map[string]struct {
 		StateVersion int
@@ -122,7 +122,7 @@ func TestAccComputeInstanceMigrateState_empty(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	var is *terraform.InstanceState
 	var meta interface{}
@@ -150,7 +150,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -218,7 +218,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -285,7 +285,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -366,7 +366,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -446,7 +446,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -515,7 +515,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -583,7 +583,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -656,7 +656,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -728,7 +728,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -794,7 +794,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
