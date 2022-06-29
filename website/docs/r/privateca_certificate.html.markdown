@@ -429,7 +429,10 @@ The following arguments are supported:
 
 * `certificate_authority` -
   (Optional)
-  Certificate Authority name.
+  The Certificate Authority ID that should issue the certificate. For example, to issue a Certificate from
+  a Certificate Authority with resource name `projects/my-project/locations/us-central1/caPools/my-pool/certificateAuthorities/my-ca`,
+  argument `pool` should be set to `projects/my-project/locations/us-central1/caPools/my-pool`, argument `certificate_authority`
+  should be set to `my-ca`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -703,7 +706,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}`
 
 * `issuer_certificate_authority` -
-  The resource name of the issuing CertificateAuthority in the format projects/*/locations/*/caPools/*/certificateAuthorities/*.
+  The resource name of the issuing CertificateAuthority in the format `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 
 * `revocation_details` -
   Output only. Details regarding the revocation of this Certificate. This Certificate is 

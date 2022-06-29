@@ -73,10 +73,13 @@ omitted, no template will be used. This template must be in the same location
 as the Certificate.`,
 			},
 			"certificate_authority": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Certificate Authority name.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The Certificate Authority ID that should issue the certificate. For example, to issue a Certificate from
+a Certificate Authority with resource name 'projects/my-project/locations/us-central1/caPools/my-pool/certificateAuthorities/my-ca',
+argument 'pool' should be set to 'projects/my-project/locations/us-central1/caPools/my-pool', argument 'certificate_authority'
+should be set to 'my-ca'.`,
 			},
 			"config": {
 				Type:        schema.TypeList,
@@ -1129,7 +1132,7 @@ This is in RFC3339 text format.`,
 			"issuer_certificate_authority": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The resource name of the issuing CertificateAuthority in the format projects/*/locations/*/caPools/*/certificateAuthorities/*.`,
+				Description: `The resource name of the issuing CertificateAuthority in the format 'projects/*/locations/*/caPools/*/certificateAuthorities/*'.`,
 			},
 			"pem_certificate": {
 				Type:        schema.TypeString,
