@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an issue where `node_config.min_cpu_platform` could cause a perma-diff in `google_container_cluster`
+```

@@ -160,6 +160,7 @@ func schemaNodeConfig() *schema.Schema {
 				"min_cpu_platform": {
 					Type:        schema.TypeString,
 					Optional:    true,
+					Computed:    true,
 					ForceNew:    true,
 					Description: `Minimum CPU platform to be used by this instance. The instance may be scheduled on the specified or newer CPU platform.`,
 				},
