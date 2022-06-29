@@ -185,7 +185,7 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 	t.Parallel()
 
 	if os.Getenv(TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
 
 	config := getInitializedConfig(t)
