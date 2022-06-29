@@ -45,7 +45,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"pem_ca_certificate", "ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool", "deletion_protection"},
 			},
 		},
 	})
@@ -126,7 +126,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"pem_ca_certificate", "ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool", "deletion_protection"},
 			},
 		},
 	})
@@ -134,13 +134,54 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 
 func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_privateca_certificate_authority" "root-ca" {
+  pool = "%{pool_name}"
+  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}-root"
+  location = "us-central1"
+  deletion_protection = false
+  ignore_active_certificates_on_deletion = true
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        # is_ca *MUST* be true for certificate authorities
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+
 resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
   pool = "%{pool_name}"
-  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}-sub"
   location = "%{pool_location}"
   deletion_protection = "%{deletion_protection}"
+  subordinate_config {
+    certificate_authority = google_privateca_certificate_authority.root-ca.name
+  }
   config {
     subject_config {
       subject {

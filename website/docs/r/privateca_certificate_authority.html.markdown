@@ -103,13 +103,54 @@ resource "google_privateca_certificate_authority" "default" {
 
 
 ```hcl
+resource "google_privateca_certificate_authority" "root-ca" {
+  pool = "ca-pool"
+  certificate_authority_id = "my-certificate-authority-root"
+  location = "us-central1"
+  deletion_protection = false
+  ignore_active_certificates_on_deletion = true
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        # is_ca *MUST* be true for certificate authorities
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+
 resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
   pool = "ca-pool"
-  certificate_authority_id = "my-certificate-authority"
+  certificate_authority_id = "my-certificate-authority-sub"
   location = "us-central1"
   deletion_protection = "true"
+  subordinate_config {
+    certificate_authority = google_privateca_certificate_authority.root-ca.name
+  }
   config {
     subject_config {
       subject {
@@ -515,6 +556,10 @@ The following arguments are supported:
 - - -
 
 
+* `pem_ca_certificate` -
+  (Optional)
+  The signed CA certificate issued from the subordinated CA's CSR. This is needed when activating the subordiante CA with a third party issuer.
+
 * `ignore_active_certificates_on_deletion` -
   (Optional)
   This field allows the CA to be deleted even if the CA has active certs. Active certs include both unrevoked and unexpired certs.
@@ -524,8 +569,7 @@ The following arguments are supported:
   (Optional)
   The Type of this CertificateAuthority.
   ~> **Note:** For `SUBORDINATE` Certificate Authorities, they need to
-  be manually activated (via Cloud Console of `gcloud`) before they can
-  issue certificates.
+  be activated before they can issue certificates.
   Default value is `SELF_SIGNED`.
   Possible values are `SELF_SIGNED` and `SUBORDINATE`.
 
@@ -534,6 +578,12 @@ The following arguments are supported:
   The desired lifetime of the CA certificate. Used to create the "notBeforeTime" and
   "notAfterTime" fields inside an X.509 certificate. A duration in seconds with up to nine
   fractional digits, terminated by 's'. Example: "3.5s".
+
+* `subordinate_config` -
+  (Optional)
+  If this is a subordinate CertificateAuthority, this field will be set
+  with the subordinate configuration, which describes its issuers.
+  Structure is [documented below](#nested_subordinate_config).
 
 * `gcs_bucket` -
   (Optional)
@@ -557,6 +607,28 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 
 * `desired_state` - (Optional) Desired state of the CertificateAuthority. Set this field to `STAGED` to create a `STAGED` root CA.
 
+
+<a name="nested_subordinate_config"></a>The `subordinate_config` block supports:
+
+* `certificate_authority` -
+  (Optional)
+  This can refer to a CertificateAuthority that was used to create a
+  subordinate CertificateAuthority. This field is used for information
+  and usability purposes only. The resource name is in the format
+  `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+
+* `pem_issuer_chain` -
+  (Optional)
+  Contains the PEM certificate chain for the issuers of this CertificateAuthority, 
+  but not pem certificate for this CA itself.
+  Structure is [documented below](#nested_pem_issuer_chain).
+
+
+<a name="nested_pem_issuer_chain"></a>The `pem_issuer_chain` block supports:
+
+* `pem_certificates` -
+  (Optional)
+  Expected to be in leaf-to-root order according to RFC 5246.
 
 ## Attributes Reference
 
