@@ -94,15 +94,6 @@ var FirebaserulesEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
-var MonitoringEndpointEntryKey = "monitoring_custom_endpoint"
-var MonitoringEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_MONITORING_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
 var NetworkConnectivityEndpointEntryKey = "network_connectivity_custom_endpoint"
 var NetworkConnectivityEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -139,7 +130,6 @@ type DCLConfig struct {
 	DataplexBasePath             string
 	EventarcBasePath             string
 	FirebaserulesBasePath        string
-	MonitoringBasePath           string
 	NetworkConnectivityBasePath  string
 	OrgPolicyBasePath            string
 	RecaptchaEnterpriseBasePath  string
@@ -154,7 +144,6 @@ func configureDCLProvider(provider *schema.Provider) {
 	provider.Schema[DataplexEndpointEntryKey] = DataplexEndpointEntry
 	provider.Schema[EventarcEndpointEntryKey] = EventarcEndpointEntry
 	provider.Schema[FirebaserulesEndpointEntryKey] = FirebaserulesEndpointEntry
-	provider.Schema[MonitoringEndpointEntryKey] = MonitoringEndpointEntry
 	provider.Schema[NetworkConnectivityEndpointEntryKey] = NetworkConnectivityEndpointEntry
 	provider.Schema[OrgPolicyEndpointEntryKey] = OrgPolicyEndpointEntry
 	provider.Schema[RecaptchaEnterpriseEndpointEntryKey] = RecaptchaEnterpriseEndpointEntry
@@ -169,7 +158,6 @@ func providerDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
 	config.DataplexBasePath = d.Get(DataplexEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
-	config.MonitoringBasePath = d.Get(MonitoringEndpointEntryKey).(string)
 	config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)
 	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 	config.RecaptchaEnterpriseBasePath = d.Get(RecaptchaEnterpriseEndpointEntryKey).(string)
