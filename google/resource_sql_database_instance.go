@@ -374,6 +374,11 @@ is set to true.`,
 										AtLeastOneOf: []string{"settings.0.location_preference.0.follow_gae_application", "settings.0.location_preference.0.zone"},
 										Description:  `The preferred compute engine zone.`,
 									},
+									"secondary_zone": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The preferred Compute Engine zone for the secondary/failover`,
+									},
 								},
 							},
 						},
@@ -1052,6 +1057,7 @@ func expandLocationPreference(configured []interface{}) *sqladmin.LocationPrefer
 	return &sqladmin.LocationPreference{
 		FollowGaeApplication: _locationPreference["follow_gae_application"].(string),
 		Zone:                 _locationPreference["zone"].(string),
+		SecondaryZone:        _locationPreference["secondary_zone"].(string),
 	}
 }
 
@@ -1535,6 +1541,7 @@ func flattenLocationPreference(locationPreference *sqladmin.LocationPreference) 
 	data := map[string]interface{}{
 		"follow_gae_application": locationPreference.FollowGaeApplication,
 		"zone":                   locationPreference.Zone,
+		"secondary_zone":         locationPreference.SecondaryZone,
 	}
 
 	return []map[string]interface{}{data}
