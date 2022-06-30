@@ -152,9 +152,10 @@ IP addresses assigned. Possible values: ["ADDRESS_MODE_UNSPECIFIED", "MODE_IPV4"
 							},
 						},
 						"network": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description: `The name of the GCE VPC network to which the
 instance is connected.`,
 						},
