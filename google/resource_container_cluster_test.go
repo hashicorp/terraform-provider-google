@@ -2379,7 +2379,10 @@ resource "google_container_cluster" "primary" {
     cloudrun_config {
       disabled = true
     }
-	dns_cache_config {
+    dns_cache_config {
+      enabled = false
+    }
+    gce_persistent_disk_csi_driver_config {
       enabled = false
     }
   }
@@ -2422,9 +2425,12 @@ resource "google_container_cluster" "primary" {
       # disabled = false
       disabled = true
     }
-	dns_cache_config {
+    dns_cache_config {
       enabled = true
-	}
+    }
+    gce_persistent_disk_csi_driver_config {
+      enabled = true
+    }
   }
 }
 `, projectID, clusterName)
