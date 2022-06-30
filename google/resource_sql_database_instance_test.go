@@ -299,6 +299,30 @@ func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_settings_secondary(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_settings_secondary, databaseName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_settings_deletionProtection(t *testing.T) {
 	t.Parallel()
 
@@ -1505,6 +1529,39 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `
+
+var testGoogleSqlDatabaseInstance_settings_secondary = `
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier                   = "db-f1-micro"
+    location_preference {
+      zone           = "us-central1-f"
+	  secondary_zone = "us-central1-a"	  
+    }
+
+    ip_configuration {
+      ipv4_enabled = "true"
+      authorized_networks {
+        value           = "108.12.12.12"
+        name            = "misc"
+        expiration_time = "2037-11-15T16:19:00.094Z"
+      }
+    }
+
+    backup_configuration {
+      enabled    = "true"
+      start_time = "19:19"
+    }
+
+    activation_policy = "ALWAYS"
+  }
+}
+`
+
 var testGoogleSqlDatabaseInstance_settings_deletionProtection = `
 resource "google_sql_database_instance" "instance" {
   name                = "%s"
