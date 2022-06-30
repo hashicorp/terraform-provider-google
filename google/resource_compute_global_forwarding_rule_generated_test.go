@@ -200,9 +200,25 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHybridExample(t *tes
 func testAccComputeGlobalForwardingRule_globalForwardingRuleHybridExample(context map[string]interface{}) string {
 	return Nprintf(`
 // Roughly mirrors https://cloud.google.com/load-balancing/docs/https/setting-up-ext-https-hybrid
+variable "subnetwork_cidr" {
+  default = "10.0.0.0/24"
+}
 
 resource "google_compute_network" "default" {
   name                    = "tf-test-my-network%{random_suffix}"
+}
+
+resource "google_compute_network" "internal" {
+  name                    = "tf-test-my-internal-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "internal"{
+  name                    = "tf-test-my-subnetwork%{random_suffix}"
+  network                 = google_compute_network.internal.id
+  ip_cidr_range           = var.subnetwork_cidr
+  region                  = "us-central1"
+  private_ip_google_access= true
 }
 
 // Zonal NEG with GCE_VM_IP_PORT
@@ -212,6 +228,15 @@ resource "google_compute_network_endpoint_group" "default" {
   default_port          = "90"
   zone                  = "us-central1-a"
   network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+// Zonal NEG with GCE_VM_IP
+resource "google_compute_network_endpoint_group" "internal" {
+  name                  = "tf-test-internal-neg%{random_suffix}"
+  network               = google_compute_network.internal.id
+  subnetwork            = google_compute_subnetwork.internal.id
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP"
 }
 
 // Hybrid connectivity NEG

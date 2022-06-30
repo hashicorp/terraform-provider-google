@@ -776,9 +776,25 @@ resource "google_compute_backend_service" "default" {
 
 ```hcl
 // Roughly mirrors https://cloud.google.com/load-balancing/docs/https/setting-up-ext-https-hybrid
+variable "subnetwork_cidr" {
+  default = "10.0.0.0/24"
+}
 
 resource "google_compute_network" "default" {
   name                    = "my-network"
+}
+
+resource "google_compute_network" "internal" {
+  name                    = "my-internal-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "internal"{
+  name                    = "my-subnetwork"
+  network                 = google_compute_network.internal.id
+  ip_cidr_range           = var.subnetwork_cidr
+  region                  = "us-central1"
+  private_ip_google_access= true
 }
 
 // Zonal NEG with GCE_VM_IP_PORT
@@ -788,6 +804,15 @@ resource "google_compute_network_endpoint_group" "default" {
   default_port          = "90"
   zone                  = "us-central1-a"
   network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+// Zonal NEG with GCE_VM_IP
+resource "google_compute_network_endpoint_group" "internal" {
+  name                  = "internal-neg"
+  network               = google_compute_network.internal.id
+  subnetwork            = google_compute_subnetwork.internal.id
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP"
 }
 
 // Hybrid connectivity NEG
