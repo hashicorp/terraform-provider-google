@@ -497,7 +497,7 @@ func resourceComposerEnvironment() *schema.Resource {
 							Computed:     true,
 							AtLeastOneOf: composerConfigKeys,
 							MaxItems:     1,
-							Description:  `The encryption options for the Composer environment and its dependencies. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.`,
+							Description:  `The encryption options for the Composer environment and its dependencies.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"kms_key_name": {
