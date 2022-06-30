@@ -194,6 +194,53 @@ data "google_compute_network" "redis-network" {
   name = "redis-test-network"
 }
 ```
+## Example Usage - Redis Instance Cmek
+
+
+```hcl
+resource "google_redis_instance" "cache" {
+  name           = "cmek-memory-cache"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 1
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = data.google_compute_network.redis-network.id
+
+  redis_version     = "REDIS_6_X"
+  display_name      = "Terraform Test Instance"
+  reserved_ip_range = "192.168.0.0/29"
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
+  customer_managed_key = google_kms_crypto_key.redis_key.id
+}
+
+resource "google_kms_key_ring" "redis_keyring" {
+  name     = "redis-keyring"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "redis_key" {
+  name            = "redis-key"
+  key_ring        = google_kms_key_ring.redis_keyring.id
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "redis-test-network"
+}
+```
 
 ## Argument Reference
 
@@ -321,6 +368,11 @@ The following arguments are supported:
   an existing instance. For DIRECT_PEERING mode value must be a CIDR range of size /28, or
   "auto". For PRIVATE_SERVICE_ACCESS mode value must be the name of an allocated address 
   range associated with the private service access connection, or "auto".
+
+* `customer_managed_key` -
+  (Optional)
+  Optional. The KMS key reference that you want to use to encrypt the data at rest for this Redis
+  instance. If this is provided, CMEK is enabled.
 
 * `region` -
   (Optional)
