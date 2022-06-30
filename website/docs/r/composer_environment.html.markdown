@@ -306,7 +306,7 @@ The following arguments are supported:
   The configuration settings for the Airflow web server App Engine instance.
 
 * `encryption_config` -
-  (Optional, Cloud Composer 1 only)
+  (Optional)
   The encryption options for the Cloud Composer environment and its
   dependencies.
 
@@ -397,11 +397,10 @@ The following arguments are supported:
 
 * `enable_ip_masq_agent` -
   (Optional)
-  Cloud Composer 1 only)
   Deploys 'ip-masq-agent' daemon set in the GKE cluster and defines
   nonMasqueradeCIDRs equals to pod IP range so IP masquerading is used for
   all destination addresses, except between pods traffic.
-  See the [documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent).
+  See the [documentation](https://cloud.google.com/composer/docs/enable-ip-masquerade-agent).
 
 <a name="nested_software_config"></a>The `software_config` block supports:
 
@@ -658,6 +657,11 @@ The `config` block supports:
   The configuration used for the Private IP Cloud Composer environment. Structure is documented
   below.
 
+* `encryption_config` -
+  (Optional)
+  The encryption options for the Cloud Composer environment and its
+  dependencies.
+
 * `maintenance_window` -
   (Optional)
   The configuration settings for Cloud Composer maintenance windows.
@@ -713,6 +717,13 @@ The `node_config` block supports:
   Configuration for controlling how IPs are allocated in the GKE cluster.
   Structure is documented below.
   Cannot be updated.
+
+* `enable_ip_masq_agent` -
+  (Optional)
+  IP Masq Agent translates Pod IP addresses to node IP addresses, so that 
+  destinations and services targeted from Airflow DAGs and tasks only receive 
+  packets from node IP addresses instead of Pod IP addresses
+  See the [documentation](https://cloud.google.com/composer/docs/enable-ip-masquerade-agent).
 
 The `software_config` block supports:
 
@@ -798,7 +809,7 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   The CIDR block from which IP range for Cloud Composer Network in tenant project will be reserved. Needs to be disjoint from private_cluster_config.master_ipv4_cidr_block and cloud_sql_ipv4_cidr_block.
 
 * `enable_privately_used_public_ips` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   When enabled, IPs from public (non-RFC1918) ranges can be used for
   `ip_allocation_policy.cluster_ipv4_cidr_block` and `ip_allocation_policy.service_ipv4_cidr_block`.
 
@@ -842,7 +853,15 @@ The `ip_allocation_policy` block supports:
   (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use.
   Specify either `services_secondary_range_name` or `services_ipv4_cidr_block` but not both.
 
-The `maintenance_window` block supports:
+<a name="nested_encryption_config_comp_2"></a>The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Customer-managed Encryption Key available through Google's Key Management Service. It must
+  be the fully qualified resource name,
+  i.e. projects/project-id/locations/location/keyRings/keyring/cryptoKeys/key. Cannot be updated.
+
+<a name="nested_maintenance_window_comp_2"></a>The `maintenance_window` block supports:
 
 * `start_time` -
   (Required)
