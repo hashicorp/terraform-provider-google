@@ -26,6 +26,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+// Check to see if a specified value in the config exists and suppress diffs if so. Otherwise run emptyOrDefaultStringSuppress.
+
+func checkValAndDefaultStringSuppress(defaultVal string, checkVal string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		if _, ok := d.GetOkExists(checkVal); ok {
+			return false
+		}
+		return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
+	}
+}
+
 func resourceBillingBudget() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBillingBudgetCreate,
@@ -198,20 +209,29 @@ spend against the budget.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"calendar_period": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ValidateFunc:     validateEnum([]string{"MONTH", "QUARTER", "YEAR", "CALENDAR_PERIOD_UNSPECIFIED", ""}),
+							DiffSuppressFunc: checkValAndDefaultStringSuppress("MONTH", "budget_filter.0.custom_period.0.start_date"),
+							Description: `A CalendarPeriod represents the abstract concept of a recurring time period that has a
+canonical start. Grammatically, "the start of the current CalendarPeriod".
+All calendar times begin at 12 AM US and Canadian Pacific Time (UTC-8).
+
+Exactly one of 'calendar_period', 'custom_period' must be provided. Possible values: ["MONTH", "QUARTER", "YEAR", "CALENDAR_PERIOD_UNSPECIFIED"]`,
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+						},
 						"credit_types": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Optional: true,
-							Description: `A set of subaccounts of the form billingAccounts/{account_id},
-specifying that usage from only this set of subaccounts should
-be included in the budget. If a subaccount is set to the name of
-the parent account, usage from the parent account will be included.
-If the field is omitted, the report will include usage from the parent
-account and all subaccounts, if they exist.`,
+							Description: `Optional. If creditTypesTreatment is INCLUDE_SPECIFIED_CREDITS,
+this is a list of credit types to be subtracted from gross cost to determine the spend for threshold calculations. See a list of acceptable credit type values.
+If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be empty.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"credit_types_treatment": {
 							Type:         schema.TypeString,
@@ -220,7 +240,78 @@ account and all subaccounts, if they exist.`,
 							Description: `Specifies how credits should be treated when determining spend
 for threshold calculations. Default value: "INCLUDE_ALL_CREDITS" Possible values: ["INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS"]`,
 							Default:      "INCLUDE_ALL_CREDITS",
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+						},
+						"custom_period": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Specifies to track usage from any start date (required) to any end date (optional).
+This time period is static, it does not recur.
+
+Exactly one of 'calendar_period', 'custom_period' must be provided.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_date": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `A start date is required. The start date must be after January 1, 2017.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:         schema.TypeInt,
+													Required:     true,
+													ValidateFunc: validation.IntBetween(1, 31),
+													Description:  `Day of a month. Must be from 1 to 31 and valid for the year and month.`,
+												},
+												"month": {
+													Type:         schema.TypeInt,
+													Required:     true,
+													ValidateFunc: validation.IntBetween(1, 12),
+													Description:  `Month of a year. Must be from 1 to 12.`,
+												},
+												"year": {
+													Type:         schema.TypeInt,
+													Required:     true,
+													ValidateFunc: validation.IntBetween(1, 9999),
+													Description:  `Year of the date. Must be from 1 to 9999.`,
+												},
+											},
+										},
+									},
+									"end_date": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Optional. The end date of the time period. Budgets with elapsed end date won't be processed. 
+If unset, specifies to track all usage incurred since the startDate.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:         schema.TypeInt,
+													Required:     true,
+													ValidateFunc: validation.IntBetween(1, 31),
+													Description:  `Day of a month. Must be from 1 to 31 and valid for the year and month.`,
+												},
+												"month": {
+													Type:         schema.TypeInt,
+													Required:     true,
+													ValidateFunc: validation.IntBetween(1, 12),
+													Description:  `Month of a year. Must be from 1 to 12.`,
+												},
+												"year": {
+													Type:         schema.TypeInt,
+													Required:     true,
+													ValidateFunc: validation.IntBetween(1, 9999),
+													Description:  `Year of the date. Must be from 1 to 9999.`,
+												},
+											},
+										},
+									},
+								},
+							},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"labels": {
 							Type:     schema.TypeMap,
@@ -229,7 +320,7 @@ for threshold calculations. Default value: "INCLUDE_ALL_CREDITS" Possible values
 							Description: `A single label and value pair specifying that usage from only
 this set of labeled resources should be included in the budget.`,
 							Elem:         &schema.Schema{Type: schema.TypeString},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"projects": {
 							Type:     schema.TypeSet,
@@ -243,7 +334,7 @@ the usage occurred on.`,
 								Type: schema.TypeString,
 							},
 							Set:          schema.HashString,
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"services": {
 							Type:     schema.TypeList,
@@ -258,7 +349,7 @@ https://cloud.google.com/billing/v1/how-tos/catalog-api.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"subaccounts": {
 							Type:     schema.TypeList,
@@ -273,7 +364,7 @@ account and all subaccounts, if they exist.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 					},
 				},
@@ -468,7 +559,9 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("budget_filter") {
 		updateMask = append(updateMask, "budgetFilter.projects",
-			"budgetFilter.labels")
+			"budgetFilter.labels",
+			"budgetFilter.calendarPeriod",
+			"budgetFilter.customPeriod")
 	}
 
 	if d.HasChange("amount") {
@@ -593,6 +686,10 @@ func flattenBillingBudgetBudgetFilter(v interface{}, d *schema.ResourceData, con
 		flattenBillingBudgetBudgetFilterSubaccounts(original["subaccounts"], d, config)
 	transformed["labels"] =
 		flattenBillingBudgetBudgetFilterLabels(original["labels"], d, config)
+	transformed["calendar_period"] =
+		flattenBillingBudgetBudgetFilterCalendarPeriod(original["calendarPeriod"], d, config)
+	transformed["custom_period"] =
+		flattenBillingBudgetBudgetFilterCustomPeriod(original["customPeriod"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBillingBudgetBudgetFilterProjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -641,6 +738,161 @@ func flattenBillingBudgetBudgetFilterLabels(v interface{}, d *schema.ResourceDat
 		}
 	}
 	return transformed
+}
+
+func flattenBillingBudgetBudgetFilterCalendarPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBillingBudgetBudgetFilterCustomPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_date"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodStartDate(original["startDate"], d, config)
+	transformed["end_date"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodEndDate(original["endDate"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodStartDateYear(original["year"], d, config)
+	transformed["month"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodStartDateMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodStartDateDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDateYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDateMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodEndDateYear(original["year"], d, config)
+	transformed["month"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodEndDateMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenBillingBudgetBudgetFilterCustomPeriodEndDateDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDateYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDateMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenBillingBudgetAmount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -825,6 +1077,20 @@ func expandBillingBudgetBudgetFilter(v interface{}, d TerraformResourceData, con
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedCalendarPeriod, err := expandBillingBudgetBudgetFilterCalendarPeriod(original["calendar_period"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCalendarPeriod); val.IsValid() && !isEmptyValue(val) {
+		transformed["calendarPeriod"] = transformedCalendarPeriod
+	}
+
+	transformedCustomPeriod, err := expandBillingBudgetBudgetFilterCustomPeriod(original["custom_period"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomPeriod); val.IsValid() && !isEmptyValue(val) {
+		transformed["customPeriod"] = transformedCustomPeriod
+	}
+
 	return transformed, nil
 }
 
@@ -858,6 +1124,126 @@ func expandBillingBudgetBudgetFilterLabels(v interface{}, d TerraformResourceDat
 		m[k] = []string{val.(string)}
 	}
 	return m, nil
+}
+
+func expandBillingBudgetBudgetFilterCalendarPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartDate, err := expandBillingBudgetBudgetFilterCustomPeriodStartDate(original["start_date"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartDate); val.IsValid() && !isEmptyValue(val) {
+		transformed["startDate"] = transformedStartDate
+	}
+
+	transformedEndDate, err := expandBillingBudgetBudgetFilterCustomPeriodEndDate(original["end_date"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndDate); val.IsValid() && !isEmptyValue(val) {
+		transformed["endDate"] = transformedEndDate
+	}
+
+	return transformed, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandBillingBudgetBudgetFilterCustomPeriodStartDateYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandBillingBudgetBudgetFilterCustomPeriodStartDateMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandBillingBudgetBudgetFilterCustomPeriodStartDateDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodStartDateYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodStartDateMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandBillingBudgetBudgetFilterCustomPeriodEndDateYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandBillingBudgetBudgetFilterCustomPeriodEndDateMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandBillingBudgetBudgetFilterCustomPeriodEndDateDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodEndDateYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodEndDateMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandBillingBudgetAmount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

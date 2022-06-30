@@ -178,6 +178,55 @@ resource "google_monitoring_notification_channel" "notification_channel" {
   }
 }
 ```
+## Example Usage - Billing Budget Customperiod
+
+
+```hcl
+data "google_billing_account" "account" {
+  billing_account = "000000-0000000-0000000-000000"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name = "Example Billing Budget"
+
+  budget_filter {
+    projects = ["projects/${data.google_project.project.number}"]
+    credit_types_treatment = "EXCLUDE_ALL_CREDITS"
+    services = ["services/24E6-581D-38E5"] # Bigquery
+    
+    custom_period { 
+        start_date {
+          year = 2022
+          month = 1
+          day = 1
+        }
+        end_date {
+          year = 2023
+          month = 12
+          day = 31
+        }
+      }
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units = "100000"
+    }
+  }
+
+  threshold_rules {
+    threshold_percent = 0.5
+  }
+  threshold_rules {
+    threshold_percent = 0.9
+  }
+}
+```
 
 ## Argument Reference
 
@@ -302,12 +351,9 @@ The following arguments are supported:
 
 * `credit_types` -
   (Optional)
-  A set of subaccounts of the form billingAccounts/{account_id},
-  specifying that usage from only this set of subaccounts should
-  be included in the budget. If a subaccount is set to the name of
-  the parent account, usage from the parent account will be included.
-  If the field is omitted, the report will include usage from the parent
-  account and all subaccounts, if they exist.
+  Optional. If creditTypesTreatment is INCLUDE_SPECIFIED_CREDITS,
+  this is a list of credit types to be subtracted from gross cost to determine the spend for threshold calculations. See a list of acceptable credit type values.
+  If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be empty.
 
 * `subaccounts` -
   (Optional)
@@ -322,6 +368,64 @@ The following arguments are supported:
   (Optional)
   A single label and value pair specifying that usage from only
   this set of labeled resources should be included in the budget.
+
+* `calendar_period` -
+  (Optional)
+  A CalendarPeriod represents the abstract concept of a recurring time period that has a
+  canonical start. Grammatically, "the start of the current CalendarPeriod".
+  All calendar times begin at 12 AM US and Canadian Pacific Time (UTC-8).
+  Exactly one of `calendar_period`, `custom_period` must be provided.
+  Possible values are `MONTH`, `QUARTER`, `YEAR`, and `CALENDAR_PERIOD_UNSPECIFIED`.
+
+* `custom_period` -
+  (Optional)
+  Specifies to track usage from any start date (required) to any end date (optional).
+  This time period is static, it does not recur.
+  Exactly one of `calendar_period`, `custom_period` must be provided.
+  Structure is [documented below](#nested_custom_period).
+
+
+<a name="nested_custom_period"></a>The `custom_period` block supports:
+
+* `start_date` -
+  (Required)
+  A start date is required. The start date must be after January 1, 2017.
+  Structure is [documented below](#nested_start_date).
+
+* `end_date` -
+  (Optional)
+  Optional. The end date of the time period. Budgets with elapsed end date won't be processed. 
+  If unset, specifies to track all usage incurred since the startDate.
+  Structure is [documented below](#nested_end_date).
+
+
+<a name="nested_start_date"></a>The `start_date` block supports:
+
+* `year` -
+  (Required)
+  Year of the date. Must be from 1 to 9999.
+
+* `month` -
+  (Required)
+  Month of a year. Must be from 1 to 12.
+
+* `day` -
+  (Required)
+  Day of a month. Must be from 1 to 31 and valid for the year and month.
+
+<a name="nested_end_date"></a>The `end_date` block supports:
+
+* `year` -
+  (Required)
+  Year of the date. Must be from 1 to 9999.
+
+* `month` -
+  (Required)
+  Month of a year. Must be from 1 to 12.
+
+* `day` -
+  (Required)
+  Day of a month. Must be from 1 to 31 and valid for the year and month.
 
 <a name="nested_all_updates_rule"></a>The `all_updates_rule` block supports:
 

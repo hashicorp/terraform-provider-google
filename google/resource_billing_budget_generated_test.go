@@ -268,6 +268,81 @@ resource "google_monitoring_notification_channel" "notification_channel" {
 `, context)
 }
 
+func TestAccBillingBudget_billingBudgetCustomperiodExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBillingBudget_billingBudgetCustomperiodExample(context),
+			},
+			{
+				ResourceName:            "google_billing_budget.budget",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+		},
+	})
+}
+
+func testAccBillingBudget_billingBudgetCustomperiodExample(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_billing_account" "account" {
+  billing_account = "%{billing_acct}"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name = "Example Billing Budget%{random_suffix}"
+
+  budget_filter {
+    projects = ["projects/${data.google_project.project.number}"]
+    credit_types_treatment = "EXCLUDE_ALL_CREDITS"
+    services = ["services/24E6-581D-38E5"] # Bigquery
+    
+    custom_period { 
+        start_date {
+          year = 2022
+          month = 1
+          day = 1
+        }
+        end_date {
+          year = 2023
+          month = 12
+          day = 31
+        }
+      }
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units = "100000"
+    }
+  }
+
+  threshold_rules {
+    threshold_percent = 0.5
+  }
+  threshold_rules {
+    threshold_percent = 0.9
+  }
+}
+`, context)
+}
+
 func testAccCheckBillingBudgetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

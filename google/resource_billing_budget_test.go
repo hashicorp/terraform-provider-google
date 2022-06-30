@@ -95,7 +95,23 @@ func TestAccBillingBudget_billingBudgetUpdate(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				Config: testAccBillingBudget_billingBudgetCalendarUpdate(context),
+			},
+			{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccBillingBudget_billingBudgetUpdate(context),
+			},
+			{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBillingBudget_billingBudgetCustomPeriodUpdate(context),
 			},
 			{
 				ResourceName:      "google_billing_budget.budget",
@@ -240,6 +256,113 @@ resource "google_billing_budget" "budget" {
   threshold_rules {
     threshold_percent = 0.9
     spend_basis = "FORECASTED_SPEND"
+  }
+
+  all_updates_rule {
+    pubsub_topic = google_pubsub_topic.topic2.id
+  }
+}
+`, context)
+}
+
+func testAccBillingBudget_billingBudgetCalendarUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_pubsub_topic" "topic1" {
+  name = "tf-test-billing-budget1-%{random_suffix}"
+}
+resource "google_pubsub_topic" "topic2" {
+  name = "tf-test-billing-budget2-%{random_suffix}"
+}
+data "google_billing_account" "account" {
+  billing_account = "%{billing_acct}"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name = "Example Billing Budget%{random_suffix}"
+
+  budget_filter {
+    projects = []
+    labels  = {
+      label1 = "bar2"
+    }
+	calendar_period = "YEAR"
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units = "2000"
+    }
+  }
+
+  threshold_rules {
+    threshold_percent = 0.5
+  }
+  threshold_rules {
+    threshold_percent = 0.9
+  }
+
+  all_updates_rule {
+    pubsub_topic = google_pubsub_topic.topic2.id
+  }
+}
+`, context)
+}
+
+func testAccBillingBudget_billingBudgetCustomPeriodUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_pubsub_topic" "topic1" {
+  name = "tf-test-billing-budget1-%{random_suffix}"
+}
+resource "google_pubsub_topic" "topic2" {
+  name = "tf-test-billing-budget2-%{random_suffix}"
+}
+data "google_billing_account" "account" {
+  billing_account = "%{billing_acct}"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name = "Example Billing Budget%{random_suffix}"
+
+  budget_filter {
+    projects = []
+    labels  = {
+      label1 = "bar2"
+    }
+	custom_period {
+	  start_date {
+		year = 2022
+		month = 1
+		day = 1
+	  }
+	  end_date {
+		year = 2023
+		month = 12
+		day = 31
+	  }		
+	}
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units = "2000"
+    }
+  }
+
+  threshold_rules {
+    threshold_percent = 0.5
+  }
+  threshold_rules {
+    threshold_percent = 0.9
   }
 
   all_updates_rule {
