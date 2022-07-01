@@ -40,9 +40,10 @@ To get more information about function, see:
 
 
 ```hcl
+# [START functions_v2_basic]
 resource "google_storage_bucket" "bucket" {
   provider = google-beta
-  name     = "cloudfunctions2-function-bucket"
+  name     = "cloudfunctions2-function-bucket"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -51,7 +52,7 @@ resource "google_storage_bucket_object" "object" {
   provider = google-beta
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
-  source = "path/to/index.zip"
+  source = "path/to/index.zip"  # Add path to the zipped function source code
 }
  
 resource "google_cloudfunctions2_function" "terraform-test2" {
@@ -62,7 +63,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
  
   build_config {
     runtime = "nodejs16"
-    entry_point = "helloHttp"
+    entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
         bucket = google_storage_bucket.bucket.name
@@ -77,6 +78,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
     timeout_seconds     = 60
   }
 }
+# [END functions_v2_basic]
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudfunctions2_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -87,20 +89,21 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
 
 
 ```hcl
+# [START functions_v2_full]
 resource "google_service_account" "account" {
   provider = google-beta
-  account_id = "test-service-account"
+  account_id = "s-a"
   display_name = "Test Service Account"
 }
 
 resource "google_pubsub_topic" "sub" {
   provider = google-beta
-  name = "pubsub"
+  name = "pub-sub"
 }
 
 resource "google_storage_bucket" "bucket" {
   provider = google-beta
-  name     = "cloudfunctions2-function-bucket"
+  name     = "cloudfunctions2-function-bucket"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -109,7 +112,7 @@ resource "google_storage_bucket_object" "object" {
   provider = google-beta
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
-  source = "path/to/index.zip"
+  source = "path/to/index.zip"  # Add path to the zipped function source code
 }
  
 resource "google_cloudfunctions2_function" "terraform-test" {
@@ -120,7 +123,7 @@ resource "google_cloudfunctions2_function" "terraform-test" {
  
   build_config {
     runtime = "nodejs16"
-    entry_point = "helloHttp"
+    entry_point = "helloPubSub"  # Set the entry point 
     environment_variables = {
         BUILD_CONFIG_TEST = "build_test"
     }
@@ -153,6 +156,7 @@ resource "google_cloudfunctions2_function" "terraform-test" {
     service_account_email = google_service_account.account.email
   }
 }
+# [END functions_v2_full]
 ```
 
 ## Argument Reference
