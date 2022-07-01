@@ -847,8 +847,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 222
-// Generated IAM resources: 111
-// Total generated resources: 333
+// Generated IAM resources: 114
+// Total generated resources: 336
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -898,6 +898,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_table_iam_policy":                             ResourceIamPolicy(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc),
 			"google_bigquery_routine":                                      resourceBigQueryRoutine(),
 			"google_bigquery_connection":                                   resourceBigqueryConnectionConnection(),
+			"google_bigquery_connection_iam_binding":                       ResourceIamBinding(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc),
+			"google_bigquery_connection_iam_member":                        ResourceIamMember(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc),
+			"google_bigquery_connection_iam_policy":                        ResourceIamPolicy(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc),
 			"google_bigquery_data_transfer_config":                         resourceBigqueryDataTransferConfig(),
 			"google_bigquery_reservation":                                  resourceBigqueryReservationReservation(),
 			"google_bigtable_app_profile":                                  resourceBigtableAppProfile(),

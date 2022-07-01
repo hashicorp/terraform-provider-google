@@ -23,6 +23,47 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
+		CheckDestroy: testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_connection" "connection" {
+   connection_id = "tf-test-my-connection%{random_suffix}"
+   location      = "US"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   cloud_resource {}
+}
+`, context)
+}
+
 func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
@@ -174,47 +215,6 @@ resource "google_bigquery_connection" "connection" {
           password = google_sql_user.user.password
         }
     }
-}
-`, context)
-}
-
-func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-			"time":   {},
-		},
-		CheckDestroy: testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(context),
-			},
-			{
-				ResourceName:            "google_bigquery_connection.connection",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
-			},
-		},
-	})
-}
-
-func testAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
-   location      = "US"
-   friendly_name = "👋"
-   description   = "a riveting description"
-   cloud_resource {}
 }
 `, context)
 }
