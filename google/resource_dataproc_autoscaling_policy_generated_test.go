@@ -23,6 +23,53 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocAutoscalingPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_autoscaling_policy.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_dataproc_autoscaling_policy" "basic" {
+  policy_id = "tf-test-dataproc-policy%{random_suffix}"
+  location  = "us-central1"
+
+  worker_config {
+    max_instances = 3
+  }
+
+  basic_algorithm {
+    yarn_config {
+      graceful_decommission_timeout = "30s"
+
+      scale_up_factor   = 0.5
+      scale_down_factor = 0.5
+    }
+  }
+}
+`, context)
+}
+
 func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(t *testing.T) {
 	t.Parallel()
 
