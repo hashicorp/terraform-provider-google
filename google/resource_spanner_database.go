@@ -699,8 +699,9 @@ func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, ob
 	log.Printf("[DEBUG] Preparing to create new Database. Any extra DDL statements will be applied to the Database in a separate API call")
 
 	delete(obj, "name")
-	delete(obj, "versionRetentionPeriod")
 	delete(obj, "instance")
+
+	delete(obj, "versionRetentionPeriod")
 	delete(obj, "extraStatements")
 	return obj, nil
 }
