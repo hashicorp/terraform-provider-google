@@ -1,0 +1,3 @@
+```release-note:none
+fix example hcl in `google_logging_project_sink`.
+```
