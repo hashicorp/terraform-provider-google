@@ -396,10 +396,7 @@ resource "google_cloud_scheduler_job" "default" {
 
   http_target {
     http_method = "POST"
-
-    # WORKAROUND: ensure this ends with a slash to prevent state-checking issues.
-    # See https://github.com/hashicorp/terraform-provider-google/issues/11977
-    uri         = "${google_cloud_run_service.default.status[0].url}/"
+    uri         = google_cloud_run_service.default.status[0].url
 
     oidc_token {
       service_account_email = google_service_account.default.email
