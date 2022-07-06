@@ -220,6 +220,48 @@ resource "google_compute_instance" "custom_hostname_instance" {
 `, context)
 }
 
+func TestAccCGCSnippet_computeReservationExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_computeReservationExample(context),
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_computeReservationExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_compute_reservation" "gce_reservation_local" {
+  name = "tf-test-gce-reservation-local%{random_suffix}"
+  zone = "us-central1-c"
+  project = "%{project}"
+
+  share_settings {
+    share_type = "LOCAL"
+  }
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      machine_type     = "n2-standard-2"
+    }
+  }
+}
+
+`, context)
+}
+
 func TestAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
