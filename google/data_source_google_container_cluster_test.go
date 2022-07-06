@@ -24,7 +24,6 @@ func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 						map[string]struct{}{
 							"enable_autopilot":             {},
 							"enable_tpu":                   {},
-							"enable_binary_authorization":  {},
 							"pod_security_policy_config.#": {},
 						},
 					),
@@ -51,7 +50,6 @@ func TestAccContainerClusterDatasource_regional(t *testing.T) {
 						map[string]struct{}{
 							"enable_autopilot":             {},
 							"enable_tpu":                   {},
-							"enable_binary_authorization":  {},
 							"pod_security_policy_config.#": {},
 						},
 					),

@@ -400,11 +400,38 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_binary_authorization": {
-				Default:       false,
 				Type:          schema.TypeBool,
 				Optional:      true,
+				Default:       false,
+				Deprecated:    "Deprecated in favor of binary_authorization.",
 				Description:   `Enable Binary Authorization for this cluster. If enabled, all container images will be validated by Google Binary Authorization.`,
-				ConflictsWith: []string{"enable_autopilot"},
+				ConflictsWith: []string{"enable_autopilot", "binary_authorization"},
+			},
+			"binary_authorization": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: BinaryAuthorizationDiffSuppress,
+				MaxItems:         1,
+				Description:      "Configuration options for the Binary Authorization feature.",
+				ConflictsWith:    []string{"enable_binary_authorization"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Deprecated:    "Deprecated in favor of evaluation_mode.",
+							Description:   "Enable Binary Authorization for this cluster.",
+							ConflictsWith: []string{"enable_autopilot", "binary_authorization.0.evaluation_mode"},
+						},
+						"evaluation_mode": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ValidateFunc:  validation.StringInSlice([]string{"DISABLED", "PROJECT_SINGLETON_POLICY_ENFORCE"}, false),
+							Description:   "Mode of operation for Binary Authorization policy evaluation.",
+							ConflictsWith: []string{"binary_authorization.0.enabled"},
+						},
+					},
+				},
 			},
 
 			"enable_kubernetes_alpha": {
@@ -1299,10 +1326,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		EnableKubernetesAlpha: d.Get("enable_kubernetes_alpha").(bool),
 		IpAllocationPolicy:    ipAllocationBlock,
 		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
-		BinaryAuthorization: &container.BinaryAuthorization{
-			Enabled:         d.Get("enable_binary_authorization").(bool),
-			ForceSendFields: []string{"Enabled"},
-		},
+		BinaryAuthorization:   expandBinaryAuthorization(d.Get("binary_authorization"), d.Get("enable_binary_authorization").(bool)),
 		Autopilot: &container.Autopilot{
 			Enabled:         d.Get("enable_autopilot").(bool),
 			ForceSendFields: []string{"Enabled"},
@@ -1646,8 +1670,17 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("cluster_autoscaling", flattenClusterAutoscaling(cluster.Autoscaling)); err != nil {
 		return err
 	}
-	if err := d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled); err != nil {
-		return fmt.Errorf("Error setting enable_binary_authorization: %s", err)
+	binauthz_enabled := d.Get("binary_authorization.0.enabled").(bool)
+	legacy_binauthz_enabled := d.Get("enable_binary_authorization").(bool)
+	if !binauthz_enabled {
+		if err := d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled); err != nil {
+			return fmt.Errorf("Error setting enable_binary_authorization: %s", err)
+		}
+	}
+	if !legacy_binauthz_enabled {
+		if err := d.Set("binary_authorization", flattenBinaryAuthorization(cluster.BinaryAuthorization)); err != nil {
+			return err
+		}
 	}
 	if cluster.Autopilot != nil {
 		if err := d.Set("enable_autopilot", cluster.Autopilot.Enabled); err != nil {
@@ -1871,6 +1904,22 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's binary authorization has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("binary_authorization") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredBinaryAuthorization: expandBinaryAuthorization(d.Get("binary_authorization"), d.Get("enable_binary_authorization").(bool)),
+			},
+		}
+
+		updateF := updateFunc(req, "updating GKE binary authorization")
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's binary authorization has been updated to %v", d.Id(), req.Update.DesiredBinaryAuthorization)
 	}
 
 	if d.HasChange("enable_shielded_nodes") {
@@ -2981,6 +3030,21 @@ func expandNotificationConfig(configured interface{}) *container.NotificationCon
 	}
 }
 
+func expandBinaryAuthorization(configured interface{}, legacy_enabled bool) *container.BinaryAuthorization {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return &container.BinaryAuthorization{
+			Enabled:         legacy_enabled,
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+	config := l[0].(map[string]interface{})
+	return &container.BinaryAuthorization{
+		Enabled:        config["enabled"].(bool),
+		EvaluationMode: config["evaluation_mode"].(string),
+	}
+}
+
 func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -3247,6 +3311,18 @@ func flattenNotificationConfig(c *container.NotificationConfig) []map[string]int
 		},
 	}
 }
+
+func flattenBinaryAuthorization(c *container.BinaryAuthorization) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled":         c.Enabled,
+			"evaluation_mode": c.EvaluationMode,
+		})
+	}
+	return result
+}
+
 func flattenConfidentialNodes(c *container.ConfidentialNodes) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
@@ -3853,6 +3929,18 @@ func containerClusterNetworkPolicyDiffSuppress(k, old, new string, r *schema.Res
 	if k == "network_policy.#" && old == "1" && new == "0" {
 		o, _ := r.GetChange("network_policy.0.enabled")
 		if !o.(bool) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func BinaryAuthorizationDiffSuppress(k, old, new string, r *schema.ResourceData) bool {
+	// An empty config is equivalent to a config with enabled set to false.
+	if k == "binary_authorization.#" && old == "1" && new == "0" {
+		o, _ := r.GetChange("binary_authorization.0.enabled")
+		if !o.(bool) && !r.HasChange("binary_authorization.0.evaluation_mode") {
 			return true
 		}
 	}
