@@ -60,6 +60,7 @@ var (
 		"cluster_config.0.initialization_action",
 		"cluster_config.0.encryption_config",
 		"cluster_config.0.autoscaling_config",
+		"cluster_config.0.metastore_config",
 	}
 )
 
@@ -633,6 +634,23 @@ by Dataproc`,
 								},
 							},
 						},
+						"metastore_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							MaxItems:     1,
+							Description:  `Specifies a Metastore configuration.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"dataproc_metastore_service": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Resource name of an existing Dataproc Metastore service.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -892,6 +910,10 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 		conf.AutoscalingConfig = expandAutoscalingConfig(cfg)
 	}
 
+	if cfg, ok := configOptions(d, "cluster_config.0.metastore_config"); ok {
+		conf.MetastoreConfig = expandMetastoreConfig(cfg)
+	}
+
 	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
 		log.Println("[INFO] got master_config")
 		conf.MasterConfig = expandInstanceGroupConfig(cfg)
@@ -1067,6 +1089,14 @@ func expandAutoscalingConfig(cfg map[string]interface{}) *dataproc.AutoscalingCo
 	conf := &dataproc.AutoscalingConfig{}
 	if v, ok := cfg["policy_uri"]; ok {
 		conf.PolicyUri = v.(string)
+	}
+	return conf
+}
+
+func expandMetastoreConfig(cfg map[string]interface{}) *dataproc.MetastoreConfig {
+	conf := &dataproc.MetastoreConfig{}
+	if v, ok := cfg["dataproc_metastore_service"]; ok {
+		conf.DataprocMetastoreService = v.(string)
 	}
 	return conf
 }
@@ -1317,6 +1347,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"autoscaling_config":        flattenAutoscalingConfig(d, cfg.AutoscalingConfig),
 		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
 		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
+		"metastore_config":          flattenMetastoreConfig(d, cfg.MetastoreConfig),
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -1392,6 +1423,18 @@ func flattenAutoscalingConfig(d *schema.ResourceData, ec *dataproc.AutoscalingCo
 
 	data := map[string]interface{}{
 		"policy_uri": ec.PolicyUri,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenMetastoreConfig(d *schema.ResourceData, ec *dataproc.MetastoreConfig) []map[string]interface{} {
+	if ec == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"dataproc_metastore_service": ec.DataprocMetastoreService,
 	}
 
 	return []map[string]interface{}{data}

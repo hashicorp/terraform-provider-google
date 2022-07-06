@@ -216,7 +216,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 * `endpoint_config` (Optional, Beta) The config settings for port access on the cluster.
    Structure [defined below](#nested_endpoint_config).
 
-* `metastore_config` (Optional, Beta) The config setting for metastore service with the cluster.
+* `metastore_config` (Optional) The config setting for metastore service with the cluster.
    Structure [defined below](#nested_metastore_config).
 - - -
 

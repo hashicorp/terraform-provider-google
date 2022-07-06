@@ -720,6 +720,38 @@ func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withMetastoreConfig(t *testing.T) {
+	t.Parallel()
+
+	pid := getTestProjectFromEnv()
+	msName_basic := fmt.Sprintf("projects/%s/locations/us-central1/services/metastore-srv", pid)
+	msName_update := fmt.Sprintf("projects/%s/locations/us-central1/services/metastore-srv-update", pid)
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withMetastoreConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_metastore_config", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_metastore_config", "cluster_config.0.metastore_config.0.dataproc_metastore_service", msName_basic),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_withMetastoreConfig_update(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_metastore_config", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_metastore_config", "cluster_config.0.metastore_config.0.dataproc_metastore_service", msName_update),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocClusterDestroy(t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -1660,4 +1692,66 @@ resource "google_dataproc_autoscaling_policy" "asp" {
   }
 }
 `, rnd, rnd)
+}
+
+func testAccDataprocCluster_withMetastoreConfig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_metastore_config" {
+	name                  = "tf-test-%s"
+	region                = "us-central1"
+
+	cluster_config {
+		metastore_config {
+			dataproc_metastore_service = google_dataproc_metastore_service.ms.name
+		}
+	}
+}
+
+resource "google_dataproc_metastore_service" "ms" {
+	service_id = "metastore-srv"
+	location   = "us-central1"
+	port       = 9080
+	tier       = "DEVELOPER"
+
+	maintenance_window {
+		hour_of_day = 2
+		day_of_week = "SUNDAY"
+	}
+
+	hive_metastore_config {
+		version = "3.1.2"
+	}
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withMetastoreConfig_update(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_metastore_config" {
+	name                  = "tf-test-%s"
+	region                = "us-central1"
+
+	cluster_config {
+		metastore_config {
+			dataproc_metastore_service = google_dataproc_metastore_service.ms.name
+		}
+	}
+}
+
+resource "google_dataproc_metastore_service" "ms" {
+	service_id = "metastore-srv-update"
+	location   = "us-central1"
+	port       = 9080
+	tier       = "DEVELOPER"
+
+	maintenance_window {
+		hour_of_day = 2
+		day_of_week = "SUNDAY"
+	}
+
+	hive_metastore_config {
+		version = "3.1.2"
+	}
+}
+`, rnd)
 }
