@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: promoted attribute "encryption_key_name" to GA in `google_sql_database_instance` resource.
+```
