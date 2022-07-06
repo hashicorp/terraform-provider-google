@@ -230,7 +230,6 @@ func ContainerAwsClusterControlPlaneSchema() *schema.Resource {
 			"iam_instance_profile": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The name of the AWS IAM instance pofile to assign to each control plane replica.",
 			},
 

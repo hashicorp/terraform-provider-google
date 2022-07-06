@@ -18,13 +18,15 @@ layout: "google"
 page_title: "Google: google_firebaserules_ruleset"
 sidebar_current: "docs-google-firebaserules-ruleset"
 description: |-
-  The Firebaserules Ruleset resource
+  
 ---
 
 # google_firebaserules_ruleset
 
-The Firebaserules Ruleset resource
 
+
+For more information, see:
+* [Get started with Firebase Security Rules](https://firebase.google.com/docs/rules/get-started)
 ## Example Usage - basic_ruleset
 Creates a basic Firestore ruleset
 ```hcl

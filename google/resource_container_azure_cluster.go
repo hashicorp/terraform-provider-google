@@ -220,7 +220,6 @@ func ContainerAzureClusterControlPlaneSchema() *schema.Resource {
 			"ssh_config": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "SSH configuration for how to access the underlying control plane machines.",
 				MaxItems:    1,
 				Elem:        ContainerAzureClusterControlPlaneSshConfigSchema(),
@@ -309,7 +308,6 @@ func ContainerAzureClusterControlPlaneSshConfigSchema() *schema.Resource {
 			"authorized_key": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.",
 			},
 		},
