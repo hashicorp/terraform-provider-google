@@ -136,6 +136,9 @@ on the current needs of the cluster's workload. See the
 [guide to using Node Auto-Provisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
 for more details. Structure is [documented below](#nested_cluster_autoscaling).
 
+* `binary_authorization` - (Optional) Configuration options for the Binary
+  Authorization feature. Structure is [documented below](#nested_binary_authorization).
+
 * `database_encryption` - (Optional)
     Structure is [documented below](#nested_database_encryption).
 
@@ -146,8 +149,9 @@ per node in this cluster. This doesn't work on "routes-based" clusters, clusters
 that don't have IP Aliasing enabled. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
 for more information.
 
-* `enable_binary_authorization` - (Optional) Enable Binary Authorization for this cluster.
+* `enable_binary_authorization` - (DEPRECATED) Enable Binary Authorization for this cluster.
     If enabled, all container images will be validated by Google Binary Authorization.
+    Deprecated in favor of `binary_authorization`.
 
 * `enable_kubernetes_alpha` - (Optional) Whether to enable Kubernetes Alpha features for
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
@@ -410,6 +414,11 @@ addons_config {
   }
 }
 ```
+<a name="nested_binary_authorization"></a>The `binary_authorization` block supports:
+
+* `enabled` - (DEPRECATED) Enable Binary Authorization for this cluster. Deprecated in favor of `evaluation_mode`.
+
+* `evaluation_mode` - (Optional) Mode of operation for Binary Authorization policy evaluation.
 
 <a name="nested_database_encryption"></a>The `database_encryption` block supports:
 

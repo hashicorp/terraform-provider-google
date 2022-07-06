@@ -2313,6 +2313,9 @@ resource "google_container_cluster" "primary" {
     enabled = true
   }
 
+  binary_authorization {
+    evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
+  }
 }
 `, name)
 }
@@ -2342,6 +2345,9 @@ resource "google_container_cluster" "primary" {
     enabled = true
   }
 
+  binary_authorization {
+    evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
+  }
 }
 `, name)
 }
