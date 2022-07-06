@@ -1,0 +1,3 @@
+```release-note:bug
+cloudscheduler: fixed a diff on the last slash of uri on `google_cloud_scheduler_job`
+```

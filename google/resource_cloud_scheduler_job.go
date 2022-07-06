@@ -227,9 +227,10 @@ send a request to the targeted url`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"uri": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The full URI path that the request will be sent to.`,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: lastSlashDiffSuppress,
+							Description:      `The full URI path that the request will be sent to.`,
 						},
 						"body": {
 							Type:         schema.TypeString,
