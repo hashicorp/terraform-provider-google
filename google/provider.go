@@ -365,6 +365,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[DataprocBasePathKey]),
 			},
+			"dataproc_metastore_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DATAPROC_METASTORE_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[DataprocMetastoreBasePathKey]),
+			},
 			"datastore_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -781,6 +789,7 @@ func Provider() *schema.Provider {
 			"google_container_engine_versions":                    dataSourceGoogleContainerEngineVersions(),
 			"google_container_registry_image":                     dataSourceGoogleContainerImage(),
 			"google_container_registry_repository":                dataSourceGoogleContainerRepo(),
+			"google_dataproc_metastore_service":                   dataSourceDataprocMetastoreService(),
 			"google_dns_keys":                                     dataSourceDNSKeys(),
 			"google_dns_managed_zone":                             dataSourceDnsManagedZone(),
 			"google_dns_record_set":                               dataSourceDnsRecordSet(),
@@ -846,9 +855,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 222
-// Generated IAM resources: 117
-// Total generated resources: 339
+// Generated resources: 223
+// Generated IAM resources: 120
+// Total generated resources: 343
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1031,6 +1040,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dataproc_autoscaling_policy_iam_binding":               ResourceIamBinding(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
 			"google_dataproc_autoscaling_policy_iam_member":                ResourceIamMember(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
 			"google_dataproc_autoscaling_policy_iam_policy":                ResourceIamPolicy(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
+			"google_dataproc_metastore_service":                            resourceDataprocMetastoreService(),
+			"google_dataproc_metastore_service_iam_binding":                ResourceIamBinding(DataprocMetastoreServiceIamSchema, DataprocMetastoreServiceIamUpdaterProducer, DataprocMetastoreServiceIdParseFunc),
+			"google_dataproc_metastore_service_iam_member":                 ResourceIamMember(DataprocMetastoreServiceIamSchema, DataprocMetastoreServiceIamUpdaterProducer, DataprocMetastoreServiceIdParseFunc),
+			"google_dataproc_metastore_service_iam_policy":                 ResourceIamPolicy(DataprocMetastoreServiceIamSchema, DataprocMetastoreServiceIamUpdaterProducer, DataprocMetastoreServiceIdParseFunc),
 			"google_datastore_index":                                       resourceDatastoreIndex(),
 			"google_deployment_manager_deployment":                         resourceDeploymentManagerDeployment(),
 			"google_dialogflow_agent":                                      resourceDialogflowAgent(),
@@ -1470,6 +1483,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DataFusionBasePath = d.Get("data_fusion_custom_endpoint").(string)
 	config.DataLossPreventionBasePath = d.Get("data_loss_prevention_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
+	config.DataprocMetastoreBasePath = d.Get("dataproc_metastore_custom_endpoint").(string)
 	config.DatastoreBasePath = d.Get("datastore_custom_endpoint").(string)
 	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)
 	config.DialogflowBasePath = d.Get("dialogflow_custom_endpoint").(string)

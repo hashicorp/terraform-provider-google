@@ -11,9 +11,6 @@ description: |-
 
 Get a Dataproc Metastore service from Google Cloud by its id and location.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
-
 ## Example Usage
 
 ```tf
