@@ -18,13 +18,15 @@ layout: "google"
 page_title: "Google: google_firebaserules_release"
 sidebar_current: "docs-google-firebaserules-release"
 description: |-
-  The Firebaserules Release resource
+  
 ---
 
 # google_firebaserules_release
 
-The Firebaserules Release resource
 
+
+For more information, see:
+* [Get started with Firebase Security Rules](https://firebase.google.com/docs/rules/get-started)
 ## Example Usage - basic_release
 Creates a basic Firebase Rules Release
 ```hcl
@@ -90,11 +92,11 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Format: `projects/{project_id}/releases/{release_id}`
+  Format: `projects/{project_id}/releases/{release_id}`\Firestore Rules Releases will **always** have the name 'cloud.firestore'
   
 * `ruleset_name` -
   (Required)
-  Name of the `Ruleset` referred to by this `Release`. The `Ruleset` must exist the `Release` to be created.
+  Name of the `Ruleset` referred to by this `Release`. The `Ruleset` must exist for the `Release` to be created.
   
 
 

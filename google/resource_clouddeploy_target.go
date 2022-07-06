@@ -83,6 +83,7 @@ func resourceClouddeployTarget() *schema.Resource {
 
 			"execution_configs": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: "Configurations for all execution that relates to this `Target`. Each `ExecutionEnvironmentUsage` value may only be used in a single configuration; using the same value multiple times is an error. When one or more configurations are specified, they must include the `RENDER` and `DEPLOY` `ExecutionEnvironmentUsage` values. When no configurations are specified, execution will use the default specified in `DefaultPool`.",
 				Elem:        ClouddeployTargetExecutionConfigsSchema(),
@@ -177,12 +178,14 @@ func ClouddeployTargetExecutionConfigsSchema() *schema.Resource {
 
 			"artifact_storage": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "Optional. Cloud Storage location in which to store execution outputs. This can either be a bucket (\"gs://my-bucket\") or a path within a bucket (\"gs://my-bucket/my-dir\"). If unspecified, a default bucket located in the same region will be used.",
 			},
 
 			"service_account": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "Optional. Google service account to use for execution. If unspecified, the project execution service account (-compute@developer.gserviceaccount.com) is used.",
 			},
@@ -508,12 +511,12 @@ func flattenClouddeployTargetAnthosCluster(obj *clouddeploy.TargetAnthosCluster)
 }
 func expandClouddeployTargetExecutionConfigsArray(o interface{}) []clouddeploy.TargetExecutionConfigs {
 	if o == nil {
-		return make([]clouddeploy.TargetExecutionConfigs, 0)
+		return nil
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 || objs[0] == nil {
-		return make([]clouddeploy.TargetExecutionConfigs, 0)
+		return nil
 	}
 
 	items := make([]clouddeploy.TargetExecutionConfigs, 0, len(objs))
@@ -527,14 +530,14 @@ func expandClouddeployTargetExecutionConfigsArray(o interface{}) []clouddeploy.T
 
 func expandClouddeployTargetExecutionConfigs(o interface{}) *clouddeploy.TargetExecutionConfigs {
 	if o == nil {
-		return clouddeploy.EmptyTargetExecutionConfigs
+		return nil
 	}
 
 	obj := o.(map[string]interface{})
 	return &clouddeploy.TargetExecutionConfigs{
 		Usages:          expandClouddeployTargetExecutionConfigsUsagesArray(obj["usages"]),
-		ArtifactStorage: dcl.String(obj["artifact_storage"].(string)),
-		ServiceAccount:  dcl.String(obj["service_account"].(string)),
+		ArtifactStorage: dcl.StringOrNil(obj["artifact_storage"].(string)),
+		ServiceAccount:  dcl.StringOrNil(obj["service_account"].(string)),
 		WorkerPool:      dcl.String(obj["worker_pool"].(string)),
 	}
 }
