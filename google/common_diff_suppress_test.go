@@ -284,3 +284,42 @@ func TestDurationDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestLastSlashDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"slash to no slash": {
+			Old:                "https://hello-rehvs75zla-uc.a.run.app/",
+			New:                "https://hello-rehvs75zla-uc.a.run.app",
+			ExpectDiffSuppress: true,
+		},
+		"no slash to slash": {
+			Old:                "https://hello-rehvs75zla-uc.a.run.app",
+			New:                "https://hello-rehvs75zla-uc.a.run.app/",
+			ExpectDiffSuppress: true,
+		},
+		"slash to slash": {
+			Old:                "https://hello-rehvs75zla-uc.a.run.app/",
+			New:                "https://hello-rehvs75zla-uc.a.run.app/",
+			ExpectDiffSuppress: true,
+		},
+		"no slash to no slash": {
+			Old:                "https://hello-rehvs75zla-uc.a.run.app",
+			New:                "https://hello-rehvs75zla-uc.a.run.app",
+			ExpectDiffSuppress: true,
+		},
+		"different domains": {
+			Old:                "https://x.a.run.app/",
+			New:                "https://y.a.run.app",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if lastSlashDiffSuppress("uri", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
