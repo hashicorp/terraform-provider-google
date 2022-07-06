@@ -32,15 +32,12 @@ Three different resources help you manage your IAM policy for Dataproc metastore
 ~> **Note:** `google_dataproc_metastore_service_iam_binding` resources **can be** used in conjunction with `google_dataproc_metastore_service_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## google\_dataproc\_metastore\_service\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -50,7 +47,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_dataproc_metastore_service_iam_policy" "policy" {
-  provider = google-beta
   project = google_dataproc_metastore_service.default.project
   location = google_dataproc_metastore_service.default.location
   service_id = google_dataproc_metastore_service.default.service_id
@@ -62,7 +58,6 @@ resource "google_dataproc_metastore_service_iam_policy" "policy" {
 
 ```hcl
 resource "google_dataproc_metastore_service_iam_binding" "binding" {
-  provider = google-beta
   project = google_dataproc_metastore_service.default.project
   location = google_dataproc_metastore_service.default.location
   service_id = google_dataproc_metastore_service.default.service_id
@@ -77,7 +72,6 @@ resource "google_dataproc_metastore_service_iam_binding" "binding" {
 
 ```hcl
 resource "google_dataproc_metastore_service_iam_member" "member" {
-  provider = google-beta
   project = google_dataproc_metastore_service.default.project
   location = google_dataproc_metastore_service.default.location
   service_id = google_dataproc_metastore_service.default.service_id
@@ -90,7 +84,7 @@ resource "google_dataproc_metastore_service_iam_member" "member" {
 
 The following arguments are supported:
 
-* `location` - (Required) The  location where the autoscaling policy should reside.
+* `location` - (Required) The location where the metastore service should reside.
 The default value is `global`.
  Used to find the parent resource to bind the IAM policy to
 

@@ -1,0 +1,6 @@
+```release-note:new-resource
+metastore: promote `google_dataproc_metastore_service` to GA
+```
+```release-note:enhancement
+metastore: add `databaseType`, `releaseChannel`, and `hiveMetastoreConfig.endpointProtocol` arguments
+```
