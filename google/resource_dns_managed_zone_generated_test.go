@@ -23,6 +23,50 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsRecordSetBasicExample(context),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.parent-zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsRecordSetBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  provider    = "google-beta"
+  name        = "tf-test-sample-zone%{random_suffix}"
+  dns_name    = "tf-test-sample-zone%{random_suffix}.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "default" {
+  provider     = "google-beta"
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.tf-test-sample-zone%{random_suffix}.hashicorptest.com."
+  type         = "A"
+  rrdatas      = ["10.0.0.1", "10.1.0.1"]
+  ttl          = 86400
+}
+`, context)
+}
+
 func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
