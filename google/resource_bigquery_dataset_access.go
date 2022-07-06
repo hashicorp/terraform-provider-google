@@ -53,19 +53,19 @@ func resourceBigQueryDatasetAccessIamMemberDiffSuppress(k, old, new string, d *s
 		}
 
 		if memberInState := d.Get("user_by_email").(string); memberInState != "" {
-			return memberInState == strippedIamMember
+			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
 		}
 
 		if memberInState := d.Get("group_by_email").(string); memberInState != "" {
-			return memberInState == strippedIamMember
+			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
 		}
 
 		if memberInState := d.Get("domain").(string); memberInState != "" {
-			return memberInState == strippedIamMember
+			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
 		}
 
 		if memberInState := d.Get("special_group").(string); memberInState != "" {
-			return memberInState == strippedIamMember
+			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
 		}
 	}
 
