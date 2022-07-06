@@ -479,6 +479,13 @@ is set to true.`,
 				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
 
+			"encryption_key_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
 			"root_password": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -832,6 +839,12 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if !sqlDatabaseIsMaster(d) {
 		mutexKV.Lock(instanceMutexKey(project, instance.MasterInstanceName))
 		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
+	}
+
+	if k, ok := d.GetOk("encryption_key_name"); ok {
+		instance.DiskEncryptionConfiguration = &sqladmin.DiskEncryptionConfiguration{
+			KmsKeyName: k.(string),
+		}
 	}
 
 	var patchData *sqladmin.DatabaseInstance
@@ -1216,6 +1229,12 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
+	}
+
+	if instance.DiskEncryptionConfiguration != nil {
+		if err := d.Set("encryption_key_name", instance.DiskEncryptionConfiguration.KmsKeyName); err != nil {
+			return fmt.Errorf("Error setting encryption_key_name: %s", err)
+		}
 	}
 
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration, d)); err != nil {
