@@ -1,5 +1,30 @@
 ## 4.28.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** google_cloud_tasks_queue_iam_binding ([#11987](https://github.com/hashicorp/terraform-provider-google/pull/11987))
+* **New Resource:** google_cloud_tasks_queue_iam_member ([#11987](https://github.com/hashicorp/terraform-provider-google/pull/11987))
+* **New Resource:** google_cloud_tasks_queue_iam_policy ([#11987](https://github.com/hashicorp/terraform-provider-google/pull/11987))
+* **New Resource:** google_dataproc_metastore_service_iam_binding ([#11967](https://github.com/hashicorp/terraform-provider-google/pull/11967))
+* **New Resource:** google_dataproc_metastore_service_iam_member ([#11967](https://github.com/hashicorp/terraform-provider-google/pull/11967))
+* **New Resource:** google_dataproc_metastore_service_iam_policy ([#11967](https://github.com/hashicorp/terraform-provider-google/pull/11967))
+* **New Resource:** monitoring: Promoted 'monitoredproject' to GA ([#11974](https://github.com/hashicorp/terraform-provider-google/pull/11974))
+
+IMPROVEMENTS:
+* bigquery: fixed a permadiff in `google_bigquery_job.query. destination_table` ([#11936](https://github.com/hashicorp/terraform-provider-google/pull/11936))
+* cloudsql: added attribute `project` to data source `google_sql_backup_run` ([#11938](https://github.com/hashicorp/terraform-provider-google/pull/11938))
+* compute: added `max_ports_per_vm` field to `google_compute_router_nat` resource ([#11933](https://github.com/hashicorp/terraform-provider-google/pull/11933))
+* compute: promoted `disk_encryption_key.kms_key_name` on `google_compute_region_disk` ([#11976](https://github.com/hashicorp/terraform-provider-google/pull/11976))
+* container: promoted `notification_config` and `dns_cache_config` on `google_container_cluster` ([#11944](https://github.com/hashicorp/terraform-provider-google/pull/11944))
+* privateca: added support to subordinate CA activation ([#11980](https://github.com/hashicorp/terraform-provider-google/pull/11980))
+* spanner: Added field `version_retention_period` to `google_spanner_database` resource ([#11982](https://github.com/hashicorp/terraform-provider-google/pull/11982))
+* sql: added `sql_server_audit_config` field in `google_sql_database_instance` ([#11941](https://github.com/hashicorp/terraform-provider-google/pull/11941))
+
+BUG FIXES:
+* composer: fixed a problem with updating Cloud Composer's scheduler_count field (https://github.com/hashicorp/terraform-provider-google/issues/11940) ([#11951](https://github.com/hashicorp/terraform-provider-google/pull/11951))
+* composer: fixed permadiff on `private_environment_config.cloud_composer_connection_subnetwork` ([#11954](https://github.com/hashicorp/terraform-provider-google/pull/11954))
+* container: fixed an issue where `node_config.min_cpu_platform` could cause a perma-diff in `google_container_cluster` ([#11986](https://github.com/hashicorp/terraform-provider-google/pull/11986))
+* spanner: fixed issue where `ddl` and `version_retention_period` could not be set when first creating `google_spanner_database` using POSTGRESQL ([#11982](https://github.com/hashicorp/terraform-provider-google/pull/11982))
+
 ## 4.27.0 (June 27, 2021)
 
 IMPROVEMENTS:
