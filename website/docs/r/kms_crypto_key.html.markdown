@@ -111,7 +111,7 @@ The following arguments are supported:
   [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
   for possible inputs.
   Default value is `ENCRYPT_DECRYPT`.
-  Possible values are `ENCRYPT_DECRYPT`, `ASYMMETRIC_SIGN`, and `ASYMMETRIC_DECRYPT`.
+  Possible values are `ENCRYPT_DECRYPT`, `ASYMMETRIC_SIGN`, `ASYMMETRIC_DECRYPT`, and `MAC`.
 
 * `rotation_period` -
   (Optional)
