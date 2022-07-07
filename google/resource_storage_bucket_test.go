@@ -1356,6 +1356,23 @@ resource "google_storage_bucket" "bucket" {
       with_state = "ARCHIVED"
     }
   }
+  lifecycle_rule {
+    action {
+      type          = "Delete"
+    }
+    condition {
+      matches_prefix = ["test"]
+      age                   = 2
+    }
+  lifecycle_rule {
+    action {
+      type          = "Delete"
+    }
+	condition {
+      matches_suffix = ["test"]
+      age            = 2
+	}
+  }
 }
 `, bucketName)
 }
@@ -1420,6 +1437,23 @@ resource "google_storage_bucket" "bucket" {
     condition {
       with_state = "ARCHIVED"
     }
+  }
+  lifecycle_rule {
+    action {
+      type          = "Delete"
+    }
+    condition {
+      matches_prefix = ["test"]
+      age                   = 2
+    }
+  lifecycle_rule {
+    action {
+      type          = "Delete"
+    }
+	condition {
+      matches_suffix = ["test"]
+      age            = 2
+	}
   }
 }
 `, bucketName)
