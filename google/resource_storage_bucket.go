@@ -1226,7 +1226,7 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 		for _, v := range suffixes {
 			transformedSuffixes = append(transformedSuffixes, v.(string))
 		}
-		transformed.MatchesSuffixes = transformedSuffixes
+		transformed.MatchesSuffix = transformedSuffixes
 	}
 
 	return transformed, nil
