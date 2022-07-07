@@ -33,8 +33,8 @@ For more information, see:
 A test of an enforce orgpolicy policy for a project
 ```hcl
 resource "google_org_policy_policy" "primary" {
-  name   = "projects/${google_project.basic.name}/policies/iam.disableServiceAccountKeyUpload"
-  parent = "projects/${google_project.basic.name}"
+  name   = "projects/${google_project.basic.project_id}/policies/iam.disableServiceAccountKeyUpload"
+  parent = "projects/${google_project.basic.project_id}"
 
   spec {
     rules {
@@ -92,8 +92,8 @@ resource "google_org_policy_policy" "primary" {
 A test of an orgpolicy policy for a project
 ```hcl
 resource "google_org_policy_policy" "primary" {
-  name   = "projects/${google_project.basic.name}/policies/gcp.resourceLocations"
-  parent = "projects/${google_project.basic.name}"
+  name   = "projects/${google_project.basic.project_id}/policies/gcp.resourceLocations"
+  parent = "projects/${google_project.basic.project_id}"
 
   spec {
     rules {
@@ -131,7 +131,7 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Immutable. The resource name of the Policy. Must be one of the following forms, where constraint_name is the name of the constraint which this Policy configures: * `projects/{project_number}/policies/{constraint_name}` * `folders/{folder_id}/policies/{constraint_name}` * `organizations/{organization_id}/policies/{constraint_name}` For example, "projects/123/policies/compute.disableSerialPortAccess". Note: `projects/{project_id}/policies/{constraint_name}` is also an acceptable name for API requests, but responses will return the name using the equivalent project number.
+  Immutable. The resource name of the Policy. Must be one of the following forms, where constraint_name is the name of the constraint which this Policy configures: * `projects/{project_number_or_id}/policies/{constraint_name}` * `folders/{folder_id}/policies/{constraint_name}` * `organizations/{organization_id}/policies/{constraint_name}` For example, "projects/123/policies/compute.disableSerialPortAccess". Note: `projects/{project_id}/policies/{constraint_name}` is also an acceptable name for API requests, but responses will return the name using the equivalent project number.
   
 * `parent` -
   (Required)
