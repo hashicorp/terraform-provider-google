@@ -262,6 +262,56 @@ resource "google_compute_reservation" "gce_reservation_local" {
 `, context)
 }
 
+func TestAccCGCSnippet_instanceVirtualDisplayEnabledExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_instanceVirtualDisplayEnabledExample(context),
+			},
+			{
+				ResourceName:      "google_compute_instance.instance_virtual_display",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_instanceVirtualDisplayEnabledExample(context map[string]interface{}) string {
+	return Nprintf(`
+
+resource "google_compute_instance" "instance_virtual_display" {
+  name         = "tf-test-instance-virtual-display%{random_suffix}"
+  machine_type = "f1-micro"
+  zone = "us-central1-c"
+  
+  # Set the below to true to enable virtual display
+  enable_display = true
+  
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+  network_interface {
+    # A default network is created for all GCP projects
+    network = "default"
+    access_config {
+    }
+  }
+}
+
+`, context)
+}
+
 func TestAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
