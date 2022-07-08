@@ -91,6 +91,7 @@ The following arguments are supported:
   Parameters specific to each data source. For more information see the bq tab in the 'Setting up a data transfer'
   section for each data source. For example the parameters for Cloud Storage transfers are listed here:
   https://cloud.google.com/bigquery-transfer/docs/cloud-storage-transfer#bq
+  **NOTE** : If you are attempting to update a parameter that cannot be updated (due to api limitations) [please force recreation of the resource](https://www.terraform.io/cli/state/taint#forcing-re-creation-of-resources).
 
 
 - - -
