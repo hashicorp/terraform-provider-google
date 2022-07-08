@@ -363,6 +363,7 @@ the supported values for the caller's project.`,
 			},
 			"provisioned_iops": {
 				Type:        schema.TypeInt,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Indicates how many IOPS must be provisioned for the disk.`,
