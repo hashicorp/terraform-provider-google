@@ -1,4 +1,48 @@
-## 4.28.0 (Unreleased)
+## 4.28.0 (UNRELEASED)
+UNKNOWN CHANGELOG TYPE:
+* Remove lint from GH Actions ([#11968](https://github.com/hashicorp/terraform-provider-google/pull/11968))
+* Split changelog on major versions ([#11966](https://github.com/hashicorp/terraform-provider-google/pull/11966))
+* docs: add link to Load Balancer types doc ([#11955](https://github.com/hashicorp/terraform-provider-google/pull/11955))
+
+FEATURES:
+* **New Resource:** google_bigquery_connection_iam_binding ([#12004](https://github.com/hashicorp/terraform-provider-google/pull/12004))
+* **New Resource:** google_bigquery_connection_iam_member ([#12004](https://github.com/hashicorp/terraform-provider-google/pull/12004))
+* **New Resource:** google_bigquery_connection_iam_policy ([#12004](https://github.com/hashicorp/terraform-provider-google/pull/12004))
+* **New Resource:** google_cloud_tasks_queue_iam_binding ([#11987](https://github.com/hashicorp/terraform-provider-google/pull/11987))
+* **New Resource:** google_cloud_tasks_queue_iam_member ([#11987](https://github.com/hashicorp/terraform-provider-google/pull/11987))
+* **New Resource:** google_cloud_tasks_queue_iam_policy ([#11987](https://github.com/hashicorp/terraform-provider-google/pull/11987))
+* **New Resource:** google_dataproc_autoscaling_policy_iam_binding ([#12008](https://github.com/hashicorp/terraform-provider-google/pull/12008))
+* **New Resource:** google_dataproc_autoscaling_policy_iam_member ([#12008](https://github.com/hashicorp/terraform-provider-google/pull/12008))
+* **New Resource:** google_dataproc_autoscaling_policy_iam_policy ([#12008](https://github.com/hashicorp/terraform-provider-google/pull/12008))
+* **New Resource:** google_dataproc_metastore_service_iam_binding ([#11967](https://github.com/hashicorp/terraform-provider-google/pull/11967))
+* **New Resource:** google_dataproc_metastore_service_iam_member ([#11967](https://github.com/hashicorp/terraform-provider-google/pull/11967))
+* **New Resource:** google_dataproc_metastore_service_iam_policy ([#11967](https://github.com/hashicorp/terraform-provider-google/pull/11967))
+* **New Resource:** monitoring: Promoted 'monitoredproject' to GA ([#11974](https://github.com/hashicorp/terraform-provider-google/pull/11974))
+
+IMPROVEMENTS:
+* bigquery: fixed a permadiff in `google_bigquery_job.query. destination_table` ([#11936](https://github.com/hashicorp/terraform-provider-google/pull/11936))
+* billing: Added `calendar_period` and `custom_period` fields to `google_billing_budget` ([#11993](https://github.com/hashicorp/terraform-provider-google/pull/11993))
+* cloudsql: added attribute `project` to data source `google_sql_backup_run` ([#11938](https://github.com/hashicorp/terraform-provider-google/pull/11938))
+* composer: added CMEK, PUPI and IP_masq_agent support for Composer 2 in `google_composer_environment` resource ([#11994](https://github.com/hashicorp/terraform-provider-google/pull/11994))
+* compute: add maxPortsPerVm field to `google_compute_router_nat` resource ([#11933](https://github.com/hashicorp/terraform-provider-google/pull/11933))
+* compute: added `GCE_VM_IP` support to `google_compute_network_endpoint_group` resource. ([#11997](https://github.com/hashicorp/terraform-provider-google/pull/11997))
+* compute: promoted `disk_encryption_key.kms_key_name` on `google_compute_region_disk` ([#11976](https://github.com/hashicorp/terraform-provider-google/pull/11976))
+* container: Promoted `gce_persistent_disk_csi_driver_config` addon in `google_container_cluster` resource to GA ([#11999](https://github.com/hashicorp/terraform-provider-google/pull/11999))
+* container: promoted `notification_config` and `dns_cache_config` on `google_container_cluster` ([#11944](https://github.com/hashicorp/terraform-provider-google/pull/11944))
+* google_cloud_run_service: added samples for traffic splitting ([#11960](https://github.com/hashicorp/terraform-provider-google/pull/11960))
+* privateca: added support to subordinate CA activation ([#11980](https://github.com/hashicorp/terraform-provider-google/pull/11980))
+* redis: Added CMEK key field `customer_managed_key` in `google_redis_instance ` ([#11998](https://github.com/hashicorp/terraform-provider-google/pull/11998))
+* spanner: Added field `version_retention_period` to `google_spanner_database` resource ([#11982](https://github.com/hashicorp/terraform-provider-google/pull/11982))
+* spanner: Fixed issue where `ddl` and `version_retention_period` could not be set when first creating `google_spanner_database` using POSTGRESQL ([#11982](https://github.com/hashicorp/terraform-provider-google/pull/11982))
+* sql: added `settings.location_preference.secondary_zone` field in `google_sql_database_instance` ([#11996](https://github.com/hashicorp/terraform-provider-google/pull/11996))
+* sql: added `sql_server_audit_config` field in `google_sql_database_instance` ([#11941](https://github.com/hashicorp/terraform-provider-google/pull/11941))
+
+BUG FIXES:
+* composer: fix a problem with updating Cloud Composer's scheduler_count field (https://github.com/hashicorp/terraform-provider-google/issues/11940) ([#11951](https://github.com/hashicorp/terraform-provider-google/pull/11951))
+* composer: fixed permadiff on `private_environment_config.cloud_composer_connection_subnetwork` ([#11954](https://github.com/hashicorp/terraform-provider-google/pull/11954))
+* container: fixed an issue where `node_config.min_cpu_platform` could cause a perma-diff in `google_container_cluster` ([#11986](https://github.com/hashicorp/terraform-provider-google/pull/11986))
+* example: fixed tcp proxy example named port ([#11942](https://github.com/hashicorp/terraform-provider-google/pull/11942))
+* filestore: fixed a case where `google_filestore_instance.networks.network` would incorrectly see a diff between state and config when the network `id` format was used ([#11995](https://github.com/hashicorp/terraform-provider-google/pull/11995))
 
 ## 4.27.0 (June 27, 2021)
 
