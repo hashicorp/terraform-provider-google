@@ -437,6 +437,27 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_pdExtremeImplicitProvisionedIops(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_pdExtremeImplicitProvisionedIops(diskName),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeDiskExists(t *testing.T, n, p string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -721,4 +742,14 @@ resource "google_compute_instance_group_manager" "manager" {
   wait_for_instances = true
 }
 `, diskName, mgrName)
+}
+
+func testAccComputeDisk_pdExtremeImplicitProvisionedIops(diskName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  type = "pd-extreme"
+  size = 1
+}
+`, diskName)
 }
