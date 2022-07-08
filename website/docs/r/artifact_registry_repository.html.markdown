@@ -24,12 +24,10 @@ description: |-
 
 A repository for storing artifacts
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Repository, see:
 
-* [API documentation](https://cloud.google.com/artifact-registry/docs/reference/rest/v1beta2/projects.locations.repositories)
+* [API documentation](https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/artifact-registry/docs/overview)
 
@@ -43,12 +41,10 @@ To get more information about Repository, see:
 
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
-  provider = google-beta
-
-  location = "us-central1"
+  location      = "us-central1"
   repository_id = "my-repository"
-  description = "example docker repository"
-  format = "DOCKER"
+  description   = "example docker repository"
+  format        = "DOCKER"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -61,47 +57,11 @@ resource "google_artifact_registry_repository" "my-repo" {
 
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
-  provider = google-beta
-
-  location = "us-central1"
+  location      = "us-central1"
   repository_id = "my-repository"
-  description = "example docker repository with cmek"
-  format = "DOCKER"
-  kms_key_name = "kms-key"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_iam&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Artifact Registry Repository Iam
-
-
-```hcl
-resource "google_artifact_registry_repository" "my-repo" {
-  provider = google-beta
-
-  location = "us-central1"
-  repository_id = "my-repository"
-  description = "example docker repository with iam"
-  format = "DOCKER"
-}
-
-resource "google_service_account" "test-account" {
-  provider = google-beta
-
-  account_id   = "my-account"
-  display_name = "Test Service Account"
-}
-
-resource "google_artifact_registry_repository_iam_member" "test-iam" {
-  provider = google-beta
-
-  location = google_artifact_registry_repository.my-repo.location
-  repository = google_artifact_registry_repository.my-repo.name
-  role   = "roles/artifactregistry.reader"
-  member = "serviceAccount:${google_service_account.test-account.email}"
+  description   = "example docker repository with cmek"
+  format        = "DOCKER"
+  kms_key_name  = "kms-key"
 }
 ```
 

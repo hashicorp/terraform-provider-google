@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_artifact_registry_repository` (ga only)
+```
+```release-note:new-resource
+`google_artifact_registry_repository_iam_policy` (ga only)
+```
+```release-note:new-resource
+`google_artifact_registry_repository_iam_binding` (ga only)
+```
+```release-note:new-resource
+`google_artifact_registry_repository_iam_member` (ga only)
+```
