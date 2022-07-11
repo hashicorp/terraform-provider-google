@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -46,10 +47,11 @@ func resourceDocumentAIProcessorDefaultVersion() *schema.Resource {
 				Description: `The processor to set the version on.`,
 			},
 			"version": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The version to set`,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: projectNumberDiffSupress,
+				Description:      `The version to set`,
 			},
 		},
 		UseJSONNumber: true,
@@ -90,6 +92,11 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 		billingProject = bp
 	}
 
+	if strings.Contains(url, "https://-") {
+		location := GetRegionFromRegionalSelfLink(url)
+		url = strings.TrimPrefix(url, "https://")
+		url = "https://" + location + url
+	}
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ProcessorDefaultVersion: %s", err)
@@ -126,6 +133,11 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 		billingProject = bp
 	}
 
+	if strings.Contains(url, "https://-") {
+		location := GetRegionFromRegionalSelfLink(url)
+		url = strings.TrimPrefix(url, "https://")
+		url = "https://" + location + url
+	}
 	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DocumentAIProcessorDefaultVersion %q", d.Id()))

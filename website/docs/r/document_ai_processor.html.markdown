@@ -80,7 +80,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/processors/{{name}}`
 
 * `name` -
   The resource name of the processor.
@@ -100,5 +100,11 @@ This resource provides the following
 Processor can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_document_ai_processor.default {{name}}
+$ terraform import google_document_ai_processor.default projects/{{project}}/locations/{{location}}/processors/{{name}}
+$ terraform import google_document_ai_processor.default {{project}}/{{location}}/{{name}}
+$ terraform import google_document_ai_processor.default {{location}}/{{name}}
 ```
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

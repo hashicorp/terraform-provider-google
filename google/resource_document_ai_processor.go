@@ -134,7 +134,7 @@ func resourceDocumentAIProcessorCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/processors/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -152,7 +152,7 @@ func resourceDocumentAIProcessorRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DocumentAIBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{DocumentAIBasePath}}projects/{{project}}/locations/{{location}}/processors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func resourceDocumentAIProcessorDelete(d *schema.ResourceData, meta interface{})
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DocumentAIBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{DocumentAIBasePath}}projects/{{project}}/locations/{{location}}/processors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -235,13 +235,15 @@ func resourceDocumentAIProcessorDelete(d *schema.ResourceData, meta interface{})
 func resourceDocumentAIProcessorImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"(?P<name>.+)",
+		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/processors/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"(?P<location>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/processors/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -251,7 +253,10 @@ func resourceDocumentAIProcessorImport(d *schema.ResourceData, meta interface{})
 }
 
 func flattenDocumentAIProcessorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenDocumentAIProcessorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {

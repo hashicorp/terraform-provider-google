@@ -58,6 +58,41 @@ resource "google_document_ai_processor" "processor" {
 `, context)
 }
 
+func TestAccDocumentAIProcessor_documentaiProcessorEuExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDocumentAIProcessorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDocumentAIProcessor_documentaiProcessorEuExample(context),
+			},
+			{
+				ResourceName:            "google_document_ai_processor.processor",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccDocumentAIProcessor_documentaiProcessorEuExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_document_ai_processor" "processor" {
+  location = "eu"
+  display_name = "tf-test-test-processor%{random_suffix}"
+  type = "OCR_PROCESSOR"
+}
+`, context)
+}
+
 func testAccCheckDocumentAIProcessorDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -70,7 +105,7 @@ func testAccCheckDocumentAIProcessorDestroyProducer(t *testing.T) func(s *terraf
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DocumentAIBasePath}}{{name}}")
+			url, err := replaceVarsForTest(config, rs, "{{DocumentAIBasePath}}projects/{{project}}/locations/{{location}}/processors/{{name}}")
 			if err != nil {
 				return err
 			}
