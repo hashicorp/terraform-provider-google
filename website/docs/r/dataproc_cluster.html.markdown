@@ -136,6 +136,9 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
    instances in the cluster. GCP generates some itself including `goog-dataproc-cluster-name`
    which is the name of the cluster.
 
+* `virtual_cluster_config` - (Optional) Allows you to configure a virtual Dataproc on GKE cluster.
+   Structure [defined below](#nested_virtual_cluster_config).
+
 * `cluster_config` - (Optional) Allows you to configure various aspects of the cluster.
    Structure [defined below](#nested_cluster_config).
 
@@ -147,6 +150,161 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
       [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).
       Only supported on Dataproc image versions 1.2 and higher.
       For more context see the [docs](https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.clusters/patch#query-parameters)
+- - -
+
+<a name="nested_virtual_cluster_config"></a>The `virtual_cluster_config` block supports:
+
+```hcl
+    virtual_cluster_config {
+        auxiliary_services_config { ... }
+        kubernetes_cluster_config { ... }
+    }
+```
+
+* `staging_bucket` - (Optional) The Cloud Storage staging bucket used to stage files,
+   such as Hadoop jars, between client machines and the cluster.
+   Note: If you don't explicitly specify a `staging_bucket`
+   then GCP will auto create / assign one for you. However, you are not guaranteed
+   an auto generated bucket which is solely dedicated to your cluster; it may be shared
+   with other clusters in the same region/zone also choosing to use the auto generation
+   option.
+
+* `auxiliary_services_config` (Optional) Configuration of auxiliary services used by this cluster. 
+   Structure [defined below](#nested_auxiliary_services_config).
+
+* `kubernetes_cluster_config` (Required) The configuration for running the Dataproc cluster on Kubernetes.
+   Structure [defined below](#nested_kubernetes_cluster_config).
+- - -
+
+<a name="nested_auxiliary_services_config"></a>The `auxiliary_services_config` block supports:
+
+```hcl
+    virtual_cluster_config {
+      auxiliary_services_config {
+        metastore_config {
+          dataproc_metastore_service = google_dataproc_metastore_service.metastore_service.id
+        }
+
+        spark_history_server_config {
+          dataproc_cluster = google_dataproc_cluster.dataproc_cluster.id
+        }
+      }
+    }
+```
+
+* `metastore_config` (Optional) The Hive Metastore configuration for this workload. 
+
+  * `dataproc_metastore_service` (Required) Resource name of an existing Dataproc Metastore service.
+
+* `spark_history_server_config` (Optional) The Spark History Server configuration for the workload.
+
+  * `dataproc_cluster` (Optional) Resource name of an existing Dataproc Cluster to act as a Spark History Server for the workload.
+- - -
+
+<a name="nested_kubernetes_cluster_config"></a>The `kubernetes_cluster_config` block supports:
+
+```hcl
+    virtual_cluster_config {
+      kubernetes_cluster_config {
+        kubernetes_namespace = "foobar"
+
+        kubernetes_software_config {
+          component_version = {
+            "SPARK" : "3.1-dataproc-7"
+          }
+
+          properties = {
+            "spark:spark.eventLog.enabled": "true"
+          }
+        }
+
+        gke_cluster_config {
+          gke_cluster_target = google_container_cluster.primary.id
+
+          node_pool_target {
+            node_pool = "dpgke"
+            roles = ["DEFAULT"]
+
+            node_pool_config {
+              autoscaling {
+                min_node_count = 1
+                max_node_count = 6
+              }
+              
+              config {
+                machine_type      = "n1-standard-4"
+                preemptible       = true
+                local_ssd_count   = 1
+                min_cpu_platform  = "Intel Sandy Bridge"
+              }
+
+              locations = ["us-central1-c"]
+            }
+          }
+        }
+      }
+    }
+```
+
+* `kubernetes_namespace` (Optional) A namespace within the Kubernetes cluster to deploy into. 
+   If this namespace does not exist, it is created. 
+   If it  exists, Dataproc verifies that another Dataproc VirtualCluster is not installed into it. 
+   If not specified, the name of the Dataproc Cluster is used.
+
+* `kubernetes_software_config` (Required) The software configuration for this Dataproc cluster running on Kubernetes.
+
+  * `component_version` (Required) The components that should be installed in this Dataproc cluster. The key must be a string from the   
+     KubernetesComponent enumeration. The value is the version of the software to be installed. At least one entry must be specified.
+    * **NOTE** : `component_version[SPARK]` is mandatory to set, or the creation of the cluster will fail.
+
+  * `properties` (Optional) The properties to set on daemon config files. Property keys are specified in prefix:property format, 
+     for example spark:spark.kubernetes.container.image.
+
+* `gke_cluster_config` (Required) The configuration for running the Dataproc cluster on GKE.
+
+  * `gke_cluster_target` (Optional) A target GKE cluster to deploy to. It must be in the same project and region as the Dataproc cluster 
+     (the GKE cluster can be zonal or regional)
+
+  * `node_pool_target` (Optional) GKE node pools where workloads will be scheduled. At least one node pool must be assigned the `DEFAULT` 
+     GkeNodePoolTarget.Role. If a GkeNodePoolTarget is not specified, Dataproc constructs a `DEFAULT` GkeNodePoolTarget. 
+     Each role can be given to only one GkeNodePoolTarget. All node pools must have the same location settings.
+
+    * `node_pool` (Required) The target GKE node pool.
+
+    * `roles` (Required) The roles associated with the GKE node pool. 
+       One of `"DEFAULT"`, `"CONTROLLER"`, `"SPARK_DRIVER"` or `"SPARK_EXECUTOR"`.
+
+    * `node_pool_config` (Input only) The configuration for the GKE node pool. 
+       If specified, Dataproc attempts to create a node pool with the specified shape. 
+       If one with the same name already exists, it is verified against all specified fields. 
+       If a field differs, the virtual cluster creation will fail.
+
+      * `autoscaling` (Optional) The autoscaler configuration for this node pool. 
+         The autoscaler is enabled only when a valid configuration is present.
+
+        * `min_node_count` (Optional) The minimum number of nodes in the node pool. Must be >= 0 and <= maxNodeCount.
+
+        * `max_node_count` (Optional) The maximum number of nodes in the node pool. Must be >= minNodeCount, and must be > 0.
+
+      * `config` (Optional) The node pool configuration.
+
+        * `machine_type` (Optional) The name of a Compute Engine machine type.
+
+        * `local_ssd_count` (Optional) The number of local SSD disks to attach to the node, 
+           which is limited by the maximum number of disks allowable per zone.
+
+        * `preemptible` (Optional) Whether the nodes are created as preemptible VM instances. 
+           Preemptible nodes cannot be used in a node pool with the CONTROLLER role or in the DEFAULT node pool if the 
+           CONTROLLER role is not assigned (the DEFAULT node pool will assume the CONTROLLER role).
+
+        * `min_cpu_platform` (Optional) Minimum CPU platform to be used by this instance. 
+           The instance may be scheduled on the specified or a newer CPU platform. 
+           Specify the friendly names of CPU platforms, such as "Intel Haswell" or "Intel Sandy Bridge".
+
+        * `spot` (Optional) Spot flag for enabling Spot VM, which is a rebrand of the existing preemptible flag.
+
+      * `locations` (Optional) The list of Compute Engine zones where node pool nodes associated 
+         with a Dataproc on GKE virtual cluster will be located.
 - - -
 
 <a name="nested_cluster_config"></a>The `cluster_config` block supports:
