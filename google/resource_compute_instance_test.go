@@ -263,6 +263,7 @@ func TestAccComputeInstance_IPv6(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceIpv6AccessConfigHasExternalIPv6(&instance),
 				),
 			},
 			{
@@ -2506,6 +2507,20 @@ func testAccCheckComputeInstanceAccessConfigHasNatIP(instance *compute.Instance)
 			for _, c := range i.AccessConfigs {
 				if c.NatIP == "" {
 					return fmt.Errorf("no NAT IP")
+				}
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceIpv6AccessConfigHasExternalIPv6(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, i := range instance.NetworkInterfaces {
+			for _, c := range i.Ipv6AccessConfigs {
+				if c.ExternalIpv6 == "" {
+					return fmt.Errorf("no External IPv6")
 				}
 			}
 		}

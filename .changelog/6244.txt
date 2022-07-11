@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed missing `network_interface.0.ipv6_access_config.0.external_ipv6` output on `google_compute_instance`
+```
