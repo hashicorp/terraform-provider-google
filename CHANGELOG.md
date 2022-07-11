@@ -17,7 +17,7 @@ IMPROVEMENTS:
 * billing: added `calendar_period` and `custom_period` fields to `google_billing_budget` ([#11993](https://github.com/hashicorp/terraform-provider-google/pull/11993))
 * cloudsql: added attribute `project` to data source `google_sql_backup_run` ([#11938](https://github.com/hashicorp/terraform-provider-google/pull/11938))
 * composer: added CMEK, PUPI and IP_masq_agent support for Composer 2 in `google_composer_environment` resource ([#11994](https://github.com/hashicorp/terraform-provider-google/pull/11994))
-* compute: added maxPortsPerVm field to `google_compute_router_nat` resource ([#11933](https://github.com/hashicorp/terraform-provider-google/pull/11933))
+* compute: added `max_ports_per_vm` field to `google_compute_router_nat` resource ([#11933](https://github.com/hashicorp/terraform-provider-google/pull/11933))
 * compute: added `GCE_VM_IP` support to `google_compute_network_endpoint_group` resource. ([#11997](https://github.com/hashicorp/terraform-provider-google/pull/11997))
 * compute: promoted `disk_encryption_key.kms_key_name` on `google_compute_region_disk` ([#11976](https://github.com/hashicorp/terraform-provider-google/pull/11976))
 * container: promoted `gce_persistent_disk_csi_driver_config` addon in `google_container_cluster` resource to GA ([#11999](https://github.com/hashicorp/terraform-provider-google/pull/11999))
