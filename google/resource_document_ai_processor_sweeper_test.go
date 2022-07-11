@@ -61,7 +61,7 @@ func testSweepDocumentAIProcessor(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://documentai.googleapis.com/v1/{{name}}", "?")[0]
+	listTemplate := strings.Split("https://{{location}}-documentai.googleapis.com/v1/projects/{{project}}/locations/{{location}}/processors", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -99,7 +99,7 @@ func testSweepDocumentAIProcessor(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://documentai.googleapis.com/v1/{{name}}"
+		deleteTemplate := "https://{{location}}-documentai.googleapis.com/v1/projects/{{project}}/locations/{{location}}/processors/{{name}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -218,4 +219,16 @@ func lastSlashDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 		old = old[:last]
 	}
 	return new == old
+}
+
+// Suppress diffs when the value read from api
+// has the project number instead of the project name
+func projectNumberDiffSupress(_, old, new string, _ *schema.ResourceData) bool {
+	var a2, b2 string
+	reN := regexp.MustCompile("projects/\\d+")
+	re := regexp.MustCompile("projects/[^/]+")
+	replacement := []byte("projects/equal")
+	a2 = string(reN.ReplaceAll([]byte(old), replacement))
+	b2 = string(re.ReplaceAll([]byte(new), replacement))
+	return a2 == b2
 }
