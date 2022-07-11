@@ -30,7 +30,7 @@ IMPROVEMENTS:
 * sql: added `sql_server_audit_config` field in `google_sql_database_instance` ([#11941](https://github.com/hashicorp/terraform-provider-google/pull/11941))
 
 BUG FIXES:
-* composer: fixed a problem with updating Cloud Composer's scheduler_count field (https://github.com/hashicorp/terraform-provider-google/issues/11940) ([#11951](https://github.com/hashicorp/terraform-provider-google/pull/11951))
+* composer: fixed a problem with updating Cloud Composer's `scheduler_count` field (https://github.com/hashicorp/terraform-provider-google/issues/11940) ([#11951](https://github.com/hashicorp/terraform-provider-google/pull/11951))
 * composer: fixed permadiff on `private_environment_config.cloud_composer_connection_subnetwork` ([#11954](https://github.com/hashicorp/terraform-provider-google/pull/11954))
 * container: fixed an issue where `node_config.min_cpu_platform` could cause a perma-diff in `google_container_cluster` ([#11986](https://github.com/hashicorp/terraform-provider-google/pull/11986))
 * filestore: fixed a case where `google_filestore_instance.networks.network` would incorrectly see a diff between state and config when the network `id` format was used ([#11995](https://github.com/hashicorp/terraform-provider-google/pull/11995))
