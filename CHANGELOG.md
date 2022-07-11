@@ -25,7 +25,6 @@ IMPROVEMENTS:
 * privateca: added support to subordinate CA activation ([#11980](https://github.com/hashicorp/terraform-provider-google/pull/11980))
 * redis: added CMEK key field `customer_managed_key` in `google_redis_instance ` ([#11998](https://github.com/hashicorp/terraform-provider-google/pull/11998))
 * spanner: added field `version_retention_period` to `google_spanner_database` resource ([#11982](https://github.com/hashicorp/terraform-provider-google/pull/11982))
-* spanner: fixed issue where `ddl` and `version_retention_period` could not be set when first creating `google_spanner_database` using POSTGRESQL ([#11982](https://github.com/hashicorp/terraform-provider-google/pull/11982))
 * sql: added `settings.location_preference.secondary_zone` field in `google_sql_database_instance` ([#11996](https://github.com/hashicorp/terraform-provider-google/pull/11996))
 * sql: added `sql_server_audit_config` field in `google_sql_database_instance` ([#11941](https://github.com/hashicorp/terraform-provider-google/pull/11941))
 
