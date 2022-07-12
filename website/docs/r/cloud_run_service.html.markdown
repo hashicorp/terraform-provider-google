@@ -171,6 +171,8 @@ resource "google_sql_database_instance" "instance" {
 
 
 ```hcl
+# Example of how to deploy a publicly-accessible Cloud Run application
+
 resource "google_cloud_run_service" "default" {
   name     = "cloudrun-srv"
   location = "us-central1"
