@@ -125,31 +125,6 @@ is "USD", then 1 unit is one US dollar.`,
 				ForceNew:    true,
 				Description: `ID of the billing account to set a budget on.`,
 			},
-			"threshold_rules": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `Rules that trigger alerts (notifications of thresholds being
-crossed) when spend exceeds the specified percentages of the
-budget.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"threshold_percent": {
-							Type:     schema.TypeFloat,
-							Required: true,
-							Description: `Send an alert when this threshold is exceeded. This is a
-1.0-based percentage, so 0.5 = 50%. Must be >= 0.`,
-						},
-						"spend_basis": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validateEnum([]string{"CURRENT_SPEND", "FORECASTED_SPEND", ""}),
-							Description: `The type of basis used to determine if spend has passed
-the threshold. Default value: "CURRENT_SPEND" Possible values: ["CURRENT_SPEND", "FORECASTED_SPEND"]`,
-							Default: "CURRENT_SPEND",
-						},
-					},
-				},
-			},
 			"all_updates_rule": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -175,6 +150,7 @@ Account Users IAM roles for the target account.`,
 channel in the form
 projects/{project_id}/notificationChannels/{channel_id}.
 A maximum of 5 channels are allowed.`,
+							MaxItems: 5,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -373,6 +349,31 @@ account and all subaccounts, if they exist.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `User data for display name in UI. Must be <= 60 chars.`,
+			},
+			"threshold_rules": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Rules that trigger alerts (notifications of thresholds being
+crossed) when spend exceeds the specified percentages of the
+budget.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"threshold_percent": {
+							Type:     schema.TypeFloat,
+							Required: true,
+							Description: `Send an alert when this threshold is exceeded. This is a
+1.0-based percentage, so 0.5 = 50%. Must be >= 0.`,
+						},
+						"spend_basis": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateEnum([]string{"CURRENT_SPEND", "FORECASTED_SPEND", ""}),
+							Description: `The type of basis used to determine if spend has passed
+the threshold. Default value: "CURRENT_SPEND" Possible values: ["CURRENT_SPEND", "FORECASTED_SPEND"]`,
+							Default: "CURRENT_SPEND",
+						},
+					},
+				},
 			},
 			"name": {
 				Type:     schema.TypeString,

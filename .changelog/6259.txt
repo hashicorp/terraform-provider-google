@@ -1,0 +1,3 @@
+```release-note:enhancement
+billingbudget: made `thresholdRules` optional in `google_billing_budget`
+```
