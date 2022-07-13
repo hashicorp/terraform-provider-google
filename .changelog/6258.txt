@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: promote `rules.rate_limit_options`,  `rules.redirect_options`,  `adaptive_protection_config` in `compute_security_policy` to ga
+```
+```release-note:bug
+compute: allow properly updating `adaptive_protection_config` in `compute_security_policy`
+```
