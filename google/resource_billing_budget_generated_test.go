@@ -343,6 +343,61 @@ resource "google_billing_budget" "budget" {
 `, context)
 }
 
+func TestAccBillingBudget_billingBudgetOptionalExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBillingBudget_billingBudgetOptionalExample(context),
+			},
+			{
+				ResourceName:            "google_billing_budget.budget",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+		},
+	})
+}
+
+func testAccBillingBudget_billingBudgetOptionalExample(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_billing_account" "account" {
+  billing_account = "%{billing_acct}"
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name = "Example Billing Budget%{random_suffix}"
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units = "100000"
+    }
+  }
+
+  all_updates_rule {
+    disable_default_iam_recipients = true
+    pubsub_topic = google_pubsub_topic.budget.id
+  }
+}
+
+resource "google_pubsub_topic" "budget" {
+  name = "tf-test-example-topic%{random_suffix}"
+}
+`, context)
+}
+
 func testAccCheckBillingBudgetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

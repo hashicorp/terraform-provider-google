@@ -238,13 +238,6 @@ The following arguments are supported:
   The budgeted amount for each usage period.
   Structure is [documented below](#nested_amount).
 
-* `threshold_rules` -
-  (Required)
-  Rules that trigger alerts (notifications of thresholds being
-  crossed) when spend exceeds the specified percentages of the
-  budget.
-  Structure is [documented below](#nested_threshold_rules).
-
 * `billing_account` -
   (Required)
   ID of the billing account to set a budget on.
@@ -288,20 +281,6 @@ The following arguments are supported:
   zero. For example $-1.75 is represented as units=-1 and
   nanos=-750,000,000.
 
-<a name="nested_threshold_rules"></a>The `threshold_rules` block supports:
-
-* `threshold_percent` -
-  (Required)
-  Send an alert when this threshold is exceeded. This is a
-  1.0-based percentage, so 0.5 = 50%. Must be >= 0.
-
-* `spend_basis` -
-  (Optional)
-  The type of basis used to determine if spend has passed
-  the threshold.
-  Default value is `CURRENT_SPEND`.
-  Possible values are `CURRENT_SPEND` and `FORECASTED_SPEND`.
-
 - - -
 
 
@@ -314,6 +293,13 @@ The following arguments are supported:
   Filters that define which resources are used to compute the actual
   spend against the budget.
   Structure is [documented below](#nested_budget_filter).
+
+* `threshold_rules` -
+  (Optional)
+  Rules that trigger alerts (notifications of thresholds being
+  crossed) when spend exceeds the specified percentages of the
+  budget.
+  Structure is [documented below](#nested_threshold_rules).
 
 * `all_updates_rule` -
   (Optional)
@@ -426,6 +412,20 @@ The following arguments are supported:
 * `day` -
   (Required)
   Day of a month. Must be from 1 to 31 and valid for the year and month.
+
+<a name="nested_threshold_rules"></a>The `threshold_rules` block supports:
+
+* `threshold_percent` -
+  (Required)
+  Send an alert when this threshold is exceeded. This is a
+  1.0-based percentage, so 0.5 = 50%. Must be >= 0.
+
+* `spend_basis` -
+  (Optional)
+  The type of basis used to determine if spend has passed
+  the threshold.
+  Default value is `CURRENT_SPEND`.
+  Possible values are `CURRENT_SPEND` and `FORECASTED_SPEND`.
 
 <a name="nested_all_updates_rule"></a>The `all_updates_rule` block supports:
 
