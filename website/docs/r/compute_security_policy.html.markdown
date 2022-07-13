@@ -76,7 +76,7 @@ The following arguments are supported:
   * NORMAL - Normal log level.
   * VERBOSE - Verbose log level.
 
-* `adaptive_protection_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for [Google Cloud Armor Adaptive Protection](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_adaptive_protection_config).
+* `adaptive_protection_config` - (Optional) Configuration for [Google Cloud Armor Adaptive Protection](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_adaptive_protection_config).
 
 * `type` - The type indicates the intended use of the security policy.
   * CLOUD_ARMOR - Cloud Armor backend security policies can be configured to filter incoming HTTP requests targeting backend services.
@@ -105,10 +105,10 @@ The following arguments are supported:
 * `preview` - (Optional) When set to true, the `action` specified above is not enforced.
     Stackdriver logs for requests that trigger a preview action are annotated as such.
 
-* `rate_limit_options` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `rate_limit_options` - (Optional)
     Must be specified if the `action` is "rate_based_bad" or "throttle". Cannot be specified for other actions. Structure is [documented below](#nested_rate_limit_options).
 
-* `redirect_options` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `redirect_options` - (Optional)
     Can be specified if the `action` is "redirect". Cannot be specified for other actions. Structure is [documented below](#nested_redirect_options).
 
 <a name="nested_match"></a>The `match` block supports:
@@ -179,13 +179,13 @@ The following arguments are supported:
 
 <a name="nested_adaptive_protection_config"></a>The `adaptive_protection_config` block supports:
 
-* `layer_7_ddos_defense_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for [Google Cloud Armor Adaptive Protection Layer 7 DDoS Defense](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_layer_7_ddos_defense_config).
+* `layer_7_ddos_defense_config` - (Optional) Configuration for [Google Cloud Armor Adaptive Protection Layer 7 DDoS Defense](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_layer_7_ddos_defense_config).
 
 <a name="nested_layer_7_ddos_defense_config"></a>The `layer_7_ddos_defense_config` block supports:
 
-* `enable` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) If set to true, enables CAAP for L7 DDoS detection.
+* `enable` - (Optional) If set to true, enables CAAP for L7 DDoS detection.
 
-* `rule_visibility` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Rule visibility can be one of the following: STANDARD - opaque rules. (default) PREMIUM - transparent rules.
+* `rule_visibility` - (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. (default) PREMIUM - transparent rules.
 
 ## Attributes Reference
 
