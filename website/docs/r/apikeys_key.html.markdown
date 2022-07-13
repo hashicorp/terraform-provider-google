@@ -259,6 +259,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `key_string` -
   Output only. An encrypted and signed value held by this key. This field can be accessed only through the `GetKeyString` method.
   
+* `uid` -
+  Output only. Unique id in UUID4 format.
+  
 ## Timeouts
 
 This resource provides the following
