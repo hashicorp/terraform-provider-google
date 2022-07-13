@@ -462,6 +462,7 @@ func testAccCheckApikeysKeyDestroyProducer(t *testing.T) func(s *terraform.State
 				DisplayName: dcl.String(rs.Primary.Attributes["display_name"]),
 				Project:     dcl.StringOrNil(rs.Primary.Attributes["project"]),
 				KeyString:   dcl.StringOrNil(rs.Primary.Attributes["key_string"]),
+				Uid:         dcl.StringOrNil(rs.Primary.Attributes["uid"]),
 			}
 
 			client := NewDCLApikeysClient(config, config.userAgent, billingProject, 0)
