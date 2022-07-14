@@ -1,0 +1,12 @@
+```release-note:enhancement
+compute: add `request_coalescing` and `bypass_cache_on_request_headers` args to `compute_backned_bucket`
+```
+```release-note:new-resource
+google_compute_backned_bucket_iam_member (beta)
+```
+```release-note:new-resource
+google_compute_backned_bucket_iam_binding (beta)
+```
+```release-note:new-resource
+google_compute_backned_bucket_iam_policy (beta)
+```

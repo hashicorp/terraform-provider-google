@@ -240,6 +240,15 @@ The following arguments are supported:
   (Optional)
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
+* `request_coalescing` -
+  (Optional)
+  If true then Cloud CDN will combine multiple concurrent cache fill requests into a small number of requests to the origin.
+
+* `bypass_cache_on_request_headers` -
+  (Optional)
+  Bypass the cache when the specified request headers are matched - e.g. Pragma or Authorization headers. Up to 5 headers can be specified. The cache is bypassed for all cdnPolicy.cacheMode settings.
+  Structure is [documented below](#nested_bypass_cache_on_request_headers).
+
 
 <a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
 
@@ -265,6 +274,12 @@ The following arguments are supported:
   (Optional)
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+
+<a name="nested_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
+
+* `header_name` -
+  (Optional)
+  The header field name to match on when bypassing cache. Values are case-insensitive.
 
 ## Attributes Reference
 
