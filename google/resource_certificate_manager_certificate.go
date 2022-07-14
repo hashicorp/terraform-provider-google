@@ -461,9 +461,9 @@ func flattenCertificateManagerCertificateSelfManaged(v interface{}, d *schema.Re
 	}
 	transformed := make(map[string]interface{})
 	transformed["certificate_pem"] =
-		flattenCertificateManagerCertificateSelfManagedCertificatePem(original["certificatePem"], d, config)
+		flattenCertificateManagerCertificateSelfManagedCertificatePem(original["pemCertificate"], d, config)
 	transformed["private_key_pem"] =
-		flattenCertificateManagerCertificateSelfManagedPrivateKeyPem(original["privateKeyPem"], d, config)
+		flattenCertificateManagerCertificateSelfManagedPrivateKeyPem(original["pemPrivateKey"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCertificateManagerCertificateSelfManagedCertificatePem(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -535,14 +535,14 @@ func expandCertificateManagerCertificateSelfManaged(v interface{}, d TerraformRe
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCertificatePem); val.IsValid() && !isEmptyValue(val) {
-		transformed["certificatePem"] = transformedCertificatePem
+		transformed["pemCertificate"] = transformedCertificatePem
 	}
 
 	transformedPrivateKeyPem, err := expandCertificateManagerCertificateSelfManagedPrivateKeyPem(original["private_key_pem"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedPrivateKeyPem); val.IsValid() && !isEmptyValue(val) {
-		transformed["privateKeyPem"] = transformedPrivateKeyPem
+		transformed["pemPrivateKey"] = transformedPrivateKeyPem
 	}
 
 	return transformed, nil
