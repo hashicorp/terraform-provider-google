@@ -251,6 +251,94 @@ resource "google_storage_bucket" "image_bucket" {
 `, context)
 }
 
+func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_backendBucketBypassCacheExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendBucket_backendBucketBypassCacheExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  cdn_policy {
+    bypass_cache_on_request_headers {
+      header_name = "test"
+    }
+  }
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "tf-test-image-store-bucket%{random_suffix}"
+  location = "EU"
+}
+`, context)
+}
+
+func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_backendBucketCoalescingExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendBucket_backendBucketCoalescingExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  cdn_policy {
+    request_coalescing = true
+  }
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "tf-test-image-store-bucket%{random_suffix}"
+  location = "EU"
+}
+`, context)
+}
+
 func testAccCheckComputeBackendBucketDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
