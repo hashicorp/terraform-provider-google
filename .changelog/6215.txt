@@ -1,0 +1,12 @@
+```release-note:new-resource
+google_dataproc_metastore_federation (beta)
+```
+```release-note:new-resource
+google_dataproc_metastore_federation_iam_binding (beta)
+```
+```release-note:new-resource
+google_dataproc_metastore_federation_iam_member (beta)
+```
+```release-note:new-resource
+google_dataproc_metastore_federation_iam_policy (beta)
+```
