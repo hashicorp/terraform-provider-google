@@ -29,13 +29,13 @@ want to include the following configuration:
 
 ```hcl
 provider "google" {
-  project = "{{YOUR GCP PROJECT}}"
+  project = "my-project-id"
   region  = "us-central1"
   zone    = "us-central1-c"
 }
 ```
 
-* The `project` field should be your personal project id. The `project`
+* The `project` field should be your personal Project ID. This can be found under Project info on your GCP Dashboard. The `project`
 indicates the default GCP project all of your resources will be created in.
 Most Terraform resources will have a `project` field.
 * The `region` and `zone` are [locations](https://cloud.google.com/compute/docs/regions-zones/global-regional-zonal-resources)
