@@ -96,6 +96,15 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
+			{
+				Config: testAccBigtableInstance_clusterModifiedAgain(instanceName, 5),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
 		},
 	})
 }
@@ -476,6 +485,51 @@ resource "google_bigtable_instance" "instance" {
   }
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
+}
+
+// Add two clusters after testAccBigtableInstance_clusterModified.
+func testAccBigtableInstance_clusterModifiedAgain(instanceName string, numNodes int) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s-c"
+    zone         = "us-central1-c"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-a"
+    zone         = "us-central1-a"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-b"
+    zone         = "us-central1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-asia-a"
+    zone         = "asia-northeast1-a"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-asia-b"
+    zone         = "asia-northeast1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+
+  deletion_protection = false
+
+  labels = {
+    env = "default"
+  }
+}
+`, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
 
 func testAccBigtableInstance_development(instanceName string) string {
