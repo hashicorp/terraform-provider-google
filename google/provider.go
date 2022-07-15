@@ -840,6 +840,7 @@ func Provider() *schema.Provider {
 			"google_service_account":                              dataSourceGoogleServiceAccount(),
 			"google_service_account_access_token":                 dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_id_token":                     dataSourceGoogleServiceAccountIdToken(),
+			"google_service_account_jwt":                          dataSourceGoogleServiceAccountJwt(),
 			"google_service_account_key":                          dataSourceGoogleServiceAccountKey(),
 			"google_sourcerepo_repository":                        dataSourceGoogleSourceRepoRepository(),
 			"google_spanner_instance":                             dataSourceSpannerInstance(),
