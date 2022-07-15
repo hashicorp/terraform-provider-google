@@ -146,7 +146,7 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  The name specified for the Notebook instance.
+  The name specified for the Notebook runtime.
 
 * `location` -
   (Required)
@@ -290,6 +290,11 @@ The following arguments are supported:
   The type of vNIC to be used on this interface. This may be gVNIC
   or VirtioNet.
   Possible values are `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, and `GVNIC`.
+
+* `reserved_ip_range` -
+  (Optional)
+  Reserved IP Range name is used for VPC Peering. The
+  subnetwork allocation will use the range *name* if it's assigned.
 
 
 <a name="nested_data_disk"></a>The `data_disk` block supports:
