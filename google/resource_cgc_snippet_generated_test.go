@@ -157,6 +157,7 @@ resource "google_compute_instance" "spot_vm_instance" {
       preemptible = true
       automatic_restart = false
       provisioning_model = "SPOT"
+      instance_termination_action = "STOP"
   }
 
   network_interface {

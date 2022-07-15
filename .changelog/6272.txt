@@ -1,0 +1,5 @@
+```release-note:enhancement
+compute: added `instance_termination_action` field to `google_compute_instance` resource to support Spot VM termination action
+```
+```release-note:enhancement
+compute: added `instance_termination_action` field to `google_compute_instance_template` resource to support Spot VM termination action```
