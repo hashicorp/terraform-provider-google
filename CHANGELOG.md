@@ -1,5 +1,35 @@
 ## 4.29.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_artifact_registry_repository_iam_binding` ([#12063](https://github.com/hashicorp/terraform-provider-google/pull/12063))
+* **New Resource:** `google_artifact_registry_repository_iam_member` ([#12063](https://github.com/hashicorp/terraform-provider-google/pull/12063))
+* **New Resource:** `google_artifact_registry_repository_iam_policy` ([#12063](https://github.com/hashicorp/terraform-provider-google/pull/12063))
+* **New Resource:** `google_artifact_registry_repository` ([#12063](https://github.com/hashicorp/terraform-provider-google/pull/12063))
+* **New Resource:** `google_iam_workload_identity_pool_provider` ([#12065](https://github.com/hashicorp/terraform-provider-google/pull/12065))
+* **New Resource:** `google_iam_workload_identity_pool` ([#12065](https://github.com/hashicorp/terraform-provider-google/pull/12065))
+* **New Resource:** google_cloudiot_registry_iam_binding ([#12036](https://github.com/hashicorp/terraform-provider-google/pull/12036))
+* **New Resource:** google_cloudiot_registry_iam_member ([#12036](https://github.com/hashicorp/terraform-provider-google/pull/12036))
+* **New Resource:** google_cloudiot_registry_iam_policy ([#12036](https://github.com/hashicorp/terraform-provider-google/pull/12036))
+* **New Resource:** google_compute_snapshot_iam_binding ([#12028](https://github.com/hashicorp/terraform-provider-google/pull/12028))
+* **New Resource:** google_compute_snapshot_iam_member ([#12028](https://github.com/hashicorp/terraform-provider-google/pull/12028))
+* **New Resource:** google_compute_snapshot_iam_policy ([#12028](https://github.com/hashicorp/terraform-provider-google/pull/12028))
+* **New Resource:** metastore: promote `google_dataproc_metastore_service` to GA ([#12026](https://github.com/hashicorp/terraform-provider-google/pull/12026))
+
+IMPROVEMENTS:
+* container: added `binauthz_evaluation_mode` field to `resource_container_cluster`. ([#12035](https://github.com/hashicorp/terraform-provider-google/pull/12035))
+* dataproc: added Support for Dataproc on GKE in `google_dataproc_cluster` ([#12076](https://github.com/hashicorp/terraform-provider-google/pull/12076))
+* dataproc: added `metastore_config` in `google_dataproc_cluster` ([#12040](https://github.com/hashicorp/terraform-provider-google/pull/12040))
+* metastore: add `databaseType`, `releaseChannel`, and `hiveMetastoreConfig.endpointProtocol` arguments ([#12026](https://github.com/hashicorp/terraform-provider-google/pull/12026))
+* sql: added attribute "encryption_key_name" to `google_sql_database_instance` resource. ([#12039](https://github.com/hashicorp/terraform-provider-google/pull/12039))
+
+BUG FIXES:
+* bigquery: fixed case-sensitive for `user_by_email` and `group_by_email` on `google_bigquery_dataset_access` ([#12029](https://github.com/hashicorp/terraform-provider-google/pull/12029))
+* cloudscheduler: fixed a diff on the last slash of uri on `google_cloud_scheduler_job` ([#12027](https://github.com/hashicorp/terraform-provider-google/pull/12027))
+* compute: fixed force recreation on `provisioned_iops` of `google_compute_disk` ([#12058](https://github.com/hashicorp/terraform-provider-google/pull/12058))
+* compute: fixed missing `network_interface.0.ipv6_access_config.0.external_ipv6` output on `google_compute_instance` ([#12072](https://github.com/hashicorp/terraform-provider-google/pull/12072))
+* documentai: fixed a bug where eu region could not be utilized for documentai resources ([#12074](https://github.com/hashicorp/terraform-provider-google/pull/12074))
+* gkehub: fixed a bug where `issuer` can't be updated on `google_gke_hub_membership` ([#12073](https://github.com/hashicorp/terraform-provider-google/pull/12073))
+
 ## 4.28.0 (July 11, 2022)
 
 FEATURES:
