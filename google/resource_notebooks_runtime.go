@@ -75,7 +75,7 @@ func resourceNotebooksRuntime() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The name specified for the Notebook instance.`,
+				Description: `The name specified for the Notebook runtime.`,
 			},
 			"access_config": {
 				Type:        schema.TypeList,
@@ -357,6 +357,7 @@ rest/v1/projects.locations.runtimes#AcceleratorType'`,
 										Type:        schema.TypeList,
 										Computed:    true,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `Use a list of container images to start the notebook instance.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -377,6 +378,7 @@ For example: gcr.io/{project_id}/{imageName}`,
 									"encryption_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `Encryption settings for virtual machine data disk.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -396,6 +398,7 @@ It has the following format:
 									"internal_ip_only": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										ForceNew: true,
 										Description: `If true, runtime will only have internal IP addresses. By default,
 runtimes are not restricted to internal IP addresses, and will
 have ephemeral external IP addresses assigned to each vm. This
@@ -429,6 +432,7 @@ _metadata)).`,
 									"network": {
 										Type:     schema.TypeString,
 										Optional: true,
+										ForceNew: true,
 										Description: `The Compute Engine network to be used for machine communications.
 Cannot be specified with subnetwork. If neither 'network' nor
 'subnet' is specified, the "default" network of the project is
@@ -447,13 +451,22 @@ Runtimes support the following network configurations:
 									"nic_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
+										ForceNew:     true,
 										ValidateFunc: validateEnum([]string{"UNSPECIFIED_NIC_TYPE", "VIRTIO_NET", "GVNIC", ""}),
 										Description: `The type of vNIC to be used on this interface. This may be gVNIC
 or VirtioNet. Possible values: ["UNSPECIFIED_NIC_TYPE", "VIRTIO_NET", "GVNIC"]`,
 									},
+									"reserved_ip_range": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `Reserved IP Range name is used for VPC Peering. The
+subnetwork allocation will use the range *name* if it's assigned.`,
+									},
 									"shielded_instance_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `Shielded VM Instance configuration settings.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -489,6 +502,7 @@ default.`,
 									"subnet": {
 										Type:     schema.TypeString,
 										Optional: true,
+										ForceNew: true,
 										Description: `The Compute Engine subnetwork to be used for machine
 communications. Cannot be specified with network. A full URL or
 partial URI are valid. Examples:
@@ -756,13 +770,35 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Updating Runtime %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("virtual_machine") {
+		updateMask = append(updateMask, "virtualMachine")
+	}
+
+	if d.HasChange("access_config") {
+		updateMask = append(updateMask, "accessConfig")
+	}
+
+	if d.HasChange("software_config") {
+		updateMask = append(updateMask, "softwareConfig.idleShutdown",
+			"softwareConfig.idleShutdownTimeout",
+			"softwareConfig.customGpuDriverPath",
+			"softwareConfig.postStartupScript")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Runtime %q: %s", d.Id(), err)
@@ -910,6 +946,8 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfig(v interface{}, d 
 		flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigLabels(original["labels"], d, config)
 	transformed["nic_type"] =
 		flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigNicType(original["nicType"], d, config)
+	transformed["reserved_ip_range"] =
+		flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigReservedIpRange(original["reservedIpRange"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1207,6 +1245,10 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigNicType(v interfac
 	return v
 }
 
+func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigReservedIpRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenNotebooksRuntimeState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -1480,6 +1522,13 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfig(v interface{}, d T
 		return nil, err
 	} else if val := reflect.ValueOf(transformedNicType); val.IsValid() && !isEmptyValue(val) {
 		transformed["nicType"] = transformedNicType
+	}
+
+	transformedReservedIpRange, err := expandNotebooksRuntimeVirtualMachineVirtualMachineConfigReservedIpRange(original["reserved_ip_range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReservedIpRange); val.IsValid() && !isEmptyValue(val) {
+		transformed["reservedIpRange"] = transformedReservedIpRange
 	}
 
 	return transformed, nil
@@ -1896,6 +1945,10 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigLabels(v interface{
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigNicType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigReservedIpRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

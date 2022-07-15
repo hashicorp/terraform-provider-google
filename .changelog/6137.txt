@@ -1,0 +1,6 @@
+```release-note:enhancement
+notebooks: added field `reserved_ip_range` to `google_notebooks_runtime`
+```
+```release-note:bug
+notebooks: fixed a bug where`google_notebooks_runtime` can't be updated
+```
