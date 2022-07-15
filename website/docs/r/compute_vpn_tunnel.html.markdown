@@ -45,7 +45,7 @@ state as plain-text. [Read more about sensitive data in state](https://www.terra
 
 ```hcl
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name          = "tunnel1"
+  name          = "tunnel-1"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -59,12 +59,12 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name    = "vpn1"
+  name    = "vpn-1"
   network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name = "network1"
+  name = "network-1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
@@ -114,7 +114,7 @@ resource "google_compute_route" "route1" {
 ```hcl
 resource "google_compute_vpn_tunnel" "tunnel1" {
   provider      = google-beta
-  name          = "tunnel1"
+  name          = "tunnel-1"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -133,13 +133,13 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 
 resource "google_compute_vpn_gateway" "target_gateway" {
   provider = google-beta
-  name     = "vpn1"
+  name     = "vpn-1"
   network  = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
   provider = google-beta
-  name     = "network1"
+  name     = "network-1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
