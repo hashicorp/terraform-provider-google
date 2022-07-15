@@ -46,6 +46,7 @@ var (
 		"scheduling.0.node_affinities",
 		"scheduling.0.min_node_cpus",
 		"scheduling.0.provisioning_model",
+		"scheduling.0.instance_termination_action",
 	}
 
 	shieldedInstanceConfigKeys = []string{
@@ -595,11 +596,13 @@ func resourceComputeInstance() *schema.Resource {
 							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
 							Description:      `Specifies node affinities or anti-affinities to determine which sole-tenant nodes your instances and managed instance groups will use as host systems.`,
 						},
+
 						"min_node_cpus": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							AtLeastOneOf: schedulingKeys,
 						},
+
 						"provisioning_model": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -607,6 +610,13 @@ func resourceComputeInstance() *schema.Resource {
 							ForceNew:     true,
 							AtLeastOneOf: schedulingKeys,
 							Description:  `Whether the instance is spot. If this is set as SPOT.`,
+						},
+
+						"instance_termination_action": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: schedulingKeys,
+							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
 						},
 					},
 				},

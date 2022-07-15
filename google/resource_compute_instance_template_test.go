@@ -1097,6 +1097,7 @@ func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 					testAccCheckComputeInstanceTemplateAutomaticRestart(&instanceTemplate, false),
 					testAccCheckComputeInstanceTemplatePreemptible(&instanceTemplate, true),
 					testAccCheckComputeInstanceTemplateProvisioningModel(&instanceTemplate, "SPOT"),
+					testAccCheckComputeInstanceTemplateInstanceTerminationAction(&instanceTemplate, "STOP"),
 				),
 			},
 			{
@@ -1259,6 +1260,15 @@ func testAccCheckComputeInstanceTemplateProvisioningModel(instanceTemplate *comp
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Scheduling.ProvisioningModel != provisioning_model {
 			return fmt.Errorf("Expected provisioning_model  %v, got %v", provisioning_model, instanceTemplate.Properties.Scheduling.ProvisioningModel)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateInstanceTerminationAction(instanceTemplate *compute.InstanceTemplate, instance_termination_action string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.Scheduling.InstanceTerminationAction != instance_termination_action {
+			return fmt.Errorf("Expected instance_termination_action  %v, got %v", instance_termination_action, instanceTemplate.Properties.Scheduling.InstanceTerminationAction)
 		}
 		return nil
 	}
@@ -2806,6 +2816,7 @@ resource "google_compute_instance_template" "foobar" {
     preemptible       = true
     automatic_restart = false
     provisioning_model = "SPOT"
+    instance_termination_action = "STOP"
   }
 
   metadata = {

@@ -122,15 +122,20 @@ func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 		scheduling.ProvisioningModel = v.(string)
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "ProvisioningModel")
 	}
+	if v, ok := original["instance_termination_action"]; ok {
+		scheduling.InstanceTerminationAction = v.(string)
+		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "InstanceTerminationAction")
+	}
 	return scheduling, nil
 }
 
 func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 	schedulingMap := map[string]interface{}{
-		"on_host_maintenance": resp.OnHostMaintenance,
-		"preemptible":         resp.Preemptible,
-		"min_node_cpus":       resp.MinNodeCpus,
-		"provisioning_model":  resp.ProvisioningModel,
+		"on_host_maintenance":         resp.OnHostMaintenance,
+		"preemptible":                 resp.Preemptible,
+		"min_node_cpus":               resp.MinNodeCpus,
+		"provisioning_model":          resp.ProvisioningModel,
+		"instance_termination_action": resp.InstanceTerminationAction,
 	}
 
 	if resp.AutomaticRestart != nil {
@@ -477,6 +482,10 @@ func schedulingHasChangeWithoutReboot(d *schema.ResourceData) bool {
 	}
 
 	if oScheduling["provisioning_model"] != newScheduling["provisioning_model"] {
+		return true
+	}
+
+	if oScheduling["instance_termination_action"] != newScheduling["instance_termination_action"] {
 		return true
 	}
 

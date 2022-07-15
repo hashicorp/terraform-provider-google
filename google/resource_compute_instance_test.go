@@ -2203,6 +2203,7 @@ func TestAccComputeInstance_spotVM(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceTerminationAction(&instance, "STOP"),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
@@ -2552,6 +2553,23 @@ func testAccCheckComputeResourcePolicy(instance *compute.Instance, scheduleName 
 
 		if resourcePoliciesCountHave == 1 && !strings.Contains(instance.ResourcePolicies[0], scheduleName) {
 			return fmt.Errorf("got the wrong schedule: have: %s; want: %s", instance.ResourcePolicies[0], scheduleName)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTerminationAction(instance *compute.Instance, instanceTerminationActionWant string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance == nil {
+			return fmt.Errorf("instance is nil")
+		}
+		if instance.Scheduling == nil {
+			return fmt.Errorf("no scheduling")
+		}
+
+		if instance.Scheduling.InstanceTerminationAction != instanceTerminationActionWant {
+			return fmt.Errorf("got the wrong instance termniation action: have: %s; want: %s", instance.Scheduling.InstanceTerminationAction, instanceTerminationActionWant)
 		}
 
 		return nil
@@ -6180,6 +6198,7 @@ resource "google_compute_instance" "foobar" {
     provisioning_model = "SPOT"
     automatic_restart = false
     preemptible = true
+		instance_termination_action = "STOP"
   }
 
 }
