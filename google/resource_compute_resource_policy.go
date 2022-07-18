@@ -94,7 +94,7 @@ exact number of VMs.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"snapshot_schedule_policy", "instance_schedule_policy"},
+				ConflictsWith: []string{"instance_schedule_policy", "snapshot_schedule_policy"},
 			},
 			"instance_schedule_policy": {
 				Type:        schema.TypeList,

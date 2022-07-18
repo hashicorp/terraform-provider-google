@@ -179,7 +179,7 @@ and { service="bar2", tag="foo2" } respectively.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"app_engine", "cloud_function"},
+				ConflictsWith: []string{"cloud_function", "app_engine"},
 			},
 			"description": {
 				Type:     schema.TypeString,
