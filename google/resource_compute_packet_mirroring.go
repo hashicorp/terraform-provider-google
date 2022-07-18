@@ -169,10 +169,9 @@ destination (egress) IP in the IP header. Only IPv4 is supported.`,
 						"ip_protocols": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Protocols that apply as a filter on mirrored traffic. Possible values: ["tcp", "udp", "icmp"]`,
+							Description: `Possible IP protocols including tcp, udp, icmp and esp`,
 							Elem: &schema.Schema{
-								Type:         schema.TypeString,
-								ValidateFunc: validateEnum([]string{"tcp", "udp", "icmp"}),
+								Type: schema.TypeString,
 							},
 						},
 					},
