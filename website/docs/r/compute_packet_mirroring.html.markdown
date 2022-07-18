@@ -223,8 +223,7 @@ The following arguments are supported:
 
 * `ip_protocols` -
   (Optional)
-  Protocols that apply as a filter on mirrored traffic.
-  Each value may be one of `tcp`, `udp`, and `icmp`.
+  Possible IP protocols including tcp, udp, icmp and esp
 
 * `cidr_ranges` -
   (Optional)
