@@ -324,7 +324,7 @@ one of 'source_ranges', 'source_tags' or 'source_service_accounts' is required.`
 					Type: schema.TypeString,
 				},
 				Set:           schema.HashString,
-				ConflictsWith: []string{"destination_ranges", "source_service_accounts", "target_service_accounts"},
+				ConflictsWith: []string{"source_service_accounts", "destination_ranges", "target_service_accounts"},
 			},
 			"target_service_accounts": {
 				Type:     schema.TypeSet,
