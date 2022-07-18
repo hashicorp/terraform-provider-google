@@ -46,7 +46,7 @@ resource "google_compute_instance_group_manager" "appserver" {
   target_size  = 2
 
   named_port {
-    name = "customHTTP"
+    name = "customhttp"
     port = 8888
   }
 
