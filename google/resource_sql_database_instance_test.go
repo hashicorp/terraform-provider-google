@@ -222,6 +222,16 @@ func TestAccSqlDatabaseInstance_basicMSSQL(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
 			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_update_mssql, databaseName, rootPassword),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
 		},
 	})
 }
@@ -1217,6 +1227,23 @@ resource "google_sql_database_instance" "instance" {
   settings {
     tier = "db-custom-1-3840"
     collation = "Polish_CI_AS"
+  }
+}
+`
+
+var testGoogleSqlDatabaseInstance_update_mssql = `
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  database_version    = "SQLSERVER_2019_STANDARD"
+  root_password       = "%s"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-1-3840"
+    collation = "Polish_CI_AS"
+    ip_configuration {
+      ipv4_enabled = true
+      require_ssl = true
+    }
   }
 }
 `
