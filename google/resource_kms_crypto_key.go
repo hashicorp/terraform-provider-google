@@ -132,7 +132,7 @@ See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v
 							Type:        schema.TypeString,
 							Optional:    true,
 							ForceNew:    true,
-							Description: `The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL". Defaults to "SOFTWARE".`,
+							Description: `The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL", "EXTERNAL_VPC". Defaults to "SOFTWARE".`,
 							Default:     "SOFTWARE",
 						},
 					},
