@@ -89,6 +89,8 @@ var (
 		"cluster_config.0.encryption_config",
 		"cluster_config.0.autoscaling_config",
 		"cluster_config.0.metastore_config",
+		"cluster_config.0.lifecycle_config",
+		"cluster_config.0.endpoint_config",
 	}
 )
 
@@ -958,6 +960,68 @@ by Dataproc`,
 								},
 							},
 						},
+						"lifecycle_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							MaxItems:     1,
+							AtLeastOneOf: clusterConfigKeys,
+							Description:  `The settings for auto deletion cluster schedule.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"idle_delete_ttl": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The duration to keep the cluster alive while idling (no jobs running). After this TTL, the cluster will be deleted. Valid range: [10m, 14d].`,
+										AtLeastOneOf: []string{
+											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_delete_time",
+										},
+									},
+									"idle_start_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Time when the cluster became idle (most recent job finished) and became eligible for deletion due to idleness.`,
+									},
+									// the API also has the auto_delete_ttl option in its request, however,
+									// the value is not returned in the response, rather the auto_delete_time
+									// after calculating ttl with the update time is returned, thus, for now
+									// we will only allow auto_delete_time to updated.
+									"auto_delete_time": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										Description:      `The time when cluster will be auto-deleted. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
+										DiffSuppressFunc: timestampDiffSuppress(time.RFC3339Nano),
+										AtLeastOneOf: []string{
+											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_delete_time",
+										},
+									},
+								},
+							},
+						},
+						"endpoint_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							MaxItems:     1,
+							Description:  `The config settings for port access on the cluster. Structure defined below.`,
+							AtLeastOneOf: clusterConfigKeys,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_http_port_access": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The flag to enable http access to specific ports on the cluster from external sources (aka Component Gateway). Defaults to false.`,
+									},
+									"http_ports": {
+										Type:        schema.TypeMap,
+										Computed:    true,
+										Description: `The map of port descriptions to URLs. Will only be populated if enable_http_port_access is true.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1408,6 +1472,14 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 		conf.MetastoreConfig = expandMetastoreConfig(cfg)
 	}
 
+	if cfg, ok := configOptions(d, "cluster_config.0.lifecycle_config"); ok {
+		conf.LifecycleConfig = expandLifecycleConfig(cfg)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.endpoint_config"); ok {
+		conf.EndpointConfig = expandEndpointConfig(cfg)
+	}
+
 	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
 		log.Println("[INFO] got master_config")
 		conf.MasterConfig = expandInstanceGroupConfig(cfg)
@@ -1587,6 +1659,25 @@ func expandAutoscalingConfig(cfg map[string]interface{}) *dataproc.AutoscalingCo
 	return conf
 }
 
+func expandLifecycleConfig(cfg map[string]interface{}) *dataproc.LifecycleConfig {
+	conf := &dataproc.LifecycleConfig{}
+	if v, ok := cfg["idle_delete_ttl"]; ok {
+		conf.IdleDeleteTtl = v.(string)
+	}
+	if v, ok := cfg["auto_delete_time"]; ok {
+		conf.AutoDeleteTime = v.(string)
+	}
+	return conf
+}
+
+func expandEndpointConfig(cfg map[string]interface{}) *dataproc.EndpointConfig {
+	conf := &dataproc.EndpointConfig{}
+	if v, ok := cfg["enable_http_port_access"]; ok {
+		conf.EnableHttpPortAccess = v.(bool)
+	}
+	return conf
+}
+
 func expandMetastoreConfig(cfg map[string]interface{}) *dataproc.MetastoreConfig {
 	conf := &dataproc.MetastoreConfig{}
 	if v, ok := cfg["dataproc_metastore_service"]; ok {
@@ -1754,6 +1845,28 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		updMask = append(updMask, "config.autoscaling_config.policy_uri")
+	}
+
+	if d.HasChange("cluster_config.0.lifecycle_config.0.idle_delete_ttl") {
+		idleDeleteTtl := d.Get("cluster_config.0.lifecycle_config.0.idle_delete_ttl").(string)
+		cluster.Config.LifecycleConfig = &dataproc.LifecycleConfig{
+			IdleDeleteTtl: idleDeleteTtl,
+		}
+
+		updMask = append(updMask, "config.lifecycle_config.idle_delete_ttl")
+	}
+
+	if d.HasChange("cluster_config.0.lifecycle_config.0.auto_delete_time") {
+		desiredDeleteTime := d.Get("cluster_config.0.lifecycle_config.0.auto_delete_time").(string)
+		if cluster.Config.LifecycleConfig != nil {
+			cluster.Config.LifecycleConfig.AutoDeleteTime = desiredDeleteTime
+		} else {
+			cluster.Config.LifecycleConfig = &dataproc.LifecycleConfig{
+				AutoDeleteTime: desiredDeleteTime,
+			}
+		}
+
+		updMask = append(updMask, "config.lifecycle_config.auto_delete_time")
 	}
 
 	if len(updMask) > 0 {
@@ -1972,6 +2085,8 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
 		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
 		"metastore_config":          flattenMetastoreConfig(d, cfg.MetastoreConfig),
+		"lifecycle_config":          flattenLifecycleConfig(d, cfg.LifecycleConfig),
+		"endpoint_config":           flattenEndpointConfig(d, cfg.EndpointConfig),
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -2047,6 +2162,32 @@ func flattenAutoscalingConfig(d *schema.ResourceData, ec *dataproc.AutoscalingCo
 
 	data := map[string]interface{}{
 		"policy_uri": ec.PolicyUri,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenLifecycleConfig(d *schema.ResourceData, lc *dataproc.LifecycleConfig) []map[string]interface{} {
+	if lc == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"idle_delete_ttl":  lc.IdleDeleteTtl,
+		"auto_delete_time": lc.AutoDeleteTime,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenEndpointConfig(d *schema.ResourceData, ec *dataproc.EndpointConfig) []map[string]interface{} {
+	if ec == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"enable_http_port_access": ec.EnableHttpPortAccess,
+		"http_ports":              ec.HttpPorts,
 	}
 
 	return []map[string]interface{}{data}
