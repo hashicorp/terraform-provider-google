@@ -188,7 +188,7 @@ func resourceCloudbuildWorkerPoolCreate(d *schema.ResourceData, meta interface{}
 		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

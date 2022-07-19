@@ -2053,7 +2053,7 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 		Version:    dcl.Int64OrNil(int64(d.Get("version").(int))),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/workflowTemplates/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

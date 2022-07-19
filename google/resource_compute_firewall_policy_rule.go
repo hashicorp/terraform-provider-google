@@ -190,7 +190,7 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 		TargetServiceAccounts: expandStringArray(d.Get("target_service_accounts")),
 	}
 
-	id, err := replaceVarsForId(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/rules/{{priority}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

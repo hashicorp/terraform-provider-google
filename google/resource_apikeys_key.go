@@ -239,7 +239,7 @@ func resourceApikeysKeyCreate(d *schema.ResourceData, meta interface{}) error {
 		Restrictions: expandApikeysKeyRestrictions(d.Get("restrictions")),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/global/keys/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

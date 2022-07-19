@@ -145,7 +145,12 @@ func resourceBigqueryReservationAssignmentCreate(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error creating Assignment: %s", err)
 	}
 
-	id, err = obj.ID()
+	if err = d.Set("name", res.Name); err != nil {
+		return fmt.Errorf("error setting name in state: %s", err)
+	}
+	// ID has a server-generated value, set again after creation.
+
+	id, err = res.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

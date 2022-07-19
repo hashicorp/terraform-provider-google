@@ -1325,7 +1325,7 @@ func resourceOsConfigOsPolicyAssignmentCreate(d *schema.ResourceData, meta inter
 		Project:        dcl.String(project),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

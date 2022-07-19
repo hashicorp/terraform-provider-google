@@ -156,7 +156,7 @@ func resourceFirebaserulesRulesetCreate(d *schema.ResourceData, meta interface{}
 		Project: dcl.String(project),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/rulesets/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}
@@ -191,10 +191,11 @@ func resourceFirebaserulesRulesetCreate(d *schema.ResourceData, meta interface{}
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	// Id has a server-generated value, set again after creation
-	id, err = replaceVarsForId(d, config, "projects/{{project}}/rulesets/{{name}}")
+	// ID has a server-generated value, set again after creation.
+
+	id, err = res.ID()
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 

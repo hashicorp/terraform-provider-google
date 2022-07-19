@@ -311,7 +311,7 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}
