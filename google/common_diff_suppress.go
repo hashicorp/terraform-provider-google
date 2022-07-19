@@ -223,7 +223,7 @@ func lastSlashDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 
 // Suppress diffs when the value read from api
 // has the project number instead of the project name
-func projectNumberDiffSupress(_, old, new string, _ *schema.ResourceData) bool {
+func projectNumberDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	var a2, b2 string
 	reN := regexp.MustCompile("projects/\\d+")
 	re := regexp.MustCompile("projects/[^/]+")

@@ -50,7 +50,7 @@ func resourceDocumentAIProcessorDefaultVersion() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: projectNumberDiffSupress,
+				DiffSuppressFunc: projectNumberDiffSuppress,
 				Description:      `The version to set`,
 			},
 		},

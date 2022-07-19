@@ -1,0 +1,6 @@
+```release-note:new-resource
+ `google_certificate_map_entry`
+```
+```release-note:new-resource
+ `google_certificate_map`
+```
