@@ -1,0 +1,3 @@
+```release-note:none
+kms: Add `EXTERNAL_VPC` in protection_level description
+```
