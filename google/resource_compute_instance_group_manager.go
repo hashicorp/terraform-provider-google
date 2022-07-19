@@ -27,7 +27,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			Update: schema.DefaultTimeout(15 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
-
 		Schema: map[string]*schema.Schema{
 			"base_instance_name": {
 				Type:        schema.TypeString,
@@ -261,7 +260,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
-
 			"wait_for_instances": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -273,7 +271,8 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Optional:     true,
 				Default:      "STABLE",
 				ValidateFunc: validation.StringInSlice([]string{"STABLE", "UPDATED"}, false),
-				Description:  `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
+
+				Description: `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
 			},
 			"stateful_disk": {
 				Type:        schema.TypeSet,

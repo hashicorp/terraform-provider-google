@@ -47,6 +47,15 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   version {
     instance_template = google_compute_instance_template.appserver.id
   }
+  
+  all_instances_config {
+    metadata = {
+      metadata_key = "metadata_value"
+    }
+    labels = {
+      label_key = "label_value"
+    }
+  }
 
   target_pools = [google_compute_target_pool.appserver.id]
   target_size  = 2
@@ -141,9 +150,12 @@ The following arguments are supported:
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
+* `all_instances_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Properties to set on all instances in the group. After setting
+  allInstancesConfig on the group, you must update the group's instances to
+  apply the configuration.
 
 * `update_policy` - (Optional) The update policy for this managed instance group. Structure is [documented below](#nested_update_policy). For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagers/patch)
-
 
 * `distribution_policy_zones` - (Optional) The distribution policy for this managed instance
 group. You can specify one or more values. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups#selectingzones).
@@ -188,6 +200,25 @@ update_policy {
 * `min_ready_sec` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
 
 * `replacement_method` - (Optional), The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.
+- - -
+
+<a name="nested_all_instances_config"></a>The `all_instances_config` block supports:
+
+```hcl
+all_instances_config {
+  metadata = {
+    metadata_key = "metadata_value"
+  }
+  labels = {
+    label_key = "label_Value"
+  }
+}
+```
+
+* `metadata` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The metadata key-value pairs that you want to patch onto the instance. For more information, see [Project and instance metadata](https://cloud.google.com/compute/docs/metadata#project_and_instance_metadata).
+
+* `labels` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The label key-value pairs that you want to patch onto the instance.
+
 - - -
 
 <a name="nested_named_port"></a>The `named_port` block supports: (Include a `named_port` block for each named-port required).

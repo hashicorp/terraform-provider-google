@@ -698,6 +698,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
     name = "customhttps"
     port = 8443
   }
+
 }
 `, template1, target1, target2, template2, description, igm)
 }
@@ -1578,11 +1579,18 @@ resource "google_compute_instance_group_manager" "igm-basic" {
   name        = "%s"
   version {
     instance_template = google_compute_instance_template.igm-basic.self_link
-    name              = "prod"
+    name              = "prod2"
   }
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
   base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
+  update_policy {
+    type                    = "PROACTIVE"
+    minimal_action          = "REPLACE"
+    replacement_method      = "RECREATE"
+    max_surge_fixed         = 0
+    max_unavailable_percent = 50
+  }
   wait_for_instances = true
   wait_for_instances_status = "UPDATED"
 }

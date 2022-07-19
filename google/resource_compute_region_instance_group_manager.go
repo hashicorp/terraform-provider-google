@@ -180,7 +180,8 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Optional:     true,
 				Default:      "STABLE",
 				ValidateFunc: validation.StringInSlice([]string{"STABLE", "UPDATED"}, false),
-				Description:  `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
+
+				Description: `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
 			},
 
 			"auto_healing_policies": {
@@ -306,7 +307,6 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
-
 			"stateful_disk": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -510,6 +510,9 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, 
 					if !m.Status.Stateful.PerInstanceConfigs.AllEffective {
 						return false, "updating per instance configs", nil
 					}
+				}
+				if !m.Status.VersionTarget.IsReached {
+					return false, "reaching version target", nil
 				}
 				if !m.Status.VersionTarget.IsReached {
 					return false, "reaching version target", nil
