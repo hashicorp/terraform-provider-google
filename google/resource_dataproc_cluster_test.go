@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -634,6 +635,63 @@ func TestAccDataprocCluster_withOptionalComponents(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(t *testing.T) {
+	t.Parallel()
+
+	rnd := randString(t, 10)
+	var cluster dataproc.Cluster
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, "600s"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, "610s"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withLifecycleConfigAutoDeletion(t *testing.T) {
+	// Uses time.Now
+	skipIfVcr(t)
+	t.Parallel()
+
+	rnd := randString(t, 10)
+	now := time.Now()
+	fmtString := "2006-01-02T15:04:05.072Z"
+
+	var cluster dataproc.Cluster
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, now.Add(time.Hour*10).Format(fmtString)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, now.Add(time.Hour*20).Format(fmtString)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withLabels(t *testing.T) {
 	t.Parallel()
 
@@ -677,6 +735,27 @@ func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
 					// successful creation of the clusters is good enough to assess it worked
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_net_ref_by_url", &c1),
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_net_ref_by_name", &c2),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withEndpointConfig(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withEndpointConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_endpoint_config", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_endpoint_config", "cluster_config.0.endpoint_config.0.enable_http_port_access", "true"),
 				),
 			},
 		},
@@ -1510,6 +1589,21 @@ resource "google_dataproc_cluster" "with_labels" {
 `, rnd)
 }
 
+func testAccDataprocCluster_withEndpointConfig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_endpoint_config" {
+	name                  = "tf-test-%s"
+	region                = "us-central1"
+
+	cluster_config {
+		endpoint_config {
+			enable_http_port_access = "true"
+		}
+	}
+}
+`, rnd)
+}
+
 func testAccDataprocCluster_withImageVersion(rnd, version string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_image_version" {
@@ -1538,6 +1632,36 @@ resource "google_dataproc_cluster" "with_opt_components" {
   }
 }
 `, rnd)
+}
+
+func testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, tm string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_lifecycle_config" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    lifecycle_config {
+      idle_delete_ttl = "%s"
+    }
+  }
+}
+`, rnd, tm)
+}
+
+func testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, tm string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_lifecycle_config" {
+ name   = "tf-test-dproc-%s"
+ region = "us-central1"
+
+ cluster_config {
+   lifecycle_config {
+     auto_delete_time = "%s"
+   }
+ }
+}
+`, rnd, tm)
 }
 
 func testAccDataprocCluster_withServiceAcc(sa string, rnd string) string {
