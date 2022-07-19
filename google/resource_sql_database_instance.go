@@ -267,6 +267,7 @@ is set to true.`,
 						"collation": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The name of server instance collation.`,
 						},
 						"database_flags": {
@@ -1304,6 +1305,9 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	instance := &sqladmin.DatabaseInstance{
 		Settings: expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{})),
 	}
+
+	// Collation cannot be included in the update request
+	instance.Settings.Collation = ""
 
 	// Lock on the master_instance_name just in case updating any replica
 	// settings causes operations on the master.
