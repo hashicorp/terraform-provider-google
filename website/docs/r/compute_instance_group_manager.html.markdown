@@ -41,6 +41,15 @@ resource "google_compute_instance_group_manager" "appserver" {
   version {
     instance_template  = google_compute_instance_template.appserver.id
   }
+  
+  all_instances_config {
+    metadata = {
+      metadata_key = "metadata_value"
+    }
+    labels = {
+      label_key = "label_value"
+    }
+  }
 
   target_pools = [google_compute_target_pool.appserver.id]
   target_size  = 2
@@ -139,7 +148,12 @@ The following arguments are supported:
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is [documented below](#nested_auto_healing_policies). For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-* `stateful_disk` - (Optional)) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is [documented below](#nested_stateful_disk). For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs).
+* `all_instances_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Properties to set on all instances in the group. After setting
+  allInstancesConfig on the group, you must update the group's instances to
+  apply the configuration.
+
+* `stateful_disk` - (Optional) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is [documented below](#nested_stateful_disk). For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs).
 
 * `update_policy` - (Optional) The update policy for this managed instance group. Structure is [documented below](#nested_update_policy). For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroupManagers/patch)
 
@@ -176,6 +190,25 @@ update_policy {
 * `min_ready_sec` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
 
 * `replacement_method` - (Optional), The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.
+- - -
+
+<a name="nested_all_instances_config"></a>The `all_instances_config` block supports:
+
+```hcl
+all_instances_config {
+  metadata = {
+    metadata_key = "metadata_value"
+  }
+  labels = {
+    label_key = "label_Value"
+  }
+}
+```
+
+* `metadata` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The metadata key-value pairs that you want to patch onto the instance. For more information, see [Project and instance metadata](https://cloud.google.com/compute/docs/metadata#project_and_instance_metadata).
+
+* `labels` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The label key-value pairs that you want to patch onto the instance.
+
 - - -
 
 <a name="nested_named_port"></a>The `named_port` block supports: (Include a `named_port` block for each named-port required).
@@ -225,7 +258,6 @@ version {
 -> Exactly one `version` you specify must not have a `target_size` specified. During a rolling update, the instance group manager will fulfill the `target_size`
 constraints of every other `version`, and any remaining instances will be provisioned with the version where `target_size` is unset.
 
-
 <a name="nested_target_size"></a>The `target_size` block supports:
 
 * `fixed` - (Optional), The number of instances which are managed for this version. Conflicts with `percent`.
@@ -239,7 +271,6 @@ one of which has a `target_size.percent` of `60` will create 2 instances of that
 * `device_name` - (Required), The device name of the disk to be attached.
 
 * `delete_rule` - (Optional), A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`. `NEVER` - detach the disk when the VM is deleted, but do not delete the disk. `ON_PERMANENT_INSTANCE_DELETION` will delete the stateful disk when the VM is permanently deleted from the instance group. The default is `NEVER`.
-
 
 ## Attributes Reference
 
