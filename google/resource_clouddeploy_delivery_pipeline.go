@@ -249,7 +249,7 @@ func resourceClouddeployDeliveryPipelineCreate(d *schema.ResourceData, meta inte
 		Suspended:      dcl.Bool(d.Get("suspended").(bool)),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/deliveryPipelines/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

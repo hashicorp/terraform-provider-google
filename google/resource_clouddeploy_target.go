@@ -239,7 +239,7 @@ func resourceClouddeployTargetCreate(d *schema.ResourceData, meta interface{}) e
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/targets/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

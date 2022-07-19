@@ -74,7 +74,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 		Name:         dcl.String(d.Get("name").(string)),
 	}
 
-	id, err := replaceVarsForId(d, config, "locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}

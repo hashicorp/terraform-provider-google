@@ -102,7 +102,7 @@ func resourceFirebaserulesReleaseCreate(d *schema.ResourceData, meta interface{}
 		Project:     dcl.String(project),
 	}
 
-	id, err := replaceVars(d, config, "projects/{{project}}/releases/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}
