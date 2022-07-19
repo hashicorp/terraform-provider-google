@@ -263,7 +263,9 @@ The `disk_encryption_key` block supports:
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
    Structure [documented below](#nested_node_affinities).
    
-* `provisioning_model` - (Beta) Describe the type of preemptible VM. 
+* `provisioning_model` - Describe the type of preemptible VM. 
+
+* `instance_termination_action` - Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot) 
 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
