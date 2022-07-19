@@ -60,6 +60,32 @@ resource "google_monitoring_alert_policy" "alert_policy" {
   }
 }
 ```
+## Example Usage - Monitoring Alert Policy Evaluation Missing Data
+
+
+```hcl
+resource "google_monitoring_alert_policy" "alert_policy" {
+  display_name = "My Alert Policy"
+  combiner     = "OR"
+  conditions {
+    display_name = "test condition"
+    condition_threshold {
+      filter     = "metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\""
+      duration   = "60s"
+      comparison = "COMPARISON_GT"
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_RATE"
+      }
+      evaluation_missing_data = "EVALUATION_MISSING_DATA_INACTIVE"
+    }
+  }
+
+  user_labels = {
+    foo = "bar"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -318,6 +344,13 @@ The following arguments are supported:
   denominator_aggregations are specified.
   Structure is [documented below](#nested_trigger).
 
+* `evaluation_missing_data` -
+  (Optional)
+  A condition control that determines how
+  metric-threshold conditions are evaluated when
+  data stops arriving.
+  Possible values are `EVALUATION_MISSING_DATA_INACTIVE`, `EVALUATION_MISSING_DATA_ACTIVE`, and `EVALUATION_MISSING_DATA_NO_OP`.
+
 
 <a name="nested_trigger"></a>The `trigger` block supports:
 
@@ -451,6 +484,13 @@ The following arguments are supported:
   resource labels, and metric labels. This
   field may not exceed 2048 Unicode characters
   in length.
+
+* `evaluation_missing_data` -
+  (Optional)
+  A condition control that determines how
+  metric-threshold conditions are evaluated when
+  data stops arriving.
+  Possible values are `EVALUATION_MISSING_DATA_INACTIVE`, `EVALUATION_MISSING_DATA_ACTIVE`, and `EVALUATION_MISSING_DATA_NO_OP`.
 
 
 <a name="nested_denominator_aggregations"></a>The `denominator_aggregations` block supports:

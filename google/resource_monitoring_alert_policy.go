@@ -302,6 +302,14 @@ alerted on quickly.`,
 										Required:    true,
 										Description: `Monitoring Query Language query that outputs a boolean stream.`,
 									},
+									"evaluation_missing_data": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"EVALUATION_MISSING_DATA_INACTIVE", "EVALUATION_MISSING_DATA_ACTIVE", "EVALUATION_MISSING_DATA_NO_OP", ""}),
+										Description: `A condition control that determines how
+metric-threshold conditions are evaluated when
+data stops arriving. Possible values: ["EVALUATION_MISSING_DATA_INACTIVE", "EVALUATION_MISSING_DATA_ACTIVE", "EVALUATION_MISSING_DATA_NO_OP"]`,
+									},
 									"trigger": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -627,6 +635,14 @@ contain restrictions on resource type,
 resource labels, and metric labels. This
 field may not exceed 2048 Unicode characters
 in length.`,
+									},
+									"evaluation_missing_data": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"EVALUATION_MISSING_DATA_INACTIVE", "EVALUATION_MISSING_DATA_ACTIVE", "EVALUATION_MISSING_DATA_NO_OP", ""}),
+										Description: `A condition control that determines how
+metric-threshold conditions are evaluated when
+data stops arriving. Possible values: ["EVALUATION_MISSING_DATA_INACTIVE", "EVALUATION_MISSING_DATA_ACTIVE", "EVALUATION_MISSING_DATA_NO_OP"]`,
 									},
 									"filter": {
 										Type:     schema.TypeString,
@@ -1395,6 +1411,8 @@ func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(v in
 		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(original["duration"], d, config)
 	transformed["trigger"] =
 		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(original["trigger"], d, config)
+	transformed["evaluation_missing_data"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageEvaluationMissingData(original["evaluationMissingData"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1441,6 +1459,10 @@ func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigg
 	return v // let terraform core handle it otherwise
 }
 
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageEvaluationMissingData(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1466,6 +1488,8 @@ func flattenMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *
 		flattenMonitoringAlertPolicyConditionsConditionThresholdAggregations(original["aggregations"], d, config)
 	transformed["filter"] =
 		flattenMonitoringAlertPolicyConditionsConditionThresholdFilter(original["filter"], d, config)
+	transformed["evaluation_missing_data"] =
+		flattenMonitoringAlertPolicyConditionsConditionThresholdEvaluationMissingData(original["evaluationMissingData"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1595,6 +1619,10 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSe
 }
 
 func flattenMonitoringAlertPolicyConditionsConditionThresholdFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionThresholdEvaluationMissingData(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1936,6 +1964,13 @@ func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(v int
 		transformed["trigger"] = transformedTrigger
 	}
 
+	transformedEvaluationMissingData, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageEvaluationMissingData(original["evaluation_missing_data"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEvaluationMissingData); val.IsValid() && !isEmptyValue(val) {
+		transformed["evaluationMissingData"] = transformedEvaluationMissingData
+	}
+
 	return transformed, nil
 }
 
@@ -1978,6 +2013,10 @@ func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigge
 }
 
 func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageEvaluationMissingData(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2044,6 +2083,13 @@ func expandMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d Te
 		return nil, err
 	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !isEmptyValue(val) {
 		transformed["filter"] = transformedFilter
+	}
+
+	transformedEvaluationMissingData, err := expandMonitoringAlertPolicyConditionsConditionThresholdEvaluationMissingData(original["evaluation_missing_data"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEvaluationMissingData); val.IsValid() && !isEmptyValue(val) {
+		transformed["evaluationMissingData"] = transformedEvaluationMissingData
 	}
 
 	return transformed, nil
@@ -2218,6 +2264,10 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSer
 }
 
 func expandMonitoringAlertPolicyConditionsConditionThresholdFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionThresholdEvaluationMissingData(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
