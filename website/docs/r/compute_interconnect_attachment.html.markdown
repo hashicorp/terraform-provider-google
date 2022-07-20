@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_interconnect_attachment"
-sidebar_current: "docs-google-compute-interconnect-attachment"
 description: |-
   Represents an InterconnectAttachment (VLAN attachment) resource.
 ---

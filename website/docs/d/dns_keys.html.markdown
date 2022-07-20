@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_keys"
-sidebar_current: "docs-google-datasource-dns-keys"
 description: |-
   Get DNSKEY and DS records of DNSSEC-signed managed zones.
 ---

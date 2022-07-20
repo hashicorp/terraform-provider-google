@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_shared_vpc_service_project"
-sidebar_current: "docs-google-compute-shared-vpc-service-project"
 description: |-
  Enables the Google Compute Engine Shared VPC feature for a project, assigning it as a service project.
 ---

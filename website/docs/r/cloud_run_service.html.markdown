@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Run"
-layout: "google"
 page_title: "Google: google_cloud_run_service"
-sidebar_current: "docs-google-cloud-run-service"
 description: |-
   Service acts as a top-level container that manages a set of Routes and
   Configurations which implement a network service.

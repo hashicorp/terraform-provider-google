@@ -1,8 +1,6 @@
 ---
 subcategory: "Tags"
-layout: "google"
 page_title: "Google: google_tags_tag_value"
-sidebar_current: "docs-google-datasource-tags-tag-value"
 description: |-
   Get a tag value from the parent key and short_name.
 ---

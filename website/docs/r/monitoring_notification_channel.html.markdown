@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_notification_channel"
-sidebar_current: "docs-google-monitoring-notification-channel"
 description: |-
   A NotificationChannel is a medium through which an alert is delivered
   when a policy violation is detected.

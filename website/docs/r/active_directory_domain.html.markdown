@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Managed Microsoft Active Directory"
-layout: "google"
 page_title: "Google: google_active_directory_domain"
-sidebar_current: "docs-google-active-directory-domain"
 description: |-
   Creates a Microsoft AD domain
 ---

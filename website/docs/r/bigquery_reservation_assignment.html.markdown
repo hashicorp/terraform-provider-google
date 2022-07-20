@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigqueryReservation"
-layout: "google"
 page_title: "Google: google_bigquery_reservation_assignment"
-sidebar_current: "docs-google-bigquery-reservation-assignment"
 description: |-
   The BigqueryReservation Assignment resource
 ---

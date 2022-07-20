@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Network services"
-layout: "google"
 page_title: "Google: google_network_services_edge_cache_service"
-sidebar_current: "docs-google-network-services-edge-cache-service"
 description: |-
   EdgeCacheService defines the IP addresses, protocols, security policies, cache policies and routing configuration.
 ---

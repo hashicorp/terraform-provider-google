@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_alert_policy"
-sidebar_current: "docs-google-monitoring-alert-policy"
 description: |-
   A description of the conditions under which some aspect of your system is
   considered to be "unhealthy" and the ways to notify people or services

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_firewall"
-sidebar_current: "docs-google-compute-firewall"
 description: |-
   Each network has its own firewall controlling access to and from the
   instances.

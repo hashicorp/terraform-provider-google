@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Deploy"
-layout: "google"
 page_title: "Google: google_clouddeploy_delivery_pipeline"
-sidebar_current: "docs-google-clouddeploy-delivery-pipeline"
 description: |-
   The Cloud Deploy `DeliveryPipeline` resource
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_health_check"
-sidebar_current: "docs-google-compute-region-health-check"
 description: |-
   Health Checks determine whether instances are responsive and able to do work.
 ---

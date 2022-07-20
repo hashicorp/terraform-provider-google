@@ -1,8 +1,6 @@
 ---
-layout: "google"
 subcategory: "Compute Engine"
 page_title: "Google: google_compute_resource_policy"
-sidebar_current: "docs-google-datasource-compute-resource-policy"
 description: |-
   Provide access to a Resource Policy's attributes
 ---

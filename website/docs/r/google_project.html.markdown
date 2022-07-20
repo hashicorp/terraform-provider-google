@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_project"
-sidebar_current: "docs-google-project-x"
 description: |-
  Allows management of a Google Cloud Platform project.
 ---

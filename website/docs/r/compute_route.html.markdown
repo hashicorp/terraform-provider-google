@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_route"
-sidebar_current: "docs-google-compute-route"
 description: |-
   Represents a Route resource.
 ---

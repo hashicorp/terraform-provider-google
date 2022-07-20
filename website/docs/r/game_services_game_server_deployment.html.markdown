@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Game Servers"
-layout: "google"
 page_title: "Google: google_game_services_game_server_deployment"
-sidebar_current: "docs-google-game-services-game-server-deployment"
 description: |-
   A game server deployment resource.
 ---

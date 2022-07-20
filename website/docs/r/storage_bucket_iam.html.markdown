@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_bucket_iam"
-sidebar_current: "docs-google-storage-bucket-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Storage Bucket
 ---

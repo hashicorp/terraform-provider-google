@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Run"
-layout: "google"
 page_title: "Google: google_cloud_run_domain_mapping"
-sidebar_current: "docs-google-cloud-run-domain-mapping"
 description: |-
   Resource to hold the state and status of a user's domain mapping.
 ---

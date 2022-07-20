@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_instance_attachment"
-sidebar_current: "docs-google-apigee-instance-attachment"
 description: |-
   An `Instance attachment` in Apigee.
 ---

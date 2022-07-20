@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_policy"
-sidebar_current: "docs-google-dns-policy"
 description: |-
   A policy is a collection of DNS rules applied to one or more Virtual
   Private Cloud resources.

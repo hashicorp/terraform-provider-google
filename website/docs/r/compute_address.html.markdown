@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_address"
-sidebar_current: "docs-google-compute-address"
 description: |-
   Represents an Address resource.
 ---

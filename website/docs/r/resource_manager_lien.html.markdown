@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Resource Manager"
-layout: "google"
 page_title: "Google: google_resource_manager_lien"
-sidebar_current: "docs-google-resource-manager-lien"
 description: |-
   A Lien represents an encumbrance on the actions that can be performed on a resource.
 ---

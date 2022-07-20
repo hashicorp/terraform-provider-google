@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_managed_zone"
-sidebar_current: "docs-google-dns-managed-zone"
 description: |-
   A zone is a subtree of the DNS namespace under one administrative
   responsibility.

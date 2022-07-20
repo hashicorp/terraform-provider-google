@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_network"
-sidebar_current: "docs-google-compute-network"
 description: |-
   Manages a VPC network or legacy network resource on GCP.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Essential Contacts"
-layout: "google"
 page_title: "Google: google_document_ai_processor_default_version"
-sidebar_current: "docs-google-document-ai-processor-default-version"
 description: |-
   The default version for the processor.
 ---

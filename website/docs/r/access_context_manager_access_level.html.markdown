@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_access_level"
-sidebar_current: "docs-google-access-context-manager-access-level"
 description: |-
   An AccessLevel is a label that can be applied to requests to GCP services,
   along with a list of requirements necessary for the label to be applied.

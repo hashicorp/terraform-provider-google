@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_service_split_traffic"
-sidebar_current: "docs-google-app-engine-service-split-traffic"
 description: |-
   Traffic routing configuration for versions within a single service.
 ---

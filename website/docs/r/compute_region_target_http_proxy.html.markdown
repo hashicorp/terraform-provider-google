@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_target_http_proxy"
-sidebar_current: "docs-google-compute-region-target-http-proxy"
 description: |-
   Represents a RegionTargetHttpProxy resource, which is used by one or more
   forwarding rules to route incoming HTTP requests to a URL map.

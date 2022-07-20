@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_reservation"
-sidebar_current: "docs-google-compute-reservation"
 description: |-
   Represents a reservation resource.
 ---

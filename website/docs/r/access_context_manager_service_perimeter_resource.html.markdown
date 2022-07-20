@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_service_perimeter_resource"
-sidebar_current: "docs-google-access-context-manager-service-perimeter-resource"
 description: |-
   Allows configuring a single GCP resource that should be inside of a service perimeter.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow CX"
-layout: "google"
 page_title: "Google: google_dialogflow_cx_entity_type"
-sidebar_current: "docs-google-dialogflow-cx-entity-type"
 description: |-
   Entities are extracted from user input and represent parameters that are meaningful to your application.
 ---

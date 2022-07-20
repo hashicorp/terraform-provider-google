@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Container Registry"
-layout: "google"
 page_title: "Google: google_container_analysis_note"
-sidebar_current: "docs-google-container-analysis-note"
 description: |-
   A Container Analysis note is a high-level piece of metadata that
   describes a type of analysis that can be done for a resource.

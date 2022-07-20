@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_ha_vpn_gateway"
-sidebar_current: "docs-google-datasource-compute-ha-vpn-gateway"
 description: |-
   Get a HA VPN Gateway within GCE.
 ---

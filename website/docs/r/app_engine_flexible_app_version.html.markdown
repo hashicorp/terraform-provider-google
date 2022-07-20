@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_flexible_app_version"
-sidebar_current: "docs-google-app-engine-flexible-app-version"
 description: |-
   Flexible App Version resource to create a new version of flexible GAE Application.
 ---

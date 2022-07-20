@@ -1,8 +1,6 @@
 ---
 subcategory: "Dataflow"
-layout: "google"
 page_title: "Google: google_dataflow_job"
-sidebar_current: "docs-google-dataflow-job"
 description: |-
   Creates a job in Dataflow according to a provided config file.
 ---

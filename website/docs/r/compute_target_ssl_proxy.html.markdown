@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_ssl_proxy"
-sidebar_current: "docs-google-compute-target-ssl-proxy"
 description: |-
   Represents a TargetSslProxy resource, which is used by one or more
   global forwarding rule to route incoming SSL requests to a backend

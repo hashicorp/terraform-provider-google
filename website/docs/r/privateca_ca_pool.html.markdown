@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate Authority Service"
-layout: "google"
 page_title: "Google: google_privateca_ca_pool"
-sidebar_current: "docs-google-privateca-ca-pool"
 description: |-
   A CaPool represents a group of CertificateAuthorities that form a trust anchor.
 ---

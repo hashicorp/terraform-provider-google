@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Build"
-layout: "google"
 page_title: "Google: google_cloudbuild_trigger"
-sidebar_current: "docs-google-cloudbuild-trigger"
 description: |-
   Configuration for an automated build in response to source repository changes.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud SQL"
-layout: "google"
 page_title: "Google: google_sql_database"
-sidebar_current: "docs-google-sql-database"
 description: |-
   Represents a SQL database inside the Cloud SQL instance, hosted in
   Google's cloud.

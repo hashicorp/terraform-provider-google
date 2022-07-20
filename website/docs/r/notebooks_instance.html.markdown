@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud AI Notebooks"
-layout: "google"
 page_title: "Google: google_notebooks_instance"
-sidebar_current: "docs-google-notebooks-instance"
 description: |-
   A Cloud AI Platform Notebook instance.
 ---

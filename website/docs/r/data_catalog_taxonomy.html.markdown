@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_taxonomy"
-sidebar_current: "docs-google-data-catalog-taxonomy"
 description: |-
   A collection of policy tags that classify data along a common axis.
 ---

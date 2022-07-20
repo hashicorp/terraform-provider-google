@@ -1,8 +1,6 @@
 ---
 subcategory: "ContainerAzure"
-layout: "google"
 page_title: "Google: google_container_azure_versions"
-sidebar_current: "docs-google-datasource-container-azure-versions"
 description: |-
   Provides lists of available Kubernetes versions for the Container Azure resources.
 ---

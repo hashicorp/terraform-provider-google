@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_consent_store_iam"
-sidebar_current: "docs-google-healthcare-consent-store-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Healthcare ConsentStore
 ---

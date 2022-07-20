@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Tags"
-layout: "google"
 page_title: "Google: google_tags_tag_value"
-sidebar_current: "docs-google-tags-tag-value"
 description: |-
   A TagValue is a child of a particular TagKey.
 ---

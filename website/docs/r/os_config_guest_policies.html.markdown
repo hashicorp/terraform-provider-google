@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "OS Config"
-layout: "google"
 page_title: "Google: google_os_config_guest_policies"
-sidebar_current: "docs-google-os-config-guest-policies"
 description: |-
   An OS Config resource representing a guest configuration policy.
 ---

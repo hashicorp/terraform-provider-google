@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_account"
-sidebar_current: "docs-google-datasource-service-account"
 description: |-
   Get the service account from a project.
 ---

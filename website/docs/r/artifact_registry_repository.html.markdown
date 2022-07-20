@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Artifact Registry"
-layout: "google"
 page_title: "Google: google_artifact_registry_repository"
-sidebar_current: "docs-google-artifact-registry-repository"
 description: |-
   A repository for storing artifacts
 ---

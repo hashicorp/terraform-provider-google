@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity-Aware Proxy"
-layout: "google"
 page_title: "Google: google_iap_web_iam"
-sidebar_current: "docs-google-iap-web-iam"
 description: |-
   Collection of resources to manage IAM policy for Identity-Aware Proxy Web
 ---

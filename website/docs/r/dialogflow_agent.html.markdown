@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow"
-layout: "google"
 page_title: "Google: google_dialogflow_agent"
-sidebar_current: "docs-google-dialogflow-agent"
 description: |-
   A Dialogflow agent is a virtual agent that handles conversations with your end-users.
 ---

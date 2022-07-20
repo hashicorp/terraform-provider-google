@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Service Directory"
-layout: "google"
 page_title: "Google: google_service_directory_namespace"
-sidebar_current: "docs-google-service-directory-namespace"
 description: |-
   A container for `services`.
 ---

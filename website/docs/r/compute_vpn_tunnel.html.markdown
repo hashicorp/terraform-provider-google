@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_vpn_tunnel"
-sidebar_current: "docs-google-compute-vpn-tunnel"
 description: |-
   VPN tunnel resource.
 ---

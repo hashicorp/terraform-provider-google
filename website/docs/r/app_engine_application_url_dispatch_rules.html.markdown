@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_application_url_dispatch_rules"
-sidebar_current: "docs-google-app-engine-application-url-dispatch-rules"
 description: |-
   Rules to match an HTTP request and dispatch that request to a service.
 ---

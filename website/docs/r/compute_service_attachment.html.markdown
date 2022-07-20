@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_service_attachment"
-sidebar_current: "docs-google-compute-service-attachment"
 description: |-
   Represents a ServiceAttachment resource.
 ---

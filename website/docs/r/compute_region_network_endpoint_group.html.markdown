@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_network_endpoint_group"
-sidebar_current: "docs-google-compute-region-network-endpoint-group"
 description: |-
   A regional NEG that can support Serverless Products.
 ---

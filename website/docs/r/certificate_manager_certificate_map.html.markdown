@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate manager"
-layout: "google"
 page_title: "Google: google_certificate_manager_certificate_map"
-sidebar_current: "docs-google-certificate-manager-certificate-map"
 description: |-
   CertificateMap defines a collection of certificate configurations,
   which are usable by any associated target proxies

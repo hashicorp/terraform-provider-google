@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_consent_store"
-sidebar_current: "docs-google-healthcare-consent-store"
 description: |-
   The Consent Management API is a tool for tracking user consents and the documentation associated with the consents.
 ---

@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud SQL"
-layout: "google"
 page_title: "Google: google_sql_database_instance"
-sidebar_current: "docs-google-sql-database-instance"
 description: |-
   Creates a new SQL database instance in Google Cloud SQL.
 ---

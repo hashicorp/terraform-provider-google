@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_custom_service"
-sidebar_current: "docs-google-monitoring-custom-service"
 description: |-
   A Service is a discrete, autonomous, and network-accessible unit,
   designed to solve an individual concern (Wikipedia).

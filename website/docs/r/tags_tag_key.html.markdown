@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Tags"
-layout: "google"
 page_title: "Google: google_tags_tag_key"
-sidebar_current: "docs-google-tags-tag-key"
 description: |-
   A TagKey, used to group a set of TagValues.
 ---

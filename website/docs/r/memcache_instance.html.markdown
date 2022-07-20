@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Memcache"
-layout: "google"
 page_title: "Google: google_memcache_instance"
-sidebar_current: "docs-google-memcache-instance"
 description: |-
   A Google Cloud Memcache instance.
 ---

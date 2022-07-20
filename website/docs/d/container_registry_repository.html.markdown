@@ -1,8 +1,6 @@
 ---
 subcategory: "Container Registry"
-layout: "google"
 page_title: "Google: google_container_registry_repository"
-sidebar_current: "docs-google-datasource-container-repo"
 description: |-
   Get URLs for a given project's container registry repository.
 ---

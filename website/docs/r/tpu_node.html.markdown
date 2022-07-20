@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud TPU"
-layout: "google"
 page_title: "Google: google_tpu_node"
-sidebar_current: "docs-google-tpu-node"
 description: |-
   A Cloud TPU instance.
 ---

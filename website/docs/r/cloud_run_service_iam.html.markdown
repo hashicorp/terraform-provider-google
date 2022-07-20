@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Run"
-layout: "google"
 page_title: "Google: google_cloud_run_service_iam"
-sidebar_current: "docs-google-cloud-run-service-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Run Service
 ---

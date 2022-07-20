@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_iam_policy"
-sidebar_current: "docs-google-datasource-iam-policy"
 description: |-
   Generates an IAM policy that can be referenced by other resources, applying
   the policy to them.

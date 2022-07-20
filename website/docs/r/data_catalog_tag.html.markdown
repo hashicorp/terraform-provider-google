@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_tag"
-sidebar_current: "docs-google-data-catalog-tag"
 description: |-
   Tags are used to attach custom metadata to Data Catalog resources.
 ---

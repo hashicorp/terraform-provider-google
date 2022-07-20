@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_environment_iam"
-sidebar_current: "docs-google-apigee-environment-iam"
 description: |-
   Collection of resources to manage IAM policy for Apigee Environment
 ---

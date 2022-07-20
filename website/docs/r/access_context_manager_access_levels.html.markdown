@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_access_levels"
-sidebar_current: "docs-google-access-context-manager-access-levels"
 description: |-
   Replace all existing Access Levels in an Access Policy with the Access Levels provided.
 ---

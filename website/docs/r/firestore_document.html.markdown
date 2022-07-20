@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Firestore"
-layout: "google"
 page_title: "Google: google_firestore_document"
-sidebar_current: "docs-google-firestore-document"
 description: |-
   In Cloud Firestore, the unit of storage is the document.
 ---

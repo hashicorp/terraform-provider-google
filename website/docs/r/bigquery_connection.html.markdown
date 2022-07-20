@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery Connection"
-layout: "google"
 page_title: "Google: google_bigquery_connection"
-sidebar_current: "docs-google-bigquery-connection"
 description: |-
   A connection allows BigQuery connections to external data sources.
 ---

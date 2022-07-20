@@ -1,8 +1,6 @@
 ---
 subcategory: "Dataproc"
-layout: "google"
 page_title: "Google: google_dataproc_job"
-sidebar_current: "docs-google-dataproc-job"
 description: |-
   Manages a job resource within a Dataproc cluster.
 ---

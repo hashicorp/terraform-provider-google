@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Spanner"
-layout: "google"
 page_title: "Google: google_spanner_database"
-sidebar_current: "docs-google-spanner-database"
 description: |-
   A Cloud Spanner Database which is hosted on a Spanner instance.
 ---

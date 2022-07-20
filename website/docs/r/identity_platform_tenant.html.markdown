@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity Platform"
-layout: "google"
 page_title: "Google: google_identity_platform_tenant"
-sidebar_current: "docs-google-identity-platform-tenant"
 description: |-
   Tenant configuration in a multi-tenant project.
 ---

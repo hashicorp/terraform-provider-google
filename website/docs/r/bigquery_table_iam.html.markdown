@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_table_iam"
-sidebar_current: "docs-google-bigquery-table-iam"
 description: |-
   Collection of resources to manage IAM policy for BigQuery Table
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow CX"
-layout: "google"
 page_title: "Google: google_dialogflow_cx_agent"
-sidebar_current: "docs-google-dialogflow-cx-agent"
 description: |-
   Agents are best described as Natural Language Understanding (NLU) modules that transform user requests into actionable data.
 ---

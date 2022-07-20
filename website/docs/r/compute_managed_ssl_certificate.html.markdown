@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_managed_ssl_certificate"
-sidebar_current: "docs-google-compute-managed-ssl-certificate"
 description: |-
   An SslCertificate resource, used for HTTPS load balancing.
 ---

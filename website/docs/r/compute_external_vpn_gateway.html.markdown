@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_external_vpn_gateway"
-sidebar_current: "docs-google-compute-external-vpn-gateway"
 description: |-
   Represents a VPN gateway managed outside of GCP.
 ---

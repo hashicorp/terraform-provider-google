@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_https_proxy"
-sidebar_current: "docs-google-compute-target-https-proxy"
 description: |-
   Represents a TargetHttpsProxy resource, which is used by one or more
   global forwarding rule to route incoming HTTPS requests to a URL map.

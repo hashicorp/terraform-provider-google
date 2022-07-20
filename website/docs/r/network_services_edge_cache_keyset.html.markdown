@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Network services"
-layout: "google"
 page_title: "Google: google_network_services_edge_cache_keyset"
-sidebar_current: "docs-google-network-services-edge-cache-keyset"
 description: |-
   EdgeCacheKeyset represents a collection of public keys used for validating signed requests.
 ---

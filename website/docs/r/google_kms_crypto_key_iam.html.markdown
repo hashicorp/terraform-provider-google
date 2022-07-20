@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_crypto_key_iam"
-sidebar_current: "docs-google-kms-crypto-key-iam"
 description: |-
  Collection of resources to manage IAM policy for a Google Cloud KMS crypto key.
 ---

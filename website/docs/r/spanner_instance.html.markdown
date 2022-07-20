@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Spanner"
-layout: "google"
 page_title: "Google: google_spanner_instance"
-sidebar_current: "docs-google-spanner-instance"
 description: |-
   An isolated set of Cloud Spanner resources on which databases can be
   hosted.

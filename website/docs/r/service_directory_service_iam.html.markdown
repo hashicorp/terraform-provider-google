@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Service Directory"
-layout: "google"
 page_title: "Google: google_service_directory_service_iam"
-sidebar_current: "docs-google-service-directory-service-iam"
 description: |-
   Collection of resources to manage IAM policy for Service Directory Service
 ---

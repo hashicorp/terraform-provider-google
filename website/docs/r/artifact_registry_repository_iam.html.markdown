@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Artifact Registry"
-layout: "google"
 page_title: "Google: google_artifact_registry_repository_iam"
-sidebar_current: "docs-google-artifact-registry-repository-iam"
 description: |-
   Collection of resources to manage IAM policy for Artifact Registry Repository
 ---

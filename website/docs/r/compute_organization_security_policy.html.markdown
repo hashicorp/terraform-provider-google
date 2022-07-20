@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_organization_security_policy"
-sidebar_current: "docs-google-compute-organization-security-policy"
 description: |-
   Organization security policies are used to control incoming/outgoing traffic.
 ---

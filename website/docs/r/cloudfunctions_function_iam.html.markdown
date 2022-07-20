@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Functions"
-layout: "google"
 page_title: "Google: google_cloudfunctions_function_iam"
-sidebar_current: "docs-google-cloudfunctions-function-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Functions CloudFunction
 ---

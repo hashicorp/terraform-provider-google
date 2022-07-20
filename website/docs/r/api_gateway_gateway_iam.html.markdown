@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "API Gateway"
-layout: "google"
 page_title: "Google: google_api_gateway_gateway_iam"
-sidebar_current: "docs-google-api-gateway-gateway-iam"
 description: |-
   Collection of resources to manage IAM policy for API Gateway Gateway
 ---

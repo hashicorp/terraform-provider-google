@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Tags"
-layout: "google"
 page_title: "Google: google_tags_tag_key_iam"
-sidebar_current: "docs-google-tags-tag-key-iam"
 description: |-
   Collection of resources to manage IAM policy for Tags TagKey
 ---

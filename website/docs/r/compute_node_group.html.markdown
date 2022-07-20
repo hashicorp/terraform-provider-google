@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_node_group"
-sidebar_current: "docs-google-compute-node-group"
 description: |-
   Represents a NodeGroup resource to manage a group of sole-tenant nodes.
 ---

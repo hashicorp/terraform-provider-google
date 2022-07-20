@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery Reservation"
-layout: "google"
 page_title: "Google: google_bigquery_reservation"
-sidebar_current: "docs-google-bigquery-reservation"
 description: |-
   A reservation is a mechanism used to guarantee BigQuery slots to users.
 ---

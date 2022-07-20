@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_organization"
-sidebar_current: "docs-google-apigee-organization"
 description: |-
   An `Organization` is the top-level container in Apigee.
 ---

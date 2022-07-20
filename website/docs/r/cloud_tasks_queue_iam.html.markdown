@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Tasks"
-layout: "google"
 page_title: "Google: google_cloud_tasks_queue_iam"
-sidebar_current: "docs-google-cloud-tasks-queue-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Tasks Queue
 ---

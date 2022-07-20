@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_default_object_access_control"
-sidebar_current: "docs-google-storage-default-object-access-control"
 description: |-
   The DefaultObjectAccessControls resources represent the Access Control
   Lists (ACLs) applied to a new object within a Google Cloud Storage bucket

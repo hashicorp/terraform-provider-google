@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_lite_reservation"
-sidebar_current: "docs-google-pubsub-lite-reservation"
 description: |-
   A named resource representing a shared pool of capacity.
 ---

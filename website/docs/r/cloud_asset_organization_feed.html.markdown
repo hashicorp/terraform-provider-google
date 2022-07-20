@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Asset Inventory"
-layout: "google"
 page_title: "Google: google_cloud_asset_organization_feed"
-sidebar_current: "docs-google-cloud-asset-organization-feed"
 description: |-
   Describes a Cloud Asset Inventory feed used to to listen to asset updates.
 ---

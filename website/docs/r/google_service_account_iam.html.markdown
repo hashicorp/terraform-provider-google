@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_account_iam"
-sidebar_current: "docs-google-service-account-iam"
 description: |-
  Collection of resources to manage IAM policy for a service account.
 ---

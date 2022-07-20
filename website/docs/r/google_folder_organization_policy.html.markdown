@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_folder_organization_policy"
-sidebar_current: "docs-google-folder-organization-policy"
 description: |-
  Allows management of Organization policies for a Google Folder.
 ---

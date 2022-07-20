@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data loss prevention"
-layout: "google"
 page_title: "Google: google_data_loss_prevention_stored_info_type"
-sidebar_current: "docs-google-data-loss-prevention-stored-info-type"
 description: |-
   Allows creation of custom info types.
 ---

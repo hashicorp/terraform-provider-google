@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity Platform"
-layout: "google"
 page_title: "Google: google_identity_platform_oauth_idp_config"
-sidebar_current: "docs-google-identity-platform-oauth-idp-config"
 description: |-
   OIDC IdP configuration for a Identity Toolkit project.
 ---

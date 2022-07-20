@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_environment"
-sidebar_current: "docs-google-apigee-environment"
 description: |-
   An `Environment` in Apigee.
 ---

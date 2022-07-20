@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataproc metastore"
-layout: "google"
 page_title: "Google: google_dataproc_metastore_federation"
-sidebar_current: "docs-google-dataproc-metastore-federation"
 description: |-
   A managed metastore federation.
 ---

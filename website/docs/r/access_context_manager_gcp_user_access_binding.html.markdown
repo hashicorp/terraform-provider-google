@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_gcp_user_access_binding"
-sidebar_current: "docs-google-access-context-manager-gcp-user-access-binding"
 description: |-
   Restricts access to Cloud Console and Google Cloud APIs for a set of users using Context-Aware Access.
 ---

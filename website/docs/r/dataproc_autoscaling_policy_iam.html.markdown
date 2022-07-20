@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataproc"
-layout: "google"
 page_title: "Google: google_dataproc_autoscaling_policy_iam"
-sidebar_current: "docs-google-dataproc-autoscaling-policy-iam"
 description: |-
   Collection of resources to manage IAM policy for Dataproc AutoscalingPolicy
 ---

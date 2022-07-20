@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_entry_group"
-sidebar_current: "docs-google-data-catalog-entry-group"
 description: |-
   An EntryGroup resource represents a logical grouping of zero or more Data Catalog Entry resources.
 ---

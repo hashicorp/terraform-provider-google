@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Deployment Manager"
-layout: "google"
 page_title: "Google: google_deployment_manager_deployment"
-sidebar_current: "docs-google-deployment-manager-deployment"
 description: |-
   A collection of resources that are deployed and managed together using
   a configuration file

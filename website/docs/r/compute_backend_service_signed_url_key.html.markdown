@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_backend_service_signed_url_key"
-sidebar_current: "docs-google-compute-backend-service-signed-url-key"
 description: |-
   A key for signing Cloud CDN signed URLs for Backend Services.
 ---

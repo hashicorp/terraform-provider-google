@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Vertex AI"
-layout: "google"
 page_title: "Google: google_vertex_ai_featurestore_entitytype"
-sidebar_current: "docs-google-vertex-ai-featurestore-entitytype"
 description: |-
   An entity type is a type of object in a system that needs to be modeled and have stored information about.
 ---

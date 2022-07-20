@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "NetworkManagement"
-layout: "google"
 page_title: "Google: google_network_management_connectivity_test"
-sidebar_current: "docs-google-network-management-connectivity-test"
 description: |-
   A connectivity test are a static analysis of your resource configurations
   that enables you to evaluate connectivity to and from Google Cloud

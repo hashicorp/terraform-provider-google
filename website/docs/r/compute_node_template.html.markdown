@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_node_template"
-sidebar_current: "docs-google-compute-node-template"
 description: |-
   Represents a NodeTemplate resource.
 ---

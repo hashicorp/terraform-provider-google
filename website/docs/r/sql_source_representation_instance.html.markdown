@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud SQL"
-layout: "google"
 page_title: "Google: google_sql_source_representation_instance"
-sidebar_current: "docs-google-sql-source-representation-instance"
 description: |-
   A source representation instance is a Cloud SQL instance that represents
   the source database server to the Cloud SQL replica.

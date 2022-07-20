@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity Platform"
-layout: "google"
 page_title: "Google: google_identity_platform_tenant_default_supported_idp_config"
-sidebar_current: "docs-google-identity-platform-tenant-default-supported-idp-config"
 description: |-
   Configurations options for the tenant for authenticating with a the standard set of Identity Toolkit-trusted IDPs.
 ---

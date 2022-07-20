@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_disk_iam"
-sidebar_current: "docs-google-compute-region-disk-iam"
 description: |-
   Collection of resources to manage IAM policy for Compute Engine RegionDisk
 ---

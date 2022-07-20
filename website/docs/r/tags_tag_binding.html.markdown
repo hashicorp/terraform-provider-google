@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Tags"
-layout: "google"
 page_title: "Google: google_tags_tag_binding"
-sidebar_current: "docs-google-tags-tag-binding"
 description: |-
   A TagBinding represents a connection between a TagValue and a cloud resource (currently project, folder, or organization).
 ---

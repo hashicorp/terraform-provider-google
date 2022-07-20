@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "OS Login"
-layout: "google"
 page_title: "Google: google_os_login_ssh_public_key"
-sidebar_current: "docs-google-os-login-ssh-public-key"
 description: |-
   The SSH public key information associated with a Google account.
 ---

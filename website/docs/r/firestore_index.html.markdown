@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Firestore"
-layout: "google"
 page_title: "Google: google_firestore_index"
-sidebar_current: "docs-google-firestore-index"
 description: |-
   Cloud Firestore indexes enable simple and complex queries against documents in a database.
 ---

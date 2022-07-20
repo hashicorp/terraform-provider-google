@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Identity"
-layout: "google"
 page_title: "Google: google_cloud_identity_group_membership"
-sidebar_current: "docs-google-cloud-identity-group-membership"
 description: |-
   A Membership defines a relationship between a Group and an entity belonging to that Group, referred to as a "member".
 ---

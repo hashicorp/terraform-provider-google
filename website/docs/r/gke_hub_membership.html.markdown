@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "GKEHub"
-layout: "google"
 page_title: "Google: google_gke_hub_membership"
-sidebar_current: "docs-google-gke-hub-membership"
 description: |-
   Membership contains information about a member cluster.
 ---

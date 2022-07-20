@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_object_access_control"
-sidebar_current: "docs-google-storage-object-access-control"
 description: |-
   The ObjectAccessControls resources represent the Access Control Lists
   (ACLs) for objects within Google Cloud Storage.

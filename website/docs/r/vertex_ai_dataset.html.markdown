@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Vertex AI"
-layout: "google"
 page_title: "Google: google_vertex_ai_dataset"
-sidebar_current: "docs-google-vertex-ai-dataset"
 description: |-
   A collection of DataItems and Annotations on them.
 ---

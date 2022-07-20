@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_entry"
-sidebar_current: "docs-google-data-catalog-entry"
 description: |-
   Entry Metadata.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud AI Notebooks"
-layout: "google"
 page_title: "Google: google_notebooks_instance_iam"
-sidebar_current: "docs-google-notebooks-instance-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud AI Notebooks Instance
 ---

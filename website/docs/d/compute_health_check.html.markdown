@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_health_check"
-sidebar_current: "docs-google-datasource-compute-health-check"
 description: |-
   Get information about a HealthCheck.
 ---

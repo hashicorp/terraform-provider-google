@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Source Repositories"
-layout: "google"
 page_title: "Google: google_sourcerepo_repository_iam"
-sidebar_current: "docs-google-sourcerepo-repository-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Source Repositories Repository
 ---

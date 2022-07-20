@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity-Aware Proxy"
-layout: "google"
 page_title: "Google: google_iap_brand"
-sidebar_current: "docs-google-iap-brand"
 description: |-
   OAuth brand data.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Secret Manager"
-layout: "google"
 page_title: "Google: google_secret_manager_secret_iam"
-sidebar_current: "docs-google-secret-manager-secret-iam"
 description: |-
   Collection of resources to manage IAM policy for Secret Manager Secret
 ---

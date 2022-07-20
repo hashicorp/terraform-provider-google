@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_service_network_settings"
-sidebar_current: "docs-google-app-engine-service-network-settings"
 description: |-
   A NetworkSettings resource is a container for ingress settings for a version or service.
 ---

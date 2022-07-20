@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Service Directory"
-layout: "google"
 page_title: "Google: google_service_directory_namespace_iam"
-sidebar_current: "docs-google-service-directory-namespace-iam"
 description: |-
   Collection of resources to manage IAM policy for Service Directory Namespace
 ---

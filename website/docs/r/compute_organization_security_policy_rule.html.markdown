@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_organization_security_policy_rule"
-sidebar_current: "docs-google-compute-organization-security-policy-rule"
 description: |-
   A rule for the OrganizationSecurityPolicy.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud AI Notebooks"
-layout: "google"
 page_title: "Google: google_notebooks_runtime"
-sidebar_current: "docs-google-notebooks-runtime"
 description: |-
   A Cloud AI Platform Notebook runtime.
 ---

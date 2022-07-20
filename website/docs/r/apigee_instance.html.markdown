@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_instance"
-sidebar_current: "docs-google-apigee-instance"
 description: |-
   An `Instance` is the runtime dataplane in Apigee.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_router_peer"
-sidebar_current: "docs-google-compute-router-peer"
 description: |-
   BGP information that must be configured into the routing stack to
   establish BGP peering.
