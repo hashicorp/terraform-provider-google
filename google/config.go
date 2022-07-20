@@ -382,7 +382,7 @@ var DefaultBasePaths = map[string]string{
 	GameServicesBasePathKey:         "https://gameservices.googleapis.com/v1/",
 	GKEHubBasePathKey:               "https://gkehub.googleapis.com/v1/",
 	HealthcareBasePathKey:           "https://healthcare.googleapis.com/v1/",
-	IAMBetaBasePathKey:              "https://iam.googleapis.com/v/",
+	IAMBetaBasePathKey:              "https://iam.googleapis.com/v1/",
 	IapBasePathKey:                  "https://iap.googleapis.com/v1/",
 	IdentityPlatformBasePathKey:     "https://identitytoolkit.googleapis.com/v2/",
 	KMSBasePathKey:                  "https://cloudkms.googleapis.com/v1/",
