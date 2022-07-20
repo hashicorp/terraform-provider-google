@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Source Repositories"
-layout: "google"
 page_title: "Google: google_sourcerepo_repository"
-sidebar_current: "docs-google-sourcerepo-repository"
 description: |-
   A repository (or repo) is a Git repository storing versioned source content.
 ---

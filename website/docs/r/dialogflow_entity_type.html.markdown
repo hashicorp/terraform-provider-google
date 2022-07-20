@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow"
-layout: "google"
 page_title: "Google: google_dialogflow_entity_type"
-sidebar_current: "docs-google-dialogflow-entity-type"
 description: |-
   Represents an entity type.
 ---

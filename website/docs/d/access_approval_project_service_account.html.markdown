@@ -1,8 +1,6 @@
 ---
 subcategory: "Access Approval"
-layout: "google"
 page_title: "Google: google_access_approval_project_service_account"
-sidebar_current: "docs-google-datasource-access-approval-project-service-account"
 description: |-
   Get the email address of a project's Access Approval service account.
 ---

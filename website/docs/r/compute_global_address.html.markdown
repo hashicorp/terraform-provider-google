@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_global_address"
-sidebar_current: "docs-google-compute-global-address"
 description: |-
   Represents a Global Address resource.
 ---

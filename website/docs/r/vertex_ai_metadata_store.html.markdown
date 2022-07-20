@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Vertex AI"
-layout: "google"
 page_title: "Google: google_vertex_ai_metadata_store"
-sidebar_current: "docs-google-vertex-ai-metadata-store"
 description: |-
   Instance of a metadata store.
 ---

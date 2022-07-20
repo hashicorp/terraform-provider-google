@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IoT Core"
-layout: "google"
 page_title: "Google: google_cloudiot_registry_iam"
-sidebar_current: "docs-google-cloudiot-registry-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud IoT Core DeviceRegistry
 ---

@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_project_default_network_tier"
-sidebar_current: "docs-google-compute-project-default-network-tier"
 description: |-
  Configures the default network tier for a project.
 ---

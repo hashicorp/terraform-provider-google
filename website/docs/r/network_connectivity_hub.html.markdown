@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "NetworkConnectivity"
-layout: "google"
 page_title: "Google: google_network_connectivity_hub"
-sidebar_current: "docs-google-network-connectivity-hub"
 description: |-
   The NetworkConnectivity Hub resource
 ---

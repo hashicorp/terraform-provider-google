@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Essential Contacts"
-layout: "google"
 page_title: "Google: google_essential_contacts_contact"
-sidebar_current: "docs-google-essential-contacts-contact"
 description: |-
   A contact that will receive notifications from Google Cloud.
 ---

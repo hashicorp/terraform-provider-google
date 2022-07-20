@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Service Directory"
-layout: "google"
 page_title: "Google: google_service_directory_service"
-sidebar_current: "docs-google-service-directory-service"
 description: |-
   An individual service.
 ---

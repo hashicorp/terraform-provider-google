@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Approval"
-layout: "google"
 page_title: "Google: google_folder_access_approval_settings"
-sidebar_current: "docs-google-folder-access-approval-settings"
 description: |-
   Access Approval enables you to require your explicit approval whenever Google support and engineering need to access your customer content.
 ---

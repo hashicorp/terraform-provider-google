@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_lb_ip_ranges"
-sidebar_current: "docs-google-datasource-compute-lb-ip-ranges"
 description: |-
   Get information about the IP ranges used when health-checking load balancers.
 ---

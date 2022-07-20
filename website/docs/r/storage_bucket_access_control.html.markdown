@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_bucket_access_control"
-sidebar_current: "docs-google-storage-bucket-access-control"
 description: |-
   Bucket ACLs can be managed authoritatively using the
   [`storage_bucket_acl`](https://www.

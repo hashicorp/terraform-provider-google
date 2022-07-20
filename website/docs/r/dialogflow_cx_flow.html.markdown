@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow CX"
-layout: "google"
 page_title: "Google: google_dialogflow_cx_flow"
-sidebar_current: "docs-google-dialogflow-cx-flow"
 description: |-
   Flows represents the conversation flows when you build your chatbot agent.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Endpoints"
-layout: "google"
 page_title: "Google: google_endpoints_service_iam"
-sidebar_current: "docs-google-endpoints-service-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Endpoints Service
 ---

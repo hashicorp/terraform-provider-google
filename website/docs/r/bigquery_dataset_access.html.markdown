@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_dataset_access"
-sidebar_current: "docs-google-bigquery-dataset-access"
 description: |-
   Gives dataset access for a single entity.
 ---

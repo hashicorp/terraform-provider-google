@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud AI Notebooks"
-layout: "google"
 page_title: "Google: google_notebooks_environment"
-sidebar_current: "docs-google-notebooks-environment"
 description: |-
   A Cloud AI Platform Notebook environment.
 ---

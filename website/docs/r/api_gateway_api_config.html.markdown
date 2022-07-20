@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "API Gateway"
-layout: "google"
 page_title: "Google: google_api_gateway_api_config"
-sidebar_current: "docs-google-api-gateway-api-config"
 description: |-
   An API Configuration is an association of an API Controller Config and a Gateway Config
 ---

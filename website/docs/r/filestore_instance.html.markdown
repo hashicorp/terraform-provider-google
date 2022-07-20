@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Filestore"
-layout: "google"
 page_title: "Google: google_filestore_instance"
-sidebar_current: "docs-google-filestore-instance"
 description: |-
   A Google Cloud Filestore instance.
 ---

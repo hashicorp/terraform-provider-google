@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_instance_group_named_port"
-sidebar_current: "docs-google-compute-instance-group-named-port"
 description: |-
   Mange the named ports setting for a managed instance group without
   managing the group as whole.

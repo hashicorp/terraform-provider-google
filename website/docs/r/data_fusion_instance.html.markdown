@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Data Fusion"
-layout: "google"
 page_title: "Google: google_data_fusion_instance"
-sidebar_current: "docs-google-data-fusion-instance"
 description: |-
   Represents a Data Fusion instance.
 ---

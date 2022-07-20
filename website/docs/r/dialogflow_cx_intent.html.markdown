@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow CX"
-layout: "google"
 page_title: "Google: google_dialogflow_cx_intent"
-sidebar_current: "docs-google-dialogflow-cx-intent"
 description: |-
   An intent represents a user's intent to interact with a conversational agent.
 ---

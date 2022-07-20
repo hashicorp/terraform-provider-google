@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate manager"
-layout: "google"
 page_title: "Google: google_certificate_manager_dns_authorization"
-sidebar_current: "docs-google-certificate-manager-dns-authorization"
 description: |-
   DnsAuthorization represents a HTTP-reachable backend for an DnsAuthorization.
 ---

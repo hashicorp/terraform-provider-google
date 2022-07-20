@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_network_peering_routes_config"
-sidebar_current: "docs-google-compute-network-peering-routes-config"
 description: |-
   Manage a network peering's route settings without managing the peering as
   a whole.

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_global_network_endpoint_group"
-sidebar_current: "docs-google-compute-global-network-endpoint-group"
 description: |-
   A global network endpoint group contains endpoints that reside outside of Google Cloud.
 ---

@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_regions"
-sidebar_current: "docs-google-datasource-compute-regions"
 description: |-
   Provides a list of available Google Compute regions
 ---

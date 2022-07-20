@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IAM"
-layout: "google"
 page_title: "Google: google_iam_workload_identity_pool"
-sidebar_current: "docs-google-iam-workload-identity-pool"
 description: |-
   Represents a collection of external workload identities.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_global_network_endpoint"
-sidebar_current: "docs-google-compute-global-network-endpoint"
 description: |-
   A Global Network endpoint represents a IP address and port combination that exists outside of GCP.
 ---

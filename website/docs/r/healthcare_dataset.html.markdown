@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_dataset"
-sidebar_current: "docs-google-healthcare-dataset"
 description: |-
   A Healthcare `Dataset` is a toplevel logical grouping of `dicomStores`, `fhirStores` and `hl7V2Stores`.
 ---

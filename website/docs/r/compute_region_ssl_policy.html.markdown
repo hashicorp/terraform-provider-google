@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_ssl_policy"
-sidebar_current: "docs-google-compute-region-ssl-policy"
 description: |-
   Represents a Regional SSL policy.
 ---

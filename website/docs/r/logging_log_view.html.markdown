@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Logging"
-layout: "google"
 page_title: "Google: google_logging_log_view"
-sidebar_current: "docs-google-logging-log-view"
 description: |-
   The Logging LogView resource
 ---

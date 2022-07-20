@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_ha_vpn_gateway"
-sidebar_current: "docs-google-compute-ha-vpn-gateway"
 description: |-
   Represents a VPN gateway running in GCP.
 ---

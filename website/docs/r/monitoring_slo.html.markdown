@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_slo"
-sidebar_current: "docs-google-monitoring-slo"
 description: |-
   A Service-Level Objective (SLO) describes the level of desired good
   service.

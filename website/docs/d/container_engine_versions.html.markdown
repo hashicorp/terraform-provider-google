@@ -1,8 +1,6 @@
 ---
 subcategory: "Kubernetes (Container) Engine"
-layout: "google"
 page_title: "Google: google_container_engine_versions"
-sidebar_current: "docs-google-datasource-container-versions"
 description: |-
   Provides lists of available Google Kubernetes Engine versions for masters and nodes.
 ---

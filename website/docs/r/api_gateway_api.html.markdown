@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "API Gateway"
-layout: "google"
 page_title: "Google: google_api_gateway_api"
-sidebar_current: "docs-google-api-gateway-api"
 description: |-
   A consumable API that can be used by multiple Gateways.
 ---

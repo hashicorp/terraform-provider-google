@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity Platform"
-layout: "google"
 page_title: "Google: google_identity_platform_inbound_saml_config"
-sidebar_current: "docs-google-identity-platform-inbound-saml-config"
 description: |-
   Inbound SAML configuration for a Identity Toolkit project.
 ---

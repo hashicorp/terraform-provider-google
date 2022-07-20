@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_response_policy_rule"
-sidebar_current: "docs-google-dns-response-policy-rule"
 description: |-
   A Response Policy Rule is a selector that applies its behavior to queries that match the selector.
 ---

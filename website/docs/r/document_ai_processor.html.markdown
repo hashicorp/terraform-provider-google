@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Essential Contacts"
-layout: "google"
 page_title: "Google: google_document_ai_processor"
-sidebar_current: "docs-google-document-ai-processor"
 description: |-
   The first-class citizen for Document AI.
 ---

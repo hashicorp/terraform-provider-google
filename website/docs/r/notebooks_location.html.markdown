@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud AI Notebooks"
-layout: "google"
 page_title: "Google: google_notebooks_location"
-sidebar_current: "docs-google-notebooks-location"
 description: |-
   Represents a Location resource.
 ---

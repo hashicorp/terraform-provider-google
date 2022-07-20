@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Managed Microsoft Active Directory"
-layout: "google"
 page_title: "Google: google_active_directory_domain_trust"
-sidebar_current: "docs-google-active-directory-domain-trust"
 description: |-
   Adds a trust between Active Directory domains
 ---

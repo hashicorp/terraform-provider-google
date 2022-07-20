@@ -1,8 +1,6 @@
 ---
 subcategory: "Certificate Authority Service"
-layout: "google"
 page_title: "Google: google_privateca_certificate_authority"
-sidebar_current: "docs-google-datasource-privateca-certificate-authority"
 description: |-
   Contains the data that describes a Certificate Authority
 ---

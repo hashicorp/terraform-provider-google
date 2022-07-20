@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_access_level_condition"
-sidebar_current: "docs-google-access-context-manager-access-level-condition"
 description: |-
   Allows configuring a single access level condition to be appended to an access level's conditions.
 ---

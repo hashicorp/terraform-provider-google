@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_response_policy"
-sidebar_current: "docs-google-dns-response-policy"
 description: |-
   A Response Policy is a collection of selectors that apply to queries 
   made against one or more Virtual Private Cloud networks.

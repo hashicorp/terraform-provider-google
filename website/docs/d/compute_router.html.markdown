@@ -1,8 +1,6 @@
 ---
-layout: "google"
 subcategory: "Compute Engine"
 page_title: "Google: google_compute_router"
-sidebar_current: "docs-google-datasource-compute-router"
 description: |-
   Get a Cloud Router within GCE.
 ---

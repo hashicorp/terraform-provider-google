@@ -1,8 +1,6 @@
 ---
 subcategory: "Kubernetes (Container) Engine"
-layout: "google"
 page_title: "Google: google_container_cluster"
-sidebar_current: "docs-google-container-cluster"
 description: |-
   Creates a Google Kubernetes Engine (GKE) cluster.
 ---

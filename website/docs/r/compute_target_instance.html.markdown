@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_instance"
-sidebar_current: "docs-google-compute-target-instance"
 description: |-
   Represents a TargetInstance resource which defines an endpoint instance
   that terminates traffic of certain protocols.

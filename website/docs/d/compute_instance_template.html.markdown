@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_instance_template"
-sidebar_current: "docs-google-datasource-compute-instance-template"
 description: |-
   Get a VM instance template within GCE.
 ---

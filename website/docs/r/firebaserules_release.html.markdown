@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Firebaserules"
-layout: "google"
 page_title: "Google: google_firebaserules_release"
-sidebar_current: "docs-google-firebaserules-release"
 description: |-
   
 ---

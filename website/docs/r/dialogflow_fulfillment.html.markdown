@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow"
-layout: "google"
 page_title: "Google: google_dialogflow_fulfillment"
-sidebar_current: "docs-google-dialogflow-fulfillment"
 description: |-
   By default, your agent responds to a matched intent with a static response.
 ---

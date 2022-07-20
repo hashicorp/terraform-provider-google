@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_access_policy"
-sidebar_current: "docs-google-access-context-manager-access-policy"
 description: |-
   AccessPolicy is a container for AccessLevels (which define the necessary
   attributes to use GCP services) and ServicePerimeters (which define

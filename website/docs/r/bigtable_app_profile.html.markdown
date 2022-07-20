@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Bigtable"
-layout: "google"
 page_title: "Google: google_bigtable_app_profile"
-sidebar_current: "docs-google-bigtable-app-profile"
 description: |-
   App profile is a configuration object describing how Cloud Bigtable should treat traffic from a particular end user application.
 ---

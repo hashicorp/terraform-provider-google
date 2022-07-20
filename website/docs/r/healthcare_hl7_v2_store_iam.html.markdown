@@ -1,8 +1,6 @@
 ---
-layout: "google"
 subcategory: "Cloud Healthcare"
 page_title: "Google: google_healthcare_hl7_v2_store_iam"
-sidebar_current: "docs-google-healthcare-hl7-v2-store-iam"
 description: |-
  Collection of resources to manage IAM policy for a Google Cloud Healthcare HL7v2 store.
 ---

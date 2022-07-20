@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate Authority Service"
-layout: "google"
 page_title: "Google: google_privateca_ca_pool_iam"
-sidebar_current: "docs-google-privateca-ca-pool-iam"
 description: |-
   Collection of resources to manage IAM policy for Certificate Authority Service CaPool
 ---

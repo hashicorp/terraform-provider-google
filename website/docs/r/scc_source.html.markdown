@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Security Command Center (SCC)"
-layout: "google"
 page_title: "Google: google_scc_source"
-sidebar_current: "docs-google-scc-source"
 description: |-
   A Cloud Security Command Center's (Cloud SCC) finding source.
 ---

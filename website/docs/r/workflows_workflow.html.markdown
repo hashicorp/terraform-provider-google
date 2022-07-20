@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Workflows"
-layout: "google"
 page_title: "Google: google_workflows_workflow"
-sidebar_current: "docs-google-workflows-workflow"
 description: |-
   Workflow program to be executed by Workflows.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_job"
-sidebar_current: "docs-google-bigquery-job"
 description: |-
   Jobs are actions that BigQuery runs on your behalf to load data, export data, query data, or copy data.
 ---

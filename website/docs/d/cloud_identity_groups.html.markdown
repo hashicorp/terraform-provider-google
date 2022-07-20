@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Identity"
-layout: "google"
 page_title: "Google: google_cloud_identity_groups"
-sidebar_current: "docs-google-datasource-cloud-identity-groups"
 description: |-
   Get list of the Cloud Identity Groups under a customer or namespace.
 ---

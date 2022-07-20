@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_taxonomy_iam"
-sidebar_current: "docs-google-data-catalog-taxonomy-iam"
 description: |-
   Collection of resources to manage IAM policy for Data catalog Taxonomy
 ---

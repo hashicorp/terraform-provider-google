@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_policy_tag"
-sidebar_current: "docs-google-data-catalog-policy-tag"
 description: |-
   Denotes one policy tag in a taxonomy.
 ---

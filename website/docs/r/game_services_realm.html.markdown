@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Game Servers"
-layout: "google"
 page_title: "Google: google_game_services_realm"
-sidebar_current: "docs-google-game-services-realm"
 description: |-
   A Realm resource.
 ---

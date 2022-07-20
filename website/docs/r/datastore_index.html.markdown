@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Datastore"
-layout: "google"
 page_title: "Google: google_datastore_index"
-sidebar_current: "docs-google-datastore-index"
 description: |-
   Describes a composite index for Cloud Datastore.
 ---

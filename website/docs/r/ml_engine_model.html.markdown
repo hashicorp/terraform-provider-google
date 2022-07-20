@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "ML Engine"
-layout: "google"
 page_title: "Google: google_ml_engine_model"
-sidebar_current: "docs-google-ml-engine-model"
 description: |-
   Represents a machine learning solution.
 ---

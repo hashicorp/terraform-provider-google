@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_routine"
-sidebar_current: "docs-google-bigquery-routine"
 description: |-
   A user-defined function or a stored procedure that belongs to a Dataset
 ---

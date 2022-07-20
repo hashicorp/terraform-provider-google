@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_service_perimeters"
-sidebar_current: "docs-google-access-context-manager-service-perimeters"
 description: |-
   Replace all existing Service Perimeters in an Access Policy with the Service Perimeters provided.
 ---

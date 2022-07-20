@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_resource_policy"
-sidebar_current: "docs-google-compute-resource-policy"
 description: |-
   A policy that can be attached to a resource to specify or schedule actions on that resource.
 ---

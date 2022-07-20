@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_disk"
-sidebar_current: "docs-google-datasource-compute-disk"
 description: |-
   Get information about a Google Compute Persistent disks.
 ---

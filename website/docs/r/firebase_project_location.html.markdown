@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Firebase"
-layout: "google"
 page_title: "Google: google_firebase_project_location"
-sidebar_current: "docs-google-firebase-project-location"
 description: |-
   Sets the default Google Cloud Platform (GCP) resource location for the specified FirebaseProject.
 ---

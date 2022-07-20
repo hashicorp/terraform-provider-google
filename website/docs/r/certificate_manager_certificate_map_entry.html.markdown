@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate manager"
-layout: "google"
 page_title: "Google: google_certificate_manager_certificate_map_entry"
-sidebar_current: "docs-google-certificate-manager-certificate-map-entry"
 description: |-
   CertificateMapEntry is a list of certificate configurations,
   that have been issued for a particular hostname 

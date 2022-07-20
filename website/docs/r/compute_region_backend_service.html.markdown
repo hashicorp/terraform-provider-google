@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_backend_service"
-sidebar_current: "docs-google-compute-region-backend-service"
 description: |-
   A Region Backend Service defines a regionally-scoped group of virtual
   machines that will serve traffic for load balancing.

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_network_endpoint_group"
-sidebar_current: "docs-google-compute-network-endpoint-group"
 description: |-
   Network endpoint groups (NEGs) are zonal resources that represent
   collections of IP address and port combinations for GCP resources within a

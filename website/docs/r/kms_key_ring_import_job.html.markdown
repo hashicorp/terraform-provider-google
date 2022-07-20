@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_key_ring_import_job"
-sidebar_current: "docs-google-kms-key-ring-import-job"
 description: |-
   A `KeyRingImportJob` can be used to create `CryptoKeys` and `CryptoKeyVersions` using pre-existing
   key material, generated outside of Cloud KMS.

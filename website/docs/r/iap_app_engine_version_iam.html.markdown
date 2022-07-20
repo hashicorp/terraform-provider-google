@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity-Aware Proxy"
-layout: "google"
 page_title: "Google: google_iap_app_engine_version_iam"
-sidebar_current: "docs-google-iap-app-engine-version-iam"
 description: |-
   Collection of resources to manage IAM policy for Identity-Aware Proxy AppEngineVersion
 ---

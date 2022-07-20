@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data loss prevention"
-layout: "google"
 page_title: "Google: google_data_loss_prevention_job_trigger"
-sidebar_current: "docs-google-data-loss-prevention-job-trigger"
 description: |-
   A job trigger configuration.
 ---

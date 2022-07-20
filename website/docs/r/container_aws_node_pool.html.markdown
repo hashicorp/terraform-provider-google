@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "ContainerAws"
-layout: "google"
 page_title: "Google: google_container_aws_node_pool"
-sidebar_current: "docs-google-container-aws-node-pool"
 description: |-
   An Anthos node pool running on AWS.
 ---

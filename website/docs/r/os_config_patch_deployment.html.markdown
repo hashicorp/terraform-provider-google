@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "OS Config"
-layout: "google"
 page_title: "Google: google_os_config_patch_deployment"
-sidebar_current: "docs-google-os-config-patch-deployment"
 description: |-
   Patch deployments are configurations that individual patch jobs use to complete a patch.
 ---

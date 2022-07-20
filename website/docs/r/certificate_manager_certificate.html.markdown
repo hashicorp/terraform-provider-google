@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate manager"
-layout: "google"
 page_title: "Google: google_certificate_manager_certificate"
-sidebar_current: "docs-google-certificate-manager-certificate"
 description: |-
   Certificate represents a HTTP-reachable backend for an Certificate.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Secret Manager"
-layout: "google"
 page_title: "Google: google_secret_manager_secret_version"
-sidebar_current: "docs-google-secret-manager-secret-version"
 description: |-
   A secret version resource.
 ---

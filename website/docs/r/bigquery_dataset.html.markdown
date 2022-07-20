@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_dataset"
-sidebar_current: "docs-google-bigquery-dataset"
 description: |-
   Datasets allow you to organize and control access to your tables.
 ---

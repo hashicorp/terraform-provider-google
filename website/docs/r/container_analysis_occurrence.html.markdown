@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Container Registry"
-layout: "google"
 page_title: "Google: google_container_analysis_occurrence"
-sidebar_current: "docs-google-container-analysis-occurrence"
 description: |-
   An occurrence is an instance of a Note, or type of analysis that
   can be done for a resource.

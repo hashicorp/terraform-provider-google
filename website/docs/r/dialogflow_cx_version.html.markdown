@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow CX"
-layout: "google"
 page_title: "Google: google_dialogflow_cx_version"
-sidebar_current: "docs-google-dialogflow-cx-version"
 description: |-
   You can create multiple versions of your agent flows and deploy them to separate serving environments.
 ---

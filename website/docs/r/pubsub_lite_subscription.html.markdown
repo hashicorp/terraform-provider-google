@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_lite_subscription"
-sidebar_current: "docs-google-pubsub-lite-subscription"
 description: |-
   A named resource representing the stream of messages from a single,
   specific topic, to be delivered to the subscribing application.

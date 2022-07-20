@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data loss prevention"
-layout: "google"
 page_title: "Google: google_data_loss_prevention_deidentify_template"
-sidebar_current: "docs-google-data-loss-prevention-deidentify-template"
 description: |-
   Allows creation of templates to de-identify content.
 ---

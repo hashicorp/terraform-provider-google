@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud IAM"
-layout: "google"
 page_title: "Google: google_iam_workload_identity_pool"
-sidebar_current: "docs-google-datasource-iam-workload-identity-pool"
 description: |-
   Get a IAM workload identity pool from Google Cloud
 ---

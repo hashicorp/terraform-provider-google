@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow"
-layout: "google"
 page_title: "Google: google_dialogflow_intent"
-sidebar_current: "docs-google-dialogflow-intent"
 description: |-
   Represents a Dialogflow intent.
 ---

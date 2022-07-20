@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_dicom_store"
-sidebar_current: "docs-google-healthcare-dicom-store"
 description: |-
   A DicomStore is a datastore inside a Healthcare dataset that conforms to the DICOM
   (https://www.

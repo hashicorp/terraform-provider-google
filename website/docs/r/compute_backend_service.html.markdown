@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_backend_service"
-sidebar_current: "docs-google-compute-backend-service"
 description: |-
   A Backend Service defines a group of virtual machines that will serve
   traffic for load balancing.

@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Deploy"
-layout: "google"
 page_title: "Google: google_clouddeploy_target"
-sidebar_current: "docs-google-clouddeploy-target"
 description: |-
   The Cloud Deploy `Target` resource
 ---

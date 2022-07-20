@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_policy_tag_iam"
-sidebar_current: "docs-google-data-catalog-policy-tag-iam"
 description: |-
   Collection of resources to manage IAM policy for Data catalog PolicyTag
 ---

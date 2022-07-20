@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_tag_template"
-sidebar_current: "docs-google-data-catalog-tag-template"
 description: |-
   A tag template defines a tag, which can have one or more typed fields.
 ---

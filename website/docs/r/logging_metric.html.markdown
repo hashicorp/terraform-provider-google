@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Logging"
-layout: "google"
 page_title: "Google: google_logging_metric"
-sidebar_current: "docs-google-logging-metric"
 description: |-
   Logs-based metric can also be used to extract values from logs and create a a distribution
   of the values.

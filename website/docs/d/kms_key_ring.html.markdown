@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_key_ring"
-sidebar_current: "docs-google-datasource-kms-key-ring"
 description: |-
  Provides access to KMS key ring data with Google Cloud KMS.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Billing"
-layout: "google"
 page_title: "Google: google_billing_budget"
-sidebar_current: "docs-google-billing-budget"
 description: |-
   Budget configuration for a billing account.
 ---

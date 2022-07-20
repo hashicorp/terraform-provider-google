@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity-Aware Proxy"
-layout: "google"
 page_title: "Google: google_iap_web_type_compute_iam"
-sidebar_current: "docs-google-iap-web-type-compute-iam"
 description: |-
   Collection of resources to manage IAM policy for Identity-Aware Proxy WebTypeCompute
 ---

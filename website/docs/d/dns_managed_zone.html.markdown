@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_managed_zone"
-sidebar_current: "docs-google-datasource-dns-managed-zone"
 description: |-
   Provides access to the attributes of a zone within Google Cloud DNS
 ---

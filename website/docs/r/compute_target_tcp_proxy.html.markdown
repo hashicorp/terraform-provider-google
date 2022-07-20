@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_tcp_proxy"
-sidebar_current: "docs-google-compute-target-tcp-proxy"
 description: |-
   Represents a TargetTcpProxy resource, which is used by one or more
   global forwarding rule to route incoming TCP requests to a Backend

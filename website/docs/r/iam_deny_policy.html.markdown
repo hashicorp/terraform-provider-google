@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IAM"
-layout: "google"
 page_title: "Google: google_iam_deny_policy"
-sidebar_current: "docs-google-iam-deny-policy"
 description: |-
   Represents a collection of denial policies to apply to a given resource.
 ---

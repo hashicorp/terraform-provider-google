@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data loss prevention"
-layout: "google"
 page_title: "Google: google_data_loss_prevention_inspect_template"
-sidebar_current: "docs-google-data-loss-prevention-inspect-template"
 description: |-
   An inspect job template.
 ---

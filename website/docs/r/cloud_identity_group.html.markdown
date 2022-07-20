@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Identity"
-layout: "google"
 page_title: "Google: google_cloud_identity_group"
-sidebar_current: "docs-google-cloud-identity-group"
 description: |-
   A Cloud Identity resource representing a Group.
 ---

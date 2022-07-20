@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_packet_mirroring"
-sidebar_current: "docs-google-compute-packet-mirroring"
 description: |-
   Packet Mirroring mirrors traffic to and from particular VM instances.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataproc"
-layout: "google"
 page_title: "Google: google_dataproc_autoscaling_policy"
-sidebar_current: "docs-google-dataproc-autoscaling-policy"
 description: |-
   Describes an autoscaling policy for Dataproc cluster autoscaler.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IoT Core"
-layout: "google"
 page_title: "Google: google_cloudiot_device"
-sidebar_current: "docs-google-cloudiot-device"
 description: |-
   A Google Cloud IoT Core device.
 ---

@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_bucket_object"
-sidebar_current: "docs-google-datasource-storage-bucket-object"
 description: |-
   Get information about a Google Cloud Storage bucket object.
 ---

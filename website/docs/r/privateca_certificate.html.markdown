@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate Authority Service"
-layout: "google"
 page_title: "Google: google_privateca_certificate"
-sidebar_current: "docs-google-privateca-certificate"
 description: |-
   A Certificate corresponds to a signed X.
 ---

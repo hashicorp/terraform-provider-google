@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_uptime_check_ips"
-sidebar_current: "docs-google-datasource-google-monitoring-uptime-check-ips"
 description: |-
   Returns the list of IP addresses Stackdriver Monitoring uses for uptime checking.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Service Usage"
-layout: "google"
 page_title: "Google: google_service_usage_consumer_quota_override"
-sidebar_current: "docs-google-service-usage-consumer-quota-override"
 description: |-
   A consumer override is applied to the consumer on its own authority to limit its own quota usage.
 ---

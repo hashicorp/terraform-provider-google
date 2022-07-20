@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "ContainerAws"
-layout: "google"
 page_title: "Google: google_container_aws_cluster"
-sidebar_current: "docs-google-container-aws-cluster"
 description: |-
   An Anthos cluster running on AWS.
 ---

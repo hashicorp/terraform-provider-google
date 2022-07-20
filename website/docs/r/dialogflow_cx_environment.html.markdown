@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow CX"
-layout: "google"
 page_title: "Google: google_dialogflow_cx_environment"
-sidebar_current: "docs-google-dialogflow-cx-environment"
 description: |-
   Represents an environment for an agent.
 ---

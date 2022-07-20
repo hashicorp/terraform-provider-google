@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_hl7_v2_store"
-sidebar_current: "docs-google-healthcare-hl7-v2-store"
 description: |-
   A Hl7V2Store is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.
 ---

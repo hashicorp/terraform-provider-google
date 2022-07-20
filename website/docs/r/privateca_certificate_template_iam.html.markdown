@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate Authority Service"
-layout: "google"
 page_title: "Google: google_privateca_certificate_template_iam"
-sidebar_current: "docs-google-privateca-certificate-template-iam"
 description: |-
   Collection of resources to manage IAM policy for Certificate Authority Service CertificateTemplate
 ---

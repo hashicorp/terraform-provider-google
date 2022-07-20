@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_envgroup"
-sidebar_current: "docs-google-apigee-envgroup"
 description: |-
   An `Environment group` in Apigee.
 ---

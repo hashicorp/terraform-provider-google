@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-layout: "google"
 page_title: "Google: google_logging_project_exclusion"
-sidebar_current: "docs-google-logging-project-exclusion"
 description: |-
   Manages a project-level logging exclusion.
 ---

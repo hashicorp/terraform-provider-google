@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Tasks"
-layout: "google"
 page_title: "Google: google_cloud_tasks_queue"
-sidebar_current: "docs-google-cloud-tasks-queue"
 description: |-
   A named resource to which messages are sent by publishers.
 ---

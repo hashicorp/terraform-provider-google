@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_networking_peered_dns_domain"
-sidebar_current: "docs-google-project-service-peered-dns-domain-x"
 description: |-
  Allows management of a single peered DNS domain on a project.
 ---

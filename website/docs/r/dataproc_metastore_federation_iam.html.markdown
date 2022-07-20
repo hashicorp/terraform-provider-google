@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataproc metastore"
-layout: "google"
 page_title: "Google: google_dataproc_metastore_federation_iam"
-sidebar_current: "docs-google-dataproc-metastore-federation-iam"
 description: |-
   Collection of resources to manage IAM policy for Dataproc metastore Federation
 ---

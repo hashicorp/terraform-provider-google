@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_endpoint_attachment"
-sidebar_current: "docs-google-apigee-endpoint-attachment"
 description: |-
   Apigee Endpoint Attachment.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataproc metastore"
-layout: "google"
 page_title: "Google: google_dataproc_metastore_service"
-sidebar_current: "docs-google-dataproc-metastore-service"
 description: |-
   A managed metastore service that serves metadata queries.
 ---

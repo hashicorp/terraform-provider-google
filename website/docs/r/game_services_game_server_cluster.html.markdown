@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Game Servers"
-layout: "google"
 page_title: "Google: google_game_services_game_server_cluster"
-sidebar_current: "docs-google-game-services-game-server-cluster"
 description: |-
   A game server cluster resource.
 ---

@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_dashboard"
-sidebar_current: "docs-google-monitoring-dashboard"
 description: |-
   A Google Stackdriver dashboard.
 ---

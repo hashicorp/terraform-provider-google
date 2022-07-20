@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_backend_bucket"
-sidebar_current: "docs-google-datasource-compute-backend-bucket"
 description: |-
   Get information about a BackendBucket.
 ---

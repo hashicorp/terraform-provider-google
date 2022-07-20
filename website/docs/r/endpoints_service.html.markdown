@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Endpoints"
-layout: "google"
 page_title: "Google: google_endpoints_service"
-sidebar_current: "docs-google-endpoints-service"
 description: |-
   Creates and rolls out a Google Endpoints service.
 ---

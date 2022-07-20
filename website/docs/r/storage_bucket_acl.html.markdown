@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_bucket_acl"
-sidebar_current: "docs-google-storage-bucket-acl"
 description: |-
   Creates a new bucket ACL in Google Cloud Storage.
 ---

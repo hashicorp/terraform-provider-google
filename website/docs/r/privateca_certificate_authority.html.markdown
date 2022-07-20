@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Certificate Authority Service"
-layout: "google"
 page_title: "Google: google_privateca_certificate_authority"
-sidebar_current: "docs-google-privateca-certificate-authority"
 description: |-
   A CertificateAuthority represents an individual Certificate Authority.
 ---

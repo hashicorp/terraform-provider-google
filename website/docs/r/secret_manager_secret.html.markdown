@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Secret Manager"
-layout: "google"
 page_title: "Google: google_secret_manager_secret"
-sidebar_current: "docs-google-secret-manager-secret"
 description: |-
   A Secret is a logical secret whose value and versions can be accessed.
 ---

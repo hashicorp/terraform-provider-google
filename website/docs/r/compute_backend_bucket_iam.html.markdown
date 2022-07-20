@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_backend_bucket_iam"
-sidebar_current: "docs-google-compute-backend-bucket-iam"
 description: |-
   Collection of resources to manage IAM policy for Compute Engine BackendBucket
 ---

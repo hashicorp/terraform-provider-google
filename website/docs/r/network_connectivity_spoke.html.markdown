@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "NetworkConnectivity"
-layout: "google"
 page_title: "Google: google_network_connectivity_spoke"
-sidebar_current: "docs-google-network-connectivity-spoke"
 description: |-
   The NetworkConnectivity Spoke resource
 ---

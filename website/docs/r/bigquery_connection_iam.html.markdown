@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery Connection"
-layout: "google"
 page_title: "Google: google_bigquery_connection_iam"
-sidebar_current: "docs-google-bigquery-connection-iam"
 description: |-
   Collection of resources to manage IAM policy for BigQuery Connection Connection
 ---

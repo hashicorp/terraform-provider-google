@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_folder_iam"
-sidebar_current: "docs-google-folder-iam"
 description: |-
  Collection of resources to manage IAM policy for a folder.
 ---

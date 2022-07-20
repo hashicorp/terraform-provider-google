@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Network services"
-layout: "google"
 page_title: "Google: google_network_services_edge_cache_origin"
-sidebar_current: "docs-google-network-services-edge-cache-origin"
 description: |-
   EdgeCacheOrigin represents a HTTP-reachable backend for an EdgeCacheService.
 ---

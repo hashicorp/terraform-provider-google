@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_uptime_check_config"
-sidebar_current: "docs-google-monitoring-uptime-check-config"
 description: |-
   This message configures which resources and services to monitor for availability.
 ---

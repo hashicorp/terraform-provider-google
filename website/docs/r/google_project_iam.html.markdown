@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_project_iam"
-sidebar_current: "docs-google-project-iam-x"
 description: |-
  Collection of resources to manage IAM policy for a project.
 ---

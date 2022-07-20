@@ -14,9 +14,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataplex"
-layout: "google"
 page_title: "Google: google_dataplex_lake"
-sidebar_current: "docs-google-dataplex-lake"
 description: |-
   The Dataplex Lake resource
 ---

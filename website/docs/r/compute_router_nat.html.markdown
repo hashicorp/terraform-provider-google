@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_router_nat"
-sidebar_current: "docs-google-compute-router-nat"
 description: |-
   A NAT service created in a router.
 ---

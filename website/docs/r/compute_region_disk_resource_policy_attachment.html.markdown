@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_disk_resource_policy_attachment"
-sidebar_current: "docs-google-compute-region-disk-resource-policy-attachment"
 description: |-
   Adds existing resource policies to a disk.
 ---

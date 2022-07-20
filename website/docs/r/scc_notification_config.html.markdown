@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Security Command Center (SCC)"
-layout: "google"
 page_title: "Google: google_scc_notification_config"
-sidebar_current: "docs-google-scc-notification-config"
 description: |-
   A Cloud Security Command Center (Cloud SCC) notification configs.
 ---

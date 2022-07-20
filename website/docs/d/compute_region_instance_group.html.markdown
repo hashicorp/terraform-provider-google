@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_instance_group"
-sidebar_current: "docs-google-datasource-compute-region-instance-group"
 description: |-
   Get the instances inside a Compute Region Instance Group within GCE.
 ---

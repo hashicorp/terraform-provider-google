@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_fhir_store"
-sidebar_current: "docs-google-healthcare-fhir-store"
 description: |-
   A FhirStore is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_grpc_proxy"
-sidebar_current: "docs-google-compute-target-grpc-proxy"
 description: |-
   Represents a Target gRPC Proxy resource.
 ---

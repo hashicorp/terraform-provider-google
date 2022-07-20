@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_metric_descriptor"
-sidebar_current: "docs-google-monitoring-metric-descriptor"
 description: |-
   Defines a metric type and its schema.
 ---

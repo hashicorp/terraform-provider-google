@@ -1,8 +1,6 @@
 ---
 subcategory: "Tags"
-layout: "google"
 page_title: "Google: google_tags_tag_key"
-sidebar_current: "docs-google-datasource-tags-tag-key"
 description: |-
   Get a tag key within a GCP organization.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_hmac_key"
-sidebar_current: "docs-google-storage-hmac-key"
 description: |-
   The hmacKeys resource represents an HMAC key within Cloud Storage.
 ---

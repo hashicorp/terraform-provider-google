@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Binary Authorization"
-layout: "google"
 page_title: "Google: google_binary_authorization_policy"
-sidebar_current: "docs-google-binary-authorization-policy"
 description: |-
   A policy for container image binary authorization.
 ---

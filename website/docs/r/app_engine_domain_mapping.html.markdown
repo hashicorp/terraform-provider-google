@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_domain_mapping"
-sidebar_current: "docs-google-app-engine-domain-mapping"
 description: |-
   A domain serving an App Engine application.
 ---

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Functions (2nd gen)"
-layout: "google"
 page_title: "Google: google_cloudfunctions2_function"
-sidebar_current: "docs-google-cloudfunctions2-function"
 description: |-
   A Cloud Function that contains user computation executed in response to an event.
 ---

@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_secret_asymmetric"
-sidebar_current: "docs-google-kms-secret-asymmetric"
 description: |-
   Provides access to secret data encrypted with Google Cloud KMS asymmetric key
 ---

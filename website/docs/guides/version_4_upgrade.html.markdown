@@ -1,7 +1,5 @@
 ---
-layout: "google"
 page_title: "Terraform Google Provider 4.0.0 Upgrade Guide"
-sidebar_current: "docs-google-provider-guides-version-4-upgrade"
 description: |-
   Terraform Google Provider 4.0.0 Upgrade Guide
 ---

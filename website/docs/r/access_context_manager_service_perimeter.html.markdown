@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_service_perimeter"
-sidebar_current: "docs-google-access-context-manager-service-perimeter"
 description: |-
   ServicePerimeter describes a set of GCP resources which can freely import
   and export data amongst themselves, but not export outside of the

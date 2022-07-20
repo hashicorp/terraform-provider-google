@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Game Servers"
-layout: "google"
 page_title: "Google: google_game_services_game_server_deployment_rollout"
-sidebar_current: "docs-google-game-services-game-server-deployment-rollout"
 description: |-
   This represents the rollout state.
 ---

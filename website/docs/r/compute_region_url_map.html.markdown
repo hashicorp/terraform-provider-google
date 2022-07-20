@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_url_map"
-sidebar_current: "docs-google-compute-region-url-map"
 description: |-
   UrlMaps are used to route requests to a backend service based on rules
   that you define for the host and path of an incoming URL.

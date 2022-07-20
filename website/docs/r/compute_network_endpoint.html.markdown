@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_network_endpoint"
-sidebar_current: "docs-google-compute-network-endpoint"
 description: |-
   A Network endpoint represents a IP address and port combination that is
   part of a specific network endpoint group (NEG).

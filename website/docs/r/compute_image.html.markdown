@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_image"
-sidebar_current: "docs-google-compute-image"
 description: |-
   Represents an Image resource.
 ---

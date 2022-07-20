@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_schema"
-sidebar_current: "docs-google-pubsub-schema"
 description: |-
   A schema is a format that messages must follow,
   creating a contract between publisher and subscriber that Pub/Sub will enforce.

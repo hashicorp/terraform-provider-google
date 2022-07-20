@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_crypto_key"
-sidebar_current: "docs-google-kms-crypto-key"
 description: |-
   A `CryptoKey` represents a logical key that can be used for cryptographic operations.
 ---

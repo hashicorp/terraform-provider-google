@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_firewall_rule"
-sidebar_current: "docs-google-app-engine-firewall-rule"
 description: |-
   A single firewall rule that is evaluated against incoming traffic
   and provides an action to take on matched requests.

@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_envgroup_attachment"
-sidebar_current: "docs-google-apigee-envgroup-attachment"
 description: |-
   An `Environment Group attachment` in Apigee.
 ---

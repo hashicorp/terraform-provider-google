@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_per_instance_config"
-sidebar_current: "docs-google-compute-per-instance-config"
 description: |-
   A config defined for a single managed instance that belongs to an instance group manager.
 ---

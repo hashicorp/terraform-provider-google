@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_organization_security_policy_association"
-sidebar_current: "docs-google-compute-organization-security-policy-association"
 description: |-
   An association for the OrganizationSecurityPolicy.
 ---

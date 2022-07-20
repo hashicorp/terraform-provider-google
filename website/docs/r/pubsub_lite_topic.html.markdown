@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_lite_topic"
-sidebar_current: "docs-google-pubsub-lite-topic"
 description: |-
   A named resource to which messages are sent by publishers.
 ---

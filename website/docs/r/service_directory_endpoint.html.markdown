@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Service Directory"
-layout: "google"
 page_title: "Google: google_service_directory_endpoint"
-sidebar_current: "docs-google-service-directory-endpoint"
 description: |-
   An individual endpoint that provides a service.
 ---

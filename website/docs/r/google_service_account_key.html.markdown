@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_account_key"
-sidebar_current: "docs-google-service-account-key"
 description: |-
   Allows management of a Google Cloud Platform service account Key
 ---

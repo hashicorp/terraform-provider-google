@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow CX"
-layout: "google"
 page_title: "Google: google_dialogflow_cx_page"
-sidebar_current: "docs-google-dialogflow-cx-page"
 description: |-
   A Dialogflow CX conversation (session) can be described and visualized as a state machine.
 ---

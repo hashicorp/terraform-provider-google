@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Firebase"
-layout: "google"
 page_title: "Google: google_firebase_project"
-sidebar_current: "docs-google-firebase-project"
 description: |-
   A Google Cloud Firebase instance.
 ---
