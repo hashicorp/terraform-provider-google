@@ -61,7 +61,7 @@ func testSweepIAMBetaWorkloadIdentityPoolProvider(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://iam.googleapis.com/v/projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers", "?")[0]
+	listTemplate := strings.Split("https://iam.googleapis.com/v1/projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -103,7 +103,7 @@ func testSweepIAMBetaWorkloadIdentityPoolProvider(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://iam.googleapis.com/v/projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}"
+		deleteTemplate := "https://iam.googleapis.com/v1/projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
