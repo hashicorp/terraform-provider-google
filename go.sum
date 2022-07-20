@@ -1516,5 +1516,7 @@ rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=
-github.com/GoogleCloudPlatform/declarative-resource-client-library v1.14.4 h1:CxVWVPoWru9OCIUYJRUgH7jNWaZZlKBy8RdG8qbn1vU=
-github.com/GoogleCloudPlatform/declarative-resource-client-library v1.14.4/go.mod h1:i6Pmzp7aolLmJY86RaJ9wjqm/HFleMeN7Vl5uIWLwE8=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.15.1 h1:ex2UFZoVSbfsHK0zDsilMpXXs1vBDwi2wk1Fxd5N3D0=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.15.1/go.mod h1:i6Pmzp7aolLmJY86RaJ9wjqm/HFleMeN7Vl5uIWLwE8=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.15.1 h1:ex2UFZoVSbfsHK0zDsilMpXXs1vBDwi2wk1Fxd5N3D0=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.15.1/go.mod h1:i6Pmzp7aolLmJY86RaJ9wjqm/HFleMeN7Vl5uIWLwE8=
