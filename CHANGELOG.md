@@ -1,5 +1,35 @@
 ## 4.30.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_service_account_jwt` ([#12107](https://github.com/hashicorp/terraform-provider-google/pull/12107))
+* **New Resource:** `google_certificate_map_entry` ([#12127](https://github.com/hashicorp/terraform-provider-google/pull/12127))
+* **New Resource:** `google_certificate_map` ([#12127](https://github.com/hashicorp/terraform-provider-google/pull/12127))
+* **New Resource:** google_compute_backned_bucket_iam_binding (beta) ([#12098](https://github.com/hashicorp/terraform-provider-google/pull/12098))
+* **New Resource:** google_compute_backned_bucket_iam_member (beta) ([#12098](https://github.com/hashicorp/terraform-provider-google/pull/12098))
+* **New Resource:** google_compute_backned_bucket_iam_policy (beta) ([#12098](https://github.com/hashicorp/terraform-provider-google/pull/12098))
+* **New Resource:** google_dataproc_metastore_federation (beta) ([#12096](https://github.com/hashicorp/terraform-provider-google/pull/12096))
+* **New Resource:** google_dataproc_metastore_federation_iam_binding (beta) ([#12096](https://github.com/hashicorp/terraform-provider-google/pull/12096))
+* **New Resource:** google_dataproc_metastore_federation_iam_member (beta) ([#12096](https://github.com/hashicorp/terraform-provider-google/pull/12096))
+* **New Resource:** google_dataproc_metastore_federation_iam_policy (beta) ([#12096](https://github.com/hashicorp/terraform-provider-google/pull/12096))
+
+IMPROVEMENTS:
+* Remove validation for the IP protocol type ([#12118](https://github.com/hashicorp/terraform-provider-google/pull/12118))
+* billingbudget: made `thresholdRules` optional in `google_billing_budget` ([#12087](https://github.com/hashicorp/terraform-provider-google/pull/12087))
+* compute: add `request_coalescing` and `bypass_cache_on_request_headers` args to `compute_backned_bucket` ([#12098](https://github.com/hashicorp/terraform-provider-google/pull/12098))
+* compute: added `instance_termination_action` field to `google_compute_instance_template` resource to support Spot VM termination action ([#12105](https://github.com/hashicorp/terraform-provider-google/pull/12105))
+* compute: added `instance_termination_action` field to `google_compute_instance` resource to support Spot VM termination action ([#12105](https://github.com/hashicorp/terraform-provider-google/pull/12105))
+* compute: added field `all_instances_config` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` (Beta) ([#12132](https://github.com/hashicorp/terraform-provider-google/pull/12132))
+* compute: promote `rules.rate_limit_options`,  `rules.redirect_options`,  `adaptive_protection_config` in `compute_security_policy` to ga ([#12085](https://github.com/hashicorp/terraform-provider-google/pull/12085))
+* dataproc: promote `lifecycle_config` and `endpoint_config` to ga in `google_dataproc_cluster` ([#12129](https://github.com/hashicorp/terraform-provider-google/pull/12129))
+* monitoring: added `evaluation_missing_data` field to `google_monitoring_alert_policy` ([#12128](https://github.com/hashicorp/terraform-provider-google/pull/12128))
+* notebooks: added field `reserved_ip_range` to `google_notebooks_runtime` ([#12113](https://github.com/hashicorp/terraform-provider-google/pull/12113))
+
+BUG FIXES:
+* bigtable: fixed an incorrect diff when adding two or more clusters ([#12109](https://github.com/hashicorp/terraform-provider-google/pull/12109))
+* compute: allow properly updating `adaptive_protection_config` in `compute_security_policy` ([#12085](https://github.com/hashicorp/terraform-provider-google/pull/12085))
+* notebooks: fixed a bug where`google_notebooks_runtime` can't be updated ([#12113](https://github.com/hashicorp/terraform-provider-google/pull/12113))
+* sql: fixed an issue in `google_sql_database_instance` where updates would fail because of the `collation` field ([#12131](https://github.com/hashicorp/terraform-provider-google/pull/12131))
+
 ## 4.29.0 (July 18, 2022)
 
 FEATURES:
