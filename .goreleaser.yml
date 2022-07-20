@@ -29,7 +29,7 @@ builds:
       - goarch: arm64
         goos: windows
     ldflags:
-      - -s -w -X internal/provider.Version={{.Version}}
+      - -s -w -X internal/provider.ProviderVersion={{.Version}}
     mod_timestamp: '{{ .CommitTimestamp }}'
 checksum:
   extra_files:
