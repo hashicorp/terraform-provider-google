@@ -306,6 +306,29 @@ func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 	})
 }
 
+// Tracks fix for https://github.com/hashicorp/terraform-provider-google/issues/12043
+func TestAccDNSRecordSet_interpolated(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_interpolated(zoneName),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/test-record.%s.hashicorptest.com./TXT", zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckDnsRecordSetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 
 	return func(s *terraform.State) error {
@@ -490,4 +513,22 @@ resource "google_dns_record_set" "foobar" {
   }
 }
 `, zoneName, zoneName, zoneName, ttl, location, addr2)
+}
+
+func testAccDnsRecordSet_interpolated(zoneName string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "TXT"
+  rrdatas      = ["127.0.0.1", "firebase=${google_dns_managed_zone.parent-zone.id}"]
+  ttl          = 10
+}
+`, zoneName, zoneName, zoneName)
 }
