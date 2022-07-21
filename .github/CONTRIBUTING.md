@@ -54,6 +54,8 @@ The `TESTARGS` variable is regexp-like, so multiple tests can be run in parallel
 
 Note: `TF_LOG=TRACE` is optional; it [enables verbose logging](https://www.terraform.io/docs/internals/debugging.html) during tests, including all API request/response cycles. `> output.log` redirects the test output to a file for analysis, which is useful because `TRACE` logging can be extremely verbose.
 
+Tests will use whatever version of the `terraform` binary is found on your path. To test with multiple versions of `terraform` core, you must run the tests multiple times with different versions. You can use [`tfenv`](https://github.com/tfutils/tfenv) to manage your system `terraform` versions.
+
 ### Ensuring no plan-time difference to latest provider release (optional)
 
 In a case where you are editing an existing field you might want to ensure the resource you are modifying doesn't result in a diff to existing deployments. You can run set the [environment variable](https://github.com/GoogleCloudPlatform/magic-modules/blob/a30da2040ca7b8bd37186d8521a911e7469da632/mmv1/third_party/terraform/utils/provider_test.go.erb#L284-L286) `RELEASE_DIFF` before running a test. This will append plan only steps using the latest released/published provider (`google` or `google-beta`) after all configuration deployments to ensure uniformity.
@@ -89,6 +91,10 @@ Sweepers run by using the `-sweep` and `-sweep-run` `TESTARGS` flags:
 ```
 TF_LOG=TRACE make testacc TEST=./google TESTARGS='-sweep=us-central1 -sweep-run=<sweeper-name-here>' > output.log
 ```
+
+## Linting
+
+`make lint` will run linting checks against the code. This requires the [`golangci-lint`](https://github.com/golangci/golangci-lint) binary on your system. Refer to that documentation for the appropriate installation method for your operating system.
 
 ## Instructing terraform to use a local copy of the provider
 
