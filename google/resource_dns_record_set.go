@@ -13,7 +13,7 @@ import (
 )
 
 func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if k == "rrdatas.#" && new == "0" && old != new {
+	if k == "rrdatas.#" && (new == "0" || new == "") && old != new {
 		return false
 	}
 

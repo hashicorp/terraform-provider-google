@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed a bug where `google_dns_record_set` would create an inconsistent plan when using interpolated values in `rrdatas`
+```
