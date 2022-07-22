@@ -134,6 +134,125 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
+func TestAccCloudRunService_cloudRunServiceConfigurationExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunServiceConfigurationExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudRunServiceConfigurationExample(context map[string]interface{}) string {
+	return Nprintf(`
+# Example configuration of a Cloud Run service
+
+resource "google_cloud_run_service" "default" {
+  name     = "config%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+
+        # Container "entry-point" command
+        # https://cloud.google.com/run/docs/configuring/containers#configure-entrypoint
+        command = ["/server"]
+
+        # Container "entry-point" args
+        # https://cloud.google.com/run/docs/configuring/containers#configure-entrypoint
+        args = []
+
+        # Enable HTTP/2
+        # https://cloud.google.com/run/docs/configuring/http2
+        ports {
+          name           = "h2c"
+          container_port = 8080
+        }
+
+        # Environment variables
+        # https://cloud.google.com/run/docs/configuring/environment-variables
+        env {
+          name  = "foo"
+          value = "bar"
+        }
+        env {
+          name  = "baz"
+          value = "quux"
+        }
+
+        resources {
+          limits = {
+            # CPU usage limit
+            # https://cloud.google.com/run/docs/configuring/cpu
+            cpu = "1000m" # 1 vCPU
+
+            # Memory usage limit (per container)
+            # https://cloud.google.com/run/docs/configuring/memory-limits
+            memory = "512Mi"
+          }
+        }
+      }
+
+      # Timeout
+      # https://cloud.google.com/run/docs/configuring/request-timeout
+      timeout_seconds = 300
+
+      # Maximum concurrent requests
+      # https://cloud.google.com/run/docs/configuring/concurrency
+      container_concurrency = 80
+    }
+
+    metadata {
+      annotations = {
+
+        # Max instances
+        # https://cloud.google.com/run/docs/configuring/max-instances
+        "autoscaling.knative.dev/maxScale" = 10
+
+        # Min instances
+        # https://cloud.google.com/run/docs/configuring/min-instances
+        "autoscaling.knative.dev/minScale" = 1
+
+        # If true, garbage-collect CPU when once a request finishes
+        # https://cloud.google.com/run/docs/configuring/cpu-allocation
+        "run.googleapis.com/cpu-throttling" = false
+      }
+
+      # Labels
+      # https://cloud.google.com/run/docs/configuring/labels
+      labels = {
+        foo : "bar"
+        baz : "quux"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+`, context)
+}
+
 func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 	t.Parallel()
 
@@ -261,6 +380,131 @@ resource "google_cloud_run_service" "default" {
         metadata.0.annotations,
     ]
   }
+}
+`, context)
+}
+
+func TestAccCloudRunService_cloudRunServiceScheduledExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunServiceScheduledExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudRunServiceScheduledExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project_service" "run_api" {
+  project                    = "%{project}"
+  service                    = "run.googleapis.com"
+  disable_dependent_services = true
+  disable_on_destroy         = false
+}
+
+resource "google_project_service" "iam_api" {
+  project                    = "%{project}"
+  service                    = "iam.googleapis.com"
+  disable_on_destroy         = false
+}
+
+resource "google_project_service" "resource_manager_api" {
+  project                    = "%{project}"
+  service                    = "cloudresourcemanager.googleapis.com"
+  disable_on_destroy         = false
+}
+
+resource "google_project_service" "scheduler_api" {
+  project                    = "%{project}"
+  service                    = "cloudscheduler.googleapis.com"
+  disable_on_destroy         = false
+}
+
+resource "google_cloud_run_service" "default" {
+  project  = "%{project}"
+  name     = "tf-test-my-scheduled-service%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+
+  # Use an explicit depends_on clause to wait until API is enabled
+  depends_on = [
+    google_project_service.run_api
+  ]
+}
+
+resource "google_service_account" "default" {
+  project      = "%{project}"
+  account_id   = "tf-test-scheduler-sa%{random_suffix}"
+  description  = "Cloud Scheduler service account; used to trigger scheduled Cloud Run jobs."
+  display_name = "scheduler-sa"
+
+  # Use an explicit depends_on clause to wait until API is enabled
+  depends_on = [
+    google_project_service.iam_api
+  ]
+}
+
+resource "google_cloud_scheduler_job" "default" {
+  name             = "tf-test-scheduled-cloud-run-job%{random_suffix}"
+  description      = "Invoke a Cloud Run container on a schedule."
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = google_cloud_run_service.default.status[0].url
+
+    oidc_token {
+      service_account_email = google_service_account.default.email
+    }
+  }
+
+  # Use an explicit depends_on clause to wait until API is enabled
+  depends_on = [
+    google_project_service.scheduler_api
+  ]
+}
+
+resource "google_cloud_run_service_iam_member" "default" {
+  project = "%{project}"
+  location = google_cloud_run_service.default.location
+  service = google_cloud_run_service.default.name
+  role = "roles/run.invoker"
+  member = "serviceAccount:${google_service_account.default.email}"
 }
 `, context)
 }
@@ -624,6 +868,117 @@ resource "google_cloud_run_service_iam_binding" "default" {
   members = [
     "allUsers"
   ]
+}
+`, context)
+}
+
+func TestAccCloudRunService_cloudRunSystemPackagesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunSystemPackagesExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudRunSystemPackagesExample(context map[string]interface{}) string {
+	return Nprintf(`
+# Example of how to deploy a Cloud Run application with system packages
+
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-graphviz-example%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        # Replace with the URL of your graphviz image
+        #   gcr.io/<YOUR_GCP_PROJECT_ID>/graphviz
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+
+# Make Cloud Run service publicly accessible
+resource "google_cloud_run_service_iam_member" "allow_unauthenticated" {
+  service  = google_cloud_run_service.default.name
+  location = google_cloud_run_service.default.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+`, context)
+}
+
+func TestAccCloudRunService_cloudrunServiceIdentityExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudrunServiceIdentityExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudrunServiceIdentityExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_service_account" "cloudrun_service_identity" {
+  account_id   = "my-service-account"
+}
+
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloud-run-srv%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+      service_account_name = google_service_account.cloudrun_service_identity.email  
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
 }
 `, context)
 }
