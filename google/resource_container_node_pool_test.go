@@ -694,7 +694,6 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
-  min_master_version = "1.19"
 }
 
 resource "google_container_node_pool" "np" {
@@ -743,7 +742,6 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
-  min_master_version = "1.19"
 }
 
 resource "google_container_node_pool" "np" {
