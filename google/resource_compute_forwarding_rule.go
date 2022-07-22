@@ -305,7 +305,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
-	createDirective := CreateDirective
+	directive := CreateDirective
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
@@ -322,7 +322,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else {
 		client.Config.BasePath = bp
 	}
-	res, err := client.ApplyForwardingRule(context.Background(), obj, createDirective...)
+	res, err := client.ApplyForwardingRule(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
 		log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
