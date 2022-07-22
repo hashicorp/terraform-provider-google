@@ -1,0 +1,3 @@
+```release-note:bug
+kms: fixed setting of resource id post-import for `google_kms_crypto_key`
+```

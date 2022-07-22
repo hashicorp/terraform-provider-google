@@ -187,6 +187,13 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// Test importing with a short id
+			{
+				ResourceName:      "google_kms_crypto_key.crypto_key",
+				ImportState:       true,
+				ImportStateId:     fmt.Sprintf("%s/%s/%s/%s", projectId, location, keyRingName, cryptoKeyName),
+				ImportStateVerify: true,
+			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
 				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),

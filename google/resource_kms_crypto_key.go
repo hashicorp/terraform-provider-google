@@ -423,6 +423,12 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 		return nil, fmt.Errorf("Error setting skip_initial_version_creation: %s", err)
 	}
 
+	id, err := replaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
 	return []*schema.ResourceData{d}, nil
 }
 
