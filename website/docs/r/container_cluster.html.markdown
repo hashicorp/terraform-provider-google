@@ -416,7 +416,9 @@ addons_config {
 
 * `enabled` - (DEPRECATED) Enable Binary Authorization for this cluster. Deprecated in favor of `evaluation_mode`.
 
-* `evaluation_mode` - (Optional) Mode of operation for Binary Authorization policy evaluation.
+* `evaluation_mode` - (Optional) Mode of operation for Binary Authorization policy evaluation. Valid values are `DISABLED`
+  and `PROJECT_SINGLETON_POLICY_ENFORCE`. `PROJECT_SINGLETON_POLICY_ENFORCE` is functionally equivalent to the
+  deprecated `enable_binary_authorization` parameter being set to `true`.
 
 <a name="nested_database_encryption"></a>The `database_encryption` block supports:
 
