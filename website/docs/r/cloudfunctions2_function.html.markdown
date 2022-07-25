@@ -29,19 +29,22 @@ To get more information about function, see:
 
 * [API documentation](https://cloud.google.com/functions/docs/reference/rest/v2beta/projects.locations.functions)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudfunctions2_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloudfunctions2 Basic
 
 
 ```hcl
 # [START functions_v2_basic]
+locals {
+  project = "my-project-name" # Google Cloud Platform Project ID
+}
+
+provider "google-beta" {
+   project = local.project
+}
+
 resource "google_storage_bucket" "bucket" {
   provider = google-beta
-  name     = "cloudfunctions2-function-bucket"  # Every bucket name must be globally unique
+  name     = "${local.project}-gcf-source"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -50,10 +53,10 @@ resource "google_storage_bucket_object" "object" {
   provider = google-beta
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
-  source = "path/to/index.zip"  # Add path to the zipped function source code
+  source = "function-source.zip"  # Add path to the zipped function source code
 }
  
-resource "google_cloudfunctions2_function" "terraform-test2" {
+resource "google_cloudfunctions2_function" "function" {
   provider = google-beta
   name = "test-function"
   location = "us-central1"
@@ -76,32 +79,39 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
     timeout_seconds     = 60
   }
 }
+
+output "function_uri" { 
+  value = google_cloudfunctions2_function.function.service_config[0].uri
+}
 # [END functions_v2_basic]
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudfunctions2_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloudfunctions2 Full
 
 
 ```hcl
 # [START functions_v2_full]
+locals {
+  project = "my-project-name" # Google Cloud Platform Project ID
+}
+
+provider "google-beta" {
+   project = local.project
+}
+
 resource "google_service_account" "account" {
   provider = google-beta
-  account_id = "s-a"
+  account_id = "test-sa"
   display_name = "Test Service Account"
 }
 
-resource "google_pubsub_topic" "sub" {
+resource "google_pubsub_topic" "topic" {
   provider = google-beta
-  name = "pub-sub"
+  name = "functions2-topic"
 }
 
 resource "google_storage_bucket" "bucket" {
   provider = google-beta
-  name     = "cloudfunctions2-function-bucket"  # Every bucket name must be globally unique
+  name     = "${local.project}-gcf-source"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -110,10 +120,10 @@ resource "google_storage_bucket_object" "object" {
   provider = google-beta
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
-  source = "path/to/index.zip"  # Add path to the zipped function source code
+  source = "function-source.zip"  # Add path to the zipped function source code
 }
  
-resource "google_cloudfunctions2_function" "terraform-test" {
+resource "google_cloudfunctions2_function" "function" {
   provider = google-beta
   name = "test-function"
   location = "us-central1"
@@ -149,9 +159,8 @@ resource "google_cloudfunctions2_function" "terraform-test" {
   event_trigger {
     trigger_region = "us-central1"
     event_type = "google.cloud.pubsub.topic.v1.messagePublished"
-    pubsub_topic = google_pubsub_topic.sub.id
+    pubsub_topic = google_pubsub_topic.topic.id
     retry_policy = "RETRY_POLICY_RETRY"
-    service_account_email = google_service_account.account.email
   }
 }
 # [END functions_v2_full]
