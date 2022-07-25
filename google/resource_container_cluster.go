@@ -375,6 +375,12 @@ func resourceContainerCluster() *schema.Resource {
 										Description:  `The default image type used by NAP once a new node pool is being created.`,
 										ValidateFunc: validation.StringInSlice([]string{"COS_CONTAINERD", "COS", "UBUNTU_CONTAINERD", "UBUNTU"}, false),
 									},
+									"boot_disk_kms_key": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The Customer Managed Encryption Key used to encrypt the boot disk attached to each node in the node pool.`,
+									},
 								},
 							},
 						},
@@ -2980,6 +2986,7 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 		OauthScopes:    convertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount: config["service_account"].(string),
 		ImageType:      config["image_type"].(string),
+		BootDiskKmsKey: config["boot_disk_kms_key"].(string),
 	}
 
 	return npd
@@ -3657,6 +3664,7 @@ func flattenAutoProvisioningDefaults(a *container.AutoprovisioningNodePoolDefaul
 	r["oauth_scopes"] = a.OauthScopes
 	r["service_account"] = a.ServiceAccount
 	r["image_type"] = a.ImageType
+	r["boot_disk_kms_key"] = a.BootDiskKmsKey
 
 	return []map[string]interface{}{r}
 }

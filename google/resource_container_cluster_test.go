@@ -1877,6 +1877,30 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsImageType(t *testing.T)
 	})
 }
 
+func TestAccContainerCluster_nodeAutoprovisioningDefaultsBootDiskKmsKey(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	kms := BootstrapKMSKeyInLocation(t, "us-central1")
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaultsBootDiskKmsKey(getTestProjectFromEnv(), clusterName, kms.CryptoKey.Name),
+			},
+			{
+				ResourceName:            "google_container_cluster.nap_boot_disk_kms_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 	t.Parallel()
 
@@ -3367,6 +3391,43 @@ resource "google_container_cluster" "with_autoprovisioning" {
     }
   }
 }`, cluster, imageTypeCfg)
+}
+
+func testAccContainerCluster_autoprovisioningDefaultsBootDiskKmsKey(project, clusterName, kmsKeyName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = data.google_project.project.project_id
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_container_cluster" "nap_boot_disk_kms_key" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  release_channel {
+    channel = "RAPID"
+  }
+  cluster_autoscaling {
+    enabled = true
+    resource_limits {
+      resource_type = "cpu"
+      maximum       = 2
+    }
+    resource_limits {
+      resource_type = "memory"
+      maximum       = 2048
+    }
+    auto_provisioning_defaults {
+	  boot_disk_kms_key = "%s"
+    }
+  }
+}
+`, project, clusterName, kmsKeyName)
 }
 
 func testAccContainerCluster_withNodePoolAutoscaling(cluster, np string) string {
