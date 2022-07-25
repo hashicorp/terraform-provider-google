@@ -210,6 +210,83 @@ resource "google_compute_region_network_endpoint_group" "psc_neg" {
   psc_target_service    = "asia-northeast3-cloudkms.googleapis.com"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_network_endpoint_group_psc_service_attachment&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Endpoint Group Psc Service Attachment
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name = "psc-network"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "psc-subnetwork"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "europe-west4"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "psc_subnetwork" {
+  name          = "psc-subnetwork-nat"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "europe-west4"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_health_check" "default" {
+  name = "psc-healthcheck"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+resource "google_compute_region_backend_service" "default" {
+  name   = "psc-backend"
+  region = "europe-west4"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name   = "psc-forwarding-rule"
+  region = "europe-west4"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.default.id
+  all_ports             = true
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
+}
+
+resource "google_compute_service_attachment" "default" {
+  name        = "psc-service-attachment"
+  region      = "europe-west4"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_AUTOMATIC"
+  nat_subnets           = [google_compute_subnetwork.psc_subnetwork.self_link]
+  target_service        = google_compute_forwarding_rule.default.self_link
+}
+
+resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachment" {
+  name                  = "psc-neg"
+  region                = "europe-west4"
+
+  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
+  psc_target_service    = google_compute_service_attachment.default.self_link
+
+  network               = google_compute_network.default.self_link
+  subnetwork            = google_compute_subnetwork.default.self_link
+}
+```
 
 ## Argument Reference
 
@@ -249,6 +326,17 @@ The following arguments are supported:
   (Optional)
   The target service url used to set up private service connection to
   a Google API or a PSC Producer Service Attachment.
+
+* `network` -
+  (Optional)
+  This field is only used for PSC.
+  The URL of the network to which all network endpoints in the NEG belong. Uses
+  "default" project network if unspecified.
+
+* `subnetwork` -
+  (Optional)
+  This field is only used for PSC.
+  Optional URL of the subnetwork to which all network endpoints in the NEG belong.
 
 * `cloud_run` -
   (Optional)
