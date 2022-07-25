@@ -256,6 +256,63 @@ is set to MANUAL_ONLY.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `Region where the router and NAT reside.`,
 			},
+			"rules": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `A list of rules associated with this NAT.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"action": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `The action to be enforced for traffic that matches this rule.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"source_nat_active_ips": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `A list of URLs of the IP resources used for this NAT rule. These IP addresses must be valid static external IP addresses assigned to the project. This field is used for public NAT.`,
+										Elem: &schema.Schema{
+											Type:             schema.TypeString,
+											DiffSuppressFunc: compareSelfLinkOrResourceName,
+										},
+									},
+									"source_nat_drain_ips": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `A list of URLs of the IP resources to be drained. These IPs must be valid static external IPs that have been assigned to the NAT. These IPs should be used for updating/patching a NAT rule only. This field is used for public NAT.`,
+										Elem: &schema.Schema{
+											Type:             schema.TypeString,
+											DiffSuppressFunc: compareSelfLinkOrResourceName,
+										},
+									},
+								},
+							},
+						},
+						"match": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `CEL expression that specifies the match condition that egress traffic from a VM is evaluated against. If it evaluates to true, the corresponding action is enforced.
+The following examples are valid match expressions for public NAT:
+"inIpRange(destination.ip, '1.1.0.0/16') || inIpRange(destination.ip, '2.2.0.0/16')"
+"destination.ip == '1.1.0.1' || destination.ip == '8.8.8.8'"
+The following example is a valid match expression for private NAT:
+"nexthop.hub == 'https://networkconnectivity.googleapis.com/v1alpha1/projects/my-project/global/hub/hub-1'"`,
+						},
+						"rule_number": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `An integer uniquely identifying a rule in the list. The rule number must be a positive value between 0 and 65000, and must be unique among rules within a NAT.`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `An optional description of this rule.`,
+						},
+					},
+				},
+			},
 			"subnetwork": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -270,6 +327,12 @@ is set to MANUAL_ONLY.`,
 				Description: `Timeout (in seconds) for TCP established connections.
 Defaults to 1200s if not set.`,
 				Default: 1200,
+			},
+			"tcp_time_wait_timeout_sec": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Timeout (in seconds) for TCP connections that are in TIME_WAIT state. Defaults to 120s if not set.`,
+				Default:     120,
 			},
 			"tcp_transitory_idle_timeout_sec": {
 				Type:     schema.TypeInt,
@@ -419,11 +482,23 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpTransitoryIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
 		obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
 	}
+	tcpTimeWaitTimeoutSecProp, err := expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(d.Get("tcp_time_wait_timeout_sec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tcp_time_wait_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpTimeWaitTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTimeWaitTimeoutSecProp)) {
+		obj["tcpTimeWaitTimeoutSec"] = tcpTimeWaitTimeoutSecProp
+	}
 	logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get("log_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 		obj["logConfig"] = logConfigProp
+	}
+	rulesProp, err := expandNestedComputeRouterNatRules(d.Get("rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("rules"); ok || !reflect.DeepEqual(v, rulesProp) {
+		obj["rules"] = rulesProp
 	}
 	enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get("enable_endpoint_independent_mapping"), d, config)
 	if err != nil {
@@ -575,7 +650,13 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("tcp_transitory_idle_timeout_sec", flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(res["tcpTransitoryIdleTimeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
+	if err := d.Set("tcp_time_wait_timeout_sec", flattenNestedComputeRouterNatTcpTimeWaitTimeoutSec(res["tcpTimeWaitTimeoutSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
 	if err := d.Set("log_config", flattenNestedComputeRouterNatLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
+	if err := d.Set("rules", flattenNestedComputeRouterNatRules(res["rules"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 	if err := d.Set("enable_endpoint_independent_mapping", flattenNestedComputeRouterNatEnableEndpointIndependentMapping(res["enableEndpointIndependentMapping"], d, config)); err != nil {
@@ -673,11 +754,23 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
 		obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
 	}
+	tcpTimeWaitTimeoutSecProp, err := expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(d.Get("tcp_time_wait_timeout_sec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tcp_time_wait_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTimeWaitTimeoutSecProp)) {
+		obj["tcpTimeWaitTimeoutSec"] = tcpTimeWaitTimeoutSecProp
+	}
 	logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get("log_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 		obj["logConfig"] = logConfigProp
+	}
+	rulesProp, err := expandNestedComputeRouterNatRules(d.Get("rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("rules"); ok || !reflect.DeepEqual(v, rulesProp) {
+		obj["rules"] = rulesProp
 	}
 	enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get("enable_endpoint_independent_mapping"), d, config)
 	if err != nil {
@@ -968,6 +1061,23 @@ func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *
 	return v
 }
 
+func flattenNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNestedComputeRouterNatLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -989,6 +1099,81 @@ func flattenNestedComputeRouterNatLogConfigEnable(v interface{}, d *schema.Resou
 
 func flattenNestedComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenNestedComputeRouterNatRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"rule_number": flattenNestedComputeRouterNatRulesRuleNumber(original["ruleNumber"], d, config),
+			"description": flattenNestedComputeRouterNatRulesDescription(original["description"], d, config),
+			"match":       flattenNestedComputeRouterNatRulesMatch(original["match"], d, config),
+			"action":      flattenNestedComputeRouterNatRulesAction(original["action"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNestedComputeRouterNatRulesRuleNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenNestedComputeRouterNatRulesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterNatRulesMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterNatRulesAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source_nat_active_ips"] =
+		flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(original["sourceNatActiveIps"], d, config)
+	transformed["source_nat_drain_ips"] =
+		flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(original["sourceNatDrainIps"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
+func flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
 func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1124,6 +1309,10 @@ func expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d Te
 	return v, nil
 }
 
+func expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNestedComputeRouterNatLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1156,6 +1345,119 @@ func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d TerraformResou
 
 func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandNestedComputeRouterNatRules(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedRuleNumber, err := expandNestedComputeRouterNatRulesRuleNumber(original["rule_number"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRuleNumber); val.IsValid() && !isEmptyValue(val) {
+			transformed["ruleNumber"] = transformedRuleNumber
+		}
+
+		transformedDescription, err := expandNestedComputeRouterNatRulesDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedMatch, err := expandNestedComputeRouterNatRulesMatch(original["match"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMatch); val.IsValid() && !isEmptyValue(val) {
+			transformed["match"] = transformedMatch
+		}
+
+		transformedAction, err := expandNestedComputeRouterNatRulesAction(original["action"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAction); val.IsValid() && !isEmptyValue(val) {
+			transformed["action"] = transformedAction
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNestedComputeRouterNatRulesRuleNumber(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatRulesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatRulesMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatRulesAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceNatActiveIps, err := expandNestedComputeRouterNatRulesActionSourceNatActiveIps(original["source_nat_active_ips"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceNatActiveIps); val.IsValid() && !isEmptyValue(val) {
+		transformed["sourceNatActiveIps"] = transformedSourceNatActiveIps
+	}
+
+	transformedSourceNatDrainIps, err := expandNestedComputeRouterNatRulesActionSourceNatDrainIps(original["source_nat_drain_ips"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceNatDrainIps); val.IsValid() && !isEmptyValue(val) {
+		transformed["sourceNatDrainIps"] = transformedSourceNatDrainIps
+	}
+
+	return transformed, nil
+}
+
+func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_active_ips: nil")
+		}
+		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_active_ips: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
+}
+
+func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_drain_ips: nil")
+		}
+		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_drain_ips: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
 }
 
 func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
