@@ -123,6 +123,10 @@ The following arguments are supported:
 
 * `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`, `DURABLE_REDUCED_AVAILABILITY`.
 
+* `matches_prefix` - (Optional) One or more matching name prefixes to satisfy this condition.
+
+* `matches_suffix` - (Optional) One or more matching name suffixes to satisfy this condition.
+
 * `num_newer_versions` - (Optional) Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.
 
 * `custom_time_before` - (Optional) A date in the RFC 3339 format YYYY-MM-DD. This condition is satisfied when the customTime metadata for the object is set to an earlier date than the date used in this lifecycle condition.

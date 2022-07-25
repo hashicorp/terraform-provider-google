@@ -1,0 +1,3 @@
+```release-note:enhancement
+bucket: added support for `matches_prefix` and `matches_suffix`` in `condition` of a `lifecycle_rule` in  `google_storage_bucket`
+```
