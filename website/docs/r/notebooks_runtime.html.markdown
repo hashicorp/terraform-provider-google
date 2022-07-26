@@ -136,6 +136,73 @@ resource "google_notebooks_runtime" "runtime_container" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=notebook_runtime_kernels&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Notebook Runtime Kernels
+
+
+```hcl
+resource "google_notebooks_runtime" "runtime_container" {
+  name = "notebooks-runtime-kernel"
+  location = "us-central1"
+  access_config {
+    access_type = "SINGLE_USER"
+    runtime_owner = "admin@hashicorptest.com"
+  }
+  software_config {
+    kernels {
+      repository = "gcr.io/deeplearning-platform-release/base-cpu"
+      tag        = "latest"
+    }
+  }
+  virtual_machine {
+    virtual_machine_config {
+      machine_type = "n1-standard-4"
+      data_disk {
+        initialize_params {
+          disk_size_gb = "100"
+          disk_type = "PD_STANDARD"
+        }
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=notebook_runtime_script&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Notebook Runtime Script
+
+
+```hcl
+resource "google_notebooks_runtime" "runtime_container" {
+  name = "notebooks-runtime-script"
+  location = "us-central1"
+  access_config {
+    access_type = "SINGLE_USER"
+    runtime_owner = "admin@hashicorptest.com"
+  }
+  software_config {
+    post_startup_script_behavior = "RUN_EVERY_START"
+  }
+  virtual_machine {
+    virtual_machine_config {
+      machine_type = "n1-standard-4"
+      data_disk {
+        initialize_params {
+          disk_size_gb = "100"
+          disk_type = "PD_STANDARD"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -504,6 +571,9 @@ The following arguments are supported:
   (Optional)
   Install Nvidia Driver automatically.
 
+* `upgradeable` -
+  Bool indicating whether an newer image is available in an image family.
+
 * `custom_gpu_driver_path` -
   (Optional)
   Specify a custom Cloud Storage path where the GPU driver is stored.
@@ -514,6 +584,28 @@ The following arguments are supported:
   Path to a Bash script that automatically runs after a notebook instance
   fully boots up. The path must be a URL or
   Cloud Storage path (gs://path-to-file/file-name).
+
+* `post_startup_script_behavior` -
+  (Optional)
+  Behavior for the post startup script.
+  Possible values are `POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED`, `RUN_EVERY_START`, and `DOWNLOAD_AND_RUN_EVERY_START`.
+
+* `kernels` -
+  (Optional)
+  Use a list of container images to use as Kernels in the notebook instance.
+  Structure is [documented below](#nested_kernels).
+
+
+<a name="nested_kernels"></a>The `kernels` block supports:
+
+* `repository` -
+  (Required)
+  The path to the container image repository.
+  For example: gcr.io/{project_id}/{imageName}
+
+* `tag` -
+  (Optional)
+  The tag of the container image. If not specified, this defaults to the latest tag.
 
 ## Attributes Reference
 

@@ -185,6 +185,113 @@ resource "google_notebooks_runtime" "runtime_container" {
 `, context)
 }
 
+func TestAccNotebooksRuntime_notebookRuntimeKernelsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNotebooksRuntime_notebookRuntimeKernelsExample(context),
+			},
+			{
+				ResourceName:            "google_notebooks_runtime.runtime_container",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location"},
+			},
+		},
+	})
+}
+
+func testAccNotebooksRuntime_notebookRuntimeKernelsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_notebooks_runtime" "runtime_container" {
+  name = "tf-test-notebooks-runtime-kernel%{random_suffix}"
+  location = "us-central1"
+  access_config {
+    access_type = "SINGLE_USER"
+    runtime_owner = "admin@hashicorptest.com"
+  }
+  software_config {
+    kernels {
+      repository = "gcr.io/deeplearning-platform-release/base-cpu"
+      tag        = "latest"
+    }
+  }
+  virtual_machine {
+    virtual_machine_config {
+      machine_type = "n1-standard-4"
+      data_disk {
+        initialize_params {
+          disk_size_gb = "100"
+          disk_type = "PD_STANDARD"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccNotebooksRuntime_notebookRuntimeScriptExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNotebooksRuntime_notebookRuntimeScriptExample(context),
+			},
+			{
+				ResourceName:            "google_notebooks_runtime.runtime_container",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location"},
+			},
+		},
+	})
+}
+
+func testAccNotebooksRuntime_notebookRuntimeScriptExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_notebooks_runtime" "runtime_container" {
+  name = "tf-test-notebooks-runtime-script%{random_suffix}"
+  location = "us-central1"
+  access_config {
+    access_type = "SINGLE_USER"
+    runtime_owner = "admin@hashicorptest.com"
+  }
+  software_config {
+    post_startup_script_behavior = "RUN_EVERY_START"
+  }
+  virtual_machine {
+    virtual_machine_config {
+      machine_type = "n1-standard-4"
+      data_disk {
+        initialize_params {
+          disk_size_gb = "100"
+          disk_type = "PD_STANDARD"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckNotebooksRuntimeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
