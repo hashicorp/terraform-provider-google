@@ -217,6 +217,11 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				Description: `A human-readable description for the job. 
 This string must not contain more than 500 characters.`,
 			},
+			"state": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `PAUSED | ENABLED`,
+			},
 			"http_target": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -432,10 +437,6 @@ The value of this field must be a time zone name from the tz database.`,
 
 func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandCloudSchedulerJobName(d.Get("name"), d, config)
@@ -493,26 +494,9 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 		obj["httpTarget"] = httpTargetProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs")
-	if err != nil {
-		return err
-	}
-
 	log.Printf("[DEBUG] Creating new Job: %#v", obj)
-	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Job: %s", err)
-	}
-	billingProject = project
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := jobSendRequestWithTimeout(d, meta, "POST", "", obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Job: %s", err)
 	}
@@ -524,9 +508,71 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	state, ok := d.GetOk("state")
+	if ok && state != res["state"] {
+		resourceCloudSchedulerJobSetState(state.(string), d, meta)
+	}
+
 	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
 
 	return resourceCloudSchedulerJobRead(d, meta)
+}
+
+func resourceCloudSchedulerJobEnable(d *schema.ResourceData, meta interface{}) error {
+	return resourceCloudSchedulerJobSetState("ENABLED", d, meta)
+}
+
+func resourceCloudSchedulerJobSetState(state string, d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[INFO] State -> %v", state)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	action := ""
+	switch state {
+	case "PAUSED":
+		action = "pause"
+	case "ENABLED":
+		action = "resume"
+	default:
+		return fmt.Errorf("Invalid job state: %s", state)
+
+	}
+	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}:"+action)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Job: %s", err)
+	}
+	billingProject = project
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, make(map[string]interface{}), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("Error pausing job: %s", err)
+	}
+
+	d.Set("state", state)
+	log.Printf("[DEBUG] Finished %v Job %q: %#v", action, d.Id(), res)
+	return nil
+}
+
+func resourceCloudSchedulerJobGetState(d *schema.ResourceData, meta interface{}) (string, error) {
+	res, err := jobSendRequest(d, meta, "GET", "/{{name}}", nil)
+	if err != nil {
+		return "", err
+	}
+
+	return res["state"].(string), nil
+}
+
+func jobSendRequest(d *schema.ResourceData, meta interface{}, method string, path string, body map[string]interface{}) (map[string]interface{}, error) {
+	return jobSendRequestWithTimeout(d, meta, method, path, body, DefaultRequestTimeout)
 }
 
 func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) error {
@@ -598,24 +644,30 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("http_target", flattenCloudSchedulerJobHttpTarget(res["httpTarget"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
+	if err := d.Set("state", flattenCloudSchedulerJobState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+
+	log.Printf("[INFO] Job state: %v", d.Get("state"))
 
 	return nil
 }
 
 func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	currentState, err := resourceCloudSchedulerJobGetState(d, meta)
 	if err != nil {
 		return err
 	}
 
-	billingProject := ""
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Job: %s", err)
+	// Job cannot be updated while PAUSED
+	if currentState == "PAUSED" {
+		err = resourceCloudSchedulerJobEnable(d, meta)
+		if err != nil {
+			return err
+		}
 	}
-	billingProject = project
+
+	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandCloudSchedulerJobDescription(d.Get("description"), d, config)
@@ -667,19 +719,14 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["httpTarget"] = httpTargetProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
-	if err != nil {
-		return err
-	}
-
 	log.Printf("[DEBUG] Updating Job %q: %#v", d.Id(), obj)
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
+	res, err := jobSendRequestWithTimeout(d, meta, "PATCH", "/{{name}}", obj, d.Timeout(schema.TimeoutUpdate))
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	state, ok := d.GetOk("state")
+	if ok && state != res["state"] {
+		resourceCloudSchedulerJobSetState(state.(string), d, meta)
+	}
 
 	if err != nil {
 		return fmt.Errorf("Error updating Job %q: %s", d.Id(), err)
@@ -690,35 +737,37 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 	return resourceCloudSchedulerJobRead(d, meta)
 }
 
-func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) error {
+func jobSendRequestWithTimeout(d *schema.ResourceData, meta interface{}, method string, path string, body map[string]interface{}, timeout time.Duration) (map[string]interface{}, error) {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for Job: %s", err)
+		return nil, fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
-
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting Job %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs"+path)
+	if err != nil {
+		return nil, err
+	}
+
+	return sendRequestWithTimeout(config, method, billingProject, url, userAgent, body, timeout)
+}
+
+func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) error {
+	var obj map[string]interface{}
+	log.Printf("[DEBUG] Deleting Job %q", d.Id())
+
+	res, err := jobSendRequestWithTimeout(d, meta, "DELETE", "/{{name}}", obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Job")
 	}
@@ -753,6 +802,10 @@ func flattenCloudSchedulerJobName(v interface{}, d *schema.ResourceData, config 
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
+}
+
+func flattenCloudSchedulerJobState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenCloudSchedulerJobDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
