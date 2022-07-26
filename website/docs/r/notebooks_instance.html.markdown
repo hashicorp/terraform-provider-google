@@ -211,12 +211,12 @@ The following arguments are supported:
   Structure is [documented below](#nested_shielded_instance_config).
 
 * `nic_type` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The type of vNIC driver.
   Possible values are `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, and `GVNIC`.
 
 * `reservation_affinity` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Reservation Affinity for consuming Zonal reservation.
   Structure is [documented below](#nested_reservation_affinity).
 
@@ -234,7 +234,7 @@ The following arguments are supported:
 * `boot_disk_type` -
   (Optional)
   Possible disk types for notebook instances.
-  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, and `PD_BALANCED`.
+  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, and `PD_EXTREME`.
 
 * `boot_disk_size_gb` -
   (Optional)
@@ -245,7 +245,7 @@ The following arguments are supported:
 * `data_disk_type` -
   (Optional)
   Possible disk types for notebook instances.
-  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, and `PD_BALANCED`.
+  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, and `PD_EXTREME`.
 
 * `data_disk_size_gb` -
   (Optional)

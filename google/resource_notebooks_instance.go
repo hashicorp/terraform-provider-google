@@ -117,8 +117,8 @@ If not specified, this defaults to 100.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED", ""}),
-				Description:  `Possible disk types for notebook instances. Possible values: ["DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED"]`,
+				ValidateFunc: validateEnum([]string{"DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED", "PD_EXTREME", ""}),
+				Description:  `Possible disk types for notebook instances. Possible values: ["DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED", "PD_EXTREME"]`,
 			},
 			"container_image": {
 				Type:        schema.TypeList,
@@ -165,9 +165,9 @@ If not specified, this defaults to 100.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				ValidateFunc:     validateEnum([]string{"DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED", ""}),
+				ValidateFunc:     validateEnum([]string{"DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED", "PD_EXTREME", ""}),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("DISK_TYPE_UNSPECIFIED"),
-				Description:      `Possible disk types for notebook instances. Possible values: ["DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED"]`,
+				Description:      `Possible disk types for notebook instances. Possible values: ["DISK_TYPE_UNSPECIFIED", "PD_STANDARD", "PD_SSD", "PD_BALANCED", "PD_EXTREME"]`,
 			},
 			"disk_encryption": {
 				Type:             schema.TypeString,
@@ -231,6 +231,13 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 				Description: `The name of the VPC that this instance is in.
 Format: projects/{project_id}/global/networks/{network_id}`,
 			},
+			"nic_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"UNSPECIFIED_NIC_TYPE", "VIRTIO_NET", "GVNIC", ""}),
+				Description:  `The type of vNIC driver. Possible values: ["UNSPECIFIED_NIC_TYPE", "VIRTIO_NET", "GVNIC"]`,
+			},
 			"no_proxy_access": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -256,6 +263,39 @@ Format: projects/{project_id}/global/networks/{network_id}`,
 				Description: `Path to a Bash script that automatically runs after a
 notebook instance fully boots up. The path must be a URL
 or Cloud Storage path (gs://path-to-file/file-name).`,
+			},
+			"reservation_affinity": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Reservation Affinity for consuming Zonal reservation.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"consume_reservation_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validateEnum([]string{"NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"}),
+							Description:  `The type of Compute Reservation. Possible values: ["NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"]`,
+						},
+						"key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Corresponds to the label key of reservation resource.`,
+						},
+						"values": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Corresponds to the label values of reservation resource.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"service_account": {
 				Type:     schema.TypeString,
@@ -451,6 +491,18 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("shielded_instance_config"); !isEmptyValue(reflect.ValueOf(shieldedInstanceConfigProp)) && (ok || !reflect.DeepEqual(v, shieldedInstanceConfigProp)) {
 		obj["shieldedInstanceConfig"] = shieldedInstanceConfigProp
+	}
+	nicTypeProp, err := expandNotebooksInstanceNicType(d.Get("nic_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("nic_type"); !isEmptyValue(reflect.ValueOf(nicTypeProp)) && (ok || !reflect.DeepEqual(v, nicTypeProp)) {
+		obj["nicType"] = nicTypeProp
+	}
+	reservationAffinityProp, err := expandNotebooksInstanceReservationAffinity(d.Get("reservation_affinity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reservation_affinity"); !isEmptyValue(reflect.ValueOf(reservationAffinityProp)) && (ok || !reflect.DeepEqual(v, reservationAffinityProp)) {
+		obj["reservationAffinity"] = reservationAffinityProp
 	}
 	installGpuDriverProp, err := expandNotebooksInstanceInstallGpuDriver(d.Get("install_gpu_driver"), d, config)
 	if err != nil {
@@ -669,6 +721,12 @@ func resourceNotebooksInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("shielded_instance_config", flattenNotebooksInstanceShieldedInstanceConfig(res["shieldedInstanceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("nic_type", flattenNotebooksInstanceNicType(res["nicType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("reservation_affinity", flattenNotebooksInstanceReservationAffinity(res["reservationAffinity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("state", flattenNotebooksInstanceState(res["state"], d, config)); err != nil {
@@ -927,6 +985,39 @@ func flattenNotebooksInstanceShieldedInstanceConfigEnableVtpm(v interface{}, d *
 	return v
 }
 
+func flattenNotebooksInstanceNicType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksInstanceReservationAffinity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["consume_reservation_type"] =
+		flattenNotebooksInstanceReservationAffinityConsumeReservationType(original["consumeReservationType"], d, config)
+	transformed["key"] =
+		flattenNotebooksInstanceReservationAffinityKey(original["key"], d, config)
+	transformed["values"] =
+		flattenNotebooksInstanceReservationAffinityValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNotebooksInstanceReservationAffinityConsumeReservationType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksInstanceReservationAffinityKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksInstanceReservationAffinityValues(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenNotebooksInstanceState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -1079,6 +1170,55 @@ func expandNotebooksInstanceShieldedInstanceConfigEnableSecureBoot(v interface{}
 }
 
 func expandNotebooksInstanceShieldedInstanceConfigEnableVtpm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceNicType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceReservationAffinity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConsumeReservationType, err := expandNotebooksInstanceReservationAffinityConsumeReservationType(original["consume_reservation_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConsumeReservationType); val.IsValid() && !isEmptyValue(val) {
+		transformed["consumeReservationType"] = transformedConsumeReservationType
+	}
+
+	transformedKey, err := expandNotebooksInstanceReservationAffinityKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	transformedValues, err := expandNotebooksInstanceReservationAffinityValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !isEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandNotebooksInstanceReservationAffinityConsumeReservationType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceReservationAffinityKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceReservationAffinityValues(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

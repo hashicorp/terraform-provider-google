@@ -1,0 +1,9 @@
+```release-note:enhancement
+notebooks: promoted `nicType` and `reservationAffinity` in `google_notebooks_instance` to GA
+```
+```release-note:enhancement
+notebooks: added `bootDiskType` support for `PD_EXTREME` in `google_notebooks_instance`
+```
+```release-note:enhancement
+notebooks: added `softwareConfig.upgradeable, `softwareConfig.postStartupScriptBehavior`, `softwareConfig.kernels` in `google_notebooks_runtime`
+```

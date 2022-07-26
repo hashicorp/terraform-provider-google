@@ -143,6 +143,26 @@ Default: 180 minutes`,
 							Optional:    true,
 							Description: `Install Nvidia Driver automatically.`,
 						},
+						"kernels": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Use a list of container images to use as Kernels in the notebook instance.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"repository": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The path to the container image repository.
+For example: gcr.io/{project_id}/{imageName}`,
+									},
+									"tag": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The tag of the container image. If not specified, this defaults to the latest tag.`,
+									},
+								},
+							},
+						},
 						"notebook_upgrade_schedule": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -155,6 +175,17 @@ Please follow the [cron format](https://en.wikipedia.org/wiki/Cron).`,
 							Description: `Path to a Bash script that automatically runs after a notebook instance
 fully boots up. The path must be a URL or
 Cloud Storage path (gs://path-to-file/file-name).`,
+						},
+						"post_startup_script_behavior": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateEnum([]string{"POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED", "RUN_EVERY_START", "DOWNLOAD_AND_RUN_EVERY_START", ""}),
+							Description:  `Behavior for the post startup script. Possible values: ["POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED", "RUN_EVERY_START", "DOWNLOAD_AND_RUN_EVERY_START"]`,
+						},
+						"upgradeable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Bool indicating whether an newer image is available in an image family.`,
 						},
 					},
 				},
@@ -1305,10 +1336,16 @@ func flattenNotebooksRuntimeSoftwareConfig(v interface{}, d *schema.ResourceData
 		flattenNotebooksRuntimeSoftwareConfigIdleShutdownTimeout(original["idleShutdownTimeout"], d, config)
 	transformed["install_gpu_driver"] =
 		flattenNotebooksRuntimeSoftwareConfigInstallGpuDriver(original["installGpuDriver"], d, config)
+	transformed["upgradeable"] =
+		flattenNotebooksRuntimeSoftwareConfigUpgradeable(original["upgradeable"], d, config)
 	transformed["custom_gpu_driver_path"] =
 		flattenNotebooksRuntimeSoftwareConfigCustomGpuDriverPath(original["customGpuDriverPath"], d, config)
 	transformed["post_startup_script"] =
 		flattenNotebooksRuntimeSoftwareConfigPostStartupScript(original["postStartupScript"], d, config)
+	transformed["post_startup_script_behavior"] =
+		flattenNotebooksRuntimeSoftwareConfigPostStartupScriptBehavior(original["postStartupScriptBehavior"], d, config)
+	transformed["kernels"] =
+		flattenNotebooksRuntimeSoftwareConfigKernels(original["kernels"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNotebooksRuntimeSoftwareConfigNotebookUpgradeSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1344,11 +1381,46 @@ func flattenNotebooksRuntimeSoftwareConfigInstallGpuDriver(v interface{}, d *sch
 	return v
 }
 
+func flattenNotebooksRuntimeSoftwareConfigUpgradeable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenNotebooksRuntimeSoftwareConfigCustomGpuDriverPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
 func flattenNotebooksRuntimeSoftwareConfigPostStartupScript(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksRuntimeSoftwareConfigPostStartupScriptBehavior(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksRuntimeSoftwareConfigKernels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"repository": flattenNotebooksRuntimeSoftwareConfigKernelsRepository(original["repository"], d, config),
+			"tag":        flattenNotebooksRuntimeSoftwareConfigKernelsTag(original["tag"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNotebooksRuntimeSoftwareConfigKernelsRepository(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksRuntimeSoftwareConfigKernelsTag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2041,6 +2113,13 @@ func expandNotebooksRuntimeSoftwareConfig(v interface{}, d TerraformResourceData
 		transformed["installGpuDriver"] = transformedInstallGpuDriver
 	}
 
+	transformedUpgradeable, err := expandNotebooksRuntimeSoftwareConfigUpgradeable(original["upgradeable"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUpgradeable); val.IsValid() && !isEmptyValue(val) {
+		transformed["upgradeable"] = transformedUpgradeable
+	}
+
 	transformedCustomGpuDriverPath, err := expandNotebooksRuntimeSoftwareConfigCustomGpuDriverPath(original["custom_gpu_driver_path"], d, config)
 	if err != nil {
 		return nil, err
@@ -2053,6 +2132,20 @@ func expandNotebooksRuntimeSoftwareConfig(v interface{}, d TerraformResourceData
 		return nil, err
 	} else if val := reflect.ValueOf(transformedPostStartupScript); val.IsValid() && !isEmptyValue(val) {
 		transformed["postStartupScript"] = transformedPostStartupScript
+	}
+
+	transformedPostStartupScriptBehavior, err := expandNotebooksRuntimeSoftwareConfigPostStartupScriptBehavior(original["post_startup_script_behavior"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostStartupScriptBehavior); val.IsValid() && !isEmptyValue(val) {
+		transformed["postStartupScriptBehavior"] = transformedPostStartupScriptBehavior
+	}
+
+	transformedKernels, err := expandNotebooksRuntimeSoftwareConfigKernels(original["kernels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKernels); val.IsValid() && !isEmptyValue(val) {
+		transformed["kernels"] = transformedKernels
 	}
 
 	return transformed, nil
@@ -2078,10 +2171,55 @@ func expandNotebooksRuntimeSoftwareConfigInstallGpuDriver(v interface{}, d Terra
 	return v, nil
 }
 
+func expandNotebooksRuntimeSoftwareConfigUpgradeable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNotebooksRuntimeSoftwareConfigCustomGpuDriverPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandNotebooksRuntimeSoftwareConfigPostStartupScript(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksRuntimeSoftwareConfigPostStartupScriptBehavior(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksRuntimeSoftwareConfigKernels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedRepository, err := expandNotebooksRuntimeSoftwareConfigKernelsRepository(original["repository"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRepository); val.IsValid() && !isEmptyValue(val) {
+			transformed["repository"] = transformedRepository
+		}
+
+		transformedTag, err := expandNotebooksRuntimeSoftwareConfigKernelsTag(original["tag"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTag); val.IsValid() && !isEmptyValue(val) {
+			transformed["tag"] = transformedTag
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNotebooksRuntimeSoftwareConfigKernelsRepository(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksRuntimeSoftwareConfigKernelsTag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
