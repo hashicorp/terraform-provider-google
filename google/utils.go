@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -524,4 +525,29 @@ func fake404(reasonResourceType, resourceName string) *googleapi.Error {
 		Code:    404,
 		Message: fmt.Sprintf("%v object %v not found", reasonResourceType, resourceName),
 	}
+}
+
+// validate name of the gcs bucket.
+func checkGCSName(name string) error {
+	MAX_LENGTH := 63
+	var err error
+	for _, str := range strings.Split(name, ".") {
+		strLen := len(str)
+		fmt.Println(str)
+		if strLen > MAX_LENGTH {
+			return fmt.Errorf("error: maximum length exceeded %v\n", str)
+		}
+		valid, _ := regexp.MatchString("^[a-z0-9_]+(-[a-z0-9]+)*$", str)
+		if !valid {
+			return fmt.Errorf("error: string validation failed %v\n", str)
+		}
+		gPrefix := strings.HasPrefix(str, "goog")
+		if gPrefix {
+			return fmt.Errorf("error: string cannot start with %q %v\n", "goog", str)
+		}
+		if err != nil {
+			break
+		}
+	}
+	return nil
 }

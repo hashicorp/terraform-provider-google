@@ -395,6 +395,9 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Get the bucket and location
 	bucket := d.Get("name").(string)
+	if err := checkGCSName(bucket); err != nil {
+		return err
+	}
 	location := d.Get("location").(string)
 
 	// Create a bucket, setting the labels, location and name.
