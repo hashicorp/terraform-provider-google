@@ -128,6 +128,8 @@ The following arguments are supported:
 
 * `image` - The image from which this disk was initialised.
 
+* `labels` - A set of key/value label pairs assigned to the disk.
+
 <a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
 * `interface` - The disk interface used for attaching this disk. One of `SCSI` or `NVME`.
