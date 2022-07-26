@@ -50,6 +50,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * bigquery: fixed case-sensitive for `user_by_email` and `group_by_email` on `google_bigquery_dataset_access` ([#12029](https://github.com/hashicorp/terraform-provider-google/pull/12029))
+* clouddeploy: fixed permadiff on `execution_configs` in `google_clouddeploy_target` resource ([#12033](https://github.com/hashicorp/terraform-provider-google/pull/12033))
 * cloudscheduler: fixed a diff on the last slash of uri on `google_cloud_scheduler_job` ([#12027](https://github.com/hashicorp/terraform-provider-google/pull/12027))
 * compute: fixed force recreation on `provisioned_iops` of `google_compute_disk` ([#12058](https://github.com/hashicorp/terraform-provider-google/pull/12058))
 * compute: fixed missing `network_interface.0.ipv6_access_config.0.external_ipv6` output on `google_compute_instance` ([#12072](https://github.com/hashicorp/terraform-provider-google/pull/12072))
