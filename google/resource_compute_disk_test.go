@@ -171,12 +171,92 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "different-cloud/debian-8",
 			ExpectDiffSuppress: false,
 		},
+		// arm images
+		"matching image opensuse arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/opensuse-cloud/global/images/opensuse-leap-15-4-v20220713-arm64",
+			New:                "opensuse-leap-arm64",
+			ExpectDiffSuppress: true,
+		},
+		"matching image sles arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/suse-cloud/global/images/sles-15-sp4-v20220713-arm64",
+			New:                "sles-15-arm64",
+			ExpectDiffSuppress: true,
+		},
+		"matching image ubuntu arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-arm64-v20220712",
+			New:                "ubuntu-1804-lts-arm64",
+			ExpectDiffSuppress: true,
+		},
+		"matching image ubuntu-minimal arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2004-focal-arm64-v20220713",
+			New:                "ubuntu-minimal-2004-lts-arm64",
+			ExpectDiffSuppress: true,
+		},
+		"matching image debian arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-11-bullseye-arm64-v20220719",
+			New:                "debian-11-arm64",
+			ExpectDiffSuppress: true,
+		},
+		"different architecture image opensuse arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/opensuse-cloud/global/images/opensuse-leap-15-4-v20220713-arm64",
+			New:                "opensuse-leap",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image sles arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/suse-cloud/global/images/sles-15-sp4-v20220713-arm64",
+			New:                "sles-15",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image ubuntu arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-arm64-v20220712",
+			New:                "ubuntu-1804-lts",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image ubuntu-minimal arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2004-focal-arm64-v20220713",
+			New:                "ubuntu-minimal-2004-lts",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image debian arm64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-11-bullseye-arm64-v20220719",
+			New:                "debian-11",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image opensuse arm64 family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/opensuse-cloud/global/images/opensuse-leap-15-2-v20200702",
+			New:                "opensuse-leap-arm64",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image sles arm64 family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/suse-cloud/global/images/sles-15-sp4-v20220722-x86-64",
+			New:                "sles-15-arm64",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image ubuntu arm64 family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20220712",
+			New:                "ubuntu-1804-lts-arm64",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image ubuntu-minimal arm64 family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2004-focal-v20220713",
+			New:                "ubuntu-minimal-2004-lts-arm64",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image debian arm64 family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-11-bullseye-v20220719",
+			New:                "debian-11-arm64",
+			ExpectDiffSuppress: false,
+		},
 	}
 
 	for tn, tc := range cases {
-		if diskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
-			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
-		}
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			if diskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+				t.Fatalf("%q => %q expect DiffSuppress to return %t", tc.Old, tc.New, tc.ExpectDiffSuppress)
+			}
+		})
 	}
 }
 

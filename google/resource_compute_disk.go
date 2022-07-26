@@ -141,8 +141,14 @@ func diskImageEquals(oldImageName, newImageName string) bool {
 func diskImageFamilyEquals(imageName, familyName string) bool {
 	// Handles the case when the image name includes the family name
 	// e.g. image name: debian-9-drawfork-v20180109, family name: debian-9
-	if strings.Contains(imageName, familyName) {
-		return true
+	// We have to check for arm64 because of cases like:
+	// image name: opensuse-leap-15-4-v20220713-arm64, family name: opensuse-leap (should not suppress)
+	if strings.Contains(imageName, strings.TrimSuffix(familyName, "-arm64")) {
+		if strings.Contains(imageName, "-arm64") {
+			return strings.HasSuffix(familyName, "-arm64")
+		} else {
+			return !strings.HasSuffix(familyName, "-arm64")
+		}
 	}
 
 	if suppressCanonicalFamilyDiff(imageName, familyName) {
@@ -167,8 +173,13 @@ func diskImageFamilyEquals(imageName, familyName string) bool {
 // e.g. image: ubuntu-1404-trusty-v20180122, family: ubuntu-1404-lts
 func suppressCanonicalFamilyDiff(imageName, familyName string) bool {
 	parts := canonicalUbuntuLtsImage.FindStringSubmatch(imageName)
-	if len(parts) == 3 {
-		f := fmt.Sprintf("ubuntu-%s%s-lts", parts[1], parts[2])
+	if len(parts) == 4 {
+		var f string
+		if parts[3] == "" {
+			f = fmt.Sprintf("ubuntu-%s%s-lts", parts[1], parts[2])
+		} else {
+			f = fmt.Sprintf("ubuntu-%s%s-lts-%s", parts[1], parts[2], parts[3])
+		}
 		if f == familyName {
 			return true
 		}
