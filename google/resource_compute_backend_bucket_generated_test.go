@@ -279,30 +279,71 @@ func testAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(context m
 	return Nprintf(`
 # CDN load balancer with Cloud bucket as backend
 
-
-
-# VPC
-resource "google_compute_network" "default" {
-  name                    = "tf-test-cdn-network%{random_suffix}"
-  auto_create_subnetworks = false
+# Cloud Storage bucket
+resource "google_storage_bucket" "default" {
+  name                        = "tf-test-my-bucket%{random_suffix}"
+  location                    = "us-east1"
+  uniform_bucket_level_access = true
+  storage_class               = "STANDARD"
+  // delete bucket and contents on destroy.
+  force_destroy = true
+  // Assign specialty files
+  website {
+    main_page_suffix = "index.html"
+    not_found_page   = "404.html"
+  }
 }
 
-# backend subnet
-resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-cdn-subnet%{random_suffix}"
-  ip_cidr_range = "10.0.1.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.id
+
+# make bucket public
+resource "google_storage_bucket_iam_member" "default" {
+  bucket = google_storage_bucket.default.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
+}
+
+resource "google_storage_bucket_object" "index_page" {
+  name    = "tf-test-index-page%{random_suffix}"
+  bucket  = google_storage_bucket.default.name
+  content = <<-EOT
+    <html><body>
+    <h1>Congratulations on setting up Google Cloud CDN with Storage backend!</h1>
+    </body></html>
+  EOT
+}
+
+resource "google_storage_bucket_object" "error_page" {
+  name    = "tf-test-404-page%{random_suffix}"
+  bucket  = google_storage_bucket.default.name
+  content = <<-EOT
+    <html><body>
+    <h1>404 Error: Object you are looking for is no longer available!</h1>
+    </body></html>
+  EOT
+}
+
+# image object for testing, try to access http://<your_lb_ip_address>/test.jpg
+resource "google_storage_bucket_object" "test_image" {
+  name = "tf-test-test-object%{random_suffix}"
+  # Uncomment and add valid path to an object.
+  #  source       = "/path/to/an/object"
+  #  content_type = "image/jpeg"
+
+  # Delete after uncommenting above source and content_type attributes
+  content      = "Data as string to be uploaded"
+  content_type = "text/plain"
+
+  bucket = google_storage_bucket.default.name
 }
 
 # reserve IP address
 resource "google_compute_global_address" "default" {
-  name     = "tf-test-cdn-static-ip%{random_suffix}"
+  name = "tf-test-example-ip%{random_suffix}"
 }
 
 # forwarding rule
 resource "google_compute_global_forwarding_rule" "default" {
-  name                  = "tf-test-cdn-forwarding-rule%{random_suffix}"
+  name                  = "tf-test-http-lb-forwarding-rule%{random_suffix}"
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
   port_range            = "80"
@@ -312,19 +353,19 @@ resource "google_compute_global_forwarding_rule" "default" {
 
 # http proxy
 resource "google_compute_target_http_proxy" "default" {
-  name     = "tf-test-cdn-target-http-proxy%{random_suffix}"
-  url_map  = google_compute_url_map.default.id
+  name    = "tf-test-http-lb-proxy%{random_suffix}"
+  url_map = google_compute_url_map.default.id
 }
 
 # url map
 resource "google_compute_url_map" "default" {
-  name            = "tf-test-cdn-url-map%{random_suffix}"
+  name            = "tf-test-http-lb%{random_suffix}"
   default_service = google_compute_backend_bucket.default.id
 }
 
 # backend bucket with CDN policy with default ttl settings
 resource "google_compute_backend_bucket" "default" {
-  name        = "tf-test-image-backend-bucket%{random_suffix}"
+  name        = "tf-test-cat-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
   bucket_name = google_storage_bucket.default.name
   enable_cdn  = true
@@ -337,62 +378,6 @@ resource "google_compute_backend_bucket" "default" {
     serve_while_stale = 86400
   }
 }
-
-# Cloud Storage bucket
-resource "google_storage_bucket" "default" {
-  name                        = "tf-test-cdn-backend-storage-bucket%{random_suffix}"
-  location                    = "US"
-  uniform_bucket_level_access = true
-  // delete bucket and contents on destroy.
-  force_destroy = true
-  // Assign specialty files
-  website {
-    main_page_suffix = "index.html"
-    not_found_page   = "404.html"
-  }
-}
-
-# make bucket public
-resource "google_storage_bucket_iam_member" "default" {
-  bucket = google_storage_bucket.default.name
-  role   = "roles/storage.objectViewer"
-  member = "allUsers"
-}
-
-resource "google_storage_bucket_object" "index_page" {
-  name       = "tf-test-index-page%{random_suffix}"
-  bucket     = google_storage_bucket.default.name
-  content = <<-EOT
-    <html><body>
-    <h1>Congratulations on setting up Google Cloud CDN with Storage backend!</h1>
-    </body></html>
-  EOT
-}
-
-resource "google_storage_bucket_object" "error_page" {
-  name       = "tf-test-404-page%{random_suffix}"
-  bucket     = google_storage_bucket.default.name
-  content  = <<-EOT
-    <html><body>
-    <h1>404 Error: Object you are looking for is no longer available!</h1>
-    </body></html>
-  EOT
-}
-
-# image object for testing, try to access http://<your_lb_ip_address>/test.jpg
-resource "google_storage_bucket_object" "test_image" {
-  name         = "tf-test-test-object%{random_suffix}"
-# Uncomment and add valid path to an object.
-#  source       = "/path/to/an/object"
-#  content_type = "image/jpeg"
-
-# Delete after uncommenting above source and content_type attributes
-  content      = "Data as string to be uploaded"
-  content_type = "text/plain"
-
-  bucket       = google_storage_bucket.default.name
-}
-
 `, context)
 }
 
