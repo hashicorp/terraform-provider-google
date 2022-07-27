@@ -84,6 +84,34 @@ resource "google_cloud_scheduler_job" "job" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scheduler_job_paused&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Scheduler Job Paused
+
+
+```hcl
+resource "google_cloud_scheduler_job" "job" {
+  paused           = true
+  name             = "test-job"
+  description      = "test http job with updated fields"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scheduler_job_app_engine&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -199,6 +227,10 @@ The following arguments are supported:
   (Optional)
   Specifies the time zone to be used in interpreting schedule.
   The value of this field must be a time zone name from the tz database.
+
+* `paused` -
+  (Optional)
+  Sets the job to a paused state. Jobs default to being enabled when this property is not set.
 
 * `attempt_deadline` -
   (Optional)
@@ -412,6 +444,9 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/jobs/{{name}}`
+
+* `state` -
+  State of the job.
 
 
 ## Timeouts

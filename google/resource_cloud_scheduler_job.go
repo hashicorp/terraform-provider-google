@@ -307,6 +307,12 @@ the URI specified in target will be used.`,
 				},
 				ExactlyOneOf: []string{"pubsub_target", "http_target", "app_engine_http_target"},
 			},
+			"paused": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				Description: `Sets the job to a paused state. Jobs default to being enabled when this property is not set.`,
+			},
 			"pubsub_target": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -419,6 +425,11 @@ Values greater than 5 and negative values are not allowed.`,
 The value of this field must be a time zone name from the tz database.`,
 				Default: "Etc/UTC",
 			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State of the job.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -462,6 +473,12 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(timeZoneProp)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
 		obj["timeZone"] = timeZoneProp
 	}
+	pausedProp, err := expandCloudSchedulerJobPaused(d.Get("paused"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("paused"); !isEmptyValue(reflect.ValueOf(pausedProp)) && (ok || !reflect.DeepEqual(v, pausedProp)) {
+		obj["paused"] = pausedProp
+	}
 	attemptDeadlineProp, err := expandCloudSchedulerJobAttemptDeadline(d.Get("attempt_deadline"), d, config)
 	if err != nil {
 		return err
@@ -491,6 +508,11 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("http_target"); !isEmptyValue(reflect.ValueOf(httpTargetProp)) && (ok || !reflect.DeepEqual(v, httpTargetProp)) {
 		obj["httpTarget"] = httpTargetProp
+	}
+
+	obj, err = resourceCloudSchedulerJobEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs")
@@ -523,6 +545,28 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	endpoint := "resume" // Default to enabled
+	logSuccessMsg := "Job state has been set to ENABLED"
+	if paused, pausedOk := d.GetOk("paused"); pausedOk && paused.(bool) {
+		endpoint = "pause"
+		logSuccessMsg = "Job state has been set to PAUSED"
+	}
+
+	linkTmpl := fmt.Sprintf("{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}:%s", endpoint)
+	url, err = replaceVars(d, config, linkTmpl)
+	if err != nil {
+		return err
+	}
+
+	emptyReqBody := make(map[string]interface{})
+
+	_, err = sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, emptyReqBody, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("Error setting Cloud Scheduler Job status: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished updating Job %q status: %s", d.Id(), logSuccessMsg)
 
 	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
 
@@ -583,6 +627,12 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("time_zone", flattenCloudSchedulerJobTimeZone(res["timeZone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
+	if err := d.Set("state", flattenCloudSchedulerJobState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("paused", flattenCloudSchedulerJobPaused(res["paused"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
 	if err := d.Set("attempt_deadline", flattenCloudSchedulerJobAttemptDeadline(res["attemptDeadline"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
@@ -636,6 +686,12 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
 		obj["timeZone"] = timeZoneProp
 	}
+	pausedProp, err := expandCloudSchedulerJobPaused(d.Get("paused"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("paused"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pausedProp)) {
+		obj["paused"] = pausedProp
+	}
 	attemptDeadlineProp, err := expandCloudSchedulerJobAttemptDeadline(d.Get("attempt_deadline"), d, config)
 	if err != nil {
 		return err
@@ -667,6 +723,11 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["httpTarget"] = httpTargetProp
 	}
 
+	obj, err = resourceCloudSchedulerJobUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return err
@@ -687,6 +748,31 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[DEBUG] Finished updating Job %q: %#v", d.Id(), res)
 	}
 
+	if d.HasChange("paused") {
+		endpoint := "resume" // Default to enabled
+		logSuccessMsg := "Job state has been set to ENABLED"
+		if paused, pausedOk := d.GetOk("paused"); pausedOk {
+			if paused.(bool) {
+				endpoint = "pause"
+				logSuccessMsg = "Job state has been set to PAUSED"
+			}
+		}
+
+		linkTmpl := fmt.Sprintf("{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}:%s", endpoint)
+		url, err = replaceVars(d, config, linkTmpl)
+		if err != nil {
+			return err
+		}
+
+		emptyReqBody := make(map[string]interface{})
+
+		_, err = sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, emptyReqBody, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error setting Cloud Scheduler Job status: %s", err)
+		}
+
+		log.Printf("[DEBUG] Finished updating Job %q status: %s", d.Id(), logSuccessMsg)
+	}
 	return resourceCloudSchedulerJobRead(d, meta)
 }
 
@@ -765,6 +851,21 @@ func flattenCloudSchedulerJobSchedule(v interface{}, d *schema.ResourceData, con
 
 func flattenCloudSchedulerJobTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudSchedulerJobState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudSchedulerJobPaused(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	state := d.Get("state")
+	if state == "PAUSED" {
+		return true
+	}
+	if state == "ENABLED" {
+		return false
+	}
+	return false // Job has an error state that's not paused or enabled
 }
 
 func flattenCloudSchedulerJobAttemptDeadline(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1063,6 +1164,10 @@ func expandCloudSchedulerJobSchedule(v interface{}, d TerraformResourceData, con
 }
 
 func expandCloudSchedulerJobTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSchedulerJobPaused(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1447,4 +1552,14 @@ func expandCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}
 
 func expandCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceCloudSchedulerJobEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "paused") // Field doesn't exist in API
+	return obj, nil
+}
+
+func resourceCloudSchedulerJobUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "paused") // Field doesn't exist in API
+	return obj, nil
 }
