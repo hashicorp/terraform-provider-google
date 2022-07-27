@@ -5,7 +5,7 @@ description: |-
   Contains information about a GKEHub Feature.
 ---
 
-# google\_gkehub\_feature
+# google\_gke\_hub\_feature
 
 Contains information about a GKEHub Feature. The google_gke_hub is the Fleet API.
 
