@@ -153,7 +153,7 @@ resource "google_cloud_run_service" "gcr_service" {
         # Limit scale up to prevent any cost blow outs!
         "autoscaling.knative.dev/maxScale" = "5"
         # Use the VPC Connector
-        "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector.name
+        "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector.id
         # all egress from the service should go through the VPC Connector
         "run.googleapis.com/vpc-access-egress" = "all-traffic"
       }
