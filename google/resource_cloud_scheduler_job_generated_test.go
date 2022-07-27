@@ -115,6 +115,54 @@ resource "google_cloud_scheduler_job" "job" {
 `, context)
 }
 
+func TestAccCloudSchedulerJob_schedulerJobPausedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSchedulerJob_schedulerJobPausedExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_scheduler_job.job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccCloudSchedulerJob_schedulerJobPausedExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloud_scheduler_job" "job" {
+  paused           = true
+  name             = "tf-test-test-job%{random_suffix}"
+  description      = "test http job with updated fields"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
+  }
+}
+`, context)
+}
+
 func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 	t.Parallel()
 

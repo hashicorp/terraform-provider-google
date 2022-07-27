@@ -1,0 +1,6 @@
+```release-note:enhancement
+scheduler: Added `state` output field to `google_cloud_scheduler_job`
+```
+```release-note:enhancement
+scheduler: Added `paused` field to `google_cloud_scheduler_job`
+```
