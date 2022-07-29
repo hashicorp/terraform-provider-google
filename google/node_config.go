@@ -206,7 +206,7 @@ func schemaNodeConfig() *schema.Schema {
 							},
 							"key": {
 								Type:        schema.TypeString,
-								Required:    true,
+								Optional:    true,
 								ForceNew:    true,
 								Description: `The label key of a reservation resource.`,
 							},
