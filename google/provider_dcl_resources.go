@@ -34,6 +34,7 @@ var dclResources = map[string]*schema.Resource{
 	"google_container_azure_client":              resourceContainerAzureClient(),
 	"google_container_azure_cluster":             resourceContainerAzureCluster(),
 	"google_container_azure_node_pool":           resourceContainerAzureNodePool(),
+	"google_dataplex_asset":                      resourceDataplexAsset(),
 	"google_dataplex_lake":                       resourceDataplexLake(),
 	"google_dataplex_zone":                       resourceDataplexZone(),
 	"google_dataproc_workflow_template":          resourceDataprocWorkflowTemplate(),
