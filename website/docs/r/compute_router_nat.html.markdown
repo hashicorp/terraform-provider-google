@@ -201,19 +201,10 @@ The following arguments are supported:
   Timeout (in seconds) for TCP transitory connections.
   Defaults to 30s if not set.
 
-* `tcp_time_wait_timeout_sec` -
-  (Optional)
-  Timeout (in seconds) for TCP connections that are in TIME_WAIT state. Defaults to 120s if not set.
-
 * `log_config` -
   (Optional)
   Configuration for logging on NAT
   Structure is [documented below](#nested_log_config).
-
-* `rules` -
-  (Optional)
-  A list of rules associated with this NAT.
-  Structure is [documented below](#nested_rules).
 
 * `enable_endpoint_independent_mapping` -
   (Optional)
@@ -258,41 +249,6 @@ The following arguments are supported:
   (Required)
   Specifies the desired filtering of logs on this NAT.
   Possible values are `ERRORS_ONLY`, `TRANSLATIONS_ONLY`, and `ALL`.
-
-<a name="nested_rules"></a>The `rules` block supports:
-
-* `rule_number` -
-  (Required)
-  An integer uniquely identifying a rule in the list. The rule number must be a positive value between 0 and 65000, and must be unique among rules within a NAT.
-
-* `description` -
-  (Optional)
-  An optional description of this rule.
-
-* `match` -
-  (Required)
-  CEL expression that specifies the match condition that egress traffic from a VM is evaluated against. If it evaluates to true, the corresponding action is enforced.
-  The following examples are valid match expressions for public NAT:
-  "inIpRange(destination.ip, '1.1.0.0/16') || inIpRange(destination.ip, '2.2.0.0/16')"
-  "destination.ip == '1.1.0.1' || destination.ip == '8.8.8.8'"
-  The following example is a valid match expression for private NAT:
-  "nexthop.hub == 'https://networkconnectivity.googleapis.com/v1alpha1/projects/my-project/global/hub/hub-1'"
-
-* `action` -
-  (Required)
-  The action to be enforced for traffic that matches this rule.
-  Structure is [documented below](#nested_action).
-
-
-<a name="nested_action"></a>The `action` block supports:
-
-* `source_nat_active_ips` -
-  (Optional)
-  A list of URLs of the IP resources used for this NAT rule. These IP addresses must be valid static external IP addresses assigned to the project. This field is used for public NAT.
-
-* `source_nat_drain_ips` -
-  (Optional)
-  A list of URLs of the IP resources to be drained. These IPs must be valid static external IPs that have been assigned to the NAT. These IPs should be used for updating/patching a NAT rule only. This field is used for public NAT.
 
 ## Attributes Reference
 
