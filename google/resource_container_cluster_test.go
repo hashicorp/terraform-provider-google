@@ -1955,6 +1955,48 @@ func TestAccContainerCluster_errorNoClusterCreated(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMeshCertificatesConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	pid := getTestProjectFromEnv()
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMeshCertificatesConfigEnabled(pid, clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_mesh_certificates_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+			},
+			{
+				Config: testAccContainerCluster_updateMeshCertificatesConfig(pid, clusterName, true),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_mesh_certificates_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+			},
+			{
+				Config: testAccContainerCluster_updateMeshCertificatesConfig(pid, clusterName, false),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_mesh_certificates_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withDatabaseEncryption(t *testing.T) {
 	t.Parallel()
 
@@ -4137,6 +4179,47 @@ resource "google_container_cluster" "with_resource_labels" {
   initial_node_count = 1
 }
 `, location)
+}
+
+func testAccContainerCluster_withMeshCertificatesConfigEnabled(projectID string, clusterName string) string {
+	return fmt.Sprintf(`
+	data "google_project" "project" {
+		project_id = "%s"
+	}
+
+	resource "google_container_cluster" "with_mesh_certificates_config" {
+	name               = "%s"
+	location           = "us-central1-a"
+	initial_node_count = 1
+	remove_default_node_pool = true
+	workload_identity_config {
+		workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+	}
+	mesh_certificates {
+		enable_certificates = true
+	}
+	}
+`, projectID, clusterName)
+}
+
+func testAccContainerCluster_updateMeshCertificatesConfig(projectID string, clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+	data "google_project" "project" {
+  		project_id = "%s"
+	}
+
+	resource "google_container_cluster" "with_mesh_certificates_config" {
+		name               = "%s"
+		location           = "us-central1-a"
+		initial_node_count = 1
+		remove_default_node_pool = true
+		workload_identity_config {
+			workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+			}
+			mesh_certificates {
+			enable_certificates = %v
+			}
+	}`, projectID, clusterName, enabled)
 }
 
 func testAccContainerCluster_withDatabaseEncryption(clusterName string, kmsData bootstrappedKMS) string {
