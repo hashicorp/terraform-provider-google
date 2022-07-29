@@ -145,7 +145,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/global/memberships/{{membership_id}}`
 
 * `name` -
   The unique identifier of the membership.
@@ -166,7 +166,9 @@ This resource provides the following
 Membership can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_gke_hub_membership.default {{name}}
+$ terraform import google_gke_hub_membership.default projects/{{project}}/locations/global/memberships/{{membership_id}}
+$ terraform import google_gke_hub_membership.default {{project}}/{{membership_id}}
+$ terraform import google_gke_hub_membership.default {{membership_id}}
 ```
 
 ## User Project Overrides
