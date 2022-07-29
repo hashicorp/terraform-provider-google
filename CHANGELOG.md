@@ -4,21 +4,21 @@ FEATURES:
 * **New Resource:** `google_dataplex_zone` ([#12146](https://github.com/hashicorp/terraform-provider-google/pull/12146))
 
 IMPROVEMENTS:
-* bucket: added support for `matches_prefix` and `matches_suffix`` in `condition` of a `lifecycle_rule` in  `google_storage_bucket` ([#12175](https://github.com/hashicorp/terraform-provider-google/pull/12175))
-* compute: Added `network` and `subnetwork` fields to `google_compute_region_network_endpoint_group` for PSC. ([#12176](https://github.com/hashicorp/terraform-provider-google/pull/12176))
-* compute: add `rules` and `tcp_time_wait_timeout_sec` to `google_compute_router_nat` ([#12174](https://github.com/hashicorp/terraform-provider-google/pull/12174))
-* container: Added field `boot_disk_kms_key` to `auto_provisioning_defaults` ([#12173](https://github.com/hashicorp/terraform-provider-google/pull/12173))
+* bucket: added support for `matches_prefix` and `matches_suffix` in `condition` of a `lifecycle_rule` in  `google_storage_bucket` ([#12175](https://github.com/hashicorp/terraform-provider-google/pull/12175))
+* compute: added `network` and `subnetwork` fields to `google_compute_region_network_endpoint_group` for PSC. ([#12176](https://github.com/hashicorp/terraform-provider-google/pull/12176))
+* compute: added `rules` and `tcp_time_wait_timeout_sec` to `google_compute_router_nat` ([#12174](https://github.com/hashicorp/terraform-provider-google/pull/12174))
+* container: added field `boot_disk_kms_key` to `auto_provisioning_defaults` ([#12173](https://github.com/hashicorp/terraform-provider-google/pull/12173))
 * notebooks: added `bootDiskType` support for `PD_EXTREME` in `google_notebooks_instance` ([#12181](https://github.com/hashicorp/terraform-provider-google/pull/12181))
-* notebooks: added `softwareConfig.upgradeable, `softwareConfig.postStartupScriptBehavior`, `softwareConfig.kernels` in `google_notebooks_runtime` ([#12181](https://github.com/hashicorp/terraform-provider-google/pull/12181))
+* notebooks: added `softwareConfig.upgradeable`, `softwareConfig.postStartupScriptBehavior`, `softwareConfig.kernels` in `google_notebooks_runtime` ([#12181](https://github.com/hashicorp/terraform-provider-google/pull/12181))
 * notebooks: promoted `nicType` and `reservationAffinity` in `google_notebooks_instance` to GA ([#12181](https://github.com/hashicorp/terraform-provider-google/pull/12181))
-* storage: Added name validation for `google_storage_bucket` ([#12183](https://github.com/hashicorp/terraform-provider-google/pull/12183))
+* storage: added name validation for `google_storage_bucket` ([#12183](https://github.com/hashicorp/terraform-provider-google/pull/12183))
 
 BUG FIXES:
 * Cloud IAM: fixed incorrect basePath for `IAMBetaBasePathKey` on `google_iam_workload_identity_pool` (ga) ([#12145](https://github.com/hashicorp/terraform-provider-google/pull/12145))
 * compute: fixed perma-diff on `google_compute_disk` for new arm64 images ([#12184](https://github.com/hashicorp/terraform-provider-google/pull/12184))
 * dns: fixed a bug where `google_dns_record_set` would create an inconsistent plan when using interpolated values in `rrdatas` ([#12157](https://github.com/hashicorp/terraform-provider-google/pull/12157))
 * kms: fixed setting of resource id post-import for `google_kms_crypto_key` ([#12164](https://github.com/hashicorp/terraform-provider-google/pull/12164))
-* provider: fixed bug where user-agent was showing "dev" rather than the provider version ([#12137](https://github.com/hashicorp/terraform-provider-google/pull/12137))
+* provider: fixed a bug where user-agent was showing "dev" rather than the provider version ([#12137](https://github.com/hashicorp/terraform-provider-google/pull/12137))
 
 ## 4.30.0 (July 25, 2022)
 
