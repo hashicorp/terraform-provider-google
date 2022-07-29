@@ -130,7 +130,7 @@ func testAccCheckGKEHubMembershipDestroyProducer(t *testing.T) func(s *terraform
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{GKEHubBasePath}}{{name}}")
+			url, err := replaceVarsForTest(config, rs, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 			if err != nil {
 				return err
 			}

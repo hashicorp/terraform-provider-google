@@ -184,7 +184,7 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -207,7 +207,7 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = replaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -225,7 +225,7 @@ func resourceGKEHubMembershipRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{GKEHubBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{GKEHubBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -391,13 +391,15 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 func resourceGKEHubMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"(?P<name>.+)",
+		"projects/(?P<project>[^/]+)/locations/global/memberships/(?P<membership_id>[^/]+)",
+		"(?P<project>[^/]+)/(?P<membership_id>[^/]+)",
+		"(?P<membership_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
