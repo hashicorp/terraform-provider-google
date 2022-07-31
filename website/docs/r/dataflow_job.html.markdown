@@ -129,4 +129,8 @@ The following arguments are supported:
 
 ## Import
 
-This resource does not support import.
+Dataflow jobs can be imported using the job `id` e.g.
+
+```
+$ terraform import google_dataflow_job.example 2022-07-31_06_25_42-11926927532632678660
+```
