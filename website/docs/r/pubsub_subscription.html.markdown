@@ -145,6 +145,66 @@ resource "google_pubsub_subscription" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_subscription_push_bq&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Push Bq
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.name
+
+  bigquery_config {
+    table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+  }
+
+  depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
+}
+
+data "google_project" "project" {
+}
+
+resource "google_project_iam_member" "viewer" {
+  project = data.google_project.project.project_id
+  role   = "roles/bigquery.metadataViewer"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "editor" {
+  project = data.google_project.project.project_id
+  role   = "roles/bigquery.dataEditor"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "example_dataset"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "example_table"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  schema = <<EOF
+[
+  {
+    "name": "data",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The data"
+  }
+]
+EOF
+}
+```
 
 ## Argument Reference
 
@@ -166,6 +226,13 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   A set of key/value label pairs to assign to this Subscription.
+
+* `bigquery_config` -
+  (Optional)
+  If delivery to BigQuery is used with this subscription, this field is used to configure it.
+  Either pushConfig or bigQueryConfig can be set, but not both.
+  If both are empty, then the subscriber will pull and ack messages using API methods.
+  Structure is [documented below](#nested_bigquery_config).
 
 * `push_config` -
   (Optional)
@@ -264,6 +331,26 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_bigquery_config"></a>The `bigquery_config` block supports:
+
+* `table` -
+  (Required)
+  The name of the table to which to write data, of the form {projectId}.{datasetId}.{tableId}
+
+* `use_topic_schema` -
+  (Optional)
+  When true, use the topic's schema as the columns to write to in BigQuery, if it exists.
+
+* `write_metadata` -
+  (Optional)
+  When true, write the subscription name, messageId, publishTime, attributes, and orderingKey to additional columns in the table.
+  The subscription name, messageId, and publishTime fields are put in their own columns while all other message properties (other than data) are written to a JSON object in the attributes column.
+
+* `drop_unknown_fields` -
+  (Optional)
+  When true and useTopicSchema is true, any fields that are a part of the topic schema that are not part of the BigQuery table schema are dropped when writing to BigQuery.
+  Otherwise, the schemas must be kept in sync and any messages with extra fields are not written and remain in the subscription's backlog.
 
 <a name="nested_push_config"></a>The `push_config` block supports:
 
