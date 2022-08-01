@@ -1,6 +1,7 @@
 TEST?=$$(go list ./... | grep -v github.com/hashicorp/terraform-provider-google/scripts)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=google
+DIR_NAME=google
 
 default: build
 
@@ -15,7 +16,7 @@ testacc: fmtcheck generate
 
 fmt:
 	@echo "==> Fixing source code with gofmt..."
-	gofmt -w -s ./$(PKG_NAME)
+	gofmt -w -s ./$(DIR_NAME)
 
 # Currently required by tf-deploy compile
 fmtcheck:
@@ -24,7 +25,7 @@ fmtcheck:
 
 lint:
 	@echo "==> Checking source code against linters..."
-	@golangci-lint run ./$(PKG_NAME)
+	@GOGC=off golangci-lint run -v ./$(DIR_NAME)
 
 tools:
 	@echo "==> installing required tooling..."
@@ -38,7 +39,7 @@ generate:
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
 		echo "ERROR: Set TEST to a specific package. For example,"; \
-		echo "  make test-compile TEST=./$(PKG_NAME)"; \
+		echo "  make test-compile TEST=./$(DIR_NAME)"; \
 		exit 1; \
 	fi
 	go test -c $(TEST) $(TESTARGS)
