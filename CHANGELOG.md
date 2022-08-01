@@ -6,7 +6,7 @@ FEATURES:
 IMPROVEMENTS:
 * bucket: added support for `matches_prefix` and `matches_suffix` in `condition` of a `lifecycle_rule` in  `google_storage_bucket` ([#12175](https://github.com/hashicorp/terraform-provider-google/pull/12175))
 * compute: added `network` and `subnetwork` fields to `google_compute_region_network_endpoint_group` for PSC. ([#12176](https://github.com/hashicorp/terraform-provider-google/pull/12176))
-* container: added field `boot_disk_kms_key` to `auto_provisioning_defaults` ([#12173](https://github.com/hashicorp/terraform-provider-google/pull/12173))
+* container: added field `boot_disk_kms_key` to `auto_provisioning_defaults` in `google_container_cluster` ([#12173](https://github.com/hashicorp/terraform-provider-google/pull/12173))
 * notebooks: added `bootDiskType` support for `PD_EXTREME` in `google_notebooks_instance` ([#12181](https://github.com/hashicorp/terraform-provider-google/pull/12181))
 * notebooks: added `softwareConfig.upgradeable`, `softwareConfig.postStartupScriptBehavior`, `softwareConfig.kernels` in `google_notebooks_runtime` ([#12181](https://github.com/hashicorp/terraform-provider-google/pull/12181))
 * notebooks: promoted `nicType` and `reservationAffinity` in `google_notebooks_instance` to GA ([#12181](https://github.com/hashicorp/terraform-provider-google/pull/12181))
