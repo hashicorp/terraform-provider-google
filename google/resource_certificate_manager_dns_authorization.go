@@ -66,7 +66,7 @@ and all following characters must be a dash, underscore, letter or digit.`,
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: `Set of label tags associated with the EdgeCache resource.`,
+				Description: `Set of label tags associated with the DNS Authorization resource.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"dns_resource_record": {
@@ -83,9 +83,10 @@ certificate.`,
 							Description: `Data of the DNS Resource Record.`,
 						},
 						"name": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Fully qualified name of the DNS Resource Record.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Fully qualified name of the DNS Resource Record.
+E.g. '_acme-challenge.example.com'.`,
 						},
 						"type": {
 							Type:        schema.TypeString,

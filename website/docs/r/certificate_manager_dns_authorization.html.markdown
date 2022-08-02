@@ -15,12 +15,12 @@
 subcategory: "Certificate manager"
 page_title: "Google: google_certificate_manager_dns_authorization"
 description: |-
-  DnsAuthorization represents a HTTP-reachable backend for an DnsAuthorization.
+  DnsAuthorization represents a HTTP-reachable backend for a DnsAuthorization.
 ---
 
 # google\_certificate\_manager\_dns\_authorization
 
-DnsAuthorization represents a HTTP-reachable backend for an DnsAuthorization.
+DnsAuthorization represents a HTTP-reachable backend for a DnsAuthorization.
 
 
 
@@ -81,7 +81,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Set of label tags associated with the EdgeCache resource.
+  Set of label tags associated with the DNS Authorization resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -104,6 +104,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   Fully qualified name of the DNS Resource Record.
+  E.g. `_acme-challenge.example.com`.
 
 * `type` -
   Type of the DNS Resource Record.

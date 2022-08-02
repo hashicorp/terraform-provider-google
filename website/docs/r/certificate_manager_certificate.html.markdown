@@ -15,12 +15,12 @@
 subcategory: "Certificate manager"
 page_title: "Google: google_certificate_manager_certificate"
 description: |-
-  Certificate represents a HTTP-reachable backend for an Certificate.
+  Certificate represents a HTTP-reachable backend for a Certificate.
 ---
 
 # google\_certificate\_manager\_certificate
 
-Certificate represents a HTTP-reachable backend for an Certificate.
+Certificate represents a HTTP-reachable backend for a Certificate.
 
 
 
@@ -89,18 +89,16 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Set of label tags associated with the EdgeCache resource.
+  Set of label tags associated with the Certificate resource.
 
 * `scope` -
   (Optional)
   The scope of the certificate.
-  Certificates with default scope are served from core Google data centers.
+  DEFAULT: Certificates with default scope are served from core Google data centers.
   If unsure, choose this option.
-  Certificates with scope EDGE_CACHE are special-purposed certificates,
+  EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates,
   served from non-core Google data centers.
   Currently allowed only for managed certificates.
-  Default value is `DEFAULT`.
-  Possible values are `DEFAULT` and `EDGE_CACHE`.
 
 * `self_managed` -
   (Optional)
@@ -135,9 +133,6 @@ The following arguments are supported:
 
 <a name="nested_managed"></a>The `managed` block supports:
 
-* `state` -
-  State of the managed certificate resource.
-
 * `domains` -
   (Optional)
   The domains for which a managed SSL certificate will be generated.
@@ -146,6 +141,45 @@ The following arguments are supported:
 * `dns_authorizations` -
   (Optional)
   Authorizations that will be used for performing domain authorization
+
+* `state` -
+  A state of this Managed Certificate.
+
+* `provisioning_issue` -
+  Information about issues with provisioning this Managed Certificate.
+  Structure is [documented below](#nested_provisioning_issue).
+
+* `authorization_attempt_info` -
+  Detailed state of the latest authorization attempt for each domain
+  specified for this Managed Certificate.
+  Structure is [documented below](#nested_authorization_attempt_info).
+
+
+<a name="nested_provisioning_issue"></a>The `provisioning_issue` block contains:
+
+* `reason` -
+  Reason for provisioning failures.
+
+* `details` -
+  Human readable explanation about the issue. Provided to help address
+  the configuration issues.
+  Not guaranteed to be stable. For programmatic access use `reason` field.
+
+<a name="nested_authorization_attempt_info"></a>The `authorization_attempt_info` block contains:
+
+* `domain` -
+  Domain name of the authorization attempt.
+
+* `state` -
+  State of the domain for managed certificate issuance.
+
+* `failure_reason` -
+  Reason for failure of the authorization attempt for the domain.
+
+* `details` -
+  Human readable explanation for reaching the state. Provided to help
+  address the configuration issues.
+  Not guaranteed to be stable. For programmatic access use `failure_reason` field.
 
 ## Attributes Reference
 
