@@ -165,6 +165,245 @@ resource "google_cloudfunctions2_function" "function" {
 }
 # [END functions_v2_full]
 ```
+## Example Usage - Cloudfunctions2 Basic Gcs
+
+
+```hcl
+# [START functions_v2_basic_gcs]
+
+resource "google_storage_bucket" "source-bucket" {
+  provider = google-beta
+  name     = "gcf-source-bucket"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+ 
+resource "google_storage_bucket_object" "object" {
+  provider = google-beta
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.source-bucket.name
+  source = "function-source.zip"  # Add path to the zipped function source code
+}
+
+resource "google_storage_bucket" "trigger-bucket" {
+  provider = google-beta
+  name     = "gcf-trigger-bucket"
+  location = "us-central1" # The trigger must be in the same location as the bucket
+  uniform_bucket_level_access = true
+}
+
+data "google_storage_project_service_account" "gcs_account" {
+  provider = google-beta
+}
+
+# To use GCS CloudEvent triggers, the GCS service account requires the Pub/Sub Publisher(roles/pubsub.publisher) IAM role in the specified project.
+# (See https://cloud.google.com/eventarc/docs/run/quickstart-storage#before-you-begin)
+resource "google_project_iam_member" "gcs-pubsub-publishing" {
+  provider = google-beta
+  project = "my-project-name"
+  role    = "roles/pubsub.publisher"
+  member  = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
+}
+
+resource "google_service_account" "account" {
+  provider     = google-beta
+  account_id   = "test-sa"
+  display_name = "Test Service Account - used for both the cloud function and eventarc trigger in the test"
+}
+
+# Permissions on the service account used by the function and Eventarc trigger
+resource "google_project_iam_member" "invoking" {
+  provider = google-beta
+  project = "my-project-name"
+  role    = "roles/run.invoker"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "event-receiving" {
+  provider = google-beta
+  project = "my-project-name"
+  role    = "roles/eventarc.eventReceiver"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "artifactregistry-reader" {
+  provider = google-beta
+  project = "my-project-name"
+  role     = "roles/artifactregistry.reader"
+  member   = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_cloudfunctions2_function" "function" {
+  provider = google-beta
+  depends_on = [
+    google_project_iam_member.event-receiving,
+    google_project_iam_member.artifactregistry-reader,
+  ]
+  name = "test-function"
+  location = "us-central1"
+  description = "a new function"
+ 
+  build_config {
+    runtime     = "nodejs12"
+    entry_point = "entryPoint" # Set the entry point in the code
+    environment_variables = {
+      BUILD_CONFIG_TEST = "build_test"
+    }
+    source {
+      storage_source {
+        bucket = google_storage_bucket.source-bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+  }
+ 
+  service_config {
+    max_instance_count  = 3
+    min_instance_count = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+    environment_variables = {
+        SERVICE_CONFIG_TEST = "config_test"
+    }
+    ingress_settings = "ALLOW_INTERNAL_ONLY"
+    all_traffic_on_latest_revision = true
+    service_account_email = google_service_account.account.email
+  }
+
+  event_trigger {
+    trigger_region = "us-central1" # The trigger must be in the same location as the bucket
+    event_type = "google.cloud.storage.object.v1.finalized"
+    retry_policy = "RETRY_POLICY_RETRY"
+    service_account_email = google_service_account.account.email
+    event_filters {
+      attribute = "bucket"
+      value = google_storage_bucket.trigger-bucket.name
+    }
+  }
+}
+# [END functions_v2_basic_gcs]
+```
+## Example Usage - Cloudfunctions2 Basic Auditlogs
+
+
+```hcl
+# [START functions_v2_basic_auditlogs]
+# This example follows the examples shown in this Google Cloud Community blog post
+# https://medium.com/google-cloud/applying-a-path-pattern-when-filtering-in-eventarc-f06b937b4c34
+# and the docs:
+# https://cloud.google.com/eventarc/docs/path-patterns
+
+resource "google_storage_bucket" "source-bucket" {
+  provider = google-beta
+  name     = "gcf-source-bucket"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+ 
+resource "google_storage_bucket_object" "object" {
+  provider = google-beta
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.source-bucket.name
+  source = "function-source.zip"  # Add path to the zipped function source code
+}
+
+resource "google_service_account" "account" {
+  provider     = google-beta
+  account_id   = "gcf-sa"
+  display_name = "Test Service Account - used for both the cloud function and eventarc trigger in the test"
+}
+
+# Note: The right way of listening for Cloud Storage events is to use a Cloud Storage trigger.
+# Here we use Audit Logs to monitor the bucket so path patterns can be used in the example of
+# google_cloudfunctions2_function below (Audit Log events have path pattern support)
+resource "google_storage_bucket" "audit-log-bucket" {
+  provider = google-beta
+  name     = "gcf-auditlog-bucket"
+  location = "us-central1"  # The trigger must be in the same location as the bucket
+  uniform_bucket_level_access = true
+}
+
+# Permissions on the service account used by the function and Eventarc trigger
+resource "google_project_iam_member" "invoking" {
+  provider = google-beta
+  project = "my-project-name"
+  role    = "roles/run.invoker"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "event-receiving" {
+  provider = google-beta
+  project = "my-project-name"
+  role    = "roles/eventarc.eventReceiver"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "artifactregistry-reader" {
+  provider = google-beta
+  project = "my-project-name"
+  role     = "roles/artifactregistry.reader"
+  member   = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_cloudfunctions2_function" "function" {
+  provider = google-beta
+  depends_on = [
+    google_project_iam_member.event-receiving,
+    google_project_iam_member.artifactregistry-reader,
+  ]
+  name = "gcf-function"
+  location = "us-central1"
+  description = "a new function"
+ 
+  build_config {
+    runtime     = "nodejs12"
+    entry_point = "entryPoint" # Set the entry point in the code
+    environment_variables = {
+      BUILD_CONFIG_TEST = "build_test"
+    }
+    source {
+      storage_source {
+        bucket = google_storage_bucket.source-bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+  }
+ 
+  service_config {
+    max_instance_count  = 3
+    min_instance_count = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+    environment_variables = {
+        SERVICE_CONFIG_TEST = "config_test"
+    }
+    ingress_settings = "ALLOW_INTERNAL_ONLY"
+    all_traffic_on_latest_revision = true
+    service_account_email = google_service_account.account.email
+  }
+
+  event_trigger {
+    trigger_region = "us-central1" # The trigger must be in the same location as the bucket
+    event_type = "google.cloud.audit.log.v1.written"
+    retry_policy = "RETRY_POLICY_RETRY"
+    service_account_email = google_service_account.account.email
+    event_filters {
+      attribute = "serviceName"
+      value = "storage.googleapis.com"
+    }
+    event_filters {
+      attribute = "methodName"
+      value = "storage.objects.create"
+    }
+    event_filters {
+      attribute = "resourceName"
+      value = "/projects/_/buckets/${google_storage_bucket.audit-log-bucket.name}/objects/*.txt" # Path pattern selects all .txt files in the bucket
+      operator = "match-path-pattern" # This allows path patterns to be used in the value field
+    }
+  }
+}
+# [END functions_v2_basic_auditlogs]
+```
 
 ## Argument Reference
 
@@ -387,6 +626,11 @@ The following arguments are supported:
   (Optional)
   Required. The type of event to observe.
 
+* `event_filters` -
+  (Optional)
+  Criteria used to filter events.
+  Structure is [documented below](#nested_event_filters).
+
 * `pubsub_topic` -
   (Optional)
   The name of a Pub/Sub topic in the same project that will be used
@@ -401,6 +645,28 @@ The following arguments are supported:
   Describes the retry policy in case of function's execution failure.
   Retried execution is charged as any other execution.
   Possible values are `RETRY_POLICY_UNSPECIFIED`, `RETRY_POLICY_DO_NOT_RETRY`, and `RETRY_POLICY_RETRY`.
+
+
+<a name="nested_event_filters"></a>The `event_filters` block supports:
+
+* `attribute` -
+  (Required)
+  'Required. The name of a CloudEvents attribute.
+  Currently, only a subset of attributes are supported for filtering. Use the `gcloud eventarc providers describe` command to learn more about events and their attributes.
+  Do not filter for the 'type' attribute here, as this is already achieved by the resource's `event_type` attribute.
+
+* `value` -
+  (Required)
+  Required. The value for the attribute.
+  If the operator field is set as `match-path-pattern`, this value can be a path pattern instead of an exact value.
+
+* `operator` -
+  (Optional)
+  Optional. The operator used for matching the events with the value of
+  the filter. If not specified, only events that have an exact key-value
+  pair specified in the filter are matched.
+  The only allowed value is `match-path-pattern`.
+  [See documentation on path patterns here](https://cloud.google.com/eventarc/docs/path-patterns)'
 
 ## Attributes Reference
 
