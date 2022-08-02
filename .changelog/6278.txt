@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudfunctions2: added field `event_filters` to resource `google_cloudfunctions2_function` (beta)
+```
