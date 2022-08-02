@@ -63,7 +63,7 @@ The following arguments are supported:
 
 * `description` -
   (Optional)
-  One or more paragraphs of text description of a certificate map entry.
+  A human-readable description of the resource.
 
 * `labels` -
   (Optional)

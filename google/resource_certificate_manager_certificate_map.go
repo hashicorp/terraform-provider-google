@@ -52,7 +52,7 @@ globally and match the pattern 'projects/*/locations/*/certificateMaps/*'.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `One or more paragraphs of text description of a certificate map entry.`,
+				Description: `A human-readable description of the resource.`,
 			},
 			"labels": {
 				Type:        schema.TypeMap,

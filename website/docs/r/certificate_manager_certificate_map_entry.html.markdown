@@ -115,8 +115,7 @@ The following arguments are supported:
 
 * `description` -
   (Optional)
-  CertificateMapEntry is a list of certificate configurations,
-  that have been issued for a particular hostname
+  A human-readable description of the resource.
 
 * `labels` -
   (Optional)
@@ -133,7 +132,6 @@ The following arguments are supported:
 * `matcher` -
   (Optional)
   A predefined matcher for particular cases, other than SNI selection
-  Possible values are `MATCHER_UNSPECIFIED` and `PRIMARY`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -157,9 +155,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   A serving state of this Certificate Map Entry.
-  The status is undefined.
-  The configuration is serving.
-  Update is in progress. Some frontends may serve this configuration.
 
 
 ## Timeouts

@@ -69,10 +69,9 @@ names must be unique globally and match pattern
 'projects/*/locations/*/certificateMaps/*/certificateMapEntries/*'`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `CertificateMapEntry is a list of certificate configurations,
-that have been issued for a particular hostname`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A human-readable description of the resource.`,
 			},
 			"hostname": {
 				Type:     schema.TypeString,
@@ -94,8 +93,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 			"matcher": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"MATCHER_UNSPECIFIED", "PRIMARY", ""}),
-				Description:  `A predefined matcher for particular cases, other than SNI selection Possible values: ["MATCHER_UNSPECIFIED", "PRIMARY"]`,
+				Description:  `A predefined matcher for particular cases, other than SNI selection`,
 				ExactlyOneOf: []string{"hostname", "matcher"},
 			},
 			"create_time": {
@@ -106,15 +104,9 @@ with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
 			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Description: `A serving state of this Certificate Map Entry.
-
-The status is undefined.
-
-The configuration is serving.
-
-Update is in progress. Some frontends may serve this configuration.`,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A serving state of this Certificate Map Entry.`,
 			},
 			"update_time": {
 				Type:     schema.TypeString,
