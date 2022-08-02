@@ -59,7 +59,7 @@ resource "google_compute_interconnect_attachment" "on_prem" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "router%{random_suffix}"
+  name    = "tf-test-router-1%{random_suffix}"
   network = google_compute_network.foobar.name
   bgp {
     asn = 16550
@@ -67,7 +67,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name                    = "network%{random_suffix}"
+  name                    = "tf-test-network-1%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)
