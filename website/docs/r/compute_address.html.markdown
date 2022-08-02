@@ -112,7 +112,7 @@ resource "google_compute_address" "static" {
 }
 
 data "google_compute_image" "debian_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 

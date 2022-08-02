@@ -63,7 +63,7 @@ resource "google_compute_instance_template" "foobar" {
   machine_type = "e2-standard-4"
 
   disk {
-    source_image = "debian-cloud/debian-9"
+    source_image = "debian-cloud/debian-11"
     disk_size_gb = 250
   }
 
@@ -108,7 +108,7 @@ resource "google_compute_region_instance_group_manager" "foobar" {
 }
 
 data "google_compute_image" "debian_9" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 ```
