@@ -43,7 +43,7 @@ resource "google_compute_interconnect_attachment" "on_prem" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "router"
+  name    = "router-1"
   network = google_compute_network.foobar.name
   bgp {
     asn = 16550
@@ -51,7 +51,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name                    = "network"
+  name                    = "network-1"
   auto_create_subnetworks = false
 }
 ```

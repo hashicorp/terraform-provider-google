@@ -51,12 +51,12 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 func testAccComputeVpnGateway_targetVpnGatewayBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name    = "vpn1%{random_suffix}"
+  name    = "tf-test-vpn-1%{random_suffix}"
   network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name = "network1%{random_suffix}"
+  name = "tf-test-network-1%{random_suffix}"
 }
 
 resource "google_compute_address" "vpn_static_ip" {

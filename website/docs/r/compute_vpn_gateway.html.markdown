@@ -41,12 +41,12 @@ see the [Classic VPN partial deprecation page](https://cloud.google.com/network-
 
 ```hcl
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name    = "vpn1"
+  name    = "vpn-1"
   network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name = "network1"
+  name = "network-1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {

@@ -67,7 +67,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "network%{random_suffix}"
+  name                    = "tf-test-network-1%{random_suffix}"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
