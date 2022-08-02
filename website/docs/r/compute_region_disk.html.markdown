@@ -68,7 +68,7 @@ resource "google_compute_region_disk" "regiondisk" {
 
 resource "google_compute_disk" "disk" {
   name  = "my-disk"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"

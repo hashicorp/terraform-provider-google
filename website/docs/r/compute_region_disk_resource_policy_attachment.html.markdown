@@ -44,7 +44,7 @@ resource "google_compute_region_disk_resource_policy_attachment" "attachment" {
 
 resource "google_compute_disk" "disk" {
   name  = "my-base-disk"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -79,7 +79,7 @@ resource "google_compute_resource_policy" "policy" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 ```

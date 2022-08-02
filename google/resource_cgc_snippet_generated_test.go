@@ -149,7 +149,7 @@ resource "google_compute_instance" "spot_vm_instance" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
   
@@ -207,7 +207,7 @@ resource "google_compute_instance" "custom_hostname_instance" {
   
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
   network_interface {
@@ -299,7 +299,7 @@ resource "google_compute_instance" "instance_virtual_display" {
   
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
   network_interface {

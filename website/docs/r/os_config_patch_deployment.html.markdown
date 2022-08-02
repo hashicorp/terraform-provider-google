@@ -121,7 +121,7 @@ resource "google_os_config_patch_deployment" "patch" {
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 

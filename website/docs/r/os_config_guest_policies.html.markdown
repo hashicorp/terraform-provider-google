@@ -44,7 +44,7 @@ To get more information about GuestPolicies, see:
 ```hcl
 data "google_compute_image" "my_image" {
   provider = google-beta
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
