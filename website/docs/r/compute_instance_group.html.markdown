@@ -78,7 +78,7 @@ resource "google_compute_instance_group" "staging_group" {
 }
 
 data "google_compute_image" "debian_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
