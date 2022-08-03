@@ -238,7 +238,7 @@ resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-c"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   physical_block_size_bytes = 4096
 }
 
@@ -255,7 +255,7 @@ resource "google_compute_disk" "disk2" {
 func testAccComputeRegionPerInstanceConfig_rigm(context map[string]interface{}) string {
 	return Nprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
