@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added support for additional values `APISERVER`, `CONTROLLER_MANAGER`, and `SCHEDULER` in `google_container_cluster.monitoring_config`
+```
