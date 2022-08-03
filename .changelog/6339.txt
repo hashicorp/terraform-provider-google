@@ -1,0 +1,3 @@
+```release-note:note
+Updated to Golang 1.18
+```
