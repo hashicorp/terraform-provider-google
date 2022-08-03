@@ -337,7 +337,7 @@ func testAccComputeRegionBackendService_withBackend(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -397,7 +397,7 @@ func testAccComputeRegionBackendService_withBackendMultiNic(
 	serviceName, net1Name, net2Name, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -489,7 +489,7 @@ func testAccComputeRegionBackendService_withInvalidInternalBackend(
 	serviceName, igName, itName, checkName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -572,7 +572,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 data "google_compute_image" "debian_image" {
-  family   = "debian-9"
+  family   = "debian-11"
   project  = "debian-cloud"
 }
 

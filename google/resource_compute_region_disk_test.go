@@ -279,7 +279,7 @@ func testAccComputeRegionDisk_basic(diskName, refSelector string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -304,7 +304,7 @@ func testAccComputeRegionDisk_basicUpdated(diskName, refSelector string) string 
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -337,7 +337,7 @@ func testAccComputeRegionDisk_encryption(diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -368,7 +368,7 @@ func testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskNam
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -395,7 +395,7 @@ resource "google_compute_instance" "inst" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
