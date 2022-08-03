@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed a bug in `google_storage_bucket` where `name` was incorrectly validated.
+```

@@ -527,26 +527,26 @@ func fake404(reasonResourceType, resourceName string) *googleapi.Error {
 	}
 }
 
-// validate name of the gcs bucket.
+// validate name of the gcs bucket. Guidelines are located at https://cloud.google.com/storage/docs/naming-buckets
+// this does not attempt to check for IP addresses or close misspellings of "google"
 func checkGCSName(name string) error {
-	MAX_LENGTH := 63
-	var err error
+	if strings.HasPrefix(name, "goog") {
+		return fmt.Errorf("error: bucket name %s cannot start with %q", name, "goog")
+	}
+
+	if strings.Contains(name, "google") {
+		return fmt.Errorf("error: bucket name %s cannot contain %q", name, "google")
+	}
+
+	valid, _ := regexp.MatchString("^[a-z0-9][a-z0-9_.-]{1,220}[a-z0-9]$", name)
+	if !valid {
+		return fmt.Errorf("error: bucket name validation failed %v. See https://cloud.google.com/storage/docs/naming-buckets", name)
+	}
+
 	for _, str := range strings.Split(name, ".") {
-		strLen := len(str)
-		fmt.Println(str)
-		if strLen > MAX_LENGTH {
-			return fmt.Errorf("error: maximum length exceeded %v\n", str)
-		}
-		valid, _ := regexp.MatchString("^[a-z0-9_]+(-[a-z0-9]+)*$", str)
+		valid, _ := regexp.MatchString("^[a-z0-9_-]{1,63}$", str)
 		if !valid {
-			return fmt.Errorf("error: string validation failed %v\n", str)
-		}
-		gPrefix := strings.HasPrefix(str, "goog")
-		if gPrefix {
-			return fmt.Errorf("error: string cannot start with %q %v\n", "goog", str)
-		}
-		if err != nil {
-			break
+			return fmt.Errorf("error: bucket name validation failed %v", str)
 		}
 	}
 	return nil
