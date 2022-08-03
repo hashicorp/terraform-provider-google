@@ -25,7 +25,7 @@ resource "google_compute_instance_template" "tpl" {
   machine_type = "e2-medium"
 
   disk {
-    source_image = "debian-cloud/debian-9"
+    source_image = "debian-cloud/debian-11"
     auto_delete  = true
     disk_size_gb = 100
     boot         = true
