@@ -23,7 +23,7 @@ jobs:
 
     - name: Get dependencies
       run: |
-        go get
+        go mod download
         make tools
 
     - name: Build
