@@ -1,0 +1,3 @@
+```release-note:enhancement
+gkehub: added `policyControllerMonitoring` and `mutationEnabled` fields to resource `feature_membership`
+```
