@@ -36,7 +36,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description:  `Name of the peering.`,
 			},
 

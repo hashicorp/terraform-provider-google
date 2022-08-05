@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added validation for name field on `google_compute_network`
+```

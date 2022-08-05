@@ -72,7 +72,7 @@ func parseCloudFunctionId(d *schema.ResourceData, config *Config) (*cloudFunctio
 	}, nil
 }
 
-// Differs from validateGcpName because Cloud Functions allow capital letters
+// Differs from validateGCEName because Cloud Functions allow capital letters
 // at start/end
 func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
 	re := `^(?:[a-zA-Z](?:[-_a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)$`
