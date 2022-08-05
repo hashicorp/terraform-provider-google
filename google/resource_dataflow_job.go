@@ -192,6 +192,7 @@ func resourceDataflowJob() *schema.Resource {
 			"additional_experiments": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Description: `List of experiments that should be used by the job. An example value is ["enable_stackdriver_agent_metrics"].`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
