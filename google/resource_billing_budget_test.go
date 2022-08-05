@@ -241,6 +241,7 @@ resource "google_billing_budget" "budget" {
     labels  = {
       label1 = "bar2"
     }
+    services = ["services/24E6-581D-38E5"] # Bigquery
   }
 
   amount {
