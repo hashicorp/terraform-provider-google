@@ -54,12 +54,6 @@ range).`,
 				DiffSuppressFunc: compareResourceNames,
 				Description:      `The network endpoint group this endpoint is part of.`,
 			},
-			"port": {
-				Type:        schema.TypeInt,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Port number of network endpoint.`,
-			},
 			"instance": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -68,6 +62,12 @@ range).`,
 				Description: `The name for a specific VM instance that the IP address belongs to.
 This is required for network endpoints of type GCE_VM_IP_PORT.
 The instance must be in the same zone of network endpoint group.`,
+			},
+			"port": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Port number of network endpoint.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -285,7 +285,9 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	toDelete["port"] = portProp
+	if portProp != 0 {
+		toDelete["port"] = portProp
+	}
 
 	ipAddressProp, err := expandNestedComputeNetworkEndpointIpAddress(d.Get("ip_address"), d, config)
 	if err != nil {
