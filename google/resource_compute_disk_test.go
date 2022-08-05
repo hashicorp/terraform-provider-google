@@ -619,7 +619,7 @@ resource "google_compute_disk" "foobar" {
   zone  = "us-central1-a"
 
   timeouts {
-    create = "1s"
+    create = ".5s"
   }
 }
 `, diskName)
