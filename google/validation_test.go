@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func TestValidateGCPName(t *testing.T) {
+func TestvalidateGCEName(t *testing.T) {
 	x := []StringValidationTestCase{
 		// No errors
 		{TestName: "basic", Value: "foobar"},
@@ -27,7 +27,7 @@ func TestValidateGCPName(t *testing.T) {
 		{TestName: "too long", Value: "foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoob", ExpectError: true},
 	}
 
-	es := testStringValidationCases(x, validateGCPName)
+	es := testStringValidationCases(x, validateGCEName)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate GCP names: %v", es)
 	}

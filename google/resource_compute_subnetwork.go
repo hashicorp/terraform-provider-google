@@ -83,7 +83,7 @@ non-overlapping within a network. Only IPv4 is supported.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description: `The name of the resource, provided by the client when initially
 creating the resource. The name must be 1-63 characters long, and
 comply with RFC1035. Specifically, the name must be 1-63 characters
@@ -250,7 +250,7 @@ secondary IP ranges within a network. Only IPv4 is supported.`,
 						"range_name": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateGCPName,
+							ValidateFunc: validateGCEName,
 							Description: `The name associated with this subnetwork secondary range, used
 when adding an alias IP range to a VM instance. The name must
 be 1-63 characters long, and comply with RFC1035. The name

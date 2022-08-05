@@ -67,7 +67,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name_prefix"},
-				ValidateFunc:  validateGCPName,
+				ValidateFunc:  validateGCEName,
 				Description:   `The name of the instance template. If you leave this blank, Terraform will auto-generate a unique name.`,
 			},
 

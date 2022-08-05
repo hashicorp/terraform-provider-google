@@ -114,7 +114,7 @@ set to true.`,
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description:  `The name of the packet mirroring rule`,
 			},
 			"network": {
