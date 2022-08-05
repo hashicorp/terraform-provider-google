@@ -214,7 +214,16 @@ The following arguments are supported:
 * `template_library_installed` -
   (Optional)
   Installs the default template library along with Policy Controller.
-    
+
+* `mutation_enabled` -
+  (Optional)
+  Enables mutation in policy controller. If true, mutation CRDs, webhook, and controller deployment will be deployed to the cluster.
+
+* `monitoring` -
+  (Optional)
+  Specifies the backends Policy Controller should export metrics to. For example, to specify metrics should be exported to Cloud Monitoring and Prometheus, specify backends: [\"cloudmonitoring\", \"prometheus\"]. Default: [\"cloudmonitoring\", \"prometheus\"]    
+
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
