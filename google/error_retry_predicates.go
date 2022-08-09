@@ -419,3 +419,14 @@ func isBigTableRetryableError(err error) (bool, string) {
 
 	return false, ""
 }
+
+// Concurrent Apigee operations can fail with a 400 error
+func isApigeeRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(strings.ToLower(gerr.Body), "the resource is locked by another operation") {
+			return true, "Waiting for other concurrent operations to finish"
+		}
+	}
+
+	return false, ""
+}

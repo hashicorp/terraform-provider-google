@@ -517,7 +517,7 @@ func testAccCheckApigeeInstanceDestroyProducer(t *testing.T) func(s *terraform.S
 				billingProject = config.BillingProject
 			}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isApigeeRetryableError)
 			if err == nil {
 				return fmt.Errorf("ApigeeInstance still exists at %s", url)
 			}
