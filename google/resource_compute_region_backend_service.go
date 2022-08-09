@@ -41,7 +41,7 @@ var backendServiceOnlyManagedFieldNames = []string{
 
 // validateManagedBackendServiceBackends ensures capacity_scaler is set for each backend in a managed
 // backend service. To prevent a permadiff, we decided to override the API behavior and require the
-//// capacity_scaler value in this case.
+// capacity_scaler value in this case.
 //
 // The API:
 // - requires the sum of the backends' capacity_scalers be > 0
