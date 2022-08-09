@@ -210,7 +210,7 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isApigeeRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating Instance: %s", err)
 	}
@@ -269,7 +269,7 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isApigeeRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeInstance %q", d.Id()))
 	}
@@ -337,7 +337,7 @@ func resourceApigeeInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isApigeeRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Instance")
 	}
