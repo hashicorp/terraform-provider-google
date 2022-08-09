@@ -25,7 +25,7 @@ fmtcheck:
 vet:
 	go vet
 
-lint: fmtcheck vet
+lint: vet
 	gofmt -d ./google
 
 generate:
