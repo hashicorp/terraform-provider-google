@@ -358,7 +358,7 @@ func TestAccContainerNodePool_withNodeConfigScopeAlias(t *testing.T) {
 	})
 }
 
-//This test exists to validate a regional node pool *and* and update to it.
+// This test exists to validate a regional node pool *and* and update to it.
 func TestAccContainerNodePool_regionalAutoscaling(t *testing.T) {
 	t.Parallel()
 

@@ -2192,13 +2192,14 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 // issues when a count of `0` guest accelerators is desired. This may occur when
 // guest_accelerator support is controlled via a module variable. E.g.:
 //
-// 		guest_accelerators {
-//      	count = "${var.enable_gpu ? var.gpu_count : 0}"
-//          ...
-// 		}
+//	guest_accelerators {
+// 		count = "${var.enable_gpu ? var.gpu_count : 0}"
+// 		...
+//	}
+
 // After reconciling the desired and actual state, we would otherwise see a
-// perpetual resembling:
-// 		[] != [{"count":0, "type": "nvidia-tesla-k80"}]
+// perpetual diff resembling:
+//	[] != [{"count":0, "type": "nvidia-tesla-k80"}]
 func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	oldi, newi := d.GetChange("guest_accelerator")
 

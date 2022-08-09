@@ -276,7 +276,7 @@ func flattenColumnFamily(families []string) []map[string]interface{} {
 	return result
 }
 
-//TODO(rileykarson): Fix the stored import format after rebasing 3.0.0
+// TODO(rileykarson): Fix the stored import format after rebasing 3.0.0
 func resourceBigtableTableImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
