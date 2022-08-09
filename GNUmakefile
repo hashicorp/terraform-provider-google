@@ -26,6 +26,7 @@ vet:
 	go vet
 
 lint: fmtcheck vet
+	gofmt -d ./google
 
 generate:
 	go generate  ./...
