@@ -609,7 +609,7 @@ func testAccCloudRunService_cloudRunServiceInterserviceExample(context map[strin
 # Example of using a public Cloud Run service to call a private one
 
 resource "google_cloud_run_service" "default" {
-  name     = "tf-test-private-service%{random_suffix}"
+  name     = "tf-test-public-service%{random_suffix}"
   location = "us-central1"
 
   template {
@@ -658,7 +658,7 @@ resource "google_service_account" "default" {
 }
 
 resource "google_cloud_run_service" "default_private" {
-  name     = "tf-test-private-service%{random_suffix}-private"
+  name     = "tf-test-private-service%{random_suffix}"
   location = "us-central1"
 
   template {
