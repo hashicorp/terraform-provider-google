@@ -27,7 +27,6 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 						"forwarding_config.#":         {},
 						"force_destroy":               {},
 						"labels.#":                    {},
-						"managed_zone_id":             {},
 						"creation_time":               {},
 					},
 				),
