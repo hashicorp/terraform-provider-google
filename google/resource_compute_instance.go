@@ -2199,6 +2199,7 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 
 // After reconciling the desired and actual state, we would otherwise see a
 // perpetual diff resembling:
+//
 //	[] != [{"count":0, "type": "nvidia-tesla-k80"}]
 func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	oldi, newi := d.GetChange("guest_accelerator")
