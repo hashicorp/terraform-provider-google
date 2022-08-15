@@ -1,4 +1,35 @@
-## 4.32.0 (Unreleased)
+## 4.33.0 (Unreleased)
+
+## 4.32.0 (August 15, 2022)
+
+NOTES:
+* Updated to Golang 1.18 ([#12246](https://github.com/hashicorp/terraform-provider-google/pull/12246))
+
+FEATURES:
+* **New Resource:** `google_dataplex_asset` ([#12210](https://github.com/hashicorp/terraform-provider-google/pull/12210))
+* **New Resource:** `google_gke_hub_membership_iam_binding` ([#12280](https://github.com/hashicorp/terraform-provider-google/pull/12280))
+* **New Resource:** `google_gke_hub_membership_iam_member` ([#12280](https://github.com/hashicorp/terraform-provider-google/pull/12280))
+* **New Resource:** `google_gke_hub_membership_iam_policy` ([#12280](https://github.com/hashicorp/terraform-provider-google/pull/12280))
+
+IMPROVEMENTS:
+* certificatemanager: added `state`, `authorization_attempt_info` and `provisioning_issue` output fields to `google_certificate_manager_certificate` ([#12224](https://github.com/hashicorp/terraform-provider-google/pull/12224))
+* compute: added `certificate_map` to `compute_target_https_proxy` resource ([#12227](https://github.com/hashicorp/terraform-provider-google/pull/12227))
+* compute: added validation for name field on `google_compute_network` ([#12271](https://github.com/hashicorp/terraform-provider-google/pull/12271))
+* compute: made `port` optional in `google_compute_network_endpoint` to allow network endpoints to be associated with `GCE_VM_IP` network endpoint groups ([#12267](https://github.com/hashicorp/terraform-provider-google/pull/12267))
+* container: added support for additional values `APISERVER`, `CONTROLLER_MANAGER`, and `SCHEDULER` in `google_container_cluster.monitoring_config` ([#12247](https://github.com/hashicorp/terraform-provider-google/pull/12247))
+* gkehub: added `monitoring` and `mutation_enabled` fields to resource `feature_membership` ([#12265](https://github.com/hashicorp/terraform-provider-google/pull/12265))
+* gkehub: added better support for import for `google_gke_hub_membership` ([#12207](https://github.com/hashicorp/terraform-provider-google/pull/12207))
+* pubsub: added `bigquery_config` to `google_pubsub_subscription` ([#12216](https://github.com/hashicorp/terraform-provider-google/pull/12216))
+* scheduler: added `paused` field to `google_cloud_scheduler_job` ([#12190](https://github.com/hashicorp/terraform-provider-google/pull/12190))
+* scheduler: added `state` output field to `google_cloud_scheduler_job` ([#12190](https://github.com/hashicorp/terraform-provider-google/pull/12190))
+
+BUG FIXES:
+* apigee: fixed an issue where `google_apigee_instance` creation would fail due to multiple concurrent instances ([#12289](https://github.com/hashicorp/terraform-provider-google/pull/12289))
+* billingbudget: fixed a bug where `google_billing_budget.budget_filter.services` was not updating. ([#12270](https://github.com/hashicorp/terraform-provider-google/pull/12270))
+* compute: fixed perma-diff on `google_compute_disk` for new arm64 images ([#12184](https://github.com/hashicorp/terraform-provider-google/pull/12184))
+* dataflow: fixed bug where permadiff would show on `google_dataflow_job.additional_experiments` ([#12268](https://github.com/hashicorp/terraform-provider-google/pull/12268))
+* storage: fixed a bug in `google_storage_bucket` where `name` was incorrectly validated. ([#12248](https://github.com/hashicorp/terraform-provider-google/pull/12248))
+
 ## 4.31.0 (Aug 1, 2022)
 
 FEATURES:
