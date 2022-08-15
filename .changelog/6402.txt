@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: add `accepted_response_status_codes` to `monitoring_uptime_check`
+```

@@ -114,6 +114,26 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"accepted_response_status_codes": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `If present, the check will only pass if the HTTP response status code is in this set of status codes. If empty, the HTTP status code will only pass if the HTTP status code is 200-299.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"status_class": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"STATUS_CLASS_1XX", "STATUS_CLASS_2XX", "STATUS_CLASS_3XX", "STATUS_CLASS_4XX", "STATUS_CLASS_5XX", "STATUS_CLASS_ANY", ""}),
+										Description:  `A class of status codes to accept. Possible values: ["STATUS_CLASS_1XX", "STATUS_CLASS_2XX", "STATUS_CLASS_3XX", "STATUS_CLASS_4XX", "STATUS_CLASS_5XX", "STATUS_CLASS_ANY"]`,
+									},
+									"status_value": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `A status code to accept.`,
+									},
+								},
+							},
+						},
 						"auth_info": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -790,6 +810,8 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d, config)
 	transformed["body"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckBody(original["body"], d, config)
+	transformed["accepted_response_status_codes"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(original["acceptedResponseStatusCodes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -861,6 +883,46 @@ func flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d *sc
 }
 
 func flattenMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"status_value": flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(original["statusValue"], d, config),
+			"status_class": flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(original["statusClass"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1118,6 +1180,13 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 		transformed["body"] = transformedBody
 	}
 
+	transformedAcceptedResponseStatusCodes, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(original["accepted_response_status_codes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAcceptedResponseStatusCodes); val.IsValid() && !isEmptyValue(val) {
+		transformed["acceptedResponseStatusCodes"] = transformedAcceptedResponseStatusCodes
+	}
+
 	return transformed, nil
 }
 
@@ -1195,6 +1264,43 @@ func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d Terr
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedStatusValue, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(original["status_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStatusValue); val.IsValid() && !isEmptyValue(val) {
+			transformed["statusValue"] = transformedStatusValue
+		}
+
+		transformedStatusClass, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(original["status_class"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStatusClass); val.IsValid() && !isEmptyValue(val) {
+			transformed["statusClass"] = transformedStatusClass
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
