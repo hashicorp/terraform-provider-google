@@ -311,7 +311,6 @@ func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
 func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 	t.Parallel()
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
-	containerNetName := fmt.Sprintf("tf-test-container-net-%s", randString(t, 10))
 	orgDomain := getTestOrgDomainFromEnv(t)
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -319,10 +318,38 @@ func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAuthenticatorGroupsConfig(containerNetName, clusterName, orgDomain),
+				Config: testAccContainerCluster_basic(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_container_cluster.primary",
+						"authenticator_groups_config.0.enabled"),
+				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_authenticator_groups",
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withAuthenticatorGroupsConfigUpdate(clusterName, orgDomain),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary",
+						"authenticator_groups_config.0.security_group", fmt.Sprintf("gke-security-groups@%s", orgDomain)),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withAuthenticatorGroupsConfigUpdate2(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_container_cluster.primary",
+						"authenticator_groups_config.0.enabled"),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -2728,49 +2755,32 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 `, clusterName)
 }
 
-func testAccContainerCluster_withAuthenticatorGroupsConfig(containerNetName string, clusterName string, orgDomain string) string {
+func testAccContainerCluster_withAuthenticatorGroupsConfigUpdate(name string, orgDomain string) string {
 	return fmt.Sprintf(`
-resource "google_compute_network" "container_network" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+resource "google_container_cluster" "primary" {
+	name               = "%s"
+	location           = "us-central1-a"
+	initial_node_count = 1
+
+	authenticator_groups_config {
+		security_group = "gke-security-groups@%s"
+	}
+}
+`, name, orgDomain)
 }
 
-resource "google_compute_subnetwork" "container_subnetwork" {
-  name                     = google_compute_network.container_network.name
-  network                  = google_compute_network.container_network.name
-  ip_cidr_range            = "10.0.36.0/24"
-  region                   = "us-central1"
-  private_ip_google_access = true
+func testAccContainerCluster_withAuthenticatorGroupsConfigUpdate2(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name               = "%s"
+	location           = "us-central1-a"
+	initial_node_count = 1
 
-  secondary_ip_range {
-    range_name    = "pod"
-    ip_cidr_range = "10.0.0.0/19"
-  }
-
-  secondary_ip_range {
-    range_name    = "svc"
-    ip_cidr_range = "10.0.32.0/22"
-  }
+	authenticator_groups_config {
+		security_group = ""
+	}
 }
-
-resource "google_container_cluster" "with_authenticator_groups" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-  network            = google_compute_network.container_network.name
-  subnetwork         = google_compute_subnetwork.container_subnetwork.name
-
-  authenticator_groups_config {
-    security_group = "gke-security-groups@%s"
-  }
-
-  networking_mode = "VPC_NATIVE"
-  ip_allocation_policy {
-    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
-    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
-  }
-}
-`, containerNetName, clusterName, orgDomain)
+`, name)
 }
 
 func testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName string, cidrs []string, emptyValue string) string {
