@@ -13,13 +13,13 @@ IMPROVEMENTS:
 * certificatemanager: added `state`, `authorization_attempt_info` and `provisioning_issue` output fields to `google_certificate_manager_certificate` ([#12224](https://github.com/hashicorp/terraform-provider-google/pull/12224))
 * compute: added `certificate_map` to `compute_target_https_proxy` resource ([#12227](https://github.com/hashicorp/terraform-provider-google/pull/12227))
 * compute: added validation for name field on `google_compute_network` ([#12271](https://github.com/hashicorp/terraform-provider-google/pull/12271))
-* compute: made `port` optional in `google_compute_network_endpoint` to be associated with `GCE_VM_IP` network endpoint groups ([#12267](https://github.com/hashicorp/terraform-provider-google/pull/12267))
+* compute: made `port` optional in `google_compute_network_endpoint` to allow network endpoints to be associated with `GCE_VM_IP` network endpoint groups ([#12267](https://github.com/hashicorp/terraform-provider-google/pull/12267))
 * container: added support for additional values `APISERVER`, `CONTROLLER_MANAGER`, and `SCHEDULER` in `google_container_cluster.monitoring_config` ([#12247](https://github.com/hashicorp/terraform-provider-google/pull/12247))
 * gkehub: added `monitoring` and `mutation_enabled` fields to resource `feature_membership` ([#12265](https://github.com/hashicorp/terraform-provider-google/pull/12265))
 * gkehub: added better support for import for `google_gke_hub_membership` ([#12207](https://github.com/hashicorp/terraform-provider-google/pull/12207))
 * pubsub: added `bigquery_config` to `google_pubsub_subscription` ([#12216](https://github.com/hashicorp/terraform-provider-google/pull/12216))
-* scheduler: Added `paused` field to `google_cloud_scheduler_job` ([#12190](https://github.com/hashicorp/terraform-provider-google/pull/12190))
-* scheduler: Added `state` output field to `google_cloud_scheduler_job` ([#12190](https://github.com/hashicorp/terraform-provider-google/pull/12190))
+* scheduler: added `paused` field to `google_cloud_scheduler_job` ([#12190](https://github.com/hashicorp/terraform-provider-google/pull/12190))
+* scheduler: added `state` output field to `google_cloud_scheduler_job` ([#12190](https://github.com/hashicorp/terraform-provider-google/pull/12190))
 
 BUG FIXES:
 * apigee: fixed an issue where `google_apigee_instance` creation would fail due to multiple concurrent instances ([#12289](https://github.com/hashicorp/terraform-provider-google/pull/12289))
