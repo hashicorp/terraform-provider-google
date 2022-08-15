@@ -68,6 +68,52 @@ resource "google_monitoring_uptime_check_config" "http" {
   checker_type = "STATIC_IP_CHECKERS"
 }
 ```
+## Example Usage - Uptime Check Config Status Code
+
+
+```hcl
+resource "google_monitoring_uptime_check_config" "status_code" {
+  display_name = "http-uptime-check"
+  timeout      = "60s"
+
+  http_check {
+    path = "some-path"
+    port = "8010"
+    request_method = "POST"
+    content_type = "URL_ENCODED"
+    body = "Zm9vJTI1M0RiYXI="
+
+    accepted_response_status_codes {
+      status_class = "STATUS_CLASS_2XX"
+    }
+    accepted_response_status_codes {
+            status_value = 301
+    }
+    accepted_response_status_codes {
+            status_value = 302
+    }
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "my-project-name"
+      host       = "192.168.1.1"
+    }
+  }
+
+  content_matchers {
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
+  }
+
+  checker_type = "STATIC_IP_CHECKERS"
+}
+```
 ## Example Usage - Uptime Check Config Https
 
 
@@ -265,6 +311,11 @@ The following arguments are supported:
   (Optional)
   The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".
 
+* `accepted_response_status_codes` -
+  (Optional)
+  If present, the check will only pass if the HTTP response status code is in this set of status codes. If empty, the HTTP status code will only pass if the HTTP status code is 200-299.
+  Structure is [documented below](#nested_accepted_response_status_codes).
+
 
 <a name="nested_auth_info"></a>The `auth_info` block supports:
 
@@ -276,6 +327,17 @@ The following arguments are supported:
 * `username` -
   (Required)
   The username to authenticate.
+
+<a name="nested_accepted_response_status_codes"></a>The `accepted_response_status_codes` block supports:
+
+* `status_value` -
+  (Optional)
+  A status code to accept.
+
+* `status_class` -
+  (Optional)
+  A class of status codes to accept.
+  Possible values are `STATUS_CLASS_1XX`, `STATUS_CLASS_2XX`, `STATUS_CLASS_3XX`, `STATUS_CLASS_4XX`, `STATUS_CLASS_5XX`, and `STATUS_CLASS_ANY`.
 
 <a name="nested_tcp_check"></a>The `tcp_check` block supports:
 
