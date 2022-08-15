@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: Data Transfer: removed force replacement for `display_name` on `google_bigquery_data_transfer_config`
+```

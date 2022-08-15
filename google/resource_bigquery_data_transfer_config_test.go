@@ -47,7 +47,7 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "third", start_time, end_time, "y"),
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix, "third", start_time, end_time, "y"),
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
@@ -68,6 +68,7 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 	first_end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
 	second_start_time := now.Add(2 * time.Hour).Format(time.RFC3339)
 	second_end_time := now.AddDate(0, 2, 0).Format(time.RFC3339)
+	random_suffix2 := randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -75,10 +76,19 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "first", first_start_time, first_end_time, "y"),
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix, "first", first_start_time, first_end_time, "y"),
 			},
 			{
-				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "second", second_start_time, second_end_time, "z"),
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix, "second", second_start_time, second_end_time, "z"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix2, "second", second_start_time, second_end_time, "z"),
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
@@ -185,7 +195,7 @@ func testAccCheckBigqueryDataTransferConfigDestroyProducer(t *testing.T) func(s 
 	}
 }
 
-func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, schedule, start_time, end_time, letter string) string {
+func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix2, schedule, start_time, end_time, letter string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
 
@@ -233,7 +243,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
     query                           = "SELECT name FROM tabl WHERE x = '%s'"
   }
 }
-`, random_suffix, random_suffix, random_suffix, schedule, start_time, end_time, letter)
+`, random_suffix, random_suffix, random_suffix2, schedule, start_time, end_time, letter)
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_service_account(random_suffix string) string {
