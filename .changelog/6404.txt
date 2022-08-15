@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Fixed permadiff for `instance_termination_action` in `google_compute_instance_template`
+```
