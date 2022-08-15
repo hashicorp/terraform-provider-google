@@ -514,6 +514,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						"instance_termination_action": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
 						},
