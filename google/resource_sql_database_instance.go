@@ -462,6 +462,48 @@ is set to true.`,
 							},
 							Description: `Configuration of Query Insights.`,
 						},
+						"password_validation_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_length": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 2147483647),
+										Description:  `Minimum number of characters allowed.`,
+									},
+									"complexity": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"COMPLEXITY_DEFAULT", "COMPLEXITY_UNSPECIFIED"}, false),
+										Description:  `Password complexity.`,
+									},
+									"reuse_interval": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 2147483647),
+										Description:  `Number of previous passwords that cannot be reused.`,
+									},
+									"disallow_username_substring": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Disallow username as a part of the password.`,
+									},
+									"password_change_interval": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Minimum interval after which the password can be changed. This flag is only supported for PostgresSQL.`,
+									},
+									"enable_password_policy": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether the password policy is enabled or not.`,
+									},
+								},
+							},
+						},
 					},
 				},
 				Description: `The settings to use for the database. The configuration is detailed below.`,
@@ -492,7 +534,7 @@ is set to true.`,
 				Optional:    true,
 				ForceNew:    true,
 				Sensitive:   true,
-				Description: `Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.`,
+				Description: `Initial root password. Required for MS SQL Server.`,
 			},
 
 			"ip_address": {
@@ -829,10 +871,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		instance.Settings = desiredSettings
 	}
 
-	// MSSQL Server require rootPassword to be set
-	if strings.Contains(instance.DatabaseVersion, "SQLSERVER") {
-		instance.RootPassword = d.Get("root_password").(string)
-	}
+	instance.RootPassword = d.Get("root_password").(string)
 
 	// Modifying a replica during Create can cause problems if the master is
 	// modified at the same time. Lock the master until we're done in order
@@ -982,24 +1021,25 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}) *sqladmin.Setti
 	_settings := configured[0].(map[string]interface{})
 	settings := &sqladmin.Settings{
 		// Version is unset in Create but is set during update
-		SettingsVersion:       int64(_settings["version"].(int)),
-		Tier:                  _settings["tier"].(string),
-		ForceSendFields:       []string{"StorageAutoResize"},
-		ActivationPolicy:      _settings["activation_policy"].(string),
-		ActiveDirectoryConfig: expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
-		SqlServerAuditConfig:  expandSqlServerAuditConfig(_settings["sql_server_audit_config"].([]interface{})),
-		AvailabilityType:      _settings["availability_type"].(string),
-		Collation:             _settings["collation"].(string),
-		DataDiskSizeGb:        int64(_settings["disk_size"].(int)),
-		DataDiskType:          _settings["disk_type"].(string),
-		PricingPlan:           _settings["pricing_plan"].(string),
-		UserLabels:            convertStringMap(_settings["user_labels"].(map[string]interface{})),
-		BackupConfiguration:   expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
-		DatabaseFlags:         expandDatabaseFlags(_settings["database_flags"].([]interface{})),
-		IpConfiguration:       expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
-		LocationPreference:    expandLocationPreference(_settings["location_preference"].([]interface{})),
-		MaintenanceWindow:     expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
-		InsightsConfig:        expandInsightsConfig(_settings["insights_config"].([]interface{})),
+		SettingsVersion:          int64(_settings["version"].(int)),
+		Tier:                     _settings["tier"].(string),
+		ForceSendFields:          []string{"StorageAutoResize"},
+		ActivationPolicy:         _settings["activation_policy"].(string),
+		ActiveDirectoryConfig:    expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
+		SqlServerAuditConfig:     expandSqlServerAuditConfig(_settings["sql_server_audit_config"].([]interface{})),
+		AvailabilityType:         _settings["availability_type"].(string),
+		Collation:                _settings["collation"].(string),
+		DataDiskSizeGb:           int64(_settings["disk_size"].(int)),
+		DataDiskType:             _settings["disk_type"].(string),
+		PricingPlan:              _settings["pricing_plan"].(string),
+		UserLabels:               convertStringMap(_settings["user_labels"].(map[string]interface{})),
+		BackupConfiguration:      expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
+		DatabaseFlags:            expandDatabaseFlags(_settings["database_flags"].([]interface{})),
+		IpConfiguration:          expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
+		LocationPreference:       expandLocationPreference(_settings["location_preference"].([]interface{})),
+		MaintenanceWindow:        expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
+		InsightsConfig:           expandInsightsConfig(_settings["insights_config"].([]interface{})),
+		PasswordValidationPolicy: expandPasswordValidationPolicy(_settings["password_validation_policy"].([]interface{})),
 	}
 
 	resize := _settings["disk_autoresize"].(bool)
@@ -1188,6 +1228,22 @@ func expandInsightsConfig(configured []interface{}) *sqladmin.InsightsConfig {
 		QueryStringLength:     int64(_insightsConfig["query_string_length"].(int)),
 		RecordApplicationTags: _insightsConfig["record_application_tags"].(bool),
 		RecordClientAddress:   _insightsConfig["record_client_address"].(bool),
+	}
+}
+
+func expandPasswordValidationPolicy(configured []interface{}) *sqladmin.PasswordValidationPolicy {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_passwordValidationPolicy := configured[0].(map[string]interface{})
+	return &sqladmin.PasswordValidationPolicy{
+		MinLength:                 int64(_passwordValidationPolicy["min_length"].(int)),
+		Complexity:                _passwordValidationPolicy["complexity"].(string),
+		ReuseInterval:             int64(_passwordValidationPolicy["reuse_interval"].(int)),
+		DisallowUsernameSubstring: _passwordValidationPolicy["disallow_username_substring"].(bool),
+		PasswordChangeInterval:    _passwordValidationPolicy["password_change_interval"].(string),
+		EnablePasswordPolicy:      _passwordValidationPolicy["enable_password_policy"].(bool),
 	}
 }
 
@@ -1411,15 +1467,16 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 
 func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	data := map[string]interface{}{
-		"version":           settings.SettingsVersion,
-		"tier":              settings.Tier,
-		"activation_policy": settings.ActivationPolicy,
-		"availability_type": settings.AvailabilityType,
-		"collation":         settings.Collation,
-		"disk_type":         settings.DataDiskType,
-		"disk_size":         settings.DataDiskSizeGb,
-		"pricing_plan":      settings.PricingPlan,
-		"user_labels":       settings.UserLabels,
+		"version":                    settings.SettingsVersion,
+		"tier":                       settings.Tier,
+		"activation_policy":          settings.ActivationPolicy,
+		"availability_type":          settings.AvailabilityType,
+		"collation":                  settings.Collation,
+		"disk_type":                  settings.DataDiskType,
+		"disk_size":                  settings.DataDiskSizeGb,
+		"pricing_plan":               settings.PricingPlan,
+		"user_labels":                settings.UserLabels,
+		"password_validation_policy": settings.PasswordValidationPolicy,
 	}
 
 	if settings.ActiveDirectoryConfig != nil {
@@ -1459,6 +1516,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
+	}
+
+	if settings.PasswordValidationPolicy != nil {
+		data["password_validation_policy"] = flattenPasswordValidationPolicy(settings.PasswordValidationPolicy)
 	}
 
 	return []map[string]interface{}{data}
@@ -1652,6 +1713,18 @@ func flattenInsightsConfig(insightsConfig *sqladmin.InsightsConfig) interface{} 
 		"record_client_address":   insightsConfig.RecordClientAddress,
 	}
 
+	return []map[string]interface{}{data}
+}
+
+func flattenPasswordValidationPolicy(passwordValidationPolicy *sqladmin.PasswordValidationPolicy) interface{} {
+	data := map[string]interface{}{
+		"min_length":                  passwordValidationPolicy.MinLength,
+		"complexity":                  passwordValidationPolicy.Complexity,
+		"reuse_interval":              passwordValidationPolicy.ReuseInterval,
+		"disallow_username_substring": passwordValidationPolicy.DisallowUsernameSubstring,
+		"password_change_interval":    passwordValidationPolicy.PasswordChangeInterval,
+		"enable_password_policy":      passwordValidationPolicy.EnablePasswordPolicy,
+	}
 	return []map[string]interface{}{data}
 }
 

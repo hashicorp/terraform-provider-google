@@ -194,7 +194,7 @@ includes an up-to-date reference of supported versions.
 * `replica_configuration` - (Optional) The configuration for replication. The
     configuration is detailed below. Valid only for MySQL instances.
 
-* `root_password` - (Optional) Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.
+* `root_password` - (Optional) Initial root password. Required for MS SQL Server.
 
 * `encryption_key_name` - (Optional)
     The full path to the encryption key used for the CMEK disk encryption.  Setting
@@ -348,6 +348,20 @@ The optional `settings.insights_config` subblock for instances declares [Query I
 * `record_application_tags` - True if Query Insights will record application tags from query when enabled.
 
 * `record_client_address` - True if Query Insights will record client address when enabled.
+
+The optional `settings.passward_validation_policy` subblock for instances declares [Password Validation Policy](https://cloud.google.com/sql/docs/postgres/built-in-authentication) configuration. It contains:
+
+* `min_length` - Specifies the minimum number of characters that the password must have.
+
+* `complexity` - Checks if the password is a combination of lowercase, uppercase, numeric, and non-alphanumeric characters.
+
+* `reuse_interval` - Specifies the number of previous passwords that you can't reuse.
+
+* `disallow_username_substring` - Prevents the use of the username in the password.
+
+* `password_change_interval` - Specifies the minimum duration after which you can change the password.
+
+* `enable_password_policy` - Enables or disable the password validation policy.
 
 The optional `replica_configuration` block must have `master_instance_name` set
 to work, cannot be updated, and supports:

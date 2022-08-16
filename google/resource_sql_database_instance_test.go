@@ -1195,6 +1195,53 @@ func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.mysql_pvp_instance_name",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func testAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "mysql_pvp_instance_name" {
+  name             = "tf-test-mysql-pvp-instance-name%{random_suffix}"
+  region           = "asia-northeast1"
+  database_version = "MYSQL_8_0"
+  root_password = "abcABC123!"
+  settings {
+    tier              = "db-f1-micro"
+    password_validation_policy {
+      min_length  = 6
+      complexity  =  "COMPLEXITY_DEFAULT"
+      reuse_interval = 2
+      disallow_username_substring = true
+      enable_password_policy = true
+    }
+  }
+  deletion_protection =  "%{deletion_protection}"
+}
+`, context)
+}
+
 var testGoogleSqlDatabaseInstance_basic2 = `
 resource "google_sql_database_instance" "instance" {
   region              = "us-central1"
