@@ -144,6 +144,11 @@ The following arguments are supported:
   Default value is `STABLE`.
   Possible values are `CANARY` and `STABLE`.
 
+* `metadata_integration` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The setting that defines how metastore metadata should be integrated with external services and systems.
+  Structure is [documented below](#nested_metadata_integration).
+
 * `location` -
   (Optional)
   The location where the metastore service should reside.
@@ -193,6 +198,15 @@ The following arguments are supported:
   Information used to configure the Hive metastore service as a service principal in a Kerberos realm.
   Structure is [documented below](#nested_kerberos_config).
 
+* `auxiliary_versions` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A mapping of Hive metastore version to the auxiliary version configuration.
+  When specified, a secondary Hive metastore service is created along with the primary service.
+  All auxiliary versions must be less than the service's primary version.
+  The key is the auxiliary service name and it must match the regular expression a-z?.
+  This means that the first character must be a lowercase letter, and all the following characters must be hyphens, lowercase letters, or digits, except the last character, which cannot be a hyphen.
+  Structure is [documented below](#nested_auxiliary_versions).
+
 
 <a name="nested_kerberos_config"></a>The `kerberos_config` block supports:
 
@@ -216,6 +230,33 @@ The following arguments are supported:
   (Required)
   The relative resource name of a Secret Manager secret version, in the following form:
   "projects/{projectNumber}/secrets/{secret_id}/versions/{version_id}".
+
+<a name="nested_auxiliary_versions"></a>The `auxiliary_versions` block supports:
+
+* `key` - (Required) The identifier for this object. Format specified above.
+
+* `version` -
+  (Required)
+  The Hive metastore version of the auxiliary service. It must be less than the primary Hive metastore service's version.
+
+* `config_overrides` -
+  (Optional)
+  A mapping of Hive metastore configuration key-value pairs to apply to the auxiliary Hive metastore (configured in hive-site.xml) in addition to the primary version's overrides.
+  If keys are present in both the auxiliary version's overrides and the primary version's overrides, the value from the auxiliary version's overrides takes precedence.
+
+<a name="nested_metadata_integration"></a>The `metadata_integration` block supports:
+
+* `data_catalog_config` -
+  (Required)
+  The integration config for the Data Catalog service.
+  Structure is [documented below](#nested_data_catalog_config).
+
+
+<a name="nested_data_catalog_config"></a>The `data_catalog_config` block supports:
+
+* `enabled` -
+  (Required)
+  Defines whether the metastore metadata should be synced to Data Catalog. The default value is to disable syncing metastore metadata to Data Catalog.
 
 ## Attributes Reference
 
