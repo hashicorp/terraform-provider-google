@@ -30,15 +30,12 @@ Three different resources help you manage your IAM policy for Cloud Functions (2
 ~> **Note:** `google_cloudfunctions2_function_iam_binding` resources **can be** used in conjunction with `google_cloudfunctions2_function_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## google\_cloudfunctions2\_function\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -48,9 +45,9 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_cloudfunctions2_function_iam_policy" "policy" {
-  provider = google-beta
-  cloud_function = google_cloudfunctions2_function.%{primary_resource_id}.name
-  location = "%{location}"
+  project = google_cloudfunctions2_function.function.project
+  location = google_cloudfunctions2_function.function.location
+  cloud_function = google_cloudfunctions2_function.function.name
   policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
@@ -59,9 +56,9 @@ resource "google_cloudfunctions2_function_iam_policy" "policy" {
 
 ```hcl
 resource "google_cloudfunctions2_function_iam_binding" "binding" {
-  provider = google-beta
-  cloud_function = google_cloudfunctions2_function.%{primary_resource_id}.name
-  location = "%{location}"
+  project = google_cloudfunctions2_function.function.project
+  location = google_cloudfunctions2_function.function.location
+  cloud_function = google_cloudfunctions2_function.function.name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -73,9 +70,9 @@ resource "google_cloudfunctions2_function_iam_binding" "binding" {
 
 ```hcl
 resource "google_cloudfunctions2_function_iam_member" "member" {
-  provider = google-beta
-  cloud_function = google_cloudfunctions2_function.%{primary_resource_id}.name
-  location = "%{location}"
+  project = google_cloudfunctions2_function.function.project
+  location = google_cloudfunctions2_function.function.location
+  cloud_function = google_cloudfunctions2_function.function.name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }

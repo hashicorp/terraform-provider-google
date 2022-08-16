@@ -285,6 +285,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[CloudFunctionsBasePathKey]),
 			},
+			"cloudfunctions2_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUDFUNCTIONS2_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[Cloudfunctions2BasePathKey]),
+			},
 			"cloud_identity_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -872,9 +880,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 228
-// Generated IAM resources: 135
-// Total generated resources: 363
+// Generated resources: 229
+// Generated IAM resources: 138
+// Total generated resources: 367
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -951,6 +959,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudfunctions_function_iam_binding":                   ResourceIamBinding(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_member":                    ResourceIamMember(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_policy":                    ResourceIamPolicy(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
+			"google_cloudfunctions2_function":                              resourceCloudfunctions2function(),
+			"google_cloudfunctions2_function_iam_binding":                  ResourceIamBinding(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
+			"google_cloudfunctions2_function_iam_member":                   ResourceIamMember(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
+			"google_cloudfunctions2_function_iam_policy":                   ResourceIamPolicy(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
 			"google_cloud_identity_group":                                  resourceCloudIdentityGroup(),
 			"google_cloud_identity_group_membership":                       resourceCloudIdentityGroupMembership(),
 			"google_cloudiot_registry":                                     resourceCloudIotDeviceRegistry(),
@@ -1477,6 +1489,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.CloudAssetBasePath = d.Get("cloud_asset_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
+	config.Cloudfunctions2BasePath = d.Get("cloudfunctions2_custom_endpoint").(string)
 	config.CloudIdentityBasePath = d.Get("cloud_identity_custom_endpoint").(string)
 	config.CloudIotBasePath = d.Get("cloud_iot_custom_endpoint").(string)
 	config.CloudRunBasePath = d.Get("cloud_run_custom_endpoint").(string)
