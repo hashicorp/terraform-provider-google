@@ -900,3 +900,65 @@ output "bucket_metadata" {
 }
 `, context)
 }
+
+func TestAccCGCSnippet_storageStaticWebsiteExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCGCSnippet_storageStaticWebsiteExample(context),
+			},
+			{
+				ResourceName:      "google_storage_bucket.static_website",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCGCSnippet_storageStaticWebsiteExample(context map[string]interface{}) string {
+	return Nprintf(`
+# Create new storage bucket in the US multi-region
+# with coldline storage and settings for main_page_suffix and not_found_page
+resource "google_storage_bucket" "static_website" {
+    name          = "tf-test-static-website-bucket%{random_suffix}"
+    location      = "US"
+    storage_class = "COLDLINE"
+    website {
+        main_page_suffix = "index.html%{random_suffix}"
+        not_found_page = "index.html%{random_suffix}"
+    }
+}
+
+# Make bucket public by granting allUsers READER access
+resource "google_storage_bucket_access_control" "public_rule" {
+  bucket = google_storage_bucket.static_website.id
+  role   = "READER"
+  entity = "allUsers"
+}
+
+# Upload a simple index.html page to the bucket
+resource "google_storage_bucket_object" "indexpage" {
+  name         = "index.html%{random_suffix}"
+  content      = "<html><body>Hello World!</body></html>"
+  content_type = "text/html"
+  bucket       = google_storage_bucket.static_website.id
+}
+
+# Upload a simple 404 / error page to the bucket
+resource "google_storage_bucket_object" "errorpage" {
+  name         = "404.html%{random_suffix}"
+  content      = "<html><body>404!</body></html>"
+  content_type = "text/html"
+  bucket       = google_storage_bucket.static_website.id
+}
+`, context)
+}
