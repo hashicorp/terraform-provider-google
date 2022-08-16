@@ -41,6 +41,12 @@ func TestAccDataflowJob_basic(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "zone", "state"},
+			},
 		},
 	})
 }
@@ -67,6 +73,12 @@ func TestAccDataflowJobSkipWait_basic(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "zone", "state"},
+			},
 		},
 	})
 }
@@ -91,6 +103,12 @@ func TestAccDataflowJob_withRegion(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccRegionalDataflowJobExists(t, "google_dataflow_job.big_data", "us-central1"),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "region", "state"},
 			},
 		},
 	})
@@ -119,6 +137,12 @@ func TestAccDataflowJob_withServiceAccount(t *testing.T) {
 					testAccDataflowJobHasServiceAccount(t, "google_dataflow_job.big_data", accountId),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
+			},
 		},
 	})
 }
@@ -145,6 +169,12 @@ func TestAccDataflowJob_withNetwork(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 					testAccDataflowJobHasNetwork(t, "google_dataflow_job.big_data", network),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
 			},
 		},
 	})
@@ -174,6 +204,12 @@ func TestAccDataflowJob_withSubnetwork(t *testing.T) {
 					testAccDataflowJobHasSubnetwork(t, "google_dataflow_job.big_data", subnetwork),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "subnetwork", "state"},
+			},
 		},
 	})
 }
@@ -202,6 +238,12 @@ func TestAccDataflowJob_withLabels(t *testing.T) {
 					testAccDataflowJobHasLabels(t, "google_dataflow_job.with_labels", key),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.with_labels",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
+			},
 		},
 	})
 }
@@ -226,6 +268,12 @@ func TestAccDataflowJob_withIpConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "ip_configuration", "state"},
 			},
 		},
 	})
@@ -255,6 +303,12 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "zone", "state"},
+			},
 		},
 	})
 }
@@ -280,6 +334,12 @@ func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.with_additional_experiments"),
 					testAccDataflowJobHasExperiments(t, "google_dataflow_job.with_additional_experiments", additionalExperiments),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.with_additional_experiments",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
 			},
 		},
 	})
@@ -308,6 +368,12 @@ func TestAccDataflowJob_streamUpdate(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobHasTempLocation(t, "google_dataflow_job.pubsub_stream", "gs://tf-test-bucket2-"+suffix),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.pubsub_stream",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "transform_name_mapping", "state"},
 			},
 		},
 	})
@@ -341,6 +407,12 @@ func TestAccDataflowJob_virtualUpdate(t *testing.T) {
 					testAccDataflowCheckId(t, "google_dataflow_job.pubsub_stream", &id),
 					resource.TestCheckResourceAttr("google_dataflow_job.pubsub_stream", "on_delete", "cancel"),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.pubsub_stream",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
 			},
 		},
 	})
