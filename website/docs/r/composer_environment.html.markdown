@@ -778,10 +778,11 @@ The `software_config` block supports:
   version number or 'latest'.
   The Apache Airflow portion of the image version is a full semantic version that points to one of the
   supported Apache Airflow versions, or an alias in the form of only major or major.minor versions specified.
-  **Important**: You can only upgrade in-place between minor or patch versions of Cloud Composer or Apache
-  Airflow. For example, you can upgrade your environment from `composer-1.16.x` to `composer-1.17.x`, or from
-  `airflow-2.1.x` to `airflow-2.2.x`. You cannot upgrade between major Cloud Composer or Apache Airflow
-  versions (from `1.x.x` to `2.x.x`). To do so, create a new environment.
+  **Important**: In-place upgrade is only available using `google-beta` provider. It's because updating the
+  `image_version` is still in beta. Using `google-beta` provider, you can upgrade in-place between minor or
+  patch versions of Cloud Composer or Apache Airflow. For example, you can upgrade your environment from
+  `composer-1.16.x` to `composer-1.17.x`, or from `airflow-2.1.x` to `airflow-2.2.x`. You cannot upgrade between
+  major Cloud Composer or Apache Airflow versions (from `1.x.x` to `2.x.x`). To do so, create a new environment.
 
 
 
