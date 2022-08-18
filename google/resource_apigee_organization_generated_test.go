@@ -45,7 +45,7 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicTestExample(t *testin
 				ResourceName:            "google_apigee_organization.org",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"project_id"},
+				ImportStateVerifyIgnore: []string{"project_id", "retention"},
 			},
 		},
 	})

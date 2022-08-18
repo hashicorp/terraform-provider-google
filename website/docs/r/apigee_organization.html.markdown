@@ -176,6 +176,15 @@ The following arguments are supported:
   If not specified, a Google-Managed encryption key will be used.
   Valid only when `RuntimeType` is CLOUD. For example: `projects/foo/locations/us/keyRings/bar/cryptoKeys/baz`.
 
+* `retention` -
+  (Optional)
+  Optional. This setting is applicable only for organizations that are soft-deleted (i.e., BillingType
+  is not EVALUATION). It controls how long Organization data will be retained after the initial delete
+  operation completes. During this period, the Organization may be restored to its last known state.
+  After this period, the Organization will no longer be able to be restored.
+  Default value is `DELETION_RETENTION_UNSPECIFIED`.
+  Possible values are `DELETION_RETENTION_UNSPECIFIED` and `MINIMUM`.
+
 
 ## Attributes Reference
 

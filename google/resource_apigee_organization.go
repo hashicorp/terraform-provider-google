@@ -78,6 +78,16 @@ Valid only when 'RuntimeType' is set to CLOUD. The value can be updated only whe
 				Optional:    true,
 				Description: `The display name of the Apigee organization.`,
 			},
+			"retention": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateEnum([]string{"DELETION_RETENTION_UNSPECIFIED", "MINIMUM", ""}),
+				Description: `Optional. This setting is applicable only for organizations that are soft-deleted (i.e., BillingType
+is not EVALUATION). It controls how long Organization data will be retained after the initial delete
+operation completes. During this period, the Organization may be restored to its last known state.
+After this period, the Organization will no longer be able to be restored. Default value: "DELETION_RETENTION_UNSPECIFIED" Possible values: ["DELETION_RETENTION_UNSPECIFIED", "MINIMUM"]`,
+				Default: "DELETION_RETENTION_UNSPECIFIED",
+			},
 			"runtime_database_encryption_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -382,7 +392,7 @@ func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}")
+	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}?retention={{retention}}")
 	if err != nil {
 		return err
 	}
@@ -398,14 +408,6 @@ func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Organization")
-	}
-
-	err = apigeeOperationWaitTime(
-		config, res, "Deleting Organization", userAgent,
-		d.Timeout(schema.TimeoutDelete))
-
-	if err != nil {
-		return err
 	}
 
 	log.Printf("[DEBUG] Finished deleting Organization %q: %#v", d.Id(), res)
