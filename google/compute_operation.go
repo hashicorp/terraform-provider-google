@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"time"
 
@@ -117,10 +118,20 @@ func computeOperationWaitTime(config *Config, res interface{}, project, activity
 type ComputeOperationError compute.OperationError
 
 func (e ComputeOperationError) Error() string {
-	var buf bytes.Buffer
+	buf := bytes.NewBuffer(nil)
 	for _, err := range e.Errors {
-		buf.WriteString(err.Message + "\n")
+		writeOperationError(buf, err)
 	}
 
 	return buf.String()
+}
+
+func writeOperationError(w io.StringWriter, opError *compute.OperationErrorErrors) {
+	w.WriteString(opError.Message + "\n")
+
+	for _, ed := range opError.ErrorDetails {
+		if ed.LocalizedMessage != nil && ed.LocalizedMessage.Message != "" {
+			w.WriteString(ed.LocalizedMessage.Message + "\n")
+		}
+	}
 }
