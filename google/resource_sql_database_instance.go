@@ -518,7 +518,6 @@ is set to true.`,
 			"database_version": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
 
@@ -1357,11 +1356,39 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	// Update only updates the settings, so they are all we need to set.
-	instance := &sqladmin.DatabaseInstance{
-		Settings: expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{})),
+	desiredSetting := d.Get("settings")
+	var op *sqladmin.Operation
+	var instance *sqladmin.DatabaseInstance
+	// Check if the database version is being updated, because patching database version is an atomic operation and can not be
+	// performed with other fields, we first patch database version before updating the rest of the fields.
+	if v, ok := d.GetOk("database_version"); ok {
+		instance = &sqladmin.DatabaseInstance{DatabaseVersion: v.(string)}
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
+		}
 	}
 
+	s := d.Get("settings")
+	instance = &sqladmin.DatabaseInstance{
+		Settings: expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{})),
+	}
+	_settings := s.([]interface{})[0].(map[string]interface{})
+	// Instance.Patch operation on completion updates the settings proto version by +8. As terraform does not know this it tries
+	// to make an update call with the proto version before patch and fails. To resolve this issue we update the setting version
+	// before making the update call.
+	instance.Settings.SettingsVersion = int64(_settings["version"].(int))
 	// Collation cannot be included in the update request
 	instance.Settings.Collation = ""
 
@@ -1372,7 +1399,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
-	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (rerr error) {
 		op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, d.Get("name").(string), instance).Do()
 		return rerr
