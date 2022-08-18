@@ -88,9 +88,10 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
 }
 
 resource "google_app_engine_standard_app_version" "myapp_v2" {
-  version_id = "v2"
-  service    = "myapp"
-  runtime    = "nodejs10"
+  version_id      = "v2"
+  service         = "myapp"
+  runtime         = "nodejs10"
+  app_engine_apis = true
 
   entrypoint {
     shell = "node ./app.js"

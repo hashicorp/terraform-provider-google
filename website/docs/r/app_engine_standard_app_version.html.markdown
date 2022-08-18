@@ -73,9 +73,10 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
 }
 
 resource "google_app_engine_standard_app_version" "myapp_v2" {
-  version_id = "v2"
-  service    = "myapp"
-  runtime    = "nodejs10"
+  version_id      = "v2"
+  service         = "myapp"
+  runtime         = "nodejs10"
+  app_engine_apis = true
 
   entrypoint {
     shell = "node ./app.js"
@@ -186,6 +187,10 @@ The following arguments are supported:
 * `threadsafe` -
   (Optional)
   Whether multiple requests can be dispatched to this version at once.
+
+* `app_engine_apis` -
+  (Optional)
+  Allows App Engine second generation runtimes to access the legacy bundled services.
 
 * `runtime_api_version` -
   (Optional)

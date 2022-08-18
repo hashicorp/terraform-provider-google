@@ -1,0 +1,3 @@
+```release-note:enhancement
+appengine: added `app_engine_apis` field to `google_app_engine_standard_app_version` resource
+```
