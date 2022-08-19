@@ -280,12 +280,12 @@ var testUnitBigtableGCPolicyRulesTestCases = []testUnitBigtableGCPolicyJSONRules
 func TestUnitBigtableGCPolicy_getGCPolicyFromJSON(t *testing.T) {
 	for _, tc := range testUnitBigtableGCPolicyRulesTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			var j map[string]interface{}
-			err := json.Unmarshal([]byte(tc.gcJSONString), &j)
+			var topLevelPolicy map[string]interface{}
+			err := json.Unmarshal([]byte(tc.gcJSONString), &topLevelPolicy)
 			if err != nil {
 				t.Fatalf("error unmarshalling JSON string: %v", err)
 			}
-			got, err := getGCPolicyFromJSON(j)
+			got, err := getGCPolicyFromJSON(topLevelPolicy /*isTopLevel=*/, true)
 			if tc.errorExpected && err == nil {
 				t.Fatal("expect error, got nil")
 			} else if !tc.errorExpected && err != nil {
