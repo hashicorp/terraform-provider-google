@@ -1597,7 +1597,7 @@ func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_autoprovisioning(clusterName, true),
+				Config: testAccContainerCluster_autoprovisioning(clusterName, true, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
 						"cluster_autoscaling.0.enabled", "true"),
@@ -1610,7 +1610,7 @@ func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 			{
-				Config: testAccContainerCluster_autoprovisioning(clusterName, false),
+				Config: testAccContainerCluster_autoprovisioning(clusterName, false, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
 						"cluster_autoscaling.0.enabled", "false"),
@@ -1700,7 +1700,7 @@ func TestAccContainerCluster_withAutopilot(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAutopilot(containerNetName, clusterName, "us-central1", true),
+				Config: testAccContainerCluster_withAutopilot(containerNetName, clusterName, "us-central1", true, false),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_autopilot",
@@ -1724,7 +1724,7 @@ func TestAccContainerCluster_errorAutopilotLocation(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerCluster_withAutopilot(containerNetName, clusterName, "us-central1-a", true),
+				Config:      testAccContainerCluster_withAutopilot(containerNetName, clusterName, "us-central1-a", true, false),
 				ExpectError: regexp.MustCompile(`Autopilot clusters must be regional clusters.`),
 			},
 		},
@@ -3332,7 +3332,7 @@ resource "google_container_cluster" "with_node_pool" {
 `, cluster, nodePool)
 }
 
-func testAccContainerCluster_autoprovisioning(cluster string, autoprovisioning bool) string {
+func testAccContainerCluster_autoprovisioning(cluster string, autoprovisioning, withNetworkTag bool) string {
 	config := fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -3361,6 +3361,14 @@ resource "google_container_cluster" "with_autoprovisioning" {
 		config += `
   cluster_autoscaling {
     enabled = false
+  }`
+	}
+	if withNetworkTag {
+		config += `
+  node_pool_auto_config {
+    network_tags {
+      tags = ["test-network-tag"]
+    }
   }`
 	}
 	config += `
@@ -4365,8 +4373,8 @@ resource "google_container_cluster" "primary" {
 `, name)
 }
 
-func testAccContainerCluster_withAutopilot(containerNetName string, clusterName string, location string, enabled bool) string {
-	return fmt.Sprintf(`
+func testAccContainerCluster_withAutopilot(containerNetName string, clusterName string, location string, enabled bool, withNetworkTag bool) string {
+	config := fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
 	name                    = "%s"
 	auto_create_subnetworks = false
@@ -4415,9 +4423,18 @@ resource "google_container_cluster" "with_autopilot" {
 	}
 	vertical_pod_autoscaling {
 		enabled = true
+	}`, containerNetName, clusterName, location, enabled)
+	if withNetworkTag {
+		config += `
+	node_pool_auto_config {
+		network_tags {
+			tags = ["test-network-tag"]
+		}
+	}`
 	}
-}
-`, containerNetName, clusterName, location, enabled)
+	config += `
+}`
+	return config
 }
 
 func testAccContainerCluster_withDNSConfig(clusterName string, clusterDns string, clusterDnsDomain string, clusterDnsScope string) string {
