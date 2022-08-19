@@ -1,0 +1,3 @@
+```release-note:enhancement
+pubsub: updated documentation for `message_retention_duration` in `google_pubsub_topic` resource to reflect new 31 day maximum
+```
