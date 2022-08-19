@@ -110,6 +110,15 @@ func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // its values to empty.
 func emptyOrUnsetBlockDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	o, n := d.GetChange(strings.TrimSuffix(k, ".#"))
+	return emptyOrUnsetBlockDiffSuppressLogic(k, old, new, o, n)
+}
+
+// The core logic for emptyOrUnsetBlockDiffSuppress, in a format that is more conducive
+// to unit testing.
+func emptyOrUnsetBlockDiffSuppressLogic(k, old, new string, o, n interface{}) bool {
+	if !strings.HasSuffix(k, ".#") {
+		return false
+	}
 	var l []interface{}
 	if old == "0" && new == "1" {
 		l = n.([]interface{})
@@ -120,7 +129,10 @@ func emptyOrUnsetBlockDiffSuppress(k, old, new string, d *schema.ResourceData) b
 		return false
 	}
 
-	contents := l[0].(map[string]interface{})
+	contents, ok := l[0].(map[string]interface{})
+	if !ok {
+		return false
+	}
 	for _, v := range contents {
 		if !isEmptyValue(reflect.ValueOf(v)) {
 			return false
