@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: passed `isTopeLevel` in getGCPolicyFromJSON() instead of hardcoding it to true.
+```

@@ -317,11 +317,11 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	if gok {
-		var j map[string]interface{}
-		if err := json.Unmarshal([]byte(gcRules.(string)), &j); err != nil {
+		var topLevelPolicy map[string]interface{}
+		if err := json.Unmarshal([]byte(gcRules.(string)), &topLevelPolicy); err != nil {
 			return nil, err
 		}
-		return getGCPolicyFromJSON(j)
+		return getGCPolicyFromJSON(topLevelPolicy /*isTopLevel=*/, true)
 	}
 
 	if aok {
@@ -351,16 +351,16 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	return policies[0], nil
 }
 
-func getGCPolicyFromJSON(topLevelPolicy map[string]interface{}) (bigtable.GCPolicy, error) {
+func getGCPolicyFromJSON(inputPolicy map[string]interface{}, isTopLevel bool) (bigtable.GCPolicy, error) {
 	policy := []bigtable.GCPolicy{}
 
-	if err := validateNestedPolicy(topLevelPolicy, true); err != nil {
+	if err := validateNestedPolicy(inputPolicy, isTopLevel); err != nil {
 		return nil, err
 	}
 
-	for _, p := range topLevelPolicy["rules"].([]interface{}) {
+	for _, p := range inputPolicy["rules"].([]interface{}) {
 		childPolicy := p.(map[string]interface{})
-		if err := validateNestedPolicy(childPolicy, false); err != nil {
+		if err := validateNestedPolicy(childPolicy /*isTopLevel=*/, false); err != nil {
 			return nil, err
 		}
 
@@ -379,7 +379,7 @@ func getGCPolicyFromJSON(topLevelPolicy map[string]interface{}) (bigtable.GCPoli
 		}
 
 		if childPolicy["mode"] != nil {
-			n, err := getGCPolicyFromJSON(childPolicy)
+			n, err := getGCPolicyFromJSON(childPolicy /*isTopLevel=*/, false)
 			if err != nil {
 				return nil, err
 			}
@@ -387,7 +387,7 @@ func getGCPolicyFromJSON(topLevelPolicy map[string]interface{}) (bigtable.GCPoli
 		}
 	}
 
-	switch topLevelPolicy["mode"] {
+	switch inputPolicy["mode"] {
 	case strings.ToLower(GCPolicyModeUnion):
 		return bigtable.UnionPolicy(policy...), nil
 	case strings.ToLower(GCPolicyModeIntersection):
@@ -397,7 +397,7 @@ func getGCPolicyFromJSON(topLevelPolicy map[string]interface{}) (bigtable.GCPoli
 	}
 }
 
-func validateNestedPolicy(p map[string]interface{}, topLevel bool) error {
+func validateNestedPolicy(p map[string]interface{}, isTopLevel bool) error {
 	if len(p) > 2 {
 		return fmt.Errorf("rules has more than 2 fields")
 	}
@@ -418,19 +418,19 @@ func validateNestedPolicy(p map[string]interface{}, topLevel bool) error {
 		return fmt.Errorf("`rules` need at least 2 GC rule when mode is specified")
 	}
 
-	if topLevel && !rulesOk {
+	if isTopLevel && !rulesOk {
 		return fmt.Errorf("invalid nested policy, need `rules`")
 	}
 
-	if topLevel && !modeOk && len(rules) != 1 {
+	if isTopLevel && !modeOk && len(rules) != 1 {
 		return fmt.Errorf("when `mode` is not specified, `rules` can only have 1 child rule")
 	}
 
-	if !topLevel && len(p) == 2 && (!modeOk || !rulesOk) {
+	if !isTopLevel && len(p) == 2 && (!modeOk || !rulesOk) {
 		return fmt.Errorf("need `mode` and `rules` for child nested policies")
 	}
 
-	if !topLevel && len(p) == 1 && !maxVersionOk && !maxAgeOk {
+	if !isTopLevel && len(p) == 1 && !maxVersionOk && !maxAgeOk {
 		return fmt.Errorf("need `max_version` or `max_age` for the rule")
 	}
 
