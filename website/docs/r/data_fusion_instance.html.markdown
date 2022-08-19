@@ -42,6 +42,10 @@ resource "google_data_fusion_instance" "basic_instance" {
   name = "my-instance"
   region = "us-central1"
   type = "BASIC"
+  # Mark for testing to avoid service networking connection usage that is not cleaned up
+  options = {
+    prober_test_run = "true"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -70,6 +74,10 @@ resource "google_data_fusion_instance" "extended_instance" {
   }
   version = "6.3.0"
   dataproc_service_account = data.google_app_engine_default_service_account.default.email
+  # Mark for testing to avoid service networking connection usage that is not cleaned up
+  options = {
+    prober_test_run = "true"
+  }
 }
 
 data "google_app_engine_default_service_account" "default" {
