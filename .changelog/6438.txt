@@ -1,0 +1,3 @@
+```release-note:bug
+cloud iam: made `denial_condition` optional on `google_iam_deny_policy`
+```

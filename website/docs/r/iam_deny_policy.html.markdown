@@ -135,7 +135,7 @@ The following arguments are supported:
   The excluded permissions can be specified using the same syntax as deniedPermissions.
 
 * `denial_condition` -
-  (Required)
+  (Optional)
   User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.
   Structure is [documented below](#nested_denial_condition).
 
