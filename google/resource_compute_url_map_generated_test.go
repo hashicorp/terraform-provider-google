@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
+func TestAccComputeUrlMap_urlMapBucketAndServiceExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -36,7 +36,7 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeUrlMap_urlMapBasicExample(context),
+				Config: testAccComputeUrlMap_urlMapBucketAndServiceExample(context),
 			},
 			{
 				ResourceName:            "google_compute_url_map.urlmap",
@@ -48,7 +48,7 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeUrlMap_urlMapBasicExample(context map[string]interface{}) string {
+func testAccComputeUrlMap_urlMapBucketAndServiceExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
@@ -93,7 +93,7 @@ resource "google_compute_url_map" "urlmap" {
 
   test {
     service = google_compute_backend_bucket.static.id
-    host    = "hi.com"
+    host    = "example.com"
     path    = "/home"
   }
 }
