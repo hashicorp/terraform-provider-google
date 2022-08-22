@@ -4,12 +4,21 @@ import (
 	"fmt"
 	"log"
 
+	"regexp"
 	"strings"
 
 	"net"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/dns/v1"
+)
+
+const (
+	// Format of ResourceRecordSets name field
+	// .*\.<some_domain_at_least_two_char>
+	// Match any lower/upper case characters min 2 followed by a trailling period at the end of a string
+	// https://cloud.google.com/dns/docs/reference/v1/resourceRecordSets
+	DnsRecordTrailingDotCheckRegex = "[a-zA-Z]{2,63}\\.$"
 )
 
 func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -88,10 +97,11 @@ func resourceDnsRecordSet() *schema.Resource {
 			},
 
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The DNS name this record set will apply to.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateRecordNameTrailingDot(),
+				Description:  `The DNS name this record set will apply to.`,
 			},
 
 			"rrdatas": {
@@ -619,4 +629,16 @@ func flattenDnsRecordSetRoutingPolicyGEO(geo *dns.RRSetRoutingPolicyGeoPolicy) [
 		ris = append(ris, ri)
 	}
 	return ris
+}
+
+func validateRecordNameTrailingDot() schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+
+		if !regexp.MustCompile(DnsRecordTrailingDotCheckRegex).MatchString(value) {
+			errors = append(errors, fmt.Errorf(
+				"%q (%q) doesn't match regexp %q, name field must end with trailing dot, for example test.example.com. (note the trailing dot)", k, value, DnsRecordTrailingDotCheckRegex))
+		}
+		return
+	}
 }
