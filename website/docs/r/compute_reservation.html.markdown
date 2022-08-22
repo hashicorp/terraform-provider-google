@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_reservation"
-sidebar_current: "docs-google-compute-reservation"
 description: |-
   Represents a reservation resource.
 ---
@@ -79,14 +77,14 @@ The following arguments are supported:
 * `specific_reservation` -
   (Required)
   Reservation for instances with specific machine shapes.
-  Structure is documented below.
+  Structure is [documented below](#nested_specific_reservation).
 
 * `zone` -
   (Required)
   The zone where the reservation is made.
 
 
-The `specific_reservation` block supports:
+<a name="nested_specific_reservation"></a>The `specific_reservation` block supports:
 
 * `count` -
   (Required)
@@ -98,10 +96,10 @@ The `specific_reservation` block supports:
 * `instance_properties` -
   (Required)
   The instance properties for the reservation.
-  Structure is documented below.
+  Structure is [documented below](#nested_instance_properties).
 
 
-The `instance_properties` block supports:
+<a name="nested_instance_properties"></a>The `instance_properties` block supports:
 
 * `machine_type` -
   (Required)
@@ -117,16 +115,16 @@ The `instance_properties` block supports:
 * `guest_accelerators` -
   (Optional)
   Guest accelerator type and count.
-  Structure is documented below.
+  Structure is [documented below](#nested_guest_accelerators).
 
 * `local_ssds` -
   (Optional)
   The amount of local ssd to reserve with each instance. This
   reserves disks of type `local-ssd`.
-  Structure is documented below.
+  Structure is [documented below](#nested_local_ssds).
 
 
-The `guest_accelerators` block supports:
+<a name="nested_guest_accelerators"></a>The `guest_accelerators` block supports:
 
 * `accelerator_type` -
   (Required)
@@ -140,7 +138,7 @@ The `guest_accelerators` block supports:
   The number of the guest accelerator cards exposed to
   this instance.
 
-The `local_ssds` block supports:
+<a name="nested_local_ssds"></a>The `local_ssds` block supports:
 
 * `interface` -
   (Optional)
@@ -165,9 +163,35 @@ The `local_ssds` block supports:
   consume this reservation. Otherwise, it can be consumed by VMs with
   affinity for any reservation. Defaults to false.
 
+* `share_settings` -
+  (Optional)
+  The share setting for reservations.
+  Structure is [documented below](#nested_share_settings).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_share_settings"></a>The `share_settings` block supports:
+
+* `share_type` -
+  (Optional)
+  Type of sharing for this shared-reservation
+  Possible values are `LOCAL` and `SPECIFIC_PROJECTS`.
+
+* `project_map` -
+  (Optional)
+  A map of project number and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.
+  Structure is [documented below](#nested_project_map).
+
+
+<a name="nested_project_map"></a>The `project_map` block supports:
+
+* `id` - (Required) The identifier for this object. Format specified above.
+
+* `project_id` -
+  (Optional)
+  The project id/number, should be same as the key of this project config in the project map.
 
 ## Attributes Reference
 
@@ -192,9 +216,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

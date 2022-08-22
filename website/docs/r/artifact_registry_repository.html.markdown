@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Artifact Registry"
-layout: "google"
 page_title: "Google: google_artifact_registry_repository"
-sidebar_current: "docs-google-artifact-registry-repository"
 description: |-
   A repository for storing artifacts
 ---
@@ -24,12 +22,10 @@ description: |-
 
 A repository for storing artifacts
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Repository, see:
 
-* [API documentation](https://cloud.google.com/artifact-registry/docs/reference/rest/)
+* [API documentation](https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/artifact-registry/docs/overview)
 
@@ -43,12 +39,10 @@ To get more information about Repository, see:
 
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
-  provider = google-beta
-
-  location = "us-central1"
+  location      = "us-central1"
   repository_id = "my-repository"
-  description = "example docker repository"
-  format = "DOCKER"
+  description   = "example docker repository"
+  format        = "DOCKER"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -61,47 +55,11 @@ resource "google_artifact_registry_repository" "my-repo" {
 
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
-  provider = google-beta
-
-  location = "us-central1"
+  location      = "us-central1"
   repository_id = "my-repository"
-  description = "example docker repository with cmek"
-  format = "DOCKER"
-  kms_key_name = "kms-key"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_iam&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Artifact Registry Repository Iam
-
-
-```hcl
-resource "google_artifact_registry_repository" "my-repo" {
-  provider = google-beta
-
-  location = "us-central1"
-  repository_id = "my-repository"
-  description = "example docker repository with iam"
-  format = "DOCKER"
-}
-
-resource "google_service_account" "test-account" {
-  provider = google-beta
-
-  account_id   = "my-account"
-  display_name = "Test Service Account"
-}
-
-resource "google_artifact_registry_repository_iam_member" "test-iam" {
-  provider = google-beta
-
-  location = google_artifact_registry_repository.my-repo.location
-  repository = google_artifact_registry_repository.my-repo.name
-  role   = "roles/artifactregistry.reader"
-  member = "serviceAccount:${google_service_account.test-account.email}"
+  description   = "example docker repository with cmek"
+  format        = "DOCKER"
+  kms_key_name  = "kms-key"
 }
 ```
 
@@ -117,8 +75,10 @@ The following arguments are supported:
 
 * `format` -
   (Required)
-  The format of packages that are stored in the repository.
-  Possible values are `DOCKER`.
+  The format of packages that are stored in the repository. Supported formats
+  can be found [here](https://cloud.google.com/artifact-registry/docs/supported-formats).
+  You can only create alpha formats if you are a member of the
+  [alpha user group](https://cloud.google.com/artifact-registry/docs/supported-formats#alpha-access).
 
 
 - - -
@@ -147,9 +107,29 @@ The following arguments are supported:
   `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
   This value may not be changed after the Repository has been created.
 
+* `maven_config` -
+  (Optional)
+  MavenRepositoryConfig is maven related repository details.
+  Provides additional configuration details for repositories of the maven
+  format type.
+  Structure is [documented below](#nested_maven_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_maven_config"></a>The `maven_config` block supports:
+
+* `allow_snapshot_overwrites` -
+  (Optional)
+  The repository with this flag will allow publishing the same
+  snapshot versions.
+
+* `version_policy` -
+  (Optional)
+  Version policy defines the versions that the registry will accept.
+  Default value is `VERSION_POLICY_UNSPECIFIED`.
+  Possible values are `VERSION_POLICY_UNSPECIFIED`, `RELEASE`, and `SNAPSHOT`.
 
 ## Attributes Reference
 
@@ -173,9 +153,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -54,6 +54,37 @@ func TestAccLoggingProjectSink_described(t *testing.T) {
 	})
 }
 
+func TestAccLoggingProjectSink_described_update(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_described(sinkName, getTestProjectFromEnv(), bucketName),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.described",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingProjectSink_described_update(sinkName, getTestProjectFromEnv(), bucketName),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.described",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingProjectSink_disabled(t *testing.T) {
 	t.Parallel()
 
@@ -322,7 +353,8 @@ resource "google_logging_project_sink" "basic" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, name, project, project, bucketName)
 }
@@ -340,7 +372,27 @@ resource "google_logging_project_sink" "described" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
+}
+`, name, project, project, bucketName)
+}
+
+func testAccLoggingProjectSink_described_update(name, project, bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "described" {
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  description = "description updated"
+
+  unique_writer_identity = false
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name     = "%s"
+  location = "US"
 }
 `, name, project, project, bucketName)
 }
@@ -358,7 +410,8 @@ resource "google_logging_project_sink" "disabled" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, name, project, project, bucketName)
 }
@@ -376,7 +429,8 @@ resource "google_logging_project_sink" "disabled" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, name, project, project, disabled, bucketName)
 }
@@ -392,7 +446,8 @@ resource "google_logging_project_sink" "unique_writer" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, name, getTestProjectFromEnv(), bucketName)
 }
@@ -408,7 +463,8 @@ resource "google_logging_project_sink" "unique_writer" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, name, getTestProjectFromEnv(), bucketName)
 }
@@ -432,7 +488,8 @@ EOS
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, name, project, project, bucketName)
 }

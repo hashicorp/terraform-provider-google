@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_account_iam"
-sidebar_current: "docs-google-service-account-iam"
 description: |-
  Collection of resources to manage IAM policy for a service account.
 ---
@@ -72,7 +70,7 @@ resource "google_service_account" "sa" {
 }
 
 resource "google_service_account_iam_binding" "admin-account-iam" {
-  service_account_id = "${google_service_account.sa.name}"
+  service_account_id = google_service_account.sa.name
   role               = "roles/iam.serviceAccountUser"
 
   members = [
@@ -121,7 +119,7 @@ resource "google_service_account" "sa" {
 }
 
 resource "google_service_account_iam_member" "admin-account-iam" {
-  service_account_id = "${google_service_account.sa.name}"
+  service_account_id = google_service_account.sa.name
   role               = "roles/iam.serviceAccountUser"
   member             = "user:jane@example.com"
 
@@ -156,9 +154,9 @@ The following arguments are supported:
   a `google_iam_policy` data source.
 
 * `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition).
 
-The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
 

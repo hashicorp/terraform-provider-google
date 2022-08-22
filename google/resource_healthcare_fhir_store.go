@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceHealthcareFhirStore() *schema.Resource {
@@ -38,9 +36,9 @@ func resourceHealthcareFhirStore() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -64,7 +62,7 @@ func resourceHealthcareFhirStore() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DSTU2", "STU3", "R4"}, false),
+				ValidateFunc: validateEnum([]string{"DSTU2", "STU3", "R4"}),
 				Description:  `The FHIR specification version. Possible values: ["DSTU2", "STU3", "R4"]`,
 			},
 			"disable_referential_integrity": {
@@ -145,7 +143,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
 It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
 was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
 Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.`,
 						},
 					},
@@ -196,10 +194,12 @@ value 2. The maximum depth allowed is 5.`,
 												"schema_type": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validation.StringInSlice([]string{"ANALYTICS", ""}, false),
-													Description: `Specifies the output schema type. Only ANALYTICS is supported at this time.
+													ValidateFunc: validateEnum([]string{"ANALYTICS", "ANALYTICS_V2", "LOSSLESS", ""}),
+													Description: `Specifies the output schema type.
  * ANALYTICS: Analytics schema defined by the FHIR community.
-  See https://github.com/FHIR/sql-on-fhir/blob/master/sql-on-fhir.md. Default value: "ANALYTICS" Possible values: ["ANALYTICS"]`,
+  See https://github.com/FHIR/sql-on-fhir/blob/master/sql-on-fhir.md.
+ * ANALYTICS_V2: Analytics V2, similar to schema defined by the FHIR community, with added support for extensions with one or more occurrences and contained resources in stringified JSON.
+ * LOSSLESS: A data-driven schema generated from the fields present in the FHIR data being exported, with no additional simplification. Default value: "ANALYTICS" Possible values: ["ANALYTICS", "ANALYTICS_V2", "LOSSLESS"]`,
 													Default: "ANALYTICS",
 												},
 											},
@@ -631,7 +631,7 @@ func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigSchem
 func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigRecursiveStructureDepth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

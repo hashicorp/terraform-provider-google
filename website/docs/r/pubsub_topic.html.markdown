@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_topic"
-sidebar_current: "docs-google-pubsub-topic"
 description: |-
   A named resource to which messages are sent by publishers.
 ---
@@ -49,6 +47,8 @@ resource "google_pubsub_topic" "example" {
   labels = {
     foo = "bar"
   }
+
+  message_retention_duration = "86600s"
 }
 ```
 ## Example Usage - Pubsub Topic Cmek
@@ -89,6 +89,26 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+## Example Usage - Pubsub Topic Schema Settings
+
+
+```hcl
+resource "google_pubsub_schema" "example" {
+  name = "example"
+  type = "AVRO"
+  definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  depends_on = [google_pubsub_schema.example]
+  schema_settings {
+    schema = "projects/my-project-name/schemas/example"
+    encoding = "JSON"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -120,13 +140,28 @@ The following arguments are supported:
   Policy constraining the set of Google Cloud Platform regions where
   messages published to the topic may be stored. If not present, then no
   constraints are in effect.
-  Structure is documented below.
+  Structure is [documented below](#nested_message_storage_policy).
+
+* `schema_settings` -
+  (Optional)
+  Settings for validating messages published against a schema.
+  Structure is [documented below](#nested_schema_settings).
+
+* `message_retention_duration` -
+  (Optional)
+  Indicates the minimum duration to retain a message after it is published
+  to the topic. If this field is set, messages published to the topic in
+  the last messageRetentionDuration are always available to subscribers.
+  For instance, it allows any attached subscription to seek to a timestamp
+  that is up to messageRetentionDuration in the past. If this field is not
+  set, message retention is controlled by settings on individual subscriptions.
+  Cannot be more than 31 days or less than 10 minutes.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `message_storage_policy` block supports:
+<a name="nested_message_storage_policy"></a>The `message_storage_policy` block supports:
 
 * `allowed_persistence_regions` -
   (Required)
@@ -136,6 +171,21 @@ The `message_storage_policy` block supports:
   of GCP altogether) will be routed for storage in one of the
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
+
+<a name="nested_schema_settings"></a>The `schema_settings` block supports:
+
+* `schema` -
+  (Required)
+  The name of the schema that messages published should be
+  validated against. Format is projects/{project}/schemas/{schema}.
+  The value of this field will be _deleted-schema_
+  if the schema has been deleted.
+
+* `encoding` -
+  (Optional)
+  The encoding of messages validated against schema.
+  Default value is `ENCODING_UNSPECIFIED`.
+  Possible values are `ENCODING_UNSPECIFIED`, `JSON`, and `BINARY`.
 
 ## Attributes Reference
 
@@ -149,9 +199,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

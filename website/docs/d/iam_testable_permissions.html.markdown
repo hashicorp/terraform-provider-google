@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_iam_testable_permissions"
-sidebar_current: "docs-google-datasource-iam-testable-permissions"
 description: |-
   Retrieve a list of testable permissions for a resource. Testable permissions mean the permissions that user can add or remove in a role at a given resource. The resource can be referenced either via the full resource name or via a URI.
 ---
@@ -34,9 +32,9 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `permissions` - A list of permissions matching the provided input. Structure is defined below.
+* `permissions` - A list of permissions matching the provided input. Structure is [defined below](#nested_permissions).
 
-The `permissions` block supports:
+<a name="nested_permissions"></a>The `permissions` block supports:
 
 * `name` - Name of the permission.
 * `title` - Human readable title of the permission.

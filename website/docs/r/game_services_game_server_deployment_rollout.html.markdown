@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Game Servers"
-layout: "google"
 page_title: "Google: google_game_services_game_server_deployment_rollout"
-sidebar_current: "docs-google-game-services-game-server-deployment-rollout"
 description: |-
   This represents the rollout state.
 ---
@@ -91,25 +89,25 @@ The following arguments are supported:
   overrides. The overrides are processed in the order they are listed. As
   soon as a match is found for a cluster, the rest of the list is not
   processed.
-  Structure is documented below.
+  Structure is [documented below](#nested_game_server_config_overrides).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `game_server_config_overrides` block supports:
+<a name="nested_game_server_config_overrides"></a>The `game_server_config_overrides` block supports:
 
 * `realms_selector` -
   (Optional)
   Selection by realms.
-  Structure is documented below.
+  Structure is [documented below](#nested_realms_selector).
 
 * `config_version` -
   (Optional)
   Version of the configuration.
 
 
-The `realms_selector` block supports:
+<a name="nested_realms_selector"></a>The `realms_selector` block supports:
 
 * `realms` -
   (Optional)
@@ -131,9 +129,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

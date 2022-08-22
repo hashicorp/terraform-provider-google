@@ -95,7 +95,7 @@ func dataSourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}
 	} else if selfLink, ok := d.GetOk("self_link"); ok {
 		parsed, err := ParseInstanceGroupFieldValue(selfLink.(string), d, config)
 		if err != nil {
-			return err
+			return fmt.Errorf("InstanceGroup name, zone or project could not be parsed from %s", selfLink)
 		}
 		if err := d.Set("name", parsed.Name); err != nil {
 			return fmt.Errorf("Error setting name: %s", err)

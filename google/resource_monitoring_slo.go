@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -34,6 +34,13 @@ func validateMonitoringSloGoal(v interface{}, k string) (warnings []string, erro
 	return
 }
 
+func validateAvailabilitySli(v interface{}, key string) (ws []string, errs []error) {
+	if v.(bool) == false {
+		errs = append(errs, fmt.Errorf("%q must be set to true, got: %v", key, v))
+	}
+	return
+}
+
 func resourceMonitoringSlo() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringSloCreate,
@@ -46,9 +53,9 @@ func resourceMonitoringSlo() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -68,7 +75,7 @@ to be met. 0 < goal <= 0.999`,
 			"calendar_period": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DAY", "WEEK", "FORTNIGHT", "MONTH", ""}, false),
+				ValidateFunc: validateEnum([]string{"DAY", "WEEK", "FORTNIGHT", "MONTH", ""}),
 				Description: `A calendar period, semantically "since the start of the current
 <calendarPeriod>". Possible values: ["DAY", "WEEK", "FORTNIGHT", "MONTH"]`,
 				ExactlyOneOf: []string{"rolling_period_days", "calendar_period"},
@@ -100,9 +107,27 @@ Exactly one of the following must be set:
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"availability": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Availability based SLI, dervied from count of requests made to this service that return successfully.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										ValidateFunc: validateAvailabilitySli,
+										Description:  `Whether an availability SLI is enabled or not. Must be set to true. Defaults to 'true'.`,
+										Default:      true,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"basic_sli.0.latency", "basic_sli.0.availability"},
+						},
 						"latency": {
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: `Parameters for a latency threshold SLI.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -116,6 +141,7 @@ this service that return in no more than threshold.`,
 									},
 								},
 							},
+							ExactlyOneOf: []string{"basic_sli.0.latency", "basic_sli.0.availability"},
 						},
 						"location": {
 							Type:     schema.TypeSet,
@@ -204,8 +230,8 @@ MetricKind = DELTA or MetricKind = CUMULATIVE.`,
 										Required: true,
 										Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
@@ -337,9 +363,27 @@ high enough. One of 'good_bad_metric_filter',
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"availability": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Availability based SLI, dervied from count of requests made to this service that return successfully.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"enabled": {
+																Type:         schema.TypeBool,
+																Optional:     true,
+																ValidateFunc: validateAvailabilitySli,
+																Description:  `Whether an availability SLI is enabled or not. Must be set to 'true. Defaults to 'true'.`,
+																Default:      true,
+															},
+														},
+													},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability"},
+												},
 												"latency": {
 													Type:        schema.TypeList,
-													Required:    true,
+													Optional:    true,
 													Description: `Parameters for a latency threshold SLI.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -353,6 +397,7 @@ this service that return in no more than threshold.`,
 															},
 														},
 													},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability"},
 												},
 												"location": {
 													Type:     schema.TypeSet,
@@ -432,8 +477,8 @@ MetricKind = DELTA or MetricKind = CUMULATIVE.`,
 																Required: true,
 																Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max.`,
 																MaxItems: 1,
 																Elem: &schema.Resource{
@@ -538,7 +583,7 @@ One of 'good_bad_metric_filter',
 'good_total_ratio_threshold', 'metric_mean_in_range',
 'metric_sum_in_range' must be set for 'windows_based_sli'.
 Average value X of 'time_series' should satisfy
-'range.min <= X < range.max' for a good window.`,
+'range.min <= X <= range.max' for a good window.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -547,10 +592,10 @@ Average value X of 'time_series' should satisfy
 										Required: true,
 										Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max. Mean value 'X' of 'time_series'
-values should satisfy 'range.min <= X < range.max' for a
+values should satisfy 'range.min <= X <= range.max' for a
 good service.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
@@ -581,7 +626,7 @@ will be set to "-infinity", defining an open range
 specifying the TimeSeries to use for evaluating window
 The provided TimeSeries must have ValueType = INT64 or
 ValueType = DOUBLE and MetricKind = GAUGE. Mean value 'X'
-should satisfy 'range.min <= X < range.max'
+should satisfy 'range.min <= X <= range.max'
 under good service.`,
 									},
 								},
@@ -594,7 +639,7 @@ under good service.`,
 							Description: `Criterion that describes a window as good if the metric's value
 is in a good range, *summed* across returned streams.
 Summed value 'X' of 'time_series' should satisfy
-'range.min <= X < range.max' for a good window.
+'range.min <= X <= range.max' for a good window.
 
 One of 'good_bad_metric_filter',
 'good_total_ratio_threshold', 'metric_mean_in_range',
@@ -607,10 +652,10 @@ One of 'good_bad_metric_filter',
 										Required: true,
 										Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max. Summed value 'X' should satisfy
-'range.min <= X < range.max' for a good window.`,
+'range.min <= X <= range.max' for a good window.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -643,7 +688,7 @@ ValueType = INT64 or ValueType = DOUBLE and
 MetricKind = GAUGE.
 
 Summed value 'X' should satisfy
-'range.min <= X < range.max' for a good window.`,
+'range.min <= X <= range.max' for a good window.`,
 									},
 								},
 							},
@@ -668,6 +713,16 @@ integer fraction of a day and at least 60s.`,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^[a-z0-9\-]+$`),
 				Description:  `The id to use for this ServiceLevelObjective. If omitted, an id will be generated instead.`,
+			},
+			"user_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `This field is intended to be used for organizing and identifying the AlertPolicy
+objects.The field can contain up to 64 entries. Each key and value is limited
+to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
+can contain only lowercase letters, numerals, underscores, and dashes. Keys
+must begin with a letter.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -717,6 +772,12 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("calendar_period"); !isEmptyValue(reflect.ValueOf(calendarPeriodProp)) && (ok || !reflect.DeepEqual(v, calendarPeriodProp)) {
 		obj["calendarPeriod"] = calendarPeriodProp
+	}
+	userLabelsProp, err := expandMonitoringSloUserLabels(d.Get("user_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("user_labels"); ok || !reflect.DeepEqual(v, userLabelsProp) {
+		obj["userLabels"] = userLabelsProp
 	}
 	serviceLevelIndicatorProp, err := expandMonitoringSloServiceLevelIndicator(nil, d, config)
 	if err != nil {
@@ -831,6 +892,9 @@ func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("calendar_period", flattenMonitoringSloCalendarPeriod(res["calendarPeriod"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Slo: %s", err)
 	}
+	if err := d.Set("user_labels", flattenMonitoringSloUserLabels(res["userLabels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Slo: %s", err)
+	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
 	if flattenedProp := flattenMonitoringSloServiceLevelIndicator(res["serviceLevelIndicator"], d, config); flattenedProp != nil {
@@ -893,6 +957,12 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("calendar_period"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, calendarPeriodProp)) {
 		obj["calendarPeriod"] = calendarPeriodProp
 	}
+	userLabelsProp, err := expandMonitoringSloUserLabels(d.Get("user_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("user_labels"); ok || !reflect.DeepEqual(v, userLabelsProp) {
+		obj["userLabels"] = userLabelsProp
+	}
 	serviceLevelIndicatorProp, err := expandMonitoringSloServiceLevelIndicator(nil, d, config)
 	if err != nil {
 		return err
@@ -934,6 +1004,10 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("calendar_period") {
 		updateMask = append(updateMask, "calendarPeriod")
+	}
+
+	if d.HasChange("user_labels") {
+		updateMask = append(updateMask, "userLabels")
 	}
 
 	if d.HasChange("basic_sli") {
@@ -1073,6 +1147,10 @@ func flattenMonitoringSloCalendarPeriod(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
+func flattenMonitoringSloUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringSloServiceLevelIndicator(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1107,6 +1185,8 @@ func flattenMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d *schema.
 		flattenMonitoringSloServiceLevelIndicatorBasicSliVersion(original["version"], d, config)
 	transformed["latency"] =
 		flattenMonitoringSloServiceLevelIndicatorBasicSliLatency(original["latency"], d, config)
+	transformed["availability"] =
+		flattenMonitoringSloServiceLevelIndicatorBasicSliAvailability(original["availability"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorBasicSliMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1145,6 +1225,15 @@ func flattenMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d *
 }
 func flattenMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] = true
+	return []interface{}{transformed}
 }
 
 func flattenMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1386,6 +1475,8 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(original["version"], d, config)
 	transformed["latency"] =
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(original["latency"], d, config)
+	transformed["availability"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(original["availability"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1424,6 +1515,15 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 }
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] = true
+	return []interface{}{transformed}
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1543,6 +1643,17 @@ func expandMonitoringSloCalendarPeriod(v interface{}, d TerraformResourceData, c
 	return v, nil
 }
 
+func expandMonitoringSloUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func expandMonitoringSloServiceLevelIndicator(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedBasicSli, err := expandMonitoringSloServiceLevelIndicatorBasicSli(d.Get("basic_sli"), d, config)
@@ -1606,6 +1717,13 @@ func expandMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d Terraform
 		transformed["latency"] = transformedLatency
 	}
 
+	transformedAvailability, err := expandMonitoringSloServiceLevelIndicatorBasicSliAvailability(original["availability"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAvailability); val.IsValid() && !isEmptyValue(val) {
+		transformed["availability"] = transformedAvailability
+	}
+
 	return transformed, nil
 }
 
@@ -1644,6 +1762,29 @@ func expandMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d Te
 }
 
 func expandMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandMonitoringSloServiceLevelIndicatorBasicSliAvailabilityEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !isEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorBasicSliAvailabilityEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2046,6 +2187,13 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 		transformed["latency"] = transformedLatency
 	}
 
+	transformedAvailability, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(original["availability"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAvailability); val.IsValid() && !isEmptyValue(val) {
+		transformed["availability"] = transformedAvailability
+	}
+
 	return transformed, nil
 }
 
@@ -2084,6 +2232,29 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 }
 
 func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailabilityEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !isEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailabilityEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2223,5 +2394,28 @@ func resourceMonitoringSloEncoder(d *schema.ResourceData, meta interface{}, obj 
 	// Name/Service Level Objective ID is a query parameter and cannot
 	// be given in data
 	delete(obj, "sloId")
+	Sli := obj["serviceLevelIndicator"].(map[string]interface{})
+	if basicSli, ok := Sli["basicSli"].(map[string]interface{}); ok {
+		//Removing the dummy `enabled` attribute
+		if availability, ok := basicSli["availability"]; ok {
+			transAvailability := availability.(map[string]interface{})
+			delete(transAvailability, "enabled")
+			basicSli["availability"] = transAvailability
+		}
+	}
+
+	if windowBasedSli, ok := Sli["windowsBased"].(map[string]interface{}); ok {
+		if goodTotalRatioThreshold, ok := windowBasedSli["goodTotalRatioThreshold"].(map[string]interface{}); ok {
+			if basicSli, ok := goodTotalRatioThreshold["basicSliPerformance"].(map[string]interface{}); ok {
+				//Removing the dummy `enabled` attribute
+				if availability, ok := basicSli["availability"]; ok {
+					transAvailability := availability.(map[string]interface{})
+					delete(transAvailability, "enabled")
+					basicSli["availability"] = transAvailability
+				}
+			}
+		}
+	}
+
 	return obj, nil
 }

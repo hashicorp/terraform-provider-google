@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_policy"
-sidebar_current: "docs-google-dns-policy"
 description: |-
   A policy is a collection of DNS rules applied to one or more Virtual
   Private Cloud resources.
@@ -95,7 +93,7 @@ The following arguments are supported:
   Sets an alternative name server for the associated networks.
   When specified, all DNS queries are forwarded to a name server that you choose.
   Names such as .internal are not available when an alternative name server is specified.
-  Structure is documented below.
+  Structure is [documented below](#nested_alternative_name_server_config).
 
 * `description` -
   (Optional)
@@ -116,23 +114,23 @@ The following arguments are supported:
 * `networks` -
   (Optional)
   List of network names specifying networks to which this policy is applied.
-  Structure is documented below.
+  Structure is [documented below](#nested_networks).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `alternative_name_server_config` block supports:
+<a name="nested_alternative_name_server_config"></a>The `alternative_name_server_config` block supports:
 
 * `target_name_servers` -
   (Required)
   Sets an alternative name server for the associated networks. When specified,
   all DNS queries are forwarded to a name server that you choose. Names such as .internal
   are not available when an alternative name server is specified.
-  Structure is documented below.
+  Structure is [documented below](#nested_target_name_servers).
 
 
-The `target_name_servers` block supports:
+<a name="nested_target_name_servers"></a>The `target_name_servers` block supports:
 
 * `ipv4_address` -
   (Required)
@@ -145,7 +143,7 @@ The `target_name_servers` block supports:
   to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
   Possible values are `default` and `private`.
 
-The `networks` block supports:
+<a name="nested_networks"></a>The `networks` block supports:
 
 * `network_url` -
   (Required)
@@ -165,9 +163,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

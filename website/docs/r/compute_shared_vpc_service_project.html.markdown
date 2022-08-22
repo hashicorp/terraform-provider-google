@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_shared_vpc_service_project"
-sidebar_current: "docs-google-compute-shared-vpc-service-project"
 description: |-
  Enables the Google Compute Engine Shared VPC feature for a project, assigning it as a service project.
 ---
@@ -17,6 +15,8 @@ with a given host project.
 For more information, see,
 [the Project API documentation](https://cloud.google.com/compute/docs/reference/latest/projects),
 where the Shared VPC feature is referred to by its former name "XPN".
+
+~> **Note:** If Shared VPC Admin role is set at the folder level, use the google-beta provider. The google provider only supports this permission at project or organizational level currently. [[0]](https://cloud.google.com/vpc/docs/provisioning-shared-vpc#enable-shared-vpc-host)
 
 ## Example Usage
 

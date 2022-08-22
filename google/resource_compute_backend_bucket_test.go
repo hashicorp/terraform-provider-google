@@ -59,6 +59,69 @@ func TestAccComputeBackendBucket_withCdnPolicy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeBackendBucket_withCdnPolicy2(backendName, storageName, 1000, 301, 2, 1),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_withCdnPolicy2(backendName, storageName, 0, 404, 86400, 0),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_withCdnPolicy(backendName, storageName),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_withCdnPolicy3(backendName, storageName, 0, 404, 0, 0),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendBucket_withSecurityPolicy(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	polName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_withSecurityPolicy(bucketName, polName, "google_compute_security_policy.policy.self_link"),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_withSecurityPolicy(bucketName, polName, "\"\""),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.image_backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -103,7 +166,35 @@ resource "google_compute_backend_bucket" "foobar" {
   bucket_name = google_storage_bucket.bucket.name
   enable_cdn  = true
   cdn_policy {
-    signed_url_cache_max_age_sec = 1000
+	signed_url_cache_max_age_sec = 1000
+	negative_caching = false
+  }
+}
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "EU"
+}
+`, backendName, storageName)
+}
+
+func testAccComputeBackendBucket_withCdnPolicy2(backendName, storageName string, age, code, max_ttl, ttl int) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "foobar" {
+  name        = "%s"
+  bucket_name = google_storage_bucket.bucket.name
+  enable_cdn  = true
+  cdn_policy {
+	cache_mode                   = "CACHE_ALL_STATIC"
+	signed_url_cache_max_age_sec = %d
+	max_ttl                      = %d
+	default_ttl                  = %d
+	client_ttl                   = %d
+	serve_while_stale            = %d
+	negative_caching_policy {
+		code = %d
+		ttl = %d
+	}
+	negative_caching = true
   }
 }
 
@@ -111,5 +202,57 @@ resource "google_storage_bucket" "bucket" {
   name     = "%s"
   location = "EU"
 }
-`, backendName, storageName)
+`, backendName, age, max_ttl, ttl, ttl, ttl, code, ttl, storageName)
+}
+
+func testAccComputeBackendBucket_withCdnPolicy3(backendName, storageName string, age, code, max_ttl, ttl int) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "foobar" {
+  name        = "%s"
+  bucket_name = google_storage_bucket.bucket.name
+  enable_cdn  = true
+  cdn_policy {
+	cache_mode                   = "FORCE_CACHE_ALL"
+	signed_url_cache_max_age_sec = %d
+	max_ttl                      = %d
+	default_ttl                  = %d
+	client_ttl                   = %d
+	serve_while_stale            = %d
+	negative_caching_policy {
+		code = %d
+		ttl = %d
+	}
+	negative_caching = true
+  }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "EU"
+}
+`, backendName, age, max_ttl, ttl, ttl, ttl, code, ttl, storageName)
+}
+
+func testAccComputeBackendBucket_withSecurityPolicy(bucketName, polName, polLink string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "image_backend" {
+  name        = "%s"
+  description = "Contains beautiful images"
+  bucket_name = google_storage_bucket.image_bucket.name
+  enable_cdn  = true
+  edge_security_policy = %s
+}
+
+resource "google_storage_bucket" "image_bucket" {
+  name     = "%s"
+  location = "EU"
+}
+
+
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "basic security policy"
+  type = "CLOUD_ARMOR_EDGE"
+}
+`, bucketName, polLink, bucketName, polName)
 }

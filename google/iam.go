@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -69,7 +70,7 @@ func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.P
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("[DEBUG] Retrieved policy for %s: %+v\n", updater.DescribeResource(), policy)
+	log.Print(spew.Sprintf("[DEBUG] Retrieved policy for %s: %#v\n", updater.DescribeResource(), policy))
 	return policy, nil
 }
 
@@ -148,6 +149,31 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			}
 			continue
 		}
+
+		// retry in the case that a service account is not found. This can happen when a service account is deleted
+		// out of band.
+		if isServiceAccountNotFoundError, _ := iamServiceAccountNotFound(err); isServiceAccountNotFoundError {
+			// calling a retryable function within a retry loop is not
+			// strictly the _best_ idea, but this error only happens in
+			// high-traffic projects anyways
+			currentPolicy, rerr := iamPolicyReadWithRetry(updater)
+			if rerr != nil {
+				if p.Etag != currentPolicy.Etag {
+					// not matching indicates that there is a new state to attempt to apply
+					log.Printf("current and old etag did not match for %s, retrying", updater.DescribeResource())
+					time.Sleep(backoff)
+					backoff = backoff * 2
+					continue
+				}
+
+				log.Printf("current and old etag matched for %s, not retrying", updater.DescribeResource())
+			} else {
+				// if the error is non-nil, just fall through and return the base error
+				log.Printf("[DEBUG]: error checking etag for policy %s. error: %v", updater.DescribeResource(), rerr)
+			}
+		}
+
+		log.Printf("[DEBUG]: not retrying IAM policy for %s. error: %v", updater.DescribeResource(), err)
 		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for %s: {{err}}", updater.DescribeResource()), err)
 	}
 	log.Printf("[DEBUG]: Set policy for %s", updater.DescribeResource())
@@ -217,6 +243,43 @@ func subtractFromBindings(bindings []*cloudresourcemanager.Binding, toRemove ...
 	return listFromIamBindingMap(currMap)
 }
 
+func iamMemberIsCaseSensitive(member string) bool {
+	// allAuthenticatedUsers and allUsers are special identifiers that are case sensitive. See:
+	// https://cloud.google.com/iam/docs/overview#all-authenticated-users
+	return strings.Contains(member, "allAuthenticatedUsers") || strings.Contains(member, "allUsers") ||
+		strings.HasPrefix(member, "principalSet:") || strings.HasPrefix(member, "principal:") ||
+		strings.HasPrefix(member, "principalHierarchy:")
+}
+
+// normalizeIamMemberCasing returns the case adjusted value of an iamMember
+// this is important as iam will ignore casing unless it is one of the following
+// member types: principalSet, principal, principalHierarchy
+// members are in <type>:<value> format
+// <type> is case sensitive
+// <value> isn't in most cases
+// so lowercase the value unless iamMemberIsCaseSensitive and leave the type alone
+// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
+// has been deleted
+func normalizeIamMemberCasing(member string) string {
+	var pieces []string
+	if strings.HasPrefix(member, "deleted:") {
+		pieces = strings.SplitN(member, ":", 3)
+		if len(pieces) > 2 && !iamMemberIsCaseSensitive(strings.TrimPrefix(member, "deleted:")) {
+			pieces[2] = strings.ToLower(pieces[2])
+		}
+	} else if !iamMemberIsCaseSensitive(member) {
+		pieces = strings.SplitN(member, ":", 2)
+		if len(pieces) > 1 {
+			pieces[1] = strings.ToLower(pieces[1])
+		}
+	}
+
+	if len(pieces) > 0 {
+		member = strings.Join(pieces, ":")
+	}
+	return member
+}
+
 // Construct map of role to set of members from list of bindings.
 func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindingKey]map[string]struct{} {
 	bm := make(map[iamBindingKey]map[string]struct{})
@@ -230,27 +293,7 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 		}
 		// Get each member (user/principal) for the binding
 		for _, m := range b.Members {
-			// members are in <type>:<value> format
-			// <type> is case sensitive
-			// <value> isn't
-			// so let's lowercase the value and leave the type alone
-			// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
-			// has been deleted
-			var pieces []string
-			if strings.HasPrefix(m, "deleted:") {
-				pieces = strings.SplitN(m, ":", 3)
-				if len(pieces) > 2 {
-					pieces[2] = strings.ToLower(pieces[2])
-				}
-			} else {
-				pieces = strings.SplitN(m, ":", 2)
-				if len(pieces) > 1 {
-					pieces[1] = strings.ToLower(pieces[1])
-				}
-			}
-
-			m = strings.Join(pieces, ":")
-
+			m = normalizeIamMemberCasing(m)
 			// Add the member
 			members[m] = struct{}{}
 		}
@@ -408,4 +451,18 @@ func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
 	aMap := createIamAuditConfigsMap(a)
 	bMap := createIamAuditConfigsMap(b)
 	return reflect.DeepEqual(aMap, bMap)
+}
+
+type IamSettings struct {
+	DeprecationMessage string
+}
+
+func IamWithDeprecationMessage(message string) func(s *IamSettings) {
+	return func(s *IamSettings) {
+		s.DeprecationMessage = message
+	}
+}
+
+func IamWithGAResourceDeprecation() func(s *IamSettings) {
+	return IamWithDeprecationMessage("This resource has been deprecated in the google (GA) provider, and will only be available in the google-beta provider in a future release.")
 }

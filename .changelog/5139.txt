@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: gRPC requests and response logging have been enabled
+```

@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	compute "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeSecurityPolicy() *schema.Resource {
@@ -35,7 +35,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description:  `The name of the security policy.`,
 			},
 
@@ -53,6 +53,14 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				Description:  `The type indicates the intended use of the security policy. CLOUD_ARMOR - Cloud Armor backend security policies can be configured to filter incoming HTTP requests targeting backend services. They filter requests before they hit the origin servers. CLOUD_ARMOR_EDGE - Cloud Armor edge security policies can be configured to filter incoming HTTP requests targeting backend services (including Cloud CDN-enabled) as well as backend buckets (Cloud Storage). They filter requests before the request is served from Google's cache.`,
+				ValidateFunc: validation.StringInSlice([]string{"CLOUD_ARMOR", "CLOUD_ARMOR_EDGE", "CLOUD_ARMOR_INTERNAL_SERVICE"}, false),
+			},
+
 			"rule": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -60,10 +68,9 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"allow", "deny(403)", "deny(404)", "deny(502)"}, false),
-							Description:  `Action to take when match matches the request. Valid values:   "allow" : allow access to target, "deny(status)" : deny access to target, returns the HTTP response code specified (valid values are 403, 404 and 502)`,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Action to take when match matches the request.`,
 						},
 
 						"priority": {
@@ -100,6 +107,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 									"versioned_expr": {
 										Type:         schema.TypeString,
 										Optional:     true,
+										Default:      "",
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
 										Description:  `Predefined rule expression. If this field is specified, config must also be specified. Available options:   SRC_IPS_V1: Must specify the corresponding src_ip_ranges field in config.`,
 									},
@@ -139,6 +147,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 
 						"description": {
 							Type:        schema.TypeString,
+							Default:     "",
 							Optional:    true,
 							Description: `An optional description of this rule. Max size is 64.`,
 						},
@@ -146,7 +155,142 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 						"preview": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							Description: `When set to true, the action specified above is not enforced. Stackdriver logs for requests that trigger a preview action are annotated as such.`,
+						},
+
+						"rate_limit_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Rate limit threshold for this security policy. Must be specified if the action is "rate_based_ban" or "throttle". Cannot be specified for any other actions.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"rate_limit_threshold": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Threshold at which to begin ratelimiting.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"count": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Number of HTTP(S) requests for calculating the threshold.`,
+												},
+
+												"interval_sec": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Interval over which the threshold is computed.`,
+												},
+											},
+										},
+									},
+
+									"conform_action": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice([]string{"allow"}, false),
+										Description:  `Action to take for requests that are under the configured rate limit threshold. Valid option is "allow" only.`,
+									},
+
+									"exceed_action": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice([]string{"redirect", "deny(403)", "deny(404)", "deny(429)", "deny(502)"}, false),
+										Description:  `Action to take for requests that are above the configured rate limit threshold, to either deny with a specified HTTP response code, or redirect to a different endpoint. Valid options are "deny()" where valid values for status are 403, 404, 429, and 502, and "redirect" where the redirect parameters come from exceedRedirectOptions below.`,
+									},
+
+									"enforce_on_key": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "ALL",
+										Description:  `Determines the key to enforce the rateLimitThreshold on`,
+										ValidateFunc: validation.StringInSlice([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE"}, false),
+									},
+
+									"enforce_on_key_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Rate limit key name applicable only for the following key types: HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value. HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
+									},
+
+									"ban_threshold": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Can only be specified if the action for the rule is "rate_based_ban". If specified, the key will be banned for the configured 'banDurationSec' when the number of requests that exceed the 'rateLimitThreshold' also exceed this 'banThreshold'.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"count": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Number of HTTP(S) requests for calculating the threshold.`,
+												},
+
+												"interval_sec": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Interval over which the threshold is computed.`,
+												},
+											},
+										},
+									},
+
+									"ban_duration_sec": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Can only be specified if the action for the rule is "rate_based_ban". If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.`,
+									},
+
+									"exceed_redirect_options": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Parameters defining the redirect action that is used as the exceed action. Cannot be specified if the exceed action is not redirect.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"type": {
+													Type:         schema.TypeString,
+													Required:     true,
+													Description:  `Type of the redirect action.`,
+													ValidateFunc: validation.StringInSlice([]string{"EXTERNAL_302", "GOOGLE_RECAPTCHA"}, false),
+												},
+
+												"target": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+
+						"redirect_options": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice([]string{"EXTERNAL_302", "GOOGLE_RECAPTCHA"}, false),
+										Description:  `Type of the redirect action. Available options: EXTERNAL_302: Must specify the corresponding target field in config. GOOGLE_RECAPTCHA: Cannot specify target field in config.`,
+									},
+
+									"target": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.`,
+									},
+								},
+							},
+							Description: `Parameters defining the redirect action. Cannot be specified for any other actions.`,
 						},
 					},
 				},
@@ -164,7 +308,67 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Computed:    true,
 				Description: `The URI of the created resource.`,
 			},
+
+			"advanced_options_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: `Advanced Options Config of this security policy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"json_parsing": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"DISABLED", "STANDARD"}, false),
+							Description:  `JSON body parsing. Supported values include: "DISABLED", "STANDARD".`,
+						},
+						"log_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NORMAL", "VERBOSE"}, false),
+							Description:  `Logging level. Supported values include: "NORMAL", "VERBOSE".`,
+						},
+					},
+				},
+			},
+
+			"adaptive_protection_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Adaptive Protection Config of this security policy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"layer_7_ddos_defense_config": {
+							Type:        schema.TypeList,
+							Description: `Layer 7 DDoS Defense Config of this security policy`,
+							Optional:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If set to true, enables CAAP for L7 DDoS detection.`,
+									},
+									"rule_visibility": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "STANDARD",
+										ValidateFunc: validation.StringInSlice([]string{"STANDARD", "PREMIUM"}, false),
+										Description:  `Rule visibility. Supported values include: "STANDARD", "PREMIUM".`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
+
 		UseJSONNumber: true,
 	}
 }
@@ -202,13 +406,28 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 		Name:        sp,
 		Description: d.Get("description").(string),
 	}
+
+	if v, ok := d.GetOk("type"); ok {
+		securityPolicy.Type = v.(string)
+	}
+
 	if v, ok := d.GetOk("rule"); ok {
 		securityPolicy.Rules = expandSecurityPolicyRules(v.(*schema.Set).List())
 	}
 
+	if v, ok := d.GetOk("advanced_options_config"); ok {
+		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("adaptive_protection_config"); ok {
+		securityPolicy.AdaptiveProtectionConfig = expandSecurityPolicyAdaptiveProtectionConfig(v.([]interface{}))
+	}
+
 	log.Printf("[DEBUG] SecurityPolicy insert request: %#v", securityPolicy)
 
-	op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Insert(project, securityPolicy).Do()
+	client := config.NewComputeClient(userAgent)
+
+	op, err := client.SecurityPolicies.Insert(project, securityPolicy).Do()
 
 	if err != nil {
 		return errwrap.Wrapf("Error creating SecurityPolicy: {{err}}", err)
@@ -241,7 +460,10 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	}
 
 	sp := d.Get("name").(string)
-	securityPolicy, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Get(project, sp).Do()
+
+	client := config.NewComputeClient(userAgent)
+
+	securityPolicy, err := client.SecurityPolicies.Get(project, sp).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SecurityPolicy %q", d.Id()))
 	}
@@ -251,6 +473,9 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("description", securityPolicy.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("type", securityPolicy.Type); err != nil {
+		return fmt.Errorf("Error setting type: %s", err)
 	}
 	if err := d.Set("rule", flattenSecurityPolicyRules(securityPolicy.Rules)); err != nil {
 		return err
@@ -263,6 +488,13 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(securityPolicy.SelfLink)); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("advanced_options_config", flattenSecurityPolicyAdvancedOptionsConfig(securityPolicy.AdvancedOptionsConfig)); err != nil {
+		return fmt.Errorf("Error setting advanced_options_config: %s", err)
+	}
+
+	if err := d.Set("adaptive_protection_config", flattenSecurityPolicyAdaptiveProtectionConfig(securityPolicy.AdaptiveProtectionConfig)); err != nil {
+		return fmt.Errorf("Error setting adaptive_protection_config: %s", err)
 	}
 
 	return nil
@@ -282,13 +514,34 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 
 	sp := d.Get("name").(string)
 
+	securityPolicy := &compute.SecurityPolicy{
+		Fingerprint: d.Get("fingerprint").(string),
+	}
+
+	if d.HasChange("type") {
+		securityPolicy.Type = d.Get("type").(string)
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Type")
+	}
+
 	if d.HasChange("description") {
-		securityPolicy := &compute.SecurityPolicy{
-			Description:     d.Get("description").(string),
-			Fingerprint:     d.Get("fingerprint").(string),
-			ForceSendFields: []string{"Description"},
-		}
-		op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Patch(project, sp, securityPolicy).Do()
+		securityPolicy.Description = d.Get("description").(string)
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Description")
+	}
+
+	if d.HasChange("advanced_options_config") {
+		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config").([]interface{}))
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdvancedOptionsConfig", "advancedOptionsConfig.jsonParsing", "advancedOptionsConfig.logLevel")
+	}
+
+	if d.HasChange("adaptive_protection_config") {
+		securityPolicy.AdaptiveProtectionConfig = expandSecurityPolicyAdaptiveProtectionConfig(d.Get("adaptive_protection_config").([]interface{}))
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdaptiveProtectionConfig", "adaptiveProtectionConfig.layer7DdosDefenseConfig.enable", "adaptiveProtectionConfig.layer7DdosDefenseConfig.ruleVisibility")
+	}
+
+	if len(securityPolicy.ForceSendFields) > 0 {
+		client := config.NewComputeClient(userAgent)
+
+		op, err := client.SecurityPolicies.Patch(project, sp, securityPolicy).Do()
 
 		if err != nil {
 			return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -315,8 +568,10 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			priority := int64(rule.(map[string]interface{})["priority"].(int))
 			nPriorities[priority] = true
 			if !oPriorities[priority] {
+				client := config.NewComputeClient(userAgent)
+
 				// If the rule is in new and its priority does not exist in old, then add it.
-				op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.AddRule(project, sp, expandSecurityPolicyRule(rule)).Do()
+				op, err := client.SecurityPolicies.AddRule(project, sp, expandSecurityPolicyRule(rule)).Do()
 
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -327,8 +582,10 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					return err
 				}
 			} else if !oSet.Contains(rule) {
+				client := config.NewComputeClient(userAgent)
+
 				// If the rule is in new, and its priority is in old, but its hash is different than the one in old, update it.
-				op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).Do()
+				op, err := client.SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).Do()
 
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -344,8 +601,10 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 		for _, rule := range oSet.List() {
 			priority := int64(rule.(map[string]interface{})["priority"].(int))
 			if !nPriorities[priority] {
+				client := config.NewComputeClient(userAgent)
+
 				// If the rule's priority is in old but not new, remove it.
-				op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.RemoveRule(project, sp).Priority(priority).Do()
+				op, err := client.SecurityPolicies.RemoveRule(project, sp).Priority(priority).Do()
 
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -374,8 +633,10 @@ func resourceComputeSecurityPolicyDelete(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	client := config.NewComputeClient(userAgent)
+
 	// Delete the SecurityPolicy
-	op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Delete(project, d.Get("name").(string)).Do()
+	op, err := client.SecurityPolicies.Delete(project, d.Get("name").(string)).Do()
 	if err != nil {
 		return errwrap.Wrapf("Error deleting SecurityPolicy: {{err}}", err)
 	}
@@ -400,12 +661,14 @@ func expandSecurityPolicyRules(configured []interface{}) []*compute.SecurityPoli
 func expandSecurityPolicyRule(raw interface{}) *compute.SecurityPolicyRule {
 	data := raw.(map[string]interface{})
 	return &compute.SecurityPolicyRule{
-		Description:     data["description"].(string),
-		Priority:        int64(data["priority"].(int)),
-		Action:          data["action"].(string),
-		Preview:         data["preview"].(bool),
-		Match:           expandSecurityPolicyMatch(data["match"].([]interface{})),
-		ForceSendFields: []string{"Description", "Preview"},
+		Description:      data["description"].(string),
+		Priority:         int64(data["priority"].(int)),
+		Action:           data["action"].(string),
+		Preview:          data["preview"].(bool),
+		Match:            expandSecurityPolicyMatch(data["match"].([]interface{})),
+		RateLimitOptions: expandSecurityPolicyRuleRateLimitOptions(data["rate_limit_options"].([]interface{})),
+		RedirectOptions:  expandSecurityPolicyRuleRedirectOptions(data["redirect_options"].([]interface{})),
+		ForceSendFields:  []string{"Description", "Preview"},
 	}
 }
 
@@ -452,11 +715,13 @@ func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule) []map[strin
 	rulesSchema := make([]map[string]interface{}, 0, len(rules))
 	for _, rule := range rules {
 		data := map[string]interface{}{
-			"description": rule.Description,
-			"priority":    rule.Priority,
-			"action":      rule.Action,
-			"preview":     rule.Preview,
-			"match":       flattenMatch(rule.Match),
+			"description":        rule.Description,
+			"priority":           rule.Priority,
+			"action":             rule.Action,
+			"preview":            rule.Preview,
+			"match":              flattenMatch(rule.Match),
+			"rate_limit_options": flattenSecurityPolicyRuleRateLimitOptions(rule.RateLimitOptions),
+			"redirect_options":   flattenSecurityPolicyRedirectOptions(rule.RedirectOptions),
 		}
 
 		rulesSchema = append(rulesSchema, data)
@@ -501,6 +766,166 @@ func flattenMatchExpr(match *compute.SecurityPolicyRuleMatcher) []map[string]int
 		// "title":       match.Expr.Title,
 		// "description": match.Expr.Description,
 		// "location":    match.Expr.Location,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyAdvancedOptionsConfig(configured []interface{}) *compute.SecurityPolicyAdvancedOptionsConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyAdvancedOptionsConfig{
+		JsonParsing: data["json_parsing"].(string),
+		LogLevel:    data["log_level"].(string),
+	}
+}
+
+func flattenSecurityPolicyAdvancedOptionsConfig(conf *compute.SecurityPolicyAdvancedOptionsConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"json_parsing": conf.JsonParsing,
+		"log_level":    conf.LogLevel,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyAdaptiveProtectionConfig(configured []interface{}) *compute.SecurityPolicyAdaptiveProtectionConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyAdaptiveProtectionConfig{
+		Layer7DdosDefenseConfig: expandLayer7DdosDefenseConfig(data["layer_7_ddos_defense_config"].([]interface{})),
+	}
+}
+
+func expandLayer7DdosDefenseConfig(configured []interface{}) *compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig{
+		Enable:         data["enable"].(bool),
+		RuleVisibility: data["rule_visibility"].(string),
+	}
+}
+
+func flattenSecurityPolicyAdaptiveProtectionConfig(conf *compute.SecurityPolicyAdaptiveProtectionConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"layer_7_ddos_defense_config": flattenLayer7DdosDefenseConfig(conf.Layer7DdosDefenseConfig),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenLayer7DdosDefenseConfig(conf *compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"enable":          conf.Enable,
+		"rule_visibility": conf.RuleVisibility,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyRuleRateLimitOptions(configured []interface{}) *compute.SecurityPolicyRuleRateLimitOptions {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyRuleRateLimitOptions{
+		BanThreshold:          expandThreshold(data["ban_threshold"].([]interface{})),
+		RateLimitThreshold:    expandThreshold(data["rate_limit_threshold"].([]interface{})),
+		ExceedAction:          data["exceed_action"].(string),
+		ConformAction:         data["conform_action"].(string),
+		EnforceOnKey:          data["enforce_on_key"].(string),
+		EnforceOnKeyName:      data["enforce_on_key_name"].(string),
+		BanDurationSec:        int64(data["ban_duration_sec"].(int)),
+		ExceedRedirectOptions: expandSecurityPolicyRuleRedirectOptions(data["exceed_redirect_options"].([]interface{})),
+	}
+}
+
+func expandThreshold(configured []interface{}) *compute.SecurityPolicyRuleRateLimitOptionsThreshold {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyRuleRateLimitOptionsThreshold{
+		Count:       int64(data["count"].(int)),
+		IntervalSec: int64(data["interval_sec"].(int)),
+	}
+}
+
+func flattenSecurityPolicyRuleRateLimitOptions(conf *compute.SecurityPolicyRuleRateLimitOptions) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"ban_threshold":           flattenThreshold(conf.BanThreshold),
+		"rate_limit_threshold":    flattenThreshold(conf.RateLimitThreshold),
+		"exceed_action":           conf.ExceedAction,
+		"conform_action":          conf.ConformAction,
+		"enforce_on_key":          conf.EnforceOnKey,
+		"enforce_on_key_name":     conf.EnforceOnKeyName,
+		"ban_duration_sec":        conf.BanDurationSec,
+		"exceed_redirect_options": flattenSecurityPolicyRedirectOptions(conf.ExceedRedirectOptions),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenThreshold(conf *compute.SecurityPolicyRuleRateLimitOptionsThreshold) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"count":        conf.Count,
+		"interval_sec": conf.IntervalSec,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyRuleRedirectOptions(configured []interface{}) *compute.SecurityPolicyRuleRedirectOptions {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyRuleRedirectOptions{
+		Type:   data["type"].(string),
+		Target: data["target"].(string),
+	}
+}
+
+func flattenSecurityPolicyRedirectOptions(conf *compute.SecurityPolicyRuleRedirectOptions) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"type":   conf.Type,
+		"target": conf.Target,
 	}
 
 	return []map[string]interface{}{data}

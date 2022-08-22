@@ -1,17 +1,18 @@
 ---
 subcategory: "Cloud Bigtable"
-layout: "google"
 page_title: "Google: google_bigtable_instance"
-sidebar_current: "docs-google-bigtable-instance"
 description: |-
   Creates a Google Bigtable instance.
 ---
 
 # google_bigtable_instance
 
-Creates a Google Bigtable instance. For more information see
-[the official documentation](https://cloud.google.com/bigtable/) and
-[API](https://cloud.google.com/bigtable/docs/go/reference).
+Creates a Google Bigtable instance. For more information see:
+
+* [API documentation](https://cloud.google.com/bigtable/docs/reference/admin/rest/v2/projects.instances.clusters)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/bigtable/docs)
+
 
 -> **Note**: It is strongly recommended to set `lifecycle { prevent_destroy = true }`
 on instances in order to prevent accidental data loss. See
@@ -23,7 +24,7 @@ for more information on lifecycle parameters.
 It is recommended to not set this field (or set it to true) until you're ready to destroy.
 
 
-## Example Usage - Production Instance
+## Example Usage - Simple Instance
 
 ```hcl
 resource "google_bigtable_instance" "production-instance" {
@@ -41,6 +42,38 @@ resource "google_bigtable_instance" "production-instance" {
 }
 ```
 
+## Example Usage - Replicated Instance
+
+```hcl
+resource "google_bigtable_instance" "production-instance" {
+  name = "tf-instance"
+
+  # A cluster with fixed number of nodes.
+  cluster {
+    cluster_id   = "tf-instance-cluster1"
+    num_nodes    = 1
+    storage_type = "HDD"
+    zone    = "us-central1-c"
+  }
+
+  # a cluster with auto scaling.
+  cluster {
+    cluster_id   = "tf-instance-cluster2"
+    storage_type = "HDD"
+    zone    = "us-central1-b"
+    autoscaling_config {
+      min_nodes = 1
+      max_nodes = 3
+      cpu_target = 50
+    }
+  }
+
+  labels = {
+    my-label = "prod-label"
+  }
+}
+```
+
 
 ## Argument Reference
 
@@ -49,7 +82,7 @@ The following arguments are supported:
 * `name` - (Required) The name (also called Instance Id in the Cloud Console) of the Cloud Bigtable instance.
 
 * `cluster` - (Required) A block of cluster configuration options. This can be specified at least once, and up to 4 times.
-See structure below.
+See [structure below](#nested_cluster).
 
 -----
 
@@ -72,7 +105,7 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 
 -----
 
-The `cluster` block supports the following arguments:
+<a name="nested_cluster"></a>The `cluster` block supports the following arguments:
 
 * `cluster_id` - (Required) The ID of the Cloud Bigtable cluster.
 
@@ -84,8 +117,22 @@ Bigtable instances are noted on the [Cloud Bigtable locations page](https://clou
 Required, with a minimum of `1` for a `PRODUCTION` instance. Must be left unset
 for a `DEVELOPMENT` instance.
 
+* `autoscaling_config` - (Optional) Autoscaling config for the cluster, contains the following arguments:
+
+  * `min_nodes` - (Required) The minimum number of nodes for autoscaling.
+  * `max_nodes` - (Required) The maximum number of nodes for autoscaling.
+  * `cpu_target` - (Required) The CPU utilization target in percentage. Must be between 10 and 80.
+
+!> **Warning**: Only one of `autoscaling_config` or `num_nodes` should be set for a cluster. If both are set, `num_nodes` is ignored. If none is set, autoscaling will be disabled and sized to the current node count.
+
 * `storage_type` - (Optional) The storage type to use. One of `"SSD"` or
 `"HDD"`. Defaults to `"SSD"`.
+
+* `kms_key_name` - (Optional) Describes the Cloud KMS encryption key that will be used to protect the destination Bigtable cluster. The requirements for this key are: 1) The Cloud Bigtable service account associated with the project that contains this cluster must be granted the `cloudkms.cryptoKeyEncrypterDecrypter` role on the CMEK key. 2) Only regional keys can be used and the region of the CMEK key must match the region of the cluster.
+
+!> **Warning**: Modifying this field will cause Terraform to delete/recreate the entire resource. 
+
+-> **Note**: To remove this field once it is set, set the value to an empty string. Removing the field entirely from the config will cause the provider to default to the backend value.
 
 !> **Warning:** Modifying the `storage_type` or `zone` of an existing cluster (by
 `cluster_id`) will cause Terraform to delete/recreate the entire

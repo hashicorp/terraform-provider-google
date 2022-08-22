@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -69,11 +66,8 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -109,6 +103,18 @@ resource "google_redis_instance" "cache" {
     my_key    = "my_val"
     other_key = "other_val"
   }
+
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "TUESDAY"
+      start_time {
+        hours = 0
+        minutes = 30
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
 }
 
 // This example assumes this network already exists.
@@ -126,18 +132,17 @@ data "google_compute_network" "redis-network" {
 }
 
 func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  BootstrapSharedTestNetwork(t, "redis-private"),
 		"random_suffix": randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -155,33 +160,41 @@ func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 
 func testAccRedisInstance_redisInstancePrivateServiceExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_compute_network" "network" {
-  name = "tf-test%{random_suffix}"
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "%{network_name}"
 }
 
 resource "google_compute_global_address" "service_range" {
-  name          = "tf-test%{random_suffix}"
+  name          = "address%{random_suffix}"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = google_compute_network.network.id
+  network       = data.google_compute_network.redis-network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.network.id
+  network                 = data.google_compute_network.redis-network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
 
 resource "google_redis_instance" "cache" {
-  name           = "tf-test%{random_suffix}"
+  name           = "tf-test-private-cache%{random_suffix}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = google_compute_network.network.id
+  authorized_network = data.google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
 
   redis_version     = "REDIS_4_0"
@@ -189,6 +202,70 @@ resource "google_redis_instance" "cache" {
 
   depends_on = [google_service_networking_connection.private_service_connection]
 
+}
+`, context)
+}
+
+func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisInstance_redisInstanceMrrExample(context),
+			},
+			{
+				ResourceName:            "google_redis_instance.cache",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccRedisInstance_redisInstanceMrrExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_redis_instance" "cache" {
+  name           = "tf-test-mrr-memory-cache%{random_suffix}"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 5
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = data.google_compute_network.redis-network.id
+
+  redis_version     = "REDIS_6_X"
+  display_name      = "Terraform Test Instance"
+  reserved_ip_range = "192.168.0.0/28"
+  replica_count     = 5
+  read_replicas_mode = "READ_REPLICAS_ENABLED"
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "%{network_name}"
 }
 `, context)
 }

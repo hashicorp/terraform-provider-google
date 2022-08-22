@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_app_engine_service"
-sidebar_current: "docs-google-datasource-monitoring-app-engine-service"
 description: |-
   An Monitoring Service resource created automatically by GCP to monitor an
   App Engine service.
@@ -57,7 +55,8 @@ resource "google_app_engine_standard_app_version" "myapp" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "appengine-static-content"
+  name     = "appengine-static-content"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

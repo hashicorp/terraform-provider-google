@@ -1,0 +1,69 @@
+```release-note:breaking-change
+bigquery: Exactly one of `query`, `load`, `copy` or `extract` is required on `google_bigquery_job`
+```
+```release-note:breaking-change
+bigquery: At least one of `statement_timeout_ms`, `statement_byte_budget`, or `key_result_statement` is required on `google_bigquery_job.query.script_options.`
+```
+```release-note:breaking-change
+bigquery: Exactly one of `source_table` or `source_model` is required on `google_bigquery_job.extract`
+```
+```release-note:breaking-change
+cloudbuild: Exactly one of `branch_name`, `commit_sha` or `tag_name` is required on `google_cloudbuild_trigger.build.source.repo_source`
+```
+```release-note:breaking-change
+compute: At least one of `max_scaled_down_replicas` or `time_window_sec` is required on `google_compute_autoscaler.autoscaling_policy.scale_down_control`
+```
+```release-note:breaking-change
+compute: At least one of `fixed` or `percent` is required on `google_compute_autoscaler.autoscaling_policy.scale_down_control.max_scaled_down_replicas`
+```
+```release-note:breaking-change
+compute: At least one of `max_scaled_in_replicas` or `time_window_sec` is required on `google_compute_autoscaler.autoscaling_policy.scale_in_control.0.`
+```
+```release-note:breaking-change
+compute: At least one of `fixed` or `percent` is required on `google_compute_autoscaler.autoscaling_policy.scale_in_control.max_scaled_in_replicas`
+```
+```release-note:breaking-change
+compute: At least one of `max_scaled_down_replicas` or `time_window_sec` is required on `google_compute_region_autoscaler.autoscaling_policy.scale_down_control`
+```
+```release-note:breaking-change
+compute: At least one of `fixed` or `percent` is required on `google_compute_region_autoscaler.autoscaling_policy.scale_down_control.max_scaled_down_replicas`
+```
+```release-note:breaking-change
+compute: At least one of `max_scaled_in_replicas` or `time_window_sec` is required on `google_compute_region_autoscaler.autoscaling_policy.scale_in_control.0.`
+```
+```release-note:breaking-change
+compute: At least one of `fixed` or `percent` is required on `google_compute_region_autoscaler.autoscaling_policy.scale_in_control.max_scaled_in_replicas`
+```
+```release-note:breaking-change
+compute: At least one of `fixed_delay` or `percentage` is required on `google_compute_url_map.default_route_action.fault_injection_policy.delay`
+```
+```release-note:breaking-change
+dlp: Exactly one of `url` or `regex_file_set` is required on `google_data_loss_prevention_trigger.inspect_job.storage_config.cloud_storage_options.file_set`
+```
+```release-note:breaking-change
+dlp: At least one of `start_time` or `end_time` is required on `google_data_loss_prevention_trigger.inspect_job.storage_config.timespan_config`
+```
+```release-note:breaking-change
+osconfig: At least one of `reboot_config`, `apt`, `yum`, `goo` `zypper`, `windows_update`, `pre_step` or `pre_step` is required on `google_os_config_patch_deployment.patch_config`
+```
+```release-note:breaking-change
+osconfig: At least one of `type`, `excludes` or `exclusive_packages` is required on `google_os_config_patch_deployment.patch_config.apt`
+```
+```release-note:breaking-change
+osconfig: At least one of `security`, `minimal`, `excludes` or `exclusive_packages` is required on `google_os_config_patch_deployment.patch_config.yum`
+```
+```release-note:breaking-change
+osconfig: At least one of `with_optional`, `with_update`, `categories`, `severities`, `excludes` or `exclusive_patches` is required on `google_os_config_patch_deployment.patch_config.zypper`
+```
+```release-note:breaking-change
+osconfig: Exactly one of `classifications`, `excludes` or `exclusive_patches` is required on `google_os_config_patch_deployment.inspect_job.patch_config.windows_update`
+```
+```release-note:breaking-change
+osconfig: At least one of `linux_exec_step_config` or `windows_exec_step_config` is required on `google_os_config_patch_deployment.patch_config.pre_step`
+```
+```release-note:breaking-change
+osconfig: At least one of `linux_exec_step_config` or `windows_exec_step_config` is required on `google_os_config_patch_deployment.patch_config.post_step`
+```
+```release-note:breaking-change
+spanner: At least one of `num_nodes` or `processing_units` is required on `google_spanner_instance`
+```

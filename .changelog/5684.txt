@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: add `NON_GCP_PRIVATE_IP_PORT` value for `network_endpoint_type` in the `google_compute_network_endpoint_group` resource
+```
+```release-note:enhancement
+compute: Update `instance` attribute for `google_compute_network_endpoint` to be optional, as Hybrid connectivity NEGs use network endpoints with just IP and Port.
+```

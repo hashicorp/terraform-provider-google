@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: promoted `google_compute_service_attachment` to ga
+```
+```release-note:enhancement
+compute: promoted `role` and `purpose` fields in `google_compute_subnetwork` to ga
+```

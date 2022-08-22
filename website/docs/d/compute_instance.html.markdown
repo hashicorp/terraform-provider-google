@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_instance"
-sidebar_current: "docs-google-datasource-compute-instance-x"
 description: |-
   Get a VM instance within GCE.
 ---
@@ -44,13 +42,13 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-* `boot_disk` - The boot disk for the instance. Structure is documented below.
+* `boot_disk` - The boot disk for the instance. Structure is [documented below](#nested_boot_disk).
 
 * `machine_type` - The machine type to create.
 
-* `network_interface` - The networks attached to the instance. Structure is documented below.
+* `network_interface` - The networks attached to the instance. Structure is [documented below](#nested_network_interface).
 
-* `attached_disk` - List of disks attached to the instance. Structure is documented below.
+* `attached_disk` - List of disks attached to the instance. Structure is [documented below](#nested_attached_disk).
 
 * `can_ip_forward` - Whether sending and receiving of packets with non-matching source or destination IPs is allowed.
 
@@ -58,7 +56,7 @@ The following arguments are supported:
 
 * `deletion_protection` - Whether deletion protection is enabled on this instance.
 
-* `guest_accelerator` - List of the type and count of accelerator cards attached to the instance. Structure is documented below.
+* `guest_accelerator` - List of the type and count of accelerator cards attached to the instance. Structure is [documented below](#nested_guest_accelerator).
 
 * `labels` - A set of key/value label pairs assigned to the instance.
 
@@ -66,11 +64,11 @@ The following arguments are supported:
 
 * `min_cpu_platform` - The minimum CPU platform specified for the VM instance.
 
-* `scheduling` - The scheduling strategy being used by the instance.
+* `scheduling` - The scheduling strategy being used by the instance. Structure is [documented below](#nested_scheduling)
 
-* `scratch_disk` - The scratch disks attached to the instance. Structure is documented below.
+* `scratch_disk` - The scratch disks attached to the instance. Structure is [documented below](#nested_scratch_disk).
 
-* `service_account` - The service account to attach to the instance. Structure is documented below.
+* `service_account` - The service account to attach to the instance. Structure is [documented below](#nested_service_account).
 
 * `tags` - The list of tags attached to the instance.
 
@@ -86,13 +84,15 @@ The following arguments are supported:
 
 * `cpu_platform` - The CPU platform used by this instance.
 
-* `shielded_instance_config` - The shielded vm config being used by the instance. Structure is documented below.
+* `shielded_instance_config` - The shielded vm config being used by the instance. Structure is [documented below](#nested_shielded_instance_config).
 
 * `enable_display` -- Whether the instance has virtual displays enabled.
 
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
+
+* `network_performance_config` - The network performance configuration setting for the instance, if set. Structure is [documented below](#nested_network_performance_config).
 
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
@@ -108,19 +108,19 @@ The following arguments are supported:
 
 ---
 
-The `boot_disk` block supports:
+<a name="nested_boot_disk"></a>The `boot_disk` block supports:
 
 * `auto_delete` - Whether the disk will be auto-deleted when the instance is deleted.
 
 * `device_name` - Name with which attached disk will be accessible under `/dev/disk/by-id/`
 
 * `initialize_params` - Parameters with which a disk was created alongside the instance.
-    Structure is documented below.
+    Structure is [documented below](#nested_initialize_params).
 
 * `source` - The name or self_link of an existing disk (such as those managed by
     `google_compute_disk`) that was attached to the instance.
 
-The `initialize_params` block supports:
+<a name="nested_initialize_params"></a>The `initialize_params` block supports:
 
 * `size` - The size of the image in gigabytes.
 
@@ -128,11 +128,13 @@ The `initialize_params` block supports:
 
 * `image` - The image from which this disk was initialised.
 
-The `scratch_disk` block supports:
+* `labels` - A set of key/value label pairs assigned to the disk.
+
+<a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
 * `interface` - The disk interface used for attaching this disk. One of `SCSI` or `NVME`.
 
-The `attached_disk` block supports:
+<a name="nested_attached_disk"></a>The `attached_disk` block supports:
 
 * `source` - The name or self_link of the disk attached to this instance.
 
@@ -141,7 +143,7 @@ The `attached_disk` block supports:
 
 * `mode` - Read/write mode for the disk. One of `"READ_ONLY"` or `"READ_WRITE"`.
 
-The `network_interface` block supports:
+<a name="nested_network_interface"></a>The `network_interface` block supports:
 
 * `network` - The name or self_link of the network attached to this interface.
 
@@ -152,11 +154,11 @@ The `network_interface` block supports:
 * `network_ip` - The private IP address assigned to the instance.
 
 * `access_config` - Access configurations, i.e. IPs via which this
-    instance can be accessed via the Internet. Structure documented below.
+    instance can be accessed via the Internet. Structure [documented below](#nested_access_config).
 
-* `alias_ip_range` - An array of alias IP ranges for this network interface. Structure documented below.
+* `alias_ip_range` - An array of alias IP ranges for this network interface. Structure [documented below](#nested_alias_ip_range).
 
-The `access_config` block supports:
+<a name="nested_access_config"></a>The `access_config` block supports:
 
 * `nat_ip` - The IP address that is be 1:1 mapped to the instance's
     network ip.
@@ -165,7 +167,7 @@ The `access_config` block supports:
 
 * `network_tier` - The [networking tier][network-tier] used for configuring this instance. One of `PREMIUM` or `STANDARD`.
 
-The `alias_ip_range` block supports:
+<a name="nested_alias_ip_range"></a>The `alias_ip_range` block supports:
 
 * `ip_cidr_range` - The IP CIDR range represented by this alias IP range.
 
@@ -173,13 +175,13 @@ The `alias_ip_range` block supports:
     the secondary range from which to allocate the IP CIDR range for this alias IP
     range.
 
-The `service_account` block supports:
+<a name="nested_service_account"></a>The `service_account` block supports:
 
 * `email` - The service account e-mail address.
 
 * `scopes` - A list of service scopes.
 
-The `scheduling` block supports:
+<a name="nested_scheduling"></a>The `scheduling` block supports:
 
 * `preemptible` - Whether the instance is preemptible.
 
@@ -189,8 +191,12 @@ The `scheduling` block supports:
 
 * `automatic_restart` - Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
+    
+* `provisioning_model` - Describe the type of preemptible VM.
 
-The `guest_accelerator` block supports:
+* `instance_termination_action` - Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot) 
+
+<a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
 * `type` - The accelerator type resource exposed to this instance. E.g. `nvidia-tesla-k80`.
 
@@ -198,10 +204,14 @@ The `guest_accelerator` block supports:
 
 [network-tier]: https://cloud.google.com/network-tiers/docs/overview
 
-The `shielded_instance_config` block supports:
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` -- Whether secure boot is enabled for the instance.
 
 * `enable_vtpm` -- Whether the instance uses vTPM.
 
 * `enable_integrity_monitoring` -- Whether integrity monitoring is enabled for the instance.
+
+<a name="nested_network_performance_config"></a>The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` - The egress bandwidth tier for the instance.

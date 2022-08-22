@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed materialized view to be recreated when query changes
+```

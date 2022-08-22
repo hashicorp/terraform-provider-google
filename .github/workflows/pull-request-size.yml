@@ -1,0 +1,17 @@
+name: "Pull Request Size Labeler"
+
+on: [pull_request]
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    name: Label the PR size
+    steps:
+      - uses: codelytv/pr-size-labeler@417e60a06bd915dd3d96ec4aa105f7d753a8f974
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_max_size: '30'
+          s_max_size: '60'
+          m_max_size: '150'
+          l_max_size: '300'
+          message_if_xl: ''

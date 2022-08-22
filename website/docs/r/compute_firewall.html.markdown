@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_firewall"
-sidebar_current: "docs-google-compute-firewall"
 description: |-
   Each network has its own firewall controlling access to and from the
   instances.
@@ -72,6 +70,25 @@ resource "google_compute_network" "default" {
   name = "test-network"
 }
 ```
+## Example Usage - Firewall With Target Tags
+
+
+```hcl
+resource "google_compute_firewall" "rules" {
+  project     = "my-project-name"
+  name        = "my-firewall-rule"
+  network     = "default"
+  description = "Creates firewall rule targeting tagged instances"
+
+  allow {
+    protocol  = "tcp"
+    ports     = ["80", "8080", "1000-2000"]
+  }
+
+  source_tags = ["foo"]
+  target_tags = ["web"]
+}
+```
 
 ## Argument Reference
 
@@ -101,13 +118,13 @@ The following arguments are supported:
   The list of ALLOW rules specified by this firewall. Each rule
   specifies a protocol and port-range tuple that describes a permitted
   connection.
-  Structure is documented below.
+  Structure is [documented below](#nested_allow).
 
 * `deny` -
   (Optional)
   The list of DENY rules specified by this firewall. Each rule specifies
   a protocol and port-range tuple that describes a denied connection.
-  Structure is documented below.
+  Structure is [documented below](#nested_deny).
 
 * `description` -
   (Optional)
@@ -125,7 +142,8 @@ The following arguments are supported:
   Direction of traffic to which this firewall applies; default is
   INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
   destinationRanges; For EGRESS traffic, it is NOT supported to specify
-  sourceRanges OR sourceTags.
+  `source_ranges` OR `source_tags`. For INGRESS traffic, one of `source_ranges`,
+  `source_tags` or `source_service_accounts` is required.
   Possible values are `INGRESS` and `EGRESS`.
 
 * `disabled` -
@@ -139,7 +157,7 @@ The following arguments are supported:
   (Optional)
   This field denotes the logging options for a particular firewall rule.
   If defined, logging is enabled, and logs will be exported to Cloud Logging.
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `priority` -
   (Optional)
@@ -159,7 +177,8 @@ The following arguments are supported:
   apply to traffic that has source IP address within sourceRanges OR the
   source IP that belongs to a tag listed in the sourceTags property. The
   connection does not need to match both properties for the firewall to
-  apply. Only IPv4 is supported.
+  apply. Only IPv4 is supported. For INGRESS traffic, one of `source_ranges`,
+  `source_tags` or `source_service_accounts` is required.
 
 * `source_service_accounts` -
   (Optional)
@@ -173,7 +192,8 @@ The following arguments are supported:
   source IP belongs to an instance with service account listed in
   sourceServiceAccount. The connection does not need to match both
   properties for the firewall to apply. sourceServiceAccounts cannot be
-  used at the same time as sourceTags or targetTags.
+  used at the same time as sourceTags or targetTags. For INGRESS traffic,
+  one of `source_ranges`, `source_tags` or `source_service_accounts` is required.
 
 * `source_tags` -
   (Optional)
@@ -185,7 +205,8 @@ The following arguments are supported:
   both properties are set, the firewall will apply to traffic that has
   source IP address within sourceRanges OR the source IP that belongs to
   a tag listed in the sourceTags property. The connection does not need
-  to match both properties for the firewall to apply.
+  to match both properties for the firewall to apply. For INGRESS traffic,
+  one of `source_ranges`, `source_tags` or `source_service_accounts` is required.
 
 * `target_service_accounts` -
   (Optional)
@@ -209,7 +230,7 @@ The following arguments are supported:
 * `enable_logging` - (Optional, Deprecated) This field denotes whether to enable logging for a particular firewall rule.
 If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor of `log_config`
 
-The `allow` block supports:
+<a name="nested_allow"></a>The `allow` block supports:
 
 * `protocol` -
   (Required)
@@ -227,7 +248,7 @@ The `allow` block supports:
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
-The `deny` block supports:
+<a name="nested_deny"></a>The `deny` block supports:
 
 * `protocol` -
   (Required)
@@ -245,7 +266,7 @@ The `deny` block supports:
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `metadata` -
   (Required)
@@ -268,9 +289,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

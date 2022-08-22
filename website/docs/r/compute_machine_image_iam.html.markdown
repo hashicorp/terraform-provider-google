@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_machine_image_iam"
-sidebar_current: "docs-google-compute-machine-image-iam"
 description: |-
   Collection of resources to manage IAM policy for Compute Engine MachineImage
 ---
@@ -41,6 +39,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/compute.admin"
     members = [
@@ -50,6 +49,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_compute_machine_image_iam_policy" "policy" {
+  provider = google-beta
   project = google_compute_machine_image.image.project
   machine_image = google_compute_machine_image.image.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -60,6 +60,7 @@ With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/compute.admin"
     members = [
@@ -75,6 +76,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_compute_machine_image_iam_policy" "policy" {
+  provider = google-beta
   project = google_compute_machine_image.image.project
   machine_image = google_compute_machine_image.image.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -84,6 +86,7 @@ resource "google_compute_machine_image_iam_policy" "policy" {
 
 ```hcl
 resource "google_compute_machine_image_iam_binding" "binding" {
+  provider = google-beta
   project = google_compute_machine_image.image.project
   machine_image = google_compute_machine_image.image.name
   role = "roles/compute.admin"
@@ -97,6 +100,7 @@ With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_
 
 ```hcl
 resource "google_compute_machine_image_iam_binding" "binding" {
+  provider = google-beta
   project = google_compute_machine_image.image.project
   machine_image = google_compute_machine_image.image.name
   role = "roles/compute.admin"
@@ -115,6 +119,7 @@ resource "google_compute_machine_image_iam_binding" "binding" {
 
 ```hcl
 resource "google_compute_machine_image_iam_member" "member" {
+  provider = google-beta
   project = google_compute_machine_image.image.project
   machine_image = google_compute_machine_image.image.name
   role = "roles/compute.admin"
@@ -126,6 +131,7 @@ With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_
 
 ```hcl
 resource "google_compute_machine_image_iam_member" "member" {
+  provider = google-beta
   project = google_compute_machine_image.image.project
   machine_image = google_compute_machine_image.image.name
   role = "roles/compute.admin"
@@ -155,6 +161,9 @@ The following arguments are supported:
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
+  * **projectOwner:projectid**: Owners of the given project. For example, "projectOwner:my-example-project"
+  * **projectEditor:projectid**: Editors of the given project. For example, "projectEditor:my-example-project"
+  * **projectViewer:projectid**: Viewers of the given project. For example, "projectViewer:my-example-project"
 
 * `role` - (Required) The role that should be applied. Only one
     `google_compute_machine_image_iam_binding` can be used per role. Note that custom roles must be of the format

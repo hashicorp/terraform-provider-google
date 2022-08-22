@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `psc_connection_id` and `psc_connection_status` output fields to `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` resources
+```
+```release-note:enhancement
+containeraws: made `config.instance_type` field updatable in `google_container_aws_node_pool`
+```

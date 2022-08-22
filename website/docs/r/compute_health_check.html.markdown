@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_health_check"
-sidebar_current: "docs-google-compute-health-check"
 description: |-
   Health Checks determine whether instances are responsive and able to do work.
 ---
@@ -400,43 +398,43 @@ The following arguments are supported:
 * `http_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_http_health_check).
 
 * `https_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_https_health_check).
 
 * `tcp_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_tcp_health_check).
 
 * `ssl_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_ssl_health_check).
 
 * `http2_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_http2_health_check).
 
 * `grpc_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_grpc_health_check).
 
 * `log_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configure logging on this health check.
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `http_health_check` block supports:
+<a name="nested_http_health_check"></a>The `http_health_check` block supports:
 
 * `host` -
   (Optional)
@@ -486,7 +484,7 @@ The `http_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `https_health_check` block supports:
+<a name="nested_https_health_check"></a>The `https_health_check` block supports:
 
 * `host` -
   (Optional)
@@ -536,7 +534,7 @@ The `https_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `tcp_health_check` block supports:
+<a name="nested_tcp_health_check"></a>The `tcp_health_check` block supports:
 
 * `request` -
   (Optional)
@@ -582,7 +580,7 @@ The `tcp_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `ssl_health_check` block supports:
+<a name="nested_ssl_health_check"></a>The `ssl_health_check` block supports:
 
 * `request` -
   (Optional)
@@ -628,7 +626,7 @@ The `ssl_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `http2_health_check` block supports:
+<a name="nested_http2_health_check"></a>The `http2_health_check` block supports:
 
 * `host` -
   (Optional)
@@ -678,12 +676,12 @@ The `http2_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `grpc_health_check` block supports:
+<a name="nested_grpc_health_check"></a>The `grpc_health_check` block supports:
 
 * `port` -
   (Optional)
-  The port number for the health check request. 
-  Must be specified if portName and portSpecification are not set 
+  The port number for the health check request.
+  Must be specified if portName and portSpecification are not set
   or if port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.
 
 * `port_name` -
@@ -707,13 +705,13 @@ The `grpc_health_check` block supports:
 
 * `grpc_service_name` -
   (Optional)
-  The gRPC service name for the health check. 
+  The gRPC service name for the health check.
   The value of grpcServiceName has the following meanings by convention:
     - Empty serviceName means the overall status of all services at the backend.
     - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
   The grpcServiceName can only be ASCII.
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
   (Optional)
@@ -739,9 +737,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

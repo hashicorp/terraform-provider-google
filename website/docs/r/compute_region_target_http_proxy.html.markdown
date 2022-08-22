@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_target_http_proxy"
-sidebar_current: "docs-google-compute-region-target-http-proxy"
 description: |-
   Represents a RegionTargetHttpProxy resource, which is used by one or more
   forwarding rules to route incoming HTTP requests to a URL map.
@@ -70,10 +68,11 @@ resource "google_compute_region_url_map" "default" {
 }
 
 resource "google_compute_region_backend_service" "default" {
-  region      = "us-central1"
-  name        = "backend-service"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  region                = "us-central1"
+  name                  = "backend-service"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "INTERNAL_MANAGED"
 
   health_checks = [google_compute_region_health_check.default.id]
 }
@@ -167,9 +166,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

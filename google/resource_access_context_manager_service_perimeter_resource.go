@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceAccessContextManagerServicePerimeterResource() *schema.Resource {
@@ -35,8 +34,8 @@ func resourceAccessContextManagerServicePerimeterResource() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -383,10 +382,7 @@ func resourceAccessContextManagerServicePerimeterResourcePatchDeleteEncoder(d *s
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "ServicePerimeterResource not found in list",
-		}
+		return nil, fake404("nested", "AccessContextManagerServicePerimeterResource")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)

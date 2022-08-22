@@ -1,0 +1,4 @@
+```release-note:bug
+container: allowed `vertical_pod_autoscaling` to be computed as `enable_autopilot` can mutate it
+
+```

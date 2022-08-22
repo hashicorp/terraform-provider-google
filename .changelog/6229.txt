@@ -1,0 +1,3 @@
+```release-note:bug
+documentai: fixed bug where eu region could not be utilized for documentai resources
+```

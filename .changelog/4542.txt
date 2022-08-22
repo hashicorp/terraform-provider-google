@@ -1,0 +1,4 @@
+```release-note:enhancement
+monitoring : added windows based availability sli added to the resource `google_monitoring_slo`
+
+```

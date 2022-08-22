@@ -1,0 +1,4 @@
+```release-note:enhancement
+redis: Added support for transit encryption mode for the resource `google_redis_instance`
+
+```

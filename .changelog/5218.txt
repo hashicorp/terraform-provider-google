@@ -1,0 +1,4 @@
+```release-note:new-resource
+`google_monitoring_metrics_scope`
+`google_monitoring_monitored_project`
+```

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Container Registry"
-layout: "google"
 page_title: "Google: google_container_analysis_occurrence"
-sidebar_current: "docs-google-container-analysis-occurrence"
 description: |-
   An occurrence is an instance of a Note, or type of analysis that
   can be done for a resource.
@@ -67,11 +65,11 @@ data "google_kms_key_ring" "keyring" {
 
 data "google_kms_crypto_key" "crypto-key" {
   name     = "my-key"
-  key_ring = data.google_kms_key_ring.keyring.self_link
+  key_ring = data.google_kms_key_ring.keyring.id
 }
 
 data "google_kms_crypto_key_version" "version" {
-  crypto_key = data.google_kms_crypto_key.crypto-key.self_link
+  crypto_key = data.google_kms_crypto_key.crypto-key.id
 }
 
 resource "google_container_analysis_occurrence" "occurrence" {
@@ -117,10 +115,10 @@ The following arguments are supported:
   useful for lookup (how to find this attestation if you already
   know the authority and artifact to be verified) and intent (for
   which authority this attestation was intended to sign.
-  Structure is documented below.
+  Structure is [documented below](#nested_attestation).
 
 
-The `attestation` block supports:
+<a name="nested_attestation"></a>The `attestation` block supports:
 
 * `serialized_payload` -
   (Required)
@@ -134,10 +132,10 @@ The `attestation` block supports:
   message verified if at least one signature verifies
   serializedPayload. See Signature in common.proto for more
   details on signature structure and verification.
-  Structure is documented below.
+  Structure is [documented below](#nested_signatures).
 
 
-The `signatures` block supports:
+<a name="nested_signatures"></a>The `signatures` block supports:
 
 * `signature` -
   (Optional)
@@ -199,9 +197,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

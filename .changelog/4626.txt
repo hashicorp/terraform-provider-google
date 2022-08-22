@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `enable_l4_ilb_subsetting` (beta) and `private_ipv6_google_access` fields to `google_container_cluster`
+```

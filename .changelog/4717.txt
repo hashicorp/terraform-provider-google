@@ -1,0 +1,3 @@
+```release-note:enhancement
+healthcare: support bq stream configure in google_healthcare_dicom_store
+```

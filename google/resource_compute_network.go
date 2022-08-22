@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -38,16 +36,17 @@ func resourceComputeNetwork() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCEName,
 				Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
@@ -75,6 +74,24 @@ the user can explicitly connect subnetwork resources.`,
 				Description: `An optional description of this resource. The resource must be
 recreated to modify this field.`,
 			},
+			"enable_ula_internal_ipv6": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Enable ULA internal ipv6 on this network. Enabling this feature will assign 
+a /48 from google defined ULA prefix fd20::/20.`,
+			},
+			"internal_ipv6_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `When enabling ula internal ipv6, caller optionally can specify the /48 range 
+they want from the google defined ULA prefix fd20::/20. The input must be a 
+valid /48 ULA IPv6 address and must be within the fd20::/20. Operation will 
+fail if the speficied /48 is already in used by another resource. 
+If the field is not speficied, then a /48 range will be randomly allocated from fd20::/20 and returned via this field.`,
+			},
 			"mtu": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -87,7 +104,7 @@ and the maximum value is 1500 bytes.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "GLOBAL", ""}, false),
+				ValidateFunc: validateEnum([]string{"REGIONAL", "GLOBAL", ""}),
 				Description: `The network-wide routing mode to use. If set to 'REGIONAL', this
 network's cloud routers will only advertise routes with subnetworks
 of this network in the same region as the router. If set to 'GLOBAL',
@@ -159,6 +176,18 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(mtuProp)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
 		obj["mtu"] = mtuProp
 	}
+	enableUlaInternalIpv6Prop, err := expandComputeNetworkEnableUlaInternalIpv6(d.Get("enable_ula_internal_ipv6"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_ula_internal_ipv6"); !isEmptyValue(reflect.ValueOf(enableUlaInternalIpv6Prop)) && (ok || !reflect.DeepEqual(v, enableUlaInternalIpv6Prop)) {
+		obj["enableUlaInternalIpv6"] = enableUlaInternalIpv6Prop
+	}
+	internalIpv6RangeProp, err := expandComputeNetworkInternalIpv6Range(d.Get("internal_ipv6_range"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("internal_ipv6_range"); !isEmptyValue(reflect.ValueOf(internalIpv6RangeProp)) && (ok || !reflect.DeepEqual(v, internalIpv6RangeProp)) {
+		obj["internalIpv6Range"] = internalIpv6RangeProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks")
 	if err != nil {
@@ -201,8 +230,6 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error waiting to create Network: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating Network %q: %#v", d.Id(), res)
-
 	if d.Get("delete_default_routes_on_create").(bool) {
 		token := ""
 		for paginate := true; paginate; {
@@ -234,6 +261,8 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 			paginate = token != ""
 		}
 	}
+
+	log.Printf("[DEBUG] Finished creating Network %q: %#v", d.Id(), res)
 
 	return resourceComputeNetworkRead(d, meta)
 }
@@ -306,6 +335,12 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		}
 	}
 	if err := d.Set("mtu", flattenComputeNetworkMtu(res["mtu"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err := d.Set("enable_ula_internal_ipv6", flattenComputeNetworkEnableUlaInternalIpv6(res["enableUlaInternalIpv6"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err := d.Set("internal_ipv6_range", flattenComputeNetworkInternalIpv6Range(res["internalIpv6Range"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -478,7 +513,7 @@ func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.Reso
 func flattenComputeNetworkMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -490,6 +525,14 @@ func flattenComputeNetworkMtu(v interface{}, d *schema.ResourceData, config *Con
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeNetworkEnableUlaInternalIpv6(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkInternalIpv6Range(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func expandComputeNetworkDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -521,5 +564,13 @@ func expandComputeNetworkRoutingConfigRoutingMode(v interface{}, d TerraformReso
 }
 
 func expandComputeNetworkMtu(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkEnableUlaInternalIpv6(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkInternalIpv6Range(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

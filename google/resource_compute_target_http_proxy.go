@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -36,9 +35,9 @@ func resourceComputeTargetHttpProxy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -66,6 +65,14 @@ to the BackendService.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"proxy_bind": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `This field only applies when the forwarding rule that references
+this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -117,6 +124,12 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
 		obj["urlMap"] = urlMapProp
+	}
+	proxyBindProp, err := expandComputeTargetHttpProxyProxyBind(d.Get("proxy_bind"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+		obj["proxyBind"] = proxyBindProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies")
@@ -212,6 +225,9 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
 	if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("proxy_bind", flattenComputeTargetHttpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -354,7 +370,7 @@ func flattenComputeTargetHttpProxyDescription(v interface{}, d *schema.ResourceD
 func flattenComputeTargetHttpProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -379,6 +395,10 @@ func flattenComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData, 
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeTargetHttpProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeTargetHttpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -393,4 +413,8 @@ func expandComputeTargetHttpProxyUrlMap(v interface{}, d TerraformResourceData, 
 		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeTargetHttpProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }

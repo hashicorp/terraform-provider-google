@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Serverless VPC Access"
-layout: "google"
 page_title: "Google: google_vpc_access_connector"
-sidebar_current: "docs-google-vpc-access-connector"
 description: |-
   Serverless VPC Access connector resource.
 ---
@@ -46,6 +44,124 @@ resource "google_vpc_access_connector" "connector" {
   network       = "default"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vpc_access_connector_shared_vpc&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - VPC Access Connector Shared VPC
+
+
+```hcl
+resource "google_vpc_access_connector" "connector" {
+  provider      = google-beta
+  name          = "vpc-con"
+  subnet {
+    name = google_compute_subnetwork.custom_test.name
+  }
+  machine_type = "e2-standard-4"
+}
+
+resource "google_compute_subnetwork" "custom_test" {
+  provider      = google-beta
+  name          = "vpc-con"
+  ip_cidr_range = "10.2.0.0/28"
+  region        = "us-central1"
+  network       = google_compute_network.custom_test.id
+}
+
+resource "google_compute_network" "custom_test" {
+  provider                = google-beta
+  name                    = "vpc-con"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudrun_vpc_access_connector&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrun VPC Access Connector
+
+
+```hcl
+resource "google_project_service" "vpcaccess_api" {
+  service  = "vpcaccess.googleapis.com"
+  provider = google-beta
+  disable_on_destroy = false
+}
+
+# VPC
+resource "google_compute_network" "default" {
+  name                    = "cloudrun-network"
+  provider                = google-beta
+  auto_create_subnetworks = false
+}
+
+# VPC access connector
+resource "google_vpc_access_connector" "connector" {
+  name          = "vpcconn"
+  provider      = google-beta
+  region        = "us-west1"
+  ip_cidr_range = "10.8.0.0/28"
+  max_throughput= 300
+  network       = google_compute_network.default.name
+  depends_on    = [google_project_service.vpcaccess_api]
+}
+
+# Cloud Router
+resource "google_compute_router" "router" {
+  name     = "router"
+  provider = google-beta
+  region   = "us-west1"
+  network  = google_compute_network.default.id
+}
+
+# NAT configuration
+resource "google_compute_router_nat" "router_nat" {
+  name                               = "nat"
+  provider                           = google-beta
+  region                             = "us-west1"
+  router                             = google_compute_router.router.name
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  nat_ip_allocate_option             = "AUTO_ONLY"
+}
+
+# Cloud Run service
+resource "google_cloud_run_service" "gcr_service" {
+  name     = "mygcrservice"
+  provider = google-beta
+  location = "us-west1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        resources {
+          limits = {
+            cpu = "1000m"
+            memory = "512M"
+          }
+        }
+      }
+      # the service uses this SA to call other Google Cloud APIs
+      # service_account_name = myservice_runtime_sa
+    }
+
+    metadata {
+      annotations = {
+        # Limit scale up to prevent any cost blow outs!
+        "autoscaling.knative.dev/maxScale" = "5"
+        # Use the VPC Connector
+        "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector.name
+        # all egress from the service should go through the VPC Connector
+        "run.googleapis.com/vpc-access-egress" = "all-traffic"
+      }
+    }
+  }
+  autogenerate_revision_name = true
+}
+```
 
 ## Argument Reference
 
@@ -56,25 +172,42 @@ The following arguments are supported:
   (Required)
   The name of the resource (Max 25 characters).
 
-* `network` -
-  (Required)
-  Name of a VPC network.
-
-* `ip_cidr_range` -
-  (Required)
-  The range of internal addresses that follows RFC 4632 notation. Example: `10.132.0.0/28`.
-
 
 - - -
 
+
+* `network` -
+  (Optional)
+  Name or self_link of the VPC network. Required if `ip_cidr_range` is set.
+
+* `ip_cidr_range` -
+  (Optional)
+  The range of internal addresses that follows RFC 4632 notation. Example: `10.132.0.0/28`.
+
+* `machine_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Machine type of VM Instance underlying connector. Default is e2-micro
 
 * `min_throughput` -
   (Optional)
   Minimum throughput of the connector in Mbps. Default and min is 200.
 
+* `min_instances` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Minimum value of instances in autoscaling group underlying the connector.
+
+* `max_instances` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Maximum value of instances in autoscaling group underlying the connector.
+
 * `max_throughput` -
   (Optional)
-  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 1000.
+  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 300.
+
+* `subnet` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The subnet in which to house the connector
+  Structure is [documented below](#nested_subnet).
 
 * `region` -
   (Optional)
@@ -83,6 +216,17 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_subnet"></a>The `subnet` block supports:
+
+* `name` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Subnet name (relative, not fully qualified). E.g. if the full subnet selfLink is
+  https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/subnetworks/{subnetName} the correct input for this field would be {subnetName}"
+
+* `project_id` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Project in which the subnet exists. If not set, this project is assumed to be the project for which the connector create request was issued.
 
 ## Attributes Reference
 
@@ -102,8 +246,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

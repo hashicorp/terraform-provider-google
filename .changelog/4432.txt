@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: promoted `master_global_access_config`, `tpu_ipv4_cidr_block`, `default_snat_status` and `datapath_provider` fields of `google_container_cluster` to GA.
+```

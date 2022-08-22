@@ -1,8 +1,6 @@
 ---
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_default_service_account"
-sidebar_current: "docs-google-datasource-bigquery-default-service-account"
 description: |-
   Get the email address of the project's BigQuery service account
 ---

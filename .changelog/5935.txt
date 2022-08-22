@@ -1,0 +1,3 @@
+```release-note:bug
+Make `CLOUD_LOGGING_ONLY` available as a cloud build logging option.
+```

@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: Added support for Private Services Connect for Google APIs in `google_compute_global_address `
+compute: Added support for Private Services Connect for Google APIs` in `google_compute_global_forwarding_rule `
+```

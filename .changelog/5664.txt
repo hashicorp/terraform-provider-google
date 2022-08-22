@@ -1,0 +1,6 @@
+```release-note:enhancement
+sql: added field `clone.allocated_ip_range` to support address range picker for clone for resource `google_sql_database_instance`
+```
+```release-note:enhancement
+sql: added support for address range picker for read replicas for resource `google_sql_database_instance`
+```

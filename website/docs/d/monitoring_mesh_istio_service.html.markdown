@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_mesh_istio_service"
-sidebar_current: "docs-google-datasource-monitoring-mesh-istio-service"
 description: |-
   An Monitoring Service resource created automatically by GCP to monitor an
   Mesh Istio service.

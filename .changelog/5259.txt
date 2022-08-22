@@ -1,0 +1,6 @@
+```release-note:deprecation
+container: deprecated `workload_metadata_configuration.node_metadata` in favor of `workload_metadata_configuration.mode` in `google_container_cluster`
+```
+```release-note:enhancement
+container: added support for `workload_metadata_configuration.mode` in `google_container_cluster`
+```

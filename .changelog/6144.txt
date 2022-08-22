@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed an incorrect diff when adding two or more clusters
+```

@@ -1,0 +1,3 @@
+```release-note:none
+Minor docs reorganization to group all privateca resources together.
+```

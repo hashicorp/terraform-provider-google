@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,6 +58,44 @@ func resourceSpannerDBDdlCustomDiff(_ context.Context, diff *schema.ResourceDiff
 	return resourceSpannerDBDdlCustomDiffFunc(diff)
 }
 
+func validateDatabaseRetentionPeriod(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	valueError := fmt.Errorf("version_retention_period should be in range [1h, 7d], in a format resembling 1d, 24h, 1440m, or 86400s")
+
+	r := regexp.MustCompile("^(\\d{1}d|\\d{1,3}h|\\d{2,5}m|\\d{4,6}s)$")
+	if !r.MatchString(value) {
+		errors = append(errors, valueError)
+		return
+	}
+
+	unit := value[len(value)-1:]
+	multiple := value[:len(value)-1]
+	num, err := strconv.Atoi(multiple)
+	if err != nil {
+		errors = append(errors, valueError)
+		return
+	}
+
+	if unit == "d" && (num < 1 || num > 7) {
+		errors = append(errors, valueError)
+		return
+	}
+	if unit == "h" && (num < 1 || num > 7*24) {
+		errors = append(errors, valueError)
+		return
+	}
+	if unit == "m" && (num < 1*60 || num > 7*24*60) {
+		errors = append(errors, valueError)
+		return
+	}
+	if unit == "s" && (num < 1*60*60 || num > 7*24*60*60) {
+		errors = append(errors, valueError)
+		return
+	}
+
+	return
+}
+
 func resourceSpannerDatabase() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerDatabaseCreate,
@@ -68,9 +108,9 @@ func resourceSpannerDatabase() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: resourceSpannerDBDdlCustomDiff,
@@ -91,6 +131,15 @@ func resourceSpannerDatabase() *schema.Resource {
 				Description: `A unique identifier for the database, which cannot be changed after
 the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].`,
 			},
+			"database_dialect": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"GOOGLE_STANDARD_SQL", "POSTGRESQL", ""}),
+				Description: `The dialect of the Cloud Spanner Database.
+If it is not provided, "GOOGLE_STANDARD_SQL" will be used. Possible values: ["GOOGLE_STANDARD_SQL", "POSTGRESQL"]`,
+			},
 			"ddl": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -101,6 +150,35 @@ error in any statement, the database is not created.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"encryption_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Encryption configuration for the database`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Fully qualified name of the KMS key to use to encrypt this database. This key must exist
+in the same location as the Spanner Database.`,
+						},
+					},
+				},
+			},
+			"version_retention_period": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: validateDatabaseRetentionPeriod,
+				Description: `The retention period for the database. The retention period must be between 1 hour
+and 7 days, and can be specified in days, hours, minutes, or seconds. For example,
+the values 1d, 24h, 1440m, and 86400s are equivalent. Default value is 1h.
+If this property is used, you must avoid adding new DDL statements to 'ddl' that
+update the database's version_retention_period.`,
 			},
 			"state": {
 				Type:        schema.TypeString,
@@ -137,11 +215,29 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
+	versionRetentionPeriodProp, err := expandSpannerDatabaseVersionRetentionPeriod(d.Get("version_retention_period"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("version_retention_period"); !isEmptyValue(reflect.ValueOf(versionRetentionPeriodProp)) && (ok || !reflect.DeepEqual(v, versionRetentionPeriodProp)) {
+		obj["versionRetentionPeriod"] = versionRetentionPeriodProp
+	}
 	extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(extraStatementsProp)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
 		obj["extraStatements"] = extraStatementsProp
+	}
+	encryptionConfigProp, err := expandSpannerDatabaseEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
+	}
+	databaseDialectProp, err := expandSpannerDatabaseDatabaseDialect(d.Get("database_dialect"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("database_dialect"); !isEmptyValue(reflect.ValueOf(databaseDialectProp)) && (ok || !reflect.DeepEqual(v, databaseDialectProp)) {
+		obj["databaseDialect"] = databaseDialectProp
 	}
 	instanceProp, err := expandSpannerDatabaseInstance(d.Get("instance"), d, config)
 	if err != nil {
@@ -217,6 +313,69 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	// Note: Databases that are created with POSTGRESQL dialect do not support extra DDL
+	// statements at the time of database creation. To avoid users needing to run
+	// `terraform apply` twice to get their desired outcome, the provider does not set
+	// `extraStatements` in the call to the `create` endpoint and all DDL (other than
+	//  <CREATE DATABASE>) is run post-create, by calling the `updateDdl` endpoint
+
+	_, ok := opRes["name"]
+	if !ok {
+		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+	}
+
+	retention, retentionPeriodOk := d.GetOk("version_retention_period")
+	retentionPeriod := retention.(string)
+	ddl, ddlOk := d.GetOk("ddl")
+	ddlStatements := ddl.([]interface{})
+
+	if retentionPeriodOk || ddlOk {
+
+		obj := make(map[string]interface{})
+		updateDdls := []string{}
+
+		if ddlOk {
+			for i := 0; i < len(ddlStatements); i++ {
+				updateDdls = append(updateDdls, ddlStatements[i].(string))
+			}
+		}
+
+		if retentionPeriodOk {
+			dbName := d.Get("name")
+			retentionDdl := fmt.Sprintf("ALTER DATABASE `%s` SET OPTIONS (version_retention_period=\"%s\")", dbName, retentionPeriod)
+			if dialect, ok := d.GetOk("database_dialect"); ok && dialect == "POSTGRESQL" {
+				retentionDdl = fmt.Sprintf("ALTER DATABASE \"%s\" SET spanner.version_retention_period TO \"%s\"", dbName, retentionPeriod)
+			}
+			updateDdls = append(updateDdls, retentionDdl)
+		}
+
+		log.Printf("[DEBUG] Applying extra DDL statements to the new Database: %#v", updateDdls)
+
+		obj["statements"] = updateDdls
+
+		url, err = replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
+		if err != nil {
+			return err
+		}
+
+		res, err = sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error executing DDL statements on Database: %s", err)
+		}
+
+		// Use the resource in the operation response to populate
+		// identity fields and d.Id() before read
+		var opRes map[string]interface{}
+		err = spannerOperationWaitTimeWithResponse(
+			config, res, &opRes, project, "Creating Database", userAgent,
+			d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			// The resource didn't actually create
+			d.SetId("")
+			return fmt.Errorf("Error waiting to run DDL against newly-created Database: %s", err)
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
 
 	return resourceSpannerDatabaseRead(d, meta)
@@ -277,7 +436,16 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("name", flattenSpannerDatabaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
+	if err := d.Set("version_retention_period", flattenSpannerDatabaseVersionRetentionPeriod(res["versionRetentionPeriod"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
 	if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("encryption_config", flattenSpannerDatabaseEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("database_dialect", flattenSpannerDatabaseDatabaseDialect(res["databaseDialect"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
@@ -304,9 +472,15 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 
 	d.Partial(true)
 
-	if d.HasChange("ddl") {
+	if d.HasChange("version_retention_period") || d.HasChange("ddl") {
 		obj := make(map[string]interface{})
 
+		versionRetentionPeriodProp, err := expandSpannerDatabaseVersionRetentionPeriod(d.Get("version_retention_period"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("version_retention_period"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionRetentionPeriodProp)) {
+			obj["versionRetentionPeriod"] = versionRetentionPeriodProp
+		}
 		extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
 		if err != nil {
 			return err
@@ -430,7 +604,32 @@ func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *C
 	return NameFromSelfLinkStateFunc(v)
 }
 
+func flattenSpannerDatabaseVersionRetentionPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenSpannerDatabaseEncryptionConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenSpannerDatabaseEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenSpannerDatabaseDatabaseDialect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -445,7 +644,38 @@ func expandSpannerDatabaseName(v interface{}, d TerraformResourceData, config *C
 	return v, nil
 }
 
+func expandSpannerDatabaseVersionRetentionPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerDatabaseDdl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerDatabaseEncryptionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandSpannerDatabaseEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerDatabaseDatabaseDialect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -459,8 +689,20 @@ func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, confi
 
 func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	obj["createStatement"] = fmt.Sprintf("CREATE DATABASE `%s`", obj["name"])
+	if dialect, ok := obj["databaseDialect"]; ok && dialect == "POSTGRESQL" {
+		obj["createStatement"] = fmt.Sprintf("CREATE DATABASE \"%s\"", obj["name"])
+	}
+
+	// Extra DDL statements are removed from the create request and instead applied to the database in
+	// a post-create action, to accommodate retrictions when creating PostgreSQL-enabled databases.
+	// https://cloud.google.com/spanner/docs/create-manage-databases#create_a_database
+	log.Printf("[DEBUG] Preparing to create new Database. Any extra DDL statements will be applied to the Database in a separate API call")
+
 	delete(obj, "name")
 	delete(obj, "instance")
+
+	delete(obj, "versionRetentionPeriod")
+	delete(obj, "extraStatements")
 	return obj, nil
 }
 
@@ -475,8 +717,19 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 		updateDdls = append(updateDdls, newDdls[i].(string))
 	}
 
+	//Add statement to update version_retention_period property, if needed
+	if d.HasChange("version_retention_period") {
+		dbName := d.Get("name")
+		retentionDdl := fmt.Sprintf("ALTER DATABASE `%s` SET OPTIONS (version_retention_period=\"%s\")", dbName, obj["versionRetentionPeriod"])
+		if dialect, ok := d.GetOk("database_dialect"); ok && dialect == "POSTGRESQL" {
+			retentionDdl = fmt.Sprintf("ALTER DATABASE \"%s\" SET spanner.version_retention_period TO \"%s\"", dbName, obj["versionRetentionPeriod"])
+		}
+		updateDdls = append(updateDdls, retentionDdl)
+	}
+
 	obj["statements"] = updateDdls
 	delete(obj, "name")
+	delete(obj, "versionRetentionPeriod")
 	delete(obj, "instance")
 	delete(obj, "extraStatements")
 	return obj, nil

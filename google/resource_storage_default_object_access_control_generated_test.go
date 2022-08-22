@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlP
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckStorageDefaultObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -60,7 +57,8 @@ resource "google_storage_default_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-static-content-bucket%{random_suffix}"
+  name     = "tf-test-static-content-bucket%{random_suffix}"
+  location = "US"
 }
 `, context)
 }

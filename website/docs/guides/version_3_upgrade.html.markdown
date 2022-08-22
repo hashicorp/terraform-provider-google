@@ -1,7 +1,5 @@
 ---
-layout: "google"
 page_title: "Terraform Google Provider 3.0.0 Upgrade Guide"
-sidebar_current: "docs-google-provider-guides-version-3-upgrade"
 description: |-
   Terraform Google Provider 3.0.0 Upgrade Guide
 ---
@@ -17,8 +15,8 @@ Most of the changes outlined in this guide have been previously marked as
 deprecated in the Terraform `plan`/`apply` output throughout previous provider
 releases, up to and including the final `2.X` series release. These changes,
 such as deprecation notices, can always be found in the CHANGELOG of the
-affected providers. [google](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md)
-[google-beta](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md)
+affected providers. [google](https://github.com/hashicorp/terraform-provider-google/blob/main/CHANGELOG.md)
+[google-beta](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/CHANGELOG.md)
 
 ## What is `3.0.0-beta.1`?
 
@@ -460,10 +458,10 @@ In an attempt to avoid allowing empty blocks in config files, at least one of `s
 
 ## Resource: `google_composer_environment`
 
-### At least one of `airflow_config_overrides`, `pypi_packages`, `env_variables`, `image_version`, or `python_version` is now required on `google_composer_environment.config.software_config`
+### At least one of `airflow_config_overrides`, `pypi_packages`, `env_variables`, `image_version`, `python_version` or `scheduler_count` is now required on `google_composer_environment.config.software_config`
 
 In an attempt to avoid allowing empty blocks in config files, at least one of `airflow_config_overrides`,
-`pypi_packages`, `env_variables`, `image_version`, or `python_version` is now required on the
+`pypi_packages`, `env_variables`, `image_version`, `python_version` or `scheduler_count` is now required on the
 `config.software_config` block.
 
 ### `use_ip_aliases` is now required on block `google_composer_environment.ip_allocation_policy`
@@ -549,7 +547,7 @@ Previously documentation suggested Terraform could use the same range of valid
 IP Address formats for `ip_address` as accepted by the API (e.g. named addresses
 or URLs to GCP Address resources). However, the server returns only literal IP
 addresses and thus caused diffs on re-apply (i.e. a permadiff). We amended
-documenation to say Terraform only accepts literal IP addresses.
+documentation to say Terraform only accepts literal IP addresses.
 
 This is now strictly validated. While this shouldn't have a large breaking
 impact as users would have already run into permadiff issues on re-apply,
@@ -761,7 +759,7 @@ fail:
 
 ```hcl
 disk {
-  source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
   auto_delete  = true
   type         = "SCRATCH"
 }
@@ -769,7 +767,7 @@ disk {
 
 ```hcl
 disk {
-  source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
   auto_delete  = true
   disk_type    = "local-ssd"
 }

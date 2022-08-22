@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"google.golang.org/api/compute/v1"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeInstanceMigrateState(

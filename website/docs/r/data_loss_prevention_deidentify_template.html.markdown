@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data loss prevention"
-layout: "google"
 page_title: "Google: google_data_loss_prevention_deidentify_template"
-sidebar_current: "docs-google-data-loss-prevention-deidentify-template"
 description: |-
   Allows creation of templates to de-identify content.
 ---
@@ -31,11 +29,6 @@ To get more information about DeidentifyTemplate, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dlp/docs/concepts-templates)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dlp_deidentify_template_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Dlp Deidentify Template Basic
 
 
@@ -49,10 +42,20 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 		info_type_transformations {
 			transformations {
 				info_types {
+					name = "FIRST_NAME"
+				}
+
+				primitive_transformation {
+					replace_with_info_type_config = true
+				}
+			}
+
+			transformations {
+				info_types {
 					name = "PHONE_NUMBER"
 				}
 				info_types {
-					name = "CREDIT_CARD_NUMBER"
+					name = "AGE"
 				}
 
 				primitive_transformation {
@@ -101,6 +104,28 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 					}
 				}
 			}
+
+      transformations {
+        info_types {
+          name = "CREDIT_CARD_NUMBER"
+        }
+
+        primitive_transformation {
+          crypto_deterministic_config {
+            context {
+              name = "sometweak"
+            }
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+            surrogate_info_type {
+              name = "abc"
+            }
+          }
+        }
+      }
 		}
 	}
 }
@@ -114,7 +139,7 @@ The following arguments are supported:
 * `deidentify_config` -
   (Required)
   Configuration of the deidentify template
-  Structure is documented below.
+  Structure is [documented below](#nested_deidentify_config).
 
 * `parent` -
   (Required)
@@ -125,65 +150,80 @@ The following arguments are supported:
   * `organizations/{{organization_id}}/locations/{{location}}`
 
 
-The `deidentify_config` block supports:
+<a name="nested_deidentify_config"></a>The `deidentify_config` block supports:
 
 * `info_type_transformations` -
   (Required)
   Specifies free-text based transformations to be applied to the dataset.
-  Structure is documented below.
+  Structure is [documented below](#nested_info_type_transformations).
 
 
-The `info_type_transformations` block supports:
+<a name="nested_info_type_transformations"></a>The `info_type_transformations` block supports:
 
 * `transformations` -
   (Required)
   Transformation for each infoType. Cannot specify more than one for a given infoType.
-  Structure is documented below.
+  Structure is [documented below](#nested_transformations).
 
 
-The `transformations` block supports:
+<a name="nested_transformations"></a>The `transformations` block supports:
 
 * `info_types` -
   (Optional)
   InfoTypes to apply the transformation to. Leaving this empty will apply the transformation to apply to
   all findings that correspond to infoTypes that were requested in InspectConfig.
-  Structure is documented below.
+  Structure is [documented below](#nested_info_types).
 
 * `primitive_transformation` -
   (Required)
   Primitive transformation to apply to the infoType.
-  Structure is documented below.
+  Structure is [documented below](#nested_primitive_transformation).
 
 
-The `info_types` block supports:
+<a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
   Name of the information type.
 
-The `primitive_transformation` block supports:
+<a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
 
 * `replace_config` -
   (Optional)
   Replace each input value with a given value.
-  Structure is documented below.
+  Structure is [documented below](#nested_replace_config).
+
+* `replace_with_info_type_config` -
+  (Optional)
+  Replace each matching finding with the name of the info type.
 
 * `character_mask_config` -
   (Optional)
   Partially mask a string by replacing a given number of characters with a fixed character.
   Masking can start from the beginning or end of the string.
-  Structure is documented below.
+  Structure is [documented below](#nested_character_mask_config).
+
+* `crypto_deterministic_config` -
+  (Optional)
+  Pseudonymization method that generates deterministic encryption for the given input. Outputs a base64 encoded representation of the encrypted output. Uses AES-SIV based on the RFC [https://tools.ietf.org/html/rfc5297](https://tools.ietf.org/html/rfc5297).
+  Structure is [documented below](#nested_crypto_deterministic_config).
+
+* `crypto_replace_ffx_fpe_config` -
+  (Optional)
+  Replaces an identifier with a surrogate using Format Preserving Encryption (FPE) with the FFX mode of operation; however when used in the `content.reidentify` API method, it serves the opposite function by reversing the surrogate back into the original identifier. The identifier must be encoded as ASCII. For a given crypto key and context, the same identifier will be replaced with the same surrogate. Identifiers must be at least two characters long. In the case that the identifier is the empty string, it will be skipped. See [https://cloud.google.com/dlp/docs/pseudonymization](https://cloud.google.com/dlp/docs/pseudonymization) to learn more.
+  Note: We recommend using CryptoDeterministicConfig for all use cases which do not require preserving the input alphabet space and size, plus warrant referential integrity.
+  Structure is [documented below](#nested_crypto_replace_ffx_fpe_config).
 
 
-The `replace_config` block supports:
+<a name="nested_replace_config"></a>The `replace_config` block supports:
 
 * `new_value` -
   (Required)
   Replace each input value with a given value.
-  Structure is documented below.
+  Structure is [documented below](#nested_new_value).
 
 
-The `new_value` block supports:
+<a name="nested_new_value"></a>The `new_value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -209,12 +249,12 @@ The `new_value` block supports:
 * `time_value` -
   (Optional)
   Represents a time of day.
-  Structure is documented below.
+  Structure is [documented below](#nested_time_value).
 
 * `date_value` -
   (Optional)
   Represents a whole or partial calendar date.
-  Structure is documented below.
+  Structure is [documented below](#nested_date_value).
 
 * `day_of_week_value` -
   (Optional)
@@ -222,7 +262,7 @@ The `new_value` block supports:
   Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
 
-The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -240,7 +280,7 @@ The `time_value` block supports:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -255,7 +295,7 @@ The `date_value` block supports:
   Day of month. Must be from 1 to 31 and valid for the year and month, or 0 if specifying a
   year by itself or a year and month where the day is not significant.
 
-The `character_mask_config` block supports:
+<a name="nested_character_mask_config"></a>The `character_mask_config` block supports:
 
 * `masking_character` -
   (Optional)
@@ -275,12 +315,12 @@ The `character_mask_config` block supports:
 * `characters_to_ignore` -
   (Optional)
   Characters to skip when doing de-identification of a value. These will be left alone and skipped.
-  Structure is documented below.
+  Structure is [documented below](#nested_characters_to_ignore).
 
 
-The `characters_to_ignore` block supports:
+<a name="nested_characters_to_ignore"></a>The `characters_to_ignore` block supports:
 
-* `character_to_skip` -
+* `characters_to_skip` -
   (Optional)
   Characters to not transform when masking.
 
@@ -288,6 +328,187 @@ The `characters_to_ignore` block supports:
   (Optional)
   Common characters to not transform when masking. Useful to avoid removing punctuation.
   Possible values are `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, and `WHITESPACE`.
+
+<a name="nested_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
+
+* `crypto_key` -
+  (Optional)
+  The key used by the encryption function.
+  Structure is [documented below](#nested_crypto_key).
+
+* `surrogate_info_type` -
+  (Optional)
+  The custom info type to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom info type followed by the number of characters comprising the surrogate. The following scheme defines the format: {info type name}({surrogate character count}):{surrogate}
+  For example, if the name of custom info type is 'MY\_TOKEN\_INFO\_TYPE' and the surrogate is 'abc', the full replacement value will be: 'MY\_TOKEN\_INFO\_TYPE(3):abc'
+  This annotation identifies the surrogate when inspecting content using the custom info type 'Surrogate'. This facilitates reversal of the surrogate when it occurs in free text.
+  Note: For record transformations where the entire cell in a table is being transformed, surrogates are not mandatory. Surrogates are used to denote the location of the token and are necessary for re-identification in free form text.
+  In order for inspection to work properly, the name of this info type must not occur naturally anywhere in your data; otherwise, inspection may either
+  *   reverse a surrogate that does not correspond to an actual identifier
+  *   be unable to parse the surrogate and result in an error
+  Therefore, choose your custom info type name carefully after considering what your data looks like. One way to select a name that has a high chance of yielding reliable detection is to include one or more unicode characters that are highly improbable to exist in your data. For example, assuming your data is entered from a regular ASCII keyboard, the symbol with the hex code point 29DD might be used like so: ⧝MY\_TOKEN\_TYPE.
+  Structure is [documented below](#nested_surrogate_info_type).
+
+* `context` -
+  (Optional)
+  A context may be used for higher security and maintaining referential integrity such that the same identifier in two different contexts will be given a distinct surrogate. The context is appended to plaintext value being encrypted. On decryption the provided context is validated against the value used during encryption. If a context was provided during encryption, same context must be provided during decryption as well.
+  If the context is not set, plaintext would be used as is for encryption. If the context is set but:
+  1.  there is no record present when transforming a given value or
+  2.  the field is not present when transforming a given value,
+  plaintext would be used as is for encryption.
+  Note that case (1) is expected when an `InfoTypeTransformation` is applied to both structured and non-structured `ContentItem`s.
+  Structure is [documented below](#nested_context).
+
+
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
+
+* `transient` -
+  (Optional)
+  Transient crypto key
+  Structure is [documented below](#nested_transient).
+
+* `unwrapped` -
+  (Optional)
+  Unwrapped crypto key
+  Structure is [documented below](#nested_unwrapped).
+
+* `kms_wrapped` -
+  (Optional)
+  Kms wrapped key
+  Structure is [documented below](#nested_kms_wrapped).
+
+
+<a name="nested_transient"></a>The `transient` block supports:
+
+* `name` -
+  (Required)
+  Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
+
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
+
+* `key` -
+  (Required)
+  A 128/192/256 bit key.
+  A base64-encoded string.
+
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
+
+* `wrapped_key` -
+  (Required)
+  The wrapped data crypto key.
+  A base64-encoded string.
+
+* `crypto_key_name` -
+  (Required)
+  The resource name of the KMS CryptoKey to use for unwrapping.
+
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+
+* `name` -
+  (Optional)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern `[A-Za-z0-9$-_]{1,64}`.
+
+<a name="nested_context"></a>The `context` block supports:
+
+* `name` -
+  (Optional)
+  Name describing the field.
+
+<a name="nested_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
+
+* `crypto_key` -
+  (Optional)
+  The key used by the encryption algorithm.
+  Structure is [documented below](#nested_crypto_key).
+
+* `context` -
+  (Optional)
+  The 'tweak', a context may be used for higher security since the same identifier in two different contexts won't be given the same surrogate. If the context is not set, a default tweak will be used.
+  If the context is set but:
+  1.  there is no record present when transforming a given value or
+  2.  the field is not present when transforming a given value,
+  a default tweak will be used.
+  Note that case (1) is expected when an `InfoTypeTransformation` is applied to both structured and non-structured `ContentItem`s. Currently, the referenced field may be of value type integer or string.
+  The tweak is constructed as a sequence of bytes in big endian byte order such that:
+  *   a 64 bit integer is encoded followed by a single byte of value 1
+  *   a string is encoded in UTF-8 format followed by a single byte of value 2
+  Structure is [documented below](#nested_context).
+
+* `surrogate_info_type` -
+  (Optional)
+  The custom infoType to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom infoType followed by the number of characters comprising the surrogate. The following scheme defines the format: info\_type\_name(surrogate\_character\_count):surrogate
+  For example, if the name of custom infoType is 'MY\_TOKEN\_INFO\_TYPE' and the surrogate is 'abc', the full replacement value will be: 'MY\_TOKEN\_INFO\_TYPE(3):abc'
+  This annotation identifies the surrogate when inspecting content using the custom infoType [`SurrogateType`](https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#surrogatetype). This facilitates reversal of the surrogate when it occurs in free text.
+  In order for inspection to work properly, the name of this infoType must not occur naturally anywhere in your data; otherwise, inspection may find a surrogate that does not correspond to an actual identifier. Therefore, choose your custom infoType name carefully after considering what your data looks like. One way to select a name that has a high chance of yielding reliable detection is to include one or more unicode characters that are highly improbable to exist in your data. For example, assuming your data is entered from a regular ASCII keyboard, the symbol with the hex code point 29DD might be used like so: ⧝MY\_TOKEN\_TYPE
+  Structure is [documented below](#nested_surrogate_info_type).
+
+* `common_alphabet` -
+  (Optional)
+  Common alphabets.
+  Possible values are `FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED`, `NUMERIC`, `HEXADECIMAL`, `UPPER_CASE_ALPHA_NUMERIC`, and `ALPHA_NUMERIC`.
+
+* `custom_alphabet` -
+  (Optional)
+  This is supported by mapping these to the alphanumeric characters that the FFX mode natively supports. This happens before/after encryption/decryption. Each character listed must appear only once. Number of characters must be in the range \[2, 95\]. This must be encoded as ASCII. The order of characters does not matter. The full list of allowed characters is:
+  ``0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ~`!@#$%^&*()_-+={[}]|:;"'<,>.?/``
+
+* `radix` -
+  (Optional)
+  The native way to select the alphabet. Must be in the range \[2, 95\].
+
+
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
+
+* `transient` -
+  (Optional)
+  Transient crypto key
+  Structure is [documented below](#nested_transient).
+
+* `unwrapped` -
+  (Optional)
+  Unwrapped crypto key
+  Structure is [documented below](#nested_unwrapped).
+
+* `kms_wrapped` -
+  (Optional)
+  Kms wrapped key
+  Structure is [documented below](#nested_kms_wrapped).
+
+
+<a name="nested_transient"></a>The `transient` block supports:
+
+* `name` -
+  (Required)
+  Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
+
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
+
+* `key` -
+  (Required)
+  A 128/192/256 bit key.
+  A base64-encoded string.
+
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
+
+* `wrapped_key` -
+  (Required)
+  The wrapped data crypto key.
+  A base64-encoded string.
+
+* `crypto_key_name` -
+  (Required)
+  The resource name of the KMS CryptoKey to use for unwrapping.
+
+<a name="nested_context"></a>The `context` block supports:
+
+* `name` -
+  (Optional)
+  Name describing the field.
+
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+
+* `name` -
+  (Optional)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern `[A-Za-z0-9$-_]{1,64}`.
 
 - - -
 
@@ -316,9 +537,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

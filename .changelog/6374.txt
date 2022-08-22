@@ -1,0 +1,4 @@
+```release-note:enhancement
+sql: added support for major version upgrade to `google_sql_database_instance ` resource
+
+```

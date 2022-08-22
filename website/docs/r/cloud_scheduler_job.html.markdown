@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,22 +13,16 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Scheduler"
-layout: "google"
 page_title: "Google: google_cloud_scheduler_job"
-sidebar_current: "docs-google-cloud-scheduler-job"
 description: |-
-  A scheduled job that can publish a pubsub message or a http request
-  every X interval of time, using crontab format string.
+  A scheduled job that can publish a PubSub message or an HTTP request
+  every X interval of time, using a crontab format string.
 ---
 
 # google\_cloud\_scheduler\_job
 
-A scheduled job that can publish a pubsub message or a http request
-every X interval of time, using crontab format string.
-
-To use Cloud Scheduler your project must contain an App Engine app
-that is located in one of the supported regions. If your project
-does not have an App Engine app, you must create one.
+A scheduled job that can publish a PubSub message or an HTTP request
+every X interval of time, using a crontab format string.
 
 
 To get more information about Job, see:
@@ -90,6 +84,34 @@ resource "google_cloud_scheduler_job" "job" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scheduler_job_paused&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Scheduler Job Paused
+
+
+```hcl
+resource "google_cloud_scheduler_job" "job" {
+  paused           = true
+  name             = "test-job"
+  description      = "test http job with updated fields"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scheduler_job_app_engine&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -125,11 +147,6 @@ resource "google_cloud_scheduler_job" "job" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scheduler_job_oauth&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Scheduler Job Oauth
 
 
@@ -211,6 +228,10 @@ The following arguments are supported:
   Specifies the time zone to be used in interpreting schedule.
   The value of this field must be a time zone name from the tz database.
 
+* `paused` -
+  (Optional)
+  Sets the job to a paused state. Jobs default to being enabled when this property is not set.
+
 * `attempt_deadline` -
   (Optional)
   The deadline for job attempts. If the request handler does not respond by this deadline then the request is
@@ -227,28 +248,28 @@ The following arguments are supported:
   By default, if a job does not complete successfully, 
   meaning that an acknowledgement is not received from the handler, 
   then it will be retried with exponential backoff according to the settings
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_config).
 
 * `pubsub_target` -
   (Optional)
   Pub/Sub target
   If the job providers a Pub/Sub target the cron will publish
   a message to the provided topic
-  Structure is documented below.
+  Structure is [documented below](#nested_pubsub_target).
 
 * `app_engine_http_target` -
   (Optional)
   App Engine HTTP target.
   If the job providers a App Engine HTTP target the cron will 
   send a request to the service instance
-  Structure is documented below.
+  Structure is [documented below](#nested_app_engine_http_target).
 
 * `http_target` -
   (Optional)
   HTTP target.
   If the job providers a http_target the cron will 
   send a request to the targeted url
-  Structure is documented below.
+  Structure is [documented below](#nested_http_target).
 
 * `region` -
   (Optional)
@@ -258,7 +279,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `retry_config` block supports:
+<a name="nested_retry_config"></a>The `retry_config` block supports:
 
 * `retry_count` -
   (Optional)
@@ -289,7 +310,7 @@ The `retry_config` block supports:
   then doubles maxDoublings times, then increases linearly, 
   and finally retries retries at intervals of maxBackoffDuration up to retryCount times.
 
-The `pubsub_target` block supports:
+<a name="nested_pubsub_target"></a>The `pubsub_target` block supports:
 
 * `topic_name` -
   (Required)
@@ -302,13 +323,14 @@ The `pubsub_target` block supports:
   (Optional)
   The message payload for PubsubMessage.
   Pubsub message must contain either non-empty data, or at least one attribute.
+   A base64-encoded string.
 
 * `attributes` -
   (Optional)
   Attributes for PubsubMessage.
   Pubsub message must contain either non-empty data, or at least one attribute.
 
-The `app_engine_http_target` block supports:
+<a name="nested_app_engine_http_target"></a>The `app_engine_http_target` block supports:
 
 * `http_method` -
   (Optional)
@@ -317,7 +339,7 @@ The `app_engine_http_target` block supports:
 * `app_engine_routing` -
   (Optional)
   App Engine Routing setting for the job.
-  Structure is documented below.
+  Structure is [documented below](#nested_app_engine_routing).
 
 * `relative_uri` -
   (Required)
@@ -341,7 +363,7 @@ The `app_engine_http_target` block supports:
   Headers can be set when the job is created.
 
 
-The `app_engine_routing` block supports:
+<a name="nested_app_engine_routing"></a>The `app_engine_routing` block supports:
 
 * `service` -
   (Optional)
@@ -358,7 +380,7 @@ The `app_engine_routing` block supports:
   App instance.
   By default, the job is sent to an instance which is available when the job is attempted.
 
-The `http_target` block supports:
+<a name="nested_http_target"></a>The `http_target` block supports:
 
 * `uri` -
   (Required)
@@ -384,16 +406,16 @@ The `http_target` block supports:
   (Optional)
   Contains information needed for generating an OAuth token.
   This type of authorization should be used when sending requests to a GCP endpoint.
-  Structure is documented below.
+  Structure is [documented below](#nested_oauth_token).
 
 * `oidc_token` -
   (Optional)
   Contains information needed for generating an OpenID Connect token.
   This type of authorization should be used when sending requests to third party endpoints or Cloud Run.
-  Structure is documented below.
+  Structure is [documented below](#nested_oidc_token).
 
 
-The `oauth_token` block supports:
+<a name="nested_oauth_token"></a>The `oauth_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -405,7 +427,7 @@ The `oauth_token` block supports:
   OAuth scope to be used for generating OAuth access token. If not specified,
   "https://www.googleapis.com/auth/cloud-platform" will be used.
 
-The `oidc_token` block supports:
+<a name="nested_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -423,15 +445,18 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/jobs/{{name}}`
 
+* `state` -
+  State of the job.
+
 
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

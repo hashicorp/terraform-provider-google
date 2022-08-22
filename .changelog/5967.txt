@@ -1,0 +1,3 @@
+```release-note:bug
+binaryauthorization: fixed permadiff in `google_binary_authorization_attestor`
+```

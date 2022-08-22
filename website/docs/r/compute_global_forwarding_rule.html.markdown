@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_global_forwarding_rule"
-sidebar_current: "docs-google-compute-global-forwarding-rule"
 description: |-
   Represents a GlobalForwardingRule resource.
 ---
@@ -32,6 +30,514 @@ https://cloud.google.com/compute/docs/load-balancing/http/
 
 
 
+## Example Usage - External Ssl Proxy Lb Mig Backend
+
+
+```hcl
+# External SSL proxy load balancer with managed instance group backend
+
+# VPC
+resource "google_compute_network" "default" {
+  name                    = "ssl-proxy-xlb-network"
+  provider                = google
+  auto_create_subnetworks = false
+}
+
+# backend subnet
+resource "google_compute_subnetwork" "default" {
+  name          = "ssl-proxy-xlb-subnet"
+  provider      = google
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+# reserved IP address
+resource "google_compute_global_address" "default" {
+  name = "ssl-proxy-xlb-ip"
+}
+
+
+# Self-signed regional SSL certificate for testing
+resource "tls_private_key" "default" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+resource "tls_self_signed_cert" "default" {
+  key_algorithm   = tls_private_key.default.algorithm
+  private_key_pem = tls_private_key.default.private_key_pem
+
+  # Certificate expires after 12 hours.
+  validity_period_hours = 12
+
+  # Generate a new certificate if Terraform is run within three
+  # hours of the certificate's expiration time.
+  early_renewal_hours = 3
+
+  # Reasonable set of uses for a server SSL certificate.
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+
+  dns_names = ["example.com"]
+
+  subject {
+    common_name  = "example.com"
+    organization = "ACME Examples, Inc"
+  }
+}
+
+resource "google_compute_ssl_certificate" "default" {
+  name        = "default-cert"
+  private_key = tls_private_key.default.private_key_pem
+  certificate = tls_self_signed_cert.default.cert_pem
+}
+
+resource "google_compute_target_ssl_proxy" "default" {
+  name             = "test-proxy"
+  backend_service  = google_compute_backend_service.default.id
+  ssl_certificates = [google_compute_ssl_certificate.default.id]
+}
+
+
+
+# forwarding rule
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "ssl-proxy-xlb-forwarding-rule"
+  provider              = google
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "EXTERNAL"
+  port_range            = "443"
+  target                = google_compute_target_ssl_proxy.default.id
+  ip_address            = google_compute_global_address.default.id
+}
+
+
+# backend service
+resource "google_compute_backend_service" "default" {
+  name                  = "ssl-proxy-xlb-backend-service"
+  protocol              = "SSL"
+  port_name             = "tcp"
+  load_balancing_scheme = "EXTERNAL"
+  timeout_sec           = 10
+  health_checks         = [google_compute_health_check.default.id]
+  backend {
+    group           = google_compute_instance_group_manager.default.instance_group
+    balancing_mode  = "UTILIZATION"
+    max_utilization = 1.0
+    capacity_scaler = 1.0
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "ssl-proxy-health-check"
+  timeout_sec        = 1
+  check_interval_sec = 1
+  tcp_health_check {
+    port = "443"
+  }
+}
+
+# instance template
+resource "google_compute_instance_template" "default" {
+  name         = "ssl-proxy-xlb-mig-template"
+  provider     = google
+  machine_type = "e2-small"
+  tags         = ["allow-health-check"]
+
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+  disk {
+    source_image = "debian-cloud/debian-10"
+    auto_delete  = true
+    boot         = true
+  }
+
+  # install nginx and serve a simple web page
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      set -euo pipefail
+      export DEBIAN_FRONTEND=noninteractive
+      sudo apt-get update
+      sudo apt-get install  -y apache2 jq
+      sudo a2ensite default-ssl
+      sudo a2enmod ssl
+      sudo service apache2 restart
+      NAME=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/hostname")
+      IP=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+      METADATA=$(curl -f -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/?recursive=True" | jq 'del(.["startup-script"])')
+      cat <<EOF > /var/www/html/index.html
+      <h1>SSL Load Balancer</h1>
+      <pre>
+      Name: $NAME
+      IP: $IP
+      Metadata: $METADATA
+      </pre>
+      EOF
+    EOF1
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# MIG
+resource "google_compute_instance_group_manager" "default" {
+  name     = "ssl-proxy-xlb-mig1"
+  provider = google
+  zone     = "us-central1-c"
+  named_port {
+    name = "tcp"
+    port = 443
+  }
+  version {
+    instance_template = google_compute_instance_template.default.id
+    name              = "primary"
+  }
+  base_instance_name = "vm"
+  target_size        = 2
+}
+
+# allow access from health check ranges
+resource "google_compute_firewall" "default" {
+  name          = "ssl-proxy-xlb-fw-allow-hc"
+  provider      = google
+  direction     = "INGRESS"
+  network       = google_compute_network.default.id
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+  allow {
+    protocol = "tcp"
+  }
+  target_tags = ["allow-health-check"]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=external_tcp_proxy_lb_mig_backend&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - External Tcp Proxy Lb Mig Backend
+
+
+```hcl
+# External TCP proxy load balancer with managed instance group backend
+
+# VPC
+resource "google_compute_network" "default" {
+  name                    = "tcp-proxy-xlb-network"
+  provider                = google-beta
+  auto_create_subnetworks = false
+}
+
+# backend subnet
+resource "google_compute_subnetwork" "default" {
+  name          = "tcp-proxy-xlb-subnet"
+  provider      = google-beta
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+# reserved IP address
+resource "google_compute_global_address" "default" {
+  provider = google-beta
+  name = "tcp-proxy-xlb-ip"
+}
+
+# forwarding rule
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "tcp-proxy-xlb-forwarding-rule"
+  provider              = google-beta
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "EXTERNAL"
+  port_range            = "110"
+  target                = google_compute_target_tcp_proxy.default.id
+  ip_address            = google_compute_global_address.default.id
+}
+
+resource "google_compute_target_tcp_proxy" "default" {
+  provider = google-beta
+  name            = "test-proxy-health-check"
+  backend_service = google_compute_backend_service.default.id
+}
+
+# backend service
+resource "google_compute_backend_service" "default" {
+  provider = google-beta
+  name                  = "tcp-proxy-xlb-backend-service"
+  protocol              = "TCP"
+  port_name             = "tcp"
+  load_balancing_scheme = "EXTERNAL"
+  timeout_sec           = 10
+  health_checks         = [google_compute_health_check.default.id]
+  backend {
+    group           = google_compute_instance_group_manager.default.instance_group
+    balancing_mode  = "UTILIZATION"
+    max_utilization = 1.0
+    capacity_scaler = 1.0
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name               = "tcp-proxy-health-check"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+# instance template
+resource "google_compute_instance_template" "default" {
+  name         = "tcp-proxy-xlb-mig-template"
+  provider     = google-beta
+  machine_type = "e2-small"
+  tags         = ["allow-health-check"]
+
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+  disk {
+    source_image = "debian-cloud/debian-10"
+    auto_delete  = true
+    boot         = true
+  }
+
+  # install nginx and serve a simple web page
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      set -euo pipefail
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y nginx-light jq
+      NAME=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/hostname")
+      IP=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+      METADATA=$(curl -f -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/?recursive=True" | jq 'del(.["startup-script"])')
+      cat <<EOF > /var/www/html/index.html
+      <pre>
+      Name: $NAME
+      IP: $IP
+      Metadata: $METADATA
+      </pre>
+      EOF
+    EOF1
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# MIG
+resource "google_compute_instance_group_manager" "default" {
+  name     = "tcp-proxy-xlb-mig1"
+  provider = google-beta
+  zone     = "us-central1-c"
+  named_port {
+    name = "tcp"
+    port = 80
+  }
+  version {
+    instance_template = google_compute_instance_template.default.id
+    name              = "primary"
+  }
+  base_instance_name = "vm"
+  target_size        = 2
+}
+
+# allow access from health check ranges
+resource "google_compute_firewall" "default" {
+  name          = "tcp-proxy-xlb-fw-allow-hc"
+  provider      = google-beta
+  direction     = "INGRESS"
+  network       = google_compute_network.default.id
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+  allow {
+    protocol = "tcp"
+  }
+  target_tags = ["allow-health-check"]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=external_http_lb_mig_backend_custom_header&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - External Http Lb Mig Backend Custom Header
+
+
+```hcl
+# External HTTP load balancer with a CDN-enabled managed instance group backend
+# and custom request and response headers
+
+# VPC
+resource "google_compute_network" "default" {
+  name                    = "l7-xlb-network"
+  provider                = google-beta
+  auto_create_subnetworks = false
+}
+
+# backend subnet
+resource "google_compute_subnetwork" "default" {
+  name          = "l7-xlb-subnet"
+  provider      = google-beta
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+# reserved IP address
+resource "google_compute_global_address" "default" {
+  provider = google-beta
+  name = "l7-xlb-static-ip"
+}
+
+# forwarding rule
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "l7-xlb-forwarding-rule"
+  provider              = google-beta
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "EXTERNAL"
+  port_range            = "80"
+  target                = google_compute_target_http_proxy.default.id
+  ip_address            = google_compute_global_address.default.id
+}
+
+# http proxy
+resource "google_compute_target_http_proxy" "default" {
+  name     = "l7-xlb-target-http-proxy"
+  provider = google-beta
+  url_map  = google_compute_url_map.default.id
+}
+
+# url map
+resource "google_compute_url_map" "default" {
+  name            = "l7-xlb-url-map"
+  provider        = google-beta
+  default_service = google_compute_backend_service.default.id
+}
+
+# backend service with custom request and response headers
+resource "google_compute_backend_service" "default" {
+  name                     = "l7-xlb-backend-service"
+  provider                 = google-beta
+  protocol                 = "HTTP"
+  port_name                = "my-port"
+  load_balancing_scheme    = "EXTERNAL"
+  timeout_sec              = 10
+  enable_cdn               = true
+  custom_request_headers   = ["X-Client-Geo-Location: {client_region_subdivision}, {client_city}"]
+  custom_response_headers  = ["X-Cache-Hit: {cdn_cache_status}"]
+  health_checks            = [google_compute_health_check.default.id]
+  backend {
+    group           = google_compute_instance_group_manager.default.instance_group
+    balancing_mode  = "UTILIZATION"
+    capacity_scaler = 1.0
+  }
+}
+
+# instance template
+resource "google_compute_instance_template" "default" {
+  name         = "l7-xlb-mig-template"
+  provider     = google-beta
+  machine_type = "e2-small"
+  tags         = ["allow-health-check"]
+
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+  disk {
+    source_image = "debian-cloud/debian-10"
+    auto_delete  = true
+    boot         = true
+  }
+
+  # install nginx and serve a simple web page
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      set -euo pipefail
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y nginx-light jq
+
+      NAME=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/hostname")
+      IP=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+      METADATA=$(curl -f -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/?recursive=True" | jq 'del(.["startup-script"])')
+
+      cat <<EOF > /var/www/html/index.html
+      <pre>
+      Name: $NAME
+      IP: $IP
+      Metadata: $METADATA
+      </pre>
+      EOF
+    EOF1
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# health check
+resource "google_compute_health_check" "default" {
+  name     = "l7-xlb-hc"
+  provider = google-beta
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
+}
+
+# MIG
+resource "google_compute_instance_group_manager" "default" {
+  name     = "l7-xlb-mig1"
+  provider = google-beta
+  zone     = "us-central1-c"
+  named_port {
+    name = "http"
+    port = 8080
+  }
+  version {
+    instance_template = google_compute_instance_template.default.id
+    name              = "primary"
+  }
+  base_instance_name = "vm"
+  target_size        = 2
+}
+
+# allow access from health check ranges
+resource "google_compute_firewall" "default" {
+  name          = "l7-xlb-fw-allow-hc"
+  provider      = google-beta
+  direction     = "INGRESS"
+  network       = google_compute_network.default.id
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+  allow {
+    protocol = "tcp"
+  }
+  target_tags = ["allow-health-check"]
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_forwarding_rule_http&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -164,7 +670,7 @@ resource "google_compute_backend_service" "default" {
 
 data "google_compute_image" "debian_image" {
   provider = google-beta
-  family   = "debian-9"
+  family   = "debian-11"
   project  = "debian-cloud"
 }
 
@@ -207,6 +713,238 @@ resource "google_compute_health_check" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_forwarding_rule_external_managed&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Global Forwarding Rule External Managed
+
+
+```hcl
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "global-rule"
+  target                = google_compute_target_http_proxy.default.id
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_target_http_proxy" "default" {
+  name        = "target-proxy"
+  description = "a description"
+  url_map     = google_compute_url_map.default.id
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "url-map-target-proxy"
+  description     = "a description"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "backend"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_forwarding_rule_hybrid&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Global Forwarding Rule Hybrid
+
+
+```hcl
+// Roughly mirrors https://cloud.google.com/load-balancing/docs/https/setting-up-ext-https-hybrid
+variable "subnetwork_cidr" {
+  default = "10.0.0.0/24"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "my-network"
+}
+
+resource "google_compute_network" "internal" {
+  name                    = "my-internal-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "internal"{
+  name                    = "my-subnetwork"
+  network                 = google_compute_network.internal.id
+  ip_cidr_range           = var.subnetwork_cidr
+  region                  = "us-central1"
+  private_ip_google_access= true
+}
+
+// Zonal NEG with GCE_VM_IP_PORT
+resource "google_compute_network_endpoint_group" "default" {
+  name                  = "default-neg"
+  network               = google_compute_network.default.id
+  default_port          = "90"
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+// Zonal NEG with GCE_VM_IP
+resource "google_compute_network_endpoint_group" "internal" {
+  name                  = "internal-neg"
+  network               = google_compute_network.internal.id
+  subnetwork            = google_compute_subnetwork.internal.id
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP"
+}
+
+// Hybrid connectivity NEG
+resource "google_compute_network_endpoint_group" "hybrid" {
+  name                  = "hybrid-neg"
+  network               = google_compute_network.default.id
+  default_port          = "90"
+  zone                  = "us-central1-a"
+  network_endpoint_type = "NON_GCP_PRIVATE_IP_PORT"
+}
+
+resource "google_compute_network_endpoint" "hybrid-endpoint" {
+  network_endpoint_group = google_compute_network_endpoint_group.hybrid.name
+  port       = google_compute_network_endpoint_group.hybrid.default_port
+  ip_address = "127.0.0.1"
+}
+
+// Backend service for Zonal NEG
+resource "google_compute_backend_service" "default" {
+  name                  = "backend-default"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  backend {
+    group = google_compute_network_endpoint_group.default.id
+    balancing_mode               = "RATE"
+    max_rate_per_endpoint        = 10
+  }
+  health_checks = [google_compute_health_check.default.id]
+}
+
+// Backgend service for Hybrid NEG
+resource "google_compute_backend_service" "hybrid" {
+  name                  = "backend-hybrid"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  backend {
+    group                        = google_compute_network_endpoint_group.hybrid.id
+    balancing_mode               = "RATE"
+    max_rate_per_endpoint = 10
+  }
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "health-check"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "url-map-target-proxy"
+  description     = "a description"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+
+    path_rule {
+      paths   = ["/hybrid"]
+      service = google_compute_backend_service.hybrid.id
+    }
+  }
+}
+
+resource "google_compute_target_http_proxy" "default" {
+  name        = "target-proxy"
+  description = "a description"
+  url_map     = google_compute_url_map.default.id
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  name       = "global-rule"
+  target     = google_compute_target_http_proxy.default.id
+  port_range = "80"
+}
+```
+## Example Usage - Private Service Connect Google Apis
+
+
+```hcl
+resource "google_compute_network" "network" {
+  provider      = google-beta
+  project       = "my-project-name"
+  name          = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "vpc_subnetwork" {
+  provider                 = google-beta
+  project                  = google_compute_network.network.project
+  name                     = "my-subnetwork"
+  ip_cidr_range            = "10.2.0.0/16"
+  region                   = "us-central1"
+  network                  = google_compute_network.network.id
+  private_ip_google_access = true
+}
+
+resource "google_compute_global_address" "default" {
+  provider      = google-beta
+  project       = google_compute_network.network.project
+  name          = "global-psconnect-ip"
+  address_type  = "INTERNAL"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.network.id
+  address       = "100.100.100.106"
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  provider      = google-beta
+  project       = google_compute_network.network.project
+  name          = "globalrule"
+  target        = "all-apis"
+  network       = google_compute_network.network.id
+  ip_address    = google_compute_global_address.default.id
+  load_balancing_scheme = ""
+}
+```
 
 ## Argument Reference
 
@@ -229,6 +967,8 @@ The following arguments are supported:
   The forwarded traffic must be of a type appropriate to the target object.
   For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets
   are valid.
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) For global address with a purpose of PRIVATE_SERVICE_CONNECT and
+  addressType of INTERNAL, only "all-apis" and "vpc-sc" are valid.
 
 
 - - -
@@ -241,31 +981,26 @@ The following arguments are supported:
 
 * `ip_address` -
   (Optional)
-  The IP address that this forwarding rule is serving on behalf of.
-  Addresses are restricted based on the forwarding rule's load balancing
-  scheme (EXTERNAL or INTERNAL) and scope (global or regional).
-  When the load balancing scheme is EXTERNAL, for global forwarding
-  rules, the address must be a global IP, and for regional forwarding
-  rules, the address must live in the same region as the forwarding
-  rule. If this field is empty, an ephemeral IPv4 address from the same
-  scope (global or regional) will be assigned. A regional forwarding
-  rule supports IPv4 only. A global forwarding rule supports either IPv4
-  or IPv6.
-  When the load balancing scheme is INTERNAL, this can only be an RFC
-  1918 IP address belonging to the network/subnet configured for the
-  forwarding rule. By default, if this field is empty, an ephemeral
-  internal IP address will be automatically allocated from the IP range
-  of the subnet or network configured for this forwarding rule.
-  An address must be specified by a literal IP address. ~> **NOTE**: While
-  the API allows you to specify various resource paths for an address resource
-  instead, Terraform requires this to specifically be an IP address to
-  avoid needing to fetching the IP address from resource paths on refresh
-  or unnecessary diffs.
+  The IP address that this forwarding rule serves. When a client sends
+  traffic to this IP address, the forwarding rule directs the traffic to
+  the target that you specify in the forwarding rule. The
+  loadBalancingScheme and the forwarding rule's target determine the
+  type of IP address that you can use. For detailed information, refer
+  to [IP address specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).
+  An address can be specified either by a literal IP address or a
+  reference to an existing Address resource. If you don't specify a
+  reserved IP address, an ephemeral IP address is assigned.
+  The value must be set to 0.0.0.0 when the target is a targetGrpcProxy
+  that has validateForProxyless field set to true.
+  For Private Service Connect forwarding rules that forward traffic to
+  Google APIs, IP address must be provided.
 
 * `ip_protocol` -
   (Optional)
   The IP protocol to which this rule applies. When the load balancing scheme is
-  INTERNAL_SELF_MANAGED, only TCP is valid.
+  INTERNAL_SELF_MANAGED, only TCP is valid. This field must not be set if the
+  global address is configured as a purpose of PRIVATE_SERVICE_CONNECT
+  and addressType of INTERNAL
   Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, and `ICMP`.
 
 * `ip_version` -
@@ -283,11 +1018,12 @@ The following arguments are supported:
   The value of INTERNAL_SELF_MANAGED means that this will be used for
   Internal Global HTTP(S) LB. The value of EXTERNAL means that this
   will be used for External Global Load Balancing (HTTP(S) LB,
-  External TCP/UDP LB, SSL Proxy)
-  NOTE: Currently global forwarding rules cannot be used for INTERNAL
-  load balancing.
+  External TCP/UDP LB, SSL Proxy). The value of EXTERNAL_MANAGED means
+  that this will be used for Global external HTTP(S) load balancers.
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Note: This field must be set "" if the global address is
+  configured as a purpose of PRIVATE_SERVICE_CONNECT and addressType of INTERNAL.
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
+  Possible values are `EXTERNAL`, `EXTERNAL_MANAGED`, and `INTERNAL_SELF_MANAGED`.
 
 * `metadata_filters` -
   (Optional)
@@ -305,7 +1041,7 @@ The following arguments are supported:
   the UrlMap that this ForwardingRule references.
   metadataFilters only applies to Loadbalancers that have their
   loadBalancingScheme set to INTERNAL_SELF_MANAGED.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata_filters).
 
 * `network` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -338,7 +1074,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `metadata_filters` block supports:
+<a name="nested_metadata_filters"></a>The `metadata_filters` block supports:
 
 * `filter_match_criteria` -
   (Required)
@@ -355,10 +1091,10 @@ The `metadata_filters` block supports:
   The list of label value pairs that must match labels in the
   provided metadata based on filterMatchCriteria
   This list must not be empty and can have at the most 64 entries.
-  Structure is documented below.
+  Structure is [documented below](#nested_filter_labels).
 
 
-The `filter_labels` block supports:
+<a name="nested_filter_labels"></a>The `filter_labels` block supports:
 
 * `name` -
   (Required)
@@ -377,6 +1113,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/global/forwardingRules/{{name}}`
 
 * `label_fingerprint` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 * `self_link` - The URI of the created resource.
@@ -387,9 +1124,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

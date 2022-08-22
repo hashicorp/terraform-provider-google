@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -99,7 +99,7 @@ func testSweepApigeeOrganization(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://apigee.googleapis.com/v1/organizations/{{name}}"
+		deleteTemplate := "https://apigee.googleapis.com/v1/organizations/{{name}}?retention={{retention}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fix update failure when attempting to change non-updatable fields in `google_bigquery_routine`.
+```

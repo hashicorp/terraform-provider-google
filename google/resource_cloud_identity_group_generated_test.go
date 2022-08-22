@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -33,20 +33,18 @@ func TestAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context),
 			},
 			{
-				ResourceName:      "google_cloud_identity_group.cloud_identity_group_basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloud_identity_group.cloud_identity_group_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_group_config"},
 			},
 		},
 	})
@@ -55,7 +53,8 @@ func TestAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(t *testing.T) {
 func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
-  display_name = "tf-test-my-identity-group%{random_suffix}"
+  display_name         = "tf-test-my-identity-group%{random_suffix}"
+  initial_group_config = "WITH_INITIAL_OWNER"
 
   parent = "customers/%{cust_id}"
 

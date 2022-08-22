@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_disk_resource_policy_attachment"
-sidebar_current: "docs-google-compute-disk-resource-policy-attachment"
 description: |-
   Adds existing resource policies to a disk.
 ---
@@ -66,7 +64,7 @@ resource "google_compute_resource_policy" "policy" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 ```
@@ -109,8 +107,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

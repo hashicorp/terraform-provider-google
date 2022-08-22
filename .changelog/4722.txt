@@ -1,0 +1,3 @@
+```release-note:bug
+serviceusage: Made `google_project_service.service` validation reject invalid service domains that don't contain a period
+```

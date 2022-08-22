@@ -276,7 +276,8 @@ resource "google_logging_organization_sink" "basic" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
@@ -292,7 +293,8 @@ resource "google_logging_organization_sink" "update" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
@@ -308,7 +310,8 @@ resource "google_logging_organization_sink" "described" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
@@ -324,7 +327,8 @@ resource "google_logging_organization_sink" "disabled" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
@@ -348,7 +352,8 @@ EOS
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 `, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }

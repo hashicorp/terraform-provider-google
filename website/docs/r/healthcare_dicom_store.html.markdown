@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_dicom_store"
-sidebar_current: "docs-google-healthcare-dicom-store"
 description: |-
   A DicomStore is a datastore inside a Healthcare dataset that conforms to the DICOM
   (https://www.
@@ -64,6 +62,67 @@ resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=healthcare_dicom_store_bq_stream&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Healthcare Dicom Store Bq Stream
+
+
+```hcl
+resource "google_healthcare_dicom_store" "default" {
+  provider = google-beta
+
+  name    = "example-dicom-store"
+  dataset = google_healthcare_dataset.dataset.id
+
+  notification_config {
+    pubsub_topic = google_pubsub_topic.topic.id
+  }
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+
+  stream_configs {
+    bigquery_destination {
+      table_uri = "bq://${google_bigquery_dataset.bq_dataset.project}.${google_bigquery_dataset.bq_dataset.dataset_id}.${google_bigquery_table.bq_table.table_id}"
+    }
+  }  
+}
+
+resource "google_pubsub_topic" "topic" {
+  provider = google-beta
+
+  name     = "dicom-notifications"
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  provider = google-beta
+
+  name     = "example-dataset"
+  location = "us-central1"
+}
+
+resource "google_bigquery_dataset" "bq_dataset" {
+  provider = google-beta
+
+  dataset_id    = "dicom_bq_ds"
+  friendly_name = "test"
+  description   = "This is a test description"
+  location      = "US"
+  delete_contents_on_destroy = true
+}
+
+resource "google_bigquery_table" "bq_table" {
+  provider = google-beta
+
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "dicom_bq_tb"
+}
+```
 
 ## Argument Reference
 
@@ -98,10 +157,16 @@ The following arguments are supported:
 * `notification_config` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_notification_config).
+
+* `stream_configs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  To enable streaming to BigQuery, configure the streamConfigs object in your DICOM store.
+  streamConfigs is an array, so you can specify multiple BigQuery destinations. You can stream metadata from a single DICOM store to up to five BigQuery tables in a BigQuery dataset.
+  Structure is [documented below](#nested_stream_configs).
 
 
-The `notification_config` block supports:
+<a name="nested_notification_config"></a>The `notification_config` block supports:
 
 * `pubsub_topic` -
   (Required)
@@ -109,8 +174,22 @@ The `notification_config` block supports:
   PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
   It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
   was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-  project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
   Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
+
+<a name="nested_stream_configs"></a>The `stream_configs` block supports:
+
+* `bigquery_destination` -
+  (Required)
+  BigQueryDestination to include a fully qualified BigQuery table URI where DICOM instance metadata will be streamed.
+  Structure is [documented below](#nested_bigquery_destination).
+
+
+<a name="nested_bigquery_destination"></a>The `bigquery_destination` block supports:
+
+* `table_uri` -
+  (Required)
+  a fully qualified BigQuery table URI where DICOM instance metadata will be streamed.
 
 ## Attributes Reference
 
@@ -127,9 +206,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

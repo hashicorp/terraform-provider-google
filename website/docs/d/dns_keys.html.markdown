@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_keys"
-sidebar_current: "docs-google-datasource-dns-keys"
 description: |-
   Get DNSKEY and DS records of DNSSEC-signed managed zones.
 ---
@@ -49,7 +47,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `key_signing_keys` - A list of Key-signing key (KSK) records. Structure is documented below. Additionally, the DS record is provided:
+* `key_signing_keys` - A list of Key-signing key (KSK) records. Structure is [documented below](#nested_key_signing_keys). Additionally, the DS record is provided:
 
   * `ds_record` - The DS record based on the KSK record. This is used when [delegating](https://cloud.google.com/dns/docs/dnssec-advanced#subdelegation) DNSSEC-signed subdomains.
 
@@ -57,7 +55,7 @@ The following attributes are exported:
 
 ---
 
-The `key_signing_keys` and `zone_signing_keys` block supports:
+<a name="nested_key_signing_keys"></a>The `key_signing_keys` and `zone_signing_keys` block supports:
 
   * `algorithm` - String mnemonic specifying the DNSSEC algorithm of this key. Immutable after creation time. Possible values are `ecdsap256sha256`, `ecdsap384sha384`, `rsasha1`, `rsasha256`, and `rsasha512`.
 

@@ -238,7 +238,7 @@ resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
   zone  = google_compute_instance_group_manager.igm.zone
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   physical_block_size_bytes = 4096
 }
 
@@ -246,7 +246,7 @@ resource "google_compute_disk" "disk2" {
   name  = "test-disk3-%{random_suffix}"
   type  = "pd-ssd"
   zone  = google_compute_instance_group_manager.igm.zone
-  image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
   physical_block_size_bytes = 4096
 }
 `, context) + testAccComputePerInstanceConfig_igm(context)
@@ -255,12 +255,12 @@ resource "google_compute_disk" "disk2" {
 func testAccComputePerInstanceConfig_igm(context map[string]interface{}) string {
 	return Nprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-basic" {
-  name           = "igm-temp-%{random_suffix}"
+  name           = "tf-test-igm-%{random_suffix}"
   machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -290,7 +290,7 @@ resource "google_compute_instance_group_manager" "igm" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
-  base_instance_name = "igm-no-tp"
+  base_instance_name = "tf-test-igm-no-tp"
 }
 `, context)
 }

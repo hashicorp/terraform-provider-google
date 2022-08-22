@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_subnetwork"
-sidebar_current: "docs-google-compute-subnetwork"
 description: |-
   A VPC network is a virtual version of the traditional physical networks
   that exist within and between physical data centers.
@@ -133,6 +131,59 @@ resource "google_compute_network" "custom-test" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_ipv6&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Ipv6
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork-ipv6" {
+  name          = "ipv6-test-subnetwork"
+  
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+  
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
+
+  network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "ipv6-test-network"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_internal_ipv6&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Internal Ipv6
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork-internal-ipv6" {
+  name          = "internal-ipv6-test-subnetwork"
+  
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+  
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
+
+  network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "internal-ipv6-test-network"
+  auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = true
+}
+```
 
 ## Argument Reference
 
@@ -172,17 +223,14 @@ The following arguments are supported:
   creation time.
 
 * `purpose` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  The purpose of the resource. This field can be either PRIVATE
-  or INTERNAL_HTTPS_LOAD_BALANCER. A subnetwork with purpose set to
+  (Optional)
+  The purpose of the resource. A subnetwork with purpose set to
   INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
-  reserved for Internal HTTP(S) Load Balancing. If unspecified, the
-  purpose defaults to PRIVATE.
-  If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the role.
-  Possible values are `INTERNAL_HTTPS_LOAD_BALANCER` and `PRIVATE`.
+  reserved for Internal HTTP(S) Load Balancing.
+  If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the `role` field.
 
 * `role` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The role of subnetwork. Currently, this field is only used when
   purpose = INTERNAL_HTTPS_LOAD_BALANCER. The value can be set to ACTIVE
   or BACKUP. An ACTIVE subnetwork is one that is currently being used
@@ -201,7 +249,7 @@ The following arguments are supported:
   of zero objects you must use the following syntax:
   `example=[]`
   For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).
-  Structure is documented below.
+  Structure is [documented below](#nested_secondary_ip_range).
 
 * `private_ip_google_access` -
   (Optional)
@@ -221,13 +269,26 @@ The following arguments are supported:
   Denotes the logging options for the subnetwork flow logs. If logging is enabled
   logs will be exported to Stackdriver. This field cannot be set if the `purpose` of this
   subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
+
+* `stack_type` -
+  (Optional)
+  The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
+  If not specified IPV4_ONLY will be used.
+  Possible values are `IPV4_ONLY` and `IPV4_IPV6`.
+
+* `ipv6_access_type` -
+  (Optional)
+  The access type of IPv6 address this subnet holds. It's immutable and can only be specified during creation
+  or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
+  cannot enable direct path.
+  Possible values are `EXTERNAL` and `INTERNAL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `secondary_ip_range` block supports:
+<a name="nested_secondary_ip_range"></a>The `secondary_ip_range` block supports:
 
 * `range_name` -
   (Required)
@@ -243,7 +304,7 @@ The `secondary_ip_range` block supports:
   Ranges must be unique and non-overlapping with all primary and
   secondary IP ranges within a network. Only IPv4 is supported.
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `aggregation_interval` -
   (Optional)
@@ -293,6 +354,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
+
+* `ipv6_cidr_range` -
+  The range of internal IPv6 addresses that are owned by this subnetwork.
+
+* `external_ipv6_prefix` -
+  The range of external IPv6 addresses that are owned by this subnetwork.
 * `self_link` - The URI of the created resource.
 
 
@@ -301,9 +368,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

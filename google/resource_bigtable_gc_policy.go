@@ -2,12 +2,15 @@ package google
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
@@ -16,11 +19,51 @@ const (
 	GCPolicyModeUnion        = "UNION"
 )
 
+func resourceBigtableGCPolicyCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	count := diff.Get("max_age.#").(int)
+	if count < 1 {
+		return nil
+	}
+
+	oldDays, newDays := diff.GetChange("max_age.0.days")
+	oldDuration, newDuration := diff.GetChange("max_age.0.duration")
+	log.Printf("days: %v %v", oldDays, newDays)
+	log.Printf("duration: %v %v", oldDuration, newDuration)
+
+	if oldDuration == "" && newDuration != "" {
+		// flatten the old days and the new duration to duration... if they are
+		// equal then do nothing.
+		do, err := time.ParseDuration(newDuration.(string))
+		if err != nil {
+			return err
+		}
+		dn := time.Hour * 24 * time.Duration(oldDays.(int))
+		if do == dn {
+			err := diff.Clear("max_age.0.days")
+			if err != nil {
+				return err
+			}
+			err = diff.Clear("max_age.0.duration")
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func resourceBigtableGCPolicyCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	return resourceBigtableGCPolicyCustomizeDiffFunc(d)
+}
+
 func resourceBigtableGCPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceBigtableGCPolicyCreate,
-		Read:   resourceBigtableGCPolicyRead,
-		Delete: resourceBigtableGCPolicyDestroy,
+		Create:        resourceBigtableGCPolicyUpsert,
+		Read:          resourceBigtableGCPolicyRead,
+		Delete:        resourceBigtableGCPolicyDestroy,
+		Update:        resourceBigtableGCPolicyUpsert,
+		CustomizeDiff: resourceBigtableGCPolicyCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"instance_name": {
@@ -45,12 +88,24 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Description: `The name of the column family.`,
 			},
 
+			"gc_rules": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Description:   `Serialized JSON string for garbage collection policy. Conflicts with "mode", "max_age" and "max_version".`,
+				ValidateFunc:  validation.StringIsJSON,
+				ConflictsWith: []string{"mode", "max_age", "max_version"},
+				StateFunc: func(v interface{}) string {
+					json, _ := structure.NormalizeJsonString(v)
+					return json
+				},
+			},
 			"mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Description:  `If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
-				ValidateFunc: validation.StringInSlice([]string{GCPolicyModeIntersection, GCPolicyModeUnion}, false),
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   `If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
+				ValidateFunc:  validation.StringInSlice([]string{GCPolicyModeIntersection, GCPolicyModeUnion}, false),
+				ConflictsWith: []string{"gc_rules"},
 			},
 
 			"max_age": {
@@ -64,6 +119,8 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						"days": {
 							Type:         schema.TypeInt,
 							Optional:     true,
+							Computed:     true,
+							ForceNew:     true,
 							Deprecated:   "Deprecated in favor of duration",
 							Description:  `Number of days before applying GC policy.`,
 							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
@@ -71,12 +128,15 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						"duration": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
+							ForceNew:     true,
 							Description:  `Duration before applying GC policy`,
 							ValidateFunc: validateDuration(),
 							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
 						},
 					},
 				},
+				ConflictsWith: []string{"gc_rules"},
 			},
 
 			"max_version": {
@@ -89,10 +149,12 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						"number": {
 							Type:        schema.TypeInt,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Number of version before applying the GC policy.`,
 						},
 					},
 				},
+				ConflictsWith: []string{"gc_rules"},
 			},
 
 			"project": {
@@ -107,7 +169,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 	}
 }
 
-func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceBigtableGCPolicyUpsert(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -140,7 +202,11 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	tableName := d.Get("table").(string)
 	columnFamily := d.Get("column_family").(string)
 
-	if err := c.SetGCPolicy(ctx, tableName, columnFamily, gcPolicy); err != nil {
+	err = retryTimeDuration(func() error {
+		reqErr := c.SetGCPolicy(ctx, tableName, columnFamily, gcPolicy)
+		return reqErr
+	}, d.Timeout(schema.TimeoutCreate), isBigTableRetryableError)
+	if err != nil {
 		return err
 	}
 
@@ -222,7 +288,11 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 
 	defer c.Close()
 
-	if err := c.SetGCPolicy(ctx, d.Get("table").(string), d.Get("column_family").(string), bigtable.NoGcPolicy()); err != nil {
+	err = retryTimeDuration(func() error {
+		reqErr := c.SetGCPolicy(ctx, d.Get("table").(string), d.Get("column_family").(string), bigtable.NoGcPolicy())
+		return reqErr
+	}, d.Timeout(schema.TimeoutDelete), isBigTableRetryableError)
+	if err != nil {
 		return err
 	}
 
@@ -236,13 +306,22 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	mode := d.Get("mode").(string)
 	ma, aok := d.GetOk("max_age")
 	mv, vok := d.GetOk("max_version")
+	gcRules, gok := d.GetOk("gc_rules")
 
-	if !aok && !vok {
+	if !aok && !vok && !gok {
 		return bigtable.NoGcPolicy(), nil
 	}
 
 	if mode == "" && aok && vok {
-		return nil, fmt.Errorf("If multiple policies are set, mode can't be empty")
+		return nil, fmt.Errorf("if multiple policies are set, mode can't be empty")
+	}
+
+	if gok {
+		var topLevelPolicy map[string]interface{}
+		if err := json.Unmarshal([]byte(gcRules.(string)), &topLevelPolicy); err != nil {
+			return nil, err
+		}
+		return getGCPolicyFromJSON(topLevelPolicy /*isTopLevel=*/, true)
 	}
 
 	if aok {
@@ -270,6 +349,100 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	return policies[0], nil
+}
+
+func getGCPolicyFromJSON(inputPolicy map[string]interface{}, isTopLevel bool) (bigtable.GCPolicy, error) {
+	policy := []bigtable.GCPolicy{}
+
+	if err := validateNestedPolicy(inputPolicy, isTopLevel); err != nil {
+		return nil, err
+	}
+
+	for _, p := range inputPolicy["rules"].([]interface{}) {
+		childPolicy := p.(map[string]interface{})
+		if err := validateNestedPolicy(childPolicy /*isTopLevel=*/, false); err != nil {
+			return nil, err
+		}
+
+		if childPolicy["max_age"] != nil {
+			maxAge := childPolicy["max_age"].(string)
+			duration, err := time.ParseDuration(maxAge)
+			if err != nil {
+				return nil, fmt.Errorf("invalid duration string: %v", maxAge)
+			}
+			policy = append(policy, bigtable.MaxAgePolicy(duration))
+		}
+
+		if childPolicy["max_version"] != nil {
+			version := childPolicy["max_version"].(float64)
+			policy = append(policy, bigtable.MaxVersionsPolicy(int(version)))
+		}
+
+		if childPolicy["mode"] != nil {
+			n, err := getGCPolicyFromJSON(childPolicy /*isTopLevel=*/, false)
+			if err != nil {
+				return nil, err
+			}
+			policy = append(policy, n)
+		}
+	}
+
+	switch inputPolicy["mode"] {
+	case strings.ToLower(GCPolicyModeUnion):
+		return bigtable.UnionPolicy(policy...), nil
+	case strings.ToLower(GCPolicyModeIntersection):
+		return bigtable.IntersectionPolicy(policy...), nil
+	default:
+		return policy[0], nil
+	}
+}
+
+func validateNestedPolicy(p map[string]interface{}, isTopLevel bool) error {
+	if len(p) > 2 {
+		return fmt.Errorf("rules has more than 2 fields")
+	}
+	maxVersion, maxVersionOk := p["max_version"]
+	maxAge, maxAgeOk := p["max_age"]
+	rulesObj, rulesOk := p["rules"]
+
+	_, modeOk := p["mode"]
+	rules, arrOk := rulesObj.([]interface{})
+	_, vCastOk := maxVersion.(float64)
+	_, aCastOk := maxAge.(string)
+
+	if rulesOk && !arrOk {
+		return fmt.Errorf("`rules` must be array")
+	}
+
+	if modeOk && len(rules) < 2 {
+		return fmt.Errorf("`rules` need at least 2 GC rule when mode is specified")
+	}
+
+	if isTopLevel && !rulesOk {
+		return fmt.Errorf("invalid nested policy, need `rules`")
+	}
+
+	if isTopLevel && !modeOk && len(rules) != 1 {
+		return fmt.Errorf("when `mode` is not specified, `rules` can only have 1 child rule")
+	}
+
+	if !isTopLevel && len(p) == 2 && (!modeOk || !rulesOk) {
+		return fmt.Errorf("need `mode` and `rules` for child nested policies")
+	}
+
+	if !isTopLevel && len(p) == 1 && !maxVersionOk && !maxAgeOk {
+		return fmt.Errorf("need `max_version` or `max_age` for the rule")
+	}
+
+	if maxVersionOk && !vCastOk {
+		return fmt.Errorf("`max_version` must be a number")
+	}
+
+	if maxAgeOk && !aCastOk {
+		return fmt.Errorf("`max_age must be a string")
+	}
+
+	return nil
 }
 
 func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {

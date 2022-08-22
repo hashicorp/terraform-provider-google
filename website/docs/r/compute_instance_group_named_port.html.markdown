@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_instance_group_named_port"
-sidebar_current: "docs-google-compute-instance-group-named-port"
 description: |-
   Mange the named ports setting for a managed instance group without
   managing the group as whole.
@@ -45,7 +43,7 @@ To get more information about InstanceGroupNamedPort, see:
 
 ```hcl
 resource "google_compute_instance_group_named_port" "my_port" {
-  group = google_container_cluster.my_cluster.instance_group_urls[0]
+  group = google_container_cluster.my_cluster.node_pool[0].instance_group_urls[0]
   zone = "us-central1-a"
 
   name = "http"
@@ -53,7 +51,7 @@ resource "google_compute_instance_group_named_port" "my_port" {
 }
 
 resource "google_compute_instance_group_named_port" "my_ports" {
-  group = google_container_cluster.my_cluster.instance_group_urls[0]
+  group = google_container_cluster.my_cluster.node_pool[0].instance_group_urls[0]
   zone = "us-central1-a"
 
   name = "https"
@@ -129,8 +127,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

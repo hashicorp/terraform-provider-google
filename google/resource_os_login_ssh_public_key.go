@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -36,9 +36,9 @@ func resourceOSLoginSSHPublicKey() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -129,8 +129,6 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
-
 	loginProfile, ok := res["loginProfile"]
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
@@ -153,6 +151,8 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
 
 	return resourceOSLoginSSHPublicKeyRead(d, meta)
 }

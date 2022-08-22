@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud SQL"
-layout: "google"
 page_title: "Google: google_sql_backup_run"
-sidebar_current: "docs-google-datasource-sql-backup-run"
 description: |-
   Get a  SQL backup run in Google Cloud SQL.
 ---
@@ -15,7 +13,7 @@ Use this data source to get information about a Cloud SQL instance backup run.
 
 ```hcl
 data "google_sql_backup_run" "backup" {
-	instance = google_sql_database_instance.master.name
+	instance = google_sql_database_instance.main.name
 	most_recent = true
 }
 ```
@@ -31,6 +29,9 @@ The following arguments are supported:
 
 * `most_recent` - (optional) Toggles use of the most recent backup run if multiple backups exist for a 
     Cloud SQL instance.
+
+* `project` - (Optional) The project to list instances for. If it
+    is not provided, the provider project is used.
 
 ## Attributes Reference
 

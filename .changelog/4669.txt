@@ -1,0 +1,3 @@
+```release-note:bug
+workflows: fixed a bug in `google_workflows_workflow` that could cause inconsistent final plan errors when using the `name` field in other resources
+```

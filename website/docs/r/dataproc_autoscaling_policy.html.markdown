@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataproc"
-layout: "google"
 page_title: "Google: google_dataproc_autoscaling_policy"
-sidebar_current: "docs-google-dataproc-autoscaling-policy"
 description: |-
   Describes an autoscaling policy for Dataproc cluster autoscaler.
 ---
@@ -83,17 +81,17 @@ The following arguments are supported:
 * `worker_config` -
   (Optional)
   Describes how the autoscaler will operate for primary workers.
-  Structure is documented below.
+  Structure is [documented below](#nested_worker_config).
 
 * `secondary_worker_config` -
   (Optional)
   Describes how the autoscaler will operate for secondary workers.
-  Structure is documented below.
+  Structure is [documented below](#nested_secondary_worker_config).
 
 * `basic_algorithm` -
   (Optional)
   Basic algorithm for autoscaling.
-  Structure is documented below.
+  Structure is [documented below](#nested_basic_algorithm).
 
 * `location` -
   (Optional)
@@ -104,7 +102,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `worker_config` block supports:
+<a name="nested_worker_config"></a>The `worker_config` block supports:
 
 * `min_instances` -
   (Optional)
@@ -129,7 +127,7 @@ The `worker_config` block supports:
   the cluster will default to zero weight on the unset group. For example if weight is set
   only on primary workers, the cluster will use primary workers only and no secondary workers.
 
-The `secondary_worker_config` block supports:
+<a name="nested_secondary_worker_config"></a>The `secondary_worker_config` block supports:
 
 * `min_instances` -
   (Optional)
@@ -156,7 +154,7 @@ The `secondary_worker_config` block supports:
   the cluster will default to zero weight on the unset group. For example if weight is set
   only on primary workers, the cluster will use primary workers only and no secondary workers.
 
-The `basic_algorithm` block supports:
+<a name="nested_basic_algorithm"></a>The `basic_algorithm` block supports:
 
 * `cooldown_period` -
   (Optional)
@@ -167,10 +165,10 @@ The `basic_algorithm` block supports:
 * `yarn_config` -
   (Required)
   YARN autoscaling configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_yarn_config).
 
 
-The `yarn_config` block supports:
+<a name="nested_yarn_config"></a>The `yarn_config` block supports:
 
 * `graceful_decommission_timeout` -
   (Required)
@@ -228,9 +226,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

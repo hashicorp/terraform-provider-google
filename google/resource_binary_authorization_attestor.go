@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -24,6 +24,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func compareSignatureAlgorithm(_, old, new string, _ *schema.ResourceData) bool {
+	// See https://cloud.google.com/binary-authorization/docs/reference/rest/v1/projects.attestors#signaturealgorithm
+	normalizedAlgorithms := map[string]string{
+		"ECDSA_P256_SHA256":   "ECDSA_P256_SHA256",
+		"EC_SIGN_P256_SHA256": "ECDSA_P256_SHA256",
+		"ECDSA_P384_SHA384":   "ECDSA_P384_SHA384",
+		"EC_SIGN_P384_SHA384": "ECDSA_P384_SHA384",
+		"ECDSA_P521_SHA512":   "ECDSA_P521_SHA512",
+		"EC_SIGN_P521_SHA512": "ECDSA_P521_SHA512",
+	}
+
+	normalizedOld := old
+	normalizedNew := new
+
+	if normalized, ok := normalizedAlgorithms[old]; ok {
+		normalizedOld = normalized
+	}
+	if normalized, ok := normalizedAlgorithms[new]; ok {
+		normalizedNew = normalized
+	}
+
+	if normalizedNew == normalizedOld {
+		return true
+	}
+
+	return false
+}
+
 func resourceBinaryAuthorizationAttestor() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBinaryAuthorizationAttestorCreate,
@@ -36,9 +64,9 @@ func resourceBinaryAuthorizationAttestor() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -122,8 +150,9 @@ encoding of the public key.`,
 'https://tools.ietf.org/html/rfc7468#section-13'`,
 												},
 												"signature_algorithm": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:             schema.TypeString,
+													Optional:         true,
+													DiffSuppressFunc: compareSignatureAlgorithm,
 													Description: `The signature algorithm used to verify a message against
 a signature using this key. These signature algorithm must
 match the structure and any object identifiers encoded in

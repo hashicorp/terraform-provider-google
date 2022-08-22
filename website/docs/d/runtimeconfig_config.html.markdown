@@ -1,8 +1,6 @@
 ---
 subcategory: "Runtime Configurator"
-layout: "google"
 page_title: "Google: google_runtimeconfig_config"
-sidebar_current: "docs-google-datasource-runtimeconfig-config"
 description: |-
   Get information about a Google Cloud RuntimeConfig.
 ---
@@ -14,6 +12,9 @@ To get more information about RuntimeConfigs, see:
 * [API documentation](https://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/v1beta1/projects.configs)
 * How-to Guides
     * [Runtime Configurator Fundamentals](https://cloud.google.com/deployment-manager/runtime-configurator/)
+
+~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta datasources.
 
 ## Example Usage
 
@@ -27,7 +28,7 @@ data "google_runtimeconfig_config" "run-service" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the Cloud Run Service.
+* `name` - (Required) The name of the Runtime Configurator configuration.
 
 - - -
 

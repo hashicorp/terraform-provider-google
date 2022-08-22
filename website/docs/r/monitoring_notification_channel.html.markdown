@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_notification_channel"
-sidebar_current: "docs-google-monitoring-notification-channel"
 description: |-
   A NotificationChannel is a medium through which an alert is delivered
   when a policy violation is detected.
@@ -49,7 +47,7 @@ To get more information about NotificationChannel, see:
     * [Monitoring API Documentation](https://cloud.google.com/monitoring/api/v3/)
 
 ~> **Warning:** All arguments including `sensitive_labels.auth_token`, `sensitive_labels.password`, and `sensitive_labels.service_key` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=notification_channel_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -114,7 +112,7 @@ The following arguments are supported:
   in the `labels` map in the api request.
   Credentials may not be specified in both locations and will cause an error. Changing from one location
   to a different credential configuration in the config will require an apply to update state.
-  Structure is documented below.
+  Structure is [documented below](#nested_sensitive_labels).
 
 * `user_labels` -
   (Optional)
@@ -136,7 +134,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `sensitive_labels` block supports:
+<a name="nested_sensitive_labels"></a>The `sensitive_labels` block supports:
 
 * `auth_token` -
   (Optional)
@@ -173,9 +171,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

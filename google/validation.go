@@ -1,6 +1,7 @@
 package google
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net"
 	"regexp"
@@ -81,7 +82,9 @@ var rfc1918Networks = []string{
 	"192.168.0.0/16",
 }
 
-func validateGCPName(v interface{}, k string) (ws []string, errors []error) {
+// validateGCEName ensures that a field matches the requirements for Compute Engine resource names
+// https://cloud.google.com/compute/docs/naming-resources#resource-name-format
+func validateGCEName(v interface{}, k string) (ws []string, errors []error) {
 	re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
 	return validateRegexp(re)(v, k)
 }
@@ -109,6 +112,10 @@ func validateRegexp(re string) schema.SchemaValidateFunc {
 
 		return
 	}
+}
+
+func validateEnum(values []string) schema.SchemaValidateFunc {
+	return validation.StringInSlice(values, false)
 }
 
 func validateRFC1918Network(min, max int) schema.SchemaValidateFunc {
@@ -261,6 +268,14 @@ func validateIpAddress(i interface{}, val string) ([]string, []error) {
 	ip := net.ParseIP(i.(string))
 	if ip == nil {
 		return nil, []error{fmt.Errorf("could not parse %q to IP address", val)}
+	}
+	return nil, nil
+}
+
+func validateBase64String(i interface{}, val string) ([]string, []error) {
+	_, err := base64.StdEncoding.DecodeString(i.(string))
+	if err != nil {
+		return nil, []error{fmt.Errorf("could not decode %q as a valid base64 value. Please use the terraform base64 functions such as base64encode() or filebase64() to supply a valid base64 string", val)}
 	}
 	return nil, nil
 }

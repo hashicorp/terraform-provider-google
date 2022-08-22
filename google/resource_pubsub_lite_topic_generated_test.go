@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPubsubLiteTopicDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -53,6 +50,12 @@ func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 
 func testAccPubsubLiteTopic_pubsubLiteTopicBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_pubsub_lite_reservation" "example" {
+  name = "tf-test-example-reservation%{random_suffix}"
+  project = data.google_project.project.number
+  throughput_capacity = 2
+}
+
 resource "google_pubsub_lite_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
   project = data.google_project.project.number
@@ -67,6 +70,10 @@ resource "google_pubsub_lite_topic" "example" {
 
   retention_config {
     per_partition_bytes = 32212254720
+  }
+
+  reservation_config {
+    throughput_reservation = google_pubsub_lite_reservation.example.name
   }
 }
 

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -70,26 +67,34 @@ resource "google_compute_region_autoscaler" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "tf-test-my-instance-template%{random_suffix}"
-    machine_type   = "e2-medium"
-  can_ip_forward = false
-
-  tags = ["foo", "bar"]
+  name         = "tf-test-my-instance-template%{random_suffix}"
+  machine_type = "e2-standard-4"
 
   disk {
-    source_image = data.google_compute_image.debian_9.id
+    source_image = "debian-cloud/debian-11"
+    disk_size_gb = 250
   }
 
   network_interface {
     network = "default"
+
+    # secret default
+    access_config {
+      network_tier = "PREMIUM"
+    }
   }
 
-  metadata = {
-    foo = "bar"
-  }
-
+  # secret default
   service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+    scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+      "https://www.googleapis.com/auth/pubsub",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/trace.append",
+    ]
   }
 }
 
@@ -111,7 +116,7 @@ resource "google_compute_region_instance_group_manager" "foobar" {
 }
 
 data "google_compute_image" "debian_9" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 `, context)

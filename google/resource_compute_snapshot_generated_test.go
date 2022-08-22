@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSnapshotDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -55,7 +52,7 @@ func testAccComputeSnapshot_snapshotBasicExample(context map[string]interface{})
 	return Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
-  source_disk = google_compute_disk.persistent.name
+  source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
     my_label = "value"
@@ -64,7 +61,7 @@ resource "google_compute_snapshot" "snapshot" {
 }
 
 data "google_compute_image" "debian" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 

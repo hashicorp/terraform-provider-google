@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: Added links to nested types documentation for manually generated pages
+```

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -150,8 +150,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -214,8 +215,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -284,8 +286,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -350,8 +353,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -414,8 +418,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -448,7 +453,7 @@ resource "google_iap_app_engine_service_iam_binding" "foo" {
   app_id = "${google_app_engine_standard_app_version.version.project}"
   service = "${google_app_engine_standard_app_version.version.service}"
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

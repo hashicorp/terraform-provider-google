@@ -1,0 +1,3 @@
+```release-note:enhancement
+`storage`: `google_storage_bucket_object` now uses resource timeouts instead of global timeout for its operations.
+```

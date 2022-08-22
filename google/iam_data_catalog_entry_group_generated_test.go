@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -189,7 +189,7 @@ resource "google_data_catalog_entry_group" "basic_entry_group" {
 resource "google_data_catalog_entry_group_iam_binding" "foo" {
   entry_group = google_data_catalog_entry_group.basic_entry_group.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

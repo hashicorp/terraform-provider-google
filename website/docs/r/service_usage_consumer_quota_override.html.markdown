@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Service Usage"
-layout: "google"
 page_title: "Google: google_service_usage_consumer_quota_override"
-sidebar_current: "docs-google-service-usage-consumer-quota-override"
 description: |-
   A consumer override is applied to the consumer on its own authority to limit its own quota usage.
 ---
@@ -35,11 +33,6 @@ To get more information about ConsumerQuotaOverride, see:
     * [Getting Started](https://cloud.google.com/service-usage/docs/getting-started)
     * [REST API documentation](https://cloud.google.com/service-usage/docs/reference/rest/v1beta1/services.consumerQuotaMetrics.limits.consumerOverrides)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=consumer_quota_override&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Consumer Quota Override
 
 
@@ -55,10 +48,58 @@ resource "google_service_usage_consumer_quota_override" "override" {
   provider       = google-beta
   project        = google_project.my_project.project_id
   service        = "servicemanagement.googleapis.com"
-  metric         = "servicemanagement.googleapis.com%2Fdefault_requests"
-  limit          = "%2Fmin%2Fproject"
+  metric         = urlencode("servicemanagement.googleapis.com/default_requests")
+  limit          = urlencode("/min/project")
   override_value = "95"
   force          = true
+}
+```
+## Example Usage - Region Consumer Quota Override
+
+
+```hcl
+resource "google_project" "my_project" {
+  provider   = google-beta
+  name       = "tf-test-project"
+  project_id = "quota"
+  org_id     = "123456789"
+}
+
+resource "google_service_usage_consumer_quota_override" "override" {
+  provider       = google-beta
+  dimensions = {
+    region = "us-central1"
+  }
+  project        = google_project.my_project.project_id
+  service        = "compute.googleapis.com"
+  metric         = urlencode("compute.googleapis.com/n2_cpus")
+  limit          = urlencode("/project/region")
+  override_value = "8"
+  force          = true
+}
+```
+## Example Usage - Consumer Quota Override Custom Dimension
+
+
+```hcl
+resource "google_project" "my_project" {
+  provider   = google-beta
+  name       = "tf-test-project"
+  project_id = "quota"
+  org_id     = "123456789"
+}
+
+resource "google_service_usage_consumer_quota_override" "override" {
+  provider       = google-beta
+  project        = google_project.my_project.project_id
+  service        = "libraryagent.googleapis.com"
+  metric         = urlencode("libraryagent.googleapis.com/borrows")
+  limit          = urlencode("/author/project")
+  override_value = "1"
+  force          = true
+  dimensions = {
+    author = "larry"
+  }
 }
 ```
 
@@ -82,6 +123,8 @@ The following arguments are supported:
 * `limit` -
   (Required)
   The limit on the metric, e.g. `/project/region`.
+  ~> Make sure that `limit` is in a format that doesn't start with `1/` or contain curly braces.
+  E.g. use `/project/user` instead of `1/{project}/{user}`.
 
 
 - - -
@@ -115,9 +158,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
@@ -126,7 +169,7 @@ ConsumerQuotaOverride can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_service_usage_consumer_quota_override.default projects/{{project}}/services/{{service}}/consumerQuotaMetrics/{{metric}}/limits/{{limit}}/consumerOverrides/{{name}}
-$ terraform import google_service_usage_consumer_quota_override.default {{project}}/{{service}}/{{metric}}/{{limit}}/{{name}}
+$ terraform import google_service_usage_consumer_quota_override.default services/{{service}}/consumerQuotaMetrics/{{metric}}/limits/{{limit}}/consumerOverrides/{{name}}
 $ terraform import google_service_usage_consumer_quota_override.default {{service}}/{{metric}}/{{limit}}/{{name}}
 ```
 

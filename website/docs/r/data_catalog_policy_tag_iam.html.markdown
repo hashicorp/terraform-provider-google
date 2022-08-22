@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-layout: "google"
 page_title: "Google: google_data_catalog_policy_tag_iam"
-sidebar_current: "docs-google-data-catalog-policy-tag-iam"
 description: |-
   Collection of resources to manage IAM policy for Data catalog PolicyTag
 ---
@@ -40,6 +38,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -49,6 +48,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_data_catalog_policy_tag_iam_policy" "policy" {
+  provider = google-beta
   policy_tag = google_data_catalog_policy_tag.basic_policy_tag.name
   policy_data = data.google_iam_policy.admin.policy_data
 }
@@ -58,6 +58,7 @@ resource "google_data_catalog_policy_tag_iam_policy" "policy" {
 
 ```hcl
 resource "google_data_catalog_policy_tag_iam_binding" "binding" {
+  provider = google-beta
   policy_tag = google_data_catalog_policy_tag.basic_policy_tag.name
   role = "roles/viewer"
   members = [
@@ -70,6 +71,7 @@ resource "google_data_catalog_policy_tag_iam_binding" "binding" {
 
 ```hcl
 resource "google_data_catalog_policy_tag_iam_member" "member" {
+  provider = google-beta
   policy_tag = google_data_catalog_policy_tag.basic_policy_tag.name
   role = "roles/viewer"
   member = "user:jane@example.com"
@@ -90,6 +92,9 @@ The following arguments are supported:
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
+  * **projectOwner:projectid**: Owners of the given project. For example, "projectOwner:my-example-project"
+  * **projectEditor:projectid**: Editors of the given project. For example, "projectEditor:my-example-project"
+  * **projectViewer:projectid**: Viewers of the given project. For example, "projectViewer:my-example-project"
 
 * `role` - (Required) The role that should be applied. Only one
     `google_data_catalog_policy_tag_iam_binding` can be used per role. Note that custom roles must be of the format

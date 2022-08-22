@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud AI Notebooks"
-layout: "google"
 page_title: "Google: google_notebooks_instance"
-sidebar_current: "docs-google-notebooks-instance"
 description: |-
   A Cloud AI Platform Notebook instance.
 ---
@@ -103,11 +101,6 @@ resource "google_notebooks_instance" "instance" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=notebook_instance_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Notebook Instance Full
 
 
@@ -145,12 +138,10 @@ resource "google_notebooks_instance" "instance" {
 }
 
 data "google_compute_network" "my_network" {
-  provider = google-beta
   name = "default"
 }
 
 data "google_compute_subnetwork" "my_subnetwork" {
-  provider = google-beta
   name   = "default"
   region = "us-central1"
 }
@@ -211,13 +202,23 @@ The following arguments are supported:
   The hardware accelerator used on this instance. If you use accelerators,
   make sure that your configuration has enough vCPUs and memory to support the
   machineType you have selected.
-  Structure is documented below.
+  Structure is [documented below](#nested_accelerator_config).
 
 * `shielded_instance_config` -
   (Optional)
   A set of Shielded Instance options. Check [Images using supported Shielded VM features]
   Not all combinations are valid
-  Structure is documented below.
+  Structure is [documented below](#nested_shielded_instance_config).
+
+* `nic_type` -
+  (Optional)
+  The type of vNIC driver.
+  Possible values are `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, and `GVNIC`.
+
+* `reservation_affinity` -
+  (Optional)
+  Reservation Affinity for consuming Zonal reservation.
+  Structure is [documented below](#nested_reservation_affinity).
 
 * `install_gpu_driver` -
   (Optional)
@@ -233,7 +234,7 @@ The following arguments are supported:
 * `boot_disk_type` -
   (Optional)
   Possible disk types for notebook instances.
-  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, and `PD_BALANCED`.
+  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, and `PD_EXTREME`.
 
 * `boot_disk_size_gb` -
   (Optional)
@@ -244,7 +245,7 @@ The following arguments are supported:
 * `data_disk_type` -
   (Optional)
   Possible disk types for notebook instances.
-  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, and `PD_BALANCED`.
+  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, and `PD_EXTREME`.
 
 * `data_disk_size_gb` -
   (Optional)
@@ -292,7 +293,7 @@ The following arguments are supported:
 
 * `tags` -
   (Optional)
-  The Compute Engine tags to add to runtime.
+  The Compute Engine tags to add to instance.
 
 * `metadata` -
   (Optional)
@@ -302,18 +303,18 @@ The following arguments are supported:
 * `vm_image` -
   (Optional)
   Use a Compute Engine VM image to start the notebook instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_vm_image).
 
 * `container_image` -
   (Optional)
   Use a container image to start the notebook instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_container_image).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `accelerator_config` block supports:
+<a name="nested_accelerator_config"></a>The `accelerator_config` block supports:
 
 * `type` -
   (Required)
@@ -324,7 +325,7 @@ The `accelerator_config` block supports:
   (Required)
   Count of cores of this accelerator.
 
-The `shielded_instance_config` block supports:
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_integrity_monitoring` -
   (Optional)
@@ -345,7 +346,22 @@ The `shielded_instance_config` block supports:
   Defines whether the instance has the vTPM enabled.
   Enabled by default.
 
-The `vm_image` block supports:
+<a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
+
+* `consume_reservation_type` -
+  (Required)
+  The type of Compute Reservation.
+  Possible values are `NO_RESERVATION`, `ANY_RESERVATION`, and `SPECIFIC_RESERVATION`.
+
+* `key` -
+  (Optional)
+  Corresponds to the label key of reservation resource.
+
+* `values` -
+  (Optional)
+  Corresponds to the label values of reservation resource.
+
+<a name="nested_vm_image"></a>The `vm_image` block supports:
 
 * `project` -
   (Required)
@@ -360,7 +376,7 @@ The `vm_image` block supports:
   (Optional)
   Use VM image name to find the image.
 
-The `container_image` block supports:
+<a name="nested_container_image"></a>The `container_image` block supports:
 
 * `repository` -
   (Required)
@@ -395,9 +411,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 15 minutes.
-- `update` - Default is 15 minutes.
-- `delete` - Default is 15 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

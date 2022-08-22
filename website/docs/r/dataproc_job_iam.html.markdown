@@ -1,8 +1,6 @@
 ---
 subcategory: "Dataproc"
-layout: "google"
 page_title: "Google: google_dataproc_job_iam"
-sidebar_current: "docs-google-dataproc-job-iam"
 description: |-
  Collection of resources to manage IAM policy for a Dataproc job.
 ---

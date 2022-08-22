@@ -207,6 +207,7 @@ resource "google_compute_region_backend_service" "foobar" {
   region        = "us-central1"
   name          = "regionurlmap-test-%s"
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   health_checks = [google_compute_region_health_check.zero.self_link]
 }
 
@@ -253,6 +254,7 @@ resource "google_compute_region_backend_service" "foobar" {
   region        = "us-central1"
   name          = "regionurlmap-test-%s"
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   health_checks = [google_compute_region_health_check.zero.self_link]
 }
 
@@ -299,6 +301,7 @@ resource "google_compute_region_backend_service" "foobar" {
   region        = "us-central1"
   name          = "regionurlmap-test-%s"
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   health_checks = [google_compute_region_health_check.zero.self_link]
 }
 
@@ -354,6 +357,7 @@ resource "google_compute_region_backend_service" "foobar" {
   region        = "us-central1"
   name          = "regionurlmap-test-%s"
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   health_checks = [google_compute_region_health_check.zero.self_link]
 }
 
@@ -429,6 +433,7 @@ resource "google_compute_region_backend_service" "foobar" {
   region        = "us-central1"
   name          = "regionurlmap-test-%s"
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   health_checks = [google_compute_region_health_check.zero.self_link]
 }
 

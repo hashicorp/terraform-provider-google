@@ -29,7 +29,7 @@ func dataSourceGoogleKmsKeyRingRead(d *schema.ResourceData, meta interface{}) er
 		Location: d.Get("location").(string),
 		Project:  project,
 	}
-	d.SetId(keyRingId.terraformId())
+	d.SetId(keyRingId.keyRingId())
 
 	return resourceKMSKeyRingRead(d, meta)
 }

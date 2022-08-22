@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_dataset"
-sidebar_current: "docs-google-bigquery-dataset"
 description: |-
   Datasets allow you to organize and control access to your tables.
 ---
@@ -96,6 +94,73 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_dataset_authorized_dataset&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Dataset Authorized Dataset
+
+
+```hcl
+resource "google_bigquery_dataset" "public" {
+  dataset_id                  = "public"
+  friendly_name               = "test"
+  description                 = "This dataset is public"
+  location                    = "EU"
+  default_table_expiration_ms = 3600000
+
+  labels = {
+    env = "default"
+  }
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  access {
+    role   = "READER"
+    domain = "hashicorp.com"
+  }
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "private"
+  friendly_name               = "test"
+  description                 = "This dataset is private"
+  location                    = "EU"
+  default_table_expiration_ms = 3600000
+
+  labels = {
+    env = "default"
+  }
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  access {
+    role   = "READER"
+    domain = "hashicorp.com"
+  }
+
+  access {
+    dataset {
+      dataset {
+        project_id = google_bigquery_dataset.public.project
+        dataset_id = google_bigquery_dataset.public.dataset_id
+      }
+      target_types = ["VIEWS"]
+    }
+  }
+}
+
+resource "google_service_account" "bqowner" {
+  account_id = "bqowner"
+}
+```
 
 ## Argument Reference
 
@@ -115,7 +180,7 @@ The following arguments are supported:
 * `access` -
   (Optional)
   An array of objects that define dataset access for one or more entities.
-  Structure is documented below.
+  Structure is [documented below](#nested_access).
 
 * `default_table_expiration_ms` -
   (Optional)
@@ -180,7 +245,7 @@ The following arguments are supported:
   The default encryption key for all tables in the dataset. Once this property is set,
   all newly-created partitioned tables in the dataset will have encryption key set to
   this value, unless table creation request (or query) overrides the key.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_encryption_configuration).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -190,7 +255,7 @@ dataset when destroying the resource; otherwise,
 destroying the resource will fail if tables are present.
 
 
-The `access` block supports:
+<a name="nested_access"></a>The `access` block supports:
 
 * `domain` -
   (Optional)
@@ -233,10 +298,15 @@ The `access` block supports:
   this dataset. The role field is not required when this field is
   set. If that view is updated by any user, access to the view
   needs to be granted again via an update operation.
-  Structure is documented below.
+  Structure is [documented below](#nested_view).
+
+* `dataset` -
+  (Optional)
+  Grants all resources of particular types in a particular dataset read access to the current dataset.
+  Structure is [documented below](#nested_dataset).
 
 
-The `view` block supports:
+<a name="nested_view"></a>The `view` block supports:
 
 * `dataset_id` -
   (Required)
@@ -252,7 +322,30 @@ The `view` block supports:
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 1,024 characters.
 
-The `default_encryption_configuration` block supports:
+<a name="nested_dataset"></a>The `dataset` block supports:
+
+* `dataset` -
+  (Required)
+  The dataset this entry applies to
+  Structure is [documented below](#nested_dataset).
+
+* `target_types` -
+  (Required)
+  Which resources in the dataset this entry applies to. Currently, only views are supported,
+  but additional target types may be added in the future. Possible values: VIEWS
+
+
+<a name="nested_dataset"></a>The `dataset` block supports:
+
+* `dataset_id` -
+  (Required)
+  The ID of the dataset containing this table.
+
+* `project_id` -
+  (Required)
+  The ID of the project containing this table.
+
+<a name="nested_default_encryption_configuration"></a>The `default_encryption_configuration` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -284,9 +377,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

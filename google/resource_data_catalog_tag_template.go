@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -19,12 +19,10 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataCatalogTagTemplate() *schema.Resource {
@@ -39,9 +37,9 @@ func resourceDataCatalogTagTemplate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -89,12 +87,17 @@ Can have up to 500 allowed values.`,
 									"primitive_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"DOUBLE", "STRING", "BOOL", "TIMESTAMP", ""}, false),
+										ValidateFunc: validateEnum([]string{"DOUBLE", "STRING", "BOOL", "TIMESTAMP", ""}),
 										Description: `Represents primitive types - string, bool etc.
  Exactly one of 'primitive_type' or 'enum_type' must be set Possible values: ["DOUBLE", "STRING", "BOOL", "TIMESTAMP"]`,
 									},
 								},
 							},
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A description for this field.`,
 						},
 						"display_name": {
 							Type:        schema.TypeString,
@@ -137,6 +140,7 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `This confirms the deletion of any possible tags using this template. Must be set to true in order to delete the tag template.`,
+				Default:     false,
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -429,6 +433,7 @@ func flattenDataCatalogTagTemplateFields(v interface{}, d *schema.ResourceData, 
 			"field_id":     k,
 			"name":         flattenDataCatalogTagTemplateFieldsName(original["name"], d, config),
 			"display_name": flattenDataCatalogTagTemplateFieldsDisplayName(original["displayName"], d, config),
+			"description":  flattenDataCatalogTagTemplateFieldsDescription(original["description"], d, config),
 			"type":         flattenDataCatalogTagTemplateFieldsType(original["type"], d, config),
 			"is_required":  flattenDataCatalogTagTemplateFieldsIsRequired(original["isRequired"], d, config),
 			"order":        flattenDataCatalogTagTemplateFieldsOrder(original["order"], d, config),
@@ -441,6 +446,10 @@ func flattenDataCatalogTagTemplateFieldsName(v interface{}, d *schema.ResourceDa
 }
 
 func flattenDataCatalogTagTemplateFieldsDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataCatalogTagTemplateFieldsDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -505,7 +514,7 @@ func flattenDataCatalogTagTemplateFieldsIsRequired(v interface{}, d *schema.Reso
 func flattenDataCatalogTagTemplateFieldsOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -546,6 +555,13 @@ func expandDataCatalogTagTemplateFields(v interface{}, d TerraformResourceData, 
 			transformed["displayName"] = transformedDisplayName
 		}
 
+		transformedDescription, err := expandDataCatalogTagTemplateFieldsDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
 		transformedType, err := expandDataCatalogTagTemplateFieldsType(original["type"], d, config)
 		if err != nil {
 			return nil, err
@@ -581,6 +597,10 @@ func expandDataCatalogTagTemplateFieldsName(v interface{}, d TerraformResourceDa
 }
 
 func expandDataCatalogTagTemplateFieldsDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataCatalogTagTemplateFieldsDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

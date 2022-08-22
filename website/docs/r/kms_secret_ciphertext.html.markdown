@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_secret_ciphertext"
-sidebar_current: "docs-google-kms-secret-ciphertext"
 description: |-
   Encrypts secret data with Google Cloud KMS and provides access to the ciphertext.
 ---
@@ -38,7 +36,7 @@ To get more information about SecretCiphertext, see:
     * [Encrypting and decrypting data with a symmetric key](https://cloud.google.com/kms/docs/encrypt-decrypt)
 
 ~> **Warning:** All arguments including `plaintext` and `additional_authenticated_data` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Kms Secret Ciphertext Basic
 
@@ -71,7 +69,7 @@ resource "google_compute_instance" "instance" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -128,8 +126,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

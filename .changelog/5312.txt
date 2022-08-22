@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a permadiff on `google_container_node_pool.workload_metadata_config.mode`
+```

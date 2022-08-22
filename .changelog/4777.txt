@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added support for IPsec-encrypted Interconnect in the form of new fields on `google_compute_router`, `google_compute_ha_vpn_gateway`, `google_compute_interconnect_attachment` and `google_compute_address` (beta only)
+```

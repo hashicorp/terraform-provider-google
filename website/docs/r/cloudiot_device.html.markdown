@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IoT Core"
-layout: "google"
 page_title: "Google: google_cloudiot_device"
-sidebar_current: "docs-google-cloudiot-device"
 description: |-
   A Google Cloud IoT Core device.
 ---
@@ -31,11 +29,6 @@ To get more information about Device, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/iot/docs/)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudiot_device_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloudiot Device Basic
 
 
@@ -49,11 +42,6 @@ resource "google_cloudiot_device" "test-device" {
   registry = google_cloudiot_registry.registry.id
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudiot_device_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloudiot Device Full
 
 
@@ -107,7 +95,7 @@ The following arguments are supported:
 * `credentials` -
   (Optional)
   The credentials used to authenticate this device.
-  Structure is documented below.
+  Structure is [documented below](#nested_credentials).
 
 * `blocked` -
   (Optional)
@@ -125,10 +113,10 @@ The following arguments are supported:
 * `gateway_config` -
   (Optional)
   Gateway-related configuration and state.
-  Structure is documented below.
+  Structure is [documented below](#nested_gateway_config).
 
 
-The `credentials` block supports:
+<a name="nested_credentials"></a>The `credentials` block supports:
 
 * `expiration_time` -
   (Optional)
@@ -137,10 +125,10 @@ The `credentials` block supports:
 * `public_key` -
   (Required)
   A public key used to verify the signature of JSON Web Tokens (JWTs).
-  Structure is documented below.
+  Structure is [documented below](#nested_public_key).
 
 
-The `public_key` block supports:
+<a name="nested_public_key"></a>The `public_key` block supports:
 
 * `format` -
   (Required)
@@ -151,7 +139,7 @@ The `public_key` block supports:
   (Required)
   The key data.
 
-The `gateway_config` block supports:
+<a name="nested_gateway_config"></a>The `gateway_config` block supports:
 
 * `gateway_type` -
   (Optional)
@@ -200,18 +188,18 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `last_error_status` -
   The error message of the most recent error, such as a failure to publish to Cloud Pub/Sub.
-  Structure is documented below.
+  Structure is [documented below](#nested_last_error_status).
 
 * `config` -
   The most recent device configuration, which is eventually sent from Cloud IoT Core to the device.
-  Structure is documented below.
+  Structure is [documented below](#nested_config).
 
 * `state` -
   The state most recently received from the device.
-  Structure is documented below.
+  Structure is [documented below](#nested_state).
 
 
-The `last_error_status` block contains:
+<a name="nested_last_error_status"></a>The `last_error_status` block contains:
 
 * `number` -
   (Optional)
@@ -225,7 +213,7 @@ The `last_error_status` block contains:
   (Optional)
   A list of messages that carry the error details.
 
-The `config` block contains:
+<a name="nested_config"></a>The `config` block contains:
 
 * `version` -
   The version of this update.
@@ -241,7 +229,7 @@ The `config` block contains:
   (Optional)
   The device configuration data.
 
-The `state` block contains:
+<a name="nested_state"></a>The `state` block contains:
 
 * `update_time` -
   (Optional)
@@ -256,9 +244,9 @@ The `state` block contains:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

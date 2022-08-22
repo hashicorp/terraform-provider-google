@@ -1,0 +1,15 @@
+```release-note:breaking-change
+gke_hub: made the `config_membership` field in `google_gke_hub_feature` required, disallowing invalid configurations
+```
+```release-note:breaking-change
+gke_hub: made the `configmanagement`, `feature`, `location`, `membership` fields in `google_gke_hub_feature_membership` required, disallowing invalid configurations
+```
+```release-note:enhancement
+eventarc: added support for `uid` output field, `cloud_function` destination to `google_eventarc_trigger`
+```
+```release-note:enhancement
+gke_hub: added support for `resource_state`, `state` outputs to `google_gke_hub_feature`
+```
+```release-note:enhancement
+gke_hub: added support for `gcp_service_account_email` when configuring Git sync in `google_gke_hub_feature_membership`
+```

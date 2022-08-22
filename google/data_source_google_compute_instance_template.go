@@ -5,7 +5,8 @@ import (
 	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func dataSourceGoogleComputeInstanceTemplate() *schema.Resource {
@@ -21,11 +22,8 @@ func dataSourceGoogleComputeInstanceTemplate() *schema.Resource {
 		Optional: true,
 	}
 
-	// Set 'Required' schema elements
-	addRequiredFieldsToSchema(dsSchema, "project")
-
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "name", "filter", "most_recent")
+	addOptionalFieldsToSchema(dsSchema, "name", "filter", "most_recent", "project")
 
 	dsSchema["name"].ExactlyOneOf = []string{"name", "filter"}
 	dsSchema["filter"].ExactlyOneOf = []string{"name", "filter"}
@@ -53,7 +51,7 @@ func datasourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interfac
 			return err
 		}
 
-		templates, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.List(project).Filter(v.(string)).Do()
+		templates, err := config.NewComputeClient(userAgent).InstanceTemplates.List(project).Filter(v.(string)).Do()
 		if err != nil {
 			return fmt.Errorf("error retrieving list of instance templates: %s", err)
 		}
@@ -82,7 +80,7 @@ func retrieveInstance(d *schema.ResourceData, meta interface{}, project, name st
 
 // ByCreationTimestamp implements sort.Interface for []*InstanceTemplate based on
 // the CreationTimestamp field.
-type ByCreationTimestamp []*computeBeta.InstanceTemplate
+type ByCreationTimestamp []*compute.InstanceTemplate
 
 func (a ByCreationTimestamp) Len() int      { return len(a) }
 func (a ByCreationTimestamp) Swap(i, j int) { a[i], a[j] = a[j], a[i] }

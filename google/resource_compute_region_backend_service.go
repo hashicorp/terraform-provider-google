@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -19,11 +19,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -43,7 +41,7 @@ var backendServiceOnlyManagedFieldNames = []string{
 
 // validateManagedBackendServiceBackends ensures capacity_scaler is set for each backend in a managed
 // backend service. To prevent a permadiff, we decided to override the API behavior and require the
-//// capacity_scaler value in this case.
+// capacity_scaler value in this case.
 //
 // The API:
 // - requires the sum of the backends' capacity_scalers be > 0
@@ -109,6 +107,8 @@ func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, m
 	switch d.Get("load_balancing_scheme").(string) {
 	case "INTERNAL", "EXTERNAL":
 		return validateNonManagedBackendServiceBackends(backends, d)
+	case "INTERNAL_MANAGED":
+		return nil
 	default:
 		return validateManagedBackendServiceBackends(backends, d)
 	}
@@ -126,9 +126,9 @@ func resourceComputeRegionBackendService() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -184,13 +184,22 @@ When the load balancing scheme is INTERNAL, this field is not used.`,
 										Type:         schema.TypeBool,
 										Optional:     true,
 										Description:  `If true requests to different hosts will be cached separately.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
+									},
+									"include_named_cookies": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Names of cookies to include in cache keys.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"include_protocol": {
 										Type:         schema.TypeBool,
 										Optional:     true,
 										Description:  `If true, http and https requests will be cached separately.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"include_query_string": {
 										Type:     schema.TypeBool,
@@ -202,7 +211,7 @@ string will be included.
 
 If false, the query string will be excluded from the cache
 key entirely.`,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"query_string_blacklist": {
 										Type:     schema.TypeSet,
@@ -217,7 +226,7 @@ delimiters.`,
 											Type: schema.TypeString,
 										},
 										Set:          schema.HashString,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 									"query_string_whitelist": {
 										Type:     schema.TypeSet,
@@ -232,11 +241,66 @@ delimiters.`,
 											Type: schema.TypeString,
 										},
 										Set:          schema.HashString,
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_named_cookies"},
 									},
 								},
 							},
 							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
+						},
+						"cache_mode": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: validateEnum([]string{"USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC", ""}),
+							Description: `Specifies the cache setting for all responses from this backend.
+The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC Possible values: ["USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"]`,
+						},
+						"client_ttl": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+						},
+						"default_ttl": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+							Description: `Specifies the default TTL for cached content served by this origin for responses
+that do not have an existing valid TTL (max-age or s-max-age).`,
+						},
+						"max_ttl": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+						},
+						"negative_caching": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Optional:    true,
+							Description: `Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.`,
+						},
+						"negative_caching_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
+Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"code": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
+can be specified as values, and you cannot specify a status code more than once.`,
+									},
+								},
+							},
+						},
+						"serve_while_stale": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.`,
 						},
 						"signed_url_cache_max_age_sec": {
 							Type:     schema.TypeInt,
@@ -467,7 +531,7 @@ This field is only used with l4 load balancing.`,
 				Optional: true,
 				Description: `The set of URLs to HealthCheck resources for health checking
 this RegionBackendService. Currently at most one health
-check can be specified. 
+check can be specified.
 
 A health check must be specified unless the backend service uses an internet
 or serverless NEG as a backend.`,
@@ -478,52 +542,93 @@ or serverless NEG as a backend.`,
 				},
 				Set: selfLinkRelativePathHash,
 			},
+			"iap": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for enabling Cloud Identity Aware Proxy`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"oauth2_client_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `OAuth2 Client ID for IAP`,
+						},
+						"oauth2_client_secret": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `OAuth2 Client Secret for IAP`,
+							Sensitive:   true,
+						},
+						"oauth2_client_secret_sha256": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `OAuth2 Client Secret SHA-256 for IAP`,
+							Sensitive:   true,
+						},
+					},
+				},
+			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", "INTERNAL_MANAGED", ""}, false),
+				ValidateFunc: validateEnum([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED", ""}),
 				Description: `Indicates what kind of load balancing this regional backend service
 will be used for. A backend service created for one type of load
-balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["EXTERNAL", "INTERNAL", "INTERNAL_MANAGED"]`,
+balancing cannot be used with the other(s). For more information, refer to
+[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "INTERNAL" Possible values: ["EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED"]`,
 				Default: "INTERNAL",
 			},
 			"locality_lb_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", ""}, false),
+				ValidateFunc: validateEnum([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", ""}),
 				Description: `The load balancing algorithm used within the scope of the locality.
-The possible values are -
+The possible values are:
 
-* ROUND_ROBIN - This is a simple policy in which each healthy backend
-                is selected in round robin order.
+* 'ROUND_ROBIN': This is a simple policy in which each healthy backend
+                 is selected in round robin order.
 
-* LEAST_REQUEST - An O(1) algorithm which selects two random healthy
-                  hosts and picks the host which has fewer active requests.
+* 'LEAST_REQUEST': An O(1) algorithm which selects two random healthy
+                   hosts and picks the host which has fewer active requests.
 
-* RING_HASH - The ring/modulo hash load balancer implements consistent
-              hashing to backends. The algorithm has the property that the
-              addition/removal of a host from a set of N hosts only affects
-              1/N of the requests.
+* 'RING_HASH': The ring/modulo hash load balancer implements consistent
+               hashing to backends. The algorithm has the property that the
+               addition/removal of a host from a set of N hosts only affects
+               1/N of the requests.
 
-* RANDOM - The load balancer selects a random healthy host.
+* 'RANDOM': The load balancer selects a random healthy host.
 
-* ORIGINAL_DESTINATION - Backend host is selected based on the client
-                         connection metadata, i.e., connections are opened
-                         to the same address as the destination address of
-                         the incoming connection before the connection
-                         was redirected to the load balancer.
+* 'ORIGINAL_DESTINATION': Backend host is selected based on the client
+                          connection metadata, i.e., connections are opened
+                          to the same address as the destination address of
+                          the incoming connection before the connection
+                          was redirected to the load balancer.
 
-* MAGLEV - used as a drop in replacement for the ring hash load balancer.
-           Maglev is not as stable as ring hash but has faster table lookup
-           build times and host selection times. For more information about
-           Maglev, refer to https://ai.google/research/pubs/pub44824
+* 'MAGLEV': used as a drop in replacement for the ring hash load balancer.
+            Maglev is not as stable as ring hash but has faster table lookup
+            build times and host selection times. For more information about
+            Maglev, refer to https://ai.google/research/pubs/pub44824
 
-This field is applicable only when the 'load_balancing_scheme' is set to
-INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
+
+This field is applicable to either:
+
+* A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+  and loadBalancingScheme set to INTERNAL_MANAGED.
+* A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
+
+
+If session_affinity is not NONE, and this field is not set to MAGLEV or RING_HASH,
+session affinity settings will not take effect.
+
+Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
+by a URL map that is bound to target gRPC proxy that has validate_for_proxyless
+field set to true. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
 			},
 			"log_config": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				Description: `This field denotes the logging options for the load balancer traffic served by this backend service.
 If logging is enabled, logs will be exported to Stackdriver.`,
@@ -537,8 +642,9 @@ If logging is enabled, logs will be exported to Stackdriver.`,
 							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
 						},
 						"sample_rate": {
-							Type:     schema.TypeFloat,
-							Optional: true,
+							Type:             schema.TypeFloat,
+							Optional:         true,
+							DiffSuppressFunc: suppressWhenDisabled,
 							Description: `This field can only be specified if logging is enabled for this backend service. The value of
 the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
 where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
@@ -710,7 +816,7 @@ runtime value should be 1900. Defaults to 1900.`,
 				Optional: true,
 				Description: `A named port on a backend instance group representing the port for
 communication to the backend VMs in that group. Required when the
-loadBalancingScheme is EXTERNAL, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED
+loadBalancingScheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED
 and the backends are instance groups. The named port must be defined on each
 backend instance group. This parameter has no meaning if the backends are NEGs. API sets a
 default of "http" if not given.
@@ -720,10 +826,10 @@ Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP Load 
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", ""}, false),
+				ValidateFunc: validateEnum([]string{"HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED", ""}),
 				Description: `The protocol this RegionBackendService uses to communicate with backends.
 The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC"]`,
+types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -737,9 +843,9 @@ If it is not provided, the provider region is used.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION", ""}),
 				Description: `Type of session affinity to use. The default is NONE. Session affinity is
-not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE"]`,
+not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION"]`,
 			},
 			"timeout_sec": {
 				Type:     schema.TypeInt,
@@ -805,9 +911,12 @@ partial URL.`,
 			"balancing_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"UTILIZATION", "RATE", "CONNECTION", ""}, false),
-				Description:  `Specifies the balancing mode for this backend. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
-				Default:      "CONNECTION",
+				ValidateFunc: validateEnum([]string{"UTILIZATION", "RATE", "CONNECTION", ""}),
+				Description: `Specifies the balancing mode for this backend.
+
+See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
+for an explanation of load balancing modes. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+				Default: "CONNECTION",
 			},
 			"capacity_scaler": {
 				Type:     schema.TypeFloat,
@@ -984,6 +1093,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(healthChecksProp)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
 		obj["healthChecks"] = healthChecksProp
+	}
+	iapProp, err := expandComputeRegionBackendServiceIap(d.Get("iap"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
+		obj["iap"] = iapProp
 	}
 	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
@@ -1197,6 +1312,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("health_checks", flattenComputeRegionBackendServiceHealthChecks(res["healthChecks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("iap", flattenComputeRegionBackendServiceIap(res["iap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -1318,6 +1436,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
 		obj["healthChecks"] = healthChecksProp
+	}
+	iapProp, err := expandComputeRegionBackendServiceIap(d.Get("iap"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
+		obj["iap"] = iapProp
 	}
 	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
@@ -1491,7 +1615,7 @@ func resourceComputeRegionBackendServiceImport(d *schema.ResourceData, meta inte
 func flattenComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1560,7 +1684,7 @@ func flattenComputeRegionBackendServiceBackendGroup(v interface{}, d *schema.Res
 func flattenComputeRegionBackendServiceBackendMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1577,7 +1701,7 @@ func flattenComputeRegionBackendServiceBackendMaxConnections(v interface{}, d *s
 func flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1594,7 +1718,7 @@ func flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interf
 func flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1611,7 +1735,7 @@ func flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interf
 func flattenComputeRegionBackendServiceBackendMaxRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1661,7 +1785,7 @@ func flattenComputeRegionBackendServiceCircuitBreakers(v interface{}, d *schema.
 func flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1678,7 +1802,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v
 func flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1695,7 +1819,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface
 func flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1712,7 +1836,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v inter
 func flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1729,7 +1853,7 @@ func flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{},
 func flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1795,7 +1919,7 @@ func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtl(v interface{}
 func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1812,7 +1936,7 @@ func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v inte
 func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1841,7 +1965,7 @@ func flattenComputeRegionBackendServiceConsistentHashHttpHeaderName(v interface{
 func flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1868,6 +1992,20 @@ func flattenComputeRegionBackendServiceCdnPolicy(v interface{}, d *schema.Resour
 		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
 	transformed["signed_url_cache_max_age_sec"] =
 		flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
+	transformed["default_ttl"] =
+		flattenComputeRegionBackendServiceCdnPolicyDefaultTtl(original["defaultTtl"], d, config)
+	transformed["max_ttl"] =
+		flattenComputeRegionBackendServiceCdnPolicyMaxTtl(original["maxTtl"], d, config)
+	transformed["client_ttl"] =
+		flattenComputeRegionBackendServiceCdnPolicyClientTtl(original["clientTtl"], d, config)
+	transformed["negative_caching"] =
+		flattenComputeRegionBackendServiceCdnPolicyNegativeCaching(original["negativeCaching"], d, config)
+	transformed["negative_caching_policy"] =
+		flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(original["negativeCachingPolicy"], d, config)
+	transformed["cache_mode"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheMode(original["cacheMode"], d, config)
+	transformed["serve_while_stale"] =
+		flattenComputeRegionBackendServiceCdnPolicyServeWhileStale(original["serveWhileStale"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1889,6 +2027,8 @@ func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d 
 		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d, config)
 	transformed["query_string_whitelist"] =
 		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
+	transformed["include_named_cookies"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(original["includeNamedCookies"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1917,10 +2057,125 @@ func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhiteli
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyDefaultTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyMaxTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyClientTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyNegativeCaching(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"code": flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyServeWhileStale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1950,7 +2205,7 @@ func flattenComputeRegionBackendServiceConnectionDraining(v interface{}, d *sche
 func flattenComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2016,6 +2271,35 @@ func flattenComputeRegionBackendServiceHealthChecks(v interface{}, d *schema.Res
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
+func flattenComputeRegionBackendServiceIap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["oauth2_client_id"] =
+		flattenComputeRegionBackendServiceIapOauth2ClientId(original["oauth2ClientId"], d, config)
+	transformed["oauth2_client_secret"] =
+		flattenComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2ClientSecret"], d, config)
+	transformed["oauth2_client_secret_sha256"] =
+		flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return d.Get("iap.0.oauth2_client_secret")
+}
+
+func flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -2079,7 +2363,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(v interf
 func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2096,7 +2380,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v
 func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2113,7 +2397,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v i
 func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2130,7 +2414,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v inter
 func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2147,7 +2431,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure
 func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2164,7 +2448,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveError
 func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2181,7 +2465,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatew
 func flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2213,7 +2497,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionInterval(v interface{}, d
 func flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2230,7 +2514,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interfa
 func flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2247,7 +2531,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface
 func flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2264,7 +2548,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v inte
 func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2281,7 +2565,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v
 func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2298,7 +2582,7 @@ func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(
 func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2327,7 +2611,7 @@ func flattenComputeRegionBackendServiceSessionAffinity(v interface{}, d *schema.
 func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2736,6 +3020,55 @@ func expandComputeRegionBackendServiceCdnPolicy(v interface{}, d TerraformResour
 		transformed["signedUrlCacheMaxAgeSec"] = transformedSignedUrlCacheMaxAgeSec
 	}
 
+	transformedDefaultTtl, err := expandComputeRegionBackendServiceCdnPolicyDefaultTtl(original["default_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["defaultTtl"] = transformedDefaultTtl
+	}
+
+	transformedMaxTtl, err := expandComputeRegionBackendServiceCdnPolicyMaxTtl(original["max_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxTtl"] = transformedMaxTtl
+	}
+
+	transformedClientTtl, err := expandComputeRegionBackendServiceCdnPolicyClientTtl(original["client_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["clientTtl"] = transformedClientTtl
+	}
+
+	transformedNegativeCaching, err := expandComputeRegionBackendServiceCdnPolicyNegativeCaching(original["negative_caching"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["negativeCaching"] = transformedNegativeCaching
+	}
+
+	transformedNegativeCachingPolicy, err := expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(original["negative_caching_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNegativeCachingPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["negativeCachingPolicy"] = transformedNegativeCachingPolicy
+	}
+
+	transformedCacheMode, err := expandComputeRegionBackendServiceCdnPolicyCacheMode(original["cache_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["cacheMode"] = transformedCacheMode
+	}
+
+	transformedServeWhileStale, err := expandComputeRegionBackendServiceCdnPolicyServeWhileStale(original["serve_while_stale"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["serveWhileStale"] = transformedServeWhileStale
+	}
+
 	return transformed, nil
 }
 
@@ -2783,6 +3116,13 @@ func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d T
 		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
 	}
 
+	transformedIncludeNamedCookies, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(original["include_named_cookies"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeNamedCookies"] = transformedIncludeNamedCookies
+	}
+
 	return transformed, nil
 }
 
@@ -2808,7 +3148,61 @@ func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelis
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeNamedCookies(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyDefaultTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyMaxTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyClientTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyNegativeCaching(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedCode, err := expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCode); val.IsValid() && !isEmptyValue(val) {
+			transformed["code"] = transformedCode
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyServeWhileStale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2844,14 +3238,14 @@ func expandComputeRegionBackendServiceFailoverPolicy(v interface{}, d TerraformR
 	transformedDisableConnectionDrainOnFailover, err := expandComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disable_connection_drain_on_failover"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDisableConnectionDrainOnFailover); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["disableConnectionDrainOnFailover"] = transformedDisableConnectionDrainOnFailover
 	}
 
 	transformedDropTrafficIfUnhealthy, err := expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(original["drop_traffic_if_unhealthy"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDropTrafficIfUnhealthy); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["dropTrafficIfUnhealthy"] = transformedDropTrafficIfUnhealthy
 	}
 
@@ -2887,6 +3281,51 @@ func expandComputeRegionBackendServiceFingerprint(v interface{}, d TerraformReso
 
 func expandComputeRegionBackendServiceHealthChecks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceIap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOauth2ClientId, err := expandComputeRegionBackendServiceIapOauth2ClientId(original["oauth2_client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauth2ClientId); val.IsValid() && !isEmptyValue(val) {
+		transformed["oauth2ClientId"] = transformedOauth2ClientId
+	}
+
+	transformedOauth2ClientSecret, err := expandComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2_client_secret"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["oauth2ClientSecret"] = transformedOauth2ClientSecret
+	}
+
+	transformedOauth2ClientSecretSha256, err := expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2_client_secret_sha256"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauth2ClientSecretSha256); val.IsValid() && !isEmptyValue(val) {
+		transformed["oauth2ClientSecretSha256"] = transformedOauth2ClientSecretSha256
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceIapOauth2ClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3123,7 +3562,7 @@ func expandComputeRegionBackendServiceLogConfig(v interface{}, d TerraformResour
 	transformedEnable, err := expandComputeRegionBackendServiceLogConfigEnable(original["enable"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["enable"] = transformedEnable
 	}
 
@@ -3162,7 +3601,27 @@ func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceD
 }
 
 func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	if d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
+	// The RegionBackendService API's Update / PUT API is badly formed and behaves like
+	// a PATCH field for at least IAP. When sent a `null` `iap` field, the API
+	// doesn't disable an existing field. To work around this, we need to emulate
+	// the old Terraform behaviour of always sending the block (at both update and
+	// create), and force sending each subfield as empty when the block isn't
+	// present in config.
+
+	iapVal := obj["iap"]
+	if iapVal == nil {
+		data := map[string]interface{}{}
+		data["enabled"] = false
+		data["oauth2ClientId"] = ""
+		data["oauth2ClientSecret"] = ""
+		obj["iap"] = data
+	} else {
+		iap := iapVal.(map[string]interface{})
+		iap["enabled"] = true
+		obj["iap"] = iap
+	}
+
+	if d.Get("load_balancing_scheme").(string) == "EXTERNAL_MANAGED" || d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
 		return obj, nil
 	}
 
@@ -3200,6 +3659,18 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 }
 
 func resourceComputeRegionBackendServiceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// We need to pretend IAP isn't there if it's disabled for Terraform to maintain
+	// BC behaviour with the handwritten resource.
+	v, ok := res["iap"]
+	if !ok || v == nil {
+		delete(res, "iap")
+		return res, nil
+	}
+	m := v.(map[string]interface{})
+	if ok && m["enabled"] == false {
+		delete(res, "iap")
+	}
+
 	// Requests with consistentHash will error for specific values of
 	// localityLbPolicy. However, the API will not remove it if the backend
 	// service is updated to from supporting to non-supporting localityLbPolicy

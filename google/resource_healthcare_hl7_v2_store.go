@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -39,9 +39,9 @@ func resourceHealthcareHl7V2Store() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -92,7 +92,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
 It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
 was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
 Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.`,
 						},
 					},
@@ -113,7 +113,7 @@ is sent as part of the notification. Supplied by the client.`,
 PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
 It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
 was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
 Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
 
 If a notification cannot be published to Cloud Pub/Sub, errors will be logged to Stackdriver`,
@@ -138,6 +138,7 @@ Fields/functions available for filtering are:
 			},
 			"parser_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `A nested object resource`,
 				MaxItems:    1,
@@ -156,15 +157,24 @@ Fields/functions available for filtering are:
 							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description: `JSON encoded string for schemas used to parse messages in this
 store if schematized parsing is desired.`,
-							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema"},
+							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema", "parser_config.0.version"},
 						},
 						"segment_terminator": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateBase64String,
 							Description: `Byte(s) to be used as the segment terminator. If this is unset, '\r' will be used as segment terminator.
 
 A base64-encoded string.`,
 							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema"},
+						},
+						"version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validateEnum([]string{"V1", "V2", "V3", ""}),
+							Description:  `The version of the unschematized parser to be used when a custom 'schema' is not set. Default value: "V1" Possible values: ["V1", "V2", "V3"]`,
+							Default:      "V1",
 						},
 					},
 				},
@@ -347,7 +357,9 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 	updateMask := []string{}
 
 	if d.HasChange("parser_config") {
-		updateMask = append(updateMask, "parserConfig")
+		updateMask = append(updateMask, "parser_config.allow_null_header",
+			"parser_config.segment_terminator",
+			"parser_config.schema")
 	}
 
 	if d.HasChange("labels") {
@@ -453,6 +465,8 @@ func flattenHealthcareHl7V2StoreParserConfig(v interface{}, d *schema.ResourceDa
 		flattenHealthcareHl7V2StoreParserConfigSegmentTerminator(original["segmentTerminator"], d, config)
 	transformed["schema"] =
 		flattenHealthcareHl7V2StoreParserConfigSchema(original["schema"], d, config)
+	transformed["version"] =
+		flattenHealthcareHl7V2StoreParserConfigVersion(original["version"], d, config)
 	return []interface{}{transformed}
 }
 func flattenHealthcareHl7V2StoreParserConfigAllowNullHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -473,6 +487,10 @@ func flattenHealthcareHl7V2StoreParserConfigSchema(v interface{}, d *schema.Reso
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenHealthcareHl7V2StoreParserConfigVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenHealthcareHl7V2StoreLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -557,6 +575,13 @@ func expandHealthcareHl7V2StoreParserConfig(v interface{}, d TerraformResourceDa
 		transformed["schema"] = transformedSchema
 	}
 
+	transformedVersion, err := expandHealthcareHl7V2StoreParserConfigVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
 	return transformed, nil
 }
 
@@ -578,6 +603,10 @@ func expandHealthcareHl7V2StoreParserConfigSchema(v interface{}, d TerraformReso
 		return nil, err
 	}
 	return m, nil
+}
+
+func expandHealthcareHl7V2StoreParserConfigVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandHealthcareHl7V2StoreLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {

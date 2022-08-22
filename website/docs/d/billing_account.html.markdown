@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Billing"
-layout: "google"
 page_title: "Google: google_billing_account"
-sidebar_current: "docs-google-datasource-billing-account"
 description: |-
   Get information about a Google Billing Account.
 ---

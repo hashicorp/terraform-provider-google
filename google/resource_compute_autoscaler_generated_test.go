@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -111,7 +108,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 }
 
 data "google_compute_image" "debian_9" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 `, context)

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_metric_descriptor"
-sidebar_current: "docs-google-monitoring-metric-descriptor"
 description: |-
   Defines a metric type and its schema.
 ---
@@ -125,7 +123,7 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   The set of labels that can be used to describe a specific instance of this metric type. In order to delete a label, the entire resource must be deleted, then created with the desired labels.
-  Structure is documented below.
+  Structure is [documented below](#nested_labels).
 
 * `unit` -
   (Optional)
@@ -150,7 +148,7 @@ The following arguments are supported:
 * `metadata` -
   (Optional)
   Metadata which can be used to guide usage of the metric.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata).
 
 * `launch_stage` -
   (Optional)
@@ -161,7 +159,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `labels` block supports:
+<a name="nested_labels"></a>The `labels` block supports:
 
 * `key` -
   (Required)
@@ -177,7 +175,7 @@ The `labels` block supports:
   (Optional)
   A human-readable description for the label.
 
-The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `sample_period` -
   (Optional)
@@ -205,9 +203,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

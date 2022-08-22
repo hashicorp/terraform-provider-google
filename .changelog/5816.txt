@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed crash when one of `settings.database_flags` is nil.
+```

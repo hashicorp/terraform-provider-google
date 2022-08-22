@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_instance"
-sidebar_current: "docs-google-compute-target-instance"
 description: |-
   Represents a TargetInstance resource which defines an endpoint instance
   that terminates traffic of certain protocols.
@@ -52,7 +50,7 @@ resource "google_compute_target_instance" "default" {
 }
 
 data "google_compute_image" "vmimage" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -184,8 +182,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

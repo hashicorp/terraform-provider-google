@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_http_proxy"
-sidebar_current: "docs-google-compute-target-http-proxy"
 description: |-
   Represents a TargetHttpProxy resource, which is used by one or more global
   forwarding rule to route incoming HTTP requests to a URL map.
@@ -134,6 +132,11 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `proxy_bind` -
+  (Optional)
+  This field only applies when the forwarding rule that references
+  this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -157,9 +160,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

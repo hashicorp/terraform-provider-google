@@ -1,0 +1,6 @@
+```release-note:enhancement
+privateca: add `deletion_protection` for CertificateAuthority.
+```
+```release-note:note
+`google_privateca_certificate_authority` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource.
+```

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -40,6 +41,44 @@ func TestAccDataflowJob_basic(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "zone", "state"},
+			},
+		},
+	})
+}
+
+func TestAccDataflowJobSkipWait_basic(t *testing.T) {
+	// Dataflow responses include serialized java classes and bash commands
+	// This makes body comparison infeasible
+	skipIfVcr(t)
+	t.Parallel()
+
+	randStr := randString(t, 10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	zone := "us-central1-f"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJobSkipWait_zone(bucket, job, zone),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
+				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "zone", "state"},
+			},
 		},
 	})
 }
@@ -64,6 +103,12 @@ func TestAccDataflowJob_withRegion(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccRegionalDataflowJobExists(t, "google_dataflow_job.big_data", "us-central1"),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "region", "state"},
 			},
 		},
 	})
@@ -92,6 +137,12 @@ func TestAccDataflowJob_withServiceAccount(t *testing.T) {
 					testAccDataflowJobHasServiceAccount(t, "google_dataflow_job.big_data", accountId),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
+			},
 		},
 	})
 }
@@ -118,6 +169,12 @@ func TestAccDataflowJob_withNetwork(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 					testAccDataflowJobHasNetwork(t, "google_dataflow_job.big_data", network),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
 			},
 		},
 	})
@@ -147,6 +204,12 @@ func TestAccDataflowJob_withSubnetwork(t *testing.T) {
 					testAccDataflowJobHasSubnetwork(t, "google_dataflow_job.big_data", subnetwork),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "subnetwork", "state"},
+			},
 		},
 	})
 }
@@ -175,6 +238,12 @@ func TestAccDataflowJob_withLabels(t *testing.T) {
 					testAccDataflowJobHasLabels(t, "google_dataflow_job.with_labels", key),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.with_labels",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
+			},
 		},
 	})
 }
@@ -199,6 +268,12 @@ func TestAccDataflowJob_withIpConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "ip_configuration", "state"},
 			},
 		},
 	})
@@ -228,6 +303,12 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.big_data",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "zone", "state"},
+			},
 		},
 	})
 }
@@ -253,6 +334,12 @@ func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 					testAccDataflowJobExists(t, "google_dataflow_job.with_additional_experiments"),
 					testAccDataflowJobHasExperiments(t, "google_dataflow_job.with_additional_experiments", additionalExperiments),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.with_additional_experiments",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
 			},
 		},
 	})
@@ -281,6 +368,12 @@ func TestAccDataflowJob_streamUpdate(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobHasTempLocation(t, "google_dataflow_job.pubsub_stream", "gs://tf-test-bucket2-"+suffix),
 				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.pubsub_stream",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "transform_name_mapping", "state"},
 			},
 		},
 	})
@@ -315,6 +408,12 @@ func TestAccDataflowJob_virtualUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.pubsub_stream", "on_delete", "cancel"),
 				),
 			},
+			{
+				ResourceName:            "google_dataflow_job.pubsub_stream",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
+			},
 		},
 	})
 }
@@ -329,7 +428,16 @@ func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 			config := googleProviderConfig(t)
 			job, err := config.NewDataflowClient(config.userAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 			if job != nil {
-				if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
+				var ok bool
+				skipWait, err := strconv.ParseBool(rs.Primary.Attributes["skip_wait_on_job_termination"])
+				if err != nil {
+					return fmt.Errorf("could not parse attribute: %v", err)
+				}
+				_, ok = dataflowTerminalStatesMap[job.CurrentState]
+				if !ok && skipWait {
+					_, ok = dataflowTerminatingStatesMap[job.CurrentState]
+				}
+				if !ok {
 					return fmt.Errorf("Job still present")
 				}
 			} else if err != nil {
@@ -351,7 +459,16 @@ func testAccCheckDataflowJobRegionDestroyProducer(t *testing.T) func(s *terrafor
 			config := googleProviderConfig(t)
 			job, err := config.NewDataflowClient(config.userAgent).Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 			if job != nil {
-				if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
+				var ok bool
+				skipWait, err := strconv.ParseBool(rs.Primary.Attributes["skip_wait_on_job_termination"])
+				if err != nil {
+					return fmt.Errorf("could not parse attribute: %v", err)
+				}
+				_, ok = dataflowTerminalStatesMap[job.CurrentState]
+				if !ok && skipWait {
+					_, ok = dataflowTerminatingStatesMap[job.CurrentState]
+				}
+				if !ok {
 					return fmt.Errorf("Job still present")
 				}
 			} else if err != nil {
@@ -613,7 +730,8 @@ func testAccDataflowJobHasTempLocation(t *testing.T, res, targetLocation string)
 func testAccDataflowJob_zone(bucket, job, zone string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -634,10 +752,37 @@ resource "google_dataflow_job" "big_data" {
 `, bucket, job, zone, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 }
 
+func testAccDataflowJobSkipWait_zone(bucket, job, zone string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "temp" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_dataflow_job" "big_data" {
+  name = "%s"
+ 
+  zone    = "%s"
+
+  machine_type      = "e2-standard-2"
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
+  on_delete                    = "cancel"
+  skip_wait_on_job_termination = true
+}
+`, bucket, job, zone, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
+
 func testAccDataflowJob_region(bucket, job string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -660,7 +805,8 @@ resource "google_dataflow_job" "big_data" {
 func testAccDataflowJob_network(bucket, job, network string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -688,7 +834,8 @@ resource "google_dataflow_job" "big_data" {
 func testAccDataflowJob_subnetwork(bucket, job, network, subnet string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -721,8 +868,11 @@ resource "google_dataflow_job" "big_data" {
 
 func testAccDataflowJob_serviceAccount(bucket, job, accountId string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -738,6 +888,7 @@ resource "google_storage_bucket_iam_member" "dataflow-gcs" {
 }
 
 resource "google_project_iam_member" "dataflow-worker" {
+  project = data.google_project.project.project_id
   role   = "roles/dataflow.worker"
   member = "serviceAccount:${google_service_account.dataflow-sa.email}"
 }
@@ -764,7 +915,8 @@ resource "google_dataflow_job" "big_data" {
 func testAccDataflowJob_ipConfig(bucket, job string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -787,7 +939,8 @@ resource "google_dataflow_job" "big_data" {
 func testAccDataflowJob_labels(bucket, job, labelKey, labelVal string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -839,7 +992,8 @@ resource "google_kms_crypto_key" "crypto_key" {
 }
 
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -851,7 +1005,7 @@ resource "google_dataflow_job" "big_data" {
   machine_type      = "e2-standard-2"
   template_gcs_path = "%s"
   temp_gcs_location = google_storage_bucket.temp.url
-  kms_key_name		= google_kms_crypto_key.crypto_key.self_link
+  kms_key_name		= google_kms_crypto_key.crypto_key.id
   parameters = {
     inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
@@ -864,7 +1018,8 @@ resource "google_dataflow_job" "big_data" {
 func testAccDataflowJob_additionalExperiments(bucket string, job string, experiments []string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -890,11 +1045,13 @@ resource "google_pubsub_topic" "topic" {
 	name     = "tf-test-dataflow-job-%s"
 }
 resource "google_storage_bucket" "bucket1" {
-	name = "tf-test-bucket1-%s"
+	name          = "tf-test-bucket1-%s"
+	location      = "US"
 	force_destroy = true
 }
 resource "google_storage_bucket" "bucket2" {
-	name = "tf-test-bucket2-%s"
+	name          = "tf-test-bucket2-%s"
+	location      = "US"
 	force_destroy = true
 }
 resource "google_dataflow_job" "pubsub_stream" {
@@ -920,7 +1077,8 @@ resource "google_pubsub_topic" "topic" {
 	name     = "tf-test-dataflow-job-%s"
 }
 resource "google_storage_bucket" "bucket" {
-	name = "tf-test-bucket-%s"
+	name          = "tf-test-bucket-%s"
+	location      = "US"
 	force_destroy = true
 }
 resource "google_dataflow_job" "pubsub_stream" {

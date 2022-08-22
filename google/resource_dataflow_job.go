@@ -18,6 +18,11 @@ import (
 
 const resourceDataflowJobGoogleProvidedLabelPrefix = "labels.goog-dataflow-provided"
 
+var dataflowTerminatingStatesMap = map[string]struct{}{
+	"JOB_STATE_CANCELLING": {},
+	"JOB_STATE_DRAINING":   {},
+}
+
 var dataflowTerminalStatesMap = map[string]struct{}{
 	"JOB_STATE_DONE":      {},
 	"JOB_STATE_FAILED":    {},
@@ -54,6 +59,9 @@ func resourceDataflowJob() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceDataflowJobTypeCustomizeDiff,
 		),
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -187,6 +195,7 @@ func resourceDataflowJob() *schema.Resource {
 			"additional_experiments": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Description: `List of experiments that should be used by the job. An example value is ["enable_stackdriver_agent_metrics"].`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -197,6 +206,19 @@ func resourceDataflowJob() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The unique ID of this job.`,
+			},
+
+			"enable_streaming_engine": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates if the job should use the streaming engine feature.`,
+			},
+
+			"skip_wait_on_job_termination": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `If true, treat DRAINING and CANCELLING as terminal job states and do not wait for further changes before removing from terraform state and moving on. WARNING: this will lead to job name conflicts if you do not ensure that the job names are different, e.g. by embedding a release ID or by using a random_id.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -225,6 +247,16 @@ func resourceDataflowJobTypeCustomizeDiff(_ context.Context, d *schema.ResourceD
 	}
 
 	return nil
+}
+
+// return true if a job is in a terminal state, OR if a job is in a
+// terminating state and skipWait is true
+func shouldStopDataflowJobDeleteQuery(state string, skipWait bool) bool {
+	_, stopQuery := dataflowTerminalStatesMap[state]
+	if !stopQuery && skipWait {
+		_, stopQuery = dataflowTerminatingStatesMap[state]
+	}
+	return stopQuery
 }
 
 func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
@@ -337,7 +369,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error setting additional_experiments: %s", err)
 	}
 
-	if _, ok := dataflowTerminalStatesMap[job.CurrentState]; ok {
+	if ok := shouldStopDataflowJobDeleteQuery(job.CurrentState, d.Get("skip_wait_on_job_termination").(bool)); ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
 		d.SetId("")
 		return nil
@@ -350,7 +382,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 // Stream update method. Batch job changes should have been set to ForceNew via custom diff
 func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interface{}) error {
 	// Don't send an update request if only virtual fields have changes
-	if resourceDataflowJobIsVirtualUpdate(d) {
+	if resourceDataflowJobIsVirtualUpdate(d, resourceDataflowJob().Schema) {
 		return nil
 	}
 
@@ -463,8 +495,9 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	// Wait for state to reach terminal state (canceled/drained/done)
-	_, ok := dataflowTerminalStatesMap[d.Get("state").(string)]
+	// Wait for state to reach terminal state (canceled/drained/done plus cancelling/draining if skipWait)
+	skipWait := d.Get("skip_wait_on_job_termination").(bool)
+	ok := shouldStopDataflowJobDeleteQuery(d.Get("state").(string), skipWait)
 	for !ok {
 		log.Printf("[DEBUG] Waiting for job with job state %q to terminate...", d.Get("state").(string))
 		time.Sleep(5 * time.Second)
@@ -473,11 +506,11 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error while reading job to see if it was properly terminated: %v", err)
 		}
-		_, ok = dataflowTerminalStatesMap[d.Get("state").(string)]
+		ok = shouldStopDataflowJobDeleteQuery(d.Get("state").(string), skipWait)
 	}
 
-	// Only remove the job from state if it's actually successfully canceled.
-	if _, ok := dataflowTerminalStatesMap[d.Get("state").(string)]; ok {
+	// Only remove the job from state if it's actually successfully hit a final state.
+	if ok = shouldStopDataflowJobDeleteQuery(d.Get("state").(string), skipWait); ok {
 		log.Printf("[DEBUG] Removing dataflow job with final state %q", d.Get("state").(string))
 		d.SetId("")
 		return nil
@@ -540,6 +573,7 @@ func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (datafl
 		MachineType:           d.Get("machine_type").(string),
 		KmsKeyName:            d.Get("kms_key_name").(string),
 		IpConfiguration:       d.Get("ip_configuration").(string),
+		EnableStreamingEngine: d.Get("enable_streaming_engine").(bool),
 		AdditionalUserLabels:  labels,
 		Zone:                  zone,
 		AdditionalExperiments: additionalExperiments,
@@ -573,11 +607,9 @@ func resourceDataflowJobIterateMapHasChange(mapKey string, d *schema.ResourceDat
 	return false
 }
 
-func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData) bool {
+func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
 	// on_delete is the only virtual field
 	if d.HasChange("on_delete") {
-		// Check if other fields have changes, which would require an actual update request
-		resourceSchema := resourceDataflowJob().Schema
 		for field := range resourceSchema {
 			if field == "on_delete" {
 				continue

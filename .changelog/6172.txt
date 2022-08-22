@@ -1,0 +1,9 @@
+```release-note:new-resource
+google_bigquery_connection_iam_member
+```
+```release-note:new-resource
+google_bigquery_connection_iam_binding
+```
+```release-note:new-resource
+google_bigquery_connection_iam_policy
+```

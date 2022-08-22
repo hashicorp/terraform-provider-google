@@ -1,0 +1,4 @@
+```release-note:enhancement
+dataproc:added `preemptibility` field to the `preemptible_worker_config` of `google_dataproc_cluster`
+
+```

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_url_map"
-sidebar_current: "docs-google-compute-region-url-map"
 description: |-
   UrlMaps are used to route requests to a backend service based on rules
   that you define for the host and path of an incoming URL.
@@ -77,6 +75,7 @@ resource "google_compute_region_backend_service" "login" {
 
   name        = "login"
   protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]
@@ -87,6 +86,7 @@ resource "google_compute_region_backend_service" "home" {
 
   name        = "home"
   protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]
@@ -453,6 +453,295 @@ resource "google_compute_region_health_check" "default" {
   }
 }
 ```
+## Example Usage - Int Https Lb Https Redirect
+
+
+```hcl
+# Internal HTTPS load balancer with HTTP-to-HTTPS redirect
+
+
+# VPC network
+resource "google_compute_network" "default" {
+  name                    = "l7-ilb-network"
+  auto_create_subnetworks = false
+}
+
+# Proxy-only subnet
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "l7-ilb-proxy-subnet"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "europe-west1"
+  purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
+  role          = "ACTIVE"
+  network       = google_compute_network.default.id
+}
+
+# Backend subnet
+resource "google_compute_subnetwork" "default" {
+  name          = "l7-ilb-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "europe-west1"
+  network       = google_compute_network.default.id
+}
+
+# Reserved internal address
+resource "google_compute_address" "default" {
+  name         = "l7-ilb-ip"
+  provider     = google-beta
+  subnetwork   = google_compute_subnetwork.default.id
+  address_type = "INTERNAL"
+  address      = "10.0.1.5"
+  region       = "europe-west1"
+  purpose      = "SHARED_LOADBALANCER_VIP"
+}
+
+# Regional forwarding rule
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "l7-ilb-forwarding-rule"
+  region                = "europe-west1"
+  depends_on            = [google_compute_subnetwork.proxy_subnet]
+  ip_protocol           = "TCP"
+  ip_address            = google_compute_address.default.id
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "443"
+  target                = google_compute_region_target_https_proxy.default.id
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  network_tier          = "PREMIUM"
+}
+
+# Self-signed regional SSL certificate for testing
+resource "tls_private_key" "default" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+resource "tls_self_signed_cert" "default" {
+  key_algorithm   = tls_private_key.default.algorithm
+  private_key_pem = tls_private_key.default.private_key_pem
+
+  # Certificate expires after 12 hours.
+  validity_period_hours = 12
+
+  # Generate a new certificate if Terraform is run within three
+  # hours of the certificate's expiration time.
+  early_renewal_hours = 3
+
+  # Reasonable set of uses for a server SSL certificate.
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+
+  dns_names = ["example.com"]
+
+  subject {
+    common_name  = "example.com"
+    organization = "ACME Examples, Inc"
+  }
+}
+
+resource "google_compute_region_ssl_certificate" "default" {
+  name_prefix = "my-certificate-"
+  private_key = tls_private_key.default.private_key_pem
+  certificate = tls_self_signed_cert.default.cert_pem
+  region      = "europe-west1" 
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Regional target HTTPS proxy
+resource "google_compute_region_target_https_proxy" "default" {
+  name             = "l7-ilb-target-https-proxy"
+  region           = "europe-west1"
+  url_map          = google_compute_region_url_map.https_lb.id
+  ssl_certificates = [google_compute_region_ssl_certificate.default.self_link]
+}
+
+# Regional URL map
+resource "google_compute_region_url_map" "https_lb" {
+  name            = "l7-ilb-regional-url-map"
+  region          = "europe-west1"
+  default_service = google_compute_region_backend_service.default.id
+}
+
+# Regional backend service
+resource "google_compute_region_backend_service" "default" {
+  name                  = "l7-ilb-backend-service"
+  region                = "europe-west1"
+  protocol              = "HTTP"
+  port_name             = "http-server"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec           = 10
+  health_checks         = [google_compute_region_health_check.default.id]
+  backend {
+    group           = google_compute_region_instance_group_manager.default.instance_group
+    balancing_mode  = "UTILIZATION"
+    capacity_scaler = 1.0
+  }
+}
+
+# Instance template
+resource "google_compute_instance_template" "default" {
+  name         = "l7-ilb-mig-template"
+  machine_type = "e2-small"
+  tags         = ["http-server"]
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+  disk {
+    source_image = "debian-cloud/debian-10"
+    auto_delete  = true
+    boot         = true
+  }
+
+  # install nginx and serve a simple web page
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      set -euo pipefail
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y nginx-light jq
+
+      NAME=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/hostname")
+      IP=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+      METADATA=$(curl -f -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/?recursive=True" | jq 'del(.["startup-script"])')
+
+      cat <<EOF > /var/www/html/index.html
+      <pre>
+      Name: $NAME
+      IP: $IP
+      Metadata: $METADATA
+      </pre>
+      EOF
+    EOF1
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Regional health check
+resource "google_compute_region_health_check" "default" {
+  name   = "l7-ilb-hc"
+  region = "europe-west1"
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
+}
+
+# Regional MIG
+resource "google_compute_region_instance_group_manager" "default" {
+  name   = "l7-ilb-mig1"
+  region = "europe-west1"
+  version {
+    instance_template = google_compute_instance_template.default.id
+    name              = "primary"
+  }
+  named_port {
+    name = "http-server"
+    port = 80
+  }
+  base_instance_name = "vm"
+  target_size        = 2
+}
+
+# Allow all access to health check ranges
+resource "google_compute_firewall" "default" {
+  name          = "l7-ilb-fw-allow-hc"
+  direction     = "INGRESS"
+  network       = google_compute_network.default.id
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "35.235.240.0/20"]
+  allow {
+    protocol = "tcp"
+  }
+}
+
+# Allow http from proxy subnet to backends
+resource "google_compute_firewall" "backends" {
+  name          = "l7-ilb-fw-allow-ilb-to-backends"
+  direction     = "INGRESS"
+  network       = google_compute_network.default.id
+  source_ranges = ["10.0.0.0/24"]
+  target_tags   = ["http-server"]
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443", "8080"]
+  }
+}
+
+# Test instance
+resource "google_compute_instance" "default" {
+  name         = "l7-ilb-test-vm"
+  zone         = "europe-west1-b"
+  machine_type = "e2-small"
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+  }
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-10"
+    }
+  }
+}
+
+### HTTP-to-HTTPS redirect ###
+
+# Regional forwarding rule
+resource "google_compute_forwarding_rule" "redirect" {
+  name                  = "l7-ilb-redirect"
+  region                = "europe-west1"
+  ip_protocol           = "TCP"
+  ip_address            = google_compute_address.default.id # Same as HTTPS load balancer
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "80"
+  target                = google_compute_region_target_http_proxy.default.id
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  network_tier          = "PREMIUM"
+}
+
+# Regional HTTP proxy
+resource "google_compute_region_target_http_proxy" "default" {
+  name    = "l7-ilb-target-http-proxy"
+  region  = "europe-west1"
+  url_map = google_compute_region_url_map.redirect.id
+}
+
+# Regional URL map
+resource "google_compute_region_url_map" "redirect" {
+  name            = "l7-ilb-redirect-url-map"
+  region          = "europe-west1"
+  default_service = google_compute_region_backend_service.default.id
+  host_rule {
+    hosts        = ["*"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_region_backend_service.default.id
+    path_rule {
+      paths = ["/"]
+      url_redirect {
+        https_redirect         = true
+        host_redirect          = "10.0.1.5:443"
+        redirect_response_code = "PERMANENT_REDIRECT"
+        strip_query            = true
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -491,25 +780,25 @@ The following arguments are supported:
 * `host_rule` -
   (Optional)
   The list of HostRules to use against the URL.
-  Structure is documented below.
+  Structure is [documented below](#nested_host_rule).
 
 * `path_matcher` -
   (Optional)
   The list of named PathMatchers to use against the URL.
-  Structure is documented below.
+  Structure is [documented below](#nested_path_matcher).
 
 * `test` -
   (Optional)
   The list of expected URL mappings. Requests to update this UrlMap will
   succeed only if all of the test cases pass.
-  Structure is documented below.
+  Structure is [documented below](#nested_test).
 
 * `default_url_redirect` -
   (Optional)
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
   defaultRouteAction must not be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_url_redirect).
 
 * `region` -
   (Optional)
@@ -520,7 +809,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `host_rule` block supports:
+<a name="nested_host_rule"></a>The `host_rule` block supports:
 
 * `description` -
   (Optional)
@@ -539,7 +828,7 @@ The `host_rule` block supports:
   The name of the PathMatcher to use to match the path portion of
   the URL if the hostRule matches the URL's host portion.
 
-The `path_matcher` block supports:
+<a name="nested_path_matcher"></a>The `path_matcher` block supports:
 
 * `default_service` -
   (Optional)
@@ -563,7 +852,7 @@ The `path_matcher` block supports:
   action to take effect. Within a given pathMatcher, only one of pathRules or
   routeRules must be set. routeRules are not supported in UrlMaps intended for
   External load balancers.
-  Structure is documented below.
+  Structure is [documented below](#nested_route_rules).
 
 * `path_rule` -
   (Optional)
@@ -573,17 +862,17 @@ The `path_matcher` block supports:
   basis. For example: a pathRule with a path /a/b/c/* will match before /a/b/*
   irrespective of the order in which those paths appear in this list. Within a
   given pathMatcher, only one of pathRules or routeRules must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_path_rule).
 
 * `default_url_redirect` -
   (Optional)
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
   defaultRouteAction must not be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_url_redirect).
 
 
-The `route_rules` block supports:
+<a name="nested_route_rules"></a>The `route_rules` block supports:
 
 * `priority` -
   (Required)
@@ -617,12 +906,12 @@ The `route_rules` block supports:
   the selected backendService. The headerAction specified here are applied before
   the matching pathMatchers[].headerAction and after pathMatchers[].routeRules[].r
   outeAction.weightedBackendService.backendServiceWeightAction[].headerAction
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `match_rules` -
   (Optional)
   The rules for determining a match.
-  Structure is documented below.
+  Structure is [documented below](#nested_match_rules).
 
 * `route_action` -
   (Optional)
@@ -632,23 +921,23 @@ The `route_rules` block supports:
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
   or urlRedirect must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_route_action).
 
 * `url_redirect` -
   (Optional)
   When this rule is matched, the request is redirected to a URL specified by
   urlRedirect. If urlRedirect is specified, service or routeAction must not be
   set.
-  Structure is documented below.
+  Structure is [documented below](#nested_url_redirect).
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -658,7 +947,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -666,7 +955,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -682,7 +971,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -698,7 +987,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `match_rules` block supports:
+<a name="nested_match_rules"></a>The `match_rules` block supports:
 
 * `full_path_match` -
   (Optional)
@@ -712,7 +1001,7 @@ The `match_rules` block supports:
   (Optional)
   Specifies a list of header match criteria, all of which must match corresponding
   headers in the request.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_matches).
 
 * `ignore_case` -
   (Optional)
@@ -732,7 +1021,7 @@ The `match_rules` block supports:
   here can be overrides those specified in ForwardingRule that refers to this
   UrlMap. metadataFilters only applies to Loadbalancers that have their
   loadBalancingScheme set to INTERNAL_SELF_MANAGED.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata_filters).
 
 * `prefix_match` -
   (Optional)
@@ -745,7 +1034,7 @@ The `match_rules` block supports:
   (Optional)
   Specifies a list of query parameter match criteria, all of which must match
   corresponding query parameters in the request.
-  Structure is documented below.
+  Structure is [documented below](#nested_query_parameter_matches).
 
 * `regex_match` -
   (Optional)
@@ -756,7 +1045,7 @@ The `match_rules` block supports:
   fullPathMatch or regexMatch must be specified.
 
 
-The `header_matches` block supports:
+<a name="nested_header_matches"></a>The `header_matches` block supports:
 
 * `exact_match` -
   (Optional)
@@ -798,7 +1087,7 @@ The `header_matches` block supports:
   * -3someString will not match.
   Only one of exactMatch, prefixMatch, suffixMatch, regexMatch, presentMatch or
   rangeMatch must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_range_match).
 
 * `regex_match` -
   (Optional)
@@ -817,7 +1106,7 @@ The `header_matches` block supports:
   must be set.
 
 
-The `range_match` block supports:
+<a name="nested_range_match"></a>The `range_match` block supports:
 
 * `range_end` -
   (Required)
@@ -827,14 +1116,14 @@ The `range_match` block supports:
   (Required)
   The start of the range (inclusive).
 
-The `metadata_filters` block supports:
+<a name="nested_metadata_filters"></a>The `metadata_filters` block supports:
 
 * `filter_labels` -
   (Required)
   The list of label value pairs that must match labels in the provided metadata
   based on filterMatchCriteria  This list must not be empty and can have at the
   most 64 entries.
-  Structure is documented below.
+  Structure is [documented below](#nested_filter_labels).
 
 * `filter_match_criteria` -
   (Required)
@@ -847,7 +1136,7 @@ The `metadata_filters` block supports:
   Possible values are `MATCH_ALL` and `MATCH_ANY`.
 
 
-The `filter_labels` block supports:
+<a name="nested_filter_labels"></a>The `filter_labels` block supports:
 
 * `name` -
   (Required)
@@ -859,7 +1148,7 @@ The `filter_labels` block supports:
   The value of the label must match the specified value. value can have a maximum
   length of 1024 characters.
 
-The `query_parameter_matches` block supports:
+<a name="nested_query_parameter_matches"></a>The `query_parameter_matches` block supports:
 
 * `exact_match` -
   (Optional)
@@ -885,13 +1174,13 @@ The `query_parameter_matches` block supports:
   please see en.cppreference.com/w/cpp/regex/ecmascript  Only one of presentMatch,
   exactMatch and regexMatch must be set.
 
-The `route_action` block supports:
+<a name="nested_route_action"></a>The `route_action` block supports:
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
   Recommendation for Cross Origin Resource Sharing
-  Structure is documented below.
+  Structure is [documented below](#nested_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -902,7 +1191,7 @@ The `route_action` block supports:
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
   ignored by clients that are configured with a fault_injection_policy.
-  Structure is documented below.
+  Structure is [documented below](#nested_fault_injection_policy).
 
 * `request_mirror_policy` -
   (Optional)
@@ -910,12 +1199,12 @@ The `route_action` block supports:
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
   service, the host / authority header is suffixed with -shadow.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_mirror_policy).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `timeout` -
   (Optional)
@@ -923,13 +1212,13 @@ The `route_action` block supports:
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
   specified, the default value is 15 seconds.
-  Structure is documented below.
+  Structure is [documented below](#nested_timeout).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
   the matched service
-  Structure is documented below.
+  Structure is [documented below](#nested_url_rewrite).
 
 * `weighted_backend_services` -
   (Optional)
@@ -941,10 +1230,10 @@ The `route_action` block supports:
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
   HttpRouteAction.
-  Structure is documented below.
+  Structure is [documented below](#nested_weighted_backend_services).
 
 
-The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_credentials` -
   (Optional)
@@ -985,22 +1274,22 @@ The `cors_policy` block supports:
   Specifies how long the results of a preflight request can be cached. This
   translates to the content for the Access-Control-Max-Age header.
 
-The `fault_injection_policy` block supports:
+<a name="nested_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
   injection.
-  Structure is documented below.
+  Structure is [documented below](#nested_abort).
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
   injection, before being sent to a backend service.
-  Structure is documented below.
+  Structure is [documented below](#nested_delay).
 
 
-The `abort` block supports:
+<a name="nested_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)
@@ -1013,12 +1302,12 @@ The `abort` block supports:
   aborted as part of fault injection. The value must be between 0.0 and 100.0
   inclusive.
 
-The `delay` block supports:
+<a name="nested_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
   Specifies the value of the fixed delay interval.
-  Structure is documented below.
+  Structure is [documented below](#nested_fixed_delay).
 
 * `percentage` -
   (Optional)
@@ -1027,7 +1316,7 @@ The `delay` block supports:
   100.0 inclusive.
 
 
-The `fixed_delay` block supports:
+<a name="nested_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `nanos` -
   (Optional)
@@ -1040,13 +1329,13 @@ The `fixed_delay` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `request_mirror_policy` block supports:
+<a name="nested_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
   The RegionBackendService resource being mirrored to.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
   (Required)
@@ -1055,7 +1344,7 @@ The `retry_policy` block supports:
 * `per_try_timeout` -
   (Optional)
   Specifies a non-zero timeout per retry attempt.
-  Structure is documented below.
+  Structure is [documented below](#nested_per_try_timeout).
 
 * `retry_conditions` -
   (Optional)
@@ -1082,7 +1371,7 @@ The `retry_policy` block supports:
     the response header is set to unavailable
 
 
-The `per_try_timeout` block supports:
+<a name="nested_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1095,7 +1384,7 @@ The `per_try_timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `timeout` block supports:
+<a name="nested_timeout"></a>The `timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1108,7 +1397,7 @@ The `timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `url_rewrite` block supports:
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -1122,7 +1411,7 @@ The `url_rewrite` block supports:
   portion of the request's path is replaced by pathPrefixRewrite. The value must
   be between 1 and 1024 characters.
 
-The `weighted_backend_services` block supports:
+<a name="nested_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Required)
@@ -1135,7 +1424,7 @@ The `weighted_backend_services` block supports:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
   headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `weight` -
   (Required)
@@ -1147,13 +1436,13 @@ The `weighted_backend_services` block supports:
   The value must be between 0 and 1000
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1163,7 +1452,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -1171,7 +1460,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1187,7 +1476,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1203,7 +1492,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `url_redirect` block supports:
+<a name="nested_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -1253,7 +1542,7 @@ The `url_redirect` block supports:
   removed prior to redirecting the request. If set to false, the query
   portion of the original URL is retained. The default value is false.
 
-The `path_rule` block supports:
+<a name="nested_path_rule"></a>The `path_rule` block supports:
 
 * `service` -
   (Optional)
@@ -1268,7 +1557,7 @@ The `path_rule` block supports:
 * `paths` -
   (Required)
   The list of path patterns to match. Each must start with / and the only place a
-  * is allowed is at the end following a /. The string fed to the path matcher
+  \* is allowed is at the end following a /. The string fed to the path matcher
   does not include any text after the first ? or #, and those chars are not
   allowed here.
 
@@ -1280,23 +1569,23 @@ The `path_rule` block supports:
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
   or urlRedirect must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_route_action).
 
 * `url_redirect` -
   (Optional)
   When a path pattern is matched, the request is redirected to a URL specified
   by urlRedirect. If urlRedirect is specified, service or routeAction must not
   be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_url_redirect).
 
 
-The `route_action` block supports:
+<a name="nested_route_action"></a>The `route_action` block supports:
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
   Recommendation for Cross Origin Resource Sharing
-  Structure is documented below.
+  Structure is [documented below](#nested_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -1307,7 +1596,7 @@ The `route_action` block supports:
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
   ignored by clients that are configured with a fault_injection_policy.
-  Structure is documented below.
+  Structure is [documented below](#nested_fault_injection_policy).
 
 * `request_mirror_policy` -
   (Optional)
@@ -1315,12 +1604,12 @@ The `route_action` block supports:
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
   service, the host / authority header is suffixed with -shadow.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_mirror_policy).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `timeout` -
   (Optional)
@@ -1328,13 +1617,13 @@ The `route_action` block supports:
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
   specified, the default value is 15 seconds.
-  Structure is documented below.
+  Structure is [documented below](#nested_timeout).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
   the matched service
-  Structure is documented below.
+  Structure is [documented below](#nested_url_rewrite).
 
 * `weighted_backend_services` -
   (Optional)
@@ -1346,10 +1635,10 @@ The `route_action` block supports:
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
   HttpRouteAction.
-  Structure is documented below.
+  Structure is [documented below](#nested_weighted_backend_services).
 
 
-The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_credentials` -
   (Optional)
@@ -1389,22 +1678,22 @@ The `cors_policy` block supports:
   Specifies how long the results of a preflight request can be cached. This
   translates to the content for the Access-Control-Max-Age header.
 
-The `fault_injection_policy` block supports:
+<a name="nested_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
   injection.
-  Structure is documented below.
+  Structure is [documented below](#nested_abort).
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
   injection, before being sent to a backend service.
-  Structure is documented below.
+  Structure is [documented below](#nested_delay).
 
 
-The `abort` block supports:
+<a name="nested_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Required)
@@ -1417,12 +1706,12 @@ The `abort` block supports:
   aborted as part of fault injection. The value must be between 0.0 and 100.0
   inclusive.
 
-The `delay` block supports:
+<a name="nested_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Required)
   Specifies the value of the fixed delay interval.
-  Structure is documented below.
+  Structure is [documented below](#nested_fixed_delay).
 
 * `percentage` -
   (Required)
@@ -1431,7 +1720,7 @@ The `delay` block supports:
   100.0 inclusive.
 
 
-The `fixed_delay` block supports:
+<a name="nested_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `nanos` -
   (Optional)
@@ -1444,13 +1733,13 @@ The `fixed_delay` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `request_mirror_policy` block supports:
+<a name="nested_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
   The RegionBackendService resource being mirrored to.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
   (Optional)
@@ -1459,7 +1748,7 @@ The `retry_policy` block supports:
 * `per_try_timeout` -
   (Optional)
   Specifies a non-zero timeout per retry attempt.
-  Structure is documented below.
+  Structure is [documented below](#nested_per_try_timeout).
 
 * `retry_conditions` -
   (Optional)
@@ -1486,7 +1775,7 @@ The `retry_policy` block supports:
   the gRPC status code in the response header is set to unavailable
 
 
-The `per_try_timeout` block supports:
+<a name="nested_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1499,7 +1788,7 @@ The `per_try_timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `timeout` block supports:
+<a name="nested_timeout"></a>The `timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1512,7 +1801,7 @@ The `timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `url_rewrite` block supports:
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -1526,7 +1815,7 @@ The `url_rewrite` block supports:
   portion of the request's path is replaced by pathPrefixRewrite. The value must
   be between 1 and 1024 characters.
 
-The `weighted_backend_services` block supports:
+<a name="nested_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Required)
@@ -1539,7 +1828,7 @@ The `weighted_backend_services` block supports:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
   headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `weight` -
   (Required)
@@ -1551,13 +1840,13 @@ The `weighted_backend_services` block supports:
   The value must be between 0 and 1000
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1567,7 +1856,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -1575,7 +1864,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1591,7 +1880,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1607,7 +1896,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `url_redirect` block supports:
+<a name="nested_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -1658,7 +1947,7 @@ The `url_redirect` block supports:
   original URL is retained.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
-The `default_url_redirect` block supports:
+<a name="nested_default_url_redirect"></a>The `default_url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -1706,7 +1995,7 @@ The `default_url_redirect` block supports:
   retained.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
-The `test` block supports:
+<a name="nested_test"></a>The `test` block supports:
 
 * `description` -
   (Optional)
@@ -1724,7 +2013,7 @@ The `test` block supports:
   (Required)
   A reference to expected RegionBackendService resource the given URL should be mapped to.
 
-The `default_url_redirect` block supports:
+<a name="nested_default_url_redirect"></a>The `default_url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -1795,9 +2084,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

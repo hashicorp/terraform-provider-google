@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data loss prevention"
-layout: "google"
 page_title: "Google: google_data_loss_prevention_inspect_template"
-sidebar_current: "docs-google-data-loss-prevention-inspect-template"
 description: |-
   An inspect job template.
 ---
@@ -31,11 +29,6 @@ To get more information about InspectTemplate, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dlp/docs/creating-templates-inspect)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dlp_inspect_template_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Dlp Inspect Template Basic
 
 
@@ -145,11 +138,6 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 	}
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dlp_inspect_template_custom_type&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Dlp Inspect Template Custom Type
 
 
@@ -246,10 +234,10 @@ The following arguments are supported:
 * `inspect_config` -
   (Optional)
   The core content of the template.
-  Structure is documented below.
+  Structure is [documented below](#nested_inspect_config).
 
 
-The `inspect_config` block supports:
+<a name="nested_inspect_config"></a>The `inspect_config` block supports:
 
 * `exclude_info_types` -
   (Optional)
@@ -268,7 +256,7 @@ The `inspect_config` block supports:
 * `limits` -
   (Optional)
   Configuration to control the number of findings returned.
-  Structure is documented below.
+  Structure is [documented below](#nested_limits).
 
 * `info_types` -
   (Optional)
@@ -276,7 +264,7 @@ The `inspect_config` block supports:
   or listed at https://cloud.google.com/dlp/docs/infotypes-reference.
   When no InfoTypes or CustomInfoTypes are specified in a request, the system may automatically choose what detectors to run.
   By default this may be all types, but may change over time as detectors are updated.
-  Structure is documented below.
+  Structure is [documented below](#nested_info_types).
 
 * `content_options` -
   (Optional)
@@ -287,15 +275,15 @@ The `inspect_config` block supports:
   (Optional)
   Set of rules to apply to the findings for this InspectConfig. Exclusion rules, contained in the set are executed in the end,
   other rules are executed in the order they are specified for each info type.
-  Structure is documented below.
+  Structure is [documented below](#nested_rule_set).
 
 * `custom_info_types` -
   (Optional)
   Custom info types to be used. See https://cloud.google.com/dlp/docs/creating-custom-infotypes to learn more.
-  Structure is documented below.
+  Structure is [documented below](#nested_custom_info_types).
 
 
-The `limits` block supports:
+<a name="nested_limits"></a>The `limits` block supports:
 
 * `max_findings_per_item` -
   (Required)
@@ -308,76 +296,76 @@ The `limits` block supports:
 * `max_findings_per_info_type` -
   (Optional)
   Configuration of findings limit given for specified infoTypes.
-  Structure is documented below.
+  Structure is [documented below](#nested_max_findings_per_info_type).
 
 
-The `max_findings_per_info_type` block supports:
+<a name="nested_max_findings_per_info_type"></a>The `max_findings_per_info_type` block supports:
 
 * `info_type` -
   (Required)
   Type of information the findings limit applies to. Only one limit per infoType should be provided. If InfoTypeLimit does
   not have an infoType, the DLP API applies the limit against all infoTypes that are found but not
   specified in another InfoTypeLimit.
-  Structure is documented below.
+  Structure is [documented below](#nested_info_type).
 
 * `max_findings` -
   (Required)
   Max findings limit for the given infoType.
 
 
-The `info_type` block supports:
+<a name="nested_info_type"></a>The `info_type` block supports:
 
 * `name` -
   (Required)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
-The `info_types` block supports:
+<a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
-The `rule_set` block supports:
+<a name="nested_rule_set"></a>The `rule_set` block supports:
 
 * `info_types` -
   (Required)
   List of infoTypes this rule set is applied to.
-  Structure is documented below.
+  Structure is [documented below](#nested_info_types).
 
 * `rules` -
   (Required)
   Set of rules to be applied to infoTypes. The rules are applied in order.
-  Structure is documented below.
+  Structure is [documented below](#nested_rules).
 
 
-The `info_types` block supports:
+<a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
-The `rules` block supports:
+<a name="nested_rules"></a>The `rules` block supports:
 
 * `hotword_rule` -
   (Optional)
   Hotword-based detection rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_hotword_rule).
 
 * `exclusion_rule` -
   (Optional)
   The rule that specifies conditions when findings of infoTypes specified in InspectionRuleSet are removed from results.
-  Structure is documented below.
+  Structure is [documented below](#nested_exclusion_rule).
 
 
-The `hotword_rule` block supports:
+<a name="nested_hotword_rule"></a>The `hotword_rule` block supports:
 
 * `hotword_regex` -
   (Required)
   Regular expression pattern defining what qualifies as a hotword.
-  Structure is documented below.
+  Structure is [documented below](#nested_hotword_regex).
 
 * `proximity` -
   (Required)
@@ -386,15 +374,15 @@ The `hotword_rule` block supports:
   used to match substrings of the finding itself. For example, the certainty of a phone number regex
   `(\d{3}) \d{3}-\d{4}` could be adjusted upwards if the area code is known to be the local area code of a company
   office using the hotword regex `(xxx)`, where `xxx` is the area code in question.
-  Structure is documented below.
+  Structure is [documented below](#nested_proximity).
 
 * `likelihood_adjustment` -
   (Required)
   Likelihood adjustment to apply to all matching findings.
-  Structure is documented below.
+  Structure is [documented below](#nested_likelihood_adjustment).
 
 
-The `hotword_regex` block supports:
+<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
 
 * `pattern` -
   (Required)
@@ -406,7 +394,7 @@ The `hotword_regex` block supports:
   The index of the submatch to extract as findings. When not specified,
   the entire match is returned. No more than 3 may be included.
 
-The `proximity` block supports:
+<a name="nested_proximity"></a>The `proximity` block supports:
 
 * `window_before` -
   (Optional)
@@ -416,7 +404,7 @@ The `proximity` block supports:
   (Optional)
   Number of characters after the finding to consider. Either this or window_before must be specified
 
-The `likelihood_adjustment` block supports:
+<a name="nested_likelihood_adjustment"></a>The `likelihood_adjustment` block supports:
 
 * `fixed_likelihood` -
   (Optional)
@@ -432,7 +420,7 @@ The `likelihood_adjustment` block supports:
   adjustment of 1 followed by an adjustment of -1 when base likelihood is VERY_LIKELY
   will result in a final likelihood of LIKELY. Either this or fixed_likelihood can be set.
 
-The `exclusion_rule` block supports:
+<a name="nested_exclusion_rule"></a>The `exclusion_rule` block supports:
 
 * `matching_type` -
   (Required)
@@ -442,46 +430,46 @@ The `exclusion_rule` block supports:
 * `dictionary` -
   (Optional)
   Dictionary which defines the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_dictionary).
 
 * `regex` -
   (Optional)
   Regular expression which defines the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_regex).
 
 * `exclude_info_types` -
   (Optional)
   Set of infoTypes for which findings would affect this rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_exclude_info_types).
 
 
-The `dictionary` block supports:
+<a name="nested_dictionary"></a>The `dictionary` block supports:
 
 * `word_list` -
   (Optional)
   List of words or phrases to search for.
-  Structure is documented below.
+  Structure is [documented below](#nested_word_list).
 
 * `cloud_storage_path` -
   (Optional)
   Newline-delimited file of words in Cloud Storage. Only a single file is accepted.
-  Structure is documented below.
+  Structure is [documented below](#nested_cloud_storage_path).
 
 
-The `word_list` block supports:
+<a name="nested_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-The `cloud_storage_path` block supports:
+<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-The `regex` block supports:
+<a name="nested_regex"></a>The `regex` block supports:
 
 * `pattern` -
   (Required)
@@ -492,22 +480,22 @@ The `regex` block supports:
   (Optional)
   The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
 
-The `exclude_info_types` block supports:
+<a name="nested_exclude_info_types"></a>The `exclude_info_types` block supports:
 
 * `info_types` -
   (Required)
   If a finding is matched by any of the infoType detectors listed here, the finding will be excluded from the scan results.
-  Structure is documented below.
+  Structure is [documented below](#nested_info_types).
 
 
-The `info_types` block supports:
+<a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
-The `custom_info_types` block supports:
+<a name="nested_custom_info_types"></a>The `custom_info_types` block supports:
 
 * `info_type` -
   (Required)
@@ -515,7 +503,7 @@ The `custom_info_types` block supports:
   infoTypes and that infoType is specified in `info_types` field. Specifying the latter adds findings to the
   one detected by the system. If built-in info type is not specified in `info_types` list then the name is
   treated as a custom info type.
-  Structure is documented below.
+  Structure is [documented below](#nested_info_type).
 
 * `likelihood` -
   (Optional)
@@ -532,27 +520,27 @@ The `custom_info_types` block supports:
 * `regex` -
   (Optional)
   Regular expression which defines the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_regex).
 
 * `dictionary` -
   (Optional)
   Dictionary which defines the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_dictionary).
 
 * `stored_type` -
   (Optional)
   A reference to a StoredInfoType to use with scanning.
-  Structure is documented below.
+  Structure is [documented below](#nested_stored_type).
 
 
-The `info_type` block supports:
+<a name="nested_info_type"></a>The `info_type` block supports:
 
 * `name` -
   (Required)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names
   listed at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
-The `regex` block supports:
+<a name="nested_regex"></a>The `regex` block supports:
 
 * `pattern` -
   (Required)
@@ -563,33 +551,33 @@ The `regex` block supports:
   (Optional)
   The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
 
-The `dictionary` block supports:
+<a name="nested_dictionary"></a>The `dictionary` block supports:
 
 * `word_list` -
   (Optional)
   List of words or phrases to search for.
-  Structure is documented below.
+  Structure is [documented below](#nested_word_list).
 
 * `cloud_storage_path` -
   (Optional)
   Newline-delimited file of words in Cloud Storage. Only a single file is accepted.
-  Structure is documented below.
+  Structure is [documented below](#nested_cloud_storage_path).
 
 
-The `word_list` block supports:
+<a name="nested_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-The `cloud_storage_path` block supports:
+<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-The `stored_type` block supports:
+<a name="nested_stored_type"></a>The `stored_type` block supports:
 
 * `name` -
   (Required)
@@ -611,9 +599,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

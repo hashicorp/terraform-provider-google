@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -36,9 +36,9 @@ func resourceComputeBackendBucket() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -68,6 +68,118 @@ last character, which cannot be a dash.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"bypass_cache_on_request_headers": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Bypass the cache when the specified request headers are matched - e.g. Pragma or Authorization headers. Up to 5 headers can be specified. The cache is bypassed for all cdnPolicy.cacheMode settings.`,
+							MaxItems:    5,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"header_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The header field name to match on when bypassing cache. Values are case-insensitive.`,
+									},
+								},
+							},
+						},
+						"cache_key_policy": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The CacheKeyPolicy for this CdnPolicy.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"include_http_headers": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Allows HTTP request headers (by name) to be used in the
+cache key.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_http_headers"},
+									},
+									"query_string_whitelist": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Names of query string parameters to include in cache keys.
+Default parameters are always included. '&' and '=' will
+be percent encoded and not treated as delimiters.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_http_headers"},
+									},
+								},
+							},
+						},
+						"cache_mode": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: validateEnum([]string{"USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC", ""}),
+							Description: `Specifies the cache setting for all responses from this backend.
+The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC Possible values: ["USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"]`,
+						},
+						"client_ttl": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+						},
+						"default_ttl": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+							Description: `Specifies the default TTL for cached content served by this origin for responses
+that do not have an existing valid TTL (max-age or s-max-age).`,
+						},
+						"max_ttl": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+						},
+						"negative_caching": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Optional:    true,
+							Description: `Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.`,
+						},
+						"negative_caching_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
+Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"code": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
+can be specified as values, and you cannot specify a status code more than once.`,
+									},
+									"ttl": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
+(30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.`,
+									},
+								},
+							},
+						},
+						"request_coalescing": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true then Cloud CDN will combine multiple concurrent cache fill requests into a small number of requests to the origin.`,
+						},
+						"serve_while_stale": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.`,
+						},
 						"signed_url_cache_max_age_sec": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -83,11 +195,25 @@ header. The actual headers served in responses will not be altered.`,
 					},
 				},
 			},
+			"custom_response_headers": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Headers that the HTTP/S load balancer should add to proxied responses.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `An optional textual description of the resource; provided by the
 client when the resource is created.`,
+			},
+			"edge_security_policy": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The security policy associated with this backend bucket.`,
 			},
 			"enable_cdn": {
 				Type:        schema.TypeBool,
@@ -133,6 +259,18 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(cdnPolicyProp)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
 		obj["cdnPolicy"] = cdnPolicyProp
+	}
+	edgeSecurityPolicyProp, err := expandComputeBackendBucketEdgeSecurityPolicy(d.Get("edge_security_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edge_security_policy"); !isEmptyValue(reflect.ValueOf(edgeSecurityPolicyProp)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
+		obj["edgeSecurityPolicy"] = edgeSecurityPolicyProp
+	}
+	customResponseHeadersProp, err := expandComputeBackendBucketCustomResponseHeaders(d.Get("custom_response_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_response_headers"); !isEmptyValue(reflect.ValueOf(customResponseHeadersProp)) && (ok || !reflect.DeepEqual(v, customResponseHeadersProp)) {
+		obj["customResponseHeaders"] = customResponseHeadersProp
 	}
 	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -194,6 +332,26 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error waiting to create BackendBucket: %s", err)
 	}
 
+	// security_policy isn't set by Create / Update
+	if o, n := d.GetChange("edge_security_policy"); o.(string) != n.(string) {
+		pol, err := ParseSecurityPolicyFieldValue(n.(string), d, config)
+		if err != nil {
+			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
+		}
+
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		op, err := config.NewComputeClient(userAgent).BackendBuckets.SetEdgeSecurityPolicy(project, obj["name"].(string), spr).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
+		}
+		// This uses the create timeout for simplicity, though technically this code appears in both create and update
+		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
+		if waitErr != nil {
+			return waitErr
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating BackendBucket %q: %#v", d.Id(), res)
 
 	return resourceComputeBackendBucketRead(d, meta)
@@ -237,6 +395,12 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
 	if err := d.Set("cdn_policy", flattenComputeBackendBucketCdnPolicy(res["cdnPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("edge_security_policy", flattenComputeBackendBucketEdgeSecurityPolicy(res["edgeSecurityPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("custom_response_headers", flattenComputeBackendBucketCustomResponseHeaders(res["customResponseHeaders"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
@@ -286,6 +450,18 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
 		obj["cdnPolicy"] = cdnPolicyProp
 	}
+	edgeSecurityPolicyProp, err := expandComputeBackendBucketEdgeSecurityPolicy(d.Get("edge_security_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edge_security_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
+		obj["edgeSecurityPolicy"] = edgeSecurityPolicyProp
+	}
+	customResponseHeadersProp, err := expandComputeBackendBucketCustomResponseHeaders(d.Get("custom_response_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_response_headers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customResponseHeadersProp)) {
+		obj["customResponseHeaders"] = customResponseHeadersProp
+	}
 	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -333,6 +509,25 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	// security_policy isn't set by Create / Update
+	if o, n := d.GetChange("edge_security_policy"); o.(string) != n.(string) {
+		pol, err := ParseSecurityPolicyFieldValue(n.(string), d, config)
+		if err != nil {
+			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
+		}
+
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		op, err := config.NewComputeClient(userAgent).BackendBuckets.SetEdgeSecurityPolicy(project, obj["name"].(string), spr).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
+		}
+		// This uses the create timeout for simplicity, though technically this code appears in both create and update
+		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
+		if waitErr != nil {
+			return waitErr
+		}
+	}
 	return resourceComputeBackendBucketRead(d, meta)
 }
 
@@ -414,14 +609,57 @@ func flattenComputeBackendBucketCdnPolicy(v interface{}, d *schema.ResourceData,
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["cache_key_policy"] =
+		flattenComputeBackendBucketCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
 	transformed["signed_url_cache_max_age_sec"] =
 		flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
+	transformed["default_ttl"] =
+		flattenComputeBackendBucketCdnPolicyDefaultTtl(original["defaultTtl"], d, config)
+	transformed["max_ttl"] =
+		flattenComputeBackendBucketCdnPolicyMaxTtl(original["maxTtl"], d, config)
+	transformed["client_ttl"] =
+		flattenComputeBackendBucketCdnPolicyClientTtl(original["clientTtl"], d, config)
+	transformed["negative_caching"] =
+		flattenComputeBackendBucketCdnPolicyNegativeCaching(original["negativeCaching"], d, config)
+	transformed["negative_caching_policy"] =
+		flattenComputeBackendBucketCdnPolicyNegativeCachingPolicy(original["negativeCachingPolicy"], d, config)
+	transformed["cache_mode"] =
+		flattenComputeBackendBucketCdnPolicyCacheMode(original["cacheMode"], d, config)
+	transformed["serve_while_stale"] =
+		flattenComputeBackendBucketCdnPolicyServeWhileStale(original["serveWhileStale"], d, config)
+	transformed["request_coalescing"] =
+		flattenComputeBackendBucketCdnPolicyRequestCoalescing(original["requestCoalescing"], d, config)
+	transformed["bypass_cache_on_request_headers"] =
+		flattenComputeBackendBucketCdnPolicyBypassCacheOnRequestHeaders(original["bypassCacheOnRequestHeaders"], d, config)
 	return []interface{}{transformed}
 }
+func flattenComputeBackendBucketCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["query_string_whitelist"] =
+		flattenComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
+	transformed["include_http_headers"] =
+		flattenComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(original["includeHttpHeaders"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -433,6 +671,169 @@ func flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, 
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendBucketCdnPolicyDefaultTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendBucketCdnPolicyMaxTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendBucketCdnPolicyClientTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendBucketCdnPolicyNegativeCaching(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendBucketCdnPolicyNegativeCachingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"code": flattenComputeBackendBucketCdnPolicyNegativeCachingPolicyCode(original["code"], d, config),
+			"ttl":  flattenComputeBackendBucketCdnPolicyNegativeCachingPolicyTtl(original["ttl"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeBackendBucketCdnPolicyNegativeCachingPolicyCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendBucketCdnPolicyNegativeCachingPolicyTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendBucketCdnPolicyCacheMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendBucketCdnPolicyServeWhileStale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendBucketCdnPolicyRequestCoalescing(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendBucketCdnPolicyBypassCacheOnRequestHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"header_name": flattenComputeBackendBucketCdnPolicyBypassCacheOnRequestHeadersHeaderName(original["headerName"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeBackendBucketCdnPolicyBypassCacheOnRequestHeadersHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendBucketEdgeSecurityPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendBucketCustomResponseHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenComputeBackendBucketCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -464,17 +865,220 @@ func expandComputeBackendBucketCdnPolicy(v interface{}, d TerraformResourceData,
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedCacheKeyPolicy, err := expandComputeBackendBucketCdnPolicyCacheKeyPolicy(original["cache_key_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["cacheKeyPolicy"] = transformedCacheKeyPolicy
+	}
+
 	transformedSignedUrlCacheMaxAgeSec, err := expandComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(original["signed_url_cache_max_age_sec"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignedUrlCacheMaxAgeSec); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["signedUrlCacheMaxAgeSec"] = transformedSignedUrlCacheMaxAgeSec
+	}
+
+	transformedDefaultTtl, err := expandComputeBackendBucketCdnPolicyDefaultTtl(original["default_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["defaultTtl"] = transformedDefaultTtl
+	}
+
+	transformedMaxTtl, err := expandComputeBackendBucketCdnPolicyMaxTtl(original["max_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxTtl"] = transformedMaxTtl
+	}
+
+	transformedClientTtl, err := expandComputeBackendBucketCdnPolicyClientTtl(original["client_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["clientTtl"] = transformedClientTtl
+	}
+
+	transformedNegativeCaching, err := expandComputeBackendBucketCdnPolicyNegativeCaching(original["negative_caching"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["negativeCaching"] = transformedNegativeCaching
+	}
+
+	transformedNegativeCachingPolicy, err := expandComputeBackendBucketCdnPolicyNegativeCachingPolicy(original["negative_caching_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNegativeCachingPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["negativeCachingPolicy"] = transformedNegativeCachingPolicy
+	}
+
+	transformedCacheMode, err := expandComputeBackendBucketCdnPolicyCacheMode(original["cache_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["cacheMode"] = transformedCacheMode
+	}
+
+	transformedServeWhileStale, err := expandComputeBackendBucketCdnPolicyServeWhileStale(original["serve_while_stale"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["serveWhileStale"] = transformedServeWhileStale
+	}
+
+	transformedRequestCoalescing, err := expandComputeBackendBucketCdnPolicyRequestCoalescing(original["request_coalescing"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["requestCoalescing"] = transformedRequestCoalescing
+	}
+
+	transformedBypassCacheOnRequestHeaders, err := expandComputeBackendBucketCdnPolicyBypassCacheOnRequestHeaders(original["bypass_cache_on_request_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBypassCacheOnRequestHeaders); val.IsValid() && !isEmptyValue(val) {
+		transformed["bypassCacheOnRequestHeaders"] = transformedBypassCacheOnRequestHeaders
 	}
 
 	return transformed, nil
 }
 
+func expandComputeBackendBucketCdnPolicyCacheKeyPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQueryStringWhitelist, err := expandComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["query_string_whitelist"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
+	}
+
+	transformedIncludeHttpHeaders, err := expandComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(original["include_http_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeHttpHeaders"] = transformedIncludeHttpHeaders
+	}
+
+	return transformed, nil
+}
+
+func expandComputeBackendBucketCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyCacheKeyPolicyIncludeHttpHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyDefaultTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyMaxTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyClientTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyNegativeCaching(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyNegativeCachingPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedCode, err := expandComputeBackendBucketCdnPolicyNegativeCachingPolicyCode(original["code"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCode); val.IsValid() && !isEmptyValue(val) {
+			transformed["code"] = transformedCode
+		}
+
+		transformedTtl, err := expandComputeBackendBucketCdnPolicyNegativeCachingPolicyTtl(original["ttl"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["ttl"] = transformedTtl
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeBackendBucketCdnPolicyNegativeCachingPolicyCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyNegativeCachingPolicyTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyCacheMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyServeWhileStale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyRequestCoalescing(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCdnPolicyBypassCacheOnRequestHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHeaderName, err := expandComputeBackendBucketCdnPolicyBypassCacheOnRequestHeadersHeaderName(original["header_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+			transformed["headerName"] = transformedHeaderName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeBackendBucketCdnPolicyBypassCacheOnRequestHeadersHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketEdgeSecurityPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketCustomResponseHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

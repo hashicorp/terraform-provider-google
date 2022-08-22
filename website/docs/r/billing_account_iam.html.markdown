@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Billing"
-layout: "google"
 page_title: "Google: google_billing_account_iam"
-sidebar_current: "docs-google-billing-account-iam"
 description: |-
  Collection of resources to manage IAM policy for a Billing Account.
 ---
@@ -19,7 +17,7 @@ Three different resources help you manage IAM policies on billing accounts. Each
 
 ~> **Note:** `google_billing_account_iam_binding` resources **can be** used in conjunction with `google_billing_account_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_billing_\_account\_iam\_policy
+## google\_billing\_account\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -37,7 +35,7 @@ resource "google_billing_account_iam_policy" "editor" {
 }
 ```
 
-## google\_billing\_account_\_iam\_binding
+## google\_billing\_account\_iam\_binding
 
 ```hcl
 resource "google_billing_account_iam_binding" "editor" {

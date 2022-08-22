@@ -60,6 +60,7 @@ data "google_service_account_access_token" "default" {
 
 output "access_token" {
   value = data.google_service_account_access_token.default.access_token
+  sensitive = true
 }
 `, targetServiceAccountID)
 }

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_network_endpoint_group"
-sidebar_current: "docs-google-compute-region-network-endpoint-group"
 description: |-
   A regional NEG that can support Serverless Products.
 ---
@@ -68,13 +66,14 @@ resource "google_cloudfunctions_function" "function_neg" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name       = "cloudfunctions-function-example-bucket"
+  name     = "cloudfunctions-function-example-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" { 
-  name       = "index.zip"
-  bucket     = google_storage_bucket.bucket.name
-  source     = "path/to/index.zip"
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "path/to/index.zip"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -136,7 +135,7 @@ resource "google_compute_region_network_endpoint_group" "appengine_neg" {
 
 resource "google_app_engine_flexible_app_version" "appengine_neg" {
   version_id = "v1"
-  service    = "default"
+  service    = "appengine-network-endpoint-group"
   runtime    = "nodejs"
 
   entrypoint {
@@ -184,13 +183,108 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
 }
 
 resource "google_storage_bucket" "appengine_neg" {
-  name       = "appengine-neg"
+  name     = "appengine-neg"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "appengine_neg" {
-  name      = "hello-world.zip"
-  bucket    = google_storage_bucket.appengine_neg.name
-  source    = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.appengine_neg.name
+  source = "./test-fixtures/appengine/hello-world.zip"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_network_endpoint_group_psc&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Endpoint Group Psc
+
+
+```hcl
+resource "google_compute_region_network_endpoint_group" "psc_neg" {
+  name                  = "psc-neg"
+  region                = "asia-northeast3"
+
+  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
+  psc_target_service    = "asia-northeast3-cloudkms.googleapis.com"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_network_endpoint_group_psc_service_attachment&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Endpoint Group Psc Service Attachment
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name = "psc-network"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "psc-subnetwork"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "europe-west4"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "psc_subnetwork" {
+  name          = "psc-subnetwork-nat"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "europe-west4"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_health_check" "default" {
+  name = "psc-healthcheck"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+resource "google_compute_region_backend_service" "default" {
+  name   = "psc-backend"
+  region = "europe-west4"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name   = "psc-forwarding-rule"
+  region = "europe-west4"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.default.id
+  all_ports             = true
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
+}
+
+resource "google_compute_service_attachment" "default" {
+  name        = "psc-service-attachment"
+  region      = "europe-west4"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_AUTOMATIC"
+  nat_subnets           = [google_compute_subnetwork.psc_subnetwork.self_link]
+  target_service        = google_compute_forwarding_rule.default.self_link
+}
+
+resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachment" {
+  name                  = "psc-neg"
+  region                = "europe-west4"
+
+  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
+  psc_target_service    = google_compute_service_attachment.default.self_link
+
+  network               = google_compute_network.default.self_link
+  subnetwork            = google_compute_subnetwork.default.self_link
 }
 ```
 
@@ -226,31 +320,53 @@ The following arguments are supported:
   (Optional)
   Type of network endpoints in this network endpoint group. Defaults to SERVERLESS
   Default value is `SERVERLESS`.
-  Possible values are `SERVERLESS`.
+  Possible values are `SERVERLESS` and `PRIVATE_SERVICE_CONNECT`.
+
+* `psc_target_service` -
+  (Optional)
+  The target service url used to set up private service connection to
+  a Google API or a PSC Producer Service Attachment.
+
+* `network` -
+  (Optional)
+  This field is only used for PSC.
+  The URL of the network to which all network endpoints in the NEG belong. Uses
+  "default" project network if unspecified.
+
+* `subnetwork` -
+  (Optional)
+  This field is only used for PSC.
+  Optional URL of the subnetwork to which all network endpoints in the NEG belong.
 
 * `cloud_run` -
   (Optional)
   Only valid when networkEndpointType is "SERVERLESS".
-  Only one of cloud_run, app_engine or cloud_function may be set.
-  Structure is documented below.
+  Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.
+  Structure is [documented below](#nested_cloud_run).
 
 * `app_engine` -
   (Optional)
   Only valid when networkEndpointType is "SERVERLESS".
-  Only one of cloud_run, app_engine or cloud_function may be set.
-  Structure is documented below.
+  Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.
+  Structure is [documented below](#nested_app_engine).
 
 * `cloud_function` -
   (Optional)
   Only valid when networkEndpointType is "SERVERLESS".
-  Only one of cloud_run, app_engine or cloud_function may be set.
-  Structure is documented below.
+  Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.
+  Structure is [documented below](#nested_cloud_function).
+
+* `serverless_deployment` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Only valid when networkEndpointType is "SERVERLESS".
+  Only one of cloudRun, appEngine, cloudFunction or serverlessDeployment may be set.
+  Structure is [documented below](#nested_serverless_deployment).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `cloud_run` block supports:
+<a name="nested_cloud_run"></a>The `cloud_run` block supports:
 
 * `service` -
   (Optional)
@@ -267,15 +383,15 @@ The `cloud_run` block supports:
 
 * `url_mask` -
   (Optional)
-  A template to parse service and tag fields from a request URL. 
-  URL mask allows for routing to multiple Run services without having 
+  A template to parse service and tag fields from a request URL.
+  URL mask allows for routing to multiple Run services without having
   to create multiple network endpoint groups and backend services.
-  For example, request URLs "foo1.domain.com/bar1" and "foo1.domain.com/bar2" 
-  an be backed by the same Serverless Network Endpoint Group (NEG) with 
-  URL mask ".domain.com/". The URL mask will parse them to { service="bar1", tag="foo1" } 
+  For example, request URLs "foo1.domain.com/bar1" and "foo1.domain.com/bar2"
+  an be backed by the same Serverless Network Endpoint Group (NEG) with
+  URL mask ".domain.com/". The URL mask will parse them to { service="bar1", tag="foo1" }
   and { service="bar2", tag="foo2" } respectively.
 
-The `app_engine` block supports:
+<a name="nested_app_engine"></a>The `app_engine` block supports:
 
 * `service` -
   (Optional)
@@ -299,7 +415,7 @@ The `app_engine` block supports:
   URL mask "-dot-appname.appspot.com/". The URL mask will parse
   them to { service = "foo1", version = "v1" } and { service = "foo1", version = "v2" } respectively.
 
-The `cloud_function` block supports:
+<a name="nested_cloud_function"></a>The `cloud_function` block supports:
 
 * `function` -
   (Optional)
@@ -316,6 +432,31 @@ The `cloud_function` block supports:
   can be backed by the same Serverless NEG with URL mask "/". The URL mask
   will parse them to { function = "function1" } and { function = "function2" } respectively.
 
+<a name="nested_serverless_deployment"></a>The `serverless_deployment` block supports:
+
+* `platform` -
+  (Required)
+  The platform of the NEG backend target(s). Possible values:
+  API Gateway: apigateway.googleapis.com
+
+* `resource` -
+  (Optional)
+  The user-defined name of the workload/instance. This value must be provided explicitly or in the urlMask.
+  The resource identified by this value is platform-specific and is as follows: API Gateway: The gateway ID, App Engine: The service name,
+  Cloud Functions: The function name, Cloud Run: The service name
+
+* `version` -
+  (Optional)
+  The optional resource version. The version identified by this value is platform-specific and is follows:
+  API Gateway: Unused, App Engine: The service version, Cloud Functions: Unused, Cloud Run: The service tag
+
+* `url_mask` -
+  (Optional)
+  A template to parse platform-specific fields from a request URL. URL mask allows for routing to multiple resources
+  on the same serverless platform without having to create multiple Network Endpoint Groups and backend resources.
+  The fields parsed by this template are platform-specific and are as follows: API Gateway: The gateway ID,
+  App Engine: The service and version, Cloud Functions: The function name, Cloud Run: The service and tag
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -329,8 +470,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

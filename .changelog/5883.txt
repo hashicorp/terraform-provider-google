@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed url_mask required mis-annotation in `google_compute_region_network_endpoint_group`, making it optional
+```

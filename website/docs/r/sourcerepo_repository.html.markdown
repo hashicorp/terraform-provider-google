@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Source Repositories"
-layout: "google"
 page_title: "Google: google_sourcerepo_repository"
-sidebar_current: "docs-google-sourcerepo-repository"
 description: |-
   A repository (or repo) is a Git repository storing versioned source content.
 ---
@@ -53,7 +51,7 @@ resource "google_sourcerepo_repository" "my-repo" {
 
 
 ```hcl
-resource "google_service_account" "test-account" {
+resource "google_service_account" "test_account" {
   account_id   = "my-account"
   display_name = "Test Service Account"
 }
@@ -67,7 +65,7 @@ resource "google_sourcerepo_repository" "my-repo" {
   pubsub_configs {
       topic = google_pubsub_topic.topic.id
       message_format = "JSON"
-      service_account_email = google_service_account.test-account.email
+      service_account_email = google_service_account.test_account.email
   }
 }
 ```
@@ -90,13 +88,13 @@ The following arguments are supported:
   (Optional)
   How this repository publishes a change in the repository through Cloud Pub/Sub. 
   Keyed by the topic names.
-  Structure is documented below.
+  Structure is [documented below](#nested_pubsub_configs).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `pubsub_configs` block supports:
+<a name="nested_pubsub_configs"></a>The `pubsub_configs` block supports:
 
 * `topic` - (Required) The identifier for this object. Format specified above.
 
@@ -132,9 +130,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -255,29 +255,6 @@ func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
 	})
 }
 
-func TestAccComputeBackendService_withCdnPolicy(t *testing.T) {
-	t.Parallel()
-
-	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeBackendService_withCdnPolicy(serviceName, checkName),
-			},
-			{
-				ResourceName:      "google_compute_backend_service.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -535,7 +512,40 @@ func TestAccComputeBackendService_withMaxConnectionsPerEndpoint(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendService_withCustomHeaders(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withCustomHeaders(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_basic(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeBackendService_internalLoadBalancing(t *testing.T) {
+	// Instance template uses UniqueId in some cases
+	skipIfVcr(t)
 	t.Parallel()
 
 	fr := fmt.Sprintf("forwardrule-test-%s", randString(t, 10))
@@ -573,7 +583,7 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.7),
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.7, true),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -581,7 +591,31 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.4),
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.4, true),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.4, false),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfig2(serviceName, checkName, false),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.7, false),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -740,7 +774,7 @@ func testAccComputeBackendService_withBackend(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -764,7 +798,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -797,7 +831,7 @@ func testAccComputeBackendService_withBackendAndMaxUtilization(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -822,7 +856,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -855,7 +889,7 @@ func testAccComputeBackendService_withBackendAndIAP(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -884,7 +918,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -984,31 +1018,6 @@ resource "google_compute_https_health_check" "zero" {
 `, serviceName, checkName)
 }
 
-func testAccComputeBackendService_withCdnPolicy(serviceName, checkName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_backend_service" "foobar" {
-  name          = "%s"
-  health_checks = [google_compute_http_health_check.zero.self_link]
-
-  cdn_policy {
-    cache_key_policy {
-      include_protocol       = true
-      include_host           = true
-      include_query_string   = true
-      query_string_whitelist = ["foo", "bar"]
-    }
-  }
-}
-
-resource "google_compute_http_health_check" "zero" {
-  name               = "%s"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
-}
-`, serviceName, checkName)
-}
-
 func testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, polLink string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -1035,7 +1044,7 @@ func testAccComputeBackendService_withMaxConnections(
 	serviceName, igName, itName, checkName string, maxConnections int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1059,7 +1068,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -1092,7 +1101,7 @@ func testAccComputeBackendService_withMaxConnectionsPerInstance(
 	serviceName, igName, itName, checkName string, maxConnectionsPerInstance int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1116,7 +1125,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -1164,7 +1173,7 @@ resource "google_compute_backend_service" "lipsum" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1242,7 +1251,7 @@ resource "google_compute_backend_service" "lipsum" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1305,6 +1314,25 @@ resource "google_compute_health_check" "default" {
 `, service, maxRate, instance, neg, network, network, check)
 }
 
+func testAccComputeBackendService_withCustomHeaders(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  custom_request_headers = ["Client-Region: {client_region}", "Client-Rtt: {client_rtt_msec}"]
+  custom_response_headers = ["X-Cache-Hit: {cdn_cache_status}", "X-Cache-Id: {cdn_cache_id}"]
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
+}
+
 func testAccComputeBackendService_internalLoadBalancing(fr, proxy, backend, hc, urlmap string) string {
 	return fmt.Sprintf(`
 resource "google_compute_global_forwarding_rule" "forwarding_rule" {
@@ -1319,6 +1347,7 @@ resource "google_compute_target_http_proxy" "default" {
   name        = "%s"
   description = "a description"
   url_map     = google_compute_url_map.default.self_link
+  proxy_bind  = true
 }
 
 resource "google_compute_backend_service" "backend_service" {
@@ -1370,7 +1399,7 @@ resource "google_compute_url_map" "default" {
 }
 
 data "google_compute_image" "debian_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1380,13 +1409,13 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-template-internal"
+  name_prefix  = "tf-test-"
   machine_type = "e2-medium"
 
   network_interface {
@@ -1402,14 +1431,14 @@ resource "google_compute_instance_template" "foobar" {
 `, fr, proxy, backend, hc, urlmap)
 }
 
-func testAccComputeBackendService_withLogConfig(serviceName, checkName string, sampleRate float64) string {
+func testAccComputeBackendService_withLogConfig(serviceName, checkName string, sampleRate float64, enabled bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name          = "%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 
   log_config {
-    enable      = true
+    enable      = %t
     sample_rate = %v
   }
 }
@@ -1420,5 +1449,25 @@ resource "google_compute_http_health_check" "zero" {
   check_interval_sec = 1
   timeout_sec        = 1
 }
-`, serviceName, sampleRate, checkName)
+`, serviceName, enabled, sampleRate, checkName)
+}
+
+func testAccComputeBackendService_withLogConfig2(serviceName, checkName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  log_config {
+	enable      = %t
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, enabled, checkName)
 }

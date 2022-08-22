@@ -1,0 +1,6 @@
+```release-note:note
+spanner: `num_nodes` will become a required field in the next major release and a value has to be set on `google_spanner_instance`. It will also conflict with the new field `processing_units`.
+```
+```release-note:enhancement
+spanner: added `processing_units` to `google_spanner_instance`.     
+```

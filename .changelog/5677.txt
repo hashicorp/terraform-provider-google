@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: updated `containers.ports.container_port` to be optional instead of required on `google_cloud_run_service`
+```

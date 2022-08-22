@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added gVNIC support for `google_compute_instance_template`
+```

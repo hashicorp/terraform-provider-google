@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_bucket_access_control"
-sidebar_current: "docs-google-storage-bucket-access-control"
 description: |-
   Bucket ACLs can be managed authoritatively using the
   [`storage_bucket_acl`](https://www.
@@ -64,7 +62,8 @@ resource "google_storage_bucket_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "static-content-bucket"
+  name     = "static-content-bucket"
+  location = "US"
 }
 ```
 
@@ -123,9 +122,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

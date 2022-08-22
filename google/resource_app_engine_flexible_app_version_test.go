@@ -26,7 +26,7 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 				ResourceName:            "google_app_engine_flexible_app_version.foo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"env_variables", "deployment.0.files", "entrypoint", "service", "noop_on_destroy"},
 			},
 			{
 				Config: testAccAppEngineFlexibleAppVersion_pythonUpdate(context),
@@ -35,7 +35,7 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 				ResourceName:            "google_app_engine_flexible_app_version.foo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"env_variables", "deployment.0.files", "entrypoint", "service", "noop_on_destroy"},
 			},
 		},
 	})
@@ -130,8 +130,9 @@ resource "google_app_engine_flexible_app_version" "foo" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-%{random_suffix}-flex-ae-bucket"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-%{random_suffix}-flex-ae-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "yaml" {
@@ -242,8 +243,9 @@ resource "google_app_engine_flexible_app_version" "foo" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-%{random_suffix}-flex-ae-bucket"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-%{random_suffix}-flex-ae-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "yaml" {

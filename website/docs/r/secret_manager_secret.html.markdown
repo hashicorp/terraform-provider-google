@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Secret Manager"
-layout: "google"
 page_title: "Google: google_secret_manager_secret"
-sidebar_current: "docs-google-secret-manager-secret"
 description: |-
   A Secret is a logical secret whose value and versions can be accessed.
 ---
@@ -67,14 +65,14 @@ The following arguments are supported:
   (Required)
   The replication policy of the secret data attached to the Secret. It cannot be changed
   after the Secret has been created.
-  Structure is documented below.
+  Structure is [documented below](#nested_replication).
 
 * `secret_id` -
   (Required)
   This must be unique within the project.
 
 
-The `replication` block supports:
+<a name="nested_replication"></a>The `replication` block supports:
 
 * `automatic` -
   (Optional)
@@ -83,22 +81,34 @@ The `replication` block supports:
 * `user_managed` -
   (Optional)
   The Secret will automatically be replicated without any restrictions.
-  Structure is documented below.
+  Structure is [documented below](#nested_user_managed).
 
 
-The `user_managed` block supports:
+<a name="nested_user_managed"></a>The `user_managed` block supports:
 
 * `replicas` -
   (Required)
   The list of Replicas for this Secret. Cannot be empty.
-  Structure is documented below.
+  Structure is [documented below](#nested_replicas).
 
 
-The `replicas` block supports:
+<a name="nested_replicas"></a>The `replicas` block supports:
 
 * `location` -
   (Required)
   The canonical IDs of the location to replicate data. For example: "us-east1".
+
+* `customer_managed_encryption` -
+  (Optional)
+  Customer Managed Encryption for the secret.
+  Structure is [documented below](#nested_customer_managed_encryption).
+
+
+<a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Describes the Cloud KMS encryption key that will be used to protect destination secret.
 
 - - -
 
@@ -114,9 +124,48 @@ The `replicas` block supports:
   An object containing a list of "key": value pairs. Example:
   { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
+* `topics` -
+  (Optional)
+  A list of up to 10 Pub/Sub topics to which messages are published when control plane operations are called on the secret or its versions.
+  Structure is [documented below](#nested_topics).
+
+* `expire_time` -
+  (Optional)
+  Timestamp in UTC when the Secret is scheduled to expire. This is always provided on output, regardless of what was sent on input.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `ttl` -
+  (Optional)
+  The TTL for the Secret.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `rotation` -
+  (Optional)
+  The rotation time and period for a Secret. At `next_rotation_time`, Secret Manager will send a Pub/Sub notification to the topics configured on the Secret. `topics` must be set to configure rotation.
+  Structure is [documented below](#nested_rotation).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_topics"></a>The `topics` block supports:
+
+* `name` -
+  (Required)
+  The resource name of the Pub/Sub topic that will be published to, in the following format: projects/*/topics/*.
+  For publication to succeed, the Secret Manager Service Agent service account must have pubsub.publisher permissions on the topic.
+
+<a name="nested_rotation"></a>The `rotation` block supports:
+
+* `next_rotation_time` -
+  (Optional)
+  Timestamp in UTC at which the Secret is scheduled to rotate.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `rotation_period` -
+  (Optional)
+  The Duration between rotation notifications. Must be in seconds and at least 3600s (1h) and at most 3153600000s (100 years).
+  If rotationPeriod is set, `next_rotation_time` must be set. `next_rotation_time` will be advanced by this period when the service automatically sends rotation notifications.
 
 ## Attributes Reference
 
@@ -137,9 +186,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

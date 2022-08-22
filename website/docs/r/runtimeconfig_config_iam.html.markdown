@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Runtime Configurator"
-layout: "google"
 page_title: "Google: google_runtimeconfig_config_iam"
-sidebar_current: "docs-google-runtimeconfig-config-iam"
 description: |-
   Collection of resources to manage IAM policy for Runtime Configurator Config
 ---
@@ -32,12 +30,15 @@ Three different resources help you manage your IAM policy for Runtime Configurat
 ~> **Note:** `google_runtimeconfig_config_iam_binding` resources **can be** used in conjunction with `google_runtimeconfig_config_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## google\_runtimeconfig\_config\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -47,6 +48,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_runtimeconfig_config_iam_policy" "policy" {
+  provider = google-beta
   project = google_runtimeconfig_config.config.project
   config = google_runtimeconfig_config.config.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -57,6 +59,7 @@ resource "google_runtimeconfig_config_iam_policy" "policy" {
 
 ```hcl
 resource "google_runtimeconfig_config_iam_binding" "binding" {
+  provider = google-beta
   project = google_runtimeconfig_config.config.project
   config = google_runtimeconfig_config.config.name
   role = "roles/viewer"
@@ -70,6 +73,7 @@ resource "google_runtimeconfig_config_iam_binding" "binding" {
 
 ```hcl
 resource "google_runtimeconfig_config_iam_member" "member" {
+  provider = google-beta
   project = google_runtimeconfig_config.config.project
   config = google_runtimeconfig_config.config.name
   role = "roles/viewer"
@@ -94,6 +98,9 @@ The following arguments are supported:
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
+  * **projectOwner:projectid**: Owners of the given project. For example, "projectOwner:my-example-project"
+  * **projectEditor:projectid**: Editors of the given project. For example, "projectEditor:my-example-project"
+  * **projectViewer:projectid**: Viewers of the given project. For example, "projectViewer:my-example-project"
 
 * `role` - (Required) The role that should be applied. Only one
     `google_runtimeconfig_config_iam_binding` can be used per role. Note that custom roles must be of the format

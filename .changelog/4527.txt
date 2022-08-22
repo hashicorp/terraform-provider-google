@@ -1,0 +1,3 @@
+```release-note:bug
+essentialcontacts: set `language_tag` to required for `google_essential_contacts_contact`
+```

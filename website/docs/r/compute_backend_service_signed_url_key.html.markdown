@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_backend_service_signed_url_key"
-sidebar_current: "docs-google-compute-backend-service-signed-url-key"
 description: |-
   A key for signing Cloud CDN signed URLs for Backend Services.
 ---
@@ -32,7 +30,7 @@ To get more information about BackendServiceSignedUrlKey, see:
     * [Using Signed URLs](https://cloud.google.com/cdn/docs/using-signed-urls/)
 
 ~> **Warning:** All arguments including `key_value` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Backend Service Signed Url Key
 
@@ -85,7 +83,7 @@ resource "google_compute_instance_template" "webserver" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-9"
+    source_image = "debian-cloud/debian-11"
     auto_delete  = true
     boot         = true
   }
@@ -138,8 +136,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

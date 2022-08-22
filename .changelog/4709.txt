@@ -1,0 +1,3 @@
+```release-note:new_resource
+`google_memcache_instance`
+```

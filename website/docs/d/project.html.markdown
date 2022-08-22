@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_project"
-sidebar_current: "docs-google-datasource-project"
 description: |-
   Retrieve project details
 ---
@@ -34,6 +32,8 @@ The following arguments are supported:
 ## Attributes Reference
 
 The following attributes are exported:
+
+* `number` - The numeric identifier of the project.
 
 See [google_project](https://www.terraform.io/docs/providers/google/r/google_project.html) resource for details of the available attributes.
 

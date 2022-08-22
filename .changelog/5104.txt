@@ -1,0 +1,3 @@
+```release-note:bug
+apigateway: fixed import functionality for all `apigateway` resources
+```

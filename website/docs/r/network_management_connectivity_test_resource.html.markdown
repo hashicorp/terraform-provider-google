@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "NetworkManagement"
-layout: "google"
 page_title: "Google: google_network_management_connectivity_test"
-sidebar_current: "docs-google-network-management-connectivity-test"
 description: |-
   A connectivity test are a static analysis of your resource configurations
   that enables you to evaluate connectivity to and from Google Cloud
@@ -96,7 +94,7 @@ resource "google_compute_network" "vpc" {
 }
 
 data "google_compute_image" "debian_9" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 ```
@@ -184,7 +182,7 @@ The following arguments are supported:
   A reachability analysis proceeds even if the source location is
   ambiguous. However, the test result may include endpoints that
   you don't intend to test.
-  Structure is documented below.
+  Structure is [documented below](#nested_source).
 
 * `destination` -
   (Required)
@@ -202,10 +200,10 @@ The following arguments are supported:
   A reachability analysis proceeds even if the destination location
   is ambiguous. However, the result can include endpoints that you
   don't intend to test.
-  Structure is documented below.
+  Structure is [documented below](#nested_destination).
 
 
-The `source` block supports:
+<a name="nested_source"></a>The `source` block supports:
 
 * `ip_address` -
   (Optional)
@@ -243,7 +241,7 @@ The `source` block supports:
      the network that the IP address resides in is defined in the
      host project.
 
-The `destination` block supports:
+<a name="nested_destination"></a>The `destination` block supports:
 
 * `ip_address` -
   (Optional)
@@ -313,9 +311,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

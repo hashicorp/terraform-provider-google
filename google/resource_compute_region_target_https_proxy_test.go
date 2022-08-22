@@ -50,12 +50,14 @@ resource "google_compute_region_backend_service" "foobar1" {
   name          = "httpsproxy-test-backend1-%s"
   health_checks = [google_compute_region_health_check.zero.self_link]
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_backend_service" "foobar2" {
   name          = "httpsproxy-test-backend2-%s"
   health_checks = [google_compute_region_health_check.one.self_link]
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_health_check" "zero" {
@@ -148,12 +150,14 @@ resource "google_compute_region_backend_service" "foobar1" {
   name          = "httpsproxy-test-backend1-%s"
   health_checks = [google_compute_region_health_check.zero.self_link]
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_backend_service" "foobar2" {
   name          = "httpsproxy-test-backend2-%s"
   health_checks = [google_compute_region_health_check.one.self_link]
   protocol      = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_health_check" "zero" {

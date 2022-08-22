@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -141,12 +140,22 @@ func diskImageEquals(oldImageName, newImageName string) bool {
 
 func diskImageFamilyEquals(imageName, familyName string) bool {
 	// Handles the case when the image name includes the family name
-	// e.g. image name: debian-9-drawfork-v20180109, family name: debian-9
-	if strings.Contains(imageName, familyName) {
-		return true
+	// e.g. image name: debian-11-bullseye-v20220719, family name: debian-11
+	// We have to check for arm64 because of cases like:
+	// image name: opensuse-leap-15-4-v20220713-arm64, family name: opensuse-leap (should not suppress)
+	if strings.Contains(imageName, strings.TrimSuffix(familyName, "-arm64")) {
+		if strings.Contains(imageName, "-arm64") {
+			return strings.HasSuffix(familyName, "-arm64")
+		} else {
+			return !strings.HasSuffix(familyName, "-arm64")
+		}
 	}
 
 	if suppressCanonicalFamilyDiff(imageName, familyName) {
+		return true
+	}
+
+	if suppressCosFamilyDiff(imageName, familyName) {
 		return true
 	}
 
@@ -164,8 +173,26 @@ func diskImageFamilyEquals(imageName, familyName string) bool {
 // e.g. image: ubuntu-1404-trusty-v20180122, family: ubuntu-1404-lts
 func suppressCanonicalFamilyDiff(imageName, familyName string) bool {
 	parts := canonicalUbuntuLtsImage.FindStringSubmatch(imageName)
-	if len(parts) == 3 {
-		f := fmt.Sprintf("ubuntu-%s%s-lts", parts[1], parts[2])
+	if len(parts) == 4 {
+		var f string
+		if parts[3] == "" {
+			f = fmt.Sprintf("ubuntu-%s%s-lts", parts[1], parts[2])
+		} else {
+			f = fmt.Sprintf("ubuntu-%s%s-lts-%s", parts[1], parts[2], parts[3])
+		}
+		if f == familyName {
+			return true
+		}
+	}
+
+	return false
+}
+
+// e.g. image: cos-NN-*, family: cos-NN-lts
+func suppressCosFamilyDiff(imageName, familyName string) bool {
+	parts := cosLtsImage.FindStringSubmatch(imageName)
+	if len(parts) == 2 {
+		f := fmt.Sprintf("cos-%s-lts", parts[1])
 		if f == familyName {
 			return true
 		}
@@ -231,9 +258,9 @@ func resourceComputeDisk() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -345,6 +372,13 @@ are 4096 and 16384, other sizes may be added in the future.
 If an unsupported value is requested, the error message will list
 the supported values for the caller's project.`,
 			},
+			"provisioned_iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Indicates how many IOPS must be provisioned for the disk.`,
+			},
 			"size": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -356,7 +390,12 @@ persistent disk.
 
 If you specify this field along with 'image' or 'snapshot',
 the value must not be less than the size of the image
-or the size of the snapshot.`,
+or the size of the snapshot.
+
+~>**NOTE** If you change the size, Terraform updates the disk size
+if upsizing is detected but recreates the disk if downsizing is requested.
+You can add 'lifecycle.prevent_destroy' in the config to prevent destroying
+and recreating.`,
 			},
 			"snapshot": {
 				Type:             schema.TypeString,
@@ -441,7 +480,7 @@ See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encr
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `The service account used for the encryption request for the given KMS key. 
+							Description: `The service account used for the encryption request for the given KMS key.
 If absent, the Compute Engine Service Agent service account is used.`,
 						},
 						"raw_key": {
@@ -597,6 +636,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("image"); !isEmptyValue(reflect.ValueOf(sourceImageProp)) && (ok || !reflect.DeepEqual(v, sourceImageProp)) {
 		obj["sourceImage"] = sourceImageProp
+	}
+	provisionedIopsProp, err := expandComputeDiskProvisionedIops(d.Get("provisioned_iops"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("provisioned_iops"); !isEmptyValue(reflect.ValueOf(provisionedIopsProp)) && (ok || !reflect.DeepEqual(v, provisionedIopsProp)) {
+		obj["provisionedIops"] = provisionedIopsProp
 	}
 	zoneProp, err := expandComputeDiskZone(d.Get("zone"), d, config)
 	if err != nil {
@@ -760,6 +805,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("image", flattenComputeDiskImage(res["sourceImage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("provisioned_iops", flattenComputeDiskProvisionedIops(res["provisionedIops"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("zone", flattenComputeDiskZone(res["zone"], d, config)); err != nil {
@@ -1038,7 +1086,7 @@ func flattenComputeDiskName(v interface{}, d *schema.ResourceData, config *Confi
 func flattenComputeDiskSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1062,7 +1110,7 @@ func flattenComputeDiskUsers(v interface{}, d *schema.ResourceData, config *Conf
 func flattenComputeDiskPhysicalBlockSizeBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1085,6 +1133,23 @@ func flattenComputeDiskType(v interface{}, d *schema.ResourceData, config *Confi
 
 func flattenComputeDiskImage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeDiskProvisionedIops(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeDiskZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1254,6 +1319,10 @@ func expandComputeDiskType(v interface{}, d TerraformResourceData, config *Confi
 }
 
 func expandComputeDiskImage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskProvisionedIops(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

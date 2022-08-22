@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Added support for image type configuration on the GKE Node Auto-provisioning
+```

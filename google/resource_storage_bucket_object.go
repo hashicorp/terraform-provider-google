@@ -6,12 +6,16 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/base64"
 	"io/ioutil"
+	"net/http"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
@@ -21,7 +25,14 @@ func resourceStorageBucketObject() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageBucketObjectCreate,
 		Read:   resourceStorageBucketObjectRead,
+		Update: resourceStorageBucketObjectUpdate,
 		Delete: resourceStorageBucketObjectDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {
@@ -75,12 +86,12 @@ func resourceStorageBucketObject() *schema.Resource {
 			},
 
 			"content": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"source"},
-				Sensitive:     true,
-				Description:   `Data as string to be uploaded. Must be defined if source is not. Note: The content field is marked as sensitive. To view the raw contents of the object, please define an output.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"source"},
+				Sensitive:    true,
+				Description:  `Data as string to be uploaded. Must be defined if source is not. Note: The content field is marked as sensitive. To view the raw contents of the object, please define an output.`,
 			},
 
 			"crc32c": {
@@ -96,11 +107,11 @@ func resourceStorageBucketObject() *schema.Resource {
 			},
 
 			"source": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"content"},
-				Description:   `A path to the data you want to upload. Must be defined if content is not.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"content"},
+				Description:  `A path to the data you want to upload. Must be defined if content is not.`,
 			},
 
 			// Detect changes to local file or changes made outside of Terraform to the file stored on the server.
@@ -151,6 +162,62 @@ func resourceStorageBucketObject() *schema.Resource {
 				Description: `The StorageClass of the new bucket object. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE. If not provided, this defaults to the bucket's default storage class or to a standard class.`,
 			},
 
+			"kms_key_name": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				Computed:         true,
+				ConflictsWith:    []string{"customer_encryption"},
+				DiffSuppressFunc: compareCryptoKeyVersions,
+				Description:      `Resource name of the Cloud KMS key that will be used to encrypt the object. Overrides the object metadata's kmsKeyName value, if any.`,
+			},
+
+			"customer_encryption": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				Sensitive:     true,
+				ConflictsWith: []string{"kms_key_name"},
+				Description:   `Encryption key; encoded using base64.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"encryption_algorithm": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "AES256",
+							ForceNew:    true,
+							Description: `The encryption algorithm. Default: AES256`,
+						},
+						"encryption_key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Sensitive:   true,
+							Description: `Base64 encoded customer supplied encryption key.`,
+							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+								_, err := base64.StdEncoding.DecodeString(val.(string))
+								if err != nil {
+									errs = append(errs, fmt.Errorf("Failed to decode (base64) customer_encryption, expecting valid base64 encoded key"))
+								}
+								return
+							},
+						},
+					},
+				},
+			},
+
+			"event_based_hold": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether an object is under event-based hold. Event-based hold is a way to retain objects until an event occurs, which is signified by the hold's release (i.e. this value is set to false). After being released (set to false), such objects will be subject to bucket-level retention (if any).`,
+			},
+
+			"temporary_hold": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether an object is under temporary hold. While this flag is set to true, the object is protected against deletion and overwrites.`,
+			},
+
 			"metadata": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -182,8 +249,20 @@ func resourceStorageBucketObject() *schema.Resource {
 	}
 }
 
-func objectGetId(object *storage.Object) string {
+func objectGetID(object *storage.Object) string {
 	return object.Bucket + "-" + object.Name
+}
+
+func compareCryptoKeyVersions(_, old, new string, _ *schema.ResourceData) bool {
+	// The API can return cryptoKeyVersions even though it wasn't specified.
+	// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
+
+	kmsKeyWithoutVersions := strings.Split(old, "/cryptoKeyVersions")[0]
+	if kmsKeyWithoutVersions == new {
+		return true
+	}
+
+	return false
 }
 
 func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{}) error {
@@ -209,7 +288,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
 	}
 
-	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
+	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutCreate)))
 	object := &storage.Object{Bucket: bucket}
 
 	if v, ok := d.GetOk("cache_control"); ok {
@@ -240,9 +319,27 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 		object.StorageClass = v.(string)
 	}
 
+	if v, ok := d.GetOk("kms_key_name"); ok {
+		object.KmsKeyName = v.(string)
+	}
+
+	if v, ok := d.GetOk("event_based_hold"); ok {
+		object.EventBasedHold = v.(bool)
+	}
+
+	if v, ok := d.GetOk("temporary_hold"); ok {
+		object.TemporaryHold = v.(bool)
+	}
+
 	insertCall := objectsService.Insert(bucket, object)
 	insertCall.Name(name)
 	insertCall.Media(media)
+
+	// This is done late as we need to add headers to enable customer encryption
+	if v, ok := d.GetOk("customer_encryption"); ok {
+		customerEncryption := expandCustomerEncryption(v.([]interface{}))
+		setEncryptionHeaders(customerEncryption, insertCall.Header())
+	}
 
 	_, err = insertCall.Do()
 
@@ -251,6 +348,44 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	return resourceStorageBucketObjectRead(d, meta)
+}
+
+func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	bucket := d.Get("bucket").(string)
+	name := d.Get("name").(string)
+
+	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutUpdate)))
+	getCall := objectsService.Get(bucket, name)
+
+	res, err := getCall.Do()
+	if err != nil {
+		return fmt.Errorf("Error retrieving object during update %s: %s", name, err)
+	}
+
+	if d.HasChange("event_based_hold") {
+		v := d.Get("event_based_hold")
+		res.EventBasedHold = v.(bool)
+	}
+
+	if d.HasChange("temporary_hold") {
+		v := d.Get("temporary_hold")
+		res.TemporaryHold = v.(bool)
+	}
+
+	updateCall := objectsService.Update(bucket, name, res)
+	_, err = updateCall.Do()
+
+	if err != nil {
+		return fmt.Errorf("Error updating object %s: %s", name, err)
+	}
+
+	return nil
 }
 
 func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
@@ -263,8 +398,13 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
+	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutRead)))
 	getCall := objectsService.Get(bucket, name)
+
+	if v, ok := d.GetOk("customer_encryption"); ok {
+		customerEncryption := expandCustomerEncryption(v.([]interface{}))
+		setEncryptionHeaders(customerEncryption, getCall.Header())
+	}
 
 	res, err := getCall.Do()
 
@@ -299,6 +439,9 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("storage_class", res.StorageClass); err != nil {
 		return fmt.Errorf("Error setting storage_class: %s", err)
 	}
+	if err := d.Set("kms_key_name", res.KmsKeyName); err != nil {
+		return fmt.Errorf("Error setting kms_key_name: %s", err)
+	}
 	if err := d.Set("self_link", res.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
@@ -311,8 +454,14 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("media_link", res.MediaLink); err != nil {
 		return fmt.Errorf("Error setting media_link: %s", err)
 	}
+	if err := d.Set("event_based_hold", res.EventBasedHold); err != nil {
+		return fmt.Errorf("Error setting event_based_hold: %s", err)
+	}
+	if err := d.Set("temporary_hold", res.TemporaryHold); err != nil {
+		return fmt.Errorf("Error setting temporary_hold: %s", err)
+	}
 
-	d.SetId(objectGetId(res))
+	d.SetId(objectGetID(res))
 
 	return nil
 }
@@ -327,7 +476,7 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
+	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutDelete)))
 
 	DeleteCall := objectsService.Delete(bucket, name)
 	err = DeleteCall.Do()
@@ -347,13 +496,20 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
+func setEncryptionHeaders(customerEncryption map[string]string, headers http.Header) {
+	decodedKey, _ := base64.StdEncoding.DecodeString(customerEncryption["encryption_key"])
+	keyHash := sha256.Sum256(decodedKey)
+	headers.Set("x-goog-encryption-algorithm", customerEncryption["encryption_algorithm"])
+	headers.Set("x-goog-encryption-key", customerEncryption["encryption_key"])
+	headers.Set("x-goog-encryption-key-sha256", base64.StdEncoding.EncodeToString(keyHash[:]))
+}
+
 func getFileMd5Hash(filename string) string {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		log.Printf("[WARN] Failed to read source file %q. Cannot compute md5 hash for it.", filename)
 		return ""
 	}
-
 	return getContentMd5Hash(data)
 }
 
@@ -363,4 +519,17 @@ func getContentMd5Hash(content []byte) string {
 		log.Printf("[WARN] Failed to compute md5 hash for content: %v", err)
 	}
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func expandCustomerEncryption(input []interface{}) map[string]string {
+	expanded := make(map[string]string)
+	if input == nil {
+		return expanded
+	}
+	for _, v := range input {
+		original := v.(map[string]interface{})
+		expanded["encryption_key"] = original["encryption_key"].(string)
+		expanded["encryption_algorithm"] = original["encryption_algorithm"].(string)
+	}
+	return expanded
 }

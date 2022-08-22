@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_alert_policy"
-sidebar_current: "docs-google-monitoring-alert-policy"
 description: |-
   A description of the conditions under which some aspect of your system is
   considered to be "unhealthy" and the ways to notify people or services
@@ -60,6 +58,32 @@ resource "google_monitoring_alert_policy" "alert_policy" {
   }
 }
 ```
+## Example Usage - Monitoring Alert Policy Evaluation Missing Data
+
+
+```hcl
+resource "google_monitoring_alert_policy" "alert_policy" {
+  display_name = "My Alert Policy"
+  combiner     = "OR"
+  conditions {
+    display_name = "test condition"
+    condition_threshold {
+      filter     = "metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\""
+      duration   = "60s"
+      comparison = "COMPARISON_GT"
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_RATE"
+      }
+      evaluation_missing_data = "EVALUATION_MISSING_DATA_INACTIVE"
+    }
+  }
+
+  user_labels = {
+    foo = "bar"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -85,16 +109,16 @@ The following arguments are supported:
   AND or OR according to the combiner field. If the combined conditions
   evaluate to true, then an incident is created. A policy can have from
   one to six conditions.
-  Structure is documented below.
+  Structure is [documented below](#nested_conditions).
 
 
-The `conditions` block supports:
+<a name="nested_conditions"></a>The `conditions` block supports:
 
 * `condition_absent` -
   (Optional)
   A condition that checks that a time series
   continues to receive new data points.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition_absent).
 
 * `name` -
   The unique resource name for this condition.
@@ -107,13 +131,13 @@ The `conditions` block supports:
 * `condition_monitoring_query_language` -
   (Optional)
   A Monitoring Query Language query that outputs a boolean stream
-  Structure is documented below.
+  Structure is [documented below](#nested_condition_monitoring_query_language).
 
 * `condition_threshold` -
   (Optional)
   A condition that compares a time series against a
   threshold.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition_threshold).
 
 * `display_name` -
   (Required)
@@ -123,8 +147,14 @@ The `conditions` block supports:
   display name for multiple conditions in the same
   policy.
 
+* `condition_matched_log` -
+  (Optional)
+  A condition that checks for log messages matching given constraints.
+  If set, no other conditions can be present.
+  Structure is [documented below](#nested_condition_matched_log).
 
-The `condition_absent` block supports:
+
+<a name="nested_condition_absent"></a>The `condition_absent` block supports:
 
 * `aggregations` -
   (Optional)
@@ -137,7 +167,7 @@ The `condition_absent` block supports:
   all members of a group of resources).
   Multiple aggregations are applied in the
   order specified.
-  Structure is documented below.
+  Structure is [documented below](#nested_aggregations).
 
 * `trigger` -
   (Optional)
@@ -147,7 +177,7 @@ The `condition_absent` block supports:
   the condition will trigger if the comparison
   is true for any of the time series that have
   been identified by filter and aggregations.
-  Structure is documented below.
+  Structure is [documented below](#nested_trigger).
 
 * `duration` -
   (Required)
@@ -173,7 +203,7 @@ The `condition_absent` block supports:
   in length.
 
 
-The `aggregations` block supports:
+<a name="nested_aggregations"></a>The `aggregations` block supports:
 
 * `per_series_aligner` -
   (Optional)
@@ -262,7 +292,7 @@ The `aggregations` block supports:
   returned.
   Possible values are `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, and `REDUCE_PERCENTILE_05`.
 
-The `trigger` block supports:
+<a name="nested_trigger"></a>The `trigger` block supports:
 
 * `percent` -
   (Optional)
@@ -276,7 +306,7 @@ The `trigger` block supports:
   that must fail the predicate for the
   condition to be triggered.
 
-The `condition_monitoring_query_language` block supports:
+<a name="nested_condition_monitoring_query_language"></a>The `condition_monitoring_query_language` block supports:
 
 * `query` -
   (Required)
@@ -310,10 +340,17 @@ The `condition_monitoring_query_language` block supports:
   been identified by filter and aggregations,
   or by the ratio, if denominator_filter and
   denominator_aggregations are specified.
-  Structure is documented below.
+  Structure is [documented below](#nested_trigger).
+
+* `evaluation_missing_data` -
+  (Optional)
+  A condition control that determines how
+  metric-threshold conditions are evaluated when
+  data stops arriving.
+  Possible values are `EVALUATION_MISSING_DATA_INACTIVE`, `EVALUATION_MISSING_DATA_ACTIVE`, and `EVALUATION_MISSING_DATA_NO_OP`.
 
 
-The `trigger` block supports:
+<a name="nested_trigger"></a>The `trigger` block supports:
 
 * `percent` -
   (Optional)
@@ -327,7 +364,7 @@ The `trigger` block supports:
   that must fail the predicate for the
   condition to be triggered.
 
-The `condition_threshold` block supports:
+<a name="nested_condition_threshold"></a>The `condition_threshold` block supports:
 
 * `threshold_value` -
   (Optional)
@@ -370,7 +407,7 @@ The `condition_threshold` block supports:
   the MetricService.ListTimeSeries request. It
   is advisable to use the ListTimeSeries
   method when debugging this field.
-  Structure is documented below.
+  Structure is [documented below](#nested_denominator_aggregations).
 
 * `duration` -
   (Required)
@@ -412,7 +449,7 @@ The `condition_threshold` block supports:
   been identified by filter and aggregations,
   or by the ratio, if denominator_filter and
   denominator_aggregations are specified.
-  Structure is documented below.
+  Structure is [documented below](#nested_trigger).
 
 * `aggregations` -
   (Optional)
@@ -429,7 +466,7 @@ The `condition_threshold` block supports:
   request. It is advisable to use the
   ListTimeSeries method when debugging this
   field.
-  Structure is documented below.
+  Structure is [documented below](#nested_aggregations).
 
 * `filter` -
   (Optional)
@@ -446,8 +483,15 @@ The `condition_threshold` block supports:
   field may not exceed 2048 Unicode characters
   in length.
 
+* `evaluation_missing_data` -
+  (Optional)
+  A condition control that determines how
+  metric-threshold conditions are evaluated when
+  data stops arriving.
+  Possible values are `EVALUATION_MISSING_DATA_INACTIVE`, `EVALUATION_MISSING_DATA_ACTIVE`, and `EVALUATION_MISSING_DATA_NO_OP`.
 
-The `denominator_aggregations` block supports:
+
+<a name="nested_denominator_aggregations"></a>The `denominator_aggregations` block supports:
 
 * `per_series_aligner` -
   (Optional)
@@ -536,7 +580,7 @@ The `denominator_aggregations` block supports:
   returned.
   Possible values are `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, and `REDUCE_PERCENTILE_05`.
 
-The `trigger` block supports:
+<a name="nested_trigger"></a>The `trigger` block supports:
 
 * `percent` -
   (Optional)
@@ -550,7 +594,7 @@ The `trigger` block supports:
   that must fail the predicate for the
   condition to be triggered.
 
-The `aggregations` block supports:
+<a name="nested_aggregations"></a>The `aggregations` block supports:
 
 * `per_series_aligner` -
   (Optional)
@@ -638,6 +682,22 @@ The `aggregations` block supports:
   specified; otherwise, an error is
   returned.
   Possible values are `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, and `REDUCE_PERCENTILE_05`.
+
+<a name="nested_condition_matched_log"></a>The `condition_matched_log` block supports:
+
+* `filter` -
+  (Required)
+  A logs-based filter.
+
+* `label_extractors` -
+  (Optional)
+  A map from a label key to an extractor expression, which is used to
+  extract the value for this label key. Each entry in this map is
+  a specification for how data should be extracted from log entries that
+  match filter. Each combination of extracted values is treated as
+  a separate rule for the purposes of triggering notifications.
+  Label keys and corresponding values can be used in notifications
+  generated by this condition.
 
 - - -
 
@@ -656,6 +716,11 @@ The `aggregations` block supports:
   entries in this field is
   `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`
 
+* `alert_strategy` -
+  (Optional)
+  Control over how this alert policy's notification channels are notified.
+  Structure is [documented below](#nested_alert_strategy).
+
 * `user_labels` -
   (Optional)
   This field is intended to be used for organizing and identifying the AlertPolicy
@@ -671,13 +736,32 @@ The `aggregations` block supports:
   to help responders understand, mitigate, escalate, and correct the underlying
   problems detected by the alerting policy. Notification channels that have
   limited capacity might not show this documentation.
-  Structure is documented below.
+  Structure is [documented below](#nested_documentation).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `documentation` block supports:
+<a name="nested_alert_strategy"></a>The `alert_strategy` block supports:
+
+* `notification_rate_limit` -
+  (Optional)
+  Required for alert policies with a LogMatch condition.
+  This limit is not implemented for alert policies that are not log-based.
+  Structure is [documented below](#nested_notification_rate_limit).
+
+* `auto_close` -
+  (Optional)
+  If an alert policy that was active has no data for this long, any open incidents will close.
+
+
+<a name="nested_notification_rate_limit"></a>The `notification_rate_limit` block supports:
+
+* `period` -
+  (Optional)
+  Not more than one notification per period.
+
+<a name="nested_documentation"></a>The `documentation` block supports:
 
 * `content` -
   (Optional)
@@ -705,10 +789,10 @@ In addition to the arguments listed above, the following computed attributes are
   A read-only record of the creation of the alerting policy.
   If provided in a call to create or update, this field will
   be ignored.
-  Structure is documented below.
+  Structure is [documented below](#nested_creation_record).
 
 
-The `creation_record` block contains:
+<a name="nested_creation_record"></a>The `creation_record` block contains:
 
 * `mutate_time` -
   When the change occurred.
@@ -721,9 +805,9 @@ The `creation_record` block contains:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

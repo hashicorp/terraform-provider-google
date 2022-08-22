@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,6 +16,10 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"version": {
 				Type:     schema.TypeInt,
@@ -81,6 +84,9 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("version", flattenKmsCryptoKeyVersionVersion(res["name"], d)); err != nil {
 		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
+	if err := d.Set("name", flattenKmsCryptoKeyVersionName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
+	}
 	if err := d.Set("state", flattenKmsCryptoKeyVersionState(res["state"], d)); err != nil {
 		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
@@ -129,9 +135,13 @@ func flattenKmsCryptoKeyVersionVersion(v interface{}, d *schema.ResourceData) in
 	parts := strings.Split(v.(string), "/")
 	version := parts[len(parts)-1]
 	// Handles the string fixed64 format
-	if intVal, err := strconv.ParseInt(version, 10, 64); err == nil {
+	if intVal, err := stringToFixed64(version); err == nil {
 		return intVal
 	} // let terraform core handle it if we can't convert the string to an int.
+	return v
+}
+
+func flattenKmsCryptoKeyVersionName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

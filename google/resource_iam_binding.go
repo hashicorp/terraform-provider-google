@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -61,17 +62,27 @@ var iamBindingSchema = map[string]*schema.Schema{
 	},
 }
 
-func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
-	return ResourceIamBindingWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled)
+func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
+	return ResourceIamBindingWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled, options...)
 }
 
 // Resource that batches requests to the same IAM policy across multiple IAM fine-grained resources
-func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool) *schema.Resource {
+func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
+	settings := &IamSettings{}
+	for _, o := range options {
+		o(settings)
+	}
+
 	return &schema.Resource{
 		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
 		Read:   resourceIamBindingRead(newUpdaterFunc),
 		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
 		Delete: resourceIamBindingDelete(newUpdaterFunc, enableBatching),
+
+		// if non-empty, this will be used to send a deprecation message when the
+		// resource is used.
+		DeprecationMessage: settings.DeprecationMessage,
+
 		Schema: mergeSchemas(iamBindingSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamBindingImport(newUpdaterFunc, resourceIdParser),
@@ -129,8 +140,8 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Binding (Role %q)", updater.DescribeResource(), eBinding.Role))
 		}
-		log.Printf("[DEBUG] Retrieved policy for %s: %+v", updater.DescribeResource(), p)
-		log.Printf("[DEBUG] Looking for binding with role %q and condition %+v", eBinding.Role, eCondition)
+		log.Print(spew.Sprintf("[DEBUG] Retrieved policy for %s: %#v", updater.DescribeResource(), p))
+		log.Printf("[DEBUG] Looking for binding with role %q and condition %#v", eBinding.Role, eCondition)
 
 		var binding *cloudresourcemanager.Binding
 		for _, b := range p.Bindings {
@@ -142,7 +153,7 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 
 		if binding == nil {
 			log.Printf("[WARNING] Binding for role %q not found, assuming it has no members. If you expected existing members bound for this role, make sure your role is correctly formatted.", eBinding.Role)
-			log.Printf("[DEBUG] Binding for role %q and condition %+v not found in policy for %s, assuming it has no members.", eBinding.Role, eCondition, updater.DescribeResource())
+			log.Printf("[DEBUG] Binding for role %q and condition %#v not found in policy for %s, assuming it has no members.", eBinding.Role, eCondition, updater.DescribeResource())
 			if err := d.Set("role", eBinding.Role); err != nil {
 				return fmt.Errorf("Error setting role: %s", err)
 			}

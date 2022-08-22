@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -23,6 +23,132 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZoneQuickstartExample(context),
+			},
+			{
+				ResourceName:            "google_dns_managed_zone.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZoneQuickstartExample(context map[string]interface{}) string {
+	return Nprintf(`
+# to setup a web-server
+resource "google_compute_instance" "default" {
+  name         = "tf-test-dns-compute-instance%{random_suffix}"
+  machine_type = "g1-small"
+  zone         = "us-central1-b"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+  metadata_startup_script = <<-EOF
+  sudo apt-get update && \
+  sudo apt-get install apache2 -y && \
+  echo "<!doctype html><html><body><h1>Hello World!</h1></body></html>" > /var/www/html/index.html
+  EOF
+}
+
+# to allow http traffic
+resource "google_compute_firewall" "default" {
+  name     = "tf-test-allow-http-traffic%{random_suffix}"
+  network  = "default"
+  allow {
+    ports    = ["80"]
+    protocol = "tcp"
+  }
+  source_ranges = ["0.0.0.0/0"]
+}
+
+# to create a DNS zone
+resource "google_dns_managed_zone" "default" {
+  name          = "tf-test-example-zone-googlecloudexample%{random_suffix}"
+  dns_name      = "googlecloudexample.com."
+  description   = "Example DNS zone"
+  force_destroy = "true"
+}
+
+# to register web-server's ip address in DNS
+resource "google_dns_record_set" "default" {
+  name         = google_dns_managed_zone.default.dns_name
+  managed_zone = google_dns_managed_zone.default.name
+  type         = "A"
+  ttl          = 300
+  rrdatas = [
+    google_compute_instance.default.network_interface.0.access_config.0.nat_ip
+  ]
+}
+`, context)
+}
+
+func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsRecordSetBasicExample(context),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.parent-zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsRecordSetBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "tf-test-sample-zone%{random_suffix}"
+  dns_name    = "tf-test-sample-zone%{random_suffix}.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "default" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.tf-test-sample-zone%{random_suffix}.hashicorptest.com."
+  type         = "A"
+  rrdatas      = ["10.0.0.1", "10.1.0.1"]
+  ttl          = 86400
+}
+`, context)
+}
+
 func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
@@ -36,6 +162,7 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 		Providers: testAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
+			"time":   {},
 		},
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -76,11 +203,8 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -137,11 +261,8 @@ func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

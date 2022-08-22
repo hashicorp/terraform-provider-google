@@ -1,0 +1,83 @@
+archives:
+  - files:
+      # Only include built binary in archive
+      - 'none*'
+    format: zip
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+builds:
+  - # Special binary naming is only necessary for Terraform CLI 0.12
+    binary: '{{ .ProjectName }}_v{{ .Version }}_x5'
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    goos:
+      - darwin
+      - freebsd
+      - linux
+      - windows
+    goarch:
+      - '386'
+      - amd64
+      - arm
+      - arm64
+    ignore:
+      - goarch: arm
+        goos: windows
+      - goarch: arm64
+        goos: freebsd
+      - goarch: arm64
+        goos: windows
+    ldflags:
+      - -s -w -X version.ProviderVersion={{.Version}}
+    mod_timestamp: '{{ .CommitTimestamp }}'
+checksum:
+  extra_files:
+    - glob: 'terraform-registry-manifest.json'
+      name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
+  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
+  algorithm: sha256
+publishers:
+  - name: upload
+    checksum: true
+    extra_files:
+      - glob: 'terraform-registry-manifest.json'
+        name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
+    signature: true
+    cmd: hc-releases upload -product {{ .ProjectName }} -version {{ .Version }} -file={{ .ArtifactPath }}={{ .ArtifactName }} -header="x-terraform-protocol-version=5.0" -header="x-terraform-protocol-versions=5.0"
+    env:
+      - HC_RELEASES_HOST={{ .Env.HC_RELEASES_HOST }}
+      - HC_RELEASES_KEY={{ .Env.HC_RELEASES_KEY }}
+release:
+  extra_files:
+    - glob: 'terraform-registry-manifest.json'
+      name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
+  ids:
+    - none
+signs:
+  # Default Signature file (i.e. terraform-provider-awscc_VERSION_SHA256SUMS.sig)
+  - cmd: sh
+    args:
+    - -c
+    - >-
+      signore
+      sign
+      --dearmor
+      --file ${artifact}
+      --out ${signature}
+    artifacts: checksum
+  # Signature file with GPG Public Key ID in filename (i.e. terraform-provider-awscc_VERSION_SHA256SUMS.7685B676.sig)
+  - id: sig-with-gpg-public-key-id
+    signature: ${artifact}.72D7468F.sig
+    cmd: sh
+    args:
+    - -c
+    - >-
+      signore
+      sign
+      --dearmor
+      --file ${artifact}
+      --out ${signature}
+    artifacts: checksum
+snapshot:
+  name_template: "{{ .Tag }}-next"

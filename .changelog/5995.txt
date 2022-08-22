@@ -1,0 +1,3 @@
+```release-note:bug
+provider: removed printing credentials to the console if malformed JSON is given
+```

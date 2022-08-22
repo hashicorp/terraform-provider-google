@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed bug where terraform would crash if updating from no `service_account.scopes` to more.
+```

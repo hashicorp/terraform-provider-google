@@ -1,0 +1,6 @@
+```release-note:breaking-change
+datacatalog: updating `parent` in `google_data_catalog_tag` will now recreate the resource
+```
+```release-note:bug
+datacatalog: fixed an issue where `parent` in `google_data_catalog_tag` attempted to update the resource when change instead of recreating it
+```

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-provider-google/v3/version"
+	"github.com/hashicorp/terraform-provider-google/version"
 
 	googleoauth "golang.org/x/oauth2/google"
 )
@@ -20,27 +20,33 @@ var mutexKV = NewMutexKV()
 
 // Provider returns a *schema.Provider.
 func Provider() *schema.Provider {
+
+	// The mtls service client gives the type of endpoint (mtls/regular)
+	// at client creation. Since we use a shared client for requests we must
+	// rewrite the endpoints to be mtls endpoints for the scenario where
+	// mtls is enabled.
+	if isMtls() {
+		// if mtls is enabled switch all default endpoints to use the mtls endpoint
+		for key, bp := range DefaultBasePaths {
+			DefaultBasePaths[key] = getMtlsEndpoint(bp)
+		}
+	}
+
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"credentials": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"GOOGLE_CREDENTIALS",
-					"GOOGLE_CLOUD_KEYFILE_JSON",
-					"GCLOUD_KEYFILE_JSON",
-				}, nil),
-				ValidateFunc: validateCredentials,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ValidateFunc:  validateCredentials,
+				ConflictsWith: []string{"access_token"},
 			},
 
 			"access_token": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"GOOGLE_OAUTH_ACCESS_TOKEN",
-				}, nil),
+				Type:          schema.TypeString,
+				Optional:      true,
 				ConflictsWith: []string{"credentials"},
 			},
+
 			"impersonate_service_account": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -134,6 +140,14 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 
+			"request_reason": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"CLOUDSDK_CORE_REQUEST_REASON",
+				}, nil),
+			},
+
 			// Generated Products
 			"access_approval_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -141,7 +155,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_ACCESS_APPROVAL_CUSTOM_ENDPOINT",
-				}, AccessApprovalDefaultBasePath),
+				}, DefaultBasePaths[AccessApprovalBasePathKey]),
 			},
 			"access_context_manager_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -149,7 +163,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_ACCESS_CONTEXT_MANAGER_CUSTOM_ENDPOINT",
-				}, AccessContextManagerDefaultBasePath),
+				}, DefaultBasePaths[AccessContextManagerBasePathKey]),
 			},
 			"active_directory_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -157,7 +171,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_ACTIVE_DIRECTORY_CUSTOM_ENDPOINT",
-				}, ActiveDirectoryDefaultBasePath),
+				}, DefaultBasePaths[ActiveDirectoryBasePathKey]),
 			},
 			"apigee_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -165,7 +179,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_APIGEE_CUSTOM_ENDPOINT",
-				}, ApigeeDefaultBasePath),
+				}, DefaultBasePaths[ApigeeBasePathKey]),
 			},
 			"app_engine_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -173,7 +187,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT",
-				}, AppEngineDefaultBasePath),
+				}, DefaultBasePaths[AppEngineBasePathKey]),
+			},
+			"artifact_registry_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ARTIFACT_REGISTRY_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[ArtifactRegistryBasePathKey]),
 			},
 			"big_query_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -181,7 +203,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_BIG_QUERY_CUSTOM_ENDPOINT",
-				}, BigQueryDefaultBasePath),
+				}, DefaultBasePaths[BigQueryBasePathKey]),
+			},
+			"bigquery_connection_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BIGQUERY_CONNECTION_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[BigqueryConnectionBasePathKey]),
 			},
 			"bigquery_data_transfer_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -189,7 +219,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_BIGQUERY_DATA_TRANSFER_CUSTOM_ENDPOINT",
-				}, BigqueryDataTransferDefaultBasePath),
+				}, DefaultBasePaths[BigqueryDataTransferBasePathKey]),
 			},
 			"bigquery_reservation_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -197,7 +227,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_BIGQUERY_RESERVATION_CUSTOM_ENDPOINT",
-				}, BigqueryReservationDefaultBasePath),
+				}, DefaultBasePaths[BigqueryReservationBasePathKey]),
 			},
 			"bigtable_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -205,7 +235,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_BIGTABLE_CUSTOM_ENDPOINT",
-				}, BigtableDefaultBasePath),
+				}, DefaultBasePaths[BigtableBasePathKey]),
 			},
 			"billing_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -213,7 +243,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_BILLING_CUSTOM_ENDPOINT",
-				}, BillingDefaultBasePath),
+				}, DefaultBasePaths[BillingBasePathKey]),
 			},
 			"binary_authorization_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -221,7 +251,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT",
-				}, BinaryAuthorizationDefaultBasePath),
+				}, DefaultBasePaths[BinaryAuthorizationBasePathKey]),
+			},
+			"certificate_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CERTIFICATE_MANAGER_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[CertificateManagerBasePathKey]),
 			},
 			"cloud_asset_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -229,7 +267,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_ASSET_CUSTOM_ENDPOINT",
-				}, CloudAssetDefaultBasePath),
+				}, DefaultBasePaths[CloudAssetBasePathKey]),
 			},
 			"cloud_build_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -237,7 +275,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_BUILD_CUSTOM_ENDPOINT",
-				}, CloudBuildDefaultBasePath),
+				}, DefaultBasePaths[CloudBuildBasePathKey]),
 			},
 			"cloud_functions_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -245,7 +283,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT",
-				}, CloudFunctionsDefaultBasePath),
+				}, DefaultBasePaths[CloudFunctionsBasePathKey]),
+			},
+			"cloudfunctions2_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUDFUNCTIONS2_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[Cloudfunctions2BasePathKey]),
 			},
 			"cloud_identity_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -253,7 +299,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_IDENTITY_CUSTOM_ENDPOINT",
-				}, CloudIdentityDefaultBasePath),
+				}, DefaultBasePaths[CloudIdentityBasePathKey]),
 			},
 			"cloud_iot_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -261,7 +307,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_IOT_CUSTOM_ENDPOINT",
-				}, CloudIotDefaultBasePath),
+				}, DefaultBasePaths[CloudIotBasePathKey]),
 			},
 			"cloud_run_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -269,7 +315,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_RUN_CUSTOM_ENDPOINT",
-				}, CloudRunDefaultBasePath),
+				}, DefaultBasePaths[CloudRunBasePathKey]),
 			},
 			"cloud_scheduler_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -277,7 +323,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_SCHEDULER_CUSTOM_ENDPOINT",
-				}, CloudSchedulerDefaultBasePath),
+				}, DefaultBasePaths[CloudSchedulerBasePathKey]),
 			},
 			"cloud_tasks_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -285,7 +331,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_TASKS_CUSTOM_ENDPOINT",
-				}, CloudTasksDefaultBasePath),
+				}, DefaultBasePaths[CloudTasksBasePathKey]),
 			},
 			"compute_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -293,7 +339,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
-				}, ComputeDefaultBasePath),
+				}, DefaultBasePaths[ComputeBasePathKey]),
 			},
 			"container_analysis_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -301,7 +347,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CONTAINER_ANALYSIS_CUSTOM_ENDPOINT",
-				}, ContainerAnalysisDefaultBasePath),
+				}, DefaultBasePaths[ContainerAnalysisBasePathKey]),
 			},
 			"data_catalog_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -309,7 +355,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DATA_CATALOG_CUSTOM_ENDPOINT",
-				}, DataCatalogDefaultBasePath),
+				}, DefaultBasePaths[DataCatalogBasePathKey]),
+			},
+			"data_fusion_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DATA_FUSION_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[DataFusionBasePathKey]),
 			},
 			"data_loss_prevention_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -317,7 +371,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DATA_LOSS_PREVENTION_CUSTOM_ENDPOINT",
-				}, DataLossPreventionDefaultBasePath),
+				}, DefaultBasePaths[DataLossPreventionBasePathKey]),
 			},
 			"dataproc_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -325,7 +379,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
-				}, DataprocDefaultBasePath),
+				}, DefaultBasePaths[DataprocBasePathKey]),
+			},
+			"dataproc_metastore_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DATAPROC_METASTORE_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[DataprocMetastoreBasePathKey]),
 			},
 			"datastore_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -333,7 +395,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DATASTORE_CUSTOM_ENDPOINT",
-				}, DatastoreDefaultBasePath),
+				}, DefaultBasePaths[DatastoreBasePathKey]),
 			},
 			"deployment_manager_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -341,7 +403,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DEPLOYMENT_MANAGER_CUSTOM_ENDPOINT",
-				}, DeploymentManagerDefaultBasePath),
+				}, DefaultBasePaths[DeploymentManagerBasePathKey]),
 			},
 			"dialogflow_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -349,7 +411,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DIALOGFLOW_CUSTOM_ENDPOINT",
-				}, DialogflowDefaultBasePath),
+				}, DefaultBasePaths[DialogflowBasePathKey]),
+			},
+			"dialogflow_cx_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DIALOGFLOW_CX_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[DialogflowCXBasePathKey]),
 			},
 			"dns_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -357,7 +427,23 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DNS_CUSTOM_ENDPOINT",
-				}, DNSDefaultBasePath),
+				}, DefaultBasePaths[DNSBasePathKey]),
+			},
+			"document_ai_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DOCUMENT_AI_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[DocumentAIBasePathKey]),
+			},
+			"essential_contacts_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ESSENTIAL_CONTACTS_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[EssentialContactsBasePathKey]),
 			},
 			"filestore_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -365,7 +451,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_FILESTORE_CUSTOM_ENDPOINT",
-				}, FilestoreDefaultBasePath),
+				}, DefaultBasePaths[FilestoreBasePathKey]),
 			},
 			"firestore_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -373,7 +459,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_FIRESTORE_CUSTOM_ENDPOINT",
-				}, FirestoreDefaultBasePath),
+				}, DefaultBasePaths[FirestoreBasePathKey]),
 			},
 			"game_services_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -381,7 +467,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_GAME_SERVICES_CUSTOM_ENDPOINT",
-				}, GameServicesDefaultBasePath),
+				}, DefaultBasePaths[GameServicesBasePathKey]),
+			},
+			"gke_hub_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_GKE_HUB_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[GKEHubBasePathKey]),
 			},
 			"healthcare_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -389,7 +483,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_HEALTHCARE_CUSTOM_ENDPOINT",
-				}, HealthcareDefaultBasePath),
+				}, DefaultBasePaths[HealthcareBasePathKey]),
+			},
+			"iam_beta_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_IAM_BETA_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[IAMBetaBasePathKey]),
 			},
 			"iap_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -397,7 +499,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_IAP_CUSTOM_ENDPOINT",
-				}, IapDefaultBasePath),
+				}, DefaultBasePaths[IapBasePathKey]),
 			},
 			"identity_platform_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -405,7 +507,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_IDENTITY_PLATFORM_CUSTOM_ENDPOINT",
-				}, IdentityPlatformDefaultBasePath),
+				}, DefaultBasePaths[IdentityPlatformBasePathKey]),
 			},
 			"kms_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -413,7 +515,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_KMS_CUSTOM_ENDPOINT",
-				}, KMSDefaultBasePath),
+				}, DefaultBasePaths[KMSBasePathKey]),
 			},
 			"logging_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -421,7 +523,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_LOGGING_CUSTOM_ENDPOINT",
-				}, LoggingDefaultBasePath),
+				}, DefaultBasePaths[LoggingBasePathKey]),
+			},
+			"memcache_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[MemcacheBasePathKey]),
 			},
 			"ml_engine_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -429,7 +539,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_ML_ENGINE_CUSTOM_ENDPOINT",
-				}, MLEngineDefaultBasePath),
+				}, DefaultBasePaths[MLEngineBasePathKey]),
 			},
 			"monitoring_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -437,7 +547,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_MONITORING_CUSTOM_ENDPOINT",
-				}, MonitoringDefaultBasePath),
+				}, DefaultBasePaths[MonitoringBasePathKey]),
 			},
 			"network_management_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -445,7 +555,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_NETWORK_MANAGEMENT_CUSTOM_ENDPOINT",
-				}, NetworkManagementDefaultBasePath),
+				}, DefaultBasePaths[NetworkManagementBasePathKey]),
+			},
+			"network_services_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_NETWORK_SERVICES_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[NetworkServicesBasePathKey]),
 			},
 			"notebooks_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -453,7 +571,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_NOTEBOOKS_CUSTOM_ENDPOINT",
-				}, NotebooksDefaultBasePath),
+				}, DefaultBasePaths[NotebooksBasePathKey]),
 			},
 			"os_config_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -461,7 +579,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_OS_CONFIG_CUSTOM_ENDPOINT",
-				}, OSConfigDefaultBasePath),
+				}, DefaultBasePaths[OSConfigBasePathKey]),
 			},
 			"os_login_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -469,7 +587,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_OS_LOGIN_CUSTOM_ENDPOINT",
-				}, OSLoginDefaultBasePath),
+				}, DefaultBasePaths[OSLoginBasePathKey]),
+			},
+			"privateca_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[PrivatecaBasePathKey]),
 			},
 			"pubsub_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -477,7 +603,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_PUBSUB_CUSTOM_ENDPOINT",
-				}, PubsubDefaultBasePath),
+				}, DefaultBasePaths[PubsubBasePathKey]),
 			},
 			"pubsub_lite_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -485,7 +611,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_PUBSUB_LITE_CUSTOM_ENDPOINT",
-				}, PubsubLiteDefaultBasePath),
+				}, DefaultBasePaths[PubsubLiteBasePathKey]),
 			},
 			"redis_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -493,7 +619,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_REDIS_CUSTOM_ENDPOINT",
-				}, RedisDefaultBasePath),
+				}, DefaultBasePaths[RedisBasePathKey]),
 			},
 			"resource_manager_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -501,15 +627,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
-				}, ResourceManagerDefaultBasePath),
-			},
-			"runtime_config_custom_endpoint": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"GOOGLE_RUNTIME_CONFIG_CUSTOM_ENDPOINT",
-				}, RuntimeConfigDefaultBasePath),
+				}, DefaultBasePaths[ResourceManagerBasePathKey]),
 			},
 			"secret_manager_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -517,7 +635,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SECRET_MANAGER_CUSTOM_ENDPOINT",
-				}, SecretManagerDefaultBasePath),
+				}, DefaultBasePaths[SecretManagerBasePathKey]),
 			},
 			"security_center_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -525,7 +643,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SECURITY_CENTER_CUSTOM_ENDPOINT",
-				}, SecurityCenterDefaultBasePath),
+				}, DefaultBasePaths[SecurityCenterBasePathKey]),
 			},
 			"service_management_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -533,7 +651,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT",
-				}, ServiceManagementDefaultBasePath),
+				}, DefaultBasePaths[ServiceManagementBasePathKey]),
 			},
 			"service_usage_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -541,7 +659,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SERVICE_USAGE_CUSTOM_ENDPOINT",
-				}, ServiceUsageDefaultBasePath),
+				}, DefaultBasePaths[ServiceUsageBasePathKey]),
 			},
 			"source_repo_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -549,7 +667,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SOURCE_REPO_CUSTOM_ENDPOINT",
-				}, SourceRepoDefaultBasePath),
+				}, DefaultBasePaths[SourceRepoBasePathKey]),
 			},
 			"spanner_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -557,7 +675,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SPANNER_CUSTOM_ENDPOINT",
-				}, SpannerDefaultBasePath),
+				}, DefaultBasePaths[SpannerBasePathKey]),
 			},
 			"sql_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -565,7 +683,7 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SQL_CUSTOM_ENDPOINT",
-				}, SQLDefaultBasePath),
+				}, DefaultBasePaths[SQLBasePathKey]),
 			},
 			"storage_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -573,7 +691,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_STORAGE_CUSTOM_ENDPOINT",
-				}, StorageDefaultBasePath),
+				}, DefaultBasePaths[StorageBasePathKey]),
+			},
+			"tags_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_TAGS_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[TagsBasePathKey]),
 			},
 			"tpu_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -581,7 +707,15 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_TPU_CUSTOM_ENDPOINT",
-				}, TPUDefaultBasePath),
+				}, DefaultBasePaths[TPUBasePathKey]),
+			},
+			"vertex_ai_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_VERTEX_AI_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[VertexAIBasePathKey]),
 			},
 			"vpc_access_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -589,26 +723,33 @@ func Provider() *schema.Provider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_VPC_ACCESS_CUSTOM_ENDPOINT",
-				}, VPCAccessDefaultBasePath),
+				}, DefaultBasePaths[VPCAccessBasePathKey]),
+			},
+			"workflows_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_WORKFLOWS_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[WorkflowsBasePathKey]),
 			},
 
 			// Handwritten Products / Versioned / Atypical Entries
-			CloudBillingCustomEndpointEntryKey:           CloudBillingCustomEndpointEntry,
-			ComposerCustomEndpointEntryKey:               ComposerCustomEndpointEntry,
-			ComputeBetaCustomEndpointEntryKey:            ComputeBetaCustomEndpointEntry,
-			ContainerCustomEndpointEntryKey:              ContainerCustomEndpointEntry,
-			ContainerBetaCustomEndpointEntryKey:          ContainerBetaCustomEndpointEntry,
-			DataprocBetaCustomEndpointEntryKey:           DataprocBetaCustomEndpointEntry,
-			DataflowCustomEndpointEntryKey:               DataflowCustomEndpointEntry,
-			DnsBetaCustomEndpointEntryKey:                DnsBetaCustomEndpointEntry,
-			IamCredentialsCustomEndpointEntryKey:         IamCredentialsCustomEndpointEntry,
-			ResourceManagerV2Beta1CustomEndpointEntryKey: ResourceManagerV2Beta1CustomEndpointEntry,
-			RuntimeConfigCustomEndpointEntryKey:          RuntimeConfigCustomEndpointEntry,
-			IAMCustomEndpointEntryKey:                    IAMCustomEndpointEntry,
-			ServiceNetworkingCustomEndpointEntryKey:      ServiceNetworkingCustomEndpointEntry,
-			ServiceUsageCustomEndpointEntryKey:           ServiceUsageCustomEndpointEntry,
-			StorageTransferCustomEndpointEntryKey:        StorageTransferCustomEndpointEntry,
-			BigtableAdminCustomEndpointEntryKey:          BigtableAdminCustomEndpointEntry,
+			CloudBillingCustomEndpointEntryKey:      CloudBillingCustomEndpointEntry,
+			ComposerCustomEndpointEntryKey:          ComposerCustomEndpointEntry,
+			ContainerCustomEndpointEntryKey:         ContainerCustomEndpointEntry,
+			DataflowCustomEndpointEntryKey:          DataflowCustomEndpointEntry,
+			IamCredentialsCustomEndpointEntryKey:    IamCredentialsCustomEndpointEntry,
+			ResourceManagerV3CustomEndpointEntryKey: ResourceManagerV3CustomEndpointEntry,
+			IAMCustomEndpointEntryKey:               IAMCustomEndpointEntry,
+			ServiceNetworkingCustomEndpointEntryKey: ServiceNetworkingCustomEndpointEntry,
+			ServiceUsageCustomEndpointEntryKey:      ServiceUsageCustomEndpointEntry,
+			StorageTransferCustomEndpointEntryKey:   StorageTransferCustomEndpointEntry,
+			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
+
+			// dcl
+			ContainerAwsCustomEndpointEntryKey:   ContainerAwsCustomEndpointEntry,
+			ContainerAzureCustomEndpointEntryKey: ContainerAzureCustomEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -619,6 +760,10 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			// ####### START datasources ###########
+			"google_access_approval_folder_service_account":       dataSourceAccessApprovalFolderServiceAccount(),
+			"google_access_approval_organization_service_account": dataSourceAccessApprovalOrganizationServiceAccount(),
+			"google_access_approval_project_service_account":      dataSourceAccessApprovalProjectServiceAccount(),
 			"google_active_folder":                                dataSourceGoogleActiveFolder(),
 			"google_app_engine_default_service_account":           dataSourceGoogleAppEngineDefaultServiceAccount(),
 			"google_billing_account":                              dataSourceGoogleBillingAccount(),
@@ -636,9 +781,12 @@ func Provider() *schema.Provider {
 			"google_compute_backend_service":                      dataSourceGoogleComputeBackendService(),
 			"google_compute_backend_bucket":                       dataSourceGoogleComputeBackendBucket(),
 			"google_compute_default_service_account":              dataSourceGoogleComputeDefaultServiceAccount(),
+			"google_compute_disk":                                 dataSourceGoogleComputeDisk(),
 			"google_compute_forwarding_rule":                      dataSourceGoogleComputeForwardingRule(),
 			"google_compute_global_address":                       dataSourceGoogleComputeGlobalAddress(),
 			"google_compute_global_forwarding_rule":               dataSourceGoogleComputeGlobalForwardingRule(),
+			"google_compute_ha_vpn_gateway":                       dataSourceGoogleComputeHaVpnGateway(),
+			"google_compute_health_check":                         dataSourceGoogleComputeHealthCheck(),
 			"google_compute_image":                                dataSourceGoogleComputeImage(),
 			"google_compute_instance":                             dataSourceGoogleComputeInstance(),
 			"google_compute_instance_group":                       dataSourceGoogleComputeInstanceGroup(),
@@ -653,58 +801,73 @@ func Provider() *schema.Provider {
 			"google_compute_region_ssl_certificate":               dataSourceGoogleRegionComputeSslCertificate(),
 			"google_compute_resource_policy":                      dataSourceGoogleComputeResourcePolicy(),
 			"google_compute_router":                               dataSourceGoogleComputeRouter(),
+			"google_compute_router_status":                        dataSourceGoogleComputeRouterStatus(),
 			"google_compute_ssl_certificate":                      dataSourceGoogleComputeSslCertificate(),
 			"google_compute_ssl_policy":                           dataSourceGoogleComputeSslPolicy(),
 			"google_compute_subnetwork":                           dataSourceGoogleComputeSubnetwork(),
 			"google_compute_vpn_gateway":                          dataSourceGoogleComputeVpnGateway(),
 			"google_compute_zones":                                dataSourceGoogleComputeZones(),
+			"google_container_azure_versions":                     dataSourceGoogleContainerAzureVersions(),
+			"google_container_aws_versions":                       dataSourceGoogleContainerAwsVersions(),
 			"google_container_cluster":                            dataSourceGoogleContainerCluster(),
 			"google_container_engine_versions":                    dataSourceGoogleContainerEngineVersions(),
 			"google_container_registry_image":                     dataSourceGoogleContainerImage(),
 			"google_container_registry_repository":                dataSourceGoogleContainerRepo(),
+			"google_dataproc_metastore_service":                   dataSourceDataprocMetastoreService(),
 			"google_dns_keys":                                     dataSourceDNSKeys(),
 			"google_dns_managed_zone":                             dataSourceDnsManagedZone(),
+			"google_dns_record_set":                               dataSourceDnsRecordSet(),
 			"google_game_services_game_server_deployment_rollout": dataSourceGameServicesGameServerDeploymentRollout(),
 			"google_iam_policy":                                   dataSourceGoogleIamPolicy(),
 			"google_iam_role":                                     dataSourceGoogleIamRole(),
 			"google_iam_testable_permissions":                     dataSourceGoogleIamTestablePermissions(),
+			"google_iap_client":                                   dataSourceGoogleIapClient(),
 			"google_kms_crypto_key":                               dataSourceGoogleKmsCryptoKey(),
 			"google_kms_crypto_key_version":                       dataSourceGoogleKmsCryptoKeyVersion(),
 			"google_kms_key_ring":                                 dataSourceGoogleKmsKeyRing(),
 			"google_kms_secret":                                   dataSourceGoogleKmsSecret(),
 			"google_kms_secret_ciphertext":                        dataSourceGoogleKmsSecretCiphertext(),
 			"google_folder":                                       dataSourceGoogleFolder(),
+			"google_folders":                                      dataSourceGoogleFolders(),
 			"google_folder_organization_policy":                   dataSourceGoogleFolderOrganizationPolicy(),
 			"google_monitoring_notification_channel":              dataSourceMonitoringNotificationChannel(),
 			"google_monitoring_cluster_istio_service":             dataSourceMonitoringServiceClusterIstio(),
+			"google_monitoring_istio_canonical_service":           dataSourceMonitoringIstioCanonicalService(),
 			"google_monitoring_mesh_istio_service":                dataSourceMonitoringServiceMeshIstio(),
 			"google_monitoring_app_engine_service":                dataSourceMonitoringServiceAppEngine(),
 			"google_monitoring_uptime_check_ips":                  dataSourceGoogleMonitoringUptimeCheckIps(),
 			"google_netblock_ip_ranges":                           dataSourceGoogleNetblockIpRanges(),
 			"google_organization":                                 dataSourceGoogleOrganization(),
+			"google_privateca_certificate_authority":              dataSourcePrivatecaCertificateAuthority(),
 			"google_project":                                      dataSourceGoogleProject(),
 			"google_projects":                                     dataSourceGoogleProjects(),
 			"google_project_organization_policy":                  dataSourceGoogleProjectOrganizationPolicy(),
 			"google_pubsub_topic":                                 dataSourceGooglePubsubTopic(),
-			"google_runtimeconfig_config":                         dataSourceGoogleRuntimeconfigConfig(),
+			"google_secret_manager_secret":                        dataSourceSecretManagerSecret(),
 			"google_secret_manager_secret_version":                dataSourceSecretManagerSecretVersion(),
 			"google_service_account":                              dataSourceGoogleServiceAccount(),
 			"google_service_account_access_token":                 dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_id_token":                     dataSourceGoogleServiceAccountIdToken(),
+			"google_service_account_jwt":                          dataSourceGoogleServiceAccountJwt(),
 			"google_service_account_key":                          dataSourceGoogleServiceAccountKey(),
+			"google_sourcerepo_repository":                        dataSourceGoogleSourceRepoRepository(),
 			"google_spanner_instance":                             dataSourceSpannerInstance(),
 			"google_sql_ca_certs":                                 dataSourceGoogleSQLCaCerts(),
 			"google_sql_backup_run":                               dataSourceSqlBackupRun(),
 			"google_sql_database_instance":                        dataSourceSqlDatabaseInstance(),
+			"google_service_networking_peered_dns_domain":         dataSourceGoogleServiceNetworkingPeeredDNSDomain(),
+			"google_storage_bucket":                               dataSourceGoogleStorageBucket(),
 			"google_storage_bucket_object":                        dataSourceGoogleStorageBucketObject(),
 			"google_storage_bucket_object_content":                dataSourceGoogleStorageBucketObjectContent(),
 			"google_storage_object_signed_url":                    dataSourceGoogleSignedUrl(),
 			"google_storage_project_service_account":              dataSourceGoogleStorageProjectServiceAccount(),
 			"google_storage_transfer_project_service_account":     dataSourceGoogleStorageTransferProjectServiceAccount(),
+			"google_tags_tag_key":                                 dataSourceGoogleTagsTagKey(),
+			"google_tags_tag_value":                               dataSourceGoogleTagsTagValue(),
 			"google_tpu_tensorflow_versions":                      dataSourceTpuTensorflowVersions(),
 			"google_redis_instance":                               dataSourceGoogleRedisInstance(),
+			// ####### END datasources ###########
 		},
-
 		ResourcesMap: ResourceMap(),
 	}
 
@@ -712,12 +875,14 @@ func Provider() *schema.Provider {
 		return providerConfigure(ctx, d, provider)
 	}
 
+	configureDCLProvider(provider)
+
 	return provider
 }
 
-// Generated resources: 181
-// Generated IAM resources: 75
-// Total generated resources: 256
+// Generated resources: 229
+// Generated IAM resources: 138
+// Total generated resources: 367
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -730,6 +895,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_project_access_approval_settings":                      resourceAccessApprovalProjectSettings(),
 			"google_organization_access_approval_settings":                 resourceAccessApprovalOrganizationSettings(),
 			"google_access_context_manager_access_policy":                  resourceAccessContextManagerAccessPolicy(),
+			"google_access_context_manager_access_policy_iam_binding":      ResourceIamBinding(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc),
+			"google_access_context_manager_access_policy_iam_member":       ResourceIamMember(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc),
+			"google_access_context_manager_access_policy_iam_policy":       ResourceIamPolicy(AccessContextManagerAccessPolicyIamSchema, AccessContextManagerAccessPolicyIamUpdaterProducer, AccessContextManagerAccessPolicyIdParseFunc),
 			"google_access_context_manager_access_level":                   resourceAccessContextManagerAccessLevel(),
 			"google_access_context_manager_access_levels":                  resourceAccessContextManagerAccessLevels(),
 			"google_access_context_manager_access_level_condition":         resourceAccessContextManagerAccessLevelCondition(),
@@ -740,12 +908,26 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_active_directory_domain":                               resourceActiveDirectoryDomain(),
 			"google_active_directory_domain_trust":                         resourceActiveDirectoryDomainTrust(),
 			"google_apigee_organization":                                   resourceApigeeOrganization(),
+			"google_apigee_instance":                                       resourceApigeeInstance(),
+			"google_apigee_environment":                                    resourceApigeeEnvironment(),
+			"google_apigee_environment_iam_binding":                        ResourceIamBinding(ApigeeEnvironmentIamSchema, ApigeeEnvironmentIamUpdaterProducer, ApigeeEnvironmentIdParseFunc),
+			"google_apigee_environment_iam_member":                         ResourceIamMember(ApigeeEnvironmentIamSchema, ApigeeEnvironmentIamUpdaterProducer, ApigeeEnvironmentIdParseFunc),
+			"google_apigee_environment_iam_policy":                         ResourceIamPolicy(ApigeeEnvironmentIamSchema, ApigeeEnvironmentIamUpdaterProducer, ApigeeEnvironmentIdParseFunc),
+			"google_apigee_envgroup":                                       resourceApigeeEnvgroup(),
+			"google_apigee_instance_attachment":                            resourceApigeeInstanceAttachment(),
+			"google_apigee_envgroup_attachment":                            resourceApigeeEnvgroupAttachment(),
+			"google_apigee_endpoint_attachment":                            resourceApigeeEndpointAttachment(),
 			"google_app_engine_domain_mapping":                             resourceAppEngineDomainMapping(),
 			"google_app_engine_firewall_rule":                              resourceAppEngineFirewallRule(),
 			"google_app_engine_standard_app_version":                       resourceAppEngineStandardAppVersion(),
 			"google_app_engine_flexible_app_version":                       resourceAppEngineFlexibleAppVersion(),
 			"google_app_engine_application_url_dispatch_rules":             resourceAppEngineApplicationUrlDispatchRules(),
 			"google_app_engine_service_split_traffic":                      resourceAppEngineServiceSplitTraffic(),
+			"google_app_engine_service_network_settings":                   resourceAppEngineServiceNetworkSettings(),
+			"google_artifact_registry_repository":                          resourceArtifactRegistryRepository(),
+			"google_artifact_registry_repository_iam_binding":              ResourceIamBinding(ArtifactRegistryRepositoryIamSchema, ArtifactRegistryRepositoryIamUpdaterProducer, ArtifactRegistryRepositoryIdParseFunc),
+			"google_artifact_registry_repository_iam_member":               ResourceIamMember(ArtifactRegistryRepositoryIamSchema, ArtifactRegistryRepositoryIamUpdaterProducer, ArtifactRegistryRepositoryIdParseFunc),
+			"google_artifact_registry_repository_iam_policy":               ResourceIamPolicy(ArtifactRegistryRepositoryIamSchema, ArtifactRegistryRepositoryIamUpdaterProducer, ArtifactRegistryRepositoryIdParseFunc),
 			"google_bigquery_dataset":                                      resourceBigQueryDataset(),
 			"google_bigquery_dataset_access":                               resourceBigQueryDatasetAccess(),
 			"google_bigquery_job":                                          resourceBigQueryJob(),
@@ -753,6 +935,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_table_iam_member":                             ResourceIamMember(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc),
 			"google_bigquery_table_iam_policy":                             ResourceIamPolicy(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc),
 			"google_bigquery_routine":                                      resourceBigQueryRoutine(),
+			"google_bigquery_connection":                                   resourceBigqueryConnectionConnection(),
+			"google_bigquery_connection_iam_binding":                       ResourceIamBinding(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc),
+			"google_bigquery_connection_iam_member":                        ResourceIamMember(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc),
+			"google_bigquery_connection_iam_policy":                        ResourceIamPolicy(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc),
 			"google_bigquery_data_transfer_config":                         resourceBigqueryDataTransferConfig(),
 			"google_bigquery_reservation":                                  resourceBigqueryReservationReservation(),
 			"google_bigtable_app_profile":                                  resourceBigtableAppProfile(),
@@ -762,6 +948,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_binary_authorization_attestor_iam_member":              ResourceIamMember(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_attestor_iam_policy":              ResourceIamPolicy(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_policy":                           resourceBinaryAuthorizationPolicy(),
+			"google_certificate_manager_dns_authorization":                 resourceCertificateManagerDnsAuthorization(),
+			"google_certificate_manager_certificate":                       resourceCertificateManagerCertificate(),
+			"google_certificate_manager_certificate_map":                   resourceCertificateManagerCertificateMap(),
+			"google_certificate_manager_certificate_map_entry":             resourceCertificateManagerCertificateMapEntry(),
 			"google_cloud_asset_project_feed":                              resourceCloudAssetProjectFeed(),
 			"google_cloud_asset_folder_feed":                               resourceCloudAssetFolderFeed(),
 			"google_cloud_asset_organization_feed":                         resourceCloudAssetOrganizationFeed(),
@@ -769,9 +959,16 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudfunctions_function_iam_binding":                   ResourceIamBinding(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_member":                    ResourceIamMember(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_policy":                    ResourceIamPolicy(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
+			"google_cloudfunctions2_function":                              resourceCloudfunctions2function(),
+			"google_cloudfunctions2_function_iam_binding":                  ResourceIamBinding(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
+			"google_cloudfunctions2_function_iam_member":                   ResourceIamMember(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
+			"google_cloudfunctions2_function_iam_policy":                   ResourceIamPolicy(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
 			"google_cloud_identity_group":                                  resourceCloudIdentityGroup(),
 			"google_cloud_identity_group_membership":                       resourceCloudIdentityGroupMembership(),
 			"google_cloudiot_registry":                                     resourceCloudIotDeviceRegistry(),
+			"google_cloudiot_registry_iam_binding":                         ResourceIamBinding(CloudIotDeviceRegistryIamSchema, CloudIotDeviceRegistryIamUpdaterProducer, CloudIotDeviceRegistryIdParseFunc),
+			"google_cloudiot_registry_iam_member":                          ResourceIamMember(CloudIotDeviceRegistryIamSchema, CloudIotDeviceRegistryIamUpdaterProducer, CloudIotDeviceRegistryIdParseFunc),
+			"google_cloudiot_registry_iam_policy":                          ResourceIamPolicy(CloudIotDeviceRegistryIamSchema, CloudIotDeviceRegistryIamUpdaterProducer, CloudIotDeviceRegistryIdParseFunc),
 			"google_cloudiot_device":                                       resourceCloudIotDevice(),
 			"google_cloud_run_domain_mapping":                              resourceCloudRunDomainMapping(),
 			"google_cloud_run_service":                                     resourceCloudRunService(),
@@ -780,6 +977,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloud_run_service_iam_policy":                          ResourceIamPolicy(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
 			"google_cloud_scheduler_job":                                   resourceCloudSchedulerJob(),
 			"google_cloud_tasks_queue":                                     resourceCloudTasksQueue(),
+			"google_cloud_tasks_queue_iam_binding":                         ResourceIamBinding(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
+			"google_cloud_tasks_queue_iam_member":                          ResourceIamMember(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
+			"google_cloud_tasks_queue_iam_policy":                          ResourceIamPolicy(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
 			"google_compute_address":                                       resourceComputeAddress(),
 			"google_compute_autoscaler":                                    resourceComputeAutoscaler(),
 			"google_compute_backend_bucket":                                resourceComputeBackendBucket(),
@@ -834,10 +1034,14 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_router_nat":                                    resourceComputeRouterNat(),
 			"google_compute_router_peer":                                   resourceComputeRouterBgpPeer(),
 			"google_compute_snapshot":                                      resourceComputeSnapshot(),
+			"google_compute_snapshot_iam_binding":                          ResourceIamBinding(ComputeSnapshotIamSchema, ComputeSnapshotIamUpdaterProducer, ComputeSnapshotIdParseFunc),
+			"google_compute_snapshot_iam_member":                           ResourceIamMember(ComputeSnapshotIamSchema, ComputeSnapshotIamUpdaterProducer, ComputeSnapshotIdParseFunc),
+			"google_compute_snapshot_iam_policy":                           ResourceIamPolicy(ComputeSnapshotIamSchema, ComputeSnapshotIamUpdaterProducer, ComputeSnapshotIdParseFunc),
 			"google_compute_ssl_certificate":                               resourceComputeSslCertificate(),
 			"google_compute_managed_ssl_certificate":                       resourceComputeManagedSslCertificate(),
 			"google_compute_region_ssl_certificate":                        resourceComputeRegionSslCertificate(),
 			"google_compute_reservation":                                   resourceComputeReservation(),
+			"google_compute_service_attachment":                            resourceComputeServiceAttachment(),
 			"google_compute_ssl_policy":                                    resourceComputeSslPolicy(),
 			"google_compute_subnetwork":                                    resourceComputeSubnetwork(),
 			"google_compute_subnetwork_iam_binding":                        ResourceIamBinding(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
@@ -864,19 +1068,41 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_data_catalog_entry_group_iam_policy":                   ResourceIamPolicy(DataCatalogEntryGroupIamSchema, DataCatalogEntryGroupIamUpdaterProducer, DataCatalogEntryGroupIdParseFunc),
 			"google_data_catalog_entry":                                    resourceDataCatalogEntry(),
 			"google_data_catalog_tag_template":                             resourceDataCatalogTagTemplate(),
+			"google_data_catalog_tag_template_iam_binding":                 ResourceIamBinding(DataCatalogTagTemplateIamSchema, DataCatalogTagTemplateIamUpdaterProducer, DataCatalogTagTemplateIdParseFunc),
+			"google_data_catalog_tag_template_iam_member":                  ResourceIamMember(DataCatalogTagTemplateIamSchema, DataCatalogTagTemplateIamUpdaterProducer, DataCatalogTagTemplateIdParseFunc),
+			"google_data_catalog_tag_template_iam_policy":                  ResourceIamPolicy(DataCatalogTagTemplateIamSchema, DataCatalogTagTemplateIamUpdaterProducer, DataCatalogTagTemplateIdParseFunc),
 			"google_data_catalog_tag":                                      resourceDataCatalogTag(),
+			"google_data_fusion_instance":                                  resourceDataFusionInstance(),
 			"google_data_loss_prevention_job_trigger":                      resourceDataLossPreventionJobTrigger(),
 			"google_data_loss_prevention_inspect_template":                 resourceDataLossPreventionInspectTemplate(),
 			"google_data_loss_prevention_stored_info_type":                 resourceDataLossPreventionStoredInfoType(),
 			"google_data_loss_prevention_deidentify_template":              resourceDataLossPreventionDeidentifyTemplate(),
 			"google_dataproc_autoscaling_policy":                           resourceDataprocAutoscalingPolicy(),
+			"google_dataproc_autoscaling_policy_iam_binding":               ResourceIamBinding(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
+			"google_dataproc_autoscaling_policy_iam_member":                ResourceIamMember(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
+			"google_dataproc_autoscaling_policy_iam_policy":                ResourceIamPolicy(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
+			"google_dataproc_metastore_service":                            resourceDataprocMetastoreService(),
+			"google_dataproc_metastore_service_iam_binding":                ResourceIamBinding(DataprocMetastoreServiceIamSchema, DataprocMetastoreServiceIamUpdaterProducer, DataprocMetastoreServiceIdParseFunc),
+			"google_dataproc_metastore_service_iam_member":                 ResourceIamMember(DataprocMetastoreServiceIamSchema, DataprocMetastoreServiceIamUpdaterProducer, DataprocMetastoreServiceIdParseFunc),
+			"google_dataproc_metastore_service_iam_policy":                 ResourceIamPolicy(DataprocMetastoreServiceIamSchema, DataprocMetastoreServiceIamUpdaterProducer, DataprocMetastoreServiceIdParseFunc),
 			"google_datastore_index":                                       resourceDatastoreIndex(),
 			"google_deployment_manager_deployment":                         resourceDeploymentManagerDeployment(),
 			"google_dialogflow_agent":                                      resourceDialogflowAgent(),
 			"google_dialogflow_intent":                                     resourceDialogflowIntent(),
 			"google_dialogflow_entity_type":                                resourceDialogflowEntityType(),
+			"google_dialogflow_fulfillment":                                resourceDialogflowFulfillment(),
+			"google_dialogflow_cx_agent":                                   resourceDialogflowCXAgent(),
+			"google_dialogflow_cx_intent":                                  resourceDialogflowCXIntent(),
+			"google_dialogflow_cx_flow":                                    resourceDialogflowCXFlow(),
+			"google_dialogflow_cx_version":                                 resourceDialogflowCXVersion(),
+			"google_dialogflow_cx_page":                                    resourceDialogflowCXPage(),
+			"google_dialogflow_cx_entity_type":                             resourceDialogflowCXEntityType(),
+			"google_dialogflow_cx_environment":                             resourceDialogflowCXEnvironment(),
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
 			"google_dns_policy":                                            resourceDNSPolicy(),
+			"google_document_ai_processor":                                 resourceDocumentAIProcessor(),
+			"google_document_ai_processor_default_version":                 resourceDocumentAIProcessorDefaultVersion(),
+			"google_essential_contacts_contact":                            resourceEssentialContactsContact(),
 			"google_filestore_instance":                                    resourceFilestoreInstance(),
 			"google_firestore_index":                                       resourceFirestoreIndex(),
 			"google_firestore_document":                                    resourceFirestoreDocument(),
@@ -885,10 +1111,20 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_game_services_game_server_deployment":                  resourceGameServicesGameServerDeployment(),
 			"google_game_services_game_server_config":                      resourceGameServicesGameServerConfig(),
 			"google_game_services_game_server_deployment_rollout":          resourceGameServicesGameServerDeploymentRollout(),
+			"google_gke_hub_membership":                                    resourceGKEHubMembership(),
+			"google_gke_hub_membership_iam_binding":                        ResourceIamBinding(GKEHubMembershipIamSchema, GKEHubMembershipIamUpdaterProducer, GKEHubMembershipIdParseFunc),
+			"google_gke_hub_membership_iam_member":                         ResourceIamMember(GKEHubMembershipIamSchema, GKEHubMembershipIamUpdaterProducer, GKEHubMembershipIdParseFunc),
+			"google_gke_hub_membership_iam_policy":                         ResourceIamPolicy(GKEHubMembershipIamSchema, GKEHubMembershipIamUpdaterProducer, GKEHubMembershipIdParseFunc),
 			"google_healthcare_dataset":                                    resourceHealthcareDataset(),
 			"google_healthcare_dicom_store":                                resourceHealthcareDicomStore(),
 			"google_healthcare_fhir_store":                                 resourceHealthcareFhirStore(),
 			"google_healthcare_hl7_v2_store":                               resourceHealthcareHl7V2Store(),
+			"google_healthcare_consent_store":                              resourceHealthcareConsentStore(),
+			"google_healthcare_consent_store_iam_binding":                  ResourceIamBinding(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc),
+			"google_healthcare_consent_store_iam_member":                   ResourceIamMember(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc),
+			"google_healthcare_consent_store_iam_policy":                   ResourceIamPolicy(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc),
+			"google_iam_workload_identity_pool":                            resourceIAMBetaWorkloadIdentityPool(),
+			"google_iam_workload_identity_pool_provider":                   resourceIAMBetaWorkloadIdentityPoolProvider(),
 			"google_iap_web_iam_binding":                                   ResourceIamBinding(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
 			"google_iap_web_iam_member":                                    ResourceIamMember(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
 			"google_iap_web_iam_policy":                                    ResourceIamPolicy(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
@@ -927,6 +1163,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_kms_key_ring_import_job":                               resourceKMSKeyRingImportJob(),
 			"google_kms_secret_ciphertext":                                 resourceKMSSecretCiphertext(),
 			"google_logging_metric":                                        resourceLoggingMetric(),
+			"google_memcache_instance":                                     resourceMemcacheInstance(),
 			"google_ml_engine_model":                                       resourceMLEngineModel(),
 			"google_monitoring_alert_policy":                               resourceMonitoringAlertPolicy(),
 			"google_monitoring_group":                                      resourceMonitoringGroup(),
@@ -936,35 +1173,54 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_monitoring_uptime_check_config":                        resourceMonitoringUptimeCheckConfig(),
 			"google_monitoring_metric_descriptor":                          resourceMonitoringMetricDescriptor(),
 			"google_network_management_connectivity_test":                  resourceNetworkManagementConnectivityTest(),
+			"google_network_services_edge_cache_keyset":                    resourceNetworkServicesEdgeCacheKeyset(),
+			"google_network_services_edge_cache_origin":                    resourceNetworkServicesEdgeCacheOrigin(),
+			"google_network_services_edge_cache_service":                   resourceNetworkServicesEdgeCacheService(),
 			"google_notebooks_environment":                                 resourceNotebooksEnvironment(),
 			"google_notebooks_instance":                                    resourceNotebooksInstance(),
 			"google_notebooks_instance_iam_binding":                        ResourceIamBinding(NotebooksInstanceIamSchema, NotebooksInstanceIamUpdaterProducer, NotebooksInstanceIdParseFunc),
 			"google_notebooks_instance_iam_member":                         ResourceIamMember(NotebooksInstanceIamSchema, NotebooksInstanceIamUpdaterProducer, NotebooksInstanceIdParseFunc),
 			"google_notebooks_instance_iam_policy":                         ResourceIamPolicy(NotebooksInstanceIamSchema, NotebooksInstanceIamUpdaterProducer, NotebooksInstanceIdParseFunc),
+			"google_notebooks_runtime":                                     resourceNotebooksRuntime(),
+			"google_notebooks_runtime_iam_binding":                         ResourceIamBinding(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
+			"google_notebooks_runtime_iam_member":                          ResourceIamMember(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
+			"google_notebooks_runtime_iam_policy":                          ResourceIamPolicy(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
 			"google_notebooks_location":                                    resourceNotebooksLocation(),
 			"google_os_config_patch_deployment":                            resourceOSConfigPatchDeployment(),
 			"google_os_login_ssh_public_key":                               resourceOSLoginSSHPublicKey(),
+			"google_privateca_certificate_authority":                       resourcePrivatecaCertificateAuthority(),
+			"google_privateca_certificate":                                 resourcePrivatecaCertificate(),
+			"google_privateca_ca_pool":                                     resourcePrivatecaCaPool(),
+			"google_privateca_ca_pool_iam_binding":                         ResourceIamBinding(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc),
+			"google_privateca_ca_pool_iam_member":                          ResourceIamMember(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc),
+			"google_privateca_ca_pool_iam_policy":                          ResourceIamPolicy(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc),
+			"google_privateca_certificate_template_iam_binding":            ResourceIamBinding(PrivatecaCertificateTemplateIamSchema, PrivatecaCertificateTemplateIamUpdaterProducer, PrivatecaCertificateTemplateIdParseFunc),
+			"google_privateca_certificate_template_iam_member":             ResourceIamMember(PrivatecaCertificateTemplateIamSchema, PrivatecaCertificateTemplateIamUpdaterProducer, PrivatecaCertificateTemplateIdParseFunc),
+			"google_privateca_certificate_template_iam_policy":             ResourceIamPolicy(PrivatecaCertificateTemplateIamSchema, PrivatecaCertificateTemplateIamUpdaterProducer, PrivatecaCertificateTemplateIdParseFunc),
 			"google_pubsub_topic":                                          resourcePubsubTopic(),
 			"google_pubsub_topic_iam_binding":                              ResourceIamBinding(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
 			"google_pubsub_topic_iam_member":                               ResourceIamMember(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
 			"google_pubsub_topic_iam_policy":                               ResourceIamPolicy(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
 			"google_pubsub_subscription":                                   resourcePubsubSubscription(),
+			"google_pubsub_schema":                                         resourcePubsubSchema(),
+			"google_pubsub_lite_reservation":                               resourcePubsubLiteReservation(),
 			"google_pubsub_lite_topic":                                     resourcePubsubLiteTopic(),
 			"google_pubsub_lite_subscription":                              resourcePubsubLiteSubscription(),
 			"google_redis_instance":                                        resourceRedisInstance(),
 			"google_resource_manager_lien":                                 resourceResourceManagerLien(),
-			"google_runtimeconfig_config_iam_binding":                      ResourceIamBinding(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc),
-			"google_runtimeconfig_config_iam_member":                       ResourceIamMember(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc),
-			"google_runtimeconfig_config_iam_policy":                       ResourceIamPolicy(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc),
 			"google_secret_manager_secret":                                 resourceSecretManagerSecret(),
 			"google_secret_manager_secret_iam_binding":                     ResourceIamBinding(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
 			"google_secret_manager_secret_iam_member":                      ResourceIamMember(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
 			"google_secret_manager_secret_iam_policy":                      ResourceIamPolicy(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
 			"google_secret_manager_secret_version":                         resourceSecretManagerSecretVersion(),
 			"google_scc_source":                                            resourceSecurityCenterSource(),
+			"google_scc_notification_config":                               resourceSecurityCenterNotificationConfig(),
 			"google_endpoints_service_iam_binding":                         ResourceIamBinding(ServiceManagementServiceIamSchema, ServiceManagementServiceIamUpdaterProducer, ServiceManagementServiceIdParseFunc),
 			"google_endpoints_service_iam_member":                          ResourceIamMember(ServiceManagementServiceIamSchema, ServiceManagementServiceIamUpdaterProducer, ServiceManagementServiceIdParseFunc),
 			"google_endpoints_service_iam_policy":                          ResourceIamPolicy(ServiceManagementServiceIamSchema, ServiceManagementServiceIamUpdaterProducer, ServiceManagementServiceIdParseFunc),
+			"google_endpoints_service_consumers_iam_binding":               ResourceIamBinding(ServiceManagementServiceConsumersIamSchema, ServiceManagementServiceConsumersIamUpdaterProducer, ServiceManagementServiceConsumersIdParseFunc),
+			"google_endpoints_service_consumers_iam_member":                ResourceIamMember(ServiceManagementServiceConsumersIamSchema, ServiceManagementServiceConsumersIamUpdaterProducer, ServiceManagementServiceConsumersIdParseFunc),
+			"google_endpoints_service_consumers_iam_policy":                ResourceIamPolicy(ServiceManagementServiceConsumersIamSchema, ServiceManagementServiceConsumersIamUpdaterProducer, ServiceManagementServiceConsumersIdParseFunc),
 			"google_sourcerepo_repository":                                 resourceSourceRepoRepository(),
 			"google_sourcerepo_repository_iam_binding":                     ResourceIamBinding(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
 			"google_sourcerepo_repository_iam_member":                      ResourceIamMember(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
@@ -980,27 +1236,27 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_object_access_control":                         resourceStorageObjectAccessControl(),
 			"google_storage_default_object_access_control":                 resourceStorageDefaultObjectAccessControl(),
 			"google_storage_hmac_key":                                      resourceStorageHmacKey(),
+			"google_tags_tag_key":                                          resourceTagsTagKey(),
+			"google_tags_tag_key_iam_binding":                              ResourceIamBinding(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
+			"google_tags_tag_key_iam_member":                               ResourceIamMember(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
+			"google_tags_tag_key_iam_policy":                               ResourceIamPolicy(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
+			"google_tags_tag_value":                                        resourceTagsTagValue(),
+			"google_tags_tag_value_iam_binding":                            ResourceIamBinding(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
+			"google_tags_tag_value_iam_member":                             ResourceIamMember(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
+			"google_tags_tag_value_iam_policy":                             ResourceIamPolicy(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
+			"google_tags_tag_binding":                                      resourceTagsTagBinding(),
 			"google_tpu_node":                                              resourceTPUNode(),
+			"google_vertex_ai_dataset":                                     resourceVertexAIDataset(),
 			"google_vpc_access_connector":                                  resourceVPCAccessConnector(),
+			"google_workflows_workflow":                                    resourceWorkflowsWorkflow(),
 		},
 		map[string]*schema.Resource{
+			// ####### START handwritten resources ###########
 			"google_app_engine_application":                resourceAppEngineApplication(),
 			"google_bigquery_table":                        resourceBigQueryTable(),
 			"google_bigtable_gc_policy":                    resourceBigtableGCPolicy(),
 			"google_bigtable_instance":                     resourceBigtableInstance(),
-			"google_bigtable_instance_iam_binding":         ResourceIamBinding(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
-			"google_bigtable_instance_iam_member":          ResourceIamMember(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
-			"google_bigtable_instance_iam_policy":          ResourceIamPolicy(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
 			"google_bigtable_table":                        resourceBigtableTable(),
-			"google_bigtable_table_iam_binding":            ResourceIamBinding(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc),
-			"google_bigtable_table_iam_member":             ResourceIamMember(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc),
-			"google_bigtable_table_iam_policy":             ResourceIamPolicy(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc),
-			"google_bigquery_dataset_iam_binding":          ResourceIamBinding(IamBigqueryDatasetSchema, NewBigqueryDatasetIamUpdater, BigqueryDatasetIdParseFunc),
-			"google_bigquery_dataset_iam_member":           ResourceIamMember(IamBigqueryDatasetSchema, NewBigqueryDatasetIamUpdater, BigqueryDatasetIdParseFunc),
-			"google_bigquery_dataset_iam_policy":           ResourceIamPolicy(IamBigqueryDatasetSchema, NewBigqueryDatasetIamUpdater, BigqueryDatasetIdParseFunc),
-			"google_billing_account_iam_binding":           ResourceIamBinding(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
-			"google_billing_account_iam_member":            ResourceIamMember(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
-			"google_billing_account_iam_policy":            ResourceIamPolicy(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_subaccount":                    resourceBillingSubaccount(),
 			"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
 			"google_composer_environment":                  resourceComposerEnvironment(),
@@ -1025,33 +1281,11 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_container_registry":                    resourceContainerRegistry(),
 			"google_dataflow_job":                          resourceDataflowJob(),
 			"google_dataproc_cluster":                      resourceDataprocCluster(),
-			"google_dataproc_cluster_iam_binding":          ResourceIamBinding(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
-			"google_dataproc_cluster_iam_member":           ResourceIamMember(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
-			"google_dataproc_cluster_iam_policy":           ResourceIamPolicy(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
 			"google_dataproc_job":                          resourceDataprocJob(),
-			"google_dataproc_job_iam_binding":              ResourceIamBinding(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
-			"google_dataproc_job_iam_member":               ResourceIamMember(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
-			"google_dataproc_job_iam_policy":               ResourceIamPolicy(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
 			"google_dns_record_set":                        resourceDnsRecordSet(),
 			"google_endpoints_service":                     resourceEndpointsService(),
 			"google_folder":                                resourceGoogleFolder(),
-			"google_folder_iam_binding":                    ResourceIamBinding(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
-			"google_folder_iam_member":                     ResourceIamMember(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
-			"google_folder_iam_policy":                     ResourceIamPolicy(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
-			"google_folder_iam_audit_config":               ResourceIamAuditConfig(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
-			"google_healthcare_dataset_iam_binding":        ResourceIamBindingWithBatching(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_dataset_iam_member":         ResourceIamMemberWithBatching(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_dataset_iam_policy":         ResourceIamPolicy(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc),
-			"google_healthcare_dicom_store_iam_binding":    ResourceIamBindingWithBatching(IamHealthcareDicomStoreSchema, NewHealthcareDicomStoreIamUpdater, DicomStoreIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_dicom_store_iam_member":     ResourceIamMemberWithBatching(IamHealthcareDicomStoreSchema, NewHealthcareDicomStoreIamUpdater, DicomStoreIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_dicom_store_iam_policy":     ResourceIamPolicy(IamHealthcareDicomStoreSchema, NewHealthcareDicomStoreIamUpdater, DicomStoreIdParseFunc),
-			"google_healthcare_fhir_store_iam_binding":     ResourceIamBindingWithBatching(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_fhir_store_iam_member":      ResourceIamMemberWithBatching(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_fhir_store_iam_policy":      ResourceIamPolicy(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc),
-			"google_healthcare_hl7_v2_store_iam_binding":   ResourceIamBindingWithBatching(IamHealthcareHl7V2StoreSchema, NewHealthcareHl7V2StoreIamUpdater, Hl7V2StoreIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_hl7_v2_store_iam_member":    ResourceIamMemberWithBatching(IamHealthcareHl7V2StoreSchema, NewHealthcareHl7V2StoreIamUpdater, Hl7V2StoreIdParseFunc, IamBatchingEnabled),
-			"google_healthcare_hl7_v2_store_iam_policy":    ResourceIamPolicy(IamHealthcareHl7V2StoreSchema, NewHealthcareHl7V2StoreIamUpdater, Hl7V2StoreIdParseFunc),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
 			"google_logging_billing_account_exclusion":     ResourceLoggingExclusion(BillingAccountLoggingExclusionSchema, NewBillingAccountLoggingExclusionUpdater, billingAccountLoggingExclusionIdParseFunc),
 			"google_logging_billing_account_bucket_config": ResourceLoggingBillingAccountBucketConfig(),
@@ -1064,49 +1298,22 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
 			"google_logging_project_exclusion":             ResourceLoggingExclusion(ProjectLoggingExclusionSchema, NewProjectLoggingExclusionUpdater, projectLoggingExclusionIdParseFunc),
 			"google_logging_project_bucket_config":         ResourceLoggingProjectBucketConfig(),
-			"google_kms_key_ring_iam_binding":              ResourceIamBinding(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
-			"google_kms_key_ring_iam_member":               ResourceIamMember(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
-			"google_kms_key_ring_iam_policy":               ResourceIamPolicy(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
-			"google_kms_crypto_key_iam_binding":            ResourceIamBinding(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
-			"google_kms_crypto_key_iam_member":             ResourceIamMember(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
-			"google_kms_crypto_key_iam_policy":             ResourceIamPolicy(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
 			"google_monitoring_dashboard":                  resourceMonitoringDashboard(),
 			"google_service_networking_connection":         resourceServiceNetworkingConnection(),
-			"google_spanner_instance_iam_binding":          ResourceIamBinding(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
-			"google_spanner_instance_iam_member":           ResourceIamMember(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
-			"google_spanner_instance_iam_policy":           ResourceIamPolicy(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
-			"google_spanner_database_iam_binding":          ResourceIamBinding(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
-			"google_spanner_database_iam_member":           ResourceIamMember(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
-			"google_spanner_database_iam_policy":           ResourceIamPolicy(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
 			"google_sql_database_instance":                 resourceSqlDatabaseInstance(),
 			"google_sql_ssl_cert":                          resourceSqlSslCert(),
 			"google_sql_user":                              resourceSqlUser(),
-			"google_organization_iam_binding":              ResourceIamBinding(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_iam_custom_role":          resourceGoogleOrganizationIamCustomRole(),
-			"google_organization_iam_member":               ResourceIamMember(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
-			"google_organization_iam_policy":               ResourceIamPolicy(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
-			"google_organization_iam_audit_config":         ResourceIamAuditConfig(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_policy":                   resourceGoogleOrganizationPolicy(),
 			"google_project":                               resourceGoogleProject(),
 			"google_project_default_service_accounts":      resourceGoogleProjectDefaultServiceAccounts(),
-			"google_project_iam_policy":                    ResourceIamPolicy(IamPolicyProjectSchema, NewProjectIamPolicyUpdater, ProjectIdParseFunc),
-			"google_project_iam_binding":                   ResourceIamBindingWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
-			"google_project_iam_member":                    ResourceIamMemberWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
-			"google_project_iam_audit_config":              ResourceIamAuditConfigWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
 			"google_project_service":                       resourceGoogleProjectService(),
 			"google_project_iam_custom_role":               resourceGoogleProjectIamCustomRole(),
 			"google_project_organization_policy":           resourceGoogleProjectOrganizationPolicy(),
 			"google_project_usage_export_bucket":           resourceProjectUsageBucket(),
-			"google_pubsub_subscription_iam_binding":       ResourceIamBinding(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
-			"google_pubsub_subscription_iam_member":        ResourceIamMember(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
-			"google_pubsub_subscription_iam_policy":        ResourceIamPolicy(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
-			"google_runtimeconfig_config":                  resourceRuntimeconfigConfig(),
-			"google_runtimeconfig_variable":                resourceRuntimeconfigVariable(),
 			"google_service_account":                       resourceGoogleServiceAccount(),
-			"google_service_account_iam_binding":           ResourceIamBinding(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
-			"google_service_account_iam_member":            ResourceIamMember(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
-			"google_service_account_iam_policy":            ResourceIamPolicy(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
 			"google_service_account_key":                   resourceGoogleServiceAccountKey(),
+			"google_service_networking_peered_dns_domain":  resourceGoogleServiceNetworkingPeeredDNSDomain(),
 			"google_storage_bucket":                        resourceStorageBucket(),
 			"google_storage_bucket_acl":                    resourceStorageBucketAcl(),
 			"google_storage_bucket_object":                 resourceStorageBucketObject(),
@@ -1114,7 +1321,73 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_default_object_acl":            resourceStorageDefaultObjectAcl(),
 			"google_storage_notification":                  resourceStorageNotification(),
 			"google_storage_transfer_job":                  resourceStorageTransferJob(),
+			// ####### END handwritten resources ###########
 		},
+		map[string]*schema.Resource{
+			// ####### START non-generated IAM resources ###########
+			"google_bigtable_instance_iam_binding":       ResourceIamBinding(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+			"google_bigtable_instance_iam_member":        ResourceIamMember(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+			"google_bigtable_instance_iam_policy":        ResourceIamPolicy(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+			"google_bigtable_table_iam_binding":          ResourceIamBinding(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc),
+			"google_bigtable_table_iam_member":           ResourceIamMember(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc),
+			"google_bigtable_table_iam_policy":           ResourceIamPolicy(IamBigtableTableSchema, NewBigtableTableUpdater, BigtableTableIdParseFunc),
+			"google_bigquery_dataset_iam_binding":        ResourceIamBinding(IamBigqueryDatasetSchema, NewBigqueryDatasetIamUpdater, BigqueryDatasetIdParseFunc),
+			"google_bigquery_dataset_iam_member":         ResourceIamMember(IamBigqueryDatasetSchema, NewBigqueryDatasetIamUpdater, BigqueryDatasetIdParseFunc),
+			"google_bigquery_dataset_iam_policy":         ResourceIamPolicy(IamBigqueryDatasetSchema, NewBigqueryDatasetIamUpdater, BigqueryDatasetIdParseFunc),
+			"google_billing_account_iam_binding":         ResourceIamBinding(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
+			"google_billing_account_iam_member":          ResourceIamMember(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
+			"google_billing_account_iam_policy":          ResourceIamPolicy(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
+			"google_dataproc_cluster_iam_binding":        ResourceIamBinding(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+			"google_dataproc_cluster_iam_member":         ResourceIamMember(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+			"google_dataproc_cluster_iam_policy":         ResourceIamPolicy(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+			"google_dataproc_job_iam_binding":            ResourceIamBinding(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+			"google_dataproc_job_iam_member":             ResourceIamMember(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+			"google_dataproc_job_iam_policy":             ResourceIamPolicy(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+			"google_folder_iam_binding":                  ResourceIamBinding(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+			"google_folder_iam_member":                   ResourceIamMember(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+			"google_folder_iam_policy":                   ResourceIamPolicy(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+			"google_folder_iam_audit_config":             ResourceIamAuditConfig(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+			"google_healthcare_dataset_iam_binding":      ResourceIamBindingWithBatching(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_dataset_iam_member":       ResourceIamMemberWithBatching(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_dataset_iam_policy":       ResourceIamPolicy(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc),
+			"google_healthcare_dicom_store_iam_binding":  ResourceIamBindingWithBatching(IamHealthcareDicomStoreSchema, NewHealthcareDicomStoreIamUpdater, DicomStoreIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_dicom_store_iam_member":   ResourceIamMemberWithBatching(IamHealthcareDicomStoreSchema, NewHealthcareDicomStoreIamUpdater, DicomStoreIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_dicom_store_iam_policy":   ResourceIamPolicy(IamHealthcareDicomStoreSchema, NewHealthcareDicomStoreIamUpdater, DicomStoreIdParseFunc),
+			"google_healthcare_fhir_store_iam_binding":   ResourceIamBindingWithBatching(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_fhir_store_iam_member":    ResourceIamMemberWithBatching(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_fhir_store_iam_policy":    ResourceIamPolicy(IamHealthcareFhirStoreSchema, NewHealthcareFhirStoreIamUpdater, FhirStoreIdParseFunc),
+			"google_healthcare_hl7_v2_store_iam_binding": ResourceIamBindingWithBatching(IamHealthcareHl7V2StoreSchema, NewHealthcareHl7V2StoreIamUpdater, Hl7V2StoreIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_hl7_v2_store_iam_member":  ResourceIamMemberWithBatching(IamHealthcareHl7V2StoreSchema, NewHealthcareHl7V2StoreIamUpdater, Hl7V2StoreIdParseFunc, IamBatchingEnabled),
+			"google_healthcare_hl7_v2_store_iam_policy":  ResourceIamPolicy(IamHealthcareHl7V2StoreSchema, NewHealthcareHl7V2StoreIamUpdater, Hl7V2StoreIdParseFunc),
+			"google_kms_key_ring_iam_binding":            ResourceIamBinding(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
+			"google_kms_key_ring_iam_member":             ResourceIamMember(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
+			"google_kms_key_ring_iam_policy":             ResourceIamPolicy(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
+			"google_kms_crypto_key_iam_binding":          ResourceIamBinding(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+			"google_kms_crypto_key_iam_member":           ResourceIamMember(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+			"google_kms_crypto_key_iam_policy":           ResourceIamPolicy(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+			"google_spanner_instance_iam_binding":        ResourceIamBinding(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
+			"google_spanner_instance_iam_member":         ResourceIamMember(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
+			"google_spanner_instance_iam_policy":         ResourceIamPolicy(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
+			"google_spanner_database_iam_binding":        ResourceIamBinding(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
+			"google_spanner_database_iam_member":         ResourceIamMember(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
+			"google_spanner_database_iam_policy":         ResourceIamPolicy(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
+			"google_organization_iam_binding":            ResourceIamBinding(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+			"google_organization_iam_member":             ResourceIamMember(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+			"google_organization_iam_policy":             ResourceIamPolicy(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+			"google_organization_iam_audit_config":       ResourceIamAuditConfig(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+			"google_project_iam_policy":                  ResourceIamPolicy(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
+			"google_project_iam_binding":                 ResourceIamBindingWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
+			"google_project_iam_member":                  ResourceIamMemberWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
+			"google_project_iam_audit_config":            ResourceIamAuditConfigWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
+			"google_pubsub_subscription_iam_binding":     ResourceIamBinding(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
+			"google_pubsub_subscription_iam_member":      ResourceIamMember(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
+			"google_pubsub_subscription_iam_policy":      ResourceIamPolicy(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
+			"google_service_account_iam_binding":         ResourceIamBinding(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+			"google_service_account_iam_member":          ResourceIamMember(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+			"google_service_account_iam_policy":          ResourceIamPolicy(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+			// ####### END non-generated IAM resources ###########
+		},
+		dclResources,
 	)
 }
 
@@ -1128,6 +1401,12 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		userAgent:           p.UserAgent("terraform-provider-google", version.ProviderVersion),
 	}
 
+	// opt in extension for adding to the User-Agent header
+	if ext := os.Getenv("GOOGLE_TERRAFORM_USERAGENT_EXTENSION"); ext != "" {
+		ua := config.userAgent
+		config.userAgent = fmt.Sprintf("%s %s", ua, ext)
+	}
+
 	if v, ok := d.GetOk("request_timeout"); ok {
 		var err error
 		config.RequestTimeout, err = time.ParseDuration(v.(string))
@@ -1135,22 +1414,39 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 			return nil, diag.FromErr(err)
 		}
 	}
-	// Add credential source
-	if v, ok := d.GetOk("access_token"); ok {
-		config.AccessToken = v.(string)
-	} else if v, ok := d.GetOk("credentials"); ok {
-		config.Credentials = v.(string)
-	}
-	if v, ok := d.GetOk("impersonate_service_account"); ok {
-		config.ImpersonateServiceAccount = v.(string)
+
+	if v, ok := d.GetOk("request_reason"); ok {
+		config.RequestReason = v.(string)
 	}
 
-	scopes := d.Get("scopes").([]interface{})
-	if len(scopes) > 0 {
-		config.Scopes = make([]string, len(scopes))
+	// Check for primary credentials in config. Note that if neither is set, ADCs
+	// will be used if available.
+	if v, ok := d.GetOk("access_token"); ok {
+		config.AccessToken = v.(string)
 	}
-	for i, scope := range scopes {
-		config.Scopes[i] = scope.(string)
+
+	if v, ok := d.GetOk("credentials"); ok {
+		config.Credentials = v.(string)
+	}
+
+	// only check environment variables if neither value was set in config- this
+	// means config beats env var in all cases.
+	if config.AccessToken == "" && config.Credentials == "" {
+		config.Credentials = multiEnvSearch([]string{
+			"GOOGLE_CREDENTIALS",
+			"GOOGLE_CLOUD_KEYFILE_JSON",
+			"GCLOUD_KEYFILE_JSON",
+		})
+
+		config.AccessToken = multiEnvSearch([]string{
+			"GOOGLE_OAUTH_ACCESS_TOKEN",
+		})
+	}
+
+	// Given that impersonate_service_account is a secondary auth method, it has
+	// no conflicts to worry about. We pull the env var in a DefaultFunc.
+	if v, ok := d.GetOk("impersonate_service_account"); ok {
+		config.ImpersonateServiceAccount = v.(string)
 	}
 
 	delegates := d.Get("impersonate_service_account_delegates").([]interface{})
@@ -1159,6 +1455,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 	for i, delegate := range delegates {
 		config.ImpersonateServiceAccountDelegates[i] = delegate.(string)
+	}
+
+	scopes := d.Get("scopes").([]interface{})
+	if len(scopes) > 0 {
+		config.Scopes = make([]string, len(scopes))
+	}
+	for i, scope := range scopes {
+		config.Scopes[i] = scope.(string)
 	}
 
 	batchCfg, err := expandProviderBatchingConfig(d.Get("batching"))
@@ -1173,15 +1477,19 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ActiveDirectoryBasePath = d.Get("active_directory_custom_endpoint").(string)
 	config.ApigeeBasePath = d.Get("apigee_custom_endpoint").(string)
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
+	config.ArtifactRegistryBasePath = d.Get("artifact_registry_custom_endpoint").(string)
 	config.BigQueryBasePath = d.Get("big_query_custom_endpoint").(string)
+	config.BigqueryConnectionBasePath = d.Get("bigquery_connection_custom_endpoint").(string)
 	config.BigqueryDataTransferBasePath = d.Get("bigquery_data_transfer_custom_endpoint").(string)
 	config.BigqueryReservationBasePath = d.Get("bigquery_reservation_custom_endpoint").(string)
 	config.BigtableBasePath = d.Get("bigtable_custom_endpoint").(string)
 	config.BillingBasePath = d.Get("billing_custom_endpoint").(string)
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
+	config.CertificateManagerBasePath = d.Get("certificate_manager_custom_endpoint").(string)
 	config.CloudAssetBasePath = d.Get("cloud_asset_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
+	config.Cloudfunctions2BasePath = d.Get("cloudfunctions2_custom_endpoint").(string)
 	config.CloudIdentityBasePath = d.Get("cloud_identity_custom_endpoint").(string)
 	config.CloudIotBasePath = d.Get("cloud_iot_custom_endpoint").(string)
 	config.CloudRunBasePath = d.Get("cloud_run_custom_endpoint").(string)
@@ -1190,31 +1498,40 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.DataCatalogBasePath = d.Get("data_catalog_custom_endpoint").(string)
+	config.DataFusionBasePath = d.Get("data_fusion_custom_endpoint").(string)
 	config.DataLossPreventionBasePath = d.Get("data_loss_prevention_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
+	config.DataprocMetastoreBasePath = d.Get("dataproc_metastore_custom_endpoint").(string)
 	config.DatastoreBasePath = d.Get("datastore_custom_endpoint").(string)
 	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)
 	config.DialogflowBasePath = d.Get("dialogflow_custom_endpoint").(string)
+	config.DialogflowCXBasePath = d.Get("dialogflow_cx_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
+	config.DocumentAIBasePath = d.Get("document_ai_custom_endpoint").(string)
+	config.EssentialContactsBasePath = d.Get("essential_contacts_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
 	config.GameServicesBasePath = d.Get("game_services_custom_endpoint").(string)
+	config.GKEHubBasePath = d.Get("gke_hub_custom_endpoint").(string)
 	config.HealthcareBasePath = d.Get("healthcare_custom_endpoint").(string)
+	config.IAMBetaBasePath = d.Get("iam_beta_custom_endpoint").(string)
 	config.IapBasePath = d.Get("iap_custom_endpoint").(string)
 	config.IdentityPlatformBasePath = d.Get("identity_platform_custom_endpoint").(string)
 	config.KMSBasePath = d.Get("kms_custom_endpoint").(string)
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
+	config.MemcacheBasePath = d.Get("memcache_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
 	config.NetworkManagementBasePath = d.Get("network_management_custom_endpoint").(string)
+	config.NetworkServicesBasePath = d.Get("network_services_custom_endpoint").(string)
 	config.NotebooksBasePath = d.Get("notebooks_custom_endpoint").(string)
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
+	config.PrivatecaBasePath = d.Get("privateca_custom_endpoint").(string)
 	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
 	config.PubsubLiteBasePath = d.Get("pubsub_lite_custom_endpoint").(string)
 	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)
 	config.ResourceManagerBasePath = d.Get("resource_manager_custom_endpoint").(string)
-	config.RuntimeConfigBasePath = d.Get("runtime_config_custom_endpoint").(string)
 	config.SecretManagerBasePath = d.Get("secret_manager_custom_endpoint").(string)
 	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
 	config.ServiceManagementBasePath = d.Get("service_management_custom_endpoint").(string)
@@ -1223,27 +1540,28 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
 	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
 	config.StorageBasePath = d.Get("storage_custom_endpoint").(string)
+	config.TagsBasePath = d.Get("tags_custom_endpoint").(string)
 	config.TPUBasePath = d.Get("tpu_custom_endpoint").(string)
+	config.VertexAIBasePath = d.Get("vertex_ai_custom_endpoint").(string)
 	config.VPCAccessBasePath = d.Get("vpc_access_custom_endpoint").(string)
+	config.WorkflowsBasePath = d.Get("workflows_custom_endpoint").(string)
 
 	// Handwritten Products / Versioned / Atypical Entries
-
 	config.CloudBillingBasePath = d.Get(CloudBillingCustomEndpointEntryKey).(string)
 	config.ComposerBasePath = d.Get(ComposerCustomEndpointEntryKey).(string)
-	config.ComputeBetaBasePath = d.Get(ComputeBetaCustomEndpointEntryKey).(string)
 	config.ContainerBasePath = d.Get(ContainerCustomEndpointEntryKey).(string)
-	config.ContainerBetaBasePath = d.Get(ContainerBetaCustomEndpointEntryKey).(string)
-	config.DataprocBetaBasePath = d.Get(DataprocBetaCustomEndpointEntryKey).(string)
 	config.DataflowBasePath = d.Get(DataflowCustomEndpointEntryKey).(string)
-	config.DnsBetaBasePath = d.Get(DnsBetaCustomEndpointEntryKey).(string)
 	config.IamCredentialsBasePath = d.Get(IamCredentialsCustomEndpointEntryKey).(string)
-	config.ResourceManagerV2Beta1BasePath = d.Get(ResourceManagerV2Beta1CustomEndpointEntryKey).(string)
-	config.RuntimeConfigBasePath = d.Get(RuntimeConfigCustomEndpointEntryKey).(string)
+	config.ResourceManagerV3BasePath = d.Get(ResourceManagerV3CustomEndpointEntryKey).(string)
 	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
 	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
+
+	// dcl
+	config.ContainerAwsBasePath = d.Get(ContainerAwsCustomEndpointEntryKey).(string)
+	config.ContainerAzureBasePath = d.Get(ContainerAzureCustomEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
@@ -1253,7 +1571,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		return nil, diag.FromErr(err)
 	}
 
-	return &config, nil
+	return providerDCLConfigure(d, &config), nil
 }
 
 func validateCredentials(v interface{}, k string) (warnings []string, errors []error) {
@@ -1267,7 +1585,7 @@ func validateCredentials(v interface{}, k string) (warnings []string, errors []e
 	}
 	if _, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(creds)); err != nil {
 		errors = append(errors,
-			fmt.Errorf("JSON credentials in %q are not valid: %s", creds, err))
+			fmt.Errorf("JSON credentials are not valid: %s", err))
 	}
 
 	return

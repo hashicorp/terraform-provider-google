@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_folder_iam"
-sidebar_current: "docs-google-folder-iam"
 description: |-
  Collection of resources to manage IAM policy for a folder.
 ---
@@ -21,9 +19,12 @@ Four different resources help you manage your IAM policy for a folder. Each of t
 
 ~> **Note:** `google_folder_iam_binding` resources **can be** used in conjunction with `google_folder_iam_member` resources **only if** they do not grant privilege to the same role.
 
+~> **Note:** The underlying API method `projects.setIamPolicy` has constraints which are documented [here](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy). In addition to these constraints, 
+   IAM Conditions cannot be used with Basic Roles such as Owner. Violating these constraints will result in the API returning a 400 error code so please review these if you encounter errors with this resource.
+
 ## google\_folder\_iam\_policy
 
-~> **Be careful!** You can accidentally lock yourself out of your folder
+!> **Be careful!** You can accidentally lock yourself out of your folder
    using this resource. Deleting a `google_folder_iam_policy` removes access
    from anyone without permissions on its parent folder/organization. Proceed with caution.
    It's not recommended to use `google_folder_iam_policy` with your provider folder
@@ -58,7 +59,7 @@ resource "google_folder_iam_policy" "folder" {
 
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/editor"
+    role = "roles/compute.admin"
 
     members = [
       "user:jane@example.com",
@@ -91,7 +92,7 @@ With IAM Conditions:
 ```hcl
 resource "google_folder_iam_binding" "folder" {
   folder  = "folders/1234567"
-  role    = "roles/editor"
+  role    = "roles/container.admin"
 
   members = [
     "user:jane@example.com",
@@ -120,7 +121,7 @@ With IAM Conditions:
 ```hcl
 resource "google_folder_iam_member" "folder" {
   folder  = "folders/1234567"
-  role    = "roles/editor"
+  role    = "roles/firebase.admin"
   member  = "user:jane@example.com"
 
   condition {
@@ -177,20 +178,20 @@ The following arguments are supported:
 
 * `service` - (Required only by google\_folder\_iam\_audit\_config) Service which will be enabled for audit logging.  The special value `allServices` covers all services.  Note that if there are google\_folder\_iam\_audit\_config resources covering both `allServices` and a specific service then the union of the two AuditConfigs is used for that service: the `log_types` specified in each `audit_log_config` are enabled, and the `exempted_members` in each `audit_log_config` are exempted.
 
-* `audit_log_config` - (Required only by google\_folder\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is documented below.
+* `audit_log_config` - (Required only by google\_folder\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is [documented below](#nested_audit_log_config).
 
 * `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition).
 
 ---
 
-The `audit_log_config` block supports:
+<a name="nested_audit_log_config"></a>The `audit_log_config` block supports:
 
 * `log_type` - (Required) Permission type for which logging is to be configured.  Must be one of `DATA_READ`, `DATA_WRITE`, or `ADMIN_READ`.
 
 * `exempted_members` - (Optional) Identities that do not cause logging for this type of permission.  The format is the same as that for `members`.
 
-The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
 
@@ -238,3 +239,7 @@ terraform import google_folder_iam_audit_config.my_folder "folder foo.googleapis
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `organizations/{{org_id}}/roles/{{role_id}}`.
+ 
+-> **Conditional IAM Bindings**: If you're importing a IAM binding with a condition block, make sure
+ to include the title of condition, e.g. `terraform import google_folder_iam_binding.my_folder "folder roles/{{role_id}} condition-title"`
+ 

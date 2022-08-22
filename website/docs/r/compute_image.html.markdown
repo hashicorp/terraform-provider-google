@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_image"
-sidebar_current: "docs-google-compute-image"
 description: |-
   Represents an Image resource.
 ---
@@ -129,7 +127,7 @@ The following arguments are supported:
   (Optional)
   A list of features to enable on the guest operating system.
   Applicable only for bootable images.
-  Structure is documented below.
+  Structure is [documented below](#nested_guest_os_features).
 
 * `labels` -
   (Optional)
@@ -142,7 +140,7 @@ The following arguments are supported:
 * `raw_disk` -
   (Optional)
   The parameters of the raw disk image.
-  Structure is documented below.
+  Structure is [documented below](#nested_raw_disk).
 
 * `source_disk` -
   (Optional)
@@ -173,14 +171,14 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `guest_os_features` block supports:
+<a name="nested_guest_os_features"></a>The `guest_os_features` block supports:
 
 * `type` -
   (Required)
   The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
   Possible values are `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, `WINDOWS`, and `GVNIC`.
 
-The `raw_disk` block supports:
+<a name="nested_raw_disk"></a>The `raw_disk` block supports:
 
 * `container_type` -
   (Optional)
@@ -226,9 +224,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

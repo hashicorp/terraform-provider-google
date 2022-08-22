@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -37,9 +36,9 @@ func resourcePubsubLiteTopic() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -90,6 +89,22 @@ func resourcePubsubLiteTopic() *schema.Resource {
 				Optional:    true,
 				Description: `The region of the pubsub lite topic.`,
 			},
+			"reservation_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The settings for this topic's Reservation usage.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"throughput_reservation": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The Reservation to use for this topic's throughput capacity.`,
+						},
+					},
+				},
+			},
 			"retention_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -108,7 +123,9 @@ dropped to make room for newer ones, regardless of the value of period.`,
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `How long a published message is retained. If unset, messages will be retained as
-long as the bytes retained for each partition is below perPartitionBytes.`,
+long as the bytes retained for each partition is below perPartitionBytes. A
+duration in seconds with up to nine fractional digits, terminated by 's'.
+Example: "3.5s".`,
 						},
 					},
 				},
@@ -148,6 +165,12 @@ func resourcePubsubLiteTopicCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("retention_config"); !isEmptyValue(reflect.ValueOf(retentionConfigProp)) && (ok || !reflect.DeepEqual(v, retentionConfigProp)) {
 		obj["retentionConfig"] = retentionConfigProp
+	}
+	reservationConfigProp, err := expandPubsubLiteTopicReservationConfig(d.Get("reservation_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reservation_config"); !isEmptyValue(reflect.ValueOf(reservationConfigProp)) && (ok || !reflect.DeepEqual(v, reservationConfigProp)) {
+		obj["reservationConfig"] = reservationConfigProp
 	}
 
 	obj, err = resourcePubsubLiteTopicEncoder(d, meta, obj)
@@ -231,6 +254,9 @@ func resourcePubsubLiteTopicRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("retention_config", flattenPubsubLiteTopicRetentionConfig(res["retentionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
+	if err := d.Set("reservation_config", flattenPubsubLiteTopicReservationConfig(res["reservationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
 
 	return nil
 }
@@ -263,13 +289,19 @@ func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("retention_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retentionConfigProp)) {
 		obj["retentionConfig"] = retentionConfigProp
 	}
+	reservationConfigProp, err := expandPubsubLiteTopicReservationConfig(d.Get("reservation_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reservation_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservationConfigProp)) {
+		obj["reservationConfig"] = reservationConfigProp
+	}
 
 	obj, err = resourcePubsubLiteTopicEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{name}}")
+	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -283,6 +315,10 @@ func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("retention_config") {
 		updateMask = append(updateMask, "retentionConfig")
+	}
+
+	if d.HasChange("reservation_config") {
+		updateMask = append(updateMask, "reservationConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -383,7 +419,7 @@ func flattenPubsubLiteTopicPartitionConfig(v interface{}, d *schema.ResourceData
 func flattenPubsubLiteTopicPartitionConfigCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -415,7 +451,7 @@ func flattenPubsubLiteTopicPartitionConfigCapacity(v interface{}, d *schema.Reso
 func flattenPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -432,7 +468,7 @@ func flattenPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}
 func flattenPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -467,6 +503,26 @@ func flattenPubsubLiteTopicRetentionConfigPerPartitionBytes(v interface{}, d *sc
 
 func flattenPubsubLiteTopicRetentionConfigPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenPubsubLiteTopicReservationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["throughput_reservation"] =
+		flattenPubsubLiteTopicReservationConfigThroughputReservation(original["throughputReservation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func expandPubsubLiteTopicPartitionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -565,6 +621,34 @@ func expandPubsubLiteTopicRetentionConfigPerPartitionBytes(v interface{}, d Terr
 
 func expandPubsubLiteTopicRetentionConfigPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandPubsubLiteTopicReservationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedThroughputReservation, err := expandPubsubLiteTopicReservationConfigThroughputReservation(original["throughput_reservation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThroughputReservation); val.IsValid() && !isEmptyValue(val) {
+		transformed["throughputReservation"] = transformedThroughputReservation
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseRegionalFieldValue("reservations", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for throughput_reservation: %s", err)
+	}
+	// Custom due to "locations" rather than "regions".
+	return fmt.Sprintf("projects/%s/locations/%s/reservations/%s", f.Project, f.Region, f.Name), nil
 }
 
 func resourcePubsubLiteTopicEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

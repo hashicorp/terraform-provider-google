@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_dashboard"
-sidebar_current: "docs-google-monitoring-dashboard"
 description: |-
   A Google Stackdriver dashboard.
 ---
@@ -144,7 +142,7 @@ This resource provides the following
 Dashboard can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_monitoring_dashboard.default project/{{project}}/dashboards/{{dashboard_id}}
+$ terraform import google_monitoring_dashboard.default projects/{{project}}/dashboards/{{dashboard_id}}
 $ terraform import google_monitoring_dashboard.default {{dashboard_id}}
 ```
 

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -36,36 +35,31 @@ func resourceVPCAccessConnector() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
-			"ip_cidr_range": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The range of internal addresses that follows RFC 4632 notation. Example: '10.132.0.0/28'.`,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `The name of the resource (Max 25 characters).`,
 			},
-			"network": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Name of a VPC network.`,
+			"ip_cidr_range": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The range of internal addresses that follows RFC 4632 notation. Example: '10.132.0.0/28'.`,
+				RequiredWith: []string{"network"},
 			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(200, 1000),
-				Description:  `Maximum throughput of the connector in Mbps, must be greater than 'min_throughput'. Default is 1000.`,
-				Default:      1000,
+				Description:  `Maximum throughput of the connector in Mbps, must be greater than 'min_throughput'. Default is 300.`,
+				Default:      300,
 			},
 			"min_throughput": {
 				Type:         schema.TypeInt,
@@ -74,6 +68,15 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ValidateFunc: validation.IntBetween(200, 1000),
 				Description:  `Minimum throughput of the connector in Mbps. Default and min is 200.`,
 				Default:      200,
+			},
+			"network": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
+				Description:      `Name or self_link of the VPC network. Required if 'ip_cidr_range' is set.`,
+				ExactlyOneOf:     []string{"network"},
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -209,12 +212,12 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
-
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
 	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
 
 	return resourceVPCAccessConnectorRead(d, meta)
 }
@@ -361,7 +364,10 @@ func flattenVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config
 }
 
 func flattenVPCAccessConnectorNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenVPCAccessConnectorIpCidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -375,7 +381,7 @@ func flattenVPCAccessConnectorState(v interface{}, d *schema.ResourceData, confi
 func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -392,7 +398,7 @@ func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceDat
 func flattenVPCAccessConnectorMaxThroughput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -411,7 +417,7 @@ func expandVPCAccessConnectorName(v interface{}, d TerraformResourceData, config
 }
 
 func expandVPCAccessConnectorNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	return GetResourceNameFromSelfLink(v.(string)), nil
 }
 
 func expandVPCAccessConnectorIpCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

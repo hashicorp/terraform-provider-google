@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_node_template"
-sidebar_current: "docs-google-compute-node-template"
 description: |-
   Represents a NodeTemplate resource.
 ---
@@ -57,19 +55,11 @@ resource "google_compute_node_template" "template" {
 
 
 ```hcl
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
-}
-
 data "google_compute_node_types" "central1a" {
-  provider = google-beta
   zone     = "us-central1-a"
 }
 
 resource "google_compute_node_template" "template" {
-  provider = google-beta
-
   name      = "soletenant-with-licenses"
   region    = "us-central1"
   node_type = "n1-node-96-624"
@@ -117,16 +107,16 @@ The following arguments are supported:
   use this node template will create nodes of a type that matches
   these properties. Only one of nodeTypeFlexibility and nodeType can
   be specified.
-  Structure is documented below.
+  Structure is [documented below](#nested_node_type_flexibility).
 
 * `server_binding` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The server binding policy for nodes using this template. Determines
   where the nodes should restart following a maintenance event.
-  Structure is documented below.
+  Structure is [documented below](#nested_server_binding).
 
 * `cpu_overcommit_type` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   CPU overcommit.
   Default value is `NONE`.
   Possible values are `ENABLED` and `NONE`.
@@ -140,7 +130,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `node_type_flexibility` block supports:
+<a name="nested_node_type_flexibility"></a>The `node_type_flexibility` block supports:
 
 * `cpus` -
   (Optional)
@@ -153,7 +143,7 @@ The `node_type_flexibility` block supports:
 * `local_ssd` -
   Use local SSD
 
-The `server_binding` block supports:
+<a name="nested_server_binding"></a>The `server_binding` block supports:
 
 * `type` -
   (Required)
@@ -186,8 +176,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

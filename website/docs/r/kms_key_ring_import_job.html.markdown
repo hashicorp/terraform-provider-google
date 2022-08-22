@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_key_ring_import_job"
-sidebar_current: "docs-google-kms-key-ring-import-job"
 description: |-
   A `KeyRingImportJob` can be used to create `CryptoKeys` and `CryptoKeyVersions` using pre-existing
   key material, generated outside of Cloud KMS.
@@ -112,22 +110,22 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `public_key` -
   The public key with which to wrap key material prior to import. Only returned if state is `ACTIVE`.
-  Structure is documented below.
+  Structure is [documented below](#nested_public_key).
 
 * `attestation` -
   Statement that was generated and signed by the key creator (for example, an HSM) at key creation time.
   Use this statement to verify attributes of the key as stored on the HSM, independently of Google.
   Only present if the chosen ImportMethod is one with a protection level of HSM.
-  Structure is documented below.
+  Structure is [documented below](#nested_attestation).
 
 
-The `public_key` block contains:
+<a name="nested_public_key"></a>The `public_key` block contains:
 
 * `pem` -
   The public key, encoded in PEM format. For more information, see the RFC 7468 sections
   for General Considerations and Textual Encoding of Subject Public Key Info.
 
-The `attestation` block contains:
+<a name="nested_attestation"></a>The `attestation` block contains:
 
 * `format` -
   The format of the attestation data.
@@ -141,8 +139,8 @@ The `attestation` block contains:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

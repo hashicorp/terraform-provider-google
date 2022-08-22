@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_netblock_ip_ranges"
-sidebar_current: "docs-google-datasource-netblock-ip-ranges"
 description: |-
   Use this data source to get the IP addresses from different special IP ranges on Google Cloud Platform.
 ---

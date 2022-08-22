@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added support for `domain_names` attribute in `google_compute_service_attachment`
+```

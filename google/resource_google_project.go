@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,6 +17,11 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 )
+
+type ServicesCall interface {
+	Header() http.Header
+	Do(opts ...googleapi.CallOption) (*serviceusage.Operation, error)
+}
 
 // resourceGoogleProject returns a *schema.Resource that allows a customer
 // to declare a Google Cloud Project resource.
@@ -68,17 +74,17 @@ func resourceGoogleProject() *schema.Resource {
 				Description:  `The display name of the project.`,
 			},
 			"org_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The numeric ID of the organization this project belongs to. Changing this forces a new project to be created.  Only one of org_id or folder_id may be specified. If the org_id is specified then the project is created at the top level. Changing this forces the project to be migrated to the newly specified organization.`,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"folder_id"},
+				Description:   `The numeric ID of the organization this project belongs to. Changing this forces a new project to be created.  Only one of org_id or folder_id may be specified. If the org_id is specified then the project is created at the top level. Changing this forces the project to be migrated to the newly specified organization.`,
 			},
 			"folder_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				StateFunc:   parseFolderId,
-				Description: `The numeric ID of the folder this project should be created under. Only one of org_id or folder_id may be specified. If the folder_id is specified, then the project is created under the specified folder. Changing this forces the project to be migrated to the newly specified folder.`,
+				Type:          schema.TypeString,
+				Optional:      true,
+				StateFunc:     parseFolderId,
+				ConflictsWith: []string{"org_id"},
+				Description:   `The numeric ID of the folder this project should be created under. Only one of org_id or folder_id may be specified. If the folder_id is specified, then the project is created under the specified folder. Changing this forces the project to be migrated to the newly specified folder.`,
 			},
 			"number": {
 				Type:        schema.TypeString,
@@ -179,7 +185,14 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	// a network and deleting it in the background.
 	if !d.Get("auto_create_network").(bool) {
 		// The compute API has to be enabled before we can delete a network.
-		if err = enableServiceUsageProjectServices([]string{"compute.googleapis.com"}, project.ProjectId, userAgent, config, d.Timeout(schema.TimeoutCreate)); err != nil {
+
+		billingProject := project.ProjectId
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		if err = enableServiceUsageProjectServices([]string{"compute.googleapis.com"}, project.ProjectId, billingProject, userAgent, config, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return errwrap.Wrapf("Error enabling the Compute Engine API required to delete the default network: {{err}} ", err)
 		}
 
@@ -212,7 +225,13 @@ func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceD
 		return fmt.Errorf("missing permission on %q: %v", ba, perm)
 	}
 	if !d.Get("auto_create_network").(bool) {
-		_, err := config.NewServiceUsageClient(userAgent).Services.Get("projects/00000000000/services/serviceusage.googleapis.com").Do()
+		call := config.NewServiceUsageClient(userAgent).Services.Get("projects/00000000000/services/serviceusage.googleapis.com")
+		if config.UserProjectOverride {
+			if billingProject, err := getBillingProject(d, config); err == nil {
+				call.Header().Add("X-Goog-User-Project", billingProject)
+			}
+		}
+		_, err := call.Do()
 		switch {
 		// We are querying a dummy project since the call is already coming from the quota project.
 		// If the API is enabled we get a not found message or accessNotConfigured if API is not enabled.
@@ -580,7 +599,7 @@ func readGoogleProject(d *schema.ResourceData, config *Config, userAgent string)
 }
 
 // Enables services. WARNING: Use BatchRequestEnableServices for better batching if possible.
-func enableServiceUsageProjectServices(services []string, project, userAgent string, config *Config, timeout time.Duration) error {
+func enableServiceUsageProjectServices(services []string, project, billingProject, userAgent string, config *Config, timeout time.Duration) error {
 	// ServiceUsage does not allow more than 20 services to be enabled per
 	// batchEnable API call. See
 	// https://cloud.google.com/service-usage/docs/reference/rest/v1/services/batchEnable
@@ -595,19 +614,19 @@ func enableServiceUsageProjectServices(services []string, project, userAgent str
 			return nil
 		}
 
-		if err := doEnableServicesRequest(nextBatch, project, userAgent, config, timeout); err != nil {
+		if err := doEnableServicesRequest(nextBatch, project, billingProject, userAgent, config, timeout); err != nil {
 			return err
 		}
 		log.Printf("[DEBUG] Finished enabling next batch of %d project services: %+v", len(nextBatch), nextBatch)
 	}
 
 	log.Printf("[DEBUG] Verifying that all services are enabled")
-	return waitForServiceUsageEnabledServices(services, project, userAgent, config, timeout)
+	return waitForServiceUsageEnabledServices(services, project, billingProject, userAgent, config, timeout)
 }
 
-func doEnableServicesRequest(services []string, project, userAgent string, config *Config, timeout time.Duration) error {
+func doEnableServicesRequest(services []string, project, billingProject, userAgent string, config *Config, timeout time.Duration) error {
 	var op *serviceusage.Operation
-
+	var call ServicesCall
 	err := retryTimeDuration(func() error {
 		var rerr error
 		if len(services) == 1 {
@@ -615,20 +634,27 @@ func doEnableServicesRequest(services []string, project, userAgent string, confi
 			// using service endpoint.
 			name := fmt.Sprintf("projects/%s/services/%s", project, services[0])
 			req := &serviceusage.EnableServiceRequest{}
-			op, rerr = config.NewServiceUsageClient(userAgent).Services.Enable(name, req).Do()
+			call = config.NewServiceUsageClient(userAgent).Services.Enable(name, req)
 		} else {
 			// Batch enable for multiple services.
 			name := fmt.Sprintf("projects/%s", project)
 			req := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
-			op, rerr = config.NewServiceUsageClient(userAgent).Services.BatchEnable(name, req).Do()
+			call = config.NewServiceUsageClient(userAgent).Services.BatchEnable(name, req)
 		}
+		if config.UserProjectOverride && billingProject != "" {
+			call.Header().Add("X-Goog-User-Project", billingProject)
+		}
+		op, rerr = call.Do()
 		return handleServiceUsageRetryableError(rerr)
-	}, timeout, serviceUsageServiceBeingActivated)
+	},
+		timeout,
+		serviceUsageServiceBeingActivated,
+	)
 	if err != nil {
 		return errwrap.Wrapf("failed to send enable services request: {{err}}", err)
 	}
 	// Poll for the API to return
-	waitErr := serviceUsageOperationWait(config, op, project, fmt.Sprintf("Enable Project %q Services: %+v", project, services), userAgent, timeout)
+	waitErr := serviceUsageOperationWait(config, op, billingProject, fmt.Sprintf("Enable Project %q Services: %+v", project, services), userAgent, timeout)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -639,15 +665,16 @@ func doEnableServicesRequest(services []string, project, userAgent string, confi
 // if a service has been renamed, this function will list both the old and new
 // forms of the service. LIST responses are expected to return only the old or
 // new form, but we'll always return both.
-func listCurrentlyEnabledServices(project, userAgent string, config *Config, timeout time.Duration) (map[string]struct{}, error) {
+func listCurrentlyEnabledServices(project, billingProject, userAgent string, config *Config, timeout time.Duration) (map[string]struct{}, error) {
 	log.Printf("[DEBUG] Listing enabled services for project %s", project)
 	apiServices := make(map[string]struct{})
 	err := retryTimeDuration(func() error {
 		ctx := context.Background()
-		return config.NewServiceUsageClient(userAgent).Services.
-			List(fmt.Sprintf("projects/%s", project)).
-			Fields("services/name,nextPageToken").
-			Filter("state:ENABLED").
+		call := config.NewServiceUsageClient(userAgent).Services.List(fmt.Sprintf("projects/%s", project))
+		if config.UserProjectOverride && billingProject != "" {
+			call.Header().Add("X-Goog-User-Project", billingProject)
+		}
+		return call.Fields("services/name,nextPageToken").Filter("state:ENABLED").
 			Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
 				for _, v := range r.Services {
 					// services are returned as "projects/{{project}}/services/{{name}}"
@@ -677,13 +704,13 @@ func listCurrentlyEnabledServices(project, userAgent string, config *Config, tim
 // waitForServiceUsageEnabledServices doesn't resend enable requests - it just
 // waits for service enablement status to propagate. Essentially, it waits until
 // all services show up as enabled when listing services on the project.
-func waitForServiceUsageEnabledServices(services []string, project, userAgent string, config *Config, timeout time.Duration) error {
+func waitForServiceUsageEnabledServices(services []string, project, billingProject, userAgent string, config *Config, timeout time.Duration) error {
 	missing := make([]string, 0, len(services))
 	delay := time.Duration(0)
 	interval := time.Second
 	err := retryTimeDuration(func() error {
 		// Get the list of services that are enabled on the project
-		enabledServices, err := listCurrentlyEnabledServices(project, userAgent, config, timeout)
+		enabledServices, err := listCurrentlyEnabledServices(project, billingProject, userAgent, config, timeout)
 		if err != nil {
 			return err
 		}

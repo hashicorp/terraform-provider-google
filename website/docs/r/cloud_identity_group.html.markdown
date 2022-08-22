@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Identity"
-layout: "google"
 page_title: "Google: google_cloud_identity_group"
-sidebar_current: "docs-google-cloud-identity-group"
 description: |-
   A Cloud Identity resource representing a Group.
 ---
@@ -25,6 +23,11 @@ description: |-
 A Cloud Identity resource representing a Group.
 
 
+To get more information about Group, see:
+
+* [API documentation](https://cloud.google.com/identity/docs/reference/rest/v1beta1/groups)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/identity/docs/how-to/setup)
 
 ~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
 you must specify a `billing_project` and set `user_project_override` to true 
@@ -32,17 +35,13 @@ in the provider configuration. Otherwise the Cloud Identity API will return a 40
 Your account must have the `serviceusage.services.use` permission on the 
 `billing_project` you defined.
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_identity_groups_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Identity Groups Basic
 
 
 ```hcl
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
-  display_name = "my-identity-group"
+  display_name         = "my-identity-group"
+  initial_group_config = "WITH_INITIAL_OWNER"
 
   parent = "customers/A01b123xz"
 
@@ -64,7 +63,7 @@ The following arguments are supported:
 * `group_key` -
   (Required)
   EntityKey of the Group.
-  Structure is documented below.
+  Structure is [documented below](#nested_group_key).
 
 * `parent` -
   (Required)
@@ -81,7 +80,7 @@ The following arguments are supported:
   'system/groups/external': '' if the Group is an external-identity-mapped group.
 
 
-The `group_key` block supports:
+<a name="nested_group_key"></a>The `group_key` block supports:
 
 * `id` -
   (Required)
@@ -113,6 +112,15 @@ The `group_key` block supports:
   An extended description to help users determine the purpose of a Group.
   Must not be longer than 4,096 characters.
 
+* `initial_group_config` -
+  (Optional)
+  The initial configuration options for creating a Group.
+  See the
+  [API reference](https://cloud.google.com/identity/docs/reference/rest/v1beta1/groups/create#initialgroupconfig)
+  for possible values.
+  Default value is `EMPTY`.
+  Possible values are `INITIAL_GROUP_CONFIG_UNSPECIFIED`, `WITH_INITIAL_OWNER`, and `EMPTY`.
+
 
 ## Attributes Reference
 
@@ -136,9 +144,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

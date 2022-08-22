@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: Added support for `airflow-1` and `airflow-2` aliases in image version argument
+```

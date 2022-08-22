@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud AI Notebooks"
-layout: "google"
 page_title: "Google: google_notebooks_environment"
-sidebar_current: "docs-google-notebooks-environment"
 description: |-
   A Cloud AI Platform Notebook environment.
 ---
@@ -83,18 +81,18 @@ The following arguments are supported:
 * `vm_image` -
   (Optional)
   Use a Compute Engine VM image to start the notebook instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_vm_image).
 
 * `container_image` -
   (Optional)
   Use a container image to start the notebook instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_container_image).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `vm_image` block supports:
+<a name="nested_vm_image"></a>The `vm_image` block supports:
 
 * `project` -
   (Required)
@@ -109,7 +107,7 @@ The `vm_image` block supports:
   (Optional)
   Use this VM image family to find the image; the newest image in this family will be used.
 
-The `container_image` block supports:
+<a name="nested_container_image"></a>The `container_image` block supports:
 
 * `repository` -
   (Required)
@@ -135,9 +133,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

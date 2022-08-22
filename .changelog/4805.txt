@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed missing values for `negative_caching` and `serve_while_stale` on `google_compute_backend_service`
+```

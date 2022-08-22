@@ -35,6 +35,12 @@ func resourceStorageBucket() *schema.Resource {
 			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked),
 		),
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Read:   schema.DefaultTimeout(4 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -81,8 +87,7 @@ func resourceStorageBucket() *schema.Resource {
 
 			"location": {
 				Type:     schema.TypeString,
-				Default:  "US",
-				Optional: true,
+				Required: true,
 				ForceNew: true,
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
@@ -194,7 +199,6 @@ func resourceStorageBucket() *schema.Resource {
 									"matches_storage_class": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										MinItems:    1,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: `Storage Class of objects to satisfy this condition. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE, STANDARD, DURABLE_REDUCED_AVAILABILITY.`,
 									},
@@ -202,6 +206,18 @@ func resourceStorageBucket() *schema.Resource {
 										Type:        schema.TypeInt,
 										Optional:    true,
 										Description: `Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.`,
+									},
+									"matches_prefix": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `One or more matching name prefixes to satisfy this condition.`,
+									},
+									"matches_suffix": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `One or more matching name suffixes to satisfy this condition.`,
 									},
 								},
 							},
@@ -314,8 +330,9 @@ func resourceStorageBucket() *schema.Resource {
 			},
 
 			"default_event_based_hold": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether or not to automatically apply an eventBasedHold to new objects added to the bucket.`,
 			},
 
 			"logging": {
@@ -339,20 +356,11 @@ func resourceStorageBucket() *schema.Resource {
 				},
 				Description: `The bucket's Access & Storage Logs configuration.`,
 			},
-			"bucket_policy_only": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Computed:      true,
-				Description:   `Enables Bucket Policy Only access to a bucket.`,
-				Deprecated:    `Please use the uniform_bucket_level_access as this field has been renamed by Google.`,
-				ConflictsWith: []string{"uniform_bucket_level_access"},
-			},
 			"uniform_bucket_level_access": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Computed:      true,
-				Description:   `Enables uniform bucket-level access on a bucket.`,
-				ConflictsWith: []string{"bucket_policy_only"},
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Enables uniform bucket-level access on a bucket.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -387,6 +395,9 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Get the bucket and location
 	bucket := d.Get("name").(string)
+	if err := checkGCSName(bucket); err != nil {
+		return err
+	}
 	location := d.Get("location").(string)
 
 	// Create a bucket, setting the labels, location and name.
@@ -466,6 +477,17 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Created bucket %v at location %v\n\n", res.Name, res.SelfLink)
 	d.SetId(res.Id)
+
+	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
+	// to make sure it exists before moving on
+	err = retryTimeDuration(func() (operr error) {
+		_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
+		return retryErr
+	}, d.Timeout(schema.TimeoutCreate), isNotFoundRetryableError("bucket creation"))
+
+	if err != nil {
+		return fmt.Errorf("Error reading bucket after creation: %s", err)
+	}
 
 	// If the retention policy is not already locked, check if it
 	// needs to be locked.
@@ -584,15 +606,11 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if d.HasChange("bucket_policy_only") {
-		sb.IamConfiguration = expandIamConfiguration(d)
-	}
 	if d.HasChange("uniform_bucket_level_access") {
 		sb.IamConfiguration = expandIamConfiguration(d)
 	}
 
 	res, err := config.NewStorageClient(userAgent).Buckets.Patch(d.Get("name").(string), sb).Do()
-
 	if err != nil {
 		return err
 	}
@@ -600,6 +618,17 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	// Assign the bucket ID as the resource ID
 	if err := d.Set("self_link", res.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+
+	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
+	// to make sure it exists before moving on
+	err = retryTimeDuration(func() (operr error) {
+		_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
+		return retryErr
+	}, d.Timeout(schema.TimeoutUpdate), isNotFoundRetryableError("bucket update"))
+
+	if err != nil {
+		return fmt.Errorf("Error reading bucket after update: %s", err)
 	}
 
 	if d.HasChange("retention_policy") {
@@ -635,108 +664,22 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+
+	var res *storage.Bucket
+	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
+	// to make sure it exists before moving on
+	err = retryTimeDuration(func() (operr error) {
+		var retryErr error
+		res, retryErr = config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+		return retryErr
+	}, d.Timeout(schema.TimeoutRead), isNotFoundRetryableError("bucket read"))
+
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 
-	// We are trying to support several different use cases for bucket. Buckets are globally
-	// unique but they are associated with projects internally, but some users want to use
-	// buckets in a project agnostic way. Thus we will check to see if the project ID has been
-	// explicitly set and use that first. However if no project is explicitly set, such as during
-	// import, we will look up the ID from the compute API using the project Number from the
-	// bucket API response.
-	// If you are working in a project-agnostic way and have not set the project ID in the provider
-	// block, or the resource or an environment variable, we use the compute API to lookup the projectID
-	// from the projectNumber which is included in the bucket API response
-	if d.Get("project") == "" {
-		project, _ := getProject(d, config)
-		if err := d.Set("project", project); err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
-		}
-	}
-	if d.Get("project") == "" {
-		proj, err := config.NewComputeClient(userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
-		if err := d.Set("project", proj.Name); err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
-		}
-	}
-
-	// Update the bucket ID according to the resource ID
-	if err := d.Set("self_link", res.SelfLink); err != nil {
-		return fmt.Errorf("Error setting self_link: %s", err)
-	}
-	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
-		return fmt.Errorf("Error setting url: %s", err)
-	}
-	if err := d.Set("storage_class", res.StorageClass); err != nil {
-		return fmt.Errorf("Error setting storage_class: %s", err)
-	}
-	if err := d.Set("encryption", flattenBucketEncryption(res.Encryption)); err != nil {
-		return fmt.Errorf("Error setting encryption: %s", err)
-	}
-	if err := d.Set("location", res.Location); err != nil {
-		return fmt.Errorf("Error setting location: %s", err)
-	}
-	if err := d.Set("cors", flattenCors(res.Cors)); err != nil {
-		return fmt.Errorf("Error setting cors: %s", err)
-	}
-	if err := d.Set("default_event_based_hold", res.DefaultEventBasedHold); err != nil {
-		return fmt.Errorf("Error setting default_event_based_hold: %s", err)
-	}
-	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
-		return fmt.Errorf("Error setting logging: %s", err)
-	}
-	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
-		return fmt.Errorf("Error setting versioning: %s", err)
-	}
-	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
-		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
-	}
-	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error setting labels: %s", err)
-	}
-	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
-		return fmt.Errorf("Error setting website: %s", err)
-	}
-	if err := d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy)); err != nil {
-		return fmt.Errorf("Error setting retention_policy: %s", err)
-	}
-
-	// Delete the bucket_policy_only field in the next major version of the provider.
-	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
-		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
-			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
-		}
-		if err := d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled); err != nil {
-			return fmt.Errorf("Error setting bucket_policy_only: %s", err)
-		}
-	} else {
-		if err := d.Set("bucket_policy_only", false); err != nil {
-			return fmt.Errorf("Error setting bucket_policy_only: %s", err)
-		}
-		if err := d.Set("uniform_bucket_level_access", false); err != nil {
-			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
-		}
-	}
-
-	if res.Billing == nil {
-		if err := d.Set("requester_pays", nil); err != nil {
-			return fmt.Errorf("Error setting requester_pays: %s", err)
-		}
-	} else {
-		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
-			return fmt.Errorf("Error setting requester_pays: %s", err)
-		}
-	}
-
-	d.SetId(res.Id)
-	return nil
+	return setStorageBucket(d, config, res, bucket, userAgent)
 }
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
@@ -1059,6 +1002,8 @@ func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleC
 		"days_since_custom_time":     int(condition.DaysSinceCustomTime),
 		"days_since_noncurrent_time": int(condition.DaysSinceNoncurrentTime),
 		"noncurrent_time_before":     condition.NoncurrentTimeBefore,
+		"matches_prefix":             convertStringArrToInterface(condition.MatchesPrefix),
+		"matches_suffix":             convertStringArrToInterface(condition.MatchesSuffix),
 	}
 	if condition.IsLive == nil {
 		ruleCondition["with_state"] = "ANY"
@@ -1108,37 +1053,17 @@ func expandBucketWebsite(v interface{}) *storage.BucketWebsite {
 	return w
 }
 
-// remove this on next major release of the provider.
 func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
-	// We are checking for a change because the last else block is only executed on Create.
-	enabled := false
-	if d.HasChange("bucket_policy_only") {
-		enabled = d.Get("bucket_policy_only").(bool)
-	} else if d.HasChange("uniform_bucket_level_access") {
-		enabled = d.Get("uniform_bucket_level_access").(bool)
-	} else {
-		enabled = d.Get("bucket_policy_only").(bool) || d.Get("uniform_bucket_level_access").(bool)
-	}
-
-	return &storage.BucketIamConfiguration{
+	cfg := &storage.BucketIamConfiguration{
 		ForceSendFields: []string{"UniformBucketLevelAccess"},
 		UniformBucketLevelAccess: &storage.BucketIamConfigurationUniformBucketLevelAccess{
-			Enabled:         enabled,
+			Enabled:         d.Get("uniform_bucket_level_access").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
 	}
-}
 
-// Uncomment once the previous function is removed.
-// func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
-// 	return &storage.BucketIamConfiguration{
-// 		ForceSendFields: []string{"UniformBucketLevelAccess"},
-// 		UniformBucketLevelAccess: &storage.BucketIamConfigurationUniformBucketLevelAccess{
-// 			Enabled:         d.Get("uniform_bucket_level_access").(bool),
-// 			ForceSendFields: []string{"Enabled"},
-// 		},
-// 	}
-// }
+	return cfg
+}
 
 func expandStorageBucketLifecycle(v interface{}) (*storage.BucketLifecycle, error) {
 	if v == nil {
@@ -1288,6 +1213,25 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 		transformed.NoncurrentTimeBefore = v.(string)
 	}
 
+	if v, ok := condition["matches_prefix"]; ok {
+		prefixes := v.([]interface{})
+		transformedPrefixes := make([]string, 0, len(prefixes))
+
+		for _, v := range prefixes {
+			transformedPrefixes = append(transformedPrefixes, v.(string))
+		}
+		transformed.MatchesPrefix = transformedPrefixes
+	}
+	if v, ok := condition["matches_suffix"]; ok {
+		suffixes := v.([]interface{})
+		transformedSuffixes := make([]string, 0, len(suffixes))
+
+		for _, v := range suffixes {
+			transformedSuffixes = append(transformedSuffixes, v.(string))
+		}
+		transformed.MatchesSuffix = transformedSuffixes
+	}
+
 	return transformed, nil
 }
 
@@ -1320,6 +1264,14 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 
+	if v, ok := m["days_since_custom_time"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
+
+	if v, ok := m["days_since_noncurrent_time"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
+
 	if v, ok := m["created_before"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
@@ -1343,6 +1295,19 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 
 	if v, ok := m["num_newer_versions"]; ok {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
+
+	if v, ok := m["matches_prefix"]; ok {
+		matches_prefixes := v.([]interface{})
+		for _, matches_prefix := range matches_prefixes {
+			buf.WriteString(fmt.Sprintf("%s-", matches_prefix))
+		}
+	}
+	if v, ok := m["matches_suffix"]; ok {
+		matches_suffixes := v.([]interface{})
+		for _, matches_suffix := range matches_suffixes {
+			buf.WriteString(fmt.Sprintf("%s-", matches_suffix))
+		}
 	}
 
 	return hashcode(buf.String())
@@ -1374,4 +1339,98 @@ func detectLifecycleChange(d *schema.ResourceData) bool {
 	}
 
 	return false
+}
+
+// Resource Read and DataSource Read both need to set attributes, but Data Sources don't support Timeouts
+// so we pulled this portion out separately (https://github.com/hashicorp/terraform-provider-google/issues/11264)
+func setStorageBucket(d *schema.ResourceData, config *Config, res *storage.Bucket, bucket, userAgent string) error {
+	// We are trying to support several different use cases for bucket. Buckets are globally
+	// unique but they are associated with projects internally, but some users want to use
+	// buckets in a project agnostic way. Thus we will check to see if the project ID has been
+	// explicitly set and use that first. However if no project is explicitly set, such as during
+	// import, we will look up the ID from the compute API using the project Number from the
+	// bucket API response.
+	// If you are working in a project-agnostic way and have not set the project ID in the provider
+	// block, or the resource or an environment variable, we use the compute API to lookup the projectID
+	// from the projectNumber which is included in the bucket API response
+	if d.Get("project") == "" {
+		project, _ := getProject(d, config)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
+	if d.Get("project") == "" {
+		proj, err := config.NewComputeClient(userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
+		if err := d.Set("project", proj.Name); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
+
+	// Update the bucket ID according to the resource ID
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
+		return fmt.Errorf("Error setting url: %s", err)
+	}
+	if err := d.Set("storage_class", res.StorageClass); err != nil {
+		return fmt.Errorf("Error setting storage_class: %s", err)
+	}
+	if err := d.Set("encryption", flattenBucketEncryption(res.Encryption)); err != nil {
+		return fmt.Errorf("Error setting encryption: %s", err)
+	}
+	if err := d.Set("location", res.Location); err != nil {
+		return fmt.Errorf("Error setting location: %s", err)
+	}
+	if err := d.Set("cors", flattenCors(res.Cors)); err != nil {
+		return fmt.Errorf("Error setting cors: %s", err)
+	}
+	if err := d.Set("default_event_based_hold", res.DefaultEventBasedHold); err != nil {
+		return fmt.Errorf("Error setting default_event_based_hold: %s", err)
+	}
+	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
+		return fmt.Errorf("Error setting logging: %s", err)
+	}
+	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
+		return fmt.Errorf("Error setting versioning: %s", err)
+	}
+	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
+		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
+	}
+	if err := d.Set("labels", res.Labels); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
+		return fmt.Errorf("Error setting website: %s", err)
+	}
+	if err := d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy)); err != nil {
+		return fmt.Errorf("Error setting retention_policy: %s", err)
+	}
+
+	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
+		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+	} else {
+		if err := d.Set("uniform_bucket_level_access", false); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+	}
+
+	if res.Billing == nil {
+		if err := d.Set("requester_pays", nil); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
+	} else {
+		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
+	}
+
+	d.SetId(res.Id)
+	return nil
 }

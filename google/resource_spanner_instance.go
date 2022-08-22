@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -19,13 +19,47 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+func deleteSpannerBackups(d *schema.ResourceData, config *Config, res map[string]interface{}, userAgent string, billingProject string) error {
+	var v interface{}
+	var ok bool
+
+	v, ok = res["backups"]
+	if !ok || v == nil {
+		return nil
+	}
+
+	// Iterate over the list and delete each backup.
+	for _, itemRaw := range v.([]interface{}) {
+		if itemRaw == nil {
+			continue
+		}
+		item := itemRaw.(map[string]interface{})
+
+		backupName := item["name"].(string)
+
+		log.Printf("[DEBUG] Found backups for resource %q: %#v)", d.Id(), item)
+
+		path := "{{SpannerBasePath}}" + backupName
+
+		url, err := replaceVars(d, config, path)
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "DELETE", billingProject, url, userAgent, nil)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 func resourceSpannerInstance() *schema.Resource {
 	return &schema.Resource{
@@ -39,9 +73,9 @@ func resourceSpannerInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -51,7 +85,7 @@ func resourceSpannerInstance() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `The name of the instance's configuration (similar but not
-quite the same as a region) which defines defines the geographic placement and
+quite the same as a region) which defines the geographic placement and
 replication of your databases in this instance. It determines where your data
 is stored. Values are typically of the form 'regional-europe-west1' , 'us-central' etc.
 In order to obtain a valid list please consult the
@@ -84,15 +118,30 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"num_nodes": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: `The number of nodes allocated to this instance.`,
-				Default:     1,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `The number of nodes allocated to this instance. Exactly one of either node_count or processing_units
+must be present in terraform.`,
+				ExactlyOneOf: []string{"num_nodes", "processing_units"},
+			},
+			"processing_units": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `The number of processing units allocated to this instance. Exactly one of processing_units 
+or node_count must be present in terraform.`,
+				ExactlyOneOf: []string{"num_nodes", "processing_units"},
 			},
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Instance status: 'CREATING' or 'READY'.`,
+			},
+			"force_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -136,6 +185,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("num_nodes"); !isEmptyValue(reflect.ValueOf(nodeCountProp)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
 		obj["nodeCount"] = nodeCountProp
+	}
+	processingUnitsProp, err := expandSpannerInstanceProcessingUnits(d.Get("processing_units"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("processing_units"); !isEmptyValue(reflect.ValueOf(processingUnitsProp)) && (ok || !reflect.DeepEqual(v, processingUnitsProp)) {
+		obj["processingUnits"] = processingUnitsProp
 	}
 	labelsProp, err := expandSpannerInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
@@ -211,12 +266,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
-
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
 	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
 	return resourceSpannerInstanceRead(d, meta)
 }
@@ -263,6 +318,12 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -277,6 +338,9 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("num_nodes", flattenSpannerInstanceNumNodes(res["nodeCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("processing_units", flattenSpannerInstanceProcessingUnits(res["processingUnits"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("labels", flattenSpannerInstanceLabels(res["labels"], d, config)); err != nil {
@@ -316,6 +380,12 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("num_nodes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
 		obj["nodeCount"] = nodeCountProp
+	}
+	processingUnitsProp, err := expandSpannerInstanceProcessingUnits(d.Get("processing_units"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("processing_units"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, processingUnitsProp)) {
+		obj["processingUnits"] = processingUnitsProp
 	}
 	labelsProp, err := expandSpannerInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
@@ -381,6 +451,24 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var obj map[string]interface{}
+
+	if d.Get("force_destroy").(bool) {
+		backupsUrl, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}/backups")
+		if err != nil {
+			return err
+		}
+
+		resp, err := sendRequest(config, "GET", billingProject, backupsUrl, userAgent, nil)
+		if err != nil {
+			// API returns 200 if no backups exist but the instance still exists, hence the error check.
+			return handleNotFoundError(err, d, fmt.Sprintf("SpannerInstance %q", d.Id()))
+		}
+
+		err = deleteSpannerBackups(d, config, resp, billingProject, userAgent)
+		if err != nil {
+			return err
+		}
+	}
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -414,6 +502,11 @@ func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 	d.SetId(id)
 
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -438,7 +531,24 @@ func flattenSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData, co
 func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceProcessingUnits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -486,6 +596,10 @@ func expandSpannerInstanceNumNodes(v interface{}, d TerraformResourceData, confi
 	return v, nil
 }
 
+func expandSpannerInstanceProcessingUnits(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerInstanceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -498,6 +612,10 @@ func expandSpannerInstanceLabels(v interface{}, d TerraformResourceData, config 
 }
 
 func resourceSpannerInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Temp Logic to accommodate processing_units and num_nodes
+	if obj["processingUnits"] == nil && obj["nodeCount"] == nil {
+		obj["nodeCount"] = 1
+	}
 	newObj := make(map[string]interface{})
 	newObj["instance"] = obj
 	if obj["name"] == nil {
@@ -529,6 +647,9 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 	}
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+	if d.HasChange("processing_units") {
+		updateMask = append(updateMask, "processingUnits")
 	}
 	newObj["fieldMask"] = strings.Join(updateMask, ",")
 	return newObj, nil

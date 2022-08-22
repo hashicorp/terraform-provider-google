@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
+	"regexp"
 	"strings"
 	"time"
 
@@ -37,9 +37,9 @@ func resourceComputeSnapshot() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -199,10 +199,6 @@ snapshot using a customer-supplied encryption key.`,
 storage, this number is expected to change with snapshot
 creation/deletion.`,
 			},
-			"source_disk_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -281,7 +277,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		obj["sourceDiskEncryptionKey"] = sourceDiskEncryptionKeyProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{source_disk}}/createSnapshot")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}PRE_CREATE_REPLACE_ME/createSnapshot")
 	if err != nil {
 		return err
 	}
@@ -300,6 +296,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
+	url = regexp.MustCompile("PRE_CREATE_REPLACE_ME").ReplaceAllLiteralString(url, sourceDiskProp.(string))
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Snapshot: %s", err)
@@ -551,7 +548,7 @@ func flattenComputeSnapshotCreationTimestamp(v interface{}, d *schema.ResourceDa
 func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -568,7 +565,7 @@ func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData, con
 func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -593,7 +590,7 @@ func flattenComputeSnapshotDescription(v interface{}, d *schema.ResourceData, co
 func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -630,7 +627,7 @@ func flattenComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData, con
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -842,8 +839,5 @@ func resourceComputeSnapshotDecoder(d *schema.ResourceData, meta interface{}, re
 		res["sourceDiskEncryptionKey"] = transformed
 	}
 
-	if err := d.Set("source_disk_link", ConvertSelfLinkToV1(res["sourceDisk"].(string))); err != nil {
-		return nil, fmt.Errorf("Error setting source_disk_link: %s", err)
-	}
 	return res, nil
 }

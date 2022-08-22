@@ -1,8 +1,6 @@
 ---
 subcategory: "Dataproc"
-layout: "google"
 page_title: "Google: google_dataproc_job"
-sidebar_current: "docs-google-dataproc-job"
 description: |-
   Manages a job resource within a Dataproc cluster.
 ---
@@ -84,12 +82,13 @@ output "pyspark_status" {
    as shown in the example above, or by setting the `count` attribute.
    The following job configs are supported:
 
-       * pyspark_config  - Submits a PySpark job to the cluster
-       * spark_config    - Submits a Spark job to the cluster
-       * hadoop_config   - Submits a Hadoop job to the cluster
-       * hive_config     - Submits a Hive job to the cluster
-       * hpig_config     - Submits a Pig job to the cluster
-       * sparksql_config - Submits a Spark SQL job to the cluster
+       * [pyspark_config](#nested_pyspark_config)  - Submits a PySpark job to the cluster
+       * [spark_config](#nested_spark_config)    - Submits a Spark job to the cluster
+       * [hadoop_config](#nested_hadoop_config)   - Submits a Hadoop job to the cluster
+       * [hive_config](#nested_hive_config)     - Submits a Hive job to the cluster
+       * [hpig_config](#nested_hpig_config)     - Submits a Pig job to the cluster
+       * [sparksql_config](#nested_sparksql_config) - Submits a Spark SQL job to the cluster
+       * [presto_config](#nested_presto_config) - Submits a Presto job to the cluster
 
 - - -
 
@@ -105,9 +104,11 @@ output "pyspark_status" {
 
 * `labels` - (Optional) The list of labels (key/value pairs) to add to the job.
 
-* `scheduling.max_failures_per_hour` - (Required) Maximum number of times per hour a driver may be restarted as a result of driver terminating with non-zero code before job is reported failed.
+* `scheduling.max_failures_per_hour` - (Required) Maximum number of times per hour a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.
 
-The `pyspark_config` block supports:
+* `scheduling.max_failures_total` - (Required) Maximum number of times in total a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.
+
+<a name="nested_pyspark_config"></a>The `pyspark_config` block supports:
 
 Submitting a pyspark job to the cluster. Below is an example configuration:
 
@@ -147,7 +148,7 @@ are generally applicable:
 
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
-The `spark_config` block supports:
+<a name="nested_spark_config"></a>The `spark_config` block supports:
 
 ```hcl
 # Submit a spark job to the cluster
@@ -190,7 +191,7 @@ resource "google_dataproc_job" "spark" {
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
-The `hadoop_config` block supports:
+<a name="nested_hadoop_config"></a>The `hadoop_config` block supports:
 
 ```hcl
 # Submit a hadoop job to the cluster
@@ -223,7 +224,7 @@ resource "google_dataproc_job" "hadoop" {
 
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
-The `hive_config` block supports:
+<a name="nested_hive_config"></a>The `hive_config` block supports:
 
 ```hcl
 # Submit a hive job to the cluster
@@ -253,7 +254,7 @@ resource "google_dataproc_job" "hive" {
 
 * `jar_file_uris` - (Optional) HCFS URIs of jar files to add to the CLASSPATH of the Hive server and Hadoop MapReduce (MR) tasks. Can contain Hive SerDes and UDFs.
 
-The `pig_config` block supports:
+<a name="nested_pig_config"></a>The `pig_config` block supports:
 
 ```hcl
 # Submit a pig job to the cluster
@@ -288,7 +289,7 @@ resource "google_dataproc_job" "pig" {
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
-The `sparksql_config` block supports:
+<a name="nested_sparksql_config"></a>The `sparksql_config` block supports:
 
 ```hcl
 # Submit a spark SQL job to the cluster
@@ -318,6 +319,37 @@ resource "google_dataproc_job" "sparksql" {
 
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
+<a name="nested_presto_config"></a>The `presto_config` block supports:
+
+```hcl
+# Submit a Presto job to the cluster
+resource "google_dataproc_job" "presto" {
+  ...
+  presto_config {
+    query_list = [
+      "DROP TABLE IF EXISTS dprocjob_test",
+      "CREATE TABLE dprocjob_test(bar int)",
+      "SELECT * FROM dprocjob_test WHERE bar > 2",
+    ]
+  }
+}
+```
+
+* `client_tags` - (Optional) Presto client tags to attach to this query.
+
+* `continue_on_failure` - (Optional) Whether to continue executing queries if a query fails. Setting to true can be useful when executing independent parallel queries. Defaults to false.
+
+* `query_list`- (Optional) The list of SQL queries or statements to execute as part of the job.
+   Conflicts with `query_file_uri`
+
+* `query_file_uri` - (Optional) The HCFS URI of the script that contains SQL queries.
+   Conflicts with `query_list`
+
+* `properties` - (Optional) A mapping of property names to values. Used to set Presto session properties Equivalent to using the --session flag in the Presto CLI.
+
+* `output_format` - (Optional) The format in which query output will be displayed. See the Presto documentation for supported output formats.
+
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 ## Attributes Reference
 

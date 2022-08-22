@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Spanner"
-layout: "google"
 page_title: "Google: google_spanner_instance_iam"
-sidebar_current: "docs-google-spanner-instance-iam"
 description: |-
  Collection of resources to manage IAM policy for a Spanner instance.
 ---

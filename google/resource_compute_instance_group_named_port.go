@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeInstanceGroupNamedPort() *schema.Resource {
@@ -36,8 +34,8 @@ func resourceComputeInstanceGroupNamedPort() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -305,7 +303,7 @@ func flattenNestedComputeInstanceGroupNamedPortName(v interface{}, d *schema.Res
 func flattenNestedComputeInstanceGroupNamedPortPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -450,10 +448,7 @@ func resourceComputeInstanceGroupNamedPortPatchDeleteEncoder(d *schema.ResourceD
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "InstanceGroupNamedPort not found in list",
-		}
+		return nil, fake404("nested", "ComputeInstanceGroupNamedPort")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)

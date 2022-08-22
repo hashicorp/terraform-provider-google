@@ -50,6 +50,12 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				Optional:    true,
 				Description: `The display name for the service account. Can be updated without creating a new resource.`,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `Whether the service account is disabled. Defaults to false`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -109,7 +115,33 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading service account after creation: %s", err)
 	}
 
+	// We poll until the resource is found due to eventual consistency issue
+	// on part of the api https://cloud.google.com/iam/docs/overview#consistency
+	err = PollingWaitTime(resourceServiceAccountPollRead(d, meta), PollCheckForExistence, "Creating Service Account", d.Timeout(schema.TimeoutCreate), 1)
+
+	if err != nil {
+		return err
+	}
+
 	return resourceGoogleServiceAccountRead(d, meta)
+}
+
+func resourceServiceAccountPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		// Confirm the service account exists
+		_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Get(d.Id()).Do()
+
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
 }
 
 func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
@@ -146,6 +178,9 @@ func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("description", sa.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
+	if err := d.Set("disabled", sa.Disabled); err != nil {
+		return fmt.Errorf("Error setting disabled: %s", err)
+	}
 	return nil
 }
 
@@ -181,6 +216,31 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "display_name")
 	}
+
+	// We want to skip the Patch Call below if only the disabled field has been changed
+	if d.HasChange("disabled") && !d.Get("disabled").(bool) {
+		_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Enable(d.Id(),
+			&iam.EnableServiceAccountRequest{}).Do()
+		if err != nil {
+			return err
+		}
+
+		if len(updateMask) == 0 {
+			return nil
+		}
+
+	} else if d.HasChange("disabled") && d.Get("disabled").(bool) {
+		_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Disable(d.Id(),
+			&iam.DisableServiceAccountRequest{}).Do()
+		if err != nil {
+			return err
+		}
+
+		if len(updateMask) == 0 {
+			return nil
+		}
+	}
+
 	_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Patch(d.Id(),
 		&iam.PatchServiceAccountRequest{
 			UpdateMask: strings.Join(updateMask, ","),

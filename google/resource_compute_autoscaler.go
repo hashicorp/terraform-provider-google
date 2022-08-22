@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeAutoscaler() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceComputeAutoscaler() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -113,6 +111,16 @@ scales up until it reaches the maximum number of instances you
 specified or until the average utilization reaches the target
 utilization.`,
 									},
+									"predictive_method": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Indicates whether predictive autoscaling based on CPU metric is enabled. Valid values are:
+
+- NONE (default). No predictive method is used. The autoscaler scales the group to meet current demand based on real-time metrics.
+
+- OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability by monitoring daily and weekly load patterns and scaling out ahead of anticipated demand.`,
+										Default: "NONE",
+									},
 								},
 							},
 						},
@@ -163,7 +171,7 @@ of the instances.`,
 									"type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE", ""}, false),
+										ValidateFunc: validateEnum([]string{"GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE", ""}),
 										Description: `Defines how target utilization value is expressed for a
 Stackdriver Monitoring metric. Possible values: ["GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE"]`,
 									},
@@ -173,7 +181,7 @@ Stackdriver Monitoring metric. Possible values: ["GAUGE", "DELTA_PER_SECOND", "D
 						"mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OFF", "ONLY_UP", "ON", ""}, false),
+							ValidateFunc: validateEnum([]string{"OFF", "ONLY_UP", "ON", ""}),
 							Description:  `Defines operating mode for this policy. Default value: "ON" Possible values: ["OFF", "ONLY_UP", "ON"]`,
 							Default:      "ON",
 						},
@@ -197,26 +205,73 @@ and outages due to abrupt scale-in events`,
 													Optional: true,
 													Description: `Specifies a fixed number of VM instances. This must be a positive
 integer.`,
+													AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
 												},
 												"percent": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Description: `Specifies a percentage of instances between 0 to 100%, inclusive.
 For example, specify 80 for 80%.`,
+													AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
 												},
 											},
 										},
-										AtLeastOneOf: []string{},
+										AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
 									},
 									"time_window_sec": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Description: `How long back autoscaling should look when computing recommendations
 to include directives regarding slower scale down, as described above.`,
+										AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
 									},
 								},
 							},
-							AtLeastOneOf: []string{},
+						},
+						"scaling_schedules": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"duration_sec": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `The duration of time intervals (in seconds) for which this scaling schedule will be running. The minimum allowed value is 300.`,
+									},
+									"min_required_replicas": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `Minimum number of VM instances that autoscaler will recommend in time intervals starting according to schedule.`,
+									},
+									"schedule": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The start timestamps of time intervals when this scaling schedule should provide a scaling signal. This field uses the extended cron format (with an optional year field).`,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A description of a scaling schedule.`,
+									},
+									"disabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `A boolean value that specifies if a scaling schedule can influence autoscaler recommendations. If set to true, then a scaling schedule has no effect.`,
+										Default:     false,
+									},
+									"time_zone": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The time zone to be used when interpreting the schedule. The value of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
+										Default:     "UTC",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -225,7 +280,7 @@ to include directives regarding slower scale down, as described above.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description: `Name of the resource. The name must be 1-63 characters long and match
 the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
@@ -596,12 +651,14 @@ func flattenComputeAutoscalerAutoscalingPolicy(v interface{}, d *schema.Resource
 		flattenComputeAutoscalerAutoscalingPolicyMetric(original["customMetricUtilizations"], d, config)
 	transformed["load_balancing_utilization"] =
 		flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["loadBalancingUtilization"], d, config)
+	transformed["scaling_schedules"] =
+		flattenComputeAutoscalerAutoscalingPolicyScalingSchedules(original["scalingSchedules"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -618,7 +675,7 @@ func flattenComputeAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d *sche
 func flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -635,7 +692,7 @@ func flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d *sche
 func flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -686,7 +743,7 @@ func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(
 func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -703,7 +760,7 @@ func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasF
 func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -720,7 +777,7 @@ func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasP
 func flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -745,9 +802,19 @@ func flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d *s
 	transformed := make(map[string]interface{})
 	transformed["target"] =
 		flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["utilizationTarget"], d, config)
+	transformed["predictive_method"] =
+		flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictiveMethod"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return "NONE"
+	}
+
 	return v
 }
 
@@ -797,6 +864,76 @@ func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interfa
 	return []interface{}{transformed}
 }
 func flattenComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScalingSchedules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"name":                  k,
+			"min_required_replicas": flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(original["minRequiredReplicas"], d, config),
+			"schedule":              flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(original["schedule"], d, config),
+			"time_zone":             flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(original["timeZone"], d, config),
+			"duration_sec":          flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(original["durationSec"], d, config),
+			"disabled":              flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(original["disabled"], d, config),
+			"description":           flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(original["description"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -885,6 +1022,13 @@ func expandComputeAutoscalerAutoscalingPolicy(v interface{}, d TerraformResource
 		return nil, err
 	} else if val := reflect.ValueOf(transformedLoadBalancingUtilization); val.IsValid() && !isEmptyValue(val) {
 		transformed["loadBalancingUtilization"] = transformedLoadBalancingUtilization
+	}
+
+	transformedScalingSchedules, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedules(original["scaling_schedules"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScalingSchedules); val.IsValid() && !isEmptyValue(val) {
+		transformed["scalingSchedules"] = transformedScalingSchedules
 	}
 
 	return transformed, nil
@@ -986,10 +1130,21 @@ func expandComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d Ter
 		transformed["utilizationTarget"] = transformedTarget
 	}
 
+	transformedPredictiveMethod, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictive_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPredictiveMethod); val.IsValid() && !isEmptyValue(val) {
+		transformed["predictiveMethod"] = transformedPredictiveMethod
+	}
+
 	return transformed, nil
 }
 
 func expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1061,6 +1216,90 @@ func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interfac
 }
 
 func expandComputeAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScalingSchedules(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedMinRequiredReplicas, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(original["min_required_replicas"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["minRequiredReplicas"] = transformedMinRequiredReplicas
+		}
+
+		transformedSchedule, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(original["schedule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !isEmptyValue(val) {
+			transformed["schedule"] = transformedSchedule
+		}
+
+		transformedTimeZone, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(original["time_zone"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTimeZone); val.IsValid() && !isEmptyValue(val) {
+			transformed["timeZone"] = transformedTimeZone
+		}
+
+		transformedDurationSec, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(original["duration_sec"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDurationSec); val.IsValid() && !isEmptyValue(val) {
+			transformed["durationSec"] = transformedDurationSec
+		}
+
+		transformedDisabled, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(original["disabled"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !isEmptyValue(val) {
+			transformed["disabled"] = transformedDisabled
+		}
+
+		transformedDescription, err := expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedName, err := expandString(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedName] = transformed
+	}
+	return m, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScalingSchedulesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

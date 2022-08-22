@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Spanner"
-layout: "google"
 page_title: "Google: google_spanner_instance"
-sidebar_current: "docs-google-spanner-instance"
 description: |-
   An isolated set of Cloud Spanner resources on which databases can be
   hosted.
@@ -46,6 +44,24 @@ resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
   num_nodes    = 2
+  labels = {
+    "foo" = "bar"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=spanner_instance_processing_units&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Spanner Instance Processing Units
+
+
+```hcl
+resource "google_spanner_instance" "example" {
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  processing_units    = 200
   labels = {
     "foo" = "bar"
   }
@@ -86,7 +102,7 @@ The following arguments are supported:
 * `config` -
   (Required)
   The name of the instance's configuration (similar but not
-  quite the same as a region) which defines defines the geographic placement and
+  quite the same as a region) which defines the geographic placement and
   replication of your databases in this instance. It determines where your data
   is stored. Values are typically of the form `regional-europe-west1` , `us-central` etc.
   In order to obtain a valid list please consult the
@@ -103,7 +119,13 @@ The following arguments are supported:
 
 * `num_nodes` -
   (Optional)
-  The number of nodes allocated to this instance.
+  The number of nodes allocated to this instance. Exactly one of either node_count or processing_units
+  must be present in terraform.
+
+* `processing_units` -
+  (Optional)
+  The number of processing units allocated to this instance. Exactly one of processing_units 
+  or node_count must be present in terraform.
 
 * `labels` -
   (Optional)
@@ -112,6 +134,9 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `force_destroy` - (Optional) When deleting a spanner instance, this boolean option will delete all backups of this instance.
+This must be set to true if you created a backup manually in the console.
 
 
 ## Attributes Reference
@@ -129,9 +154,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

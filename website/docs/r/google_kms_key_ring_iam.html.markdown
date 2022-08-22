@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_key_ring_iam"
-sidebar_current: "docs-google-kms-key-ring-iam"
 description: |-
  Collection of resources to manage IAM policy for a Google Cloud KMS key ring.
 ---
@@ -157,11 +155,11 @@ The following arguments are supported:
   a `google_iam_policy` data source.
 
 * `condition` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition).
 
 ---
 
-The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
 

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_autoscaler"
-sidebar_current: "docs-google-compute-region-autoscaler"
 description: |-
   Represents an Autoscaler resource.
 ---
@@ -61,26 +59,34 @@ resource "google_compute_region_autoscaler" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "my-instance-template"
-    machine_type   = "e2-medium"
-  can_ip_forward = false
-
-  tags = ["foo", "bar"]
+  name         = "my-instance-template"
+  machine_type = "e2-standard-4"
 
   disk {
-    source_image = data.google_compute_image.debian_9.id
+    source_image = "debian-cloud/debian-11"
+    disk_size_gb = 250
   }
 
   network_interface {
     network = "default"
+
+    # secret default
+    access_config {
+      network_tier = "PREMIUM"
+    }
   }
 
-  metadata = {
-    foo = "bar"
-  }
-
+  # secret default
   service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+    scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+      "https://www.googleapis.com/auth/pubsub",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/trace.append",
+    ]
   }
 }
 
@@ -102,7 +108,7 @@ resource "google_compute_region_instance_group_manager" "foobar" {
 }
 
 data "google_compute_image" "debian_9" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 ```
@@ -127,14 +133,14 @@ The following arguments are supported:
   customMetricUtilizations, and loadBalancingUtilization.
   If none of these are specified, the default will be to autoscale based
   on cpuUtilization to 0.6 or 60%.
-  Structure is documented below.
+  Structure is [documented below](#nested_autoscaling_policy).
 
 * `target` -
   (Required)
   URL of the managed instance group that this autoscaler will scale.
 
 
-The `autoscaling_policy` block supports:
+<a name="nested_autoscaling_policy"></a>The `autoscaling_policy` block supports:
 
 * `min_replicas` -
   (Required)
@@ -172,43 +178,43 @@ The `autoscaling_policy` block supports:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Defines scale down controls to reduce the risk of response latency
   and outages due to abrupt scale-in events
-  Structure is documented below.
+  Structure is [documented below](#nested_scale_down_control).
 
 * `scale_in_control` -
   (Optional)
   Defines scale in controls to reduce the risk of response latency
   and outages due to abrupt scale-in events
-  Structure is documented below.
+  Structure is [documented below](#nested_scale_in_control).
 
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
   scale based on the average CPU utilization of a managed instance
   group.
-  Structure is documented below.
+  Structure is [documented below](#nested_cpu_utilization).
 
 * `metric` -
   (Optional)
   Configuration parameters of autoscaling based on a custom metric.
-  Structure is documented below.
+  Structure is [documented below](#nested_metric).
 
 * `load_balancing_utilization` -
   (Optional)
   Configuration parameters of autoscaling based on a load balancer.
-  Structure is documented below.
+  Structure is [documented below](#nested_load_balancing_utilization).
 
 * `scaling_schedules` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.
-  Structure is documented below.
+  Structure is [documented below](#nested_scaling_schedules).
 
 
-The `scale_down_control` block supports:
+<a name="nested_scale_down_control"></a>The `scale_down_control` block supports:
 
 * `max_scaled_down_replicas` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_max_scaled_down_replicas).
 
 * `time_window_sec` -
   (Optional)
@@ -216,7 +222,7 @@ The `scale_down_control` block supports:
   to include directives regarding slower scale down, as described above.
 
 
-The `max_scaled_down_replicas` block supports:
+<a name="nested_max_scaled_down_replicas"></a>The `max_scaled_down_replicas` block supports:
 
 * `fixed` -
   (Optional)
@@ -228,12 +234,12 @@ The `max_scaled_down_replicas` block supports:
   Specifies a percentage of instances between 0 to 100%, inclusive.
   For example, specify 80 for 80%.
 
-The `scale_in_control` block supports:
+<a name="nested_scale_in_control"></a>The `scale_in_control` block supports:
 
 * `max_scaled_in_replicas` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_max_scaled_in_replicas).
 
 * `time_window_sec` -
   (Optional)
@@ -241,7 +247,7 @@ The `scale_in_control` block supports:
   to include directives regarding slower scale down, as described above.
 
 
-The `max_scaled_in_replicas` block supports:
+<a name="nested_max_scaled_in_replicas"></a>The `max_scaled_in_replicas` block supports:
 
 * `fixed` -
   (Optional)
@@ -253,7 +259,7 @@ The `max_scaled_in_replicas` block supports:
   Specifies a percentage of instances between 0 to 100%, inclusive.
   For example, specify 80 for 80%.
 
-The `cpu_utilization` block supports:
+<a name="nested_cpu_utilization"></a>The `cpu_utilization` block supports:
 
 * `target` -
   (Required)
@@ -269,7 +275,13 @@ The `cpu_utilization` block supports:
   specified or until the average utilization reaches the target
   utilization.
 
-The `metric` block supports:
+* `predictive_method` -
+  (Optional)
+  Indicates whether predictive autoscaling based on CPU metric is enabled. Valid values are:
+  - NONE (default). No predictive method is used. The autoscaler scales the group to meet current demand based on real-time metrics.
+  - OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability by monitoring daily and weekly load patterns and scaling out ahead of anticipated demand.
+
+<a name="nested_metric"></a>The `metric` block supports:
 
 * `name` -
   (Required)
@@ -341,7 +353,7 @@ The `metric` block supports:
   TimeSeries are returned upon the query execution, the autoscaler
   will sum their respective values to obtain its scaling value.
 
-The `load_balancing_utilization` block supports:
+<a name="nested_load_balancing_utilization"></a>The `load_balancing_utilization` block supports:
 
 * `target` -
   (Required)
@@ -349,7 +361,7 @@ The `load_balancing_utilization` block supports:
   balancing configuration) that autoscaler should maintain. Must
   be a positive float value. If not defined, the default is 0.8.
 
-The `scaling_schedules` block supports:
+<a name="nested_scaling_schedules"></a>The `scaling_schedules` block supports:
 
 * `name` - (Required) The identifier for this object. Format specified above.
 
@@ -408,9 +420,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

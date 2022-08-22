@@ -198,7 +198,7 @@ func TestAccProjectIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 	members := []string{}
-	members2 := []string{"user:paddy@hashicorp.com"}
+	members2 := []string{"user:gterraformtest1@gmail.com"}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -234,7 +234,7 @@ func TestAccProjectIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 	members2 := []string{}
-	members := []string{"user:paddy@hashicorp.com"}
+	members := []string{"user:gterraformtest1@gmail.com"}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -312,8 +312,8 @@ resource "google_project_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-      "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co",
+      "user:gterraformtest1@gmail.com",
+      "user:gterraformtest2@gmail.com",
     ]
   }
 }
@@ -334,8 +334,8 @@ resource "google_project_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-      "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co",
+      "user:gterraformtest1@gmail.com",
+      "user:gterraformtest2@gmail.com",
     ]
   }
 }
@@ -365,7 +365,7 @@ resource "google_project_iam_audit_config" "acceptance" {
     log_type = "DATA_WRITE"
     exempted_members = [
       "user:admin@hashicorptest.com",
-      "user:paddy@carvers.co",
+      "user:gterraformtest2@gmail.com",
     ]
   }
 }
@@ -386,7 +386,7 @@ resource "google_project_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-      "user:paddy@hashicorp.com",
+      "user:gterraformtest1@gmail.com",
     ]
   }
 }

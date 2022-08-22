@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_default_object_access_control"
-sidebar_current: "docs-google-storage-default-object-access-control"
 description: |-
   The DefaultObjectAccessControls resources represent the Access Control
   Lists (ACLs) applied to a new object within a Google Cloud Storage bucket
@@ -61,7 +59,8 @@ resource "google_storage_default_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "static-content-bucket"
+  name     = "static-content-bucket"
+  location = "US"
 }
 ```
 
@@ -120,10 +119,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `project_team` -
   The project team associated with the entity
-  Structure is documented below.
+  Structure is [documented below](#nested_project_team).
 
 
-The `project_team` block contains:
+<a name="nested_project_team"></a>The `project_team` block contains:
 
 * `project_number` -
   (Optional)
@@ -139,9 +138,9 @@ The `project_team` block contains:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

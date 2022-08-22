@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed bug that wouldn't insert the `google_sql_user` in state for iam users.
+```

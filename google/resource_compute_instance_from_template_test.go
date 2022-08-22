@@ -7,7 +7,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	compute "google.golang.org/api/compute/v1"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
@@ -238,7 +239,7 @@ func testAccCheckComputeInstanceFromTemplateDestroyProducer(t *testing.T) func(s
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -312,7 +313,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_overrideBootDisk(templateDisk, overrideDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -377,7 +378,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideAttachedDisk(templateDisk, overrideDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -415,7 +416,7 @@ resource "google_compute_instance_template" "template" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-9"
+    source_image = "debian-cloud/debian-11"
     auto_delete  = true
     boot         = false
   }
@@ -442,7 +443,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideScratchDisk(templateDisk, overrideDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -504,7 +505,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideScheduling(templateDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -555,7 +556,7 @@ func testAccComputeInstanceFromTemplate_012_removableFieldsTpl(template string) 
 
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -632,7 +633,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 

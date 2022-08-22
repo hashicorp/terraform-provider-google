@@ -5,7 +5,10 @@ package google
 import (
 	"fmt"
 	"log"
+	"os"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,6 +17,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/googleapi"
 )
+
+type TerraformResourceDataChange interface {
+	GetChange(string) (interface{}, interface{})
+}
 
 type TerraformResourceData interface {
 	HasChange(string) bool
@@ -305,8 +312,12 @@ func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Re
 	return merged, err
 }
 
+func stringToFixed64(v string) (int64, error) {
+	return strconv.ParseInt(v, 10, 64)
+}
+
 func extractFirstMapConfig(m []interface{}) map[string]interface{} {
-	if len(m) == 0 {
+	if len(m) == 0 || m[0] == nil {
 		return map[string]interface{}{}
 	}
 
@@ -479,4 +490,64 @@ func SnakeToPascalCase(s string) string {
 		split[i] = strings.Title(split[i])
 	}
 	return strings.Join(split, "")
+}
+
+func multiEnvSearch(ks []string) string {
+	for _, k := range ks {
+		if v := os.Getenv(k); v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
+func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
+	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
+	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
+	res, err := sendRequest(config, "GET", "", "https://openidconnect.googleapis.com/v1/userinfo", userAgent, nil)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)
+	}
+	return res["email"].(string), nil
+}
+
+func checkStringMap(v interface{}) map[string]string {
+	m, ok := v.(map[string]string)
+	if ok {
+		return m
+	}
+	return convertStringMap(v.(map[string]interface{}))
+}
+
+// return a fake 404 so requests get retried or nested objects are considered deleted
+func fake404(reasonResourceType, resourceName string) *googleapi.Error {
+	return &googleapi.Error{
+		Code:    404,
+		Message: fmt.Sprintf("%v object %v not found", reasonResourceType, resourceName),
+	}
+}
+
+// validate name of the gcs bucket. Guidelines are located at https://cloud.google.com/storage/docs/naming-buckets
+// this does not attempt to check for IP addresses or close misspellings of "google"
+func checkGCSName(name string) error {
+	if strings.HasPrefix(name, "goog") {
+		return fmt.Errorf("error: bucket name %s cannot start with %q", name, "goog")
+	}
+
+	if strings.Contains(name, "google") {
+		return fmt.Errorf("error: bucket name %s cannot contain %q", name, "google")
+	}
+
+	valid, _ := regexp.MatchString("^[a-z0-9][a-z0-9_.-]{1,220}[a-z0-9]$", name)
+	if !valid {
+		return fmt.Errorf("error: bucket name validation failed %v. See https://cloud.google.com/storage/docs/naming-buckets", name)
+	}
+
+	for _, str := range strings.Split(name, ".") {
+		valid, _ := regexp.MatchString("^[a-z0-9_-]{1,63}$", str)
+		if !valid {
+			return fmt.Errorf("error: bucket name validation failed %v", str)
+		}
+	}
+	return nil
 }

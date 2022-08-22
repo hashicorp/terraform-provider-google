@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: Fixed permadiff due to lowercase mode/type in `google_bigquery_table.schema`
+```

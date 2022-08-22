@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "API Gateway"
-layout: "google"
 page_title: "Google: google_api_gateway_api"
-sidebar_current: "docs-google-api-gateway-api"
 description: |-
   A consumable API that can be used by multiple Gateways.
 ---
@@ -96,9 +94,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
@@ -106,9 +104,9 @@ This resource provides the following
 Api can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_api_gateway_api.default projects/{{project}}/locations/global/apis/{{name}}
-$ terraform import google_api_gateway_api.default {{project}}/{{name}}
-$ terraform import google_api_gateway_api.default {{name}}
+$ terraform import google_api_gateway_api.default projects/{{project}}/locations/global/apis/{{api_id}}
+$ terraform import google_api_gateway_api.default {{project}}/{{api_id}}
+$ terraform import google_api_gateway_api.default {{api_id}}
 ```
 
 ## User Project Overrides

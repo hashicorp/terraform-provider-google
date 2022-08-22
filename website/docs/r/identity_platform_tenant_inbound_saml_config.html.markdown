@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Identity Platform"
-layout: "google"
 page_title: "Google: google_identity_platform_tenant_inbound_saml_config"
-sidebar_current: "docs-google-identity-platform-tenant-inbound-saml-config"
 description: |-
   Inbound SAML configuration for a Identity Toolkit tenant.
 ---
@@ -85,16 +83,16 @@ The following arguments are supported:
 * `idp_config` -
   (Required)
   SAML IdP configuration when the project acts as the relying party
-  Structure is documented below.
+  Structure is [documented below](#nested_idp_config).
 
 * `sp_config` -
   (Required)
   SAML SP (Service Provider) configuration when the project acts as the relying party to receive
   and accept an authentication assertion issued by a SAML identity provider.
-  Structure is documented below.
+  Structure is [documented below](#nested_sp_config).
 
 
-The `idp_config` block supports:
+<a name="nested_idp_config"></a>The `idp_config` block supports:
 
 * `idp_entity_id` -
   (Required)
@@ -111,16 +109,16 @@ The `idp_config` block supports:
 * `idp_certificates` -
   (Required)
   The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
-  Structure is documented below.
+  Structure is [documented below](#nested_idp_certificates).
 
 
-The `idp_certificates` block supports:
+<a name="nested_idp_certificates"></a>The `idp_certificates` block supports:
 
 * `x509_certificate` -
   (Optional)
   The x509 certificate
 
-The `sp_config` block supports:
+<a name="nested_sp_config"></a>The `sp_config` block supports:
 
 * `sp_entity_id` -
   (Required)
@@ -132,10 +130,10 @@ The `sp_config` block supports:
 
 * `sp_certificates` -
   The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
-  Structure is documented below.
+  Structure is [documented below](#nested_sp_certificates).
 
 
-The `sp_certificates` block contains:
+<a name="nested_sp_certificates"></a>The `sp_certificates` block contains:
 
 * `x509_certificate` -
   The x509 certificate
@@ -163,9 +161,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

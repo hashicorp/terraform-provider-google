@@ -1,0 +1,3 @@
+```release-note:bug
+Cloud DNS: fixed not-exists error message on data source `google_dns_managed_zone`
+```

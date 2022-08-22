@@ -1,0 +1,4 @@
+```release-note:none
+OS Config: fixed the left navigation subcategory for `google_os_config_os_policy_assignment`
+
+```

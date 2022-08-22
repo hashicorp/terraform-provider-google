@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Security Scanner"
-layout: "google"
 page_title: "Google: google_security_scanner_scan_config"
-sidebar_current: "docs-google-security-scanner-scan-config"
 description: |-
   A ScanConfig resource contains the configurations to launch a scan.
 ---
@@ -34,7 +32,7 @@ To get more information about ScanConfig, see:
     * [Using Cloud Security Scanner](https://cloud.google.com/security-scanner/docs/scanning)
 
 ~> **Warning:** All arguments including `authentication.google_account.password` and `authentication.custom_account.password` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scan_config_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -89,7 +87,7 @@ The following arguments are supported:
   (Optional)
   The authentication configuration.
   If specified, service will use the authentication configuration during scanning.
-  Structure is documented below.
+  Structure is [documented below](#nested_authentication).
 
 * `user_agent` -
   (Optional)
@@ -105,7 +103,7 @@ The following arguments are supported:
 * `schedule` -
   (Optional)
   The schedule of the ScanConfig
-  Structure is documented below.
+  Structure is [documented below](#nested_schedule).
 
 * `target_platforms` -
   (Optional)
@@ -122,20 +120,20 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `authentication` block supports:
+<a name="nested_authentication"></a>The `authentication` block supports:
 
 * `google_account` -
   (Optional)
   Describes authentication configuration that uses a Google account.
-  Structure is documented below.
+  Structure is [documented below](#nested_google_account).
 
 * `custom_account` -
   (Optional)
   Describes authentication configuration that uses a custom account.
-  Structure is documented below.
+  Structure is [documented below](#nested_custom_account).
 
 
-The `google_account` block supports:
+<a name="nested_google_account"></a>The `google_account` block supports:
 
 * `username` -
   (Required)
@@ -147,7 +145,7 @@ The `google_account` block supports:
   in GCP.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-The `custom_account` block supports:
+<a name="nested_custom_account"></a>The `custom_account` block supports:
 
 * `username` -
   (Required)
@@ -163,7 +161,7 @@ The `custom_account` block supports:
   (Required)
   The login form URL of the website.
 
-The `schedule` block supports:
+<a name="nested_schedule"></a>The `schedule` block supports:
 
 * `schedule_time` -
   (Optional)
@@ -191,9 +189,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

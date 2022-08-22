@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: Added support for `composer-1` and `composer-2` aliases in image version argument
+```

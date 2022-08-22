@@ -72,6 +72,8 @@ func TestComputeAddressIdParsing(t *testing.T) {
 func TestAccDataSourceComputeAddress(t *testing.T) {
 	t.Parallel()
 
+	addressName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
 	rsName := "foobar"
 	rsFullName := fmt.Sprintf("google_compute_address.%s", rsName)
 	dsName := "my_address"
@@ -83,7 +85,7 @@ func TestAccDataSourceComputeAddress(t *testing.T) {
 		CheckDestroy: testAccCheckDataSourceComputeAddressDestroy(t, rsFullName),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceComputeAddressConfig(rsName, dsName),
+				Config: testAccDataSourceComputeAddressConfig(addressName, rsName, dsName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceComputeAddressCheck(t, dsFullName, rsFullName),
 				),
@@ -164,14 +166,14 @@ func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, name string) reso
 	}
 }
 
-func testAccDataSourceComputeAddressConfig(rsName, dsName string) string {
+func testAccDataSourceComputeAddressConfig(addressName, rsName, dsName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "%s" {
-  name = "address-test"
+  name = "%s"
 }
 
 data "google_compute_address" "%s" {
   name = google_compute_address.%s.name
 }
-`, rsName, dsName, rsName)
+`, rsName, addressName, dsName, rsName)
 }

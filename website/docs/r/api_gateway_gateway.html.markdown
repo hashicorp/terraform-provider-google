@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "API Gateway"
-layout: "google"
 page_title: "Google: google_api_gateway_gateway"
-sidebar_current: "docs-google-api-gateway-gateway"
 description: |-
   A consumable API that can be used by multiple Gateways.
 ---
@@ -77,7 +75,8 @@ The following arguments are supported:
 
 * `api_config` -
   (Required)
-  Resource name of the API Config for this Gateway. Format: projects/{project}/locations/global/apis/{api}/configs/{apiConfig}
+  Resource name of the API Config for this Gateway. Format: projects/{project}/locations/global/apis/{api}/configs/{apiConfig}.
+  When changing api configs please ensure the new config is a new resource and the lifecycle rule `create_before_destroy` is set.
 
 * `gateway_id` -
   (Required)
@@ -121,9 +120,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
@@ -131,10 +130,10 @@ This resource provides the following
 Gateway can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_api_gateway_gateway.default projects/{{project}}/locations/{{region}}/gateways/{{name}}
-$ terraform import google_api_gateway_gateway.default {{project}}/{{region}}/{{name}}
-$ terraform import google_api_gateway_gateway.default {{region}}/{{name}}
-$ terraform import google_api_gateway_gateway.default {{name}}
+$ terraform import google_api_gateway_gateway.default projects/{{project}}/locations/{{region}}/gateways/{{gateway_id}}
+$ terraform import google_api_gateway_gateway.default {{project}}/{{region}}/{{gateway_id}}
+$ terraform import google_api_gateway_gateway.default {{region}}/{{gateway_id}}
+$ terraform import google_api_gateway_gateway.default {{gateway_id}}
 ```
 
 ## User Project Overrides

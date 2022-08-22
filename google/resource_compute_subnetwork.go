@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -25,7 +25,6 @@ import (
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // Whether the IP CIDR change shrinks the block.
@@ -60,9 +59,9 @@ func resourceComputeSubnetwork() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -84,7 +83,7 @@ non-overlapping within a network. Only IPv4 is supported.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description: `The name of the resource, provided by the client when initially
 creating the resource. The name must be 1-63 characters long, and
 comply with RFC1035. Specifically, the name must be 1-63 characters
@@ -109,6 +108,15 @@ Only networks that are in the distributed mode can have subnetworks.`,
 you create the resource. This field can be set only at resource
 creation time.`,
 			},
+			"ipv6_access_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"EXTERNAL", "INTERNAL", ""}),
+				Description: `The access type of IPv6 address this subnet holds. It's immutable and can only be specified during creation
+or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
+cannot enable direct path. Possible values: ["EXTERNAL", "INTERNAL"]`,
+			},
 			"log_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -121,7 +129,7 @@ subnetwork is 'INTERNAL_HTTPS_LOAD_BALANCER'`,
 						"aggregation_interval": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN", ""}, false),
+							ValidateFunc: validateEnum([]string{"INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN", ""}),
 							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
 Toggles the aggregation interval for collecting flow logs. Increasing the
 interval time will reduce the amount of generated flow logs for long
@@ -152,7 +160,7 @@ half of all collected logs are reported.`,
 						"metadata": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA", ""}, false),
+							ValidateFunc: validateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA", ""}),
 							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
 Configures whether metadata fields should be added to the reported VPC
 flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA"]`,
@@ -184,6 +192,17 @@ access Google APIs and services by using Private Google Access.`,
 				Optional:    true,
 				Description: `The private IPv6 google access type for the VMs in this subnet.`,
 			},
+			"purpose": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The purpose of the resource. A subnetwork with purpose set to
+INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
+reserved for Internal HTTP(S) Load Balancing.
+
+If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the 'role' field.`,
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -191,6 +210,16 @@ access Google APIs and services by using Private Google Access.`,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `The GCP region for this subnetwork.`,
+			},
+			"role": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateEnum([]string{"ACTIVE", "BACKUP", ""}),
+				Description: `The role of subnetwork. Currently, this field is only used when
+purpose = INTERNAL_HTTPS_LOAD_BALANCER. The value can be set to ACTIVE
+or BACKUP. An ACTIVE subnetwork is one that is currently being used
+for Internal HTTP(S) Load Balancing. A BACKUP subnetwork is one that
+is ready to be promoted to ACTIVE or is currently draining. Possible values: ["ACTIVE", "BACKUP"]`,
 			},
 			"secondary_ip_range": {
 				Type:       schema.TypeList,
@@ -221,7 +250,7 @@ secondary IP ranges within a network. Only IPv4 is supported.`,
 						"range_name": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateGCPName,
+							ValidateFunc: validateGCEName,
 							Description: `The name associated with this subnetwork secondary range, used
 when adding an alias IP range to a VM instance. The name must
 be 1-63 characters long, and comply with RFC1035. The name
@@ -230,16 +259,34 @@ must be unique within the subnetwork.`,
 					},
 				},
 			},
+			"stack_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: validateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", ""}),
+				Description: `The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
+If not specified IPV4_ONLY will be used. Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+			"external_ipv6_prefix": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The range of external IPv6 addresses that are owned by this subnetwork.`,
 			},
 			"gateway_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The gateway address for default routes to reach destination addresses
 outside this subnetwork.`,
+			},
+			"ipv6_cidr_range": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The range of internal IPv6 addresses that are owned by this subnetwork.`,
 			},
 			"fingerprint": {
 				Type:        schema.TypeString,
@@ -336,6 +383,18 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
+	purposeProp, err := expandComputeSubnetworkPurpose(d.Get("purpose"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("purpose"); !isEmptyValue(reflect.ValueOf(purposeProp)) && (ok || !reflect.DeepEqual(v, purposeProp)) {
+		obj["purpose"] = purposeProp
+	}
+	roleProp, err := expandComputeSubnetworkRole(d.Get("role"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+		obj["role"] = roleProp
+	}
 	secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
 	if err != nil {
 		return err
@@ -365,6 +424,18 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 		obj["logConfig"] = logConfigProp
+	}
+	stackTypeProp, err := expandComputeSubnetworkStackType(d.Get("stack_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stack_type"); !isEmptyValue(reflect.ValueOf(stackTypeProp)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
+		obj["stackType"] = stackTypeProp
+	}
+	ipv6AccessTypeProp, err := expandComputeSubnetworkIpv6AccessType(d.Get("ipv6_access_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipv6_access_type"); !isEmptyValue(reflect.ValueOf(ipv6AccessTypeProp)) && (ok || !reflect.DeepEqual(v, ipv6AccessTypeProp)) {
+		obj["ipv6AccessType"] = ipv6AccessTypeProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks")
@@ -465,6 +536,12 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("network", flattenComputeSubnetworkNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
+	if err := d.Set("purpose", flattenComputeSubnetworkPurpose(res["purpose"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("role", flattenComputeSubnetworkRole(res["role"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
 	if err := d.Set("secondary_ip_range", flattenComputeSubnetworkSecondaryIpRange(res["secondaryIpRanges"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
@@ -478,6 +555,18 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("log_config", flattenComputeSubnetworkLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("stack_type", flattenComputeSubnetworkStackType(res["stackType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("ipv6_access_type", flattenComputeSubnetworkIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("ipv6_cidr_range", flattenComputeSubnetworkIpv6CidrRange(res["ipv6CidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("external_ipv6_prefix", flattenComputeSubnetworkExternalIpv6Prefix(res["externalIpv6Prefix"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -572,7 +661,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 	}
-	if d.HasChange("private_ipv6_google_access") {
+	if d.HasChange("private_ipv6_google_access") || d.HasChange("stack_type") {
 		obj := make(map[string]interface{})
 
 		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -597,6 +686,12 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		} else if v, ok := d.GetOkExists("private_ipv6_google_access"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateIpv6GoogleAccessProp)) {
 			obj["privateIpv6GoogleAccess"] = privateIpv6GoogleAccessProp
+		}
+		stackTypeProp, err := expandComputeSubnetworkStackType(d.Get("stack_type"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("stack_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
+			obj["stackType"] = stackTypeProp
 		}
 
 		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -648,6 +743,57 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 			obj["logConfig"] = logConfigProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Subnetwork", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("role") {
+		obj := make(map[string]interface{})
+
+		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := sendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
+		}
+
+		obj["fingerprint"] = getRes["fingerprint"]
+
+		roleProp, err := expandComputeSubnetworkRole(d.Get("role"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+			obj["role"] = roleProp
 		}
 
 		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -824,6 +970,14 @@ func flattenComputeSubnetworkNetwork(v interface{}, d *schema.ResourceData, conf
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeSubnetworkPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSubnetworkRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeSubnetworkSecondaryIpRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -899,6 +1053,22 @@ func flattenComputeSubnetworkLogConfig(v interface{}, d *schema.ResourceData, co
 	return []interface{}{transformed}
 }
 
+func flattenComputeSubnetworkStackType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSubnetworkIpv6AccessType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSubnetworkIpv6CidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSubnetworkExternalIpv6Prefix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeSubnetworkDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -917,6 +1087,14 @@ func expandComputeSubnetworkNetwork(v interface{}, d TerraformResourceData, conf
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeSubnetworkPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSubnetworkRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeSubnetworkSecondaryIpRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -978,8 +1156,8 @@ func expandComputeSubnetworkLogConfig(v interface{}, d TerraformResourceData, co
 	if len(l) == 0 || l[0] == nil {
 		purpose, ok := d.GetOkExists("purpose")
 
-		if ok && purpose.(string) == "INTERNAL_HTTPS_LOAD_BALANCER" {
-			// Subnetworks for L7ILB do not accept any values for logConfig
+		if ok && (purpose.(string) == "REGIONAL_MANAGED_PROXY" || purpose.(string) == "INTERNAL_HTTPS_LOAD_BALANCER") {
+			// Subnetworks for regional L7 ILB/XLB do not accept any values for logConfig
 			return nil, nil
 		}
 		// send enable = false to ensure logging is disabled if there is no config
@@ -1001,4 +1179,12 @@ func expandComputeSubnetworkLogConfig(v interface{}, d TerraformResourceData, co
 	transformed["metadataFields"] = original["metadata_fields"].(*schema.Set).List()
 
 	return transformed, nil
+}
+
+func expandComputeSubnetworkStackType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSubnetworkIpv6AccessType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }

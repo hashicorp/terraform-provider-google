@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed bug where `encryption_key_name` was not being propagated to the API.
+```

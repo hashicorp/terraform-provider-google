@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where the provider could return an error on a successful delete operation
+```

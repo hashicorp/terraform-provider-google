@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -71,6 +68,49 @@ resource "google_compute_router" "foobar" {
 
 resource "google_compute_network" "foobar" {
   name                    = "tf-test-my-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouter_computeRouterEncryptedInterconnectExample(context),
+			},
+			{
+				ResourceName:            "google_compute_router.encrypted-interconnect-router",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRouter_computeRouterEncryptedInterconnectExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_router" "encrypted-interconnect-router" {
+  name                          = "tf-test-test-router%{random_suffix}"
+  network                       = google_compute_network.network.name
+  encrypted_interconnect_router = true
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-test-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)

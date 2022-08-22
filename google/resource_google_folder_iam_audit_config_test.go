@@ -13,7 +13,7 @@ func TestAccFolderIamAuditConfig_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	service := "cloudkms.googleapis.com"
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -41,7 +41,7 @@ func TestAccFolderIamAuditConfig_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
@@ -75,7 +75,7 @@ func TestAccFolderIamAuditConfig_multipleAtOnce(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
@@ -103,7 +103,7 @@ func TestAccFolderIamAuditConfig_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	service := "cloudkms.googleapis.com"
 
 	vcrTest(t, resource.TestCase{
@@ -140,7 +140,7 @@ func TestAccFolderIamAuditConfig_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
@@ -175,10 +175,10 @@ func TestAccFolderIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	service := "cloudkms.googleapis.com"
 	members := []string{}
-	members2 := []string{"user:paddy@hashicorp.com"}
+	members2 := []string{"user:gterraformtest1@gmail.com"}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -208,10 +208,10 @@ func TestAccFolderIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	service := "cloudkms.googleapis.com"
 	members2 := []string{}
-	members := []string{"user:paddy@hashicorp.com"}
+	members := []string{"user:gterraformtest1@gmail.com"}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -241,7 +241,7 @@ func TestAccFolderIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	logType := "DATA_READ"
 	logType2 := "DATA_WRITE"
 	service := "cloudkms.googleapis.com"
@@ -282,8 +282,8 @@ resource "google_folder_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-      "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co",
+      "user:gterraformtest1@gmail.com",
+      "user:gterraformtest2@gmail.com",
     ]
   }
 }
@@ -303,8 +303,8 @@ resource "google_folder_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-      "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co",
+      "user:gterraformtest1@gmail.com",
+      "user:gterraformtest2@gmail.com",
     ]
   }
 }
@@ -333,7 +333,7 @@ resource "google_folder_iam_audit_config" "acceptance" {
     log_type = "DATA_WRITE"
     exempted_members = [
       "user:admin@hashicorptest.com",
-      "user:paddy@carvers.co",
+      "user:gterraformtest2@gmail.com",
     ]
   }
 }
@@ -353,7 +353,7 @@ resource "google_folder_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-      "user:paddy@hashicorp.com",
+      "user:gterraformtest1@gmail.com",
     ]
   }
 }

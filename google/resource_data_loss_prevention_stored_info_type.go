@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceDataLossPreventionStoredInfoType() *schema.Resource {
@@ -37,9 +36,9 @@ func resourceDataLossPreventionStoredInfoType() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -224,6 +223,7 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 						"group_indexes": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeInt,
@@ -355,11 +355,7 @@ func resourceDataLossPreventionStoredInfoTypePollRead(d *schema.ResourceData, me
 			return nil, err
 		}
 		if res == nil {
-			// Decoded object not found, spoof a 404 error for poll
-			return nil, &googleapi.Error{
-				Code:    404,
-				Message: "could not find object DataLossPreventionStoredInfoType",
-			}
+			return nil, fake404("decoded", "DataLossPreventionStoredInfoType")
 		}
 
 		return res, nil

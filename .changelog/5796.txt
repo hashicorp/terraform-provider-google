@@ -1,0 +1,3 @@
+```release-note:new-resource
+Add billingType attribute to Apigee Organization resource.
+```

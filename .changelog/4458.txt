@@ -1,0 +1,3 @@
+```release-note:bug
+dlp : modified `google_data_loss_prevention_stored_info_type` `regex.group_indexes` field to trigger resource recreation on update
+```

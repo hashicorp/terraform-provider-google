@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_key_ring"
-sidebar_current: "docs-google-datasource-kms-key-ring"
 description: |-
  Provides access to KMS key ring data with Google Cloud KMS.
 ---
@@ -46,4 +44,4 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `self_link` - The self link of the created KeyRing. Its format is `projects/{projectId}/locations/{location}/keyRings/{keyRingName}`.
+* `id` - The identifier of the created KeyRing. Its format is `projects/{projectId}/locations/{location}/keyRings/{keyRingName}`.

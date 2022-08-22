@@ -1,0 +1,3 @@
+```release-note:bug
+container: Fixed updates on `export_custom_routes` and `import_custom_routes` in `google_compute_network_peering`
+```

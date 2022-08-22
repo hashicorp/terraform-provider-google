@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_per_instance_config"
-sidebar_current: "docs-google-compute-region-per-instance-config"
 description: |-
   A config defined for a single managed instance that belongs to an instance group manager.
 ---
@@ -38,7 +36,7 @@ To get more information about RegionPerInstanceConfig, see:
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -72,6 +70,12 @@ resource "google_compute_region_instance_group_manager" "rigm" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
+  update_policy {
+    type                         = "OPPORTUNISTIC"
+    instance_redistribution_type = "NONE"
+    minimal_action               = "RESTART"
+  }
+
   base_instance_name = "rigm"
   region             = "us-central1"
   target_size        = 2
@@ -81,12 +85,12 @@ resource "google_compute_disk" "default" {
   name  = "test-disk-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-9-stretch-v20200805"
+  image = "debian-11-bullseye-v20220719"
   physical_block_size_bytes = 4096
 }
 
 resource "google_compute_region_per_instance_config" "with_disk" {
-  region = google_compute_instance_group_manager.igm.region
+  region = google_compute_region_instance_group_manager.igm.region
   region_instance_group_manager = google_compute_region_instance_group_manager.rigm.name
   name = "instance-1"
   preserved_state {
@@ -127,7 +131,7 @@ The following arguments are supported:
 * `preserved_state` -
   (Optional)
   The preserved state for this instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_preserved_state).
 
 * `region` -
   (Optional)
@@ -155,7 +159,7 @@ When false, deleting this config will *not* immediately remove any state from th
 State will be removed on the next instance recreation or update.
 
 
-The `preserved_state` block supports:
+<a name="nested_preserved_state"></a>The `preserved_state` block supports:
 
 * `metadata` -
   (Optional)
@@ -164,10 +168,10 @@ The `preserved_state` block supports:
 * `disk` -
   (Optional)
   Stateful disks for the instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_disk).
 
 
-The `disk` block supports:
+<a name="nested_disk"></a>The `disk` block supports:
 
 * `device_name` -
   (Required)
@@ -206,9 +210,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 15 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 15 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

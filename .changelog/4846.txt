@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added field `adaptive_protection_config` to `google_compute_security_policy` (beta)
+```

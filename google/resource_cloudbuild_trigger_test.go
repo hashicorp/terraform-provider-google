@@ -37,6 +37,93 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	})
 }
 
+func TestAccCloudBuildTrigger_available_secrets_config(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_available_secrets_config(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_available_secrets_config_update(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudBuildTrigger_pubsub_config(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_pubsub_config(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_pubsub_config_update(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudBuildTrigger_webhook_config(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_webhook_config(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_webhook_config_update(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccCloudBuildTrigger_customizeDiffTimeoutSum(t *testing.T) {
 	t.Parallel()
 
@@ -128,7 +215,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name        = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -186,7 +273,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name        = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -215,7 +302,7 @@ func testAccCloudBuildTrigger_fullStep() string {
 resource "google_cloudbuild_trigger" "build_trigger" {
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
 	invert_regex = false
   }
@@ -243,7 +330,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   description = "acceptance test build trigger updated"
   name        = "%s"
   trigger_template {
-    branch_name = "master-updated"
+    branch_name = "main-updated"
     repo_name   = "some-repo-updated"
 	invert_regex = true
   }
@@ -281,13 +368,249 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   `, name)
 }
 
+func testAccCloudBuildTrigger_available_secrets_config(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger"
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "some-repo"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_available_secrets_config_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger updated"
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "some-repo"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_pubsub_config(name string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "build-trigger" {
+  name = "topic-name"
+}
+
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger"
+  pubsub_config {
+    topic = "${google_pubsub_topic.build-trigger.id}"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+  }
+  depends_on = [
+    google_pubsub_topic.build-trigger
+  ]
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_pubsub_config_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "build-trigger" {
+  name = "topic-name"
+}
+
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger updated"
+  pubsub_config {
+    topic = "${google_pubsub_topic.build-trigger.id}"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+  }
+  depends_on = [
+    google_pubsub_topic.build-trigger
+  ]
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_webhook_config(name string) string {
+	return fmt.Sprintf(`
+resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
+  secret_id = "webhook_trigger-secret-key"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "webhook_trigger_secret_key_data" {
+  secret = google_secret_manager_secret.webhook_trigger_secret_key.id
+
+  secret_data = "secretkeygoeshere"
+}
+
+data "google_project" "project" {}
+
+data "google_iam_policy" "secret_accessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    members = [
+      "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com",
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  project = google_secret_manager_secret.webhook_trigger_secret_key.project
+  secret_id = google_secret_manager_secret.webhook_trigger_secret_key.secret_id
+  policy_data = data.google_iam_policy.secret_accessor.policy_data
+}
+
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+
+  webhook_config {
+    secret = "${google_secret_manager_secret_version.webhook_trigger_secret_key_data.id}"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = [
+        "-c", 
+        <<EOT
+          echo data
+        EOT
+      ]
+      entrypoint = "bash"
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_version.webhook_trigger_secret_key_data,
+    google_secret_manager_secret_iam_policy.policy
+  ]
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_webhook_config_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
+  secret_id = "webhook_trigger-secret-key"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "webhook_trigger_secret_key_data" {
+  secret = google_secret_manager_secret.webhook_trigger_secret_key.id
+
+  secret_data = "secretkeygoeshere"
+}
+
+data "google_project" "project" {}
+
+data "google_iam_policy" "secret_accessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    members = [
+      "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com",
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  project = google_secret_manager_secret.webhook_trigger_secret_key.project
+  secret_id = google_secret_manager_secret.webhook_trigger_secret_key.secret_id
+  policy_data = data.google_iam_policy.secret_accessor.policy_data
+}
+
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+
+  webhook_config {
+    secret = "${google_secret_manager_secret_version.webhook_trigger_secret_key_data.id}"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = [
+        "-c", 
+        <<EOT
+          echo data-updated
+        EOT
+      ]
+      entrypoint = "bash"
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_version.webhook_trigger_secret_key_data,
+    google_secret_manager_secret_iam_policy.policy
+  ]
+}
+`, name)
+}
+
 func testAccCloudBuildTrigger_customizeDiffTimeoutSum(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
   name = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {
@@ -321,7 +644,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   name = "%s"
   description = "acceptance test build trigger"
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "some-repo"
   }
   build {

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -57,7 +54,7 @@ resource "google_compute_disk" "default" {
   name  = "tf-test-test-disk%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-9-stretch-v20200805"
+  image = "debian-11-bullseye-v20220719"
   labels = {
     environment = "dev"
   }

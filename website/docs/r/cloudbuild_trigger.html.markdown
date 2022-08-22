@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Build"
-layout: "google"
 page_title: "Google: google_cloudbuild_trigger"
-sidebar_current: "docs-google-cloudbuild-trigger"
 description: |-
   Configuration for an automated build in response to source repository changes.
 ---
@@ -44,7 +42,7 @@ To get more information about Trigger, see:
 ```hcl
 resource "google_cloudbuild_trigger" "filename-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
 
@@ -67,15 +65,16 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
 ```hcl
 resource "google_cloudbuild_trigger" "build-trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = "my-repo"
   }
-  
+
   build {
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
       timeout = "120s"
+      secret_env = ["MY_SECRET"]
     }
 
     source {
@@ -95,6 +94,12 @@ resource "google_cloudbuild_trigger" "build-trigger" {
       kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
       secret_env = {
         PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
       }
     }
     artifacts {
@@ -121,7 +126,213 @@ resource "google_cloudbuild_trigger" "build-trigger" {
         path = "v1"
       }
     }
-  }  
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_service_account&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Service Account
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_cloudbuild_trigger" "service-account-trigger" {
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "my-repo"
+  }
+
+  service_account = google_service_account.cloudbuild_service_account.id
+  filename        = "cloudbuild.yaml"
+  depends_on = [
+    google_project_iam_member.act_as,
+    google_project_iam_member.logs_writer
+  ]
+}
+
+resource "google_service_account" "cloudbuild_service_account" {
+  account_id = "my-service-account"
+}
+
+resource "google_project_iam_member" "act_as" {
+  project = data.google_project.project.project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
+resource "google_project_iam_member" "logs_writer" {
+  project = data.google_project.project.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+```
+## Example Usage - Cloudbuild Trigger Include Build Logs
+
+
+```hcl
+resource "google_cloudbuild_trigger" "include-build-logs-trigger" {
+  name     = "include-build-logs-trigger"
+  filename = "cloudbuild.yaml"
+
+  github {
+    owner = "hashicorp"
+    name  = "terraform-provider-google-beta"
+    push {
+      branch = "^main$"
+    }
+  }
+
+  include_build_logs = "INCLUDE_BUILD_LOGS_WITH_STATUS"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_pubsub_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Pubsub Config
+
+
+```hcl
+
+resource "google_pubsub_topic" "mytopic" {
+  name = "mytopic"
+}
+
+resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
+  name        = "pubsub-trigger"
+  description = "acceptance test example pubsub build trigger"
+
+  pubsub_config {
+    topic = google_pubsub_topic.mytopic.id
+  }
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  substitutions = {
+    _ACTION       = "$(body.message.data.action)"
+  }
+
+  filter = "_ACTION.matches('INSERT')"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_webhook_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Webhook Config
+
+
+```hcl
+
+resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
+  secret_id = "webhook_trigger-secret-key-1"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "webhook_trigger_secret_key_data" {
+  secret = google_secret_manager_secret.webhook_trigger_secret_key.id
+
+  secret_data = "secretkeygoeshere"
+}
+
+data "google_project" "project" {}
+
+data "google_iam_policy" "secret_accessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    members = [
+      "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com",
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  project = google_secret_manager_secret.webhook_trigger_secret_key.project
+  secret_id = google_secret_manager_secret.webhook_trigger_secret_key.secret_id
+  policy_data = data.google_iam_policy.secret_accessor.policy_data
+}
+
+
+resource "google_cloudbuild_trigger" "webhook-config-trigger" {
+  name        = "webhook-trigger"
+  description = "acceptance test example webhook build trigger"
+ 
+ webhook_config {
+    secret = google_secret_manager_secret_version.webhook_trigger_secret_key_data.id
+  }
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_manual&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Manual
+
+
+```hcl
+
+resource "google_cloudbuild_trigger" "manual-trigger" {
+  name        = "manual-build"
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+
+  
+  // If this is set on a build, it will become pending when it is run, 
+  // and will need to be explicitly approved to start.
+  approval_config {
+     approval_required = true 
+  }
+   
+  
 }
 ```
 
@@ -154,9 +365,44 @@ The following arguments are supported:
   (Optional)
   Substitutions data for Build resource.
 
+* `service_account` -
+  (Optional)
+  The service account used for all user-controlled operations including
+  triggers.patch, triggers.run, builds.create, and builds.cancel.
+  If no service account is set, then the standard Cloud Build service account
+  ([PROJECT_NUM]@system.gserviceaccount.com) will be used instead.
+  Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}
+
+* `include_build_logs` -
+  (Optional)
+  Build logs will be sent back to GitHub as part of the checkrun
+  result.  Values can be INCLUDE_BUILD_LOGS_UNSPECIFIED or
+  INCLUDE_BUILD_LOGS_WITH_STATUS
+  Possible values are `INCLUDE_BUILD_LOGS_UNSPECIFIED` and `INCLUDE_BUILD_LOGS_WITH_STATUS`.
+
 * `filename` -
   (Optional)
-  Path, from the source root, to a file whose contents is used for the template. Either a filename or build template must be provided.
+  Path, from the source root, to a file whose contents is used for the template. 
+  Either a filename or build template must be provided. Set this only when using trigger_template or github.
+  When using Pub/Sub, Webhook or Manual set the file name using git_file_source instead.
+
+* `filter` -
+  (Optional)
+  A Common Expression Language string. Used only with Pub/Sub and Webhook.
+
+* `git_file_source` -
+  (Optional)
+  The file source describing the local or remote Build template.
+  Structure is [documented below](#nested_git_file_source).
+
+* `source_to_build` -
+  (Optional)
+  The repo and ref of the repository from which to build. 
+  This field is used only for those triggers that do not respond to SCM events. 
+  Triggers that respond to such events build source at whatever commit caused the event. 
+  This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
+  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
+  Structure is [documented below](#nested_source_to_build).
 
 * `ignored_files` -
   (Optional)
@@ -186,25 +432,85 @@ The following arguments are supported:
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
-  One of `trigger_template` or `github` must be provided.
-  Structure is documented below.
+  One of `trigger_template`, `github`, `pubsub_config`, `webhook_config` or `source_to_build` must be provided.
+  Structure is [documented below](#nested_trigger_template).
 
 * `github` -
   (Optional)
   Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
-  One of `trigger_template` or `github` must be provided.
-  Structure is documented below.
+  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
+  Structure is [documented below](#nested_github).
+
+* `pubsub_config` -
+  (Optional)
+  PubsubConfig describes the configuration of a trigger that creates 
+  a build whenever a Pub/Sub message is published.
+  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
+  Structure is [documented below](#nested_pubsub_config).
+
+* `webhook_config` -
+  (Optional)
+  WebhookConfig describes the configuration of a trigger that creates 
+  a build whenever a webhook is sent to a trigger's webhook URL.
+  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
+  Structure is [documented below](#nested_webhook_config).
+
+* `approval_config` -
+  (Optional)
+  Configuration for manual approval to start a build invocation of this BuildTrigger. 
+  Builds created by this trigger will require approval before they execute. 
+  Any user with a Cloud Build Approver role for the project can approve a build.
+  Structure is [documented below](#nested_approval_config).
 
 * `build` -
   (Optional)
   Contents of the build template. Either a filename or build template must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_build).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `trigger_template` block supports:
+<a name="nested_git_file_source"></a>The `git_file_source` block supports:
+
+* `path` -
+  (Required)
+  The path of the file, with the repo root as the root of the path.
+
+* `uri` -
+  (Optional)
+  The URI of the repo (optional). If unspecified, the repo from which the trigger 
+  invocation originated is assumed to be the repo from which to read the specified path.
+
+* `repo_type` -
+  (Required)
+  The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
+  Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB
+  Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, and `GITHUB`.
+
+* `revision` -
+  (Optional)
+  The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the 
+  filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions 
+  If unspecified, the revision from which the trigger invocation originated is assumed to be the revision from which to read the specified path.
+
+<a name="nested_source_to_build"></a>The `source_to_build` block supports:
+
+* `uri` -
+  (Required)
+  The URI of the repo (required).
+
+* `ref` -
+  (Required)
+  The branch or tag to use. Must start with "refs/" (required).
+
+* `repo_type` -
+  (Required)
+  The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
+  Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB
+  Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, and `GITHUB`.
+
+<a name="nested_trigger_template"></a>The `trigger_template` block supports:
 
 * `project_id` -
   (Optional)
@@ -240,7 +546,7 @@ The `trigger_template` block supports:
   (Optional)
   Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
-The `github` block supports:
+<a name="nested_github"></a>The `github` block supports:
 
 * `owner` -
   (Optional)
@@ -254,16 +560,16 @@ The `github` block supports:
 
 * `pull_request` -
   (Optional)
-  filter to match changes in pull requests.  Specify only one of pullRequest or push.
-  Structure is documented below.
+  filter to match changes in pull requests. Specify only one of `pull_request` or `push`.
+  Structure is [documented below](#nested_pull_request).
 
 * `push` -
   (Optional)
-  filter to match changes in refs, like branches or tags.  Specify only one of pullRequest or push.
-  Structure is documented below.
+  filter to match changes in refs, like branches or tags. Specify only one of `pull_request` or `push`.
+  Structure is [documented below](#nested_push).
 
 
-The `pull_request` block supports:
+<a name="nested_pull_request"></a>The `pull_request` block supports:
 
 * `branch` -
   (Required)
@@ -278,7 +584,7 @@ The `pull_request` block supports:
   (Optional)
   If true, branches that do NOT match the git_ref will trigger a build.
 
-The `push` block supports:
+<a name="nested_push"></a>The `push` block supports:
 
 * `invert_regex` -
   (Optional)
@@ -292,13 +598,47 @@ The `push` block supports:
   (Optional)
   Regex of tags to match.  Specify only one of branch or tag.
 
-The `build` block supports:
+<a name="nested_pubsub_config"></a>The `pubsub_config` block supports:
+
+* `subscription` -
+  Output only. Name of the subscription.
+
+* `topic` -
+  (Required)
+  The name of the topic from which this subscription is receiving messages.
+
+* `service_account_email` -
+  (Optional)
+  Service account that will make the push request.
+
+* `state` -
+  Potential issues with the underlying Pub/Sub subscription configuration.
+  Only populated on get requests.
+
+<a name="nested_webhook_config"></a>The `webhook_config` block supports:
+
+* `secret` -
+  (Required)
+  Resource name for the secret required as a URL parameter.
+
+* `state` -
+  Potential issues with the underlying Pub/Sub subscription configuration.
+  Only populated on get requests.
+
+<a name="nested_approval_config"></a>The `approval_config` block supports:
+
+* `approval_required` -
+  (Optional)
+  Whether or not approval is needed. If this is set on a build, it will become pending when run, 
+  and will need to be explicitly approved to start.
+
+<a name="nested_build"></a>The `build` block supports:
 
 * `source` -
   (Optional)
   The location of the source files to build.
   One of `storageSource` or `repoSource` must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_source).
 
 * `tags` -
   (Optional)
@@ -338,38 +678,43 @@ The `build` block supports:
 * `secret` -
   (Optional)
   Secrets to decrypt using Cloud Key Management Service.
-  Structure is documented below.
+  Structure is [documented below](#nested_secret).
+
+* `available_secrets` -
+  (Optional)
+  Secrets and secret environment variables.
+  Structure is [documented below](#nested_available_secrets).
 
 * `step` -
   (Required)
   The operations to be performed on the workspace.
-  Structure is documented below.
+  Structure is [documented below](#nested_step).
 
 * `artifacts` -
   (Optional)
   Artifacts produced by the build that should be uploaded upon successful completion of all build steps.
-  Structure is documented below.
+  Structure is [documented below](#nested_artifacts).
 
 * `options` -
   (Optional)
   Special options for this build.
-  Structure is documented below.
+  Structure is [documented below](#nested_options).
 
 
-The `source` block supports:
+<a name="nested_source"></a>The `source` block supports:
 
 * `storage_source` -
   (Optional)
   Location of the source in an archive file in Google Cloud Storage.
-  Structure is documented below.
+  Structure is [documented below](#nested_storage_source).
 
 * `repo_source` -
   (Optional)
   Location of the source in a Google Cloud Source Repository.
-  Structure is documented below.
+  Structure is [documented below](#nested_repo_source).
 
 
-The `storage_source` block supports:
+<a name="nested_storage_source"></a>The `storage_source` block supports:
 
 * `bucket` -
   (Required)
@@ -385,7 +730,7 @@ The `storage_source` block supports:
   Google Cloud Storage generation for the object. 
   If the generation is omitted, the latest generation will be used
 
-The `repo_source` block supports:
+<a name="nested_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
@@ -426,7 +771,7 @@ The `repo_source` block supports:
   (Optional)
   Explicit commit SHA to build. Exactly one a of branch name, tag, or commit SHA must be provided.
 
-The `secret` block supports:
+<a name="nested_secret"></a>The `secret` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -439,7 +784,27 @@ The `secret` block supports:
   and must be used by at least one build step. Values can be at most 64 KB in size. 
   There can be at most 100 secret values across all of a build's secrets.
 
-The `step` block supports:
+<a name="nested_available_secrets"></a>The `available_secrets` block supports:
+
+* `secret_manager` -
+  (Required)
+  Pairs a secret environment variable with a SecretVersion in Secret Manager.
+  Structure is [documented below](#nested_secret_manager).
+
+
+<a name="nested_secret_manager"></a>The `secret_manager` block supports:
+
+* `version_name` -
+  (Required)
+  Resource name of the SecretVersion. In format: projects/*/secrets/*/versions/*
+
+* `env` -
+  (Required)
+  Environment variable name to associate with the secret. Secret environment
+  variables must be unique across all of a build's secrets, and must be used
+  by at least one build step.
+
+<a name="nested_step"></a>The `step` block supports:
 
 * `name` -
   (Required)
@@ -522,7 +887,7 @@ The `step` block supports:
   are discarded.
   Using a named volume in only one step is not valid as it is
   indicative of a build request with an incorrect configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_volumes).
 
 * `wait_for` -
   (Optional)
@@ -533,7 +898,7 @@ The `step` block supports:
   have completed successfully.
 
 
-The `volumes` block supports:
+<a name="nested_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)
@@ -547,7 +912,7 @@ The `volumes` block supports:
   Paths must be absolute and cannot conflict with other volume paths on
   the same build step or with certain reserved volume paths.
 
-The `artifacts` block supports:
+<a name="nested_artifacts"></a>The `artifacts` block supports:
 
 * `images` -
   (Optional)
@@ -563,10 +928,10 @@ The `artifacts` block supports:
   Cloud Storage location using the builder service account's credentials.
   The location and generation of the uploaded objects will be stored in the Build resource's results field.
   If any objects fail to be pushed, the build is marked FAILURE.
-  Structure is documented below.
+  Structure is [documented below](#nested_objects).
 
 
-The `objects` block supports:
+<a name="nested_objects"></a>The `objects` block supports:
 
 * `location` -
   (Optional)
@@ -580,10 +945,10 @@ The `objects` block supports:
 
 * `timing` -
   Output only. Stores timing information for pushing all artifact objects.
-  Structure is documented below.
+  Structure is [documented below](#nested_timing).
 
 
-The `timing` block contains:
+<a name="nested_timing"></a>The `timing` block contains:
 
 * `start_time` -
   (Optional)
@@ -597,7 +962,7 @@ The `timing` block contains:
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
   nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
-The `options` block supports:
+<a name="nested_options"></a>The `options` block supports:
 
 * `source_provenance_hash` -
   (Optional)
@@ -612,7 +977,7 @@ The `options` block supports:
 * `machine_type` -
   (Optional)
   Compute Engine machine type on which to run the build.
-  Possible values are `UNSPECIFIED`, `N1_HIGHCPU_8`, and `N1_HIGHCPU_32`.
+  Possible values are `UNSPECIFIED`, `N1_HIGHCPU_8`, `N1_HIGHCPU_32`, `E2_HIGHCPU_8`, and `E2_HIGHCPU_32`.
 
 * `disk_size_gb` -
   (Optional)
@@ -647,7 +1012,7 @@ The `options` block supports:
 * `logging` -
   (Optional)
   Option to specify the logging mode, which determines if and where build logs are stored.
-  Possible values are `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, and `NONE`.
+  Possible values are `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, `CLOUD_LOGGING_ONLY`, and `NONE`.
 
 * `env` -
   (Optional)
@@ -670,10 +1035,10 @@ The `options` block supports:
   volume names and paths cannot conflict with the volumes defined a build step.
   Using a global volume in a build with only one step is not valid as it is indicative
   of a build request with an incorrect configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_volumes).
 
 
-The `volumes` block supports:
+<a name="nested_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Optional)
@@ -705,9 +1070,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

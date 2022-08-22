@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -57,11 +54,13 @@ func testAccSpannerDatabase_spannerDatabaseBasicExample(context map[string]inter
 resource "google_spanner_instance" "main" {
   config       = "regional-europe-west1"
   display_name = "main-instance"
+  num_nodes    = 1
 }
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
   name     = "tf-test-my-database%{random_suffix}"
+  version_retention_period = "3d"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
     "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",

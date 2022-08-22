@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -26,7 +27,7 @@ func datasourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error
 	} else {
 		project, err := getProject(d, config)
 		if err != nil {
-			return err
+			return fmt.Errorf("no project value set. `project_id` must be set at the resource level, or a default `project` value must be specified on the provider")
 		}
 		d.SetId(fmt.Sprintf("projects/%s", project))
 	}

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_domain_mapping"
-sidebar_current: "docs-google-app-engine-domain-mapping"
 description: |-
   A domain serving an App Engine application.
 ---
@@ -65,7 +63,7 @@ The following arguments are supported:
 * `ssl_settings` -
   (Optional)
   SSL configuration for this domain. If unconfigured, this domain will not serve with SSL.
-  Structure is documented below.
+  Structure is [documented below](#nested_ssl_settings).
 
 * `override_strategy` -
   (Optional)
@@ -78,7 +76,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `ssl_settings` block supports:
+<a name="nested_ssl_settings"></a>The `ssl_settings` block supports:
 
 * `certificate_id` -
   (Optional)
@@ -114,10 +112,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `resource_records` -
   The resource records required to configure this domain mapping. These records must be added to the domain's DNS
   configuration in order to serve the application via this domain mapping.
-  Structure is documented below.
+  Structure is [documented below](#nested_resource_records).
 
 
-The `resource_records` block contains:
+<a name="nested_resource_records"></a>The `resource_records` block contains:
 
 * `name` -
   (Optional)
@@ -137,9 +135,9 @@ The `resource_records` block contains:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

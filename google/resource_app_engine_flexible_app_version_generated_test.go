@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -33,11 +33,8 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAppEngineFlexibleAppVersionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -47,7 +44,7 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 				ResourceName:            "google_app_engine_flexible_app_version.myapp_v1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"beta_settings", "env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"beta_settings", "env_variables", "entrypoint", "service", "noop_on_destroy", "deployment.0.zip"},
 			},
 		},
 	})
@@ -131,8 +128,9 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-appengine-static-content%{random_suffix}"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-appengine-static-content%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

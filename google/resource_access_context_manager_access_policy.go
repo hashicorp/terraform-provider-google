@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -36,9 +36,9 @@ func resourceAccessContextManagerAccessPolicy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -53,6 +53,16 @@ Format: organizations/{organization_id}`,
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Human readable title. Does not affect behavior.`,
+			},
+			"scopes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Folder or project on which this policy is applicable.
+Format: folders/{{folder_id}} or projects/{{project_id}}`,
+				MaxItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -93,6 +103,12 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("title"); !isEmptyValue(reflect.ValueOf(titleProp)) && (ok || !reflect.DeepEqual(v, titleProp)) {
 		obj["title"] = titleProp
+	}
+	scopesProp, err := expandAccessContextManagerAccessPolicyScopes(d.Get("scopes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scopes"); !isEmptyValue(reflect.ValueOf(scopesProp)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
+		obj["scopes"] = scopesProp
 	}
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies")
@@ -143,8 +159,6 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating AccessPolicy %q: %#v", d.Id(), res)
-
 	// The operation for this resource contains the generated name that we need
 	// in order to perform a READ. We need to access the object inside of it as
 	// a map[string]interface, so let's do that.
@@ -156,6 +170,8 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	d.SetId(name)
+
+	log.Printf("[DEBUG] Finished creating AccessPolicy %q: %#v", d.Id(), res)
 
 	return resourceAccessContextManagerAccessPolicyRead(d, meta)
 }
@@ -199,6 +215,9 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 	if err := d.Set("title", flattenAccessContextManagerAccessPolicyTitle(res["title"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}
+	if err := d.Set("scopes", flattenAccessContextManagerAccessPolicyScopes(res["scopes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessPolicy: %s", err)
+	}
 
 	return nil
 }
@@ -219,6 +238,12 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("title"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, titleProp)) {
 		obj["title"] = titleProp
 	}
+	scopesProp, err := expandAccessContextManagerAccessPolicyScopes(d.Get("scopes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scopes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
+		obj["scopes"] = scopesProp
+	}
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
@@ -230,6 +255,10 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("title") {
 		updateMask = append(updateMask, "title")
+	}
+
+	if d.HasChange("scopes") {
+		updateMask = append(updateMask, "scopes")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -342,10 +371,18 @@ func flattenAccessContextManagerAccessPolicyTitle(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenAccessContextManagerAccessPolicyScopes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandAccessContextManagerAccessPolicyParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandAccessContextManagerAccessPolicyTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessPolicyScopes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

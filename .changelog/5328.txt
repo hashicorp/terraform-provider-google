@@ -1,0 +1,3 @@
+```release-note:breaking-change
+provider: changed `credentials`, `access_token` precedence so that `credentials` values in configuration take precedence over `access_token` values assigned through environment variables
+```

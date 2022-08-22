@@ -1,17 +1,16 @@
 ---
-layout: "google"
 page_title: "Provider: Google Cloud Platform"
-sidebar_current: "docs-google-provider-x"
 description: |-
    The Google provider is used to configure your Google Cloud Platform infrastructure
 ---
 
 # Google Cloud Platform Provider
 
--> Try out Terraform 0.12 with the Google provider! `google` and `google-beta` are 0.12-compatible from `2.5.0` onwards.
-
 The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure.
 See the [Getting Started](/docs/providers/google/guides/getting_started.html) page for an introduction to using the provider.
+
+To learn the basics of Terraform using this provider, follow the
+hands-on [get started tutorials](https://learn.hashicorp.com/tutorials/terraform/infrastructure-as-code?in=terraform/gcp-get-started) on HashiCorp's Learn platform. For more involved examples, try [provisioning a GKE cluster](https://learn.hashicorp.com/tutorials/terraform/gke) and deploying [Consul-backed Vault into it using Terraform Cloud](https://learn.hashicorp.com/tutorials/terraform/kubernetes-consul-vault-pipeline).
 
 A typical provider configuration will look something like:
 
@@ -35,15 +34,15 @@ The Google provider is jointly maintained by:
 
 If you have configuration questions, or general questions about using the provider, try checking out:
 
-* The [Google Cloud Platform Community Slack](https://gcp-slack.appspot.com/) #terraform channel
+* The [Google Cloud Platform Community Slack](https://googlecloud-community.slack.com/) `#terraform` channel. If you are not registered with that Slack Workspace yet, the up-to-date **public sign-up link** can be found in the "Stay Connected" section of the [Google Developer Center](https://cloud.google.com/developers#stay-connected).
 * [Terraform's community resources](https://www.terraform.io/docs/extend/community/index.html)
 * [HashiCorp support](https://support.hashicorp.com) for Terraform Enterprise customers
 
 ## Releases
 
 Interested in the provider's latest features, or want to make sure you're up to date?
-Check out the [`google` provider changelog](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md)
-and the [`google-beta` provider changelog](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md))
+Check out the [`google` provider changelog](https://github.com/hashicorp/terraform-provider-google/blob/main/CHANGELOG.md)
+and the [`google-beta` provider changelog](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/CHANGELOG.md))
 for release notes and additional information.
 
 Per [Terraform Provider Versioning](https://www.hashicorp.com/blog/hashicorp-terraform-provider-versioning),
@@ -100,7 +99,7 @@ the issue!
 ## Contributing
 
 If you'd like to help extend the Google provider, we gladly accept community
-contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/hashicorp/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
+contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/hashicorp/terraform-provider-google/blob/main/.github/CONTRIBUTING.md)
 
 Pull requests can be made against either provider repo where a maintainer will
 apply them to both `google` and `google-beta`, or against [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules)

@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Fixed recreation of GCE instances when updating `resource_policies` property
+```

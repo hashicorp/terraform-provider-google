@@ -160,6 +160,47 @@ func TestAccComputeRegionHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionHealthCheck_logConfigDisabled(t *testing.T) {
+	t.Parallel()
+
+	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionHealthCheck_logConfigDisabled(hckName),
+			},
+			{
+				ResourceName:      "google_compute_region_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionHealthCheck_logConfigDisabled(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_health_check" "foobar" {
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  http2_health_check {
+    port = "443"
+  }
+  log_config {
+  	enable = false
+  }
+}
+`, hckName)
+}
+
 func testAccComputeRegionHealthCheck_tcp(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_health_check" "foobar" {

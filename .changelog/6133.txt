@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added field `auto_provisioning_network_tags` to `google_container_cluster` (beta)
+```

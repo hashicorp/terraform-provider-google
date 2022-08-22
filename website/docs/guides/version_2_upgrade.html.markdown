@@ -1,7 +1,5 @@
 ---
-layout: "google"
 page_title: "Terraform Google Provider 2.0.0 Upgrade Guide"
-sidebar_current: "docs-google-provider-guides-version-2-upgrade"
 description: |-
   Terraform Google Provider 2.0.0 Upgrade Guide
 ---
@@ -21,7 +19,7 @@ for details if you're new to using `google-beta`.
 Most of the changes outlined in this guide have been previously marked as
 deprecated in the Terraform `plan`/`apply` output throughout previous provider
 releases, up to and including 1.20.0. These changes, such as deprecation notices,
-can always be found in the [CHANGELOG](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md).
+can always be found in the [CHANGELOG](https://github.com/hashicorp/terraform-provider-google/blob/main/CHANGELOG.md).
 
 ## Why version 2.0.0?
 
@@ -78,8 +76,8 @@ to either `terraform import` them or delete them by hand.
 - [Data Sources](#data-sources)
 - [Resource: `google_bigquery_dataset`](#resource-google_bigquery_dataset)
 - [Resource: `google_bigtable_instance`](#resource-google_bigtable_instance)
-- [Resource: `google_binary_authorizaton_attestor`](#resource-google_binary_authorization_attestor)
-- [Resource: `google_binary_authorizaton_policy`](#resource-google_binary_authorization_policy)
+- [Resource: `google_binary_authorization_attestor`](#resource-google_binary_authorization_attestor)
+- [Resource: `google_binary_authorization_policy`](#resource-google_binary_authorization_policy)
 - [Resource: `google_cloudbuild_trigger`](#resource-google_cloudbuild_trigger)
 - [Resource: `google_cloudfunctions_function`](#resource-google_cloudfunctions_function)
 - [Resource: `google_compute_backend_service`](#resource-google_compute_backend_service)
@@ -166,7 +164,7 @@ available. For more information see [the official documentation on GCP launch st
 
 Because the API for beta features can change before their GA launch, there may
 be breaking changes in the `google-beta` provider in minor release versions.
-These changes will be announced in the [`google-beta` CHANGELOG](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md).
+These changes will be announced in the [`google-beta` CHANGELOG](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/CHANGELOG.md).
 
 To have resources at different API versions, set up provider blocks for each version:
 
@@ -293,7 +291,7 @@ Example updated configuration:
 ```hcl
 resource "google_cloudbuild_trigger" "build_trigger" {
   trigger_template {
-    branch_name = "master-updated"
+    branch_name = "main-updated"
     repo_name   = "some-repo-updated"
   }
 
@@ -350,7 +348,7 @@ resource "google_cloudfunctions_function" "function" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "example-bucket"
+  name     = "example-bucket"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -386,7 +384,7 @@ Use the `disk_encryption_key` block instead:
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -486,7 +484,7 @@ Use the `snapshot_encryption_key` block instead:
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -514,7 +512,7 @@ Use the `source_disk_encryption_key` block instead:
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 resource "google_compute_disk" "my_disk" {

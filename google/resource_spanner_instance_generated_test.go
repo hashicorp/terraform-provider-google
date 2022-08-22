@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -65,6 +62,45 @@ resource "google_spanner_instance" "example" {
 `, context)
 }
 
+func TestAccSpannerInstance_spannerInstanceProcessingUnitsExample(t *testing.T) {
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_spannerInstanceProcessingUnitsExample(context),
+			},
+			{
+				ResourceName:            "google_spanner_instance.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config"},
+			},
+		},
+	})
+}
+
+func testAccSpannerInstance_spannerInstanceProcessingUnitsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_spanner_instance" "example" {
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  processing_units    = 200
+  labels = {
+    "foo" = "bar"
+  }
+}
+`, context)
+}
+
 func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
@@ -74,11 +110,8 @@ func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

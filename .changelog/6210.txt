@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed case-sensitive for `user_by_email` and `group_by_email` on `google_bigquery_dataset_access`
+```

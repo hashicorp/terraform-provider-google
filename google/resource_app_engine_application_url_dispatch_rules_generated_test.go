@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatch
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -89,7 +86,8 @@ resource "google_app_engine_standard_app_version" "admin_v3" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-appengine-test-bucket%{random_suffix}"
+  name     = "tf-test-appengine-test-bucket%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

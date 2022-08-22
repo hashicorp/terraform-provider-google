@@ -183,8 +183,9 @@ func testAccSqlDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) er
 
 var testGoogleSqlDatabase_basic = `
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -198,8 +199,9 @@ resource "google_sql_database" "database" {
 `
 var testGoogleSqlDatabase_latin1 = `
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeExternalVpnGatewayDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -70,7 +67,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "network%{random_suffix}"
+  name                    = "tf-test-network-1%{random_suffix}"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
@@ -90,7 +87,7 @@ resource "google_compute_subnetwork" "network_subnet2" {
 }
 
 resource "google_compute_router" "router1" {
-  name     = "ha-vpn-router1"
+  name     = "tf-test-ha-vpn-router1%{random_suffix}"
   network  = google_compute_network.network.name
   bgp {
     asn = 64514

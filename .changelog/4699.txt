@@ -1,0 +1,6 @@
+```release-note:enhancement
+spanner: added support for setting a CMEK on `google_spanner_database`
+```
+```release-note:note
+all: changed default HTTP request timeout from 30 seconds to 120 seconds
+```

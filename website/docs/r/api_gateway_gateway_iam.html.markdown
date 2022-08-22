@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "API Gateway"
-layout: "google"
 page_title: "Google: google_api_gateway_gateway_iam"
-sidebar_current: "docs-google-api-gateway-gateway-iam"
 description: |-
   Collection of resources to manage IAM policy for API Gateway Gateway
 ---
@@ -40,6 +38,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/apigateway.viewer"
     members = [
@@ -49,6 +48,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_api_gateway_gateway_iam_policy" "policy" {
+  provider = google-beta
   project = google_api_gateway_gateway.api_gw.project
   region = google_api_gateway_gateway.api_gw.region
   gateway = google_api_gateway_gateway.api_gw.gateway_id
@@ -60,6 +60,7 @@ resource "google_api_gateway_gateway_iam_policy" "policy" {
 
 ```hcl
 resource "google_api_gateway_gateway_iam_binding" "binding" {
+  provider = google-beta
   project = google_api_gateway_gateway.api_gw.project
   region = google_api_gateway_gateway.api_gw.region
   gateway = google_api_gateway_gateway.api_gw.gateway_id
@@ -74,6 +75,7 @@ resource "google_api_gateway_gateway_iam_binding" "binding" {
 
 ```hcl
 resource "google_api_gateway_gateway_iam_member" "member" {
+  provider = google-beta
   project = google_api_gateway_gateway.api_gw.project
   region = google_api_gateway_gateway.api_gw.region
   gateway = google_api_gateway_gateway.api_gw.gateway_id
@@ -102,6 +104,9 @@ The following arguments are supported:
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
+  * **projectOwner:projectid**: Owners of the given project. For example, "projectOwner:my-example-project"
+  * **projectEditor:projectid**: Editors of the given project. For example, "projectEditor:my-example-project"
+  * **projectViewer:projectid**: Viewers of the given project. For example, "projectViewer:my-example-project"
 
 * `role` - (Required) The role that should be applied. Only one
     `google_api_gateway_gateway_iam_binding` can be used per role. Note that custom roles must be of the format
@@ -121,10 +126,10 @@ exported:
 
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
-* projects/{{project}}/locations/{{region}}/gateways/{{name}}
-* {{project}}/{{region}}/{{name}}
-* {{region}}/{{name}}
-* {{name}}
+* projects/{{project}}/locations/{{region}}/gateways/{{gateway}}
+* {{project}}/{{region}}/{{gateway}}
+* {{region}}/{{gateway}}
+* {{gateway}}
 
 Any variables not passed in the import command will be taken from the provider configuration.
 

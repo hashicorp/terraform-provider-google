@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Run"
-layout: "google"
 page_title: "Google: google_cloud_run_service"
-sidebar_current: "docs-google-cloud-run-service"
 description: |-
   Service acts as a top-level container that manages a set of Routes and
   Configurations which implement a network service.
@@ -35,20 +33,74 @@ The Service's controller will track the statuses of its owned Configuration
 and Route, reflecting their statuses and conditions as its own.
 
 See also:
-https://github.com/knative/serving/blob/master/docs/spec/overview.md#service
+https://github.com/knative/specs/blob/main/specs/serving/overview.md
 
 
 To get more information about Service, see:
 
-* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1/projects.locations.services)
+* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1/namespaces.services)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/run/docs/)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
+~> **Warning:** `google_cloudrun_service` creates a Managed Google Cloud Run Service. If you need to create
+a Cloud Run Service on Anthos(GKE/VMWare) then you will need to create it using the kubernetes alpha provider.
+Have a look at the Cloud Run Anthos example below.
+
+## Example Usage - Cloud Run Service Pubsub
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+    name     = "cloud_run_service_name"
+    location = "us-central1"
+    template {
+      spec {
+            containers {
+                image = "gcr.io/cloudrun/hello"
+            }
+      }
+    }
+    traffic {
+      percent         = 100
+      latest_revision = true
+    }
+}
+
+resource "google_service_account" "sa" {
+  account_id   = "cloud-run-pubsub-invoker"
+  display_name = "Cloud Run Pub/Sub Invoker"
+}
+
+resource "google_cloud_run_service_iam_binding" "binding" {
+  location = google_cloud_run_service.default.location
+  service = google_cloud_run_service.default.name
+  role = "roles/run.invoker"
+  members = ["serviceAccount:${google_service_account.sa.email}"]
+}
+
+resource "google_project_iam_binding" "project" {
+  role    = "roles/iam.serviceAccountTokenCreator"
+  members = ["serviceAccount:${google_service_account.sa.email}"]
+}
+
+resource "google_pubsub_topic" "topic" {
+  name = "pubsub_topic"
+}
+
+resource "google_pubsub_subscription" "subscription" {
+  name  = "pubsub_subscription"
+  topic = google_pubsub_topic.topic.name
+  push_config {
+    push_endpoint = google_cloud_run_service.default.status[0].url
+    oidc_token {
+      service_account_email = google_service_account.sa.email
+    }
+    attributes = {
+      x-goog-version = "v1"
+    }
+  }
+}
+```
 ## Example Usage - Cloud Run Service Basic
 
 
@@ -103,8 +155,9 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  name   = "cloudrun-sql"
-  region = "us-east1"
+  name             = "cloudrun-sql"
+  region           = "us-east1"
+  database_version = "MYSQL_5_7"
   settings {
     tier = "db-f1-micro"
   }
@@ -112,15 +165,12 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection  = "true"
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_noauth&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Run Service Noauth
 
 
 ```hcl
+# Example of how to deploy a publicly-accessible Cloud Run application
+
 resource "google_cloud_run_service" "default" {
   name     = "cloudrun-srv"
   location = "us-central1"
@@ -151,12 +201,7 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_multiple_environment_variables&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Cloud Run Service Multiple Environment Variables
+## Example Usage - Cloud Run Service Add Tag
 
 
 ```hcl
@@ -164,69 +209,19 @@ resource "google_cloud_run_service" "default" {
   name     = "cloudrun-srv"
   location = "us-central1"
 
-  template {
-    spec {
-      containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
-        env {
-          name = "SOURCE"
-          value = "remote"
-        }
-        env {
-          name = "TARGET"
-          value = "home"
-        }
-      }
-    }
-  }
-
-  metadata {
-    annotations = {
-      generated-by = "magic-modules"
-    }
-  }
+  template {}
 
   traffic {
-    percent         = 100
-    latest_revision = true
-  }
-  autogenerate_revision_name = true
-
-  lifecycle {
-    ignore_changes = [
-        metadata.0.annotations,
-    ]
-  }
-}
-```
-## Example Usage - Cloud Run Service Traffic Split
-
-
-```hcl
-resource "google_cloud_run_service" "default" {
-  name     = "cloudrun-srv"
-  location = "us-central1"
-
-  template {
-    spec {
-      containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
-      }
-    }
-    metadata {
-      name = "cloudrun-srv-green"
-    }
-  }
-
-  traffic {
-    percent       = 25
+    percent       = 100
+    # This revision needs to already exist
     revision_name = "cloudrun-srv-green"
   }
 
   traffic {
-    percent       = 75
-    # This revision needs to already exist
+    # Deploy new revision with 0% traffic
+    percent       = 0
     revision_name = "cloudrun-srv-blue"
+    tag           = "tag-name"
   }
 }
 ```
@@ -249,7 +244,7 @@ The following arguments are supported:
 
 
 
-The `traffic` block supports:
+<a name="nested_traffic"></a>The `traffic` block supports:
 
 * `revision_name` -
   (Optional)
@@ -259,6 +254,10 @@ The `traffic` block supports:
   (Required)
   Percent specifies percent of the traffic to this Revision or Configuration.
 
+* `tag` -
+  (Optional)
+  Tag is optionally used to expose a dedicated url for referencing this target exclusively.
+
 * `latest_revision` -
   (Optional)
   LatestRevision may be optionally provided to indicate that the latest ready
@@ -266,26 +265,31 @@ The `traffic` block supports:
   provided LatestRevision must be true if RevisionName is empty; it must be
   false when RevisionName is non-empty.
 
-The `template` block supports:
+* `url` -
+  URL displays the URL for accessing tagged traffic targets. URL is displayed in status, 
+  and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname, 
+  but may not contain anything else (e.g. basic auth, url path, etc.)
+
+<a name="nested_template"></a>The `template` block supports:
 
 * `metadata` -
   (Optional)
   Optional metadata for this Revision, including labels and annotations.
   Name will be generated by the Configuration. To set minimum instances
   for this revision, use the "autoscaling.knative.dev/minScale" annotation
-  key (Cloud Run on GKE only). To set maximum instances for this revision, use the
+  key. To set maximum instances for this revision, use the
   "autoscaling.knative.dev/maxScale" annotation key. To set Cloud SQL
   connections for the revision, use the "run.googleapis.com/cloudsql-instances"
   annotation key.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata).
 
 * `spec` -
   (Required)
   RevisionSpec holds the desired state of the Revision (from the client).
-  Structure is documented below.
+  Structure is [documented below](#nested_spec).
 
 
-The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `labels` -
   (Optional)
@@ -335,7 +339,7 @@ The `metadata` block supports:
   for creation idempotence and configuration definition. Cannot be updated.
   More info: http://kubernetes.io/docs/user-guide/identifiers#names
 
-The `spec` block supports:
+<a name="nested_spec"></a>The `spec` block supports:
 
 * `containers` -
   (Required)
@@ -343,8 +347,8 @@ The `spec` block supports:
   In the context of a Revision, we disallow a number of the fields of
   this Container, including: name, ports, and volumeMounts.
   The runtime contract is documented here:
-  https://github.com/knative/serving/blob/master/docs/runtime-contract.md
-  Structure is documented below.
+  https://github.com/knative/serving/blob/main/docs/runtime-contract.md
+  Structure is [documented below](#nested_containers).
 
 * `container_concurrency` -
   (Optional)
@@ -366,14 +370,20 @@ The `spec` block supports:
   and determines what permissions the revision has. If not provided, the revision
   will use the project's default service account.
 
+* `volumes` -
+  (Optional)
+  Volume represents a named volume in a container.
+  Structure is [documented below](#nested_volumes).
+
 * `serving_state` -
+  (Deprecated)
   ServingState holds a value describing the state the resources
   are in for this Revision.
   It is expected
   that the system will manipulate this based on routability and load.
 
 
-The `containers` block supports:
+<a name="nested_containers"></a>The `containers` block supports:
 
 * `working_dir` -
   (Optional, Deprecated)
@@ -400,7 +410,7 @@ The `containers` block supports:
   When a key exists in multiple sources, the value associated with the last source will
   take precedence. Values defined by an Env with a duplicate key will take
   precedence.
-  Structure is documented below.
+  Structure is [documented below](#nested_env_from).
 
 * `image` -
   (Required)
@@ -423,24 +433,30 @@ The `containers` block supports:
 * `env` -
   (Optional)
   List of environment variables to set in the container.
-  Structure is documented below.
+  Structure is [documented below](#nested_env).
 
 * `ports` -
   (Optional)
   List of open ports in the container.
-  More Info: 
+  More Info:
   https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort
-  Structure is documented below.
+  Structure is [documented below](#nested_ports).
 
 * `resources` -
   (Optional)
   Compute Resources required by this container. Used to set values such as max memory
   More info:
   https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits
-  Structure is documented below.
+  Structure is [documented below](#nested_resources).
+
+* `volume_mounts` -
+  (Optional)
+  Volume to mount into the container's filesystem.
+  Only supports SecretVolumeSources.
+  Structure is [documented below](#nested_volume_mounts).
 
 
-The `env_from` block supports:
+<a name="nested_env_from"></a>The `env_from` block supports:
 
 * `prefix` -
   (Optional)
@@ -449,15 +465,15 @@ The `env_from` block supports:
 * `config_map_ref` -
   (Optional)
   The ConfigMap to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_config_map_ref).
 
 * `secret_ref` -
   (Optional)
   The Secret to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_secret_ref).
 
 
-The `config_map_ref` block supports:
+<a name="nested_config_map_ref"></a>The `config_map_ref` block supports:
 
 * `optional` -
   (Optional)
@@ -466,10 +482,10 @@ The `config_map_ref` block supports:
 * `local_object_reference` -
   (Optional)
   The ConfigMap to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_local_object_reference).
 
 
-The `local_object_reference` block supports:
+<a name="nested_local_object_reference"></a>The `local_object_reference` block supports:
 
 * `name` -
   (Required)
@@ -477,19 +493,19 @@ The `local_object_reference` block supports:
   More info:
   https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 
-The `secret_ref` block supports:
+<a name="nested_secret_ref"></a>The `secret_ref` block supports:
 
 * `local_object_reference` -
   (Optional)
   The Secret to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_local_object_reference).
 
 * `optional` -
   (Optional)
   Specify whether the Secret must be defined
 
 
-The `local_object_reference` block supports:
+<a name="nested_local_object_reference"></a>The `local_object_reference` block supports:
 
 * `name` -
   (Required)
@@ -497,7 +513,7 @@ The `local_object_reference` block supports:
   More info:
   https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 
-The `env` block supports:
+<a name="nested_env"></a>The `env` block supports:
 
 * `name` -
   (Optional)
@@ -514,21 +530,50 @@ The `env` block supports:
   exists or not.
   Defaults to "".
 
-The `ports` block supports:
+* `value_from` -
+  (Optional)
+  Source for the environment variable's value. Only supports secret_key_ref.
+  Structure is [documented below](#nested_value_from).
+
+
+<a name="nested_value_from"></a>The `value_from` block supports:
+
+* `secret_key_ref` -
+  (Required)
+  Selects a key (version) of a secret in Secret Manager.
+  Structure is [documented below](#nested_secret_key_ref).
+
+
+<a name="nested_secret_key_ref"></a>The `secret_key_ref` block supports:
+
+* `key` -
+  (Required)
+  A Cloud Secret Manager secret version. Must be 'latest' for the latest
+  version or an integer for a specific version.
+
+* `name` -
+  (Required)
+  The name of the secret in Cloud Secret Manager. By default, the secret is assumed to be in the same project. 
+  If the secret is in another project, you must define an alias. 
+  An alias definition has the form: :projects/<project-id|project-number>/secrets/. 
+  If multiple alias definitions are needed, they must be separated by commas. 
+  The alias definitions must be set on the run.googleapis.com/secrets annotation.
+
+<a name="nested_ports"></a>The `ports` block supports:
 
 * `name` -
   (Optional)
-  Name of the port.
+  If specified, used to specify which protocol to use. Allowed values are "http1" and "h2c".
 
 * `protocol` -
   (Optional)
-  Protocol used on port. Defaults to TCP.
+  Protocol for port. Must be "TCP". Defaults to "TCP".
 
 * `container_port` -
-  (Required)
-  Port number.
+  (Optional)
+  Port number the container listens on. This must be a valid port number, 0 < x < 65536.
 
-The `resources` block supports:
+<a name="nested_resources"></a>The `resources` block supports:
 
 * `limits` -
   (Optional)
@@ -544,6 +589,83 @@ The `resources` block supports:
   The values of the map is string form of the 'quantity' k8s type:
   https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
+<a name="nested_volume_mounts"></a>The `volume_mounts` block supports:
+
+* `mount_path` -
+  (Required)
+  Path within the container at which the volume should be mounted.  Must
+  not contain ':'.
+
+* `name` -
+  (Required)
+  This must match the Name of a Volume.
+
+<a name="nested_volumes"></a>The `volumes` block supports:
+
+* `name` -
+  (Required)
+  Volume's name.
+
+* `secret` -
+  (Required)
+  The secret's value will be presented as the content of a file whose
+  name is defined in the item path. If no items are defined, the name of
+  the file is the secret_name.
+  Structure is [documented below](#nested_secret).
+
+
+<a name="nested_secret"></a>The `secret` block supports:
+
+* `secret_name` -
+  (Required)
+  The name of the secret in Cloud Secret Manager. By default, the secret
+  is assumed to be in the same project.
+  If the secret is in another project, you must define an alias.
+  An alias definition has the form:
+  <alias>:projects/<project-id|project-number>/secrets/<secret-name>.
+  If multiple alias definitions are needed, they must be separated by
+  commas.
+  The alias definitions must be set on the run.googleapis.com/secrets
+  annotation.
+
+* `default_mode` -
+  (Optional)
+  Mode bits to use on created files by default. Must be a value between 0000
+  and 0777. Defaults to 0644. Directories within the path are not affected by
+  this setting. This might be in conflict with other options that affect the
+  file mode, like fsGroup, and the result can be other mode bits set.
+
+* `items` -
+  (Optional)
+  If unspecified, the volume will expose a file whose name is the
+  secret_name.
+  If specified, the key will be used as the version to fetch from Cloud
+  Secret Manager and the path will be the name of the file exposed in the
+  volume. When items are defined, they must specify a key and a path.
+  Structure is [documented below](#nested_items).
+
+
+<a name="nested_items"></a>The `items` block supports:
+
+* `key` -
+  (Required)
+  The Cloud Secret Manager secret version.
+  Can be 'latest' for the latest value or an integer for a specific version.
+
+* `path` -
+  (Required)
+  The relative path of the file to map the key to.
+  May not be an absolute path.
+  May not contain the path element '..'.
+  May not start with the string '..'.
+
+* `mode` -
+  (Optional)
+  Mode bits to use on this file, must be a value between 0000 and 0777. If
+  not specified, the volume defaultMode will be used. This might be in
+  conflict with other options that affect the file mode, like fsGroup, and
+  the result can be other mode bits set.
+
 - - -
 
 
@@ -551,7 +673,7 @@ The `resources` block supports:
   (Optional)
   Traffic specifies how to distribute traffic over a collection of Knative Revisions
   and Configurations
-  Structure is documented below.
+  Structure is [documented below](#nested_traffic).
 
 * `template` -
   (Optional)
@@ -561,28 +683,28 @@ The `resources` block supports:
   To correlate a Revision, and/or to force a Revision to be created when the
   spec doesn't otherwise change, a nonce label may be provided in the
   template metadata. For more details, see:
-  https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
+  https://github.com/knative/serving/blob/main/docs/client-conventions.md#associate-modifications-with-revisions
   Cloud Run does not currently support referencing a build that is
   responsible for materializing the container image from source.
-  Structure is documented below.
+  Structure is [documented below](#nested_template).
 
 * `metadata` -
   (Optional)
   Metadata associated with this Service, including name, namespace, labels,
   and annotations.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `autogenerate_revision_name` - (Optional) If set to `true`, the revision name (template.metadata.name) will be omitted and 
-autogenerated by Cloud Run. This cannot be set to `true` while `template.metadata.name` 
-is also set. 
+* `autogenerate_revision_name` - (Optional) If set to `true`, the revision name (template.metadata.name) will be omitted and
+autogenerated by Cloud Run. This cannot be set to `true` while `template.metadata.name`
+is also set.
 (For legacy support, if `template.metadata.name` is unset in state while
 this field is set to false, the revision name will still autogenerate.)
 
 
-The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `labels` -
   (Optional)
@@ -624,6 +746,9 @@ The `metadata` block supports:
   **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
   If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
   or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
+  Cloud Run (fully managed) uses the following annotation keys to configure features on a Service:
+  - `run.googleapis.com/ingress` sets the [ingress settings](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--ingress)
+    for the Service. For example, `"run.googleapis.com/ingress" = "all"`.
 
 ## Attributes Reference
 
@@ -633,14 +758,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `status` -
   The current status of the Service.
-  Structure is documented below.
+  Structure is [documented below](#nested_status).
 
 
-The `status` block contains:
+<a name="nested_status"></a>The `status` block contains:
 
 * `conditions` -
   Array of observed Service Conditions, indicating the current ready state of the service.
-  Structure is documented below.
+  Structure is [documented below](#nested_conditions).
 
 * `url` -
   From RouteStatus. URL holds the url that will distribute traffic over the provided traffic
@@ -664,7 +789,7 @@ The `status` block contains:
   "True".
 
 
-The `conditions` block contains:
+<a name="nested_conditions"></a>The `conditions` block contains:
 
 * `message` -
   Human readable message indicating details about the current status.
@@ -683,9 +808,9 @@ The `conditions` block contains:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 15 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

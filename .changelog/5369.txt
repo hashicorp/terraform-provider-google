@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a permadiff on `subnetwork` when it is optional on `google_compute_network_endpoint_group`
+```

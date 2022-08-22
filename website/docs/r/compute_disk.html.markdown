@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_disk"
-sidebar_current: "docs-google-compute-disk"
 description: |-
   Persistent disks are durable storage devices that function similarly to
   the physical disks in a desktop or a server.
@@ -47,7 +45,7 @@ To get more information about Disk, see:
     * [Adding a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
 
 ~> **Warning:** All arguments including `disk_encryption_key.raw_key` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=disk_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -62,7 +60,7 @@ resource "google_compute_disk" "default" {
   name  = "test-disk"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-9-stretch-v20200805"
+  image = "debian-11-bullseye-v20220719"
   labels = {
     environment = "dev"
   }
@@ -107,6 +105,10 @@ The following arguments are supported:
   If you specify this field along with `image` or `snapshot`,
   the value must not be less than the size of the image
   or the size of the snapshot.
+  ~>**NOTE** If you change the size, Terraform updates the disk size
+  if upsizing is detected but recreates the disk if downsizing is requested.
+  You can add `lifecycle.prevent_destroy` in the config to prevent destroying
+  and recreating.
 
 * `physical_block_size_bytes` -
   (Optional)
@@ -119,8 +121,6 @@ The following arguments are supported:
 * `interface` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
-  Default value is `SCSI`.
-  Possible values are `SCSI` and `NVME`.
 
 * `type` -
   (Optional)
@@ -152,6 +152,10 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Indicates whether or not the disk can be read/write attached to more than one instance.
 
+* `provisioned_iops` -
+  (Optional)
+  Indicates how many IOPS must be provisioned for the disk.
+
 * `zone` -
   (Optional)
   A reference to the zone where the disk resides.
@@ -160,7 +164,7 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the source image. Required if
   the source image is protected by a customer-supplied encryption key.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_image_encryption_key).
 
 * `disk_encryption_key` -
   (Optional)
@@ -173,7 +177,7 @@ The following arguments are supported:
   If you do not provide an encryption key when creating the disk, then
   the disk will be encrypted using an automatically generated key and
   you do not need to provide a key to use the disk later.
-  Structure is documented below.
+  Structure is [documented below](#nested_disk_encryption_key).
 
 * `snapshot` -
   (Optional)
@@ -191,13 +195,13 @@ The following arguments are supported:
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
   key.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_snapshot_encryption_key).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `source_image_encryption_key` block supports:
+<a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -221,7 +225,7 @@ The `source_image_encryption_key` block supports:
   The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
-The `disk_encryption_key` block supports:
+<a name="nested_disk_encryption_key"></a>The `disk_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -246,7 +250,7 @@ The `disk_encryption_key` block supports:
   The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
-The `source_snapshot_encryption_key` block supports:
+<a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -267,7 +271,7 @@ The `source_snapshot_encryption_key` block supports:
 
 * `kms_key_service_account` -
   (Optional)
-  The service account used for the encryption request for the given KMS key. 
+  The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
 ## Attributes Reference
@@ -315,9 +319,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 5 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

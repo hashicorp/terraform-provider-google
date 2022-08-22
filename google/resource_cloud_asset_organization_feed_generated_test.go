@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -33,11 +33,8 @@ func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudAssetOrganizationFeedDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -82,11 +79,6 @@ resource "google_cloud_asset_organization_feed" "organization_feed" {
     title = "created"
     description = "Send notifications on creation events"
   }
-
-  # Wait for the permission to be ready on the destination topic.
-  depends_on = [
-    google_pubsub_topic_iam_member.cloud_asset_writer,
-  ]
 }
 
 # The topic where the resource change notifications will be sent.
@@ -99,15 +91,6 @@ resource "google_pubsub_topic" "feed_output" {
 # the asset change notifications.
 data "google_project" "project" {
   project_id = "%{project}"
-}
-
-# Allow the publishing role to the Cloud Asset service account of the project that
-# was used for sending the notifications.
-resource "google_pubsub_topic_iam_member" "cloud_asset_writer" {
-  project = "%{project}"
-  topic   = google_pubsub_topic.feed_output.id
-  role    = "roles/pubsub.publisher"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudasset.iam.gserviceaccount.com"
 }
 `, context)
 }

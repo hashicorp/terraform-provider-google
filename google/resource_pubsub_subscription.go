@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -19,12 +19,10 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/googleapi"
 )
 
 func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.ResourceData) bool {
@@ -51,9 +49,9 @@ func resourcePubsubSubscription() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -92,6 +90,41 @@ for the call to the push endpoint.
 
 If the subscriber never acknowledges the message, the Pub/Sub system
 will eventually redeliver the message.`,
+			},
+			"bigquery_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `If delivery to BigQuery is used with this subscription, this field is used to configure it.
+Either pushConfig or bigQueryConfig can be set, but not both.
+If both are empty, then the subscriber will pull and ack messages using API methods.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"table": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the table to which to write data, of the form {projectId}:{datasetId}.{tableId}`,
+						},
+						"drop_unknown_fields": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `When true and useTopicSchema is true, any fields that are a part of the topic schema that are not part of the BigQuery table schema are dropped when writing to BigQuery.
+Otherwise, the schemas must be kept in sync and any messages with extra fields are not written and remain in the subscription's backlog.`,
+						},
+						"use_topic_schema": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `When true, use the topic's schema as the columns to write to in BigQuery, if it exists.`,
+						},
+						"write_metadata": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `When true, write the subscription name, messageId, publishTime, attributes, and orderingKey to additional columns in the table.
+The subscription name, messageId, and publishTime fields are put in their own columns while all other message properties (other than data) are written to a JSON object in the attributes column.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"push_config"},
 			},
 			"dead_letter_policy": {
 				Type:     schema.TypeList,
@@ -140,6 +173,20 @@ If this parameter is 0, a default value of 5 is used.`,
 						},
 					},
 				},
+			},
+			"enable_exactly_once_delivery": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `If 'true', Pub/Sub provides the following guarantees for the delivery
+of a message with a given value of messageId on this Subscriptions':
+
+- The message sent to a subscriber is guaranteed not to be resent before the message's acknowledgement deadline expires.
+
+- An acknowledged message will not be resent to a subscriber.
+
+Note that subscribers may still receive multiple copies of a message when 'enable_exactly_once_delivery'
+is true if the message was published multiple times by a publisher client. These copies are considered distinct by Pub/Sub and have distinct messageId values`,
 			},
 			"enable_message_ordering": {
 				Type:     schema.TypeBool,
@@ -196,7 +243,7 @@ you can't modify the filter.`,
 				Optional: true,
 				Description: `How long to retain unacknowledged messages in the subscription's
 backlog, from the moment a message is published. If
-retainAckedMessages is true, then this also configures the retention
+retain_acked_messages is true, then this also configures the retention
 of acknowledged messages, and thus configures how far back in time a
 subscriptions.seek can be done. Defaults to 7 days. Cannot be more
 than 7 days ('"604800s"') or less than 10 minutes ('"600s"').
@@ -281,6 +328,7 @@ Note: if not specified, the Push endpoint URL will be used.`,
 						},
 					},
 				},
+				ConflictsWith: []string{"bigquery_config"},
 			},
 			"retain_acked_messages": {
 				Type:     schema.TypeBool,
@@ -301,25 +349,23 @@ RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded even
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"maximum_backoff": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeString,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: durationDiffSuppress,
 							Description: `The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds. 
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
 						},
 						"minimum_backoff": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeString,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: durationDiffSuppress,
 							Description: `The minimum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 10 seconds.
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
 						},
 					},
 				},
-			},
-			"path": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -357,6 +403,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	bigqueryConfigProp, err := expandPubsubSubscriptionBigqueryConfig(d.Get("bigquery_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bigquery_config"); !isEmptyValue(reflect.ValueOf(bigqueryConfigProp)) && (ok || !reflect.DeepEqual(v, bigqueryConfigProp)) {
+		obj["bigqueryConfig"] = bigqueryConfigProp
 	}
 	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
 	if err != nil {
@@ -411,6 +463,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("enable_message_ordering"); !isEmptyValue(reflect.ValueOf(enableMessageOrderingProp)) && (ok || !reflect.DeepEqual(v, enableMessageOrderingProp)) {
 		obj["enableMessageOrdering"] = enableMessageOrderingProp
+	}
+	enableExactlyOnceDeliveryProp, err := expandPubsubSubscriptionEnableExactlyOnceDelivery(d.Get("enable_exactly_once_delivery"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_exactly_once_delivery"); !isEmptyValue(reflect.ValueOf(enableExactlyOnceDeliveryProp)) && (ok || !reflect.DeepEqual(v, enableExactlyOnceDeliveryProp)) {
+		obj["enableExactlyOnceDelivery"] = enableExactlyOnceDeliveryProp
 	}
 
 	obj, err = resourcePubsubSubscriptionEncoder(d, meta, obj)
@@ -490,18 +548,6 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return res, err
 		}
-		res, err = resourcePubsubSubscriptionDecoder(d, meta, res)
-		if err != nil {
-			return nil, err
-		}
-		if res == nil {
-			// Decoded object not found, spoof a 404 error for poll
-			return nil, &googleapi.Error{
-				Code:    404,
-				Message: "could not find object PubsubSubscription",
-			}
-		}
-
 		return res, nil
 	}
 }
@@ -536,18 +582,6 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubSubscription %q", d.Id()))
 	}
 
-	res, err = resourcePubsubSubscriptionDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing PubsubSubscription because it no longer exists.")
-		d.SetId("")
-		return nil
-	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
@@ -559,6 +593,9 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 	if err := d.Set("labels", flattenPubsubSubscriptionLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
+	if err := d.Set("bigquery_config", flattenPubsubSubscriptionBigqueryConfig(res["bigqueryConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 	if err := d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d, config)); err != nil {
@@ -588,6 +625,9 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("enable_message_ordering", flattenPubsubSubscriptionEnableMessageOrdering(res["enableMessageOrdering"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
+	if err := d.Set("enable_exactly_once_delivery", flattenPubsubSubscriptionEnableExactlyOnceDelivery(res["enableExactlyOnceDelivery"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
 
 	return nil
 }
@@ -613,6 +653,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	bigqueryConfigProp, err := expandPubsubSubscriptionBigqueryConfig(d.Get("bigquery_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bigquery_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bigqueryConfigProp)) {
+		obj["bigqueryConfig"] = bigqueryConfigProp
 	}
 	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
 	if err != nil {
@@ -672,6 +718,10 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("bigquery_config") {
+		updateMask = append(updateMask, "bigqueryConfig")
 	}
 
 	if d.HasChange("push_config") {
@@ -799,6 +849,41 @@ func flattenPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenPubsubSubscriptionBigqueryConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["table"] =
+		flattenPubsubSubscriptionBigqueryConfigTable(original["table"], d, config)
+	transformed["use_topic_schema"] =
+		flattenPubsubSubscriptionBigqueryConfigUseTopicSchema(original["useTopicSchema"], d, config)
+	transformed["write_metadata"] =
+		flattenPubsubSubscriptionBigqueryConfigWriteMetadata(original["writeMetadata"], d, config)
+	transformed["drop_unknown_fields"] =
+		flattenPubsubSubscriptionBigqueryConfigDropUnknownFields(original["dropUnknownFields"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionBigqueryConfigTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigqueryConfigUseTopicSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigqueryConfigWriteMetadata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigqueryConfigDropUnknownFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -850,7 +935,7 @@ func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.Reso
 func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -912,7 +997,7 @@ func flattenPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d *
 func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -953,6 +1038,10 @@ func flattenPubsubSubscriptionEnableMessageOrdering(v interface{}, d *schema.Res
 	return v
 }
 
+func flattenPubsubSubscriptionEnableExactlyOnceDelivery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
 }
@@ -988,6 +1077,62 @@ func expandPubsubSubscriptionLabels(v interface{}, d TerraformResourceData, conf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandPubsubSubscriptionBigqueryConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTable, err := expandPubsubSubscriptionBigqueryConfigTable(original["table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+		transformed["table"] = transformedTable
+	}
+
+	transformedUseTopicSchema, err := expandPubsubSubscriptionBigqueryConfigUseTopicSchema(original["use_topic_schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseTopicSchema); val.IsValid() && !isEmptyValue(val) {
+		transformed["useTopicSchema"] = transformedUseTopicSchema
+	}
+
+	transformedWriteMetadata, err := expandPubsubSubscriptionBigqueryConfigWriteMetadata(original["write_metadata"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWriteMetadata); val.IsValid() && !isEmptyValue(val) {
+		transformed["writeMetadata"] = transformedWriteMetadata
+	}
+
+	transformedDropUnknownFields, err := expandPubsubSubscriptionBigqueryConfigDropUnknownFields(original["drop_unknown_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDropUnknownFields); val.IsValid() && !isEmptyValue(val) {
+		transformed["dropUnknownFields"] = transformedDropUnknownFields
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionBigqueryConfigTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigqueryConfigUseTopicSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigqueryConfigWriteMetadata(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigqueryConfigDropUnknownFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandPubsubSubscriptionPushConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1188,6 +1333,10 @@ func expandPubsubSubscriptionEnableMessageOrdering(v interface{}, d TerraformRes
 	return v, nil
 }
 
+func expandPubsubSubscriptionEnableExactlyOnceDelivery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourcePubsubSubscriptionEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	delete(obj, "name")
 	return obj, nil
@@ -1197,15 +1346,4 @@ func resourcePubsubSubscriptionUpdateEncoder(d *schema.ResourceData, meta interf
 	newObj := make(map[string]interface{})
 	newObj["subscription"] = obj
 	return newObj, nil
-}
-
-func resourcePubsubSubscriptionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-
-	// path is a derived field from the API-side `name`
-	path := fmt.Sprintf("projects/%s/subscriptions/%s", d.Get("project"), d.Get("name"))
-	if err := d.Set("path", path); err != nil {
-		return nil, fmt.Errorf("Error setting path: %s", err)
-	}
-
-	return res, nil
 }

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery Data Transfer"
-layout: "google"
 page_title: "Google: google_bigquery_data_transfer_config"
-sidebar_current: "docs-google-bigquery-data-transfer-config"
 description: |-
   Represents a data transfer configuration.
 ---
@@ -33,7 +31,7 @@ To get more information about Config, see:
     * [Official Documentation](https://cloud.google.com/bigquery/docs/reference/datatransfer/rest/)
 
 ~> **Warning:** All arguments including `sensitive_params.secret_access_key` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Bigquerydatatransfer Config Scheduled Query
 
@@ -43,6 +41,7 @@ data "google_project" "project" {
 }
 
 resource "google_project_iam_member" "permissions" {
+  project = data.google_project.project.project_id
   role   = "roles/iam.serviceAccountShortTermTokenMinter"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
@@ -81,21 +80,24 @@ The following arguments are supported:
   (Required)
   The user specified display name for the transfer config.
 
-* `destination_dataset_id` -
-  (Required)
-  The BigQuery target dataset id.
-
 * `data_source_id` -
   (Required)
   The data source id. Cannot be changed once the transfer config is created.
 
 * `params` -
   (Required)
-  These parameters are specific to each data source.
+  Parameters specific to each data source. For more information see the bq tab in the 'Setting up a data transfer'
+  section for each data source. For example the parameters for Cloud Storage transfers are listed here:
+  https://cloud.google.com/bigquery-transfer/docs/cloud-storage-transfer#bq
+  **NOTE** : If you are attempting to update a parameter that cannot be updated (due to api limitations) [please force recreation of the resource](https://www.terraform.io/cli/state/taint#forcing-re-creation-of-resources).
 
 
 - - -
 
+
+* `destination_dataset_id` -
+  (Optional)
+  The BigQuery target dataset id.
 
 * `schedule` -
   (Optional)
@@ -111,13 +113,13 @@ The following arguments are supported:
 * `schedule_options` -
   (Optional)
   Options customizing the data transfer schedule.
-  Structure is documented below.
+  Structure is [documented below](#nested_schedule_options).
 
 * `email_preferences` -
   (Optional)
   Email notifications will be sent according to these preferences to the
   email address of the user who owns this transfer config.
-  Structure is documented below.
+  Structure is [documented below](#nested_email_preferences).
 
 * `notification_pubsub_topic` -
   (Optional)
@@ -144,7 +146,7 @@ The following arguments are supported:
   in the `params` map in the api request.
   Credentials may not be specified in both locations and will cause an error. Changing from one location
   to a different credential configuration in the config will require an apply to update state.
-  Structure is documented below.
+  Structure is [documented below](#nested_sensitive_params).
 
 * `location` -
   (Optional)
@@ -153,7 +155,7 @@ The following arguments are supported:
 
 * `service_account_name` -
   (Optional)
-  Optional service account name. If this field is set, transfer config will
+  Service account email. If this field is set, transfer config will
   be created with this service account credentials. It requires that
   requesting user calling this API has permissions to act as this service account.
 
@@ -161,7 +163,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `schedule_options` block supports:
+<a name="nested_schedule_options"></a>The `schedule_options` block supports:
 
 * `disable_auto_scheduling` -
   (Optional)
@@ -186,13 +188,13 @@ The `schedule_options` block supports:
   moment. The time when a data transfer can be triggered manually is not
   limited by this option.
 
-The `email_preferences` block supports:
+<a name="nested_email_preferences"></a>The `email_preferences` block supports:
 
 * `enable_failure_email` -
   (Required)
   If true, email notifications will be sent on transfer run failures.
 
-The `sensitive_params` block supports:
+<a name="nested_sensitive_params"></a>The `sensitive_params` block supports:
 
 * `secret_access_key` -
   (Required)
@@ -217,9 +219,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

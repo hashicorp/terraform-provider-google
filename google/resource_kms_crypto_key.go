@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceKMSCryptoKey() *schema.Resource {
@@ -39,9 +38,9 @@ func resourceKMSCryptoKey() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -68,6 +67,21 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''.`,
 				ForceNew:    true,
 				Description: `The resource name for the CryptoKey.`,
 			},
+			"destroy_scheduled_duration": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
+If not specified at creation time, the default duration is 24 hours.`,
+			},
+			"import_only": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether this key may contain imported versions only.`,
+			},
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -78,10 +92,10 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT", ""}, false),
+				ValidateFunc: validateEnum([]string{"ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT", "MAC", ""}),
 				Description: `The immutable purpose of this CryptoKey. See the
 [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
-for possible inputs. Default value: "ENCRYPT_DECRYPT" Possible values: ["ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT"]`,
+for possible inputs. Default value: "ENCRYPT_DECRYPT" Possible values: ["ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT", "MAC"]`,
 				Default: "ENCRYPT_DECRYPT",
 			},
 			"rotation_period": {
@@ -99,7 +113,6 @@ letter 's' (seconds). It must be greater than a day (ie, 86400).`,
 				ForceNew: true,
 				Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
 You must use the 'google_kms_key_ring_import_job' resource to import the CryptoKeyVersion.`,
-				Default: false,
 			},
 			"version_template": {
 				Type:        schema.TypeList,
@@ -116,19 +129,14 @@ You must use the 'google_kms_key_ring_import_job' resource to import the CryptoK
 See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v1/CryptoKeyVersionAlgorithm) for possible inputs.`,
 						},
 						"protection_level": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"SOFTWARE", "HSM", ""}, false),
-							Description:  `The protection level to use when creating a version based on this template. Default value: "SOFTWARE" Possible values: ["SOFTWARE", "HSM"]`,
-							Default:      "SOFTWARE",
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL", "EXTERNAL_VPC". Defaults to "SOFTWARE".`,
+							Default:     "SOFTWARE",
 						},
 					},
 				},
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 		},
 		UseJSONNumber: true,
@@ -166,6 +174,18 @@ func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("version_template"); !isEmptyValue(reflect.ValueOf(versionTemplateProp)) && (ok || !reflect.DeepEqual(v, versionTemplateProp)) {
 		obj["versionTemplate"] = versionTemplateProp
+	}
+	destroyScheduledDurationProp, err := expandKMSCryptoKeyDestroyScheduledDuration(d.Get("destroy_scheduled_duration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("destroy_scheduled_duration"); !isEmptyValue(reflect.ValueOf(destroyScheduledDurationProp)) && (ok || !reflect.DeepEqual(v, destroyScheduledDurationProp)) {
+		obj["destroyScheduledDuration"] = destroyScheduledDurationProp
+	}
+	importOnlyProp, err := expandKMSCryptoKeyImportOnly(d.Get("import_only"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("import_only"); !isEmptyValue(reflect.ValueOf(importOnlyProp)) && (ok || !reflect.DeepEqual(v, importOnlyProp)) {
+		obj["importOnly"] = importOnlyProp
 	}
 
 	obj, err = resourceKMSCryptoKeyEncoder(d, meta, obj)
@@ -257,6 +277,12 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 	if err := d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err := d.Set("destroy_scheduled_duration", flattenKMSCryptoKeyDestroyScheduledDuration(res["destroyScheduledDuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err := d.Set("import_only", flattenKMSCryptoKeyImportOnly(res["importOnly"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 
@@ -397,6 +423,12 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 		return nil, fmt.Errorf("Error setting skip_initial_version_creation: %s", err)
 	}
 
+	id, err := replaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -432,6 +464,14 @@ func flattenKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.Resour
 }
 
 func flattenKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenKMSCryptoKeyDestroyScheduledDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenKMSCryptoKeyImportOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -488,6 +528,14 @@ func expandKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d Terraform
 	return v, nil
 }
 
+func expandKMSCryptoKeyDestroyScheduledDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandKMSCryptoKeyImportOnly(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceKMSCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// if rotationPeriod is set, nextRotationTime must also be set.
 	if d.Get("rotation_period") != "" {
@@ -499,6 +547,13 @@ func resourceKMSCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj m
 		}
 
 		obj["nextRotationTime"] = nextRotation
+	}
+
+	// set to false if it is not true explicitly
+	if !(d.Get("skip_initial_version_creation").(bool)) {
+		if err := d.Set("skip_initial_version_creation", false); err != nil {
+			return nil, fmt.Errorf("Error setting skip_initial_version_creation: %s", err)
+		}
 	}
 
 	return obj, nil
@@ -521,14 +576,10 @@ func resourceKMSCryptoKeyUpdateEncoder(d *schema.ResourceData, meta interface{},
 }
 
 func resourceKMSCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// Take the returned long form of the name and use it as `self_link`.
-	// Then modify the name to be the user specified form.
+	// Modify the name to be the user specified form.
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	if err := d.Set("self_link", res["name"].(string)); err != nil {
-		return nil, fmt.Errorf("Error setting self_link: %s", err)
-	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

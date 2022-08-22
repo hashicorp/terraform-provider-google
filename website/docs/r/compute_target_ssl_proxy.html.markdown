@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_ssl_proxy"
-sidebar_current: "docs-google-compute-target-ssl-proxy"
 description: |-
   Represents a TargetSslProxy resource, which is used by one or more
   global forwarding rule to route incoming SSL requests to a backend
@@ -94,8 +92,8 @@ The following arguments are supported:
 * `ssl_certificates` -
   (Required)
   A list of SslCertificate resources that are used to authenticate
-  connections between users and the load balancer. Currently, exactly
-  one SSL certificate must be specified.
+  connections between users and the load balancer. At least one
+  SSL certificate must be specified.
 
 
 - - -
@@ -141,9 +139,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

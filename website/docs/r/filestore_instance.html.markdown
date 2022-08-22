@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Filestore"
-layout: "google"
 page_title: "Google: google_filestore_instance"
-sidebar_current: "docs-google-filestore-instance"
 description: |-
   A Google Cloud Filestore instance.
 ---
@@ -44,7 +42,7 @@ To get more information about Instance, see:
 ```hcl
 resource "google_filestore_instance" "instance" {
   name = "test-instance"
-  zone = "us-central1-b"
+  location = "us-central1-b"
   tier = "PREMIUM"
 
   file_shares {
@@ -68,9 +66,8 @@ resource "google_filestore_instance" "instance" {
 
 ```hcl
 resource "google_filestore_instance" "instance" {
-  provider = google-beta
   name = "test-instance"
-  zone = "us-central1-b"
+  location = "us-central1-b"
   tier = "BASIC_SSD"
 
   file_shares {
@@ -95,7 +92,39 @@ resource "google_filestore_instance" "instance" {
   networks {
     network = "default"
     modes   = ["MODE_IPV4"]
+    connect_mode = "DIRECT_PEERING"
   }
+}
+```
+## Example Usage - Filestore Instance Enterprise
+
+
+```hcl
+resource "google_filestore_instance" "instance" {
+  name = "test-instance"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+
+  file_shares {
+    capacity_gb = 2560
+    name        = "share1"
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+  kms_key_name = google_kms_crypto_key.filestore_key.id
+}
+
+resource "google_kms_key_ring" "filestore_keyring" {
+  name     = "filestore-keyring"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "filestore_key" {
+  name            = "filestore-key"
+  key_ring        = google_kms_key_ring.filestore_keyring.id
 }
 ```
 
@@ -111,26 +140,22 @@ The following arguments are supported:
 * `tier` -
   (Required)
   The service tier of the instance.
-  Possible values are `TIER_UNSPECIFIED`, `STANDARD`, `PREMIUM`, `BASIC_HDD`, `BASIC_SSD`, and `HIGH_SCALE_SSD`.
+  Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD and ENTERPRISE
 
 * `file_shares` -
   (Required)
   File system shares on the instance. For this version, only a
   single file share is supported.
-  Structure is documented below.
+  Structure is [documented below](#nested_file_shares).
 
 * `networks` -
   (Required)
   VPC networks to which the instance is connected. For this version,
   only a single network is supported.
-  Structure is documented below.
-
-* `zone` -
-  (Required)
-  The name of the Filestore zone of the instance.
+  Structure is [documented below](#nested_networks).
 
 
-The `file_shares` block supports:
+<a name="nested_file_shares"></a>The `file_shares` block supports:
 
 * `name` -
   (Required)
@@ -142,12 +167,12 @@ The `file_shares` block supports:
   for the standard tier, or 2560 GiB for the premium tier.
 
 * `nfs_export_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Nfs Export Options. There is a limit of 10 export options per file share.
-  Structure is documented below.
+  Structure is [documented below](#nested_nfs_export_options).
 
 
-The `nfs_export_options` block supports:
+<a name="nested_nfs_export_options"></a>The `nfs_export_options` block supports:
 
 * `ip_ranges` -
   (Optional)
@@ -181,7 +206,7 @@ The `nfs_export_options` block supports:
   Anon_gid may only be set with squashMode of ROOT_SQUASH. An error will be returned
   if this field is specified for other squashMode settings.
 
-The `networks` block supports:
+<a name="nested_networks"></a>The `networks` block supports:
 
 * `network` -
   (Required)
@@ -202,6 +227,14 @@ The `networks` block supports:
 * `ip_addresses` -
   A list of IPv4 or IPv6 addresses.
 
+* `connect_mode` -
+  (Optional)
+  The network connect mode of the Filestore instance.
+  If not provided, the connect mode defaults to
+  DIRECT_PEERING.
+  Default value is `DIRECT_PEERING`.
+  Possible values are `DIRECT_PEERING` and `PRIVATE_SERVICE_ACCESS`.
+
 - - -
 
 
@@ -213,6 +246,18 @@ The `networks` block supports:
   (Optional)
   Resource labels to represent user-provided metadata.
 
+* `kms_key_name` -
+  (Optional)
+  KMS key name used for data encryption.
+
+* `zone` -
+  (Optional, Deprecated)
+  The name of the Filestore zone of the instance.
+
+* `location` -
+  (Optional)
+  The name of the location of the instance. This can be a region for ENTERPRISE tier instances.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -221,7 +266,7 @@ The `networks` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/instances/{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/instances/{{name}}`
 
 * `create_time` -
   Creation timestamp in RFC3339 text format.
@@ -236,9 +281,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
@@ -246,10 +291,9 @@ This resource provides the following
 Instance can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_filestore_instance.default projects/{{project}}/locations/{{zone}}/instances/{{name}}
-$ terraform import google_filestore_instance.default {{project}}/{{zone}}/{{name}}
-$ terraform import google_filestore_instance.default {{zone}}/{{name}}
-$ terraform import google_filestore_instance.default {{name}}
+$ terraform import google_filestore_instance.default projects/{{project}}/locations/{{location}}/instances/{{name}}
+$ terraform import google_filestore_instance.default {{project}}/{{location}}/{{name}}
+$ terraform import google_filestore_instance.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides

@@ -1,0 +1,3 @@
+```release-note:bug
+filestore: fixed a case where `google_filestore_instance.networks.network` would incorrectly see a diff between state and config when the network `id` format was used
+```

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -63,10 +60,20 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 		info_type_transformations {
 			transformations {
 				info_types {
+					name = "FIRST_NAME"
+				}
+
+				primitive_transformation {
+					replace_with_info_type_config = true
+				}
+			}
+
+			transformations {
+				info_types {
 					name = "PHONE_NUMBER"
 				}
 				info_types {
-					name = "CREDIT_CARD_NUMBER"
+					name = "AGE"
 				}
 
 				primitive_transformation {
@@ -115,6 +122,155 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 					}
 				}
 			}
+
+      transformations {
+        info_types {
+          name = "CREDIT_CARD_NUMBER"
+        }
+
+        primitive_transformation {
+          crypto_deterministic_config {
+            context {
+              name = "sometweak"
+            }
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+            surrogate_info_type {
+              name = "abc"
+            }
+          }
+        }
+      }
+		}
+	}
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharactersExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharactersExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharactersExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+	parent = "projects/%{project}"
+	description = "Description"
+	display_name = "Displayname"
+
+	deidentify_config {
+		info_type_transformations {
+			transformations {
+				info_types {
+					name = "FIRST_NAME"
+				}
+
+				primitive_transformation {
+					replace_with_info_type_config = true
+				}
+			}
+
+			transformations {
+				info_types {
+					name = "PHONE_NUMBER"
+				}
+				info_types {
+					name = "AGE"
+				}
+
+				primitive_transformation {
+					replace_config {
+						new_value {
+							integer_value = 9
+						}
+					}
+				}
+			}
+
+			transformations {
+				info_types {
+					name = "EMAIL_ADDRESS"
+				}
+				info_types {
+					name = "LAST_NAME"
+				}
+
+				primitive_transformation {
+					character_mask_config {
+						masking_character = "X"
+						number_to_mask = 4
+						reverse_order = true
+						characters_to_ignore {
+							characters_to_skip = "@"
+						}
+					}
+				}
+			}
+
+			transformations {
+				info_types {
+					name = "DATE_OF_BIRTH"
+				}
+
+				primitive_transformation {
+					replace_config {
+						new_value {
+							date_value {
+								year  = 2020
+								month = 1
+								day   = 1
+							}
+						}
+					}
+				}
+			}
+
+      transformations {
+        info_types {
+          name = "CREDIT_CARD_NUMBER"
+        }
+
+        primitive_transformation {
+          crypto_deterministic_config {
+            context {
+              name = "sometweak"
+            }
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+            surrogate_info_type {
+              name = "abc"
+            }
+          }
+        }
+      }
 		}
 	}
 }

@@ -62,6 +62,36 @@ func TestAccLoggingMetric_explicitBucket(t *testing.T) {
 	})
 }
 
+func TestAccLoggingMetric_descriptionUpdated(t *testing.T) {
+	t.Parallel()
+
+	suffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingMetric_descriptionUpdated(suffix, "original"),
+			},
+			{
+				ResourceName:      "google_logging_metric.logging_metric",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingMetric_descriptionUpdated(suffix, "Updated"),
+			},
+			{
+				ResourceName:      "google_logging_metric.logging_metric",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccLoggingMetric_update(suffix string, filter string) string {
 	return fmt.Sprintf(`
 resource "google_logging_metric" "logging_metric" {
@@ -96,4 +126,33 @@ resource "google_logging_metric" "logging_metric" {
   }
 }
 `, suffix, filter)
+}
+
+func testAccLoggingMetric_descriptionUpdated(suffix, description string) string {
+	return fmt.Sprintf(`
+resource "google_logging_metric" "logging_metric" {
+	name        = "my-custom-metric-%s"
+	description = "Counter for  VM instances that have hostError's"
+	filter      = "resource.type=gce_instance AND protoPayload.methodName=compute.instances.hostError"
+	metric_descriptor {
+	  metric_kind = "DELTA"
+	  value_type  = "INT64"
+	  labels {
+		key         = "instance"
+		value_type  = "STRING"
+		description = "%s"
+	  }
+	  labels {
+		key         = "zone"
+		value_type  = "STRING"
+		description = "Availability zone of instance"
+	  }
+	  display_name = "VM Host Errors"
+	}
+	label_extractors = {
+	  "instance" = "REGEXP_EXTRACT(protoPayload.resourceName, \"projects/.+/zones/.+/instances/(.+)\")"
+	  "zone"     = "EXTRACT(resource.labels.zone)"
+	}
+  }
+`, suffix, description)
 }

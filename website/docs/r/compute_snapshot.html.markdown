@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_snapshot"
-sidebar_current: "docs-google-compute-snapshot"
 description: |-
   Represents a Persistent Disk Snapshot resource.
 ---
@@ -43,7 +41,7 @@ To get more information about Snapshot, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/disks/create-snapshots)
 
 ~> **Warning:** All arguments including `snapshot_encryption_key.raw_key` and `source_disk_encryption_key.raw_key` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=snapshot_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -56,7 +54,7 @@ state as plain-text. [Read more about sensitive data in state](/docs/state/sensi
 ```hcl
 resource "google_compute_snapshot" "snapshot" {
   name        = "my-snapshot"
-  source_disk = google_compute_disk.persistent.name
+  source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
     my_label = "value"
@@ -65,7 +63,7 @@ resource "google_compute_snapshot" "snapshot" {
 }
 
 data "google_compute_image" "debian" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -121,20 +119,20 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the snapshot. Required if the
   source snapshot is protected by a customer-supplied encryption key.
-  Structure is documented below.
+  Structure is [documented below](#nested_snapshot_encryption_key).
 
 * `source_disk_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
   key.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_disk_encryption_key).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `snapshot_encryption_key` block supports:
+<a name="nested_snapshot_encryption_key"></a>The `snapshot_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -155,7 +153,7 @@ The `snapshot_encryption_key` block supports:
   The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
-The `source_disk_encryption_key` block supports:
+<a name="nested_source_disk_encryption_key"></a>The `source_disk_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -205,9 +203,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 5 minutes.
-- `update` - Default is 5 minutes.
-- `delete` - Default is 5 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

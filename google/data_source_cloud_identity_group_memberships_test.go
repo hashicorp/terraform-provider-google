@@ -29,7 +29,7 @@ func TestAccDataSourceCloudIdentityGroupMemberships_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_cloud_identity_group_memberships.members",
 						"memberships.0.roles.#", "2"),
 					resource.TestCheckResourceAttr("data.google_cloud_identity_group_memberships.members",
-						"memberships.0.member_key.0.id", memberId),
+						"memberships.0.preferred_member_key.0.id", memberId),
 				),
 			},
 		},

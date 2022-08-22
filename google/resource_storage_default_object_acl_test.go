@@ -198,7 +198,8 @@ func testAccCheckGoogleStorageDefaultObjectAclDelete(t *testing.T, bucket, roleE
 func testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntity1, roleEntity2 string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_default_object_acl" "acl" {
@@ -211,7 +212,8 @@ resource "google_storage_default_object_acl" "acl" {
 func testGoogleStorageDefaultObjectsAclBasicDelete(bucketName, roleEntity string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_default_object_acl" "acl" {
@@ -224,7 +226,8 @@ resource "google_storage_default_object_acl" "acl" {
 func testGoogleStorageDefaultObjectsAclNoRoleEntity(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_default_object_acl" "acl" {
@@ -237,7 +240,8 @@ resource "google_storage_default_object_acl" "acl" {
 func testGoogleStorageDefaultObjectAclUnordered(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_default_object_acl" "acl" {

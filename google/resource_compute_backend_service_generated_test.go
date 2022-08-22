@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,11 +71,8 @@ func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T)
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -109,6 +103,141 @@ resource "google_compute_http_health_check" "default" {
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+}
+`, context)
+}
+
+func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          = "tf-test-backend-service%{random_suffix}"
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "CACHE_ALL_STATIC"
+    default_ttl = 3600
+    client_ttl  = 7200
+    max_ttl     = 10800
+    cache_key_policy {
+      include_host = true
+      include_protocol = true
+      include_query_string = true
+      include_named_cookies = ["__next_preview_data", "__prerender_bypass"]
+    }
+  }
+}
+`, context)
+}
+
+func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceCacheExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceCacheExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.id]
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "CACHE_ALL_STATIC"
+    default_ttl = 3600
+    client_ttl  = 7200
+    max_ttl     = 10800
+    negative_caching = true
+    signed_url_cache_max_age_sec = 7200
+  }
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "tf-test-health-check%{random_suffix}"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, context)
+}
+
+func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceExternalManagedExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceExternalManagedExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  name = "tf-test-health-check%{random_suffix}"
+  http_health_check {
+    port = 80
+  }
 }
 `, context)
 }

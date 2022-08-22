@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Promoted `gce_persistent_disk_csi_driver_config` addon in `google_container_cluster` resource to GA
+```

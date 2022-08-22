@@ -1,0 +1,3 @@
+```release-note:bug
+container: added validation to check that both `node_version` and `remove_default_node_pool` cannot be set on `google_container_cluster`
+```

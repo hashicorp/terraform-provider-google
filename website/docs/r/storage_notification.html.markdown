@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_notification"
-sidebar_current: "docs-google-storage-notification"
 description: |-
   Creates a new notification configuration on a specified bucket.
 ---
@@ -54,7 +52,8 @@ resource "google_pubsub_topic_iam_binding" "binding" {
 // End enabling notifications
 
 resource "google_storage_bucket" "bucket" {
-  name = "default_bucket"
+  name     = "default_bucket"
+  location = "US"
 }
 
 resource "google_pubsub_topic" "topic" {

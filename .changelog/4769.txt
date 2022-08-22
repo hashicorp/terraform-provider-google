@@ -1,0 +1,3 @@
+```release-note:bug
+dns: suppress spurious diffs due to case changes in DS records
+```

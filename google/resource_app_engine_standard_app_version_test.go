@@ -119,8 +119,9 @@ resource "google_app_engine_standard_app_version" "foo" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-%{random_suffix}-standard-ae-bucket"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-%{random_suffix}-standard-ae-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "requirements" {
@@ -227,8 +228,9 @@ resource "google_app_engine_standard_app_version" "foo" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-%{random_suffix}-standard-ae-bucket"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-%{random_suffix}-standard-ae-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "requirements" {
@@ -303,8 +305,9 @@ resource "google_app_engine_standard_app_version" "foo" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-%{random_suffix}-standard-ae-bucket"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-%{random_suffix}-standard-ae-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "requirements" {

@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+
+	"google.golang.org/api/compute/v1"
 )
 
 const peerNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
@@ -35,7 +36,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description:  `Name of the peering.`,
 			},
 
@@ -299,7 +300,7 @@ func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
 		ImportCustomRoutes:             d.Get("import_custom_routes").(bool),
 		ExportSubnetRoutesWithPublicIp: d.Get("export_subnet_routes_with_public_ip").(bool),
 		ImportSubnetRoutesWithPublicIp: d.Get("import_subnet_routes_with_public_ip").(bool),
-		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp"},
+		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp", "ImportCustomRoutes", "ExportCustomRoutes"},
 	}
 }
 

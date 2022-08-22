@@ -44,7 +44,8 @@ func TestAccStorageDefaultObjectAccessControl_update(t *testing.T) {
 func testGoogleStorageDefaultObjectAccessControlBasic(bucketName, role, entity string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_default_object_access_control" "default" {

@@ -10,6 +10,44 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestProjectServiceServiceValidateFunc(t *testing.T) {
+	cases := map[string]struct {
+		val                   interface{}
+		ExpectValidationError bool
+	}{
+		"ignoredProjectService": {
+			val:                   "dataproc-control.googleapis.com",
+			ExpectValidationError: true,
+		},
+		"bannedProjectService": {
+			val:                   "bigquery-json.googleapis.com",
+			ExpectValidationError: true,
+		},
+		"third party API": {
+			val:                   "whatever.example.com",
+			ExpectValidationError: false,
+		},
+		"not a domain": {
+			val:                   "monitoring",
+			ExpectValidationError: true,
+		},
+		"not a string": {
+			val:                   5,
+			ExpectValidationError: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		_, errs := validateProjectServiceService(tc.val, "service")
+		if tc.ExpectValidationError && len(errs) == 0 {
+			t.Errorf("bad: %s, %q passed validation but was expected to fail", tn, tc.val)
+		}
+		if !tc.ExpectValidationError && len(errs) > 0 {
+			t.Errorf("bad: %s, %q failed validation but was expected to pass. errs: %q", tn, tc.val, errs)
+		}
+	}
+}
+
 // Test that services can be enabled and disabled on a project
 func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
@@ -103,8 +141,8 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
 			},
 			{
-				Config:      testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
-				ExpectError: regexp.MustCompile("service .* not in enabled services for project"),
+				Config:             testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -138,6 +176,15 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 func TestAccProjectService_renamedService(t *testing.T) {
 	t.Parallel()
 
+	if len(renamedServices) == 0 {
+		t.Skip()
+	}
+
+	var newName string
+	for _, new := range renamedServices {
+		newName = new
+	}
+
 	org := getTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	vcrTest(t, resource.TestCase{
@@ -145,7 +192,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectService_single("bigquery.googleapis.com", pid, pname, org),
+				Config: testAccProjectService_single(newName, pid, pname, org),
 			},
 			{
 				ResourceName:            "google_project_service.test",
@@ -160,8 +207,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 func testAccCheckProjectService(t *testing.T, services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
-
-		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config.userAgent, config, time.Minute*10)
+		currentlyEnabled, err := listCurrentlyEnabledServices(pid, "", config.userAgent, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}
@@ -187,9 +233,6 @@ func testAccCheckProjectService(t *testing.T, services []string, pid string, exp
 
 func testAccProjectService_basic(services []string, pid, name, org string) string {
 	return fmt.Sprintf(`
-provider "google" {
-  user_project_override = true
-}
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"

@@ -1,5 +1,6 @@
 ---
 name: Question
+labels: question
 about: If you have a question, please check out our community resources!
 
 ---

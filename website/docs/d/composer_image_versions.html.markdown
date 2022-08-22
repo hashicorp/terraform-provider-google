@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Composer"
-layout: "google"
 page_title: "Google: google_composer_image_versions"
-sidebar_current: "docs-google-datasource-composer-image-versions"
 description: |-
   Provides available Cloud Composer versions.
 ---
@@ -43,5 +41,5 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `image_versions` - A list of composer image versions available in the given project and location. Each `image_version` contains:
-  * `image_version_id` - The string identifier of the image version, in the form: "composer-x.y.z-airflow-a.b(.c)"
+  * `image_version_id` - The string identifier of the image version, in the form: "composer-x.y.z-airflow-a.b.c"
   * `supported_python_versions` - Supported python versions for this image version

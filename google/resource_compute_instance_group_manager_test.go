@@ -84,14 +84,16 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 				Config: testAccInstanceGroupManager_basic(template, target, igm1, igm2),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-no-tp",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-no-tp",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -112,9 +114,10 @@ func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 				Config: testAccInstanceGroupManager_targetSizeZero(templateName, igmName),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -128,6 +131,8 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 	target2 := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
 	template2 := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
 	igm := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	description := "Manager 1"
+	description2 := "Manager 2"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -135,28 +140,31 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceGroupManager_update(template1, target1, igm),
+				Config: testAccInstanceGroupManager_update(template1, target1, description, igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-update",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
-				Config: testAccInstanceGroupManager_update2(template1, target1, target2, template2, igm),
+				Config: testAccInstanceGroupManager_update2(template1, target1, target2, template2, description, igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-update",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
-				Config: testAccInstanceGroupManager_update3(template1, target1, target2, template2, igm),
+				Config: testAccInstanceGroupManager_update3(template1, target1, target2, template2, description2, igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-update",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -180,17 +188,19 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 				Config: testAccInstanceGroupManager_updateLifecycle(tag1, igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-update",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				Config: testAccInstanceGroupManager_updateLifecycle(tag2, igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-update",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -212,42 +222,47 @@ func TestAccInstanceGroupManager_updatePolicy(t *testing.T) {
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy(igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-rolling-update-policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-rolling-update-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy2(igm),
 			},
 
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-rolling-update-policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-rolling-update-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy3(igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-rolling-update-policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-rolling-update-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy4(igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-rolling-update-policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-rolling-update-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy5(igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-rolling-update-policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-rolling-update-policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -270,14 +285,16 @@ func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 				Config: testAccInstanceGroupManager_separateRegions(igm1, igm2),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic-2",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic-2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -299,9 +316,10 @@ func TestAccInstanceGroupManager_versions(t *testing.T) {
 				Config: testAccInstanceGroupManager_versions(primaryTemplate, canaryTemplate, igm),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -324,17 +342,19 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 				Config: testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				Config: testAccInstanceGroupManager_autoHealingPoliciesRemoved(template, target, igm, hck),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
 	})
@@ -357,17 +377,54 @@ func TestAccInstanceGroupManager_stateful(t *testing.T) {
 				Config: testAccInstanceGroupManager_stateful(template, target, igm, hck),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				Config: testAccInstanceGroupManager_statefulUpdated(template, target, igm, hck),
 			},
 			{
-				ResourceName:      "google_compute_instance_group_manager.igm-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
+func TestAccInstanceGroupManager_waitForStatus(t *testing.T) {
+	t.Parallel()
+
+	template := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	target := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	perInstanceConfig := fmt.Sprintf("tf-test-config-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceGroupManager_waitForStatus(template, target, igm, perInstanceConfig),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status", "wait_for_instances_status", "wait_for_instances"},
+			},
+			{
+				Config: testAccInstanceGroupManager_waitForStatusUpdated(template, target, igm, perInstanceConfig),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status", "wait_for_instances_status", "wait_for_instances"},
 			},
 		},
 	})
@@ -395,7 +452,7 @@ func testAccCheckInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terra
 func testAccInstanceGroupManager_basic(template, target, igm1, igm2 string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -436,7 +493,7 @@ resource "google_compute_instance_group_manager" "igm-basic" {
   }
 
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
   target_size        = 2
 }
@@ -450,7 +507,7 @@ resource "google_compute_instance_group_manager" "igm-no-tp" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
-  base_instance_name = "igm-no-tp"
+  base_instance_name = "tf-test-igm-no-tp"
   zone               = "us-central1-c"
   target_size        = 2
 }
@@ -460,7 +517,7 @@ resource "google_compute_instance_group_manager" "igm-no-tp" {
 func testAccInstanceGroupManager_targetSizeZero(template, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -494,16 +551,16 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
 }
 `, template, igm)
 }
 
-func testAccInstanceGroupManager_update(template, target, igm string) string {
+func testAccInstanceGroupManager_update(template, target, description, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -535,7 +592,7 @@ resource "google_compute_target_pool" "igm-update" {
 }
 
 resource "google_compute_instance_group_manager" "igm-update" {
-  description = "Terraform test instance group manager"
+  description = "%s"
   name        = "%s"
 
   version {
@@ -544,7 +601,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
   }
 
   target_pools       = [google_compute_target_pool.igm-update.self_link]
-  base_instance_name = "igm-update"
+  base_instance_name = "tf-test-igm-update"
   zone               = "us-central1-c"
   target_size        = 2
   named_port {
@@ -552,14 +609,14 @@ resource "google_compute_instance_group_manager" "igm-update" {
     port = 8080
   }
 }
-`, template, target, igm)
+`, template, target, description, igm)
 }
 
 // Change IGM's instance template and target size
-func testAccInstanceGroupManager_update2(template1, target1, target2, template2, igm string) string {
+func testAccInstanceGroupManager_update2(template1, target1, target2, template2, description, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -618,7 +675,7 @@ resource "google_compute_instance_template" "igm-update2" {
 }
 
 resource "google_compute_instance_group_manager" "igm-update" {
-  description = "Terraform test instance group manager"
+  description = "%s"
   name        = "%s"
 
   version {
@@ -630,7 +687,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
     google_compute_target_pool.igm-update.self_link,
     google_compute_target_pool.igm-update2.self_link,
   ]
-  base_instance_name = "igm-update"
+  base_instance_name = "tf-test-igm-update"
   zone               = "us-central1-c"
   target_size        = 3
   named_port {
@@ -641,15 +698,16 @@ resource "google_compute_instance_group_manager" "igm-update" {
     name = "customhttps"
     port = 8443
   }
+
 }
-`, template1, target1, target2, template2, igm)
+`, template1, target1, target2, template2, description, igm)
 }
 
 // Remove target pools
-func testAccInstanceGroupManager_update3(template1, target1, target2, template2, igm string) string {
+func testAccInstanceGroupManager_update3(template1, target1, target2, template2, description2, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -708,7 +766,7 @@ resource "google_compute_instance_template" "igm-update2" {
 }
 
 resource "google_compute_instance_group_manager" "igm-update" {
-  description = "Terraform test instance group manager"
+  description = "%s"
   name        = "%s"
 
   version {
@@ -716,7 +774,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
     instance_template = google_compute_instance_template.igm-update2.self_link
   }
 
-  base_instance_name = "igm-update"
+  base_instance_name = "tf-test-igm-update"
   zone               = "us-central1-c"
   target_size        = 3
   named_port {
@@ -728,13 +786,13 @@ resource "google_compute_instance_group_manager" "igm-update" {
     port = 8443
   }
 }
-`, template1, target1, target2, template2, igm)
+`, template1, target1, target2, template2, description2, igm)
 }
 
 func testAccInstanceGroupManager_updateLifecycle(tag, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -771,7 +829,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
     instance_template = google_compute_instance_template.igm-update.self_link
   }
 
-  base_instance_name = "igm-update"
+  base_instance_name = "tf-test-igm-update"
   zone               = "us-central1-c"
   target_size        = 2
   named_port {
@@ -785,7 +843,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
 func testAccInstanceGroupManager_rollingUpdatePolicy(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -820,7 +878,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     name              = "prod"
     instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
   }
-  base_instance_name = "igm-rolling-update-policy"
+  base_instance_name = "tf-test-igm-rolling-update-policy"
   zone               = "us-central1-c"
   target_size        = 3
   update_policy {
@@ -828,7 +886,6 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     minimal_action          = "REPLACE"
     max_surge_percent       = 50
     max_unavailable_percent = 50
-    min_ready_sec           = 20
   }
   named_port {
     name = "customhttp"
@@ -841,7 +898,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
 func testAccInstanceGroupManager_rollingUpdatePolicy2(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -872,15 +929,15 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     name              = "prod2"
     instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
   }
-  base_instance_name = "igm-rolling-update-policy"
+  base_instance_name = "tf-test-igm-rolling-update-policy"
   zone               = "us-central1-c"
   target_size        = 3
   update_policy {
-    type                  = "PROACTIVE"
-    minimal_action        = "REPLACE"
-    max_surge_fixed       = 2
-    max_unavailable_fixed = 2
-    min_ready_sec         = 20
+    type                           = "PROACTIVE"
+    minimal_action                 = "REPLACE"
+    most_disruptive_allowed_action = "REPLACE"
+    max_surge_fixed                = 2
+    max_unavailable_fixed          = 2
   }
   named_port {
     name = "customhttp"
@@ -893,7 +950,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
 func testAccInstanceGroupManager_rollingUpdatePolicy3(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -921,7 +978,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     name              = "prod2"
     instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
   }
-  base_instance_name = "igm-rolling-update-policy"
+  base_instance_name = "tf-test-igm-rolling-update-policy"
   zone               = "us-central1-c"
   target_size        = 3
   update_policy {
@@ -929,7 +986,6 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     minimal_action        = "REPLACE"
     max_surge_fixed       = 0
     max_unavailable_fixed = 2
-    min_ready_sec         = 20
   }
   named_port {
     name = "customhttp"
@@ -942,7 +998,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
 func testAccInstanceGroupManager_rollingUpdatePolicy4(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -970,7 +1026,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     name              = "prod2"
     instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
   }
-  base_instance_name = "igm-rolling-update-policy"
+  base_instance_name = "tf-test-igm-rolling-update-policy"
   zone               = "us-central1-c"
   target_size        = 3
   update_policy {
@@ -978,7 +1034,6 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     minimal_action        = "REPLACE"
     max_surge_fixed       = 2
     max_unavailable_fixed = 0
-    min_ready_sec         = 20
   }
   named_port {
     name = "customhttp"
@@ -991,7 +1046,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
 func testAccInstanceGroupManager_rollingUpdatePolicy5(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1019,7 +1074,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     name              = "prod2"
     instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
   }
-  base_instance_name = "igm-rolling-update-policy"
+  base_instance_name = "tf-test-igm-rolling-update-policy"
   zone               = "us-central1-c"
   target_size        = 3
   update_policy {
@@ -1027,7 +1082,6 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
     minimal_action        = "REPLACE"
     max_surge_fixed       = 0
     max_unavailable_fixed = 2
-    min_ready_sec         = 20
     replacement_method    = "RECREATE"
   }
   named_port {
@@ -1041,7 +1095,7 @@ resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
 func testAccInstanceGroupManager_separateRegions(igm1, igm2 string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1074,7 +1128,7 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     name              = "prod"
   }
 
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
   target_size        = 2
 }
@@ -1088,7 +1142,7 @@ resource "google_compute_instance_group_manager" "igm-basic-2" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
-  base_instance_name = "igm-basic-2"
+  base_instance_name = "tf-test-igm-basic-2"
   zone               = "us-west1-b"
   target_size        = 2
 }
@@ -1098,7 +1152,7 @@ resource "google_compute_instance_group_manager" "igm-basic-2" {
 func testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1135,7 +1189,7 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     name              = "prod"
   }
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
   target_size        = 2
   auto_healing_policies {
@@ -1156,7 +1210,7 @@ resource "google_compute_http_health_check" "zero" {
 func testAccInstanceGroupManager_autoHealingPoliciesRemoved(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1193,7 +1247,7 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     name              = "prod"
   }
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
   target_size        = 2
 }
@@ -1210,7 +1264,7 @@ resource "google_compute_http_health_check" "zero" {
 func testAccInstanceGroupManager_versions(primaryTemplate string, canaryTemplate string, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1255,7 +1309,7 @@ resource "google_compute_instance_template" "igm-canary" {
 resource "google_compute_instance_group_manager" "igm-basic" {
   description        = "Terraform test instance group manager"
   name               = "%s"
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
   target_size        = 2
 
@@ -1278,7 +1332,7 @@ resource "google_compute_instance_group_manager" "igm-basic" {
 func testAccInstanceGroupManager_stateful(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1329,12 +1383,12 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     name              = "prod"
   }
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
   target_size        = 2
   stateful_disk {
     device_name = "my-stateful-disk"
-    delete_rule = "NEVER"
+    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
   }
 }
 
@@ -1350,7 +1404,7 @@ resource "google_compute_http_health_check" "zero" {
 func testAccInstanceGroupManager_statefulUpdated(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -1401,7 +1455,7 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     name              = "prod"
   }
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
-  base_instance_name = "igm-basic"
+  base_instance_name = "tf-test-igm-basic"
   zone               = "us-central1-c"
   target_size        = 2
   stateful_disk {
@@ -1422,4 +1476,135 @@ resource "google_compute_http_health_check" "zero" {
   timeout_sec        = 1
 }
 `, template, target, igm, hck)
+}
+
+func testAccInstanceGroupManager_waitForStatus(template, target, igm, perInstanceConfig string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "my-stateful-disk"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "tf-test-igm-basic"
+  zone               = "us-central1-c"
+  wait_for_instances = true
+  wait_for_instances_status = "STABLE"
+}
+
+resource "google_compute_per_instance_config" "per-instance" {
+	instance_group_manager = google_compute_instance_group_manager.igm-basic.name
+	zone = "us-central1-c"
+	name = "%s"
+	remove_instance_state_on_destroy = true
+	preserved_state {
+		metadata = {
+			foo = "bar"
+		}
+	}
+}
+`, template, target, igm, perInstanceConfig)
+}
+
+func testAccInstanceGroupManager_waitForStatusUpdated(template, target, igm, perInstanceConfig string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "my-stateful-disk"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod2"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "tf-test-igm-basic"
+  zone               = "us-central1-c"
+  update_policy {
+    type                    = "PROACTIVE"
+    minimal_action          = "REPLACE"
+    replacement_method      = "RECREATE"
+    max_surge_fixed         = 0
+    max_unavailable_percent = 50
+  }
+  wait_for_instances = true
+  wait_for_instances_status = "UPDATED"
+}
+
+resource "google_compute_per_instance_config" "per-instance" {
+	instance_group_manager = google_compute_instance_group_manager.igm-basic.name
+	zone = "us-central1-c"
+	name = "%s"
+	remove_instance_state_on_destroy = true
+	preserved_state {
+		metadata = {
+			foo = "baz"
+		}
+	}
+}
+`, template, target, igm, perInstanceConfig)
 }

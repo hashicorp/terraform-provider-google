@@ -1,15 +1,17 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_account"
-sidebar_current: "docs-google-service-account-x"
 description: |-
  Allows management of a Google Cloud Platform service account.
 ---
 
 # google\_service\_account
 
-Allows management of a [Google Cloud Platform service account](https://cloud.google.com/compute/docs/access/service-accounts)
+Allows management of a Google Cloud service account.
+
+* [API documentation](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/compute/docs/access/service-accounts)
 
 -> **Warning:**  If you delete and recreate a service account, you must reapply any IAM roles that it had before.
 
@@ -43,6 +45,9 @@ The following arguments are supported:
 
 * `description` - (Optional) A text description of the service account.
     Must be less than or equal to 256 UTF-8 bytes.
+
+* `disabled` - (Optional) Whether a service account is disabled or not. Defaults to `false`. This field has no effect during creation.
+   Must be set after creation to disable a service account. 
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.

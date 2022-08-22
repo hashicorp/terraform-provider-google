@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_crypto_key"
-sidebar_current: "docs-google-datasource-kms-crypto-key"
 description: |-
  Provides access to KMS key data with Google Cloud KMS.
 ---
@@ -27,7 +25,7 @@ data "google_kms_key_ring" "my_key_ring" {
 
 data "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = data.google_kms_key_ring.my_key_ring.self_link
+  key_ring = data.google_kms_key_ring.my_key_ring.id
 }
 ```
 
@@ -38,7 +36,7 @@ The following arguments are supported:
 * `name` - (Required) The CryptoKey's name.
     A CryptoKey’s name belonging to the specified Google Cloud Platform KeyRing and match the regular expression `[a-zA-Z0-9_-]{1,63}`
 
-* `key_ring` - (Required) The `self_link` of the Google Cloud Platform KeyRing to which the key belongs.
+* `key_ring` - (Required) The `id` of the Google Cloud Platform KeyRing to which the key belongs.
 
 ## Attributes Reference
 
@@ -51,5 +49,5 @@ exported:
 
 * `purpose` - Defines the cryptographic capabilities of the key.
 
-* `self_link` - The self link of the created CryptoKey. Its format is `projects/{projectId}/locations/{location}/keyRings/{keyRingName}/cryptoKeys/{cryptoKeyName}`.
+* `id` - The identifier of the created CryptoKey. Its format is `projects/{projectId}/locations/{location}/keyRings/{keyRingName}/cryptoKeys/{cryptoKeyName}`.
 

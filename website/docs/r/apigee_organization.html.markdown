@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
-layout: "google"
 page_title: "Google: google_apigee_organization"
-sidebar_current: "docs-google-apigee-organization"
 description: |-
   An `Organization` is the top-level container in Apigee.
 ---
@@ -121,7 +119,7 @@ resource "google_apigee_organization" "org" {
   description                          = "Terraform-provisioned Apigee Org."
   project_id                           = data.google_client_config.current.project
   authorized_network                   = google_compute_network.apigee_network.id
-  runtime_database_encryption_key_name = google_kms_key.apigee_key.id
+  runtime_database_encryption_key_name = google_kms_crypto_key.apigee_key.id
 
   depends_on = [
     google_service_networking_connection.apigee_vpc_connection,
@@ -167,12 +165,25 @@ The following arguments are supported:
   Default value is `CLOUD`.
   Possible values are `CLOUD` and `HYBRID`.
 
+* `billing_type` -
+  (Optional)
+  Billing type of the Apigee organization. See [Apigee pricing](https://cloud.google.com/apigee/pricing).
+
 * `runtime_database_encryption_key_name` -
   (Optional)
   Cloud KMS key name used for encrypting the data that is stored and replicated across runtime instances.
   Update is not allowed after the organization is created.
   If not specified, a Google-Managed encryption key will be used.
   Valid only when `RuntimeType` is CLOUD. For example: `projects/foo/locations/us/keyRings/bar/cryptoKeys/baz`.
+
+* `retention` -
+  (Optional)
+  Optional. This setting is applicable only for organizations that are soft-deleted (i.e., BillingType
+  is not EVALUATION). It controls how long Organization data will be retained after the initial delete
+  operation completes. During this period, the Organization may be restored to its last known state.
+  After this period, the Organization will no longer be able to be restored.
+  Default value is `DELETION_RETENTION_UNSPECIFIED`.
+  Possible values are `DELETION_RETENTION_UNSPECIFIED` and `MINIMUM`.
 
 
 ## Attributes Reference
@@ -198,9 +209,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud DNS"
-layout: "google"
 page_title: "Google: google_dns_record_set"
-sidebar_current: "docs-google-dns-record-set"
 description: |-
   Manages a set of DNS records within Google Cloud DNS.
 ---
@@ -36,7 +34,7 @@ resource "google_compute_instance" "frontend" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -134,6 +132,52 @@ resource "google_dns_managed_zone" "prod" {
 }
 ```
 
+### Setting Routing Policy instead of using rrdatas
+#### Weighted Round Robin
+
+```hcl
+resource "google_dns_record_set" "wrr" {
+  name         = "backend.${google_dns_managed_zone.prod.dns_name}"
+  managed_zone = google_dns_managed_zone.prod.name
+  type         = "A"
+  ttl          = 300
+
+  routing_policy {
+    wrr {
+      weight  = 0.8
+      rrdatas =  ["10.128.1.1"]
+    }
+
+    wrr {
+      weight  = 0.2
+      rrdatas =  ["10.130.1.1"]
+    }
+  }
+```
+
+#### Geolocation
+
+```hcl
+resource "google_dns_record_set" "geo" {
+  name         = "backend.${google_dns_managed_zone.prod.dns_name}"
+  managed_zone = google_dns_managed_zone.prod.name
+  type         = "A"
+  ttl          = 300
+
+  routing_policy {
+    geo {
+      location = "asia-east1"
+      rrdatas  =  ["10.128.1.1"]
+    }
+
+    geo {
+      location = "us-central1"
+      rrdatas  =  ["10.130.1.1"]
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -143,30 +187,55 @@ The following arguments are supported:
 
 * `name` - (Required) The DNS name this record set will apply to.
 
-* `rrdatas` - (Required) The string data for the records in this record set
-    whose meaning depends on the DNS type. For TXT record, if the string data contains spaces, add surrounding `\"` if you don't want your string to get split on spaces. To specify a single record value longer than 255 characters such as a TXT record for DKIM, add `\"\"` inside the Terraform configuration string (e.g. `"first255characters\"\"morecharacters"`).
-
-* `ttl` - (Required) The time-to-live of this record set (seconds).
-
 * `type` - (Required) The DNS record set type.
 
 - - -
 
+* `rrdatas` - (Optional) The string data for the records in this record set
+    whose meaning depends on the DNS type. For TXT record, if the string data contains spaces, add surrounding `\"` if you don't want your string to get split on spaces. To specify a single record value longer than 255 characters such as a TXT record for DKIM, add `\" \"` inside the Terraform configuration string (e.g. `"first255characters\" \"morecharacters"`).
+
+* `routing_policy` - (Optional) The configuration for steering traffic based on query.
+    Now you can specify either Weighted Round Robin(WRR) type or Geolocation(GEO) type.
+    Structure is [documented below](#nested_routing_policy).
+
+* `ttl` - (Optional) The time-to-live of this record set (seconds).
+
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+<a name="nested_routing_policy"></a>The `routing_policy` block supports:
+
+* `wrr` - (Optional) The configuration for Weighted Round Robin based routing policy.
+    Structure is [document below](#nested_wrr).
+
+* `geo` - (Optional) The configuration for Geolocation based routing policy.
+    Structure is [document below](#nested_geo).
+
+<a name="nested_wrr"></a>The `wrr` block supports:
+
+* `weight`  - (Required) The ratio of traffic routed to the target.
+
+* `rrdatas` - (Required) Same as `rrdatas` above.
+
+<a name="nested_geo"></a>The `geo` block supports:
+
+* `location` - (Required) The location name defined in Google Cloud.
+
+* `rrdatas` - (Required) Same as `rrdatas` above.
 
 ## Attributes Reference
 
 -In addition to the arguments listed above, the following computed attributes are
 -exported:
 
-* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{name}}/{{type}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/managedZones/{{zone}}/rrsets/{{name}}/{{type}}`
 
 ## Import
 
 DNS record sets can be imported using either of these accepted formats:
 
 ```
+$ terraform import google_dns_record_set.frontend projects/{{project}}/managedZones/{{zone}}/rrsets/{{name}}/{{type}}
 $ terraform import google_dns_record_set.frontend {{project}}/{{zone}}/{{name}}/{{type}}
 $ terraform import google_dns_record_set.frontend {{zone}}/{{name}}/{{type}}
 ```

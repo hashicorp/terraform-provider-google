@@ -1,0 +1,3 @@
+```release-note:bug
+logging: fixed bug where `google_logging_project_bucket_config` would erroneously write to state after it errored out and wasn't actually created.
+```

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudRunDomainMappingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -110,7 +107,7 @@ func testAccCheckCloudRunDomainMappingDestroyProducer(t *testing.T) func(s *terr
 				billingProject = config.BillingProject
 			}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isCloudRunCreationConflict)
 			if err == nil {
 				return fmt.Errorf("CloudRunDomainMapping still exists at %s", url)
 			}

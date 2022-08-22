@@ -1,8 +1,6 @@
 ---
 subcategory: "Kubernetes (Container) Engine"
-layout: "google"
 page_title: "Google: google_container_node_pool"
-sidebar_current: "docs-google-container-node-pool"
 description: |-
   Manages a GKE NodePool resource.
 ---
@@ -37,8 +35,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
-  location   = "us-central1"
-  cluster    = google_container_cluster.primary.name
+  cluster    = google_container_cluster.primary.id
   node_count = 1
 
   node_config {
@@ -64,8 +61,7 @@ resource "google_service_account" "default" {
 
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
-  location   = "us-central1-a"
-  cluster    = google_container_cluster.primary.name
+  cluster    = google_container_cluster.primary.id
   node_config {
     machine_type = "e2-medium"
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
@@ -105,7 +101,7 @@ resource "google_container_cluster" "primary" {
 
 ## Argument Reference
 
-* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for zonal clusters.
+* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for clusters. May be specified in the format `projects/{{project}}/locations/{{location}}/clusters/{{cluster}}` or as just the name of the cluster.
 
 - - -
 
@@ -114,7 +110,7 @@ resource "google_container_cluster" "primary" {
 - - -
 
 * `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
-    the size of the node pool to the current cluster usage. Structure is documented below.
+    the size of the node pool to the current cluster usage. Structure is [documented below](#nested_autoscaling).
 
 * `initial_node_count` - (Optional) The initial number of nodes for the pool. In
     regional or multi-zonal clusters, this is the number of nodes per zone. Changing
@@ -122,10 +118,10 @@ resource "google_container_cluster" "primary" {
     may change this value in your existing cluster, which will trigger destruction
     and recreation on the next Terraform run (to rectify the discrepancy).  If you don't
     need this value, don't set it.  If you do need it, you can [use a lifecycle block to
-    ignore subsqeuent changes to this field](https://github.com/hashicorp/terraform-provider-google/issues/6901#issuecomment-667369691).
+    ignore subsequent changes to this field](https://github.com/hashicorp/terraform-provider-google/issues/6901#issuecomment-667369691).
 
 * `management` - (Optional) Node management configuration, wherein auto-repair and
-    auto-upgrade is configured. Structure is documented below.
+    auto-upgrade is configured. Structure is [documented below](#nested_management).
 
 * `max_pods_per_node` - (Optional) The maximum number of pods per node in this node pool.
     Note that this does not work on node pools which are "route-based" - that is, node
@@ -149,7 +145,10 @@ cluster.
 * `name_prefix` - (Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
 
-* `node_config` - (Optional) The node configuration of the pool. See
+* `node_config` - (Optional) Parameters used in creating the node pool. See
+    [google_container_cluster](container_cluster.html#nested_node_config) for schema.
+
+* `network_config` - (Optional) The network configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
 
 * `node_count` - (Optional) The number of nodes per instance group. This field can be used to
@@ -160,7 +159,7 @@ cluster.
 
 * `upgrade_settings` (Optional) Specify node upgrade settings to change how many nodes GKE attempts to
     upgrade at once. The number of nodes upgraded simultaneously is the sum of `max_surge` and `max_unavailable`.
-    The maximum number of nodes upgraded simultaneously is limited to 20.
+    The maximum number of nodes upgraded simultaneously is limited to 20. Structure is [documented below](#nested_upgrade_settings).
 
 * `version` - (Optional) The Kubernetes version for the nodes in this pool. Note that if this field
     and `auto_upgrade` are both specified, they will fight each other for what the node version should
@@ -169,20 +168,23 @@ cluster.
     when fuzzy versions are used. See the `google_container_engine_versions` data source's
     `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
 
-The `autoscaling` block supports:
+* `placement_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Specifies a custom placement policy for the
+  nodes.
+
+<a name="nested_autoscaling"></a>The `autoscaling` block supports:
 
 * `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=0 and
     <= `max_node_count`.
 
 * `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.
 
-The `management` block supports:
+<a name="nested_management"></a>The `management` block supports:
 
 * `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
 
 * `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
 
-The `upgrade_settings` block supports:
+<a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 
 * `max_surge` - (Required) The number of additional nodes that can be added to the node pool during
     an upgrade. Increasing `max_surge` raises the number of nodes that can be upgraded simultaneously.
@@ -194,13 +196,21 @@ The `upgrade_settings` block supports:
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
 
+<a name="nested_placement_policy"></a>The `placement_policy` block supports:
+
+* `type` - (Required) The type of the policy. Supports a single value: COMPACT.
+  Specifying COMPACT placement policy type places node pool's nodes in a closer
+  physical proximity in order to reduce network latency between nodes.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{cluster}}/{{name}}`
+* `id` - an identifier for the resource with format `{{project}}/{{location}}/{{cluster}}/{{name}}`
 
 * `instance_group_urls` - The resource URLs of the managed instance groups associated with this node pool.
+
+* `managed_instance_group_urls` - List of instance group URLs which have been assigned to this node pool.
 
 <a id="timeouts"></a>
 ## Timeouts
@@ -214,11 +224,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-Node pools can be imported using the `project`, `zone`, `cluster` and `name`. If
-the project is omitted, the default provider value will be used. Examples:
+Node pools can be imported using the `project`, `location`, `cluster` and `name`. If
+the project is omitted, the project value in the provider configuration will be used. Examples:
 
 ```
 $ terraform import google_container_node_pool.mainpool my-gcp-project/us-east1-a/my-cluster/main-pool
 
-$ terraform import google_container_node_pool.mainpool us-east1-a/my-cluster/main-pool
+$ terraform import google_container_node_pool.mainpool us-east1/my-cluster/main-pool
 ```

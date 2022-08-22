@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,13 +18,15 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+func resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return old == "/"+new
+}
 
 func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 	return &schema.Resource{
@@ -38,9 +40,9 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -54,6 +56,14 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Required:    true,
 				Description: `The maximum amount of time to wait for the request to complete (must be between 1 and 60 seconds). Accepted formats https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration`,
 			},
+			"checker_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"STATIC_IP_CHECKERS", "VPC_CHECKERS", ""}),
+				Description:  `The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS. Possible values: ["STATIC_IP_CHECKERS", "VPC_CHECKERS"]`,
+			},
 			"content_matchers": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -65,11 +75,33 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Required:    true,
 							Description: `String or regex content to match (max 1024 bytes)`,
 						},
+						"json_path_matcher": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Information needed to perform a JSONPath content match. Used for 'ContentMatcherOption::MATCHES_JSON_PATH' and 'ContentMatcherOption::NOT_MATCHES_JSON_PATH'.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"json_path": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `JSONPath within the response output pointing to the expected 'ContentMatcher::content' to match against.`,
+									},
+									"json_matcher": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"EXACT_MATCH", "REGEX_MATCH", ""}),
+										Description:  `Options to perform JSONPath content matching. Default value: "EXACT_MATCH" Possible values: ["EXACT_MATCH", "REGEX_MATCH"]`,
+										Default:      "EXACT_MATCH",
+									},
+								},
+							},
+						},
 						"matcher": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NON_MATCHES_REGEX", ""}, false),
-							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NON_MATCHES_REGEX"]`,
+							ValidateFunc: validateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH", ""}),
+							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH"]`,
 							Default:      "CONTAINS_STRING",
 						},
 					},
@@ -82,6 +114,26 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"accepted_response_status_codes": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `If present, the check will only pass if the HTTP response status code is in this set of status codes. If empty, the HTTP status code will only pass if the HTTP status code is 200-299.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"status_class": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"STATUS_CLASS_1XX", "STATUS_CLASS_2XX", "STATUS_CLASS_3XX", "STATUS_CLASS_4XX", "STATUS_CLASS_5XX", "STATUS_CLASS_ANY", ""}),
+										Description:  `A class of status codes to accept. Possible values: ["STATUS_CLASS_1XX", "STATUS_CLASS_2XX", "STATUS_CLASS_3XX", "STATUS_CLASS_4XX", "STATUS_CLASS_5XX", "STATUS_CLASS_ANY"]`,
+									},
+									"status_value": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `A status code to accept.`,
+									},
+								},
+							},
+						},
 						"auth_info": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -112,7 +164,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"content_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}, false),
+							ValidateFunc: validateEnum([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}),
 							Description:  `The content type to use for the check. Possible values: ["TYPE_UNSPECIFIED", "URL_ENCODED"]`,
 						},
 						"headers": {
@@ -130,11 +182,12 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"path": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Description:  `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. Optional (defaults to "/").`,
-							Default:      "/",
-							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress,
+							Description:      `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. If the provided path does not begin with "/", a "/" will be prepended automatically. Optional (defaults to "/").`,
+							Default:          "/",
+							AtLeastOneOf:     []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"port": {
 							Type:         schema.TypeInt,
@@ -147,7 +200,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}, false),
+							ValidateFunc: validateEnum([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}),
 							Description:  `The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
 							Default:      "GET",
 						},
@@ -170,7 +223,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer`,
+				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance aws_elb_load_balancer  k8s_service  servicedirectory_service`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -218,7 +271,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
+							ValidateFunc: validateEnum([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}),
 							Description:  `The resource type of the group members. Possible values: ["RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER"]`,
 							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
@@ -309,6 +362,12 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("selected_regions"); !isEmptyValue(reflect.ValueOf(selectedRegionsProp)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
+	checkerTypeProp, err := expandMonitoringUptimeCheckConfigCheckerType(d.Get("checker_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("checker_type"); !isEmptyValue(reflect.ValueOf(checkerTypeProp)) && (ok || !reflect.DeepEqual(v, checkerTypeProp)) {
+		obj["checkerType"] = checkerTypeProp
+	}
 	httpCheckProp, err := expandMonitoringUptimeCheckConfigHttpCheck(d.Get("http_check"), d, config)
 	if err != nil {
 		return err
@@ -375,8 +434,6 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating UptimeCheckConfig %q: %#v", d.Id(), res)
-
 	// `name` is autogenerated from the api so needs to be set post-create
 	name, ok := res["name"]
 	if !ok {
@@ -394,6 +451,8 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	d.SetId(name.(string))
+
+	log.Printf("[DEBUG] Finished creating UptimeCheckConfig %q: %#v", d.Id(), res)
 
 	return resourceMonitoringUptimeCheckConfigRead(d, meta)
 }
@@ -451,6 +510,9 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
+	}
+	if err := d.Set("checker_type", flattenMonitoringUptimeCheckConfigCheckerType(res["checkerType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("http_check", flattenMonitoringUptimeCheckConfigHttpCheck(res["httpCheck"], d, config)); err != nil {
@@ -673,8 +735,9 @@ func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"content": flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
-			"matcher": flattenMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config),
+			"content":           flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
+			"matcher":           flattenMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config),
+			"json_path_matcher": flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(original["jsonPathMatcher"], d, config),
 		})
 	}
 	return transformed
@@ -687,7 +750,34 @@ func flattenMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d *
 	return v
 }
 
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["json_path"] =
+		flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(original["jsonPath"], d, config)
+	transformed["json_matcher"] =
+		flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(original["jsonMatcher"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigCheckerType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -720,6 +810,8 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d, config)
 	transformed["body"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckBody(original["body"], d, config)
+	transformed["accepted_response_status_codes"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(original["acceptedResponseStatusCodes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -756,7 +848,7 @@ func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, 
 func flattenMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -794,6 +886,46 @@ func flattenMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"status_value": flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(original["statusValue"], d, config),
+			"status_class": flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(original["statusClass"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -810,7 +942,7 @@ func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.Resourc
 func flattenMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -907,6 +1039,13 @@ func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d Terraform
 			transformed["matcher"] = transformedMatcher
 		}
 
+		transformedJsonPathMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(original["json_path_matcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedJsonPathMatcher); val.IsValid() && !isEmptyValue(val) {
+			transformed["jsonPathMatcher"] = transformedJsonPathMatcher
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -920,7 +1059,45 @@ func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d Te
 	return v, nil
 }
 
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedJsonPath, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(original["json_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["jsonPath"] = transformedJsonPath
+	}
+
+	transformedJsonMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(original["json_matcher"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonMatcher); val.IsValid() && !isEmptyValue(val) {
+		transformed["jsonMatcher"] = transformedJsonMatcher
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigCheckerType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1003,6 +1180,13 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 		transformed["body"] = transformedBody
 	}
 
+	transformedAcceptedResponseStatusCodes, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(original["accepted_response_status_codes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAcceptedResponseStatusCodes); val.IsValid() && !isEmptyValue(val) {
+		transformed["acceptedResponseStatusCodes"] = transformedAcceptedResponseStatusCodes
+	}
+
 	return transformed, nil
 }
 
@@ -1080,6 +1264,43 @@ func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d Terr
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedStatusValue, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(original["status_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStatusValue); val.IsValid() && !isEmptyValue(val) {
+			transformed["statusValue"] = transformedStatusValue
+		}
+
+		transformedStatusClass, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(original["status_class"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStatusClass); val.IsValid() && !isEmptyValue(val) {
+			transformed["statusClass"] = transformedStatusClass
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_external_vpn_gateway"
-sidebar_current: "docs-google-compute-external-vpn-gateway"
 description: |-
   Represents a VPN gateway managed outside of GCP.
 ---
@@ -55,7 +53,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "network"
+  name                    = "network-1"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
@@ -172,13 +170,13 @@ The following arguments are supported:
 * `interface` -
   (Optional)
   A list of interfaces on this external VPN gateway.
-  Structure is documented below.
+  Structure is [documented below](#nested_interface).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `interface` block supports:
+<a name="nested_interface"></a>The `interface` block supports:
 
 * `id` -
   (Optional)
@@ -208,8 +206,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

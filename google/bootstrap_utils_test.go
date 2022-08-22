@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -210,6 +211,47 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 	return sa.Email
 }
 
+const SharedTestADDomainPrefix = "tf-bootstrap-ad"
+
+func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string) string {
+	project := getTestProjectFromEnv()
+	sharedADDomain := fmt.Sprintf("%s.%s.com", SharedTestADDomainPrefix, testId)
+	adDomainName := fmt.Sprintf("projects/%s/locations/global/domains/%s", project, sharedADDomain)
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared test active directory domain %q", adDomainName)
+	getURL := fmt.Sprintf("%s%s", config.ActiveDirectoryBasePath, adDomainName)
+	_, err := sendRequestWithTimeout(config, "GET", project, getURL, config.userAgent, nil, 4*time.Minute)
+	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] AD domain %q not found, bootstrapping", sharedADDomain)
+		postURL := fmt.Sprintf("%sprojects/%s/locations/global/domains?domainName=%s", config.ActiveDirectoryBasePath, project, sharedADDomain)
+		domainObj := map[string]interface{}{
+			"locations":          []string{"us-central1"},
+			"reservedIpRange":    "10.0.1.0/24",
+			"authorizedNetworks": []string{fmt.Sprintf("projects/%s/global/networks/%s", project, networkName)},
+		}
+
+		_, err := sendRequestWithTimeout(config, "POST", project, postURL, config.userAgent, domainObj, 60*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared active directory domain %q: %s", adDomainName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for active directory domain creation to finish")
+	}
+
+	_, err = sendRequestWithTimeout(config, "GET", project, getURL, config.userAgent, nil, 4*time.Minute)
+
+	if err != nil {
+		t.Fatalf("Error getting shared active directory domain %q: %s", adDomainName, err)
+	}
+
+	return sharedADDomain
+}
+
 const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 
 // BootstrapSharedTestNetwork will return a shared compute network
@@ -338,7 +380,7 @@ func BootstrapConfig(t *testing.T) *Config {
 }
 
 // SQL Instance names are not reusable for a week after deletion
-const SharedTestSQLInstanceName = "tf-bootstrap-do-not-delete"
+const SharedTestSQLInstanceNamePrefix = "tf-bootstrap-"
 
 // BootstrapSharedSQLInstanceBackupRun will return a shared SQL db instance that
 // has a backup created for it.
@@ -350,53 +392,71 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		return ""
 	}
 
-	log.Printf("[DEBUG] Getting shared test sql instance %s", SharedTestSQLInstanceName)
+	log.Printf("[DEBUG] Getting list of existing sql instances")
 
-	instance, err := config.NewSqlAdminClient(config.userAgent).Instances.Get(project, SharedTestSQLInstanceName).Do()
+	instances, err := config.NewSqlAdminClient(config.userAgent).Instances.List(project).Do()
 	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
-			log.Printf("[DEBUG] SQL Instance %q not found, bootstrapping", SharedTestSQLInstanceName)
-			settings := &sqladmin.Settings{
-				Tier: "db-f1-micro",
-			}
-			instance = &sqladmin.DatabaseInstance{
-				Name:            SharedTestSQLInstanceName,
-				Region:          "us-central1",
-				Settings:        settings,
-				DatabaseVersion: "POSTGRES_11",
-			}
+		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve instance list: %s", err)
+	}
 
-			var op *sqladmin.Operation
-			err = retryTimeDuration(func() (operr error) {
-				op, operr = config.NewSqlAdminClient(config.userAgent).Instances.Insert(project, instance).Do()
-				return operr
-			}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
-			if err != nil {
-				t.Fatalf("Error, failed to create instance %s: %s", instance.Name, err)
-			}
-			err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", config.userAgent, time.Duration(20)*time.Minute)
-			if err != nil {
-				t.Fatalf("Error, failed to create instance %s: %s", instance.Name, err)
-			}
-		} else {
-			t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve instance: %s", err)
+	var bootstrapInstance *sqladmin.DatabaseInstance
+
+	// Look for any existing bootstrap instances
+	for _, i := range instances.Items {
+		if strings.HasPrefix(i.Name, SharedTestSQLInstanceNamePrefix) {
+			bootstrapInstance = i
+			break
 		}
 	}
 
-	res, err := config.NewSqlAdminClient(config.userAgent).BackupRuns.List(project, instance.Name).Do()
+	if bootstrapInstance == nil {
+		bootstrapInstanceName := SharedTestSQLInstanceNamePrefix + randString(t, 10)
+		log.Printf("[DEBUG] Bootstrap SQL Instance not found, bootstrapping new instance %s", bootstrapInstanceName)
+
+		backupConfig := &sqladmin.BackupConfiguration{
+			Enabled:                    true,
+			PointInTimeRecoveryEnabled: true,
+		}
+		settings := &sqladmin.Settings{
+			Tier:                "db-f1-micro",
+			BackupConfiguration: backupConfig,
+		}
+		bootstrapInstance = &sqladmin.DatabaseInstance{
+			Name:            bootstrapInstanceName,
+			Region:          "us-central1",
+			Settings:        settings,
+			DatabaseVersion: "POSTGRES_11",
+		}
+
+		var op *sqladmin.Operation
+		err = retryTimeDuration(func() (operr error) {
+			op, operr = config.NewSqlAdminClient(config.userAgent).Instances.Insert(project, bootstrapInstance).Do()
+			return operr
+		}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", config.userAgent, time.Duration(20)*time.Minute)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
+		}
+	}
+
+	// Look for backups in bootstrap instance
+	res, err := config.NewSqlAdminClient(config.userAgent).BackupRuns.List(project, bootstrapInstance.Name).Do()
 	if err != nil {
 		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve backup list: %s", err)
 	}
 	backupsList := res.Items
 	if len(backupsList) == 0 {
-		log.Printf("[DEBUG] No backups found for %s, creating backup", SharedTestSQLInstanceName)
+		log.Printf("[DEBUG] No backups found for %s, creating backup", bootstrapInstance.Name)
 		backupRun := &sqladmin.BackupRun{
-			Instance: instance.Name,
+			Instance: bootstrapInstance.Name,
 		}
 
 		var op *sqladmin.Operation
 		err = retryTimeDuration(func() (operr error) {
-			op, operr = config.NewSqlAdminClient(config.userAgent).BackupRuns.Insert(project, instance.Name, backupRun).Do()
+			op, operr = config.NewSqlAdminClient(config.userAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
 			return operr
 		}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
 		if err != nil {
@@ -408,5 +468,44 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		}
 	}
 
-	return instance.Name
+	return bootstrapInstance.Name
+}
+
+func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
+	project := getTestProjectFromEnv()
+	poolName := "static-ca-pool"
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared CA pool %q", poolName)
+	url := fmt.Sprintf("%sprojects/%s/locations/%s/caPools/%s", config.PrivatecaBasePath, project, location, poolName)
+	_, err := sendRequest(config, "GET", project, url, config.userAgent, nil)
+	if err != nil {
+		log.Printf("[DEBUG] CA pool %q not found, bootstrapping", poolName)
+		poolObj := map[string]interface{}{
+			"tier": "ENTERPRISE",
+		}
+		createUrl := fmt.Sprintf("%sprojects/%s/locations/%s/caPools?caPoolId=%s", config.PrivatecaBasePath, project, location, poolName)
+		res, err := sendRequestWithTimeout(config, "POST", project, createUrl, config.userAgent, poolObj, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared CA pool %q: %s", poolName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for CA pool creation to finish")
+		var opRes map[string]interface{}
+		err = privatecaOperationWaitTimeWithResponse(
+			config, res, &opRes, project, "Creating CA pool", config.userAgent,
+			4*time.Minute)
+		if err != nil {
+			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
+		}
+		_, err = sendRequest(config, "GET", project, url, config.userAgent, nil)
+		if err != nil {
+			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
+		}
+	}
+	return poolName
 }

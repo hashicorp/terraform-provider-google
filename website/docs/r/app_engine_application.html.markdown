@@ -1,8 +1,6 @@
 ---
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_application"
-sidebar_current: "docs-google-app-engine-application"
 description: |-
  Allows management of an App Engine application.
 ---
@@ -17,7 +15,7 @@ Allows creation and management of an App Engine application.
    Terraform is not able to delete App Engine applications.
 
 ~> **Warning:** All arguments including `iap.oauth2_client_secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage
 

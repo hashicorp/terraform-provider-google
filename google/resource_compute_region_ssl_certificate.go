@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -36,8 +35,8 @@ func resourceComputeRegionSslCertificate() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -69,7 +68,7 @@ The chain must include at least one intermediate cert.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
@@ -106,6 +105,7 @@ If it is not provided, the provider region is used.`,
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "Creates a unique name beginning with the specified prefix. Conflicts with name.",
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					// https://cloud.google.com/compute/docs/reference/latest/sslCertificates#resource
 					// uuid is 26 characters, limit the prefix to 37.
@@ -357,7 +357,7 @@ func flattenComputeRegionSslCertificateDescription(v interface{}, d *schema.Reso
 func flattenComputeRegionSslCertificateCertificateId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

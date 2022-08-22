@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeTargetHttpsProxy() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -55,17 +53,6 @@ first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
 			},
-			"ssl_certificates": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `A list of SslCertificate resources that are used to authenticate
-connections between users and the load balancer. At least one SSL
-certificate must be specified.`,
-				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					DiffSuppressFunc: compareSelfLinkOrResourceName,
-				},
-			},
 			"url_map": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -73,22 +60,50 @@ certificate must be specified.`,
 				Description: `A reference to the UrlMap resource that defines the mapping from URL
 to the BackendService.`,
 			},
+			"certificate_map": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `A reference to the CertificateMap resource uri that identifies a certificate map 
+associated with the given target proxy. This field can only be set for global target proxies.
+Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}'.`,
+				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"proxy_bind": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `This field only applies when the forwarding rule that references
+this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
+			},
 			"quic_override": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "ENABLE", "DISABLE", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "ENABLE", "DISABLE", ""}),
 				Description: `Specifies the QUIC override policy for this resource. This determines
 whether the load balancer will attempt to negotiate QUIC with clients
 or not. Can specify one of NONE, ENABLE, or DISABLE. If NONE is
 specified, uses the QUIC policy with no user overrides, which is
 equivalent to DISABLE. Default value: "NONE" Possible values: ["NONE", "ENABLE", "DISABLE"]`,
 				Default: "NONE",
+			},
+			"ssl_certificates": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A list of SslCertificate resources that are used to authenticate
+connections between users and the load balancer. At least one SSL
+certificate must be specified.`,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
+				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
 			},
 			"ssl_policy": {
 				Type:             schema.TypeString,
@@ -155,6 +170,12 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(sslCertificatesProp)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
 		obj["sslCertificates"] = sslCertificatesProp
 	}
+	certificateMapProp, err := expandComputeTargetHttpsProxyCertificateMap(d.Get("certificate_map"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("certificate_map"); !isEmptyValue(reflect.ValueOf(certificateMapProp)) && (ok || !reflect.DeepEqual(v, certificateMapProp)) {
+		obj["certificateMap"] = certificateMapProp
+	}
 	sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
 	if err != nil {
 		return err
@@ -166,6 +187,12 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
 		obj["urlMap"] = urlMapProp
+	}
+	proxyBindProp, err := expandComputeTargetHttpsProxyProxyBind(d.Get("proxy_bind"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+		obj["proxyBind"] = proxyBindProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies")
@@ -266,10 +293,16 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("ssl_certificates", flattenComputeTargetHttpsProxySslCertificates(res["sslCertificates"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
+	if err := d.Set("certificate_map", flattenComputeTargetHttpsProxyCertificateMap(res["certificateMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+	}
 	if err := d.Set("ssl_policy", flattenComputeTargetHttpsProxySslPolicy(res["sslPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("url_map", flattenComputeTargetHttpsProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+	}
+	if err := d.Set("proxy_bind", flattenComputeTargetHttpsProxyProxyBind(res["proxyBind"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -341,6 +374,40 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		}
 
 		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setSslCertificates")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating TargetHttpsProxy", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("certificate_map") {
+		obj := make(map[string]interface{})
+
+		certificateMapProp, err := expandComputeTargetHttpsProxyCertificateMap(d.Get("certificate_map"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("certificate_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificateMapProp)) {
+			obj["certificateMap"] = certificateMapProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setCertificateMap")
 		if err != nil {
 			return err
 		}
@@ -514,7 +581,7 @@ func flattenComputeTargetHttpsProxyDescription(v interface{}, d *schema.Resource
 func flattenComputeTargetHttpsProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -547,6 +614,10 @@ func flattenComputeTargetHttpsProxySslCertificates(v interface{}, d *schema.Reso
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
+func flattenComputeTargetHttpsProxyCertificateMap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeTargetHttpsProxySslPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -559,6 +630,10 @@ func flattenComputeTargetHttpsProxyUrlMap(v interface{}, d *schema.ResourceData,
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeTargetHttpsProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func expandComputeTargetHttpsProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -589,6 +664,10 @@ func expandComputeTargetHttpsProxySslCertificates(v interface{}, d TerraformReso
 	return req, nil
 }
 
+func expandComputeTargetHttpsProxyCertificateMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeTargetHttpsProxySslPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("sslPolicies", v.(string), "project", d, config, true)
 	if err != nil {
@@ -603,4 +682,8 @@ func expandComputeTargetHttpsProxyUrlMap(v interface{}, d TerraformResourceData,
 		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeTargetHttpsProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }

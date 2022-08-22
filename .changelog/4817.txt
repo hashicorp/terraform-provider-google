@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added a `network_performance_config` block to each of `resource_compute_instance`, `resource_compute_instance_from_template`, and `resource_compute_instance_template`
+```

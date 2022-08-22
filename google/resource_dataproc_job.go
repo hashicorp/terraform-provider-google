@@ -11,6 +11,8 @@ import (
 	"google.golang.org/api/dataproc/v1"
 )
 
+var jobTypes = []string{"pyspark_config", "spark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config", "presto_config"}
+
 func resourceDataprocJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocJobCreate,
@@ -153,10 +155,17 @@ func resourceDataprocJob() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"max_failures_per_hour": {
 							Type:         schema.TypeInt,
-							Description:  "Maximum number of times per hour a driver may be restarted as a result of driver terminating with non-zero code before job is reported failed.",
+							Description:  "Maximum number of times per hour a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.",
 							Required:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.IntAtMost(10),
+						},
+						"max_failures_total": {
+							Type:         schema.TypeInt,
+							Description:  "Maximum number of times in total a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.",
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.IntAtMost(240),
 						},
 					},
 				},
@@ -168,6 +177,7 @@ func resourceDataprocJob() *schema.Resource {
 			"hive_config":     hiveSchema,
 			"pig_config":      pigSchema,
 			"sparksql_config": sparkSqlSchema,
+			"presto_config":   prestoSchema,
 		},
 		UseJSONNumber: true,
 	}
@@ -209,6 +219,12 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("reference.0.job_id"); ok {
 		submitReq.Job.Reference.JobId = v.(string)
 	}
+
+	if v, ok := d.GetOk("scheduling"); ok {
+		config := extractFirstMapConfig(v.([]interface{}))
+		submitReq.Job.Scheduling = expandJobScheduling(config)
+	}
+
 	if _, ok := d.GetOk("labels"); ok {
 		submitReq.Job.Labels = expandLabels(d)
 	}
@@ -241,6 +257,11 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("sparksql_config"); ok {
 		config := extractFirstMapConfig(v.([]interface{}))
 		submitReq.Job.SparkSqlJob = expandSparkSqlJob(config)
+	}
+
+	if v, ok := d.GetOk("presto_config"); ok {
+		config := extractFirstMapConfig(v.([]interface{}))
+		submitReq.Job.PrestoJob = expandPrestoJob(config)
 	}
 
 	// Submit the job
@@ -304,6 +325,9 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("reference", flattenJobReference(job.Reference)); err != nil {
 		return fmt.Errorf("Error setting reference: %s", err)
 	}
+	if err := d.Set("scheduling", flattenJobScheduling(job.Scheduling)); err != nil {
+		return fmt.Errorf("Error setting reference: %s", err)
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
@@ -336,6 +360,12 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	if job.SparkSqlJob != nil {
 		if err := d.Set("sparksql_config", flattenSparkSqlJob(job.SparkSqlJob)); err != nil {
 			return fmt.Errorf("Error setting sparksql_config: %s", err)
+		}
+	}
+
+	if job.PrestoJob != nil {
+		if err := d.Set("presto_config", flattenPrestoJob(job.PrestoJob)); err != nil {
+			return fmt.Errorf("Error setting presto_config: %s", err)
 		}
 	}
 	return nil
@@ -420,7 +450,7 @@ var pySparkSchema = &schema.Schema{
 	ForceNew:     true,
 	MaxItems:     1,
 	Description:  `The config of pySpark job.`,
-	ExactlyOneOf: []string{"pyspark_config", "spark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
+	ExactlyOneOf: jobTypes,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"main_python_file_uri": {
@@ -530,6 +560,17 @@ func expandPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
 
 }
 
+func expandJobScheduling(config map[string]interface{}) *dataproc.JobScheduling {
+	jobScheduling := &dataproc.JobScheduling{}
+	if v, ok := config["max_failures_per_hour"]; ok {
+		jobScheduling.MaxFailuresPerHour = int64(v.(int))
+	}
+	if v, ok := config["max_failures_total"]; ok {
+		jobScheduling.MaxFailuresTotal = int64(v.(int))
+	}
+	return jobScheduling
+}
+
 // ---- Spark Job ----
 
 var sparkSchema = &schema.Schema{
@@ -538,7 +579,7 @@ var sparkSchema = &schema.Schema{
 	ForceNew:     true,
 	MaxItems:     1,
 	Description:  `The config of the Spark job.`,
-	ExactlyOneOf: []string{"pyspark_config", "spark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
+	ExactlyOneOf: jobTypes,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// main driver: can be only one of the class | jar_file
@@ -659,7 +700,7 @@ var hadoopSchema = &schema.Schema{
 	ForceNew:     true,
 	MaxItems:     1,
 	Description:  `The config of Hadoop job`,
-	ExactlyOneOf: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
+	ExactlyOneOf: jobTypes,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// main driver: can be only one of the main_class | main_jar_file_uri
@@ -780,7 +821,7 @@ var hiveSchema = &schema.Schema{
 	ForceNew:     true,
 	MaxItems:     1,
 	Description:  `The config of hive job`,
-	ExactlyOneOf: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
+	ExactlyOneOf: jobTypes,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// main query: can be only one of query_list | query_file_uri
@@ -886,7 +927,7 @@ var pigSchema = &schema.Schema{
 	ForceNew:     true,
 	MaxItems:     1,
 	Description:  `The config of pag job.`,
-	ExactlyOneOf: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
+	ExactlyOneOf: jobTypes,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// main query: can be only one of query_list | query_file_uri
@@ -995,7 +1036,7 @@ var sparkSqlSchema = &schema.Schema{
 	ForceNew:     true,
 	MaxItems:     1,
 	Description:  `The config of SparkSql job`,
-	ExactlyOneOf: []string{"spark_config", "pyspark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config"},
+	ExactlyOneOf: jobTypes,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// main query: can be only one of query_list | query_file_uri
@@ -1085,6 +1126,111 @@ func expandSparkSqlJob(config map[string]interface{}) *dataproc.SparkSqlJob {
 
 }
 
+// ---- Presto Job ----
+
+var prestoSchema = &schema.Schema{
+	Type:         schema.TypeList,
+	Optional:     true,
+	ForceNew:     true,
+	MaxItems:     1,
+	Description:  `The config of presto job`,
+	ExactlyOneOf: jobTypes,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"client_tags": {
+				Type:        schema.TypeList,
+				Description: `Presto client tags to attach to this query.`,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"continue_on_failure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether to continue executing queries if a query fails. Setting to true can be useful when executing independent parallel queries. Defaults to false.`,
+			},
+			// main query: can be only one of query_list | query_file_uri
+			"query_list": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The list of SQL queries or statements to execute as part of the job. Conflicts with query_file_uri`,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				ExactlyOneOf: []string{"presto_config.0.query_file_uri", "presto_config.0.query_list"},
+			},
+
+			"query_file_uri": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The HCFS URI of the script that contains SQL queries. Conflicts with query_list`,
+				ExactlyOneOf: []string{"presto_config.0.query_file_uri", "presto_config.0.query_list"},
+			},
+
+			"properties": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A mapping of property names to values. Used to set Presto session properties Equivalent to using the --session flag in the Presto CLI.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"output_format": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The format in which query output will be displayed. See the Presto documentation for supported output formats.`,
+			},
+
+			"logging_config": loggingConfig,
+		},
+	},
+}
+
+func flattenPrestoJob(job *dataproc.PrestoJob) []map[string]interface{} {
+	queries := []string{}
+	if job.QueryList != nil {
+		queries = job.QueryList.Queries
+	}
+	return []map[string]interface{}{
+		{
+			"client_tags":         job.ClientTags,
+			"continue_on_failure": job.ContinueOnFailure,
+			"query_list":          queries,
+			"query_file_uri":      job.QueryFileUri,
+			"properties":          job.Properties,
+			"output_format":       job.OutputFormat,
+		},
+	}
+}
+
+func expandPrestoJob(config map[string]interface{}) *dataproc.PrestoJob {
+	job := &dataproc.PrestoJob{}
+	if v, ok := config["client_tags"]; ok {
+		job.ClientTags = convertStringArr(v.([]interface{}))
+	}
+	if v, ok := config["continue_on_failure"]; ok {
+		job.ContinueOnFailure = v.(bool)
+	}
+	if v, ok := config["query_file_uri"]; ok {
+		job.QueryFileUri = v.(string)
+	}
+	if v, ok := config["query_list"]; ok {
+		job.QueryList = &dataproc.QueryList{
+			Queries: convertStringArr(v.([]interface{})),
+		}
+	}
+	if v, ok := config["properties"]; ok {
+		job.Properties = convertStringMap(v.(map[string]interface{}))
+	}
+	if v, ok := config["output_format"]; ok {
+		job.OutputFormat = v.(string)
+	}
+
+	return job
+
+}
+
 // ---- Other flatten / expand methods ----
 
 func expandLoggingConfig(config map[string]interface{}) *dataproc.LoggingConfig {
@@ -1109,6 +1255,19 @@ func flattenJobReference(r *dataproc.JobReference) []map[string]interface{} {
 			"job_id": r.JobId,
 		},
 	}
+}
+
+func flattenJobScheduling(r *dataproc.JobScheduling) []map[string]interface{} {
+	jobScheduling := []map[string]interface{}{}
+
+	if r != nil {
+		jobScheduling = append(jobScheduling,
+			map[string]interface{}{
+				"max_failures_per_hour": r.MaxFailuresPerHour,
+				"max_failures_total":    r.MaxFailuresTotal,
+			})
+	}
+	return jobScheduling
 }
 
 func flattenJobStatus(s *dataproc.JobStatus) []map[string]interface{} {

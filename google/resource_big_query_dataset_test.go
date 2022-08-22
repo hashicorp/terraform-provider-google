@@ -297,6 +297,7 @@ resource "google_bigquery_dataset" "other_dataset" {
 }
 
 resource "google_bigquery_table" "table_with_view" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.other_dataset.dataset_id
 

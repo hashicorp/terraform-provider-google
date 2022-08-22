@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_bucket_object"
-sidebar_current: "docs-google-storage-bucket-object"
 description: |-
   Creates a new object inside a specified bucket
 ---
@@ -59,9 +57,22 @@ One of the following is required:
 
 * `content_type` - (Optional) [Content-Type](https://tools.ietf.org/html/rfc7231#section-3.1.1.5) of the object data. Defaults to "application/octet-stream" or "text/plain; charset=utf-8".
 
+* `customer_encryption` - (Optional) Enables object encryption with Customer-Supplied Encryption Key (CSEK). [Google [documentation about](#nested_customer_encryption) CSEK.](https://cloud.google.com/storage/docs/encryption/customer-supplied-keys)
+    Structure is documented below.
+
 * `storage_class` - (Optional) The [StorageClass](https://cloud.google.com/storage/docs/storage-classes) of the new bucket object.
     Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`. If not provided, this defaults to the bucket's default
     storage class or to a [standard](https://cloud.google.com/storage/docs/storage-classes#standard) class.
+
+* `kms_key_name` - (Optional) The resource name of the Cloud KMS key that will be used to [encrypt](https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys) the object.
+
+---
+
+<a name="nested_customer_encryption"></a>The `customer_encryption` block supports:
+
+* `encryption_algorithm` - (Optional) Encryption algorithm. Default: AES256
+
+* `encryption_key` - (Required) Base64 encoded Customer-Supplied Encryption Key.
 
 ## Attributes Reference
 
@@ -78,6 +89,15 @@ exported:
 `google_storage_object_acl` resources when your `google_storage_bucket_object` is recreated.
 
 * `media_link` - (Computed) A url reference to download this object.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
 
 ## Import
 

@@ -1,0 +1,6 @@
+```release-note:deprecation
+container: deprecated `workload_identity_config.0.identity_namespace` and it will be removed in a future major release as it has been deprecated in the API. Use `workload_identity_config.0.workload_pool` instead. Switching your configuration from one value to the other will trigger a diff at plan time, and a spurious update.
+```
+```release-note:enhancement
+container: added `workload_identity_config.0.workload_pool` to `google_container_cluster`
+```

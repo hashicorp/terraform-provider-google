@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_network"
-sidebar_current: "docs-google-datasource-compute-network"
 description: |-
   Get a network within GCE.
 ---
@@ -34,6 +32,8 @@ The following arguments are supported:
 ## Attributes Reference
 
 In addition to the arguments listed above, the following attributes are exported:
+
+* `id` - an identifier for the resource with format projects/{{project}}/global/networks/{{name}}
 
 * `description` - Description of this network.
 

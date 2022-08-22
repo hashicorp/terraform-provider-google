@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -93,14 +94,15 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", randInt(t))
-	identity := fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account))
+	email := serviceAccountCanonicalEmail(account)
+	identity := fmt.Sprintf("serviceAccount:%s", email)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccServiceAccountIamMember_basic(account),
+				Config: testAccServiceAccountIamMember_basic(account, email),
 				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
 			},
 			{
@@ -108,6 +110,14 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 				ImportStateId:     fmt.Sprintf("%s %s %s", serviceAccountCanonicalId(account), "roles/iam.serviceAccountUser", identity),
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config:   testAccServiceAccountIamMember_basic(account, strings.ToUpper(email)),
+				PlanOnly: true,
+			},
+			{
+				Config:   testAccServiceAccountIamMember_basic(account, strings.Title(email)),
+				PlanOnly: true,
 			},
 		},
 	})
@@ -302,7 +312,7 @@ resource "google_service_account_iam_binding" "foo2" {
 `, account, member, member, conditionTitle, conditionExpr)
 }
 
-func testAccServiceAccountIamMember_basic(account string) string {
+func testAccServiceAccountIamMember_basic(account, email string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
@@ -312,9 +322,10 @@ resource "google_service_account" "test_account" {
 resource "google_service_account_iam_member" "foo" {
   service_account_id = google_service_account.test_account.name
   role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:${google_service_account.test_account.email}"
+  member             = "serviceAccount:%s"
+	depends_on = [google_service_account.test_account]
 }
-`, account)
+`, account, email)
 }
 
 func testAccServiceAccountIamMember_withCondition(account, conditionTitle string) string {

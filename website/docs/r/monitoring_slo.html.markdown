@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_slo"
-sidebar_current: "docs-google-monitoring-slo"
 description: |-
   A Service-Level Objective (SLO) describes the level of desired good
   service.
@@ -66,13 +64,13 @@ resource "google_monitoring_slo" "appeng_slo" {
       threshold = "1s"
     }
   }
+
+  user_labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_slo_request_based&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Monitoring Slo Request Based
 
 
@@ -279,6 +277,14 @@ The following arguments are supported:
   <calendarPeriod>".
   Possible values are `DAY`, `WEEK`, `FORTNIGHT`, and `MONTH`.
 
+* `user_labels` -
+  (Optional)
+  This field is intended to be used for organizing and identifying the AlertPolicy
+  objects.The field can contain up to 64 entries. Each key and value is limited
+  to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
+  can contain only lowercase letters, numerals, underscores, and dashes. Keys
+  must begin with a letter.
+
 * `basic_sli` -
   (Optional)
   Basic Service-Level Indicator (SLI) on a well-known service type.
@@ -287,7 +293,7 @@ The following arguments are supported:
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
   `basic_sli`, `request_based_sli`, `windows_based_sli`
-  Structure is documented below.
+  Structure is [documented below](#nested_basic_sli).
 
 * `request_based_sli` -
   (Optional)
@@ -298,7 +304,7 @@ The following arguments are supported:
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
   `basic_sli`, `request_based_sli`, `windows_based_sli`
-  Structure is documented below.
+  Structure is [documented below](#nested_request_based_sli).
 
 * `windows_based_sli` -
   (Optional)
@@ -310,7 +316,7 @@ The following arguments are supported:
   aspect of service quality.
   Exactly one of the following must be set:
   `basic_sli`, `request_based_sli`, `windows_based_sli`
-  Structure is documented below.
+  Structure is [documented below](#nested_windows_based_sli).
 
 * `slo_id` -
   (Optional)
@@ -321,7 +327,7 @@ The following arguments are supported:
 
 
 
-The `basic_sli` block supports:
+<a name="nested_basic_sli"></a>The `basic_sli` block supports:
 
 * `method` -
   (Optional)
@@ -351,12 +357,17 @@ The `basic_sli` block supports:
   field will result in an error.
 
 * `latency` -
-  (Required)
+  (Optional)
   Parameters for a latency threshold SLI.
-  Structure is documented below.
+  Structure is [documented below](#nested_latency).
+
+* `availability` -
+  (Optional)
+  Availability based SLI, dervied from count of requests made to this service that return successfully.
+  Structure is [documented below](#nested_availability).
 
 
-The `latency` block supports:
+<a name="nested_latency"></a>The `latency` block supports:
 
 * `threshold` -
   (Required)
@@ -364,7 +375,13 @@ The `latency` block supports:
   Good service is defined to be the count of requests made to
   this service that return in no more than threshold.
 
-The `request_based_sli` block supports:
+<a name="nested_availability"></a>The `availability` block supports:
+
+* `enabled` -
+  (Optional)
+  Whether an availability SLI is enabled or not. Must be set to true. Defaults to `true`.
+
+<a name="nested_request_based_sli"></a>The `request_based_sli` block supports:
 
 * `good_total_ratio` -
   (Optional)
@@ -374,7 +391,7 @@ The `request_based_sli` block supports:
   The relationship good_service + bad_service = total_service
   will be assumed.
   Exactly one of `distribution_cut` or `good_total_ratio` can be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_good_total_ratio).
 
 * `distribution_cut` -
   (Optional)
@@ -384,10 +401,10 @@ The `request_based_sli` block supports:
   Defines a distribution TimeSeries filter and thresholds used for
   measuring good service and total service.
   Exactly one of `distribution_cut` or `good_total_ratio` can be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_distribution_cut).
 
 
-The `good_total_ratio` block supports:
+<a name="nested_good_total_ratio"></a>The `good_total_ratio` block supports:
 
 * `good_service_filter` -
   (Optional)
@@ -418,7 +435,7 @@ The `good_total_ratio` block supports:
   Exactly two of `good_service_filter`,`bad_service_filter`,`total_service_filter`
   must be set (good + bad = total is assumed).
 
-The `distribution_cut` block supports:
+<a name="nested_distribution_cut"></a>The `distribution_cut` block supports:
 
 * `distribution_filter` -
   (Required)
@@ -431,13 +448,13 @@ The `distribution_cut` block supports:
   (Required)
   Range of numerical values. The computed good_service
   will be the count of values x in the Distribution such
-  that range.min <= x < range.max. inclusive of min and
-  exclusive of max. Open ranges can be defined by setting
+  that range.min <= x <= range.max. inclusive of min and
+  max. Open ranges can be defined by setting
   just one of min or max.
-  Structure is documented below.
+  Structure is [documented below](#nested_range).
 
 
-The `range` block supports:
+<a name="nested_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)
@@ -451,7 +468,7 @@ The `range` block supports:
   will be set to "infinity", defining an open range
   ">= range.min"
 
-The `windows_based_sli` block supports:
+<a name="nested_windows_based_sli"></a>The `windows_based_sli` block supports:
 
 * `window_period` -
   (Optional)
@@ -473,7 +490,7 @@ The `windows_based_sli` block supports:
   high enough. One of `good_bad_metric_filter`,
   `good_total_ratio_threshold`, `metric_mean_in_range`,
   `metric_sum_in_range` must be set for `windows_based_sli`.
-  Structure is documented below.
+  Structure is [documented below](#nested_good_total_ratio_threshold).
 
 * `metric_mean_in_range` -
   (Optional)
@@ -483,22 +500,22 @@ The `windows_based_sli` block supports:
   `good_total_ratio_threshold`, `metric_mean_in_range`,
   `metric_sum_in_range` must be set for `windows_based_sli`.
   Average value X of `time_series` should satisfy
-  `range.min <= X < range.max` for a good window.
-  Structure is documented below.
+  `range.min <= X <= range.max` for a good window.
+  Structure is [documented below](#nested_metric_mean_in_range).
 
 * `metric_sum_in_range` -
   (Optional)
   Criterion that describes a window as good if the metric's value
   is in a good range, *summed* across returned streams.
   Summed value `X` of `time_series` should satisfy
-  `range.min <= X < range.max` for a good window.
+  `range.min <= X <= range.max` for a good window.
   One of `good_bad_metric_filter`,
   `good_total_ratio_threshold`, `metric_mean_in_range`,
   `metric_sum_in_range` must be set for `windows_based_sli`.
-  Structure is documented below.
+  Structure is [documented below](#nested_metric_sum_in_range).
 
 
-The `good_total_ratio_threshold` block supports:
+<a name="nested_good_total_ratio_threshold"></a>The `good_total_ratio_threshold` block supports:
 
 * `threshold` -
   (Optional)
@@ -508,15 +525,15 @@ The `good_total_ratio_threshold` block supports:
 * `performance` -
   (Optional)
   Request-based SLI to evaluate to judge window quality.
-  Structure is documented below.
+  Structure is [documented below](#nested_performance).
 
 * `basic_sli_performance` -
   (Optional)
   Basic SLI to evaluate to judge window quality.
-  Structure is documented below.
+  Structure is [documented below](#nested_basic_sli_performance).
 
 
-The `performance` block supports:
+<a name="nested_performance"></a>The `performance` block supports:
 
 * `good_total_ratio` -
   (Optional)
@@ -525,7 +542,7 @@ The `performance` block supports:
   Must specify exactly two of good, bad, and total service filters.
   The relationship good_service + bad_service = total_service
   will be assumed.
-  Structure is documented below.
+  Structure is [documented below](#nested_good_total_ratio).
 
 * `distribution_cut` -
   (Optional)
@@ -534,10 +551,10 @@ The `performance` block supports:
   total count of all values aggregated in the Distribution.
   Defines a distribution TimeSeries filter and thresholds used for
   measuring good service and total service.
-  Structure is documented below.
+  Structure is [documented below](#nested_distribution_cut).
 
 
-The `good_total_ratio` block supports:
+<a name="nested_good_total_ratio"></a>The `good_total_ratio` block supports:
 
 * `good_service_filter` -
   (Optional)
@@ -568,7 +585,7 @@ The `good_total_ratio` block supports:
   Must have ValueType = DOUBLE or ValueType = INT64 and
   must have MetricKind = DELTA or MetricKind = CUMULATIVE.
 
-The `distribution_cut` block supports:
+<a name="nested_distribution_cut"></a>The `distribution_cut` block supports:
 
 * `distribution_filter` -
   (Required)
@@ -581,13 +598,13 @@ The `distribution_cut` block supports:
   (Required)
   Range of numerical values. The computed good_service
   will be the count of values x in the Distribution such
-  that range.min <= x < range.max. inclusive of min and
-  exclusive of max. Open ranges can be defined by setting
+  that range.min <= x <= range.max. inclusive of min and
+  max. Open ranges can be defined by setting
   just one of min or max.
-  Structure is documented below.
+  Structure is [documented below](#nested_range).
 
 
-The `range` block supports:
+<a name="nested_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)
@@ -601,7 +618,7 @@ The `range` block supports:
   will be set to "infinity", defining an open range
   ">= range.min"
 
-The `basic_sli_performance` block supports:
+<a name="nested_basic_sli_performance"></a>The `basic_sli_performance` block supports:
 
 * `method` -
   (Optional)
@@ -631,12 +648,17 @@ The `basic_sli_performance` block supports:
   field will result in an error.
 
 * `latency` -
-  (Required)
+  (Optional)
   Parameters for a latency threshold SLI.
-  Structure is documented below.
+  Structure is [documented below](#nested_latency).
+
+* `availability` -
+  (Optional)
+  Availability based SLI, dervied from count of requests made to this service that return successfully.
+  Structure is [documented below](#nested_availability).
 
 
-The `latency` block supports:
+<a name="nested_latency"></a>The `latency` block supports:
 
 * `threshold` -
   (Required)
@@ -644,7 +666,13 @@ The `latency` block supports:
   Good service is defined to be the count of requests made to
   this service that return in no more than threshold.
 
-The `metric_mean_in_range` block supports:
+<a name="nested_availability"></a>The `availability` block supports:
+
+* `enabled` -
+  (Optional)
+  Whether an availability SLI is enabled or not. Must be set to `true. Defaults to `true`.
+
+<a name="nested_metric_mean_in_range"></a>The `metric_mean_in_range` block supports:
 
 * `time_series` -
   (Required)
@@ -652,22 +680,22 @@ The `metric_mean_in_range` block supports:
   specifying the TimeSeries to use for evaluating window
   The provided TimeSeries must have ValueType = INT64 or
   ValueType = DOUBLE and MetricKind = GAUGE. Mean value `X`
-  should satisfy `range.min <= X < range.max`
+  should satisfy `range.min <= X <= range.max`
   under good service.
 
 * `range` -
   (Required)
   Range of numerical values. The computed good_service
   will be the count of values x in the Distribution such
-  that range.min <= x < range.max. inclusive of min and
-  exclusive of max. Open ranges can be defined by setting
+  that range.min <= x <= range.max. inclusive of min and
+  max. Open ranges can be defined by setting
   just one of min or max. Mean value `X` of `time_series`
-  values should satisfy `range.min <= X < range.max` for a
+  values should satisfy `range.min <= X <= range.max` for a
   good service.
-  Structure is documented below.
+  Structure is [documented below](#nested_range).
 
 
-The `range` block supports:
+<a name="nested_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)
@@ -681,7 +709,7 @@ The `range` block supports:
   will be set to "infinity", defining an open range
   ">= range.min"
 
-The `metric_sum_in_range` block supports:
+<a name="nested_metric_sum_in_range"></a>The `metric_sum_in_range` block supports:
 
 * `time_series` -
   (Required)
@@ -691,20 +719,20 @@ The `metric_sum_in_range` block supports:
   ValueType = INT64 or ValueType = DOUBLE and
   MetricKind = GAUGE.
   Summed value `X` should satisfy
-  `range.min <= X < range.max` for a good window.
+  `range.min <= X <= range.max` for a good window.
 
 * `range` -
   (Required)
   Range of numerical values. The computed good_service
   will be the count of values x in the Distribution such
-  that range.min <= x < range.max. inclusive of min and
-  exclusive of max. Open ranges can be defined by setting
+  that range.min <= x <= range.max. inclusive of min and
+  max. Open ranges can be defined by setting
   just one of min or max. Summed value `X` should satisfy
-  `range.min <= X < range.max` for a good window.
-  Structure is documented below.
+  `range.min <= X <= range.max` for a good window.
+  Structure is [documented below](#nested_range).
 
 
-The `range` block supports:
+<a name="nested_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)
@@ -734,9 +762,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

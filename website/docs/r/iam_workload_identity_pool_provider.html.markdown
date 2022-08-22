@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IAM"
-layout: "google"
 page_title: "Google: google_iam_workload_identity_pool_provider"
-sidebar_current: "docs-google-iam-workload-identity-pool-provider"
 description: |-
   A configuration for an external identity provider.
 ---
@@ -24,12 +22,10 @@ description: |-
 
 A configuration for an external identity provider.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about WorkloadIdentityPoolProvider, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v1beta/projects.locations.workloadIdentityPools.providers)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v1/projects.locations.workloadIdentityPools.providers)
 * How-to Guides
     * [Managing workload identity providers](https://cloud.google.com/iam/docs/manage-workload-identity-pools-providers#managing_workload_identity_providers)
 
@@ -43,12 +39,10 @@ To get more information about WorkloadIdentityPoolProvider, see:
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider                  = google-beta
   workload_identity_pool_id = "example-pool"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
-  provider                           = google-beta
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "example-prvdr"
   aws {
@@ -66,12 +60,10 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider                  = google-beta
   workload_identity_pool_id = "example-pool"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
-  provider                           = google-beta
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "example-prvdr"
   display_name                       = "Name of provider"
@@ -98,12 +90,10 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider                  = google-beta
   workload_identity_pool_id = "example-pool"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
-  provider                           = google-beta
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "example-prvdr"
   attribute_mapping                  = {
@@ -124,12 +114,10 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "pool" {
-  provider                  = google-beta
   workload_identity_pool_id = "example-pool"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
-  provider                           = google-beta
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "example-prvdr"
   display_name                       = "Name of provider"
@@ -262,24 +250,24 @@ The following arguments are supported:
 * `aws` -
   (Optional)
   An Amazon Web Services identity provider. Not compatible with the property oidc.
-  Structure is documented below.
+  Structure is [documented below](#nested_aws).
 
 * `oidc` -
   (Optional)
   An OpenId Connect 1.0 identity provider. Not compatible with the property aws.
-  Structure is documented below.
+  Structure is [documented below](#nested_oidc).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `aws` block supports:
+<a name="nested_aws"></a>The `aws` block supports:
 
 * `account_id` -
   (Required)
   The AWS account ID.
 
-The `oidc` block supports:
+<a name="nested_oidc"></a>The `oidc` block supports:
 
 * `allowed_audiences` -
   (Optional)
@@ -324,9 +312,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,0 +1,4 @@
+```release-note:enhancement
+monitoring: support for user_labels in `google_monitoring_slo`
+
+```

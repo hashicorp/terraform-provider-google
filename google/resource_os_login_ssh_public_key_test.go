@@ -21,8 +21,7 @@ func TestAccOSLoginSSHPublicKey_osLoginSshKeyExpiry(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-			"time":   {},
+			"time": {},
 		},
 		CheckDestroy: testAccCheckOSLoginSSHPublicKeyDestroyProducer(t),
 		Steps: []resource.TestStep{

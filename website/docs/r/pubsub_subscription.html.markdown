@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_subscription"
-sidebar_current: "docs-google-pubsub-subscription"
 description: |-
   A named resource representing the stream of messages from a single,
   specific topic, to be delivered to the subscribing application.
@@ -147,6 +145,66 @@ resource "google_pubsub_subscription" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_subscription_push_bq&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Push Bq
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.name
+
+  bigquery_config {
+    table = "${google_bigquery_table.test.project}:${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+  }
+
+  depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
+}
+
+data "google_project" "project" {
+}
+
+resource "google_project_iam_member" "viewer" {
+  project = data.google_project.project.project_id
+  role   = "roles/bigquery.metadataViewer"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "editor" {
+  project = data.google_project.project.project_id
+  role   = "roles/bigquery.dataEditor"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "example_dataset"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "example_table"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  schema = <<EOF
+[
+  {
+    "name": "data",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The data"
+  }
+]
+EOF
+}
+```
 
 ## Argument Reference
 
@@ -169,12 +227,19 @@ The following arguments are supported:
   (Optional)
   A set of key/value label pairs to assign to this Subscription.
 
+* `bigquery_config` -
+  (Optional)
+  If delivery to BigQuery is used with this subscription, this field is used to configure it.
+  Either pushConfig or bigQueryConfig can be set, but not both.
+  If both are empty, then the subscriber will pull and ack messages using API methods.
+  Structure is [documented below](#nested_bigquery_config).
+
 * `push_config` -
   (Optional)
   If push delivery is used with this subscription, this field is used to
   configure it. An empty pushConfig signifies that the subscriber will
   pull and ack messages using API methods.
-  Structure is documented below.
+  Structure is [documented below](#nested_push_config).
 
 * `ack_deadline_seconds` -
   (Optional)
@@ -198,7 +263,7 @@ The following arguments are supported:
   (Optional)
   How long to retain unacknowledged messages in the subscription's
   backlog, from the moment a message is published. If
-  retainAckedMessages is true, then this also configures the retention
+  retain_acked_messages is true, then this also configures the retention
   of acknowledged messages, and thus configures how far back in time a
   subscriptions.seek can be done. Defaults to 7 days. Cannot be more
   than 7 days (`"604800s"`) or less than 10 minutes (`"600s"`).
@@ -221,7 +286,7 @@ The following arguments are supported:
   policy with ttl of 31 days will be used.  If it is set but ttl is "", the
   resource never expires.  The minimum allowed value for expirationPolicy.ttl
   is 1 day.
-  Structure is documented below.
+  Structure is [documented below](#nested_expiration_policy).
 
 * `filter` -
   (Optional)
@@ -239,14 +304,14 @@ The following arguments are supported:
   parent project (i.e.,
   service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
   permission to Acknowledge() messages on this subscription.
-  Structure is documented below.
+  Structure is [documented below](#nested_dead_letter_policy).
 
 * `retry_policy` -
   (Optional)
   A policy that specifies how Pub/Sub retries message delivery for this subscription.
   If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. 
   RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded events for a given message
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `enable_message_ordering` -
   (Optional)
@@ -254,17 +319,46 @@ The following arguments are supported:
   the subscribers in the order in which they are received by the Pub/Sub system. Otherwise, they
   may be delivered in any order.
 
+* `enable_exactly_once_delivery` -
+  (Optional)
+  If `true`, Pub/Sub provides the following guarantees for the delivery
+  of a message with a given value of messageId on this Subscriptions':
+  - The message sent to a subscriber is guaranteed not to be resent before the message's acknowledgement deadline expires.
+  - An acknowledged message will not be resent to a subscriber.
+  Note that subscribers may still receive multiple copies of a message when `enable_exactly_once_delivery`
+  is true if the message was published multiple times by a publisher client. These copies are considered distinct by Pub/Sub and have distinct messageId values
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `push_config` block supports:
+<a name="nested_bigquery_config"></a>The `bigquery_config` block supports:
+
+* `table` -
+  (Required)
+  The name of the table to which to write data, of the form {projectId}:{datasetId}.{tableId}
+
+* `use_topic_schema` -
+  (Optional)
+  When true, use the topic's schema as the columns to write to in BigQuery, if it exists.
+
+* `write_metadata` -
+  (Optional)
+  When true, write the subscription name, messageId, publishTime, attributes, and orderingKey to additional columns in the table.
+  The subscription name, messageId, and publishTime fields are put in their own columns while all other message properties (other than data) are written to a JSON object in the attributes column.
+
+* `drop_unknown_fields` -
+  (Optional)
+  When true and useTopicSchema is true, any fields that are a part of the topic schema that are not part of the BigQuery table schema are dropped when writing to BigQuery.
+  Otherwise, the schemas must be kept in sync and any messages with extra fields are not written and remain in the subscription's backlog.
+
+<a name="nested_push_config"></a>The `push_config` block supports:
 
 * `oidc_token` -
   (Optional)
   If specified, Pub/Sub will generate and attach an OIDC JWT token as
   an Authorization header in the HTTP request for every pushed message.
-  Structure is documented below.
+  Structure is [documented below](#nested_oidc_token).
 
 * `push_endpoint` -
   (Required)
@@ -294,7 +388,7 @@ The `push_config` block supports:
   - v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.
 
 
-The `oidc_token` block supports:
+<a name="nested_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -312,7 +406,7 @@ The `oidc_token` block supports:
   token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
   Note: if not specified, the Push endpoint URL will be used.
 
-The `expiration_policy` block supports:
+<a name="nested_expiration_policy"></a>The `expiration_policy` block supports:
 
 * `ttl` -
   (Required)
@@ -322,7 +416,7 @@ The `expiration_policy` block supports:
   A duration in seconds with up to nine fractional digits, terminated by 's'.
   Example - "3.5s".
 
-The `dead_letter_policy` block supports:
+<a name="nested_dead_letter_policy"></a>The `dead_letter_policy` block supports:
 
 * `dead_letter_topic` -
   (Optional)
@@ -347,7 +441,7 @@ The `dead_letter_policy` block supports:
   This field will be honored on a best effort basis.
   If this parameter is 0, a default value of 5 is used.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `minimum_backoff` -
   (Optional)
@@ -366,16 +460,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/subscriptions/{{name}}`
 
 
-* `path`: Path of the subscription in the format `projects/{project}/subscriptions/{name}`
-
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dialogflow"
-layout: "google"
 page_title: "Google: google_dialogflow_agent"
-sidebar_current: "docs-google-dialogflow-agent"
 description: |-
   A Dialogflow agent is a virtual agent that handles conversations with your end-users.
 ---
@@ -158,7 +156,7 @@ This resource provides the following
 
 - `create` - Default is 40 minutes.
 - `update` - Default is 40 minutes.
-- `delete` - Default is 4 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

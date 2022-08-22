@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed a bug where multiple `google_apigee_instance_attachment` could not be used on the same `google_apigee_instance`
+```

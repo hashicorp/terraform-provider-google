@@ -1,0 +1,3 @@
+```release-note:enhancement
+kms: added support for `destroy_scheduled_duration` to `google_kms_crypto_key`
+```

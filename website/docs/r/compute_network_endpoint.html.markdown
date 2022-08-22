@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_network_endpoint"
-sidebar_current: "docs-google-compute-network-endpoint"
 description: |-
   A Network endpoint represents a IP address and port combination that is
   part of a specific network endpoint group (NEG).
@@ -49,7 +47,7 @@ resource "google_compute_network_endpoint" "default-endpoint" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -96,16 +94,6 @@ resource "google_compute_subnetwork" "default" {
 The following arguments are supported:
 
 
-* `instance` -
-  (Required)
-  The name for a specific VM instance that the IP address belongs to.
-  This is required for network endpoints of type GCE_VM_IP_PORT.
-  The instance must be in the same zone of network endpoint group.
-
-* `port` -
-  (Required)
-  Port number of network endpoint.
-
 * `ip_address` -
   (Required)
   IPv4 address of network endpoint. The IP address must belong
@@ -119,6 +107,16 @@ The following arguments are supported:
 
 - - -
 
+
+* `instance` -
+  (Optional)
+  The name for a specific VM instance that the IP address belongs to.
+  This is required for network endpoints of type GCE_VM_IP_PORT.
+  The instance must be in the same zone of network endpoint group.
+
+* `port` -
+  (Optional)
+  Port number of network endpoint.
 
 * `zone` -
   (Optional)
@@ -140,8 +138,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -174,8 +174,6 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 }
 
 func resourceGoogleOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	d.SetId(fmt.Sprintf("%s/%s", d.Get("org_id"), d.Get("constraint").(string)))
-
 	if isOrganizationPolicyUnset(d) {
 		return resourceGoogleOrganizationPolicyDelete(d, meta)
 	}
@@ -184,6 +182,7 @@ func resourceGoogleOrganizationPolicyCreate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	d.SetId(fmt.Sprintf("%s/%s", d.Get("org_id"), d.Get("constraint").(string)))
 	return resourceGoogleOrganizationPolicyRead(d, meta)
 }
 

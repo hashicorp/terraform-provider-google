@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestI
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -104,7 +101,7 @@ resource "google_compute_network" "vpc" {
 }
 
 data "google_compute_image" "debian_9" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 `, context)
@@ -118,11 +115,8 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestA
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

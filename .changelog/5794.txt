@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added support for field `type` to `google_compute_security_policy`
+```
+```release-note:enhancement
+compute: added support for attaching a `edge_security_policy` to `google_compute_backend_bucket`
+```

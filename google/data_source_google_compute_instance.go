@@ -31,7 +31,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	instance, err := config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, name).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance %s", name))
 	}

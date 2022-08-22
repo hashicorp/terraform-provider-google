@@ -1,0 +1,3 @@
+```release-note:none
+pubsub: updated the sample of `Pubsub Subscription Pull Bq` in the doc on `google_pubsub_subscription`
+```

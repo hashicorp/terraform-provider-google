@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_router_nat"
-sidebar_current: "docs-google-compute-router-nat"
 description: |-
   A NAT service created in a router.
 ---
@@ -165,11 +163,25 @@ The following arguments are supported:
   (Optional)
   One or more subnetwork NAT configurations. Only used if
   `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`
-  Structure is documented below.
+  Structure is [documented below](#nested_subnetwork).
 
 * `min_ports_per_vm` -
   (Optional)
   Minimum number of ports allocated to a VM from this NAT.
+
+* `max_ports_per_vm` -
+  (Optional)
+  Maximum number of ports allocated to a VM from this NAT.
+  This field can only be set when enableDynamicPortAllocation is enabled.
+
+* `enable_dynamic_port_allocation` -
+  (Optional)
+  Enable Dynamic Port Allocation.
+  If minPortsPerVm is set, minPortsPerVm must be set to a power of two greater than or equal to 32.
+  If minPortsPerVm is not set, a minimum of 32 ports will be allocated to a VM from this NAT config.
+  If maxPortsPerVm is set, maxPortsPerVm must be set to a power of two greater than minPortsPerVm.
+  If maxPortsPerVm is not set, a maximum of 65536 ports will be allocated to a VM from this NAT config.
+  Mutually exclusive with enableEndpointIndependentMapping.
 
 * `udp_idle_timeout_sec` -
   (Optional)
@@ -192,7 +204,7 @@ The following arguments are supported:
 * `log_config` -
   (Optional)
   Configuration for logging on NAT
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `enable_endpoint_independent_mapping` -
   (Optional)
@@ -207,7 +219,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `subnetwork` block supports:
+<a name="nested_subnetwork"></a>The `subnetwork` block supports:
 
 * `name` -
   (Required)
@@ -227,7 +239,7 @@ The `subnetwork` block supports:
   `LIST_OF_SECONDARY_IP_RANGES` is one of the values in
   sourceIpRangesToNat
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
   (Required)
@@ -250,9 +262,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

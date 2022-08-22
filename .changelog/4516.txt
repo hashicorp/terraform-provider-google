@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added support for `nic_type` to `google_compute_instance` (GA only)
+```
+```release-note_breaking-change
+compute: removed `nic_type` field from `google_compute_instance_template`, as it never worked (beta)
+```

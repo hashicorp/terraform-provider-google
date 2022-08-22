@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: fixed a perma-diff on `google_compute_region_health_check` when `log_config.enable` is set to false
+```

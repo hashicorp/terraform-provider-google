@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: supressed `run.googleapis.com/ingress-status` annotation in `google_cloud_run_service`
+```

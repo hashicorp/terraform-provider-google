@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Billing"
-layout: "google"
 page_title: "Google: google_billing_budget"
-sidebar_current: "docs-google-billing-budget"
 description: |-
   Budget configuration for a billing account.
 ---
@@ -37,11 +35,6 @@ in the provider configuration. Otherwise the Billing Budgets API will return a 4
 Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=billing_budget_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Billing Budget Basic
 
 
@@ -64,11 +57,6 @@ resource "google_billing_budget" "budget" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=billing_budget_lastperiod&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Billing Budget Lastperiod
 
 
@@ -100,11 +88,6 @@ resource "google_billing_budget" "budget" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=billing_budget_filter&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Billing Budget Filter
 
 
@@ -142,11 +125,6 @@ resource "google_billing_budget" "budget" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=billing_budget_notify&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Billing Budget Notify
 
 
@@ -198,6 +176,55 @@ resource "google_monitoring_notification_channel" "notification_channel" {
   }
 }
 ```
+## Example Usage - Billing Budget Customperiod
+
+
+```hcl
+data "google_billing_account" "account" {
+  billing_account = "000000-0000000-0000000-000000"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name = "Example Billing Budget"
+
+  budget_filter {
+    projects = ["projects/${data.google_project.project.number}"]
+    credit_types_treatment = "EXCLUDE_ALL_CREDITS"
+    services = ["services/24E6-581D-38E5"] # Bigquery
+    
+    custom_period { 
+        start_date {
+          year = 2022
+          month = 1
+          day = 1
+        }
+        end_date {
+          year = 2023
+          month = 12
+          day = 31
+        }
+      }
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units = "100000"
+    }
+  }
+
+  threshold_rules {
+    threshold_percent = 0.5
+  }
+  threshold_rules {
+    threshold_percent = 0.9
+  }
+}
+```
 
 ## Argument Reference
 
@@ -207,28 +234,21 @@ The following arguments are supported:
 * `amount` -
   (Required)
   The budgeted amount for each usage period.
-  Structure is documented below.
-
-* `threshold_rules` -
-  (Required)
-  Rules that trigger alerts (notifications of thresholds being
-  crossed) when spend exceeds the specified percentages of the
-  budget.
-  Structure is documented below.
+  Structure is [documented below](#nested_amount).
 
 * `billing_account` -
   (Required)
   ID of the billing account to set a budget on.
 
 
-The `amount` block supports:
+<a name="nested_amount"></a>The `amount` block supports:
 
 * `specified_amount` -
   (Optional)
   A specified amount to use as the budget. currencyCode is
   optional. If specified, it must match the currency of the
   billing account. The currencyCode is provided on output.
-  Structure is documented below.
+  Structure is [documented below](#nested_specified_amount).
 
 * `last_period_amount` -
   (Optional)
@@ -238,7 +258,7 @@ The `amount` block supports:
   use the `specified_amount` block.
 
 
-The `specified_amount` block supports:
+<a name="nested_specified_amount"></a>The `specified_amount` block supports:
 
 * `currency_code` -
   (Optional)
@@ -259,20 +279,6 @@ The `specified_amount` block supports:
   zero. For example $-1.75 is represented as units=-1 and
   nanos=-750,000,000.
 
-The `threshold_rules` block supports:
-
-* `threshold_percent` -
-  (Required)
-  Send an alert when this threshold is exceeded. This is a
-  1.0-based percentage, so 0.5 = 50%. Must be >= 0.
-
-* `spend_basis` -
-  (Optional)
-  The type of basis used to determine if spend has passed
-  the threshold.
-  Default value is `CURRENT_SPEND`.
-  Possible values are `CURRENT_SPEND` and `FORECASTED_SPEND`.
-
 - - -
 
 
@@ -284,26 +290,32 @@ The `threshold_rules` block supports:
   (Optional)
   Filters that define which resources are used to compute the actual
   spend against the budget.
-  Structure is documented below.
+  Structure is [documented below](#nested_budget_filter).
+
+* `threshold_rules` -
+  (Optional)
+  Rules that trigger alerts (notifications of thresholds being
+  crossed) when spend exceeds the specified percentages of the
+  budget.
+  Structure is [documented below](#nested_threshold_rules).
 
 * `all_updates_rule` -
   (Optional)
   Defines notifications that are sent on every update to the
   billing account's spend, regardless of the thresholds defined
   using threshold rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_all_updates_rule).
 
 
-The `budget_filter` block supports:
+<a name="nested_budget_filter"></a>The `budget_filter` block supports:
 
 * `projects` -
   (Optional)
-  A set of projects of the form projects/{project_id},
+  A set of projects of the form projects/{project_number},
   specifying that usage from only this set of projects should be
   included in the budget. If omitted, the report will include
   all usage for the billing account, regardless of which project
-  the usage occurred on. Only zero or one project can be
-  specified currently.
+  the usage occurred on.
 
 * `credit_types_treatment` -
   (Optional)
@@ -323,12 +335,9 @@ The `budget_filter` block supports:
 
 * `credit_types` -
   (Optional)
-  A set of subaccounts of the form billingAccounts/{account_id},
-  specifying that usage from only this set of subaccounts should
-  be included in the budget. If a subaccount is set to the name of
-  the parent account, usage from the parent account will be included.
-  If the field is omitted, the report will include usage from the parent
-  account and all subaccounts, if they exist.
+  Optional. If creditTypesTreatment is INCLUDE_SPECIFIED_CREDITS,
+  this is a list of credit types to be subtracted from gross cost to determine the spend for threshold calculations. See a list of acceptable credit type values.
+  If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be empty.
 
 * `subaccounts` -
   (Optional)
@@ -344,7 +353,79 @@ The `budget_filter` block supports:
   A single label and value pair specifying that usage from only
   this set of labeled resources should be included in the budget.
 
-The `all_updates_rule` block supports:
+* `calendar_period` -
+  (Optional)
+  A CalendarPeriod represents the abstract concept of a recurring time period that has a
+  canonical start. Grammatically, "the start of the current CalendarPeriod".
+  All calendar times begin at 12 AM US and Canadian Pacific Time (UTC-8).
+  Exactly one of `calendar_period`, `custom_period` must be provided.
+  Possible values are `MONTH`, `QUARTER`, `YEAR`, and `CALENDAR_PERIOD_UNSPECIFIED`.
+
+* `custom_period` -
+  (Optional)
+  Specifies to track usage from any start date (required) to any end date (optional).
+  This time period is static, it does not recur.
+  Exactly one of `calendar_period`, `custom_period` must be provided.
+  Structure is [documented below](#nested_custom_period).
+
+
+<a name="nested_custom_period"></a>The `custom_period` block supports:
+
+* `start_date` -
+  (Required)
+  A start date is required. The start date must be after January 1, 2017.
+  Structure is [documented below](#nested_start_date).
+
+* `end_date` -
+  (Optional)
+  Optional. The end date of the time period. Budgets with elapsed end date won't be processed. 
+  If unset, specifies to track all usage incurred since the startDate.
+  Structure is [documented below](#nested_end_date).
+
+
+<a name="nested_start_date"></a>The `start_date` block supports:
+
+* `year` -
+  (Required)
+  Year of the date. Must be from 1 to 9999.
+
+* `month` -
+  (Required)
+  Month of a year. Must be from 1 to 12.
+
+* `day` -
+  (Required)
+  Day of a month. Must be from 1 to 31 and valid for the year and month.
+
+<a name="nested_end_date"></a>The `end_date` block supports:
+
+* `year` -
+  (Required)
+  Year of the date. Must be from 1 to 9999.
+
+* `month` -
+  (Required)
+  Month of a year. Must be from 1 to 12.
+
+* `day` -
+  (Required)
+  Day of a month. Must be from 1 to 31 and valid for the year and month.
+
+<a name="nested_threshold_rules"></a>The `threshold_rules` block supports:
+
+* `threshold_percent` -
+  (Required)
+  Send an alert when this threshold is exceeded. This is a
+  1.0-based percentage, so 0.5 = 50%. Must be >= 0.
+
+* `spend_basis` -
+  (Optional)
+  The type of basis used to determine if spend has passed
+  the threshold.
+  Default value is `CURRENT_SPEND`.
+  Possible values are `CURRENT_SPEND` and `FORECASTED_SPEND`.
+
+<a name="nested_all_updates_rule"></a>The `all_updates_rule` block supports:
 
 * `pubsub_topic` -
   (Optional)
@@ -377,7 +458,7 @@ The `all_updates_rule` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `billingAccounts/{{billing_account}}/budgets/{{name}}`
 
 * `name` -
   Resource name of the budget. The resource name
@@ -390,10 +471,17 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
-This resource does not support import.
+
+Budget can be imported using any of these accepted formats:
+
+```
+$ terraform import google_billing_budget.default billingAccounts/{{billing_account}}/budgets/{{name}}
+$ terraform import google_billing_budget.default {{billing_account}}/{{name}}
+$ terraform import google_billing_budget.default {{name}}
+```

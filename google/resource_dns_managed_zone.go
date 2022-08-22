@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -19,12 +19,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/dns/v1"
 )
 
@@ -40,9 +38,9 @@ func resourceDNSManagedZone() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -85,7 +83,7 @@ default_key_specs can only be updated when the state is 'off'.`,
 									"algorithm": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
+										ValidateFunc: validateEnum([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}),
 										Description:  `String mnemonic specifying the DNSSEC algorithm of this key Possible values: ["ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512"]`,
 									},
 									"key_length": {
@@ -96,7 +94,7 @@ default_key_specs can only be updated when the state is 'off'.`,
 									"key_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"keySigning", "zoneSigning", ""}, false),
+										ValidateFunc: validateEnum([]string{"keySigning", "zoneSigning", ""}),
 										Description: `Specifies whether this is a key signing key (KSK) or a zone
 signing key (ZSK). Key signing keys have the Secure Entry
 Point flag set and, when active, will only be used to sign
@@ -125,7 +123,7 @@ to sign all other types of resource record sets. Possible values: ["keySigning",
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
+							ValidateFunc: validateEnum([]string{"nsec", "nsec3", ""}),
 							Description: `Specifies the mechanism used to provide authenticated denial-of-existence responses.
 non_existence can only be updated when the state is 'off'. Possible values: ["nsec", "nsec3"]`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
@@ -133,7 +131,7 @@ non_existence can only be updated when the state is 'off'. Possible values: ["ns
 						"state": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
+							ValidateFunc: validateEnum([]string{"off", "on", "transfer", ""}),
 							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in Possible values: ["off", "on", "transfer"]`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
@@ -241,11 +239,22 @@ blocks in an update and then apply another update adding all of them back simult
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"private", "public", ""}, false),
+				ValidateFunc:     validateEnum([]string{"private", "public", ""}),
 				DiffSuppressFunc: caseDiffSuppress,
 				Description: `The zone's visibility: public zones are exposed to the Internet,
 while private zones are visible only to Virtual Private Cloud resources. Default value: "public" Possible values: ["private", "public"]`,
 				Default: "public",
+			},
+			"creation_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The time that this resource was created on the server.
+This is in RFC3339 text format.`,
+			},
+			"managed_zone_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Unique identifier for the resource; defined by the server.`,
 			},
 			"name_servers": {
 				Type:     schema.TypeList,
@@ -298,7 +307,7 @@ func dnsManagedZoneForwardingConfigTargetNameServersSchema() *schema.Resource {
 			"forwarding_path": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"default", "private", ""}, false),
+				ValidateFunc: validateEnum([]string{"default", "private", ""}),
 				Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
 decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
 to the Internet. When set to 'private', Cloud DNS will always send queries through VPC for this target Possible values: ["default", "private"]`,
@@ -455,10 +464,16 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("dnssec_config", flattenDNSManagedZoneDnssecConfig(res["dnssecConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
+	if err := d.Set("managed_zone_id", flattenDNSManagedZoneManagedZoneID(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
 	if err := d.Set("name", flattenDNSManagedZoneName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("name_servers", flattenDNSManagedZoneNameServers(res["nameServers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err := d.Set("creation_time", flattenDNSManagedZoneCreationTime(res["creationTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("labels", flattenDNSManagedZoneLabels(res["labels"], d, config)); err != nil {
@@ -502,17 +517,35 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	dnsNameProp, err := expandDNSManagedZoneDnsName(d.Get("dns_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dns_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnsNameProp)) {
+		obj["dnsName"] = dnsNameProp
+	}
 	dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
 		obj["dnssecConfig"] = dnssecConfigProp
 	}
+	nameProp, err := expandDNSManagedZoneName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	visibilityProp, err := expandDNSManagedZoneVisibility(d.Get("visibility"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("visibility"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, visibilityProp)) {
+		obj["visibility"] = visibilityProp
 	}
 	privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
 	if err != nil {
@@ -533,6 +566,11 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["peeringConfig"] = peeringConfigProp
 	}
 
+	obj, err = resourceDNSManagedZoneUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return err
@@ -545,7 +583,7 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
@@ -755,7 +793,7 @@ func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d 
 func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -777,11 +815,32 @@ func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d *sche
 	return v
 }
 
+func flattenDNSManagedZoneManagedZoneID(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenDNSManagedZoneName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
 func flattenDNSManagedZoneNameServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDNSManagedZoneCreationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1224,4 +1283,18 @@ func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d T
 		return "", err
 	}
 	return ConvertSelfLinkToV1(url), nil
+}
+
+func resourceDNSManagedZoneUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// The upstream update method (https://cloud.google.com/dns/docs/reference/v1/managedZones/update)
+	// requires the full ManagedZones object, therefore, we need to keep some input only values in the struct
+	// and then reuse it in the update
+	nameServers, ok := d.GetOkExists("name_servers")
+	if !ok {
+		nameServers = []string{}
+	}
+	obj["nameServers"] = nameServers
+	obj["id"] = d.Get("managed_zone_id")
+	obj["creationTime"] = d.Get("creation_time")
+	return obj, nil
 }

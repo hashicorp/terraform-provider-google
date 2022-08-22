@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_secret_ciphertext"
-sidebar_current: "docs-google-kms-secret-ciphertext"
 description: |-
   Encrypts secret data with Google Cloud KMS and provides access to the ciphertext
 ---
@@ -35,7 +33,7 @@ resource "google_kms_key_ring" "my_key_ring" {
 
 resource "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = google_kms_key_ring.my_key_ring.self_link
+  key_ring = google_kms_key_ring.my_key_ring.id
 }
 ```
 
@@ -43,7 +41,7 @@ Next, encrypt some sensitive information and use the encrypted data in your reso
 
 ```hcl
 data "google_kms_secret_ciphertext" "my_password" {
-  crypto_key = google_kms_crypto_key.my_crypto_key.self_link
+  crypto_key = google_kms_crypto_key.my_crypto_key.id
   plaintext  = "my-secret-password"
 }
 
@@ -54,7 +52,7 @@ resource "google_compute_instance" "instance" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 

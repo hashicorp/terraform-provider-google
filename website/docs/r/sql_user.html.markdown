@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud SQL"
-layout: "google"
 page_title: "Google: google_sql_user"
-sidebar_current: "docs-google-sql-user"
 description: |-
   Creates a new SQL user in Google Cloud SQL.
 ---
@@ -12,7 +10,7 @@ description: |-
 Creates a new Google SQL User on a Google SQL User Instance. For more information, see the [official documentation](https://cloud.google.com/sql/), or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/users).
 
 ~> **Note:** All arguments including the username and password will be stored in the raw state as plain-text.
-[Read more about sensitive data in state](/docs/state/sensitive-data.html). Passwords will not be retrieved when running
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data). Passwords will not be retrieved when running
 "terraform import".
 
 ## Example Usage
@@ -24,8 +22,9 @@ resource "random_id" "db_name_suffix" {
   byte_length = 4
 }
 
-resource "google_sql_database_instance" "master" {
-  name = "master-instance-${random_id.db_name_suffix.hex}"
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
+  database_version = "MYSQL_5_7"
 
   settings {
     tier = "db-f1-micro"
@@ -34,27 +33,27 @@ resource "google_sql_database_instance" "master" {
 
 resource "google_sql_user" "users" {
   name     = "me"
-  instance = google_sql_database_instance.master.name
+  instance = google_sql_database_instance.main.name
   host     = "me.com"
   password = "changeme"
 }
 ```
 
-Example creating a Cloud IAM User.
+Example creating a Cloud IAM User. (For MySQL, specify `cloudsql_iam_authentication`)
 
 ```hcl
 resource "random_id" "db_name_suffix" {
   byte_length = 4
 }
 
-resource "google_sql_database_instance" "master" {
-  name             = "master-instance-${random_id.db_name_suffix.hex}"
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
   database_version = "POSTGRES_9_6"
 
   settings {
     tier = "db-f1-micro"
 
-    datagbase_flags {
+    database_flags {
       name  = "cloudsql.iam_authentication"
       value = "on"
     }
@@ -62,8 +61,8 @@ resource "google_sql_database_instance" "master" {
 }
 
 resource "google_sql_user" "users" {
-  name     = "me"
-  instance = google_sql_database_instance.master.name
+  name     = "me@example.com"
+  instance = google_sql_database_instance.main.name
   type     = "CLOUD_IAM_USER"
 }
 ```
@@ -79,7 +78,8 @@ The following arguments are supported:
     to be created.
 
 * `password` - (Optional) The password for the user. Can be updated. For Postgres
-    instances this is a Required field.
+    instances this is a Required field, unless type is set to either CLOUD_IAM_USER
+    or CLOUD_IAM_SERVICE_ACCOUNT.
 
 * `type` - (Optional) The user type. It determines the method to authenticate the
     user during login. The default is the database's built-in user type. Flags
@@ -118,11 +118,11 @@ This resource provides the following
 SQL users for MySQL databases can be imported using the `project`, `instance`, `host` and `name`, e.g.
 
 ```
-$ terraform import google_sql_user.users my-project/master-instance/my-domain.com/me
+$ terraform import google_sql_user.users my-project/main-instance/my-domain.com/me
 ```
 
 SQL users for PostgreSQL databases can be imported using the `project`, `instance` and `name`, e.g.
 
 ```
-$ terraform import google_sql_user.users my-project/master-instance/me
+$ terraform import google_sql_user.users my-project/main-instance/me
 ```

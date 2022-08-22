@@ -1,0 +1,3 @@
+```release-note:bug
+serviceDirectory: add support for vpc network configuration in google_service_directory_endpoint.
+```

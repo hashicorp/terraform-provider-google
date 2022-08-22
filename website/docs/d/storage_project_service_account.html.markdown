@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_project_service_account"
-sidebar_current: "docs-google-datasource-storage-project-service-account"
 description: |-
   Get the email address of the project's Google Cloud Storage service account
 ---
@@ -70,7 +68,8 @@ resource "google_kms_crypto_key_iam_binding" "binding" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "kms-protected-bucket"
+  name     = "kms-protected-bucket"
+  location = "US"
 
   encryption {
     default_kms_key_name = "your-crypto-key-id"

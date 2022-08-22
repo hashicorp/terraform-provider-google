@@ -90,6 +90,15 @@ func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateId:     importId,
 			},
+			{
+				Config: testAccComputeNetworkPeeringDefaultCustomRoutes(primaryNetworkName, peeringName, suffix),
+			},
+			{
+				ResourceName:      "google_compute_network_peering.bar",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateId:     importId,
+			},
 		},
 	})
 }

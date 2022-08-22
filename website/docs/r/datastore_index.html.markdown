@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Datastore"
-layout: "google"
 page_title: "Google: google_datastore_index"
-sidebar_current: "docs-google-datastore-index"
 description: |-
   Describes a composite index for Cloud Datastore.
 ---
@@ -81,13 +79,13 @@ The following arguments are supported:
 * `properties` -
   (Optional)
   An ordered list of properties to index on.
-  Structure is documented below.
+  Structure is [documented below](#nested_properties).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `properties` block supports:
+<a name="nested_properties"></a>The `properties` block supports:
 
 * `name` -
   (Required)
@@ -114,7 +112,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
-- `delete` - Default is 10 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

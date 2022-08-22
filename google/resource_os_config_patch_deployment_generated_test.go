@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testi
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,7 +51,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testi
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy-inst%{random_suffix}"
+  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
 
   instance_filter {
     all = true
@@ -62,6 +59,106 @@ resource "google_os_config_patch_deployment" "patch" {
 
   one_time_schedule {
     execute_time = "2999-10-10T10:10:10.045123456Z"
+  }
+}
+`, context)
+}
+
+func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(context),
+			},
+			{
+				ResourceName:            "google_os_config_patch_deployment.patch",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
+			},
+		},
+	})
+}
+
+func testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_os_config_patch_deployment" "patch" {
+  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+
+  instance_filter {
+    all = true
+  }
+
+  recurring_schedule {
+    time_zone {
+      id = "America/New_York"
+    }
+
+    time_of_day {
+      hours = 0
+      minutes = 30
+      seconds = 30
+      nanos = 20
+    }
+  }
+}
+`, context)
+}
+
+func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(context),
+			},
+			{
+				ResourceName:            "google_os_config_patch_deployment.patch",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
+			},
+		},
+	})
+}
+
+func testAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_os_config_patch_deployment" "patch" {
+  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
+
+  instance_filter {
+    all = true
+  }
+
+  recurring_schedule {
+    time_zone {
+      id = "America/New_York"
+    }
+
+    time_of_day {
+      hours = 0
+      minutes = 0
+      seconds = 0
+      nanos = 0
+    }
   }
 }
 `, context)
@@ -75,11 +172,8 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -98,7 +192,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *te
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(context map[string]interface{}) string {
 	return Nprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -125,7 +219,7 @@ resource "google_compute_instance" "foobar" {
 }
 
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy-inst%{random_suffix}"
+  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
 
   instance_filter {
     instances = [google_compute_instance.foobar.id]
@@ -167,11 +261,8 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testin
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -190,7 +281,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testin
 func testAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_os_config_patch_deployment" "patch" {
-  patch_deployment_id = "tf-test-patch-deploy-inst%{random_suffix}"
+  patch_deployment_id = "tf-test-patch-deploy%{random_suffix}"
 
   instance_filter {
     group_labels {
@@ -206,6 +297,8 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 
   patch_config {
+    mig_instances_allowed = true
+    
     reboot_config = "ALWAYS"
 
     apt {

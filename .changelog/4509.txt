@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: added support for ingress and egress policies to `google_access_context_manager_service_perimeter`
+```

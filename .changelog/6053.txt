@@ -1,0 +1,3 @@
+```release-note:bug
+service: re-poll for service account after creation, 404s sometimes due to [eventual consistency](https://cloud.google.com/iam/docs/overview#consistency)
+```

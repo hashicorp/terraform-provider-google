@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"google.golang.org/api/compute/v1"
 )
 
@@ -237,7 +238,7 @@ func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestChe
 		family := rs.Primary.Attributes["family"]
 		link := rs.Primary.Attributes["self_link"]
 
-		latestDebian, err := config.NewComputeClient(config.userAgent).Images.GetFromFamily("debian-cloud", "debian-9").Do()
+		latestDebian, err := config.NewComputeClient(config.userAgent).Images.GetFromFamily("debian-cloud", "debian-11").Do()
 		if err != nil {
 			return fmt.Errorf("Error retrieving latest debian: %s", err)
 		}
@@ -307,7 +308,7 @@ func testAccCheckComputeImageHasSourceType(image *compute.Image) resource.TestCh
 func testAccComputeImage_resolving(name, family string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -345,7 +346,7 @@ resource "google_compute_image" "foobar" {
 func testAccComputeImage_license(name string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -365,7 +366,7 @@ resource "google_compute_image" "foobar" {
     empty-label = ""
   }
   licenses = [
-    "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/licenses/debian-9-stretch",
+    "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/licenses/debian-11-bullseye",
   ]
 }
 `, name, name)
@@ -391,7 +392,7 @@ resource "google_compute_image" "foobar" {
 func testAccComputeImage_basedondisk(diskName, imageName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -411,7 +412,7 @@ resource "google_compute_image" "foobar" {
 func testAccComputeImage_sourceImage(imageName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -425,7 +426,7 @@ resource "google_compute_image" "foobar" {
 func testAccComputeImage_sourceSnapshot(diskName, snapshotName, imageName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 

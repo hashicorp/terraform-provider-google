@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -14,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
 
 var (
@@ -23,6 +22,9 @@ var (
 		"scheduling.0.automatic_restart",
 		"scheduling.0.preemptible",
 		"scheduling.0.node_affinities",
+		"scheduling.0.min_node_cpus",
+		"scheduling.0.provisioning_model",
+		"scheduling.0.instance_termination_action",
 	}
 
 	shieldedInstanceTemplateConfigKeys = []string{
@@ -65,7 +67,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name_prefix"},
-				ValidateFunc:  validateGCPName,
+				ValidateFunc:  validateGCEName,
 				Description:   `The name of the instance template. If you leave this blank, Terraform will auto-generate a unique name.`,
 			},
 
@@ -138,7 +140,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The Google Compute Engine disk type. Can be either "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".`,
+							Description: `The Google Compute Engine disk type. Such as "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".`,
 						},
 
 						"labels": {
@@ -208,6 +210,18 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 								},
 							},
 						},
+
+						"resource_policies": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Description: `A list (short name or id) of resource policies to attach to this disk. Currently a max of 1 resource policy is supported.`,
+							Elem: &schema.Schema{
+								Type:             schema.TypeString,
+								DiffSuppressFunc: compareResourceNames,
+							},
+						},
 					},
 				},
 			},
@@ -232,13 +246,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `A brief description of this resource.`,
-			},
-
-			"enable_display": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Enable Virtual Displays on this instance. Note: allow_stopping_for_update must be set to true in order to update this field.`,
 			},
 
 			"instance_description": {
@@ -267,7 +274,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Computed:    true,
 				Description: `The unique fingerprint of the metadata.`,
 			},
-
 			"network_interface": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -313,7 +319,13 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the network_interface.`,
 						},
-
+						"nic_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"GVNIC", "VIRTIO_NET"}, false),
+							Description:  `The type of vNIC to be used on this interface. Possible values:GVNIC, VIRTIO_NET`,
+						},
 						"access_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -329,12 +341,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Description: `The IP address that will be 1:1 mapped to the instance's network ip. If not given, one will be generated.`,
 									},
 									"network_tier": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Computed:     true,
-										ForceNew:     true,
-										Description:  `The networking tier used for configuring this instance template. This field can take the following values: PREMIUM or STANDARD. If this field is not specified, it is assumed to be PREMIUM.`,
-										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+										Description: `The networking tier used for configuring this instance template. This field can take the following values: PREMIUM, STANDARD, FIXED_STANDARD. If this field is not specified, it is assumed to be PREMIUM.`,
 									},
 									// Possibly configurable- this was added so we don't break if it's inadvertently set
 									"public_ptr_domain_name": {
@@ -368,6 +379,58 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 									},
 								},
 							},
+						},
+
+						"stack_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", ""}, false),
+							Description:  `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
+						},
+
+						"ipv6_access_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `One of EXTERNAL, INTERNAL to indicate whether the IP can be accessed from the Internet. This field is always inherited from its subnetwork.`,
+						},
+
+						"ipv6_access_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `An array of IPv6 access configurations for this interface. Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig specified, then this instance will have no external IPv6 Internet access.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"network_tier": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The service-level to be provided for IPv6 traffic when the subnet has an external subnet. Only PREMIUM tier is valid for IPv6`,
+									},
+									// Possibly configurable- this was added so we don't break if it's inadvertently set
+									// (assuming the same ass access config)
+									"public_ptr_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The domain name to be used when creating DNSv6 records for the external IPv6 ranges.`,
+									},
+									"external_ipv6": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The first IPv6 address of the external IPv6 range associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.`,
+									},
+									"external_ipv6_prefix_length": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The prefix length of the external IPv6 range.`,
+									},
+								},
+							},
+						},
+						"queue_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The networking queue count that's specified by users for the network interface. Both Rx and Tx queues will be set to this number. It will be empty if not specified.`,
 						},
 					},
 				},
@@ -433,6 +496,27 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
 							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
 							Description:      `Specifies node affinities or anti-affinities to determine which sole-tenant nodes your instances and managed instance groups will use as host systems.`,
+						},
+						"min_node_cpus": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							AtLeastOneOf: schedulingInstTemplateKeys,
+							Description:  `Minimum number of cpus for the instance.`,
+						},
+						"provisioning_model": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ForceNew:     true,
+							AtLeastOneOf: schedulingInstTemplateKeys,
+							Description:  `Whether the instance is spot. If this is set as SPOT.`,
+						},
+						"instance_termination_action": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							AtLeastOneOf: schedulingInstTemplateKeys,
+							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
 						},
 					},
 				},
@@ -530,7 +614,33 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						"enable_confidential_compute": {
 							Type:        schema.TypeBool,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Defines whether the instance should have confidential compute enabled.`,
+						},
+					},
+				},
+			},
+			"advanced_machine_features": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Controls for advanced machine-related behavior features.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_nested_virtualization": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							ForceNew:    true,
+							Description: `Whether to enable nested virtualization or not.`,
+						},
+						"threads_per_core": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    false,
+							ForceNew:    true,
+							Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
 						},
 					},
 				},
@@ -588,6 +698,51 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 				Description: `A set of key/value label pairs to assign to instances created from this template,`,
+			},
+
+			"reservation_affinity": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the reservations that this instance can consume from.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ANY_RESERVATION", "SPECIFIC_RESERVATION", "NO_RESERVATION"}, false),
+							Description:  `The type of reservation from which this instance can consume resources.`,
+						},
+
+						"specific_reservation": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the label selector for the reservation to use.`,
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.`,
+									},
+									"values": {
+										Type:        schema.TypeList,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Required:    true,
+										ForceNew:    true,
+										Description: `Corresponds to the label values of a reservation resource.`,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 		UseJSONNumber: true,
@@ -683,7 +838,7 @@ func resourceComputeInstanceTemplateBootDiskCustomizeDiff(_ context.Context, dif
 	return nil
 }
 
-func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.AttachedDisk, error) {
+func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -696,12 +851,12 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 
 	disksCount := d.Get("disk.#").(int)
 
-	disks := make([]*computeBeta.AttachedDisk, 0, disksCount)
+	disks := make([]*compute.AttachedDisk, 0, disksCount)
 	for i := 0; i < disksCount; i++ {
 		prefix := fmt.Sprintf("disk.%d", i)
 
 		// Build the disk
-		var disk computeBeta.AttachedDisk
+		var disk compute.AttachedDisk
 		disk.Type = "PERSISTENT"
 		disk.Mode = "READ_WRITE"
 		disk.Interface = "SCSI"
@@ -717,7 +872,7 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 		}
 
 		if _, ok := d.GetOk(prefix + ".disk_encryption_key"); ok {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{}
+			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{}
 			if v, ok := d.GetOk(prefix + ".disk_encryption_key.0.kms_key_self_link"); ok {
 				disk.DiskEncryptionKey.KmsKeyName = v.(string)
 			}
@@ -732,7 +887,7 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 				}
 			}
 		} else {
-			disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
+			disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
 
 			if v, ok := d.GetOk(prefix + ".disk_name"); ok {
 				disk.InitializeParams.DiskName = v.(string)
@@ -757,6 +912,11 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 			}
 
 			disk.InitializeParams.Labels = expandStringMap(d, prefix+".labels")
+
+			if _, ok := d.GetOk(prefix + ".resource_policies"); ok {
+				// instance template only supports a resource name here (not uri)
+				disk.InitializeParams.ResourcePolicies = convertAndMapStringArr(d.Get(prefix+".resource_policies").([]interface{}), GetResourceNameFromSelfLink)
+			}
 		}
 
 		if v, ok := d.GetOk(prefix + ".interface"); ok {
@@ -786,19 +946,19 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 // 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'.
 // Accelerator type 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'
 // must be a valid resource name (not an url).
-func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Config) []*computeBeta.AcceleratorConfig {
+func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Config) []*compute.AcceleratorConfig {
 	configs, ok := d.GetOk("guest_accelerator")
 	if !ok {
 		return nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(accels))
+	guestAccelerators := make([]*compute.AcceleratorConfig, 0, len(accels))
 	for _, raw := range accels {
 		data := raw.(map[string]interface{})
 		if data["count"].(int) == 0 {
 			continue
 		}
-		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
+		guestAccelerators = append(guestAccelerators, &compute.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			// We can't use ParseAcceleratorFieldValue here because an instance
 			// template does not have a zone we can use.
@@ -840,8 +1000,12 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	reservationAffinity, err := expandReservationAffinity(d)
+	if err != nil {
+		return err
+	}
 
-	instanceProperties := &computeBeta.InstanceProperties{
+	instanceProperties := &compute.InstanceProperties{
 		CanIpForward:               d.Get("can_ip_forward").(bool),
 		Description:                d.Get("instance_description").(string),
 		GuestAccelerators:          expandInstanceTemplateGuestAccelerators(d, config),
@@ -855,7 +1019,8 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Tags:                       resourceInstanceTags(d),
 		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
-		DisplayDevice:              expandDisplayDevice(d),
+		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
+		ReservationAffinity:        reservationAffinity,
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -870,13 +1035,13 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	} else {
 		itName = resource.UniqueId()
 	}
-	instanceTemplate := &computeBeta.InstanceTemplate{
+	instanceTemplate := &compute.InstanceTemplate{
 		Description: d.Get("description").(string),
 		Properties:  instanceProperties,
 		Name:        itName,
 	}
 
-	op, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
+	op, err := config.NewComputeClient(userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -929,7 +1094,7 @@ func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
 	return dc
 }
 
-func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[string]interface{}, error) {
+func flattenDisk(disk *compute.AttachedDisk, defaultProject string) (map[string]interface{}, error) {
 	diskMap := make(map[string]interface{})
 	if disk.InitializeParams != nil {
 		if disk.InitializeParams.SourceImage != "" {
@@ -951,6 +1116,8 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 		} else {
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		}
+
+		diskMap["resource_policies"] = disk.InitializeParams.ResourcePolicies
 	}
 
 	if disk.DiskEncryptionKey != nil {
@@ -1089,7 +1256,7 @@ func reorderDisks(configDisks []interface{}, apiDisks []map[string]interface{}) 
 	return ds
 }
 
-func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
+func flattenDisks(disks []*compute.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
 	apiDisks := make([]map[string]interface{}, len(disks))
 
 	for i, disk := range disks {
@@ -1116,7 +1283,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	instanceTemplate, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
+	instanceTemplate, err := config.NewComputeClient(userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
 	}
@@ -1135,8 +1302,10 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			if err = d.Set("metadata_startup_script", script); err != nil {
 				return fmt.Errorf("Error setting metadata_startup_script: %s", err)
 			}
+
 			delete(_md, "startup-script")
 		}
+
 		if err = d.Set("metadata", _md); err != nil {
 			return fmt.Errorf("Error setting metadata: %s", err)
 		}
@@ -1232,7 +1401,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting guest_accelerator: %s", err)
 		}
 	}
-	if instanceTemplate.Properties.ShieldedVmConfig != nil {
+	if instanceTemplate.Properties.ShieldedInstanceConfig != nil {
 		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedInstanceConfig)); err != nil {
 			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 		}
@@ -1243,11 +1412,18 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 		}
 	}
-	if instanceTemplate.Properties.DisplayDevice != nil {
-		if err = d.Set("enable_display", flattenEnableDisplay(instanceTemplate.Properties.DisplayDevice)); err != nil {
-			return fmt.Errorf("Error setting enable_display: %s", err)
+	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
+		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
+			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 		}
 	}
+
+	if reservationAffinity := instanceTemplate.Properties.ReservationAffinity; reservationAffinity != nil {
+		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinity)); err != nil {
+			return fmt.Errorf("Error setting reservation_affinity: %s", err)
+		}
+	}
+
 	return nil
 }
 
@@ -1282,11 +1458,11 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 // This wraps the general compute instance helper expandScheduling.
 // Default value of OnHostMaintenance depends on the value of Preemptible,
 // so we can't set a default in schema
-func expandResourceComputeInstanceTemplateScheduling(d *schema.ResourceData, meta interface{}) (*computeBeta.Scheduling, error) {
+func expandResourceComputeInstanceTemplateScheduling(d *schema.ResourceData, meta interface{}) (*compute.Scheduling, error) {
 	v, ok := d.GetOk("scheduling")
 	if !ok || v == nil {
 		// We can't set defaults for lists (e.g. scheduling)
-		return &computeBeta.Scheduling{
+		return &compute.Scheduling{
 			OnHostMaintenance: "MIGRATE",
 		}, nil
 	}

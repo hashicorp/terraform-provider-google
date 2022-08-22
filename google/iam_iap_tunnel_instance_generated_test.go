@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -125,7 +125,7 @@ resource "google_compute_instance" "tunnelvm" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -153,7 +153,7 @@ resource "google_compute_instance" "tunnelvm" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -187,7 +187,7 @@ resource "google_compute_instance" "tunnelvm" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -217,7 +217,7 @@ resource "google_compute_instance" "tunnelvm" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -245,7 +245,7 @@ resource "google_compute_instance" "tunnelvm" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -259,7 +259,7 @@ resource "google_iap_tunnel_instance_iam_binding" "foo" {
   zone = google_compute_instance.tunnelvm.zone
   instance = google_compute_instance.tunnelvm.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

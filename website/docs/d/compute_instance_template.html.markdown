@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_instance_template"
-sidebar_current: "docs-google-datasource-compute-instance-template"
 description: |-
   Get a VM instance template within GCE.
 ---
@@ -24,7 +22,7 @@ data "google_compute_instance_template" "generic" {
 
 # using a filter
 data "google_compute_instance_template" "generic-regex" {
-  filter      = "name eq generic-tpl-.*"
+  filter      = "name != generic-tpl-20200107"
   most_recent = true
 }
 ```
@@ -35,7 +33,7 @@ The following arguments are supported:
 
 - `name` - (Optional) The name of the instance template. One of `name` or `filter` must be provided.
 
-- `filter` - (Optional) A filter to retrieve the instance templates. 
+- `filter` - (Optional) A filter to retrieve the instance templates.
     See [gcloud topic filters](https://cloud.google.com/sdk/gcloud/reference/topic/filters) for reference.
     If multiple instance templates match, either adjust the filter or specify `most_recent`. One of `name` or `filter` must be provided.
 
@@ -44,13 +42,13 @@ The following arguments are supported:
 ---
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
-    If `project` is not provideded, the provider project is used.
+    If `project` is not provided, the provider project is used.
 
 ## Attributes Reference
 
 * `disk` - Disks to attach to instances created from this template.
     This can be specified multiple times for multiple disks. Structure is
-    documented below.
+    [documented below](#nested_disk).
 
 * `machine_type` - The machine type to create.
 
@@ -83,7 +81,10 @@ The following arguments are supported:
 
 * `network_interface` - Networks to attach to instances created from
     this template. This can be specified multiple times for multiple networks.
-    Structure is documented below.
+    Structure is [documented below](#nested_network_interface).
+
+* `network_performance_config` - The network performance configuration setting
+    for the instance, if set. Structure is [documented below](#nested_network_performance_config).
 
 * `project` - The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -98,24 +99,24 @@ The following arguments are supported:
 * `scheduling` - The scheduling strategy to use. More details about
     this configuration option are detailed below.
 
-* `service_account` - Service account to attach to the instance. Structure is documented below.
+* `service_account` - Service account to attach to the instance. Structure is [documented below](#nested_service_account).
 
 * `tags` - Tags to attach to the instance.
 
-* `guest_accelerator` - List of the type and count of accelerator cards attached to the instance. Structure documented below.
+* `guest_accelerator` - List of the type and count of accelerator cards attached to the instance. Structure [documented below](#nested_guest_accelerator).
 
 * `min_cpu_platform` - Specifies a minimum CPU platform. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
 
-* `shielded_instance_config` - Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
+* `shielded_instance_config` - Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is [documented below](#nested_shielded_instance_config).
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
 
 * `enable_display` - Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
 **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
-* `confidential_instance_config` - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
+* `confidential_instance_config` - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM. Structure is [documented below](#nested_confidential_instance_config)
 
-The `disk` block supports:
+<a name="nested_disk"></a>The `disk` block supports:
 
 * `auto_delete` - Whether or not the disk should be auto-deleted.
     This defaults to true.
@@ -137,9 +138,9 @@ The `disk` block supports:
     `{project}/{image}`, `{family}`, or `{image}`.
 ~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
-* `interface` - Specifies the disk interface to use for attaching this disk, 
-    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI 
-    and the request will fail if you attempt to attach a persistent disk in any other format 
+* `interface` - Specifies the disk interface to use for attaching this disk,
+    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI
+    and the request will fail if you attempt to attach a persistent disk in any other format
     than SCSI. Local SSDs can use either NVME or SCSI.
 
 * `mode` - The mode in which to attach this disk, either READ_WRITE
@@ -150,12 +151,15 @@ The `disk` block supports:
     of the disk (such as those managed by `google_compute_disk`) to attach.
 ~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
-* `disk_type` - The GCE disk type. Can be either `"pd-ssd"`,
-    `"local-ssd"`, `"pd-balanced"` or `"pd-standard"`.
+* `disk_type` - The GCE disk type. Such as `"pd-ssd"`, `"local-ssd"`,
+    `"pd-balanced"` or `"pd-standard"`.
 
 * `disk_size_gb` - The size of the image in gigabytes. If not
     specified, it will inherit the size of its base image. For SCRATCH disks,
     the size must be exactly 375GB.
+
+* `labels` - (Optional) A set of ket/value label pairs to assign to disk created from
+    this template
 
 * `type` - The type of GCE disk, can be either `"SCRATCH"` or
     `"PERSISTENT"`.
@@ -170,11 +174,13 @@ The `disk` block supports:
 
     Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group.
 
+* `resource_policies` (Optional) -- A list of short names of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
+
 The `disk_encryption_key` block supports:
 
 * `kms_key_self_link` - The self link of the encryption key that is stored in Google Cloud KMS
 
-The `network_interface` block supports:
+<a name="nested_network_interface"></a>The `network_interface` block supports:
 
 * `network` - The name or self_link of the network to attach this interface to.
     Use `network` attribute for Legacy or Auto subnetted networks and
@@ -195,13 +201,13 @@ The `network_interface` block supports:
     is not accessible from the Internet (this means that ssh provisioners will
     not work unless you are running Terraform can send traffic to the instance's
     network (e.g. via tunnel or because it is running on another cloud instance
-    on that network). This block can be repeated multiple times. Structure documented below.
+    on that network). This block can be repeated multiple times. Structure [documented below](#nested_access_config).
 
 * `alias_ip_range` - An
     array of alias IP ranges for this network interface. Can only be specified for network
-    interfaces on subnet-mode networks. Structure documented below.
+    interfaces on subnet-mode networks. Structure [documented below](#nested_alias_ip_range).
 
-The `access_config` block supports:
+<a name="nested_access_config"></a>The `access_config` block supports:
 
 * `nat_ip` - The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
@@ -210,7 +216,7 @@ The `access_config` block supports:
     this instance template. This field can take the following values: PREMIUM or
     STANDARD. If this field is not specified, it is assumed to be PREMIUM.
 
-The `alias_ip_range` block supports:
+<a name="nested_alias_ip_range"></a>The `alias_ip_range` block supports:
 
 * `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
     must belong to the specified subnetwork and cannot contain IP addresses reserved by
@@ -222,7 +228,7 @@ The `alias_ip_range` block supports:
     the secondary range from which to allocate the IP CIDR range for this alias IP
     range. If left unspecified, the primary range of the subnetwork will be used.
 
-The `service_account` block supports:
+<a name="nested_service_account"></a>The `service_account` block supports:
 
 * `email` - The service account e-mail address. If not given, the
     default Google Compute Engine service account is used.
@@ -236,7 +242,7 @@ The `service_account` block supports:
     If you are following best practices and using IAM roles to grant permissions to service accounts,
     then you can define this field as an empty list.
 
-The `scheduling` block supports:
+<a name="nested_scheduling"></a>The `scheduling` block supports:
 
 * `automatic_restart` - Specifies whether the instance should be
     automatically restarted if it is terminated by Compute Engine (not
@@ -253,15 +259,19 @@ The `scheduling` block supports:
    to determine which sole-tenant nodes your instances and managed instance
    groups will use as host systems. Read more on sole-tenant node creation
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
-   Structure documented below.
+   Structure [documented below](#nested_node_affinities).
+   
+* `provisioning_model` - Describe the type of preemptible VM. 
 
-The `guest_accelerator` block supports:
+* `instance_termination_action` - Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot) 
+
+<a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
 * `type` - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` - The number of the guest accelerator cards exposed to this instance.
 
-The `node_affinities` block supports:
+<a name="nested_node_affinities"></a>The `node_affinities` block supports:
 
 * `key` - The key for the node affinity label.
 
@@ -270,7 +280,7 @@ The `node_affinities` block supports:
 
 * `value` - The values for the node affinity label.
 
-The `shielded_instance_config` block supports:
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` -- Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.
 
@@ -278,9 +288,13 @@ The `shielded_instance_config` block supports:
 
 * `enable_integrity_monitoring` -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
 
-The `confidential_instance_config` block supports:
+<a name="nested_confidential_instance_config"></a>The `confidential_instance_config` block supports:
 
 * `enable_confidential_compute` Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+
+<a name="nested_network_performance_config"></a>The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` - The egress bandwidth tier for the instance.
 
 ---
 

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -58,7 +55,7 @@ resource "google_monitoring_uptime_check_config" "http" {
   timeout      = "60s"
 
   http_check {
-    path = "/some-path"
+    path = "some-path"
     port = "8010"
     request_method = "POST"
     content_type = "URL_ENCODED"
@@ -74,8 +71,86 @@ resource "google_monitoring_uptime_check_config" "http" {
   }
 
   content_matchers {
-    content = "example"
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
   }
+
+  checker_type = "STATIC_IP_CHECKERS"
+}
+`, context)
+}
+
+func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(context),
+			},
+			{
+				ResourceName:      "google_monitoring_uptime_check_config.status_code",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_uptime_check_config" "status_code" {
+  display_name = "tf-test-http-uptime-check%{random_suffix}"
+  timeout      = "60s"
+
+  http_check {
+    path = "some-path"
+    port = "8010"
+    request_method = "POST"
+    content_type = "URL_ENCODED"
+    body = "Zm9vJTI1M0RiYXI="
+
+    accepted_response_status_codes {
+      status_class = "STATUS_CLASS_2XX"
+    }
+    accepted_response_status_codes {
+            status_value = 301
+    }
+    accepted_response_status_codes {
+            status_value = 302
+    }
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "%{project_id}"
+      host       = "192.168.1.1"
+    }
+  }
+
+  content_matchers {
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
+  }
+
+  checker_type = "STATIC_IP_CHECKERS"
 }
 `, context)
 }
@@ -89,11 +164,8 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -131,6 +203,11 @@ resource "google_monitoring_uptime_check_config" "https" {
 
   content_matchers {
     content = "example"
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "REGEX_MATCH"
+    }
   }
 }
 `, context)
@@ -144,11 +221,8 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

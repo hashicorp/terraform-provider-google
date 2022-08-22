@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: promoted `log_config` field of `google_compute_health_check` and `google_compute_region_health_check`
+```
+```release-note:enhancement
+compute: set the default value for log_config.enable on `google_compute_region_health_check` to avoid permanent diff on plan/apply. 
+```

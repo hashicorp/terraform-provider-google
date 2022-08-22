@@ -1,19 +1,19 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-layout: "google"
 page_title: "Google: google_logging_project_sink"
-sidebar_current: "docs-google-logging-project-sink"
 description: |-
   Manages a project-level logging sink.
 ---
 
 # google\_logging\_project\_sink
 
-Manages a project-level logging sink. For more information see
-[the official documentation](https://cloud.google.com/logging/docs/),
-[Exporting Logs in the API](https://cloud.google.com/logging/docs/api/tasks/exporting-logs)
-and
-[API](https://cloud.google.com/logging/docs/reference/v2/rest/).
+Manages a project-level logging sink. For more information see:
+
+* [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks)
+* How-to Guides
+    * [Exporting Logs](https://cloud.google.com/logging/docs/export)
+
+~> You can specify exclusions for log sinks created by terraform by using the exclusions field of `google_logging_folder_sink`
 
 ~> **Note:** You must have [granted the "Logs Configuration Writer"](https://cloud.google.com/logging/docs/access-control) IAM role (`roles/logging.configWriter`) to the credentials used with terraform.
 
@@ -50,7 +50,7 @@ resource "google_compute_instance" "my-logged-instance" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -64,13 +64,14 @@ resource "google_compute_instance" "my-logged-instance" {
 
 # A bucket to store logs in
 resource "google_storage_bucket" "log-bucket" {
-  name = "my-unique-logging-bucket"
+  name     = "my-unique-logging-bucket"
+  location = "US"
 }
 
 # Our sink; this logs all activity related to our "my-logged-instance" instance
 resource "google_logging_project_sink" "instance-sink" {
   name        = "my-instance-sink"
-  description = "some explaination on what this is"
+  description = "some explanation on what this is"
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter      = "resource.type = gce_instance AND resource.labels.instance_id = \"${google_compute_instance.my-logged-instance.instance_id}\""
 
@@ -79,6 +80,7 @@ resource "google_logging_project_sink" "instance-sink" {
 
 # Because our sink uses a unique_writer, we must grant that writer access to the bucket.
 resource "google_project_iam_binding" "log-writer" {
+  project = "your-project-id"
   role = "roles/storage.objectCreator"
 
   members = [
@@ -95,18 +97,19 @@ resource "google_logging_project_sink" "log-bucket" {
   destination = "logging.googleapis.com/projects/my-project/locations/global/buckets/_Default"
 
   exclusions {
-		name = "nsexcllusion1"
-		description = "Exclude logs from namespace-1 in k8s"
-		filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-1\" "
-	}
+    name        = "nsexcllusion1"
+    description = "Exclude logs from namespace-1 in k8s"
+    filter      = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-1\" "
+  }
 
-	exclusions {
-		name = "nsexcllusion2"
-		description = "Exclude logs from namespace-2 in k8s"
-		filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-2\" "
-	}
+  exclusions {
+    name        = "nsexcllusion2"
+    description = "Exclude logs from namespace-2 in k8s"
+    filter      = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-2\" "
+  }
 
   unique_writer_identity = true
+}
 ```
 
 
@@ -143,18 +146,18 @@ The following arguments are supported:
     then a unique service account is created and used for this sink. If you wish to publish logs across projects or utilize
     `bigquery_options`, you must set `unique_writer_identity` to true.
 
-* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
+* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure [documented below](#nested_bigquery_options).
 
-* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is documented below.
+* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is [documented below](#nested_exclusions).
 
-The `bigquery_options` block supports:
+<a name="nested_bigquery_options"></a>The `bigquery_options` block supports:
 
 * `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
     By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
     tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
     has to be used instead. In both cases, tables are sharded based on UTC timezone.
 
-The `exclusions` block support:
+<a name="nested_exclusions"></a>The `exclusions` block supports:
 
 * `name` - (Required) A client-assigned identifier, such as `load-balancer-exclusion`. Identifiers are limited to 100 characters and can include only letters, digits, underscores, hyphens, and periods. First character has to be alphanumeric.
 * `description` - (Optional) A description of this exclusion.

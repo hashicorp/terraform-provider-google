@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_standard_app_version"
-sidebar_current: "docs-google-app-engine-standard-app-version"
 description: |-
   Standard App Version resource to create a new version of standard GAE Application.
 ---
@@ -34,11 +32,6 @@ To get more information about StandardAppVersion, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/appengine/docs/standard)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=app_engine_standard_app_version&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - App Engine Standard App Version
 
 
@@ -80,9 +73,10 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
 }
 
 resource "google_app_engine_standard_app_version" "myapp_v2" {
-  version_id = "v2"
-  service    = "myapp"
-  runtime    = "nodejs10"
+  version_id      = "v2"
+  service         = "myapp"
+  runtime         = "nodejs10"
+  app_engine_apis = true
 
   entrypoint {
     shell = "node ./app.js"
@@ -106,7 +100,8 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "appengine-static-content"
+  name     = "appengine-static-content"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -128,28 +123,33 @@ The following arguments are supported:
 * `deployment` -
   (Required)
   Code and application artifacts that make up this version.
-  Structure is documented below.
+  Structure is [documented below](#nested_deployment).
+
+* `entrypoint` -
+  (Required)
+  The entrypoint for the application.
+  Structure is [documented below](#nested_entrypoint).
 
 * `service` -
   (Required)
   AppEngine service resource
 
 
-The `deployment` block supports:
+<a name="nested_deployment"></a>The `deployment` block supports:
 
 * `zip` -
   (Optional)
   Zip File
-  Structure is documented below.
+  Structure is [documented below](#nested_zip).
 
 * `files` -
   (Optional)
   Manifest of the files stored in Google Cloud Storage that are included as part of this version.
   All files must be readable using the credentials supplied with this call.
-  Structure is documented below.
+  Structure is [documented below](#nested_files).
 
 
-The `zip` block supports:
+<a name="nested_zip"></a>The `zip` block supports:
 
 * `source_url` -
   (Required)
@@ -159,7 +159,7 @@ The `zip` block supports:
   (Optional)
   files count
 
-The `files` block supports:
+<a name="nested_files"></a>The `files` block supports:
 
 * `name` - (Required) The identifier for this object. Format specified above.
 
@@ -170,6 +170,12 @@ The `files` block supports:
 * `source_url` -
   (Required)
   Source URL
+
+<a name="nested_entrypoint"></a>The `entrypoint` block supports:
+
+* `shell` -
+  (Required)
+  The format should be a shell command that can be fed to bash -c.
 
 - - -
 
@@ -182,35 +188,35 @@ The `files` block supports:
   (Optional)
   Whether multiple requests can be dispatched to this version at once.
 
+* `app_engine_apis` -
+  (Optional)
+  Allows App Engine second generation runtimes to access the legacy bundled services.
+
 * `runtime_api_version` -
   (Optional)
   The version of the API in the given runtime environment.
-  Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref
+  Please see the app.yaml reference for valid values at `https://cloud.google.com/appengine/docs/standard/<language>/config/appref`\
+  Substitute `<language>` with `python`, `java`, `php`, `ruby`, `go` or `nodejs`.
 
 * `handlers` -
   (Optional)
   An ordered list of URL-matching patterns that should be applied to incoming requests.
   The first matching URL handles the request and other request handlers are not attempted.
-  Structure is documented below.
+  Structure is [documented below](#nested_handlers).
 
 * `libraries` -
   (Optional)
   Configuration for third-party Python runtime libraries that are required by the application.
-  Structure is documented below.
+  Structure is [documented below](#nested_libraries).
 
 * `env_variables` -
   (Optional)
   Environment variables available to the application.
 
-* `entrypoint` -
-  (Optional)
-  The entrypoint for the application.
-  Structure is documented below.
-
 * `vpc_access_connector` -
   (Optional)
   Enables VPC connectivity for standard apps.
-  Structure is documented below.
+  Structure is [documented below](#nested_vpc_access_connector).
 
 * `inbound_services` -
   (Optional)
@@ -227,17 +233,17 @@ The `files` block supports:
 * `automatic_scaling` -
   (Optional)
   Automatic scaling is based on request rate, response latencies, and other application metrics.
-  Structure is documented below.
+  Structure is [documented below](#nested_automatic_scaling).
 
 * `basic_scaling` -
   (Optional)
   Basic scaling creates instances when your application receives requests. Each instance will be shut down when the application becomes idle. Basic scaling is ideal for work that is intermittent or driven by user activity.
-  Structure is documented below.
+  Structure is [documented below](#nested_basic_scaling).
 
 * `manual_scaling` -
   (Optional)
   A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.
-  Structure is documented below.
+  Structure is [documented below](#nested_manual_scaling).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -247,7 +253,7 @@ The `files` block supports:
 * `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.    
 
 
-The `handlers` block supports:
+<a name="nested_handlers"></a>The `handlers` block supports:
 
 * `url_regex` -
   (Optional)
@@ -278,21 +284,21 @@ The `handlers` block supports:
   (Optional)
   Executes a script to handle the requests that match this URL pattern.
   Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".
-  Structure is documented below.
+  Structure is [documented below](#nested_script).
 
 * `static_files` -
   (Optional)
   Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files. Static file handlers describe which files in the application directory are static files, and which URLs serve them.
-  Structure is documented below.
+  Structure is [documented below](#nested_static_files).
 
 
-The `script` block supports:
+<a name="nested_script"></a>The `script` block supports:
 
 * `script_path` -
   (Required)
   Path to the script from the application root directory.
 
-The `static_files` block supports:
+<a name="nested_static_files"></a>The `static_files` block supports:
 
 * `path` -
   (Optional)
@@ -327,7 +333,7 @@ The `static_files` block supports:
   static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged
   against both your code and static data storage resource quotas.
 
-The `libraries` block supports:
+<a name="nested_libraries"></a>The `libraries` block supports:
 
 * `name` -
   (Optional)
@@ -337,19 +343,13 @@ The `libraries` block supports:
   (Optional)
   Version of the library to select, or "latest".
 
-The `entrypoint` block supports:
-
-* `shell` -
-  (Required)
-  The format should be a shell command that can be fed to bash -c.
-
-The `vpc_access_connector` block supports:
+<a name="nested_vpc_access_connector"></a>The `vpc_access_connector` block supports:
 
 * `name` -
   (Required)
   Full Serverless VPC Access Connector name e.g. /projects/my-project/locations/us-central1/connectors/c1.
 
-The `automatic_scaling` block supports:
+<a name="nested_automatic_scaling"></a>The `automatic_scaling` block supports:
 
 * `max_concurrent_requests` -
   (Optional)
@@ -377,10 +377,10 @@ The `automatic_scaling` block supports:
 * `standard_scheduler_settings` -
   (Optional)
   Scheduler settings for standard environment.
-  Structure is documented below.
+  Structure is [documented below](#nested_standard_scheduler_settings).
 
 
-The `standard_scheduler_settings` block supports:
+<a name="nested_standard_scheduler_settings"></a>The `standard_scheduler_settings` block supports:
 
 * `target_cpu_utilization` -
   (Optional)
@@ -398,7 +398,7 @@ The `standard_scheduler_settings` block supports:
   (Optional)
   Maximum number of instances to run for this version. Set to zero to disable maxInstances configuration.
 
-The `basic_scaling` block supports:
+<a name="nested_basic_scaling"></a>The `basic_scaling` block supports:
 
 * `idle_timeout` -
   (Optional)
@@ -409,7 +409,7 @@ The `basic_scaling` block supports:
   (Required)
   Maximum number of instances to create for this version. Must be in the range [1.0, 200.0].
 
-The `manual_scaling` block supports:
+<a name="nested_manual_scaling"></a>The `manual_scaling` block supports:
 
 * `instances` -
   (Required)
@@ -432,9 +432,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

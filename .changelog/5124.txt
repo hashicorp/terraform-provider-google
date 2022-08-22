@@ -1,0 +1,4 @@
+```release-note:bug
+secretmanager: fixed an issue where `replication` fields would not update in `google_secret_manager_secret`
+
+```

@@ -1,16 +1,17 @@
 ---
 subcategory: "Dataproc"
-layout: "google"
 page_title: "Google: google_dataproc_cluster"
-sidebar_current: "docs-google-dataproc-cluster"
 description: |-
   Manages a Cloud Dataproc cluster resource.
 ---
 
 # google\_dataproc\_cluster
 
-Manages a Cloud Dataproc cluster resource within GCP. For more information see
-[the official dataproc documentation](https://cloud.google.com/dataproc/).
+Manages a Cloud Dataproc cluster resource within GCP.
+
+* [API documentation](https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.clusters)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/dataproc/docs)
 
 
 !> **Warning:** Due to limitations of the API, all arguments except
@@ -50,7 +51,7 @@ resource "google_dataproc_cluster" "mycluster" {
       machine_type  = "e2-medium"
       disk_config {
         boot_disk_type    = "pd-ssd"
-        boot_disk_size_gb = 15
+        boot_disk_size_gb = 30
       }
     }
 
@@ -59,7 +60,7 @@ resource "google_dataproc_cluster" "mycluster" {
       machine_type     = "e2-medium"
       min_cpu_platform = "Intel Skylake"
       disk_config {
-        boot_disk_size_gb = 15
+        boot_disk_size_gb = 30
         num_local_ssds    = 1
       }
     }
@@ -70,7 +71,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
     # Override or set some custom properties
     software_config {
-      image_version = "1.3.7-deb9"
+      image_version = "2.0.35-debian10"
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }
@@ -133,10 +134,13 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
    instances in the cluster. GCP generates some itself including `goog-dataproc-cluster-name`
    which is the name of the cluster.
 
-* `cluster_config` - (Optional) Allows you to configure various aspects of the cluster.
-   Structure defined below.
+* `virtual_cluster_config` - (Optional) Allows you to configure a virtual Dataproc on GKE cluster.
+   Structure [defined below](#nested_virtual_cluster_config).
 
-* `graceful_decommission_timout` - (Optional) Allows graceful decomissioning when you change the number of worker nodes directly through a terraform apply.
+* `cluster_config` - (Optional) Allows you to configure various aspects of the cluster.
+   Structure [defined below](#nested_cluster_config).
+
+* `graceful_decommission_timeout` - (Optional) Allows graceful decomissioning when you change the number of worker nodes directly through a terraform apply.
       Does not affect auto scaling decomissioning from an autoscaling policy.
       Graceful decommissioning allows removing nodes from the cluster without interrupting jobs in progress.
       Timeout specifies how long to wait for jobs in progress to finish before forcefully removing nodes (and potentially interrupting jobs).
@@ -146,7 +150,162 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
       For more context see the [docs](https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.clusters/patch#query-parameters)
 - - -
 
-The `cluster_config` block supports:
+<a name="nested_virtual_cluster_config"></a>The `virtual_cluster_config` block supports:
+
+```hcl
+    virtual_cluster_config {
+        auxiliary_services_config { ... }
+        kubernetes_cluster_config { ... }
+    }
+```
+
+* `staging_bucket` - (Optional) The Cloud Storage staging bucket used to stage files,
+   such as Hadoop jars, between client machines and the cluster.
+   Note: If you don't explicitly specify a `staging_bucket`
+   then GCP will auto create / assign one for you. However, you are not guaranteed
+   an auto generated bucket which is solely dedicated to your cluster; it may be shared
+   with other clusters in the same region/zone also choosing to use the auto generation
+   option.
+
+* `auxiliary_services_config` (Optional) Configuration of auxiliary services used by this cluster. 
+   Structure [defined below](#nested_auxiliary_services_config).
+
+* `kubernetes_cluster_config` (Required) The configuration for running the Dataproc cluster on Kubernetes.
+   Structure [defined below](#nested_kubernetes_cluster_config).
+- - -
+
+<a name="nested_auxiliary_services_config"></a>The `auxiliary_services_config` block supports:
+
+```hcl
+    virtual_cluster_config {
+      auxiliary_services_config {
+        metastore_config {
+          dataproc_metastore_service = google_dataproc_metastore_service.metastore_service.id
+        }
+
+        spark_history_server_config {
+          dataproc_cluster = google_dataproc_cluster.dataproc_cluster.id
+        }
+      }
+    }
+```
+
+* `metastore_config` (Optional) The Hive Metastore configuration for this workload. 
+
+  * `dataproc_metastore_service` (Required) Resource name of an existing Dataproc Metastore service.
+
+* `spark_history_server_config` (Optional) The Spark History Server configuration for the workload.
+
+  * `dataproc_cluster` (Optional) Resource name of an existing Dataproc Cluster to act as a Spark History Server for the workload.
+- - -
+
+<a name="nested_kubernetes_cluster_config"></a>The `kubernetes_cluster_config` block supports:
+
+```hcl
+    virtual_cluster_config {
+      kubernetes_cluster_config {
+        kubernetes_namespace = "foobar"
+
+        kubernetes_software_config {
+          component_version = {
+            "SPARK" : "3.1-dataproc-7"
+          }
+
+          properties = {
+            "spark:spark.eventLog.enabled": "true"
+          }
+        }
+
+        gke_cluster_config {
+          gke_cluster_target = google_container_cluster.primary.id
+
+          node_pool_target {
+            node_pool = "dpgke"
+            roles = ["DEFAULT"]
+
+            node_pool_config {
+              autoscaling {
+                min_node_count = 1
+                max_node_count = 6
+              }
+              
+              config {
+                machine_type      = "n1-standard-4"
+                preemptible       = true
+                local_ssd_count   = 1
+                min_cpu_platform  = "Intel Sandy Bridge"
+              }
+
+              locations = ["us-central1-c"]
+            }
+          }
+        }
+      }
+    }
+```
+
+* `kubernetes_namespace` (Optional) A namespace within the Kubernetes cluster to deploy into. 
+   If this namespace does not exist, it is created. 
+   If it  exists, Dataproc verifies that another Dataproc VirtualCluster is not installed into it. 
+   If not specified, the name of the Dataproc Cluster is used.
+
+* `kubernetes_software_config` (Required) The software configuration for this Dataproc cluster running on Kubernetes.
+
+  * `component_version` (Required) The components that should be installed in this Dataproc cluster. The key must be a string from the   
+     KubernetesComponent enumeration. The value is the version of the software to be installed. At least one entry must be specified.
+    * **NOTE** : `component_version[SPARK]` is mandatory to set, or the creation of the cluster will fail.
+
+  * `properties` (Optional) The properties to set on daemon config files. Property keys are specified in prefix:property format, 
+     for example spark:spark.kubernetes.container.image.
+
+* `gke_cluster_config` (Required) The configuration for running the Dataproc cluster on GKE.
+
+  * `gke_cluster_target` (Optional) A target GKE cluster to deploy to. It must be in the same project and region as the Dataproc cluster 
+     (the GKE cluster can be zonal or regional)
+
+  * `node_pool_target` (Optional) GKE node pools where workloads will be scheduled. At least one node pool must be assigned the `DEFAULT` 
+     GkeNodePoolTarget.Role. If a GkeNodePoolTarget is not specified, Dataproc constructs a `DEFAULT` GkeNodePoolTarget. 
+     Each role can be given to only one GkeNodePoolTarget. All node pools must have the same location settings.
+
+    * `node_pool` (Required) The target GKE node pool.
+
+    * `roles` (Required) The roles associated with the GKE node pool. 
+       One of `"DEFAULT"`, `"CONTROLLER"`, `"SPARK_DRIVER"` or `"SPARK_EXECUTOR"`.
+
+    * `node_pool_config` (Input only) The configuration for the GKE node pool. 
+       If specified, Dataproc attempts to create a node pool with the specified shape. 
+       If one with the same name already exists, it is verified against all specified fields. 
+       If a field differs, the virtual cluster creation will fail.
+
+      * `autoscaling` (Optional) The autoscaler configuration for this node pool. 
+         The autoscaler is enabled only when a valid configuration is present.
+
+        * `min_node_count` (Optional) The minimum number of nodes in the node pool. Must be >= 0 and <= maxNodeCount.
+
+        * `max_node_count` (Optional) The maximum number of nodes in the node pool. Must be >= minNodeCount, and must be > 0.
+
+      * `config` (Optional) The node pool configuration.
+
+        * `machine_type` (Optional) The name of a Compute Engine machine type.
+
+        * `local_ssd_count` (Optional) The number of local SSD disks to attach to the node, 
+           which is limited by the maximum number of disks allowable per zone.
+
+        * `preemptible` (Optional) Whether the nodes are created as preemptible VM instances. 
+           Preemptible nodes cannot be used in a node pool with the CONTROLLER role or in the DEFAULT node pool if the 
+           CONTROLLER role is not assigned (the DEFAULT node pool will assume the CONTROLLER role).
+
+        * `min_cpu_platform` (Optional) Minimum CPU platform to be used by this instance. 
+           The instance may be scheduled on the specified or a newer CPU platform. 
+           Specify the friendly names of CPU platforms, such as "Intel Haswell" or "Intel Sandy Bridge".
+
+        * `spot` (Optional) Spot flag for enabling Spot VM, which is a rebrand of the existing preemptible flag.
+
+      * `locations` (Optional) The list of Compute Engine zones where node pool nodes associated 
+         with a Dataproc on GKE virtual cluster will be located.
+- - -
+
+<a name="nested_cluster_config"></a>The `cluster_config` block supports:
 
 ```hcl
     cluster_config {
@@ -160,6 +319,7 @@ The `cluster_config` block supports:
         initialization_action     { ... }
         encryption_config         { ... }
         endpoint_config           { ... }
+        metastore_config          { ... }
     }
 ```
 
@@ -176,41 +336,47 @@ The `cluster_config` block supports:
    Note: If you don't explicitly specify a `temp_bucket` then GCP will auto create / assign one for you.
 
 * `gce_cluster_config` (Optional) Common config settings for resources of Google Compute Engine cluster
-   instances, applicable to all instances in the cluster. Structure defined below.
+   instances, applicable to all instances in the cluster. Structure [defined below](#nested_gce_cluster_config).
 
 * `master_config` (Optional) The Google Compute Engine config settings for the master instances
-   in a cluster.. Structure defined below.
+   in a cluster. Structure [defined below](#nested_master_config).
 
 * `worker_config` (Optional) The Google Compute Engine config settings for the worker instances
-   in a cluster.. Structure defined below.
+   in a cluster. Structure [defined below](#nested_worker_config).
 
-* `preemptible_worker_config` (Optional) The Google Compute Engine config settings for the additional (aka
-   preemptible) instances in a cluster. Structure defined below.
+* `preemptible_worker_config` (Optional) The Google Compute Engine config settings for the additional
+   instances in a cluster. Structure [defined below](#nested_preemptible_worker_config).
+  * **NOTE** : `preemptible_worker_config` is
+   an alias for the api's [secondaryWorkerConfig](https://cloud.google.com/dataproc/docs/reference/rest/v1/ClusterConfig#InstanceGroupConfig). The name doesn't necessarily mean it is preemptible and is named as
+   such for legacy/compatibility reasons.
 
 * `software_config` (Optional) The config settings for software inside the cluster.
-   Structure defined below.
+   Structure [defined below](#nested_software_config).
 
-* `security_config` (Optional) Security related configuration. Structure defined below.
+* `security_config` (Optional) Security related configuration. Structure [defined below](#nested_security_config).
 
 * `autoscaling_config` (Optional)  The autoscaling policy config associated with the cluster.
    Note that once set, if `autoscaling_config` is the only field set in `cluster_config`, it can
    only be removed by setting `policy_uri = ""`, rather than removing the whole block.
-   Structure defined below.
+   Structure [defined below](#nested_autoscaling_config).
 
 * `initialization_action` (Optional) Commands to execute on each node after config is completed.
-   You can specify multiple versions of these. Structure defined below.
+   You can specify multiple versions of these. Structure [defined below](#nested_initialization_action).
 
 * `encryption_config` (Optional) The Customer managed encryption keys settings for the cluster.
-   Structure defined below.
+   Structure [defined below](#nested_encryption_config).
 
-* `lifecycle_config` (Optional, Beta) The settings for auto deletion cluster schedule.
-   Structure defined below.
+* `lifecycle_config` (Optional) The settings for auto deletion cluster schedule.
+   Structure [defined below](#nested_lifecycle_config).
 
-* `endpoint_config` (Optional, Beta) The config settings for port access on the cluster.
-   Structure defined below.
+* `endpoint_config` (Optional) The config settings for port access on the cluster.
+   Structure [defined below](#nested_endpoint_config).
+
+* `metastore_config` (Optional) The config setting for metastore service with the cluster.
+   Structure [defined below](#nested_metastore_config).
 - - -
 
-The `cluster_config.gce_cluster_config` block supports:
+<a name="nested_gce_cluster_config"></a>The `cluster_config.gce_cluster_config` block supports:
 
 ```hcl
   cluster_config {
@@ -262,9 +428,34 @@ The `cluster_config.gce_cluster_config` block supports:
 * `metadata` - (Optional) A map of the Compute Engine metadata entries to add to all instances
    (see [Project and instance metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).
 
+* `shielded_instance_config` (Optional) Shielded Instance Config for clusters using [Compute Engine Shielded VMs](https://cloud.google.com/security/shielded-cloud/shielded-vm).
+
 - - -
 
-The `cluster_config.master_config` block supports:
+
+The `cluster_config.gce_cluster_config.shielded_instance_config` block supports:
+
+```hcl
+cluster_config{
+  gce_cluster_config{
+    shielded_instance_config{
+      enable_secure_boot          = true
+      enable_vtpm                 = true
+      enable_integrity_monitoring = true
+    }
+  }
+}
+```
+
+* `enable_secure_boot` - (Optional) Defines whether instances have Secure Boot enabled.
+
+* `enable_vtpm` - (Optional) Defines whether instances have the [vTPM](https://cloud.google.com/security/shielded-cloud/shielded-vm#vtpm) enabled.
+
+* `enable_integrity_monitoring` - (Optional) Defines whether instances have integrity monitoring enabled.
+
+- - -
+
+<a name="nested_master_config"></a>The `cluster_config.master_config` block supports:
 
 ```hcl
 cluster_config {
@@ -275,7 +466,7 @@ cluster_config {
 
     disk_config {
       boot_disk_type    = "pd-ssd"
-      boot_disk_size_gb = 15
+      boot_disk_size_gb = 30
       num_local_ssds    = 1
     }
   }
@@ -323,7 +514,7 @@ if you are trying to use accelerators in a given zone.
 
 - - -
 
-The `cluster_config.worker_config` block supports:
+<a name="nested_worker_config"></a>The `cluster_config.worker_config` block supports:
 
 ```hcl
 cluster_config {
@@ -334,7 +525,7 @@ cluster_config {
 
     disk_config {
       boot_disk_type    = "pd-standard"
-      boot_disk_size_gb = 15
+      boot_disk_size_gb = 30
       num_local_ssds    = 1
     }
   }
@@ -386,7 +577,7 @@ if you are trying to use accelerators in a given zone.
 
 - - -
 
-The `cluster_config.preemptible_worker_config` block supports:
+<a name="nested_preemptible_worker_config"></a>The `cluster_config.preemptible_worker_config` block supports:
 
 ```hcl
 cluster_config {
@@ -395,7 +586,7 @@ cluster_config {
 
     disk_config {
       boot_disk_type    = "pd-standard"
-      boot_disk_size_gb = 15
+      boot_disk_size_gb = 30
       num_local_ssds    = 1
     }
   }
@@ -407,6 +598,12 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 
 * `num_instances`- (Optional) Specifies the number of preemptible nodes to create.
    Defaults to 0.
+
+* `preemptibility`- (Optional) Specifies the preemptibility of the secondary workers. The default value is `PREEMPTIBLE`
+  Accepted values are:
+  * PREEMPTIBILITY_UNSPECIFIED
+  * NON_PREEMPTIBLE
+  * PREEMPTIBLE
 
 * `disk_config` (Optional) Disk Config
 
@@ -423,13 +620,13 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 
 - - -
 
-The `cluster_config.software_config` block supports:
+<a name="nested_software_config"></a>The `cluster_config.software_config` block supports:
 
 ```hcl
 cluster_config {
   # Override or set some custom properties
   software_config {
-    image_version = "1.3.7-deb9"
+    image_version = "2.0.35-debian10"
 
     override_properties = {
       "dataproc:dataproc.allow.zero.workers" = "true"
@@ -453,10 +650,10 @@ cluster_config {
     Accepted values are:
     * ANACONDA
     * DRUID
+    * FLINK
     * HBASE
     * HIVE_WEBHCAT
     * JUPYTER
-    * KERBEROS
     * PRESTO
     * RANGER
     * SOLR
@@ -465,7 +662,7 @@ cluster_config {
 
 - - -
 
-The `cluster_config.security_config` block supports:
+<a name="nested_security_config"></a>The `cluster_config.security_config` block supports:
 
 ```hcl
 cluster_config {
@@ -529,7 +726,7 @@ cluster_config {
 
 - - -
 
-The `cluster_config.autoscaling_config` block supports:
+<a name="nested_autoscaling_config"></a>The `cluster_config.autoscaling_config` block supports:
 
 ```hcl
 cluster_config {
@@ -550,7 +747,7 @@ Note that the policy must be in the same project and Cloud Dataproc region.
 
 - - -
 
-The `initialization_action` block (Optional) can be specified multiple times and supports:
+<a name="nested_initialization_action"></a>The `initialization_action` block (Optional) can be specified multiple times and supports:
 
 ```hcl
 cluster_config {
@@ -571,7 +768,7 @@ cluster_config {
 
 - - -
 
-The `encryption_config` block supports:
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
 
 ```hcl
 cluster_config {
@@ -586,7 +783,7 @@ cluster_config {
 
 - - -
 
-The `lifecycle_config` block supports:
+<a name="nested_lifecycle_config"></a>The `lifecycle_config` block supports:
 
 ```hcl
 cluster_config {
@@ -606,7 +803,7 @@ cluster_config {
 
 - - -
 
-The `endpoint_config` block (Optional, Computed, Beta) supports:
+<a name="nested_endpoint_config"></a>The `endpoint_config` block (Optional, Computed, Beta) supports:
 
 ```hcl
 cluster_config {
@@ -618,6 +815,23 @@ cluster_config {
 
 * `enable_http_port_access` - (Optional) The flag to enable http access to specific ports
   on the cluster from external sources (aka Component Gateway). Defaults to false.
+
+
+<a name="nested_metastore_config"></a>The `metastore_config` block (Optional, Computed, Beta) supports:
+
+```hcl
+cluster_config {
+  metastore_config {
+    dataproc_metastore_service = "projects/projectId/locations/region/services/serviceName"
+  }
+}
+```
+
+* `dataproc_metastore_service` - (Required) Resource name of an existing Dataproc Metastore service.
+
+Only resource names including projectid and location (region) are valid. Examples:
+
+`projects/[projectId]/locations/[dataproc_region]/services/[service-name]`
 
 ## Attributes Reference
 
@@ -655,6 +869,6 @@ This resource does not support import.
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 45 minutes.
+- `update` - Default is 45 minutes.
+- `delete` - Default is 45 minutes.

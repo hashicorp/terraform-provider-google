@@ -1,0 +1,3 @@
+```release-note:breaking-change
+container: `instance_group_urls` has been removed in favor of `node_pool.instance_group_urls`
+```

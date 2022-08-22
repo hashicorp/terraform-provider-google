@@ -1,0 +1,15 @@
+```release-note:enhancement
+tags: promoted `google_tags_tag_key` to GA
+```
+```release-note:enhancement
+tags: promoted `google_tags_tag_value` to GA
+```
+```release-note:enhancement
+tags: promoted `google_tags_tag_binding` to GA
+```
+```release-note:enhancement
+tags: promoted `google_tags_tag_key_iam_*` to GA
+```
+```release-note:enhancement
+tags: promoted `google_tags_tag_value_iam_*` to GA
+```

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_target_https_proxy"
-sidebar_current: "docs-google-compute-target-https-proxy"
 description: |-
   Represents a TargetHttpsProxy resource, which is used by one or more
   global forwarding rule to route incoming HTTPS requests to a URL map.
@@ -108,12 +106,6 @@ The following arguments are supported:
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
 
-* `ssl_certificates` -
-  (Required)
-  A list of SslCertificate resources that are used to authenticate
-  connections between users and the load balancer. At least one SSL
-  certificate must be specified.
-
 * `url_map` -
   (Required)
   A reference to the UrlMap resource that defines the mapping from URL
@@ -137,11 +129,28 @@ The following arguments are supported:
   Default value is `NONE`.
   Possible values are `NONE`, `ENABLE`, and `DISABLE`.
 
+* `ssl_certificates` -
+  (Optional)
+  A list of SslCertificate resources that are used to authenticate
+  connections between users and the load balancer. At least one SSL
+  certificate must be specified.
+
+* `certificate_map` -
+  (Optional)
+  A reference to the CertificateMap resource uri that identifies a certificate map 
+  associated with the given target proxy. This field can only be set for global target proxies.
+  Accepted format is `//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}`.
+
 * `ssl_policy` -
   (Optional)
   A reference to the SslPolicy resource that will be associated with
   the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
   resource will not have any SSL policy configured.
+
+* `proxy_bind` -
+  (Optional)
+  This field only applies when the forwarding rule that references
+  this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -166,9 +175,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

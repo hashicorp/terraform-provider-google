@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_router"
-sidebar_current: "docs-google-compute-router"
 description: |-
   Represents a Router resource.
 ---
@@ -61,6 +59,29 @@ resource "google_compute_network" "foobar" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_router_encrypted_interconnect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Router Encrypted Interconnect
+
+
+```hcl
+resource "google_compute_router" "encrypted-interconnect-router" {
+  name                          = "test-router"
+  network                       = google_compute_network.network.name
+  encrypted_interconnect_router = true
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_network" "network" {
+  name                    = "test-network"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -91,7 +112,13 @@ The following arguments are supported:
 * `bgp` -
   (Optional)
   BGP information specific to this router.
-  Structure is documented below.
+  Structure is [documented below](#nested_bgp).
+
+* `encrypted_interconnect_router` -
+  (Optional)
+  Field to indicate if a router is dedicated to use with encrypted
+  Interconnect Attachment (IPsec-encrypted Cloud Interconnect feature).
+  Not currently available publicly.
 
 * `region` -
   (Optional)
@@ -101,7 +128,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `bgp` block supports:
+<a name="nested_bgp"></a>The `bgp` block supports:
 
 * `asn` -
   (Required)
@@ -132,10 +159,18 @@ The `bgp` block supports:
   is CUSTOM and is advertised to all peers of the router. These IP
   ranges will be advertised in addition to any specified groups.
   Leave this field blank to advertise no custom IP ranges.
-  Structure is documented below.
+  Structure is [documented below](#nested_advertised_ip_ranges).
+
+* `keepalive_interval` -
+  (Optional)
+  The interval in seconds between BGP keepalive messages that are sent to the peer.
+  Hold time is three times the interval at which keepalive messages are sent, and the hold time is the
+  maximum number of seconds allowed to elapse between successive keepalive messages that BGP receives from a peer.
+  BGP will use the smaller of either the local hold time value or the peer's hold time value as the hold time for
+  the BGP connection between the two peers. If set, this value must be between 20 and 60. The default is 20.
 
 
-The `advertised_ip_ranges` block supports:
+<a name="nested_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
 
 * `range` -
   (Required)
@@ -162,9 +197,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

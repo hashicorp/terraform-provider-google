@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_organization_security_policy_association"
-sidebar_current: "docs-google-compute-organization-security-policy-association"
 description: |-
   An association for the OrganizationSecurityPolicy.
 ---
@@ -33,25 +31,24 @@ To get more information about OrganizationSecurityPolicyAssociation, see:
 * How-to Guides
     * [Associating a policy with the organization or folder](https://cloud.google.com/vpc/docs/using-firewall-policies#associate)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=organization_security_policy_association_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Organization Security Policy Association Basic
 
 
 ```hcl
+resource "google_folder" "security_policy_target" {
+  provider     = google-beta
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/123456789"
+}
+
 resource "google_compute_organization_security_policy" "policy" {
   provider = google-beta
-
   display_name = "tf-test%{random_suffix}"
-  parent       = "organizations/123456789"
+  parent       = google_folder.security_policy_target.name
 }
 
 resource "google_compute_organization_security_policy_rule" "policy" {
   provider = google-beta
-
   policy_id = google_compute_organization_security_policy.policy.id
   action = "allow"
 
@@ -74,7 +71,6 @@ resource "google_compute_organization_security_policy_rule" "policy" {
 
 resource "google_compute_organization_security_policy_association" "policy" {
   provider = google-beta
-
   name          = "tf-test%{random_suffix}"
   attachment_id = google_compute_organization_security_policy.policy.parent
   policy_id     = google_compute_organization_security_policy.policy.id
@@ -118,8 +114,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
@@ -128,5 +124,4 @@ OrganizationSecurityPolicyAssociation can be imported using any of these accepte
 
 ```
 $ terraform import google_compute_organization_security_policy_association.default {{policy_id}}/association/{{name}}
-$ terraform import google_compute_organization_security_policy_association.default {{policy_id}}/{{name}}
 ```

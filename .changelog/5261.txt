@@ -1,0 +1,3 @@
+```release-note:deprecation
+container: deprecated the following `google_container_cluster` fields: `instance_group_urls` and `master_auth` 
+```

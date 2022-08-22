@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceApigeeOrganization() *schema.Resource {
@@ -37,9 +36,9 @@ func resourceApigeeOrganization() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -62,6 +61,13 @@ func resourceApigeeOrganization() *schema.Resource {
 See [Getting started with the Service Networking API](https://cloud.google.com/service-infrastructure/docs/service-networking/getting-started).
 Valid only when 'RuntimeType' is set to CLOUD. The value can be updated only when there are no runtime instances. For example: "default".`,
 			},
+			"billing_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Billing type of the Apigee organization. See [Apigee pricing](https://cloud.google.com/apigee/pricing).`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -71,6 +77,16 @@ Valid only when 'RuntimeType' is set to CLOUD. The value can be updated only whe
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The display name of the Apigee organization.`,
+			},
+			"retention": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateEnum([]string{"DELETION_RETENTION_UNSPECIFIED", "MINIMUM", ""}),
+				Description: `Optional. This setting is applicable only for organizations that are soft-deleted (i.e., BillingType
+is not EVALUATION). It controls how long Organization data will be retained after the initial delete
+operation completes. During this period, the Organization may be restored to its last known state.
+After this period, the Organization will no longer be able to be restored. Default value: "DELETION_RETENTION_UNSPECIFIED" Possible values: ["DELETION_RETENTION_UNSPECIFIED", "MINIMUM"]`,
+				Default: "DELETION_RETENTION_UNSPECIFIED",
 			},
 			"runtime_database_encryption_key_name": {
 				Type:     schema.TypeString,
@@ -85,7 +101,7 @@ Valid only when 'RuntimeType' is CLOUD. For example: 'projects/foo/locations/us/
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"CLOUD", "HYBRID", ""}, false),
+				ValidateFunc: validateEnum([]string{"CLOUD", "HYBRID", ""}),
 				Description:  `Runtime type of the Apigee organization based on the Apigee subscription purchased. Default value: "CLOUD" Possible values: ["CLOUD", "HYBRID"]`,
 				Default:      "CLOUD",
 			},
@@ -148,6 +164,12 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("runtime_type"); !isEmptyValue(reflect.ValueOf(runtimeTypeProp)) && (ok || !reflect.DeepEqual(v, runtimeTypeProp)) {
 		obj["runtimeType"] = runtimeTypeProp
+	}
+	billingTypeProp, err := expandApigeeOrganizationBillingType(d.Get("billing_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("billing_type"); !isEmptyValue(reflect.ValueOf(billingTypeProp)) && (ok || !reflect.DeepEqual(v, billingTypeProp)) {
+		obj["billingType"] = billingTypeProp
 	}
 	runtimeDatabaseEncryptionKeyNameProp, err := expandApigeeOrganizationRuntimeDatabaseEncryptionKeyName(d.Get("runtime_database_encryption_key_name"), d, config)
 	if err != nil {
@@ -259,6 +281,9 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("subscription_type", flattenApigeeOrganizationSubscriptionType(res["subscriptionType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
+	if err := d.Set("billing_type", flattenApigeeOrganizationBillingType(res["billingType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Organization: %s", err)
+	}
 	if err := d.Set("ca_certificate", flattenApigeeOrganizationCaCertificate(res["caCertificate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
@@ -308,6 +333,12 @@ func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("runtime_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runtimeTypeProp)) {
 		obj["runtimeType"] = runtimeTypeProp
+	}
+	billingTypeProp, err := expandApigeeOrganizationBillingType(d.Get("billing_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("billing_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, billingTypeProp)) {
+		obj["billingType"] = billingTypeProp
 	}
 	runtimeDatabaseEncryptionKeyNameProp, err := expandApigeeOrganizationRuntimeDatabaseEncryptionKeyName(d.Get("runtime_database_encryption_key_name"), d, config)
 	if err != nil {
@@ -361,7 +392,7 @@ func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}")
+	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}?retention={{retention}}")
 	if err != nil {
 		return err
 	}
@@ -377,14 +408,6 @@ func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Organization")
-	}
-
-	err = apigeeOperationWaitTime(
-		config, res, "Deleting Organization", userAgent,
-		d.Timeout(schema.TimeoutDelete))
-
-	if err != nil {
-		return err
 	}
 
 	log.Printf("[DEBUG] Finished deleting Organization %q: %#v", d.Id(), res)
@@ -423,6 +446,14 @@ func resourceApigeeOrganizationImport(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("project_id", projectId); err != nil {
 		return nil, fmt.Errorf("Error setting organization: %s", err)
 	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "organizations/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -454,6 +485,10 @@ func flattenApigeeOrganizationSubscriptionType(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenApigeeOrganizationBillingType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenApigeeOrganizationCaCertificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -479,6 +514,10 @@ func expandApigeeOrganizationAuthorizedNetwork(v interface{}, d TerraformResourc
 }
 
 func expandApigeeOrganizationRuntimeType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeOrganizationBillingType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

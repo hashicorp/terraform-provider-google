@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "ML Engine"
-layout: "google"
 page_title: "Google: google_ml_engine_model"
-sidebar_current: "docs-google-ml-engine-model"
 description: |-
   Represents a machine learning solution.
 ---
@@ -28,6 +26,11 @@ A model can have multiple versions, each of which is a deployed, trained model
 ready to receive prediction requests. The model itself is just a container.
 
 
+To get more information about Model, see:
+
+* [API documentation](https://cloud.google.com/ai-platform/prediction/docs/reference/rest/v1/projects.models)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/ai-platform/prediction/docs/deploying-models)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=ml_model_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -86,7 +89,7 @@ The following arguments are supported:
   (Optional)
   The default version of the model. This version will be used to handle
   prediction requests that do not specify a version.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_version).
 
 * `regions` -
   (Optional)
@@ -109,7 +112,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `default_version` block supports:
+<a name="nested_default_version"></a>The `default_version` block supports:
 
 * `name` -
   (Required)
@@ -127,8 +130,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

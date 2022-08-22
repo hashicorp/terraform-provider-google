@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSQLDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -58,9 +55,11 @@ resource "google_sql_database" "database" {
   instance = google_sql_database_instance.instance.name
 }
 
+# See versions at https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance#database_version
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-test-my-database-instance%{random_suffix}"
-  region = "us-central1"
+  name             = "tf-test-my-database-instance%{random_suffix}"
+  region           = "us-central1"
+  database_version = "MYSQL_8_0"
   settings {
     tier = "db-f1-micro"
   }

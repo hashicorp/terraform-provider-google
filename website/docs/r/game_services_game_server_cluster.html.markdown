@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Game Servers"
-layout: "google"
 page_title: "Google: google_game_services_game_server_cluster"
-sidebar_current: "docs-google-game-services-game-server-cluster"
 description: |-
   A game server cluster resource.
 ---
@@ -78,15 +76,15 @@ The following arguments are supported:
   (Required)
   Game server cluster connection information. This information is used to
   manage game server clusters.
-  Structure is documented below.
+  Structure is [documented below](#nested_connection_info).
 
 
-The `connection_info` block supports:
+<a name="nested_connection_info"></a>The `connection_info` block supports:
 
 * `gke_cluster_reference` -
   (Required)
   Reference of the GKE cluster where the game servers are installed.
-  Structure is documented below.
+  Structure is [documented below](#nested_gke_cluster_reference).
 
 * `namespace` -
   (Required)
@@ -95,7 +93,7 @@ The `connection_info` block supports:
   during creation.
 
 
-The `gke_cluster_reference` block supports:
+<a name="nested_gke_cluster_reference"></a>The `gke_cluster_reference` block supports:
 
 * `cluster` -
   (Required)
@@ -146,9 +144,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

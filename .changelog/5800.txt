@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigtable: added `gc_rules` to `google_bigtable_gc_policy` resource.
+```

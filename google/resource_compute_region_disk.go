@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -39,9 +38,9 @@ func resourceComputeRegionDisk() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -98,6 +97,12 @@ you do not need to provide a key to use the disk later.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The name of the encryption key that is stored in Google Cloud KMS.`,
+						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -742,7 +747,7 @@ func flattenComputeRegionDiskName(v interface{}, d *schema.ResourceData, config 
 func flattenComputeRegionDiskSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -766,7 +771,7 @@ func flattenComputeRegionDiskUsers(v interface{}, d *schema.ResourceData, config
 func flattenComputeRegionDiskPhysicalBlockSizeBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -814,6 +819,8 @@ func flattenComputeRegionDiskDiskEncryptionKey(v interface{}, d *schema.Resource
 		flattenComputeRegionDiskDiskEncryptionKeyRawKey(original["rawKey"], d, config)
 	transformed["sha256"] =
 		flattenComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
+	transformed["kms_key_name"] =
+		flattenComputeRegionDiskDiskEncryptionKeyKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -821,6 +828,10 @@ func flattenComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.Re
 }
 
 func flattenComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -944,6 +955,13 @@ func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d TerraformResource
 		transformed["sha256"] = transformedSha256
 	}
 
+	transformedKmsKeyName, err := expandComputeRegionDiskDiskEncryptionKeyKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
 	return transformed, nil
 }
 
@@ -952,6 +970,10 @@ func expandComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d TerraformRe
 }
 
 func expandComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

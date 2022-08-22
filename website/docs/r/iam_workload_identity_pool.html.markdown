@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IAM"
-layout: "google"
 page_title: "Google: google_iam_workload_identity_pool"
-sidebar_current: "docs-google-iam-workload-identity-pool"
 description: |-
   Represents a collection of external workload identities.
 ---
@@ -25,12 +23,10 @@ description: |-
 Represents a collection of external workload identities. You can define IAM policies to
 grant these identities access to Google Cloud resources.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about WorkloadIdentityPool, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v1beta/projects.locations.workloadIdentityPools)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v1/projects.locations.workloadIdentityPools)
 * How-to Guides
     * [Managing workload identity pools](https://cloud.google.com/iam/docs/manage-workload-identity-pools-providers#pools)
 
@@ -44,7 +40,6 @@ To get more information about WorkloadIdentityPool, see:
 
 ```hcl
 resource "google_iam_workload_identity_pool" "example" {
-  provider                  = google-beta
   workload_identity_pool_id = "example-pool"
 }
 ```
@@ -58,7 +53,6 @@ resource "google_iam_workload_identity_pool" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "example" {
-  provider                  = google-beta
   workload_identity_pool_id = "example-pool"
   display_name              = "Name of pool"
   description               = "Identity pool for automated test"
@@ -126,9 +120,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

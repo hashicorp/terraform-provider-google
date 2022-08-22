@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAppEngineStandardAppVersionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -91,9 +88,10 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
 }
 
 resource "google_app_engine_standard_app_version" "myapp_v2" {
-  version_id = "v2"
-  service    = "myapp"
-  runtime    = "nodejs10"
+  version_id      = "v2"
+  service         = "myapp"
+  runtime         = "nodejs10"
+  app_engine_apis = true
 
   entrypoint {
     shell = "node ./app.js"
@@ -117,7 +115,8 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-appengine-static-content%{random_suffix}"
+  name     = "tf-test-appengine-static-content%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

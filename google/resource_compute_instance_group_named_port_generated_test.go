@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceGroupNamedPortDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -55,7 +52,7 @@ func TestAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(t *te
 func testAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance_group_named_port" "my_port" {
-  group = google_container_cluster.my_cluster.instance_group_urls[0]
+  group = google_container_cluster.my_cluster.node_pool[0].instance_group_urls[0]
   zone = "us-central1-a"
 
   name = "http"
@@ -63,7 +60,7 @@ resource "google_compute_instance_group_named_port" "my_port" {
 }
 
 resource "google_compute_instance_group_named_port" "my_ports" {
-  group = google_container_cluster.my_cluster.instance_group_urls[0]
+  group = google_container_cluster.my_cluster.node_pool[0].instance_group_urls[0]
   zone = "us-central1-a"
 
   name = "https"

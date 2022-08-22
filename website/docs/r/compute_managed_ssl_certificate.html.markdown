@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_managed_ssl_certificate"
-sidebar_current: "docs-google-compute-managed-ssl-certificate"
 description: |-
   An SslCertificate resource, used for HTTPS load balancing.
 ---
@@ -148,7 +146,7 @@ resource "google_compute_target_https_proxy" "default" {
 }
 
 locals {
-  managed_domains = list("test.example.com")
+  managed_domains = tolist(["test.example.com"])
 }
 
 resource "random_id" "certificate" {
@@ -235,7 +233,7 @@ The following arguments are supported:
   (Optional)
   Properties relevant to a managed certificate.  These will be used if the
   certificate is managed (as indicated by a value of `MANAGED` in `type`).
-  Structure is documented below.
+  Structure is [documented below](#nested_managed).
 
 * `type` -
   (Optional)
@@ -248,7 +246,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `managed` block supports:
+<a name="nested_managed"></a>The `managed` block supports:
 
 * `domains` -
   (Required)
@@ -280,7 +278,7 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
+- `create` - Default is 30 minutes.
 - `delete` - Default is 30 minutes.
 
 ## Import

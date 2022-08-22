@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // Whether the port should be set or not
@@ -122,9 +121,9 @@ func resourceComputeHealthCheck() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: healthCheckCustomizeDiff,
@@ -166,7 +165,7 @@ you create the resource.`,
 						"grpc_service_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The gRPC service name for the health check. 
+							Description: `The gRPC service name for the health check.
 The value of grpcServiceName has the following meanings by convention:
   - Empty serviceName means the overall status of all services at the backend.
   - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
@@ -176,8 +175,8 @@ The grpcServiceName can only be ASCII.`,
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Description: `The port number for the health check request. 
-Must be specified if portName and portSpecification are not set 
+							Description: `The port number for the health check request.
+Must be specified if portName and portSpecification are not set
 or if port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.`,
 							AtLeastOneOf: []string{"grpc_health_check.0.port", "grpc_health_check.0.port_name", "grpc_health_check.0.port_specification", "grpc_health_check.0.grpc_service_name"},
 						},
@@ -191,7 +190,7 @@ port_name are defined, port takes precedence.`,
 						"port_specification": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}, false),
+							ValidateFunc: validateEnum([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}),
 							Description: `Specifies how port is selected for health checking, can be one of the
 following values:
 
@@ -252,7 +251,7 @@ port_name are defined, port takes precedence.`,
 						"port_specification": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}, false),
+							ValidateFunc: validateEnum([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}),
 							Description: `Specifies how port is selected for health checking, can be one of the
 following values:
 
@@ -272,7 +271,7 @@ If not specified, HTTP2 health check follows behavior specified in 'port' and
 						"proxy_header": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+							ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 							Default:      "NONE",
@@ -331,7 +330,7 @@ port_name are defined, port takes precedence.`,
 						"port_specification": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}, false),
+							ValidateFunc: validateEnum([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}),
 							Description: `Specifies how port is selected for health checking, can be one of the
 following values:
 
@@ -351,7 +350,7 @@ If not specified, HTTP health check follows behavior specified in 'port' and
 						"proxy_header": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+							ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 							Default:      "NONE",
@@ -410,7 +409,7 @@ port_name are defined, port takes precedence.`,
 						"port_specification": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}, false),
+							ValidateFunc: validateEnum([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}),
 							Description: `Specifies how port is selected for health checking, can be one of the
 following values:
 
@@ -430,7 +429,7 @@ If not specified, HTTPS health check follows behavior specified in 'port' and
 						"proxy_header": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+							ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 							Default:      "NONE",
@@ -455,6 +454,24 @@ can only be ASCII.`,
 					},
 				},
 				ExactlyOneOf: []string{"http_health_check", "https_health_check", "http2_health_check", "tcp_health_check", "ssl_health_check", "grpc_health_check"},
+			},
+			"log_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Configure logging on this health check.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Indicates whether or not to export logs. This is false by default,
+which means no health check logging will be done.`,
+							Default: false,
+						},
+					},
+				},
 			},
 			"ssl_health_check": {
 				Type:             schema.TypeList,
@@ -481,7 +498,7 @@ port_name are defined, port takes precedence.`,
 						"port_specification": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}, false),
+							ValidateFunc: validateEnum([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}),
 							Description: `Specifies how port is selected for health checking, can be one of the
 following values:
 
@@ -501,7 +518,7 @@ If not specified, SSL health check follows behavior specified in 'port' and
 						"proxy_header": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+							ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 							Default:      "NONE",
@@ -553,7 +570,7 @@ port_name are defined, port takes precedence.`,
 						"port_specification": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}, false),
+							ValidateFunc: validateEnum([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}),
 							Description: `Specifies how port is selected for health checking, can be one of the
 following values:
 
@@ -573,7 +590,7 @@ If not specified, TCP health check follows behavior specified in 'port' and
 						"proxy_header": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+							ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 							Default:      "NONE",
@@ -720,6 +737,12 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("grpc_health_check"); !isEmptyValue(reflect.ValueOf(grpcHealthCheckProp)) && (ok || !reflect.DeepEqual(v, grpcHealthCheckProp)) {
 		obj["grpcHealthCheck"] = grpcHealthCheckProp
 	}
+	logConfigProp, err := expandComputeHealthCheckLogConfig(d.Get("log_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+		obj["logConfig"] = logConfigProp
+	}
 
 	obj, err = resourceComputeHealthCheckEncoder(d, meta, obj)
 	if err != nil {
@@ -848,6 +871,9 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("grpc_health_check", flattenComputeHealthCheckGrpcHealthCheck(res["grpcHealthCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
+	if err := d.Set("log_config", flattenComputeHealthCheckLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HealthCheck: %s", err)
+	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
@@ -942,6 +968,12 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("grpc_health_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, grpcHealthCheckProp)) {
 		obj["grpcHealthCheck"] = grpcHealthCheckProp
+	}
+	logConfigProp, err := expandComputeHealthCheckLogConfig(d.Get("log_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+		obj["logConfig"] = logConfigProp
 	}
 
 	obj, err = resourceComputeHealthCheckEncoder(d, meta, obj)
@@ -1048,7 +1080,7 @@ func resourceComputeHealthCheckImport(d *schema.ResourceData, meta interface{}) 
 func flattenComputeHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1073,7 +1105,7 @@ func flattenComputeHealthCheckDescription(v interface{}, d *schema.ResourceData,
 func flattenComputeHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1094,7 +1126,7 @@ func flattenComputeHealthCheckName(v interface{}, d *schema.ResourceData, config
 func flattenComputeHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1111,7 +1143,7 @@ func flattenComputeHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, 
 func flattenComputeHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1169,7 +1201,7 @@ func flattenComputeHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.R
 func flattenComputeHealthCheckHttpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1235,7 +1267,7 @@ func flattenComputeHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.
 func flattenComputeHealthCheckHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1295,7 +1327,7 @@ func flattenComputeHealthCheckTcpHealthCheckResponse(v interface{}, d *schema.Re
 func flattenComputeHealthCheckTcpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1355,7 +1387,7 @@ func flattenComputeHealthCheckSslHealthCheckResponse(v interface{}, d *schema.Re
 func flattenComputeHealthCheckSslHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1421,7 +1453,7 @@ func flattenComputeHealthCheckHttp2HealthCheckResponse(v interface{}, d *schema.
 func flattenComputeHealthCheckHttp2HealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1469,7 +1501,7 @@ func flattenComputeHealthCheckGrpcHealthCheck(v interface{}, d *schema.ResourceD
 func flattenComputeHealthCheckGrpcHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1493,6 +1525,19 @@ func flattenComputeHealthCheckGrpcHealthCheckPortSpecification(v interface{}, d 
 
 func flattenComputeHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeHealthCheckLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	transformed := make(map[string]interface{})
+	if v == nil {
+		// Disabled by default, but API will not return object if value is false
+		transformed["enable"] = false
+		return []interface{}{transformed}
+	}
+
+	original := v.(map[string]interface{})
+	transformed["enable"] = original["enable"]
+	return []interface{}{transformed}
 }
 
 func expandComputeHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1995,6 +2040,29 @@ func expandComputeHealthCheckGrpcHealthCheckPortSpecification(v interface{}, d T
 }
 
 func expandComputeHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnable, err := expandComputeHealthCheckLogConfigEnable(original["enable"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+		transformed["enable"] = transformedEnable
+	}
+
+	return transformed, nil
+}
+
+func expandComputeHealthCheckLogConfigEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

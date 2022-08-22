@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-layout: "google"
 page_title: "Google: google_logging_project_bucket_config"
-sidebar_current: "docs-google-logging-project-bucket-config"
 description: |-
   Manages a project-level logging bucket config.
 ---
@@ -25,7 +23,7 @@ resource "google_project" "default" {
 }
 
 resource "google_logging_project_bucket_config" "basic" {
-	project    = google_project.default.name
+	project    = google_project.default.id
 	location  = "global"
 	retention_days = 30
 	bucket_id = "_Default"

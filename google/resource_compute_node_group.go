@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,11 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
+	"regexp"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeNodeGroup() *schema.Resource {
@@ -37,9 +36,9 @@ func resourceComputeNodeGroup() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -48,12 +47,6 @@ func resourceComputeNodeGroup() *schema.Resource {
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `The URL of the node template to which this node group belongs.`,
-			},
-			"size": {
-				Type:        schema.TypeInt,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The total number of nodes in the node group.`,
 			},
 			"autoscaling_policy": {
 				Type:     schema.TypeList,
@@ -78,7 +71,7 @@ to 100 and greater than or equal to min-nodes.`,
 							Computed:     true,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OFF", "ON", "ONLY_SCALE_OUT"}, false),
+							ValidateFunc: validateEnum([]string{"OFF", "ON", "ONLY_SCALE_OUT"}),
 							Description: `The autoscaling mode. Set to one of the following:
   - OFF: Disables the autoscaler.
   - ON: Enables scaling in and scaling out.
@@ -103,6 +96,13 @@ than or equal to max-nodes. The default value is 0.`,
 				ForceNew:    true,
 				Description: `An optional textual description of the resource.`,
 			},
+			"initial_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The initial number of nodes in the node group. One of 'initial_size' or 'size' must be specified.`,
+				ExactlyOneOf: []string{"size", "initial_size"},
+			},
 			"maintenance_policy": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -110,11 +110,36 @@ than or equal to max-nodes. The default value is 0.`,
 				Description: `Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.`,
 				Default:     "DEFAULT",
 			},
+			"maintenance_window": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `contains properties for the timeframe of maintenance`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"start_time": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `instances.start time of the window. This must be in UTC format that resolves to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both 13:00-5 and 08:00 are valid.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Name of the resource.`,
+			},
+			"size": {
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The total number of nodes in the node group. One of 'initial_size' or 'size' must be specified.`,
+				ExactlyOneOf: []string{"size", "initial_size"},
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -182,6 +207,12 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !isEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
+	maintenanceWindowProp, err := expandComputeNodeGroupMaintenanceWindow(d.Get("maintenance_window"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_window"); !isEmptyValue(reflect.ValueOf(maintenanceWindowProp)) && (ok || !reflect.DeepEqual(v, maintenanceWindowProp)) {
+		obj["maintenanceWindow"] = maintenanceWindowProp
+	}
 	autoscalingPolicyProp, err := expandComputeNodeGroupAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
 	if err != nil {
 		return err
@@ -195,7 +226,7 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		obj["zone"] = zoneProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups?initialNodeCount={{size}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups?initialNodeCount=PRE_CREATE_REPLACE_ME")
 	if err != nil {
 		return err
 	}
@@ -214,6 +245,14 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
+	var sizeParam string
+	if v, ok := d.GetOkExists("size"); ok {
+		sizeParam = fmt.Sprintf("%v", v)
+	} else if v, ok := d.GetOkExists("initial_size"); ok {
+		sizeParam = fmt.Sprintf("%v", v)
+	}
+
+	url = regexp.MustCompile("PRE_CREATE_REPLACE_ME").ReplaceAllLiteralString(url, sizeParam)
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NodeGroup: %s", err)
@@ -291,6 +330,9 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("maintenance_policy", flattenComputeNodeGroupMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err := d.Set("maintenance_window", flattenComputeNodeGroupMaintenanceWindow(res["maintenanceWindow"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("autoscaling_policy", flattenComputeNodeGroupAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
@@ -451,7 +493,7 @@ func flattenComputeNodeGroupNodeTemplate(v interface{}, d *schema.ResourceData, 
 func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -466,6 +508,23 @@ func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData, config *
 }
 
 func flattenComputeNodeGroupMaintenancePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeNodeGroupMaintenanceWindow(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_time"] =
+		flattenComputeNodeGroupMaintenanceWindowStartTime(original["startTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeNodeGroupMaintenanceWindowStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -493,7 +552,7 @@ func flattenComputeNodeGroupAutoscalingPolicyMode(v interface{}, d *schema.Resou
 func flattenComputeNodeGroupAutoscalingPolicyMinNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -510,7 +569,7 @@ func flattenComputeNodeGroupAutoscalingPolicyMinNodes(v interface{}, d *schema.R
 func flattenComputeNodeGroupAutoscalingPolicyMaxNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -552,6 +611,29 @@ func expandComputeNodeGroupSize(v interface{}, d TerraformResourceData, config *
 }
 
 func expandComputeNodeGroupMaintenancePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupMaintenanceWindow(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartTime, err := expandComputeNodeGroupMaintenanceWindowStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	return transformed, nil
+}
+
+func expandComputeNodeGroupMaintenanceWindowStartTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

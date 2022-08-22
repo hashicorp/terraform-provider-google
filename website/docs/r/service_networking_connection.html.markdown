@@ -1,8 +1,6 @@
 ---
 subcategory: "Service Networking"
-layout: "google"
 page_title: "Google: google_service_networking_connection"
-sidebar_current: "docs-google-service-networking-connection"
 description: |-
   Manages creating a private VPC connection to a service provider.
 ---
@@ -50,9 +48,23 @@ The following arguments are supported:
   this service provider. Note that invoking this method with a different range when connection
   is already established will not reallocate already provisioned service producer subnetworks.
 
-## Import 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `peering` - (Computed) The name of the VPC Network Peering connection that was created by the service producer.
+
+
+## Import
 ServiceNetworkingConnection can be imported using any of these accepted formats
 
-* terraform import google_service_networking_connection.peering_connection {{peering-network}}:{{service}}
+```
+$ terraform import google_service_networking_connection.peering_connection {{peering-network}}:{{service}}
 
-* terraform import google_service_networking_connection.peering_connection /projects/{{project}}/global/networks/{{peering-network}}:{{service}}
+$ terraform import google_service_networking_connection.peering_connection /projects/{{project}}/global/networks/{{peering-network}}:{{service}}
+```
+
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

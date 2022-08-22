@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -71,6 +68,11 @@ resource "google_monitoring_slo" "appeng_slo" {
       threshold = "1s"
     }
   }
+
+  user_labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 `, context)
 }
@@ -84,11 +86,8 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -139,11 +138,8 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -192,11 +188,8 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -251,11 +244,8 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -310,11 +300,8 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

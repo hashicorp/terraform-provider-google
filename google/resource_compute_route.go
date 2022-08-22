@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,8 +34,8 @@ func resourceComputeRoute() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -92,12 +91,23 @@ partial valid URL:
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `The URL to a forwarding rule of type loadBalancingScheme=INTERNAL that should handle matching packets.
-You can only specify the forwarding rule as a partial or full URL. For example, the following are all valid URLs:
-https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
-regions/region/forwardingRules/forwardingRule
-Note that this can only be used when the destinationRange is a public (non-RFC 1918) IP CIDR range.`,
+				DiffSuppressFunc: compareIpAddressOrSelfLinkOrResourceName,
+				Description: `The IP address or URL to a forwarding rule of type
+loadBalancingScheme=INTERNAL that should handle matching
+packets.
+
+With the GA provider you can only specify the forwarding
+rule as a partial or full URL. For example, the following
+are all valid values:
+* 10.128.0.56
+* https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+* regions/region/forwardingRules/forwardingRule
+
+When the beta provider, you can also specify the IP address
+of a forwarding rule from the same VPC or any peered VPC.
+
+Note that this can only be used when the destinationRange is
+a public (non-RFC 1918) IP CIDR range.`,
 				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
 			},
 			"next_hop_instance": {
@@ -158,9 +168,11 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				Description: `URL to a Network that should handle matching packets.`,
 			},
 			"next_hop_instance_zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "The zone of the instance specified in next_hop_instance. Omit if next_hop_instance is specified as a URL.",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -488,7 +500,7 @@ func flattenComputeRouteNetwork(v interface{}, d *schema.ResourceData, config *C
 func flattenComputeRoutePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -536,10 +548,7 @@ func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData, co
 }
 
 func flattenComputeRouteNextHopIlb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+	return v
 }
 
 func expandComputeRouteDestRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -612,11 +621,7 @@ func expandComputeRouteNextHopVpnTunnel(v interface{}, d TerraformResourceData, 
 }
 
 func expandComputeRouteNextHopIlb(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseRegionalFieldValue("forwardingRules", v.(string), "project", "region", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for next_hop_ilb: %s", err)
-	}
-	return f.RelativeLink(), nil
+	return v, nil
 }
 
 func resourceComputeRouteDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

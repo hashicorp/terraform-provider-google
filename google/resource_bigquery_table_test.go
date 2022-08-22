@@ -3,11 +3,393 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"empty schema": {
+			Old:                "null",
+			New:                "[]",
+			ExpectDiffSuppress: true,
+		},
+		"empty schema -> non-empty": {
+			Old: "null",
+			New: `[
+				{
+					"name": "PageNo",
+					"type": "INTEGER"
+				}
+			]`,
+			ExpectDiffSuppress: false,
+		},
+		"no change": {
+			Old:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+			New:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+			ExpectDiffSuppress: true,
+		},
+		"remove key": {
+			Old:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+			New:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"finalKey\" : {} }]",
+			ExpectDiffSuppress: false,
+		},
+		"empty description -> default description (empty)": {
+			Old:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
+			New:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\" }]",
+			ExpectDiffSuppress: true,
+		},
+		"empty description -> other description": {
+			Old:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
+			New:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"description\": \"somethingRandom\"  }]",
+			ExpectDiffSuppress: false,
+		},
+		"mode NULLABLE -> other mode": {
+			Old:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
+			New:                "[{\"name\": \"someValue\", \"type\": \"INT64\", \"anotherKey\" : \"anotherValue\", \"mode\": \"somethingRandom\"  }]",
+			ExpectDiffSuppress: false,
+		},
+		"mode NULLABLE -> default mode (also NULLABLE)": {
+			Old: `[
+				{
+					"mode": "NULLABLE",
+					"name": "PageNo",
+					"type": "INTEGER"
+				}
+			]`,
+			New: `[
+				{
+					"name": "PageNo",
+					"type": "INTEGER"
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"mode & type uppercase -> lowercase": {
+			Old: `[
+				{
+					"mode": "NULLABLE",
+					"name": "PageNo",
+					"type": "INTEGER"
+				}
+			]`,
+			New: `[
+				{
+					"mode": "nullable",
+					"name": "PageNo",
+					"type": "integer"
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"type INTEGER -> INT64": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INT64\"  }]",
+			ExpectDiffSuppress: true,
+		},
+		"type INTEGER -> other": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"somethingRandom\"  }]",
+			ExpectDiffSuppress: false,
+		},
+		"type FLOAT -> FLOAT64": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT64\"  }]",
+			ExpectDiffSuppress: true,
+		},
+		"type FLOAT -> other": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"somethingRandom\" }]",
+			ExpectDiffSuppress: false,
+		},
+		"type BOOLEAN -> BOOL": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOL\"  }]",
+			ExpectDiffSuppress: true,
+		},
+		"type BOOLEAN -> other": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"somethingRandom\" }]",
+			ExpectDiffSuppress: false,
+		},
+		// this is invalid but we need to make sure we don't cause a panic
+		// if users provide an invalid schema
+		"invalid - missing type for old": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\" }]",
+			ExpectDiffSuppress: false,
+		},
+		// this is invalid but we need to make sure we don't cause a panic
+		// if users provide an invalid schema
+		"invalid - missing type for new": {
+			Old:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\" }]",
+			New:                "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+			ExpectDiffSuppress: false,
+		},
+		"reordering fields": {
+			Old: `[
+				{
+					"name": "PageNo",
+					"type": "INTEGER"
+				},
+				{
+					"name": "IngestTime",
+					"type": "TIMESTAMP"
+				}
+			]`,
+			New: `[
+				{
+					"name": "IngestTime",
+					"type": "TIMESTAMP"
+				},
+				{
+					"name": "PageNo",
+					"type": "INTEGER"
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"reordering fields with value change": {
+			Old: `[
+				{
+					"name": "PageNo",
+					"type": "INTEGER",
+					"description": "someVal"
+				},
+				{
+					"name": "IngestTime",
+					"type": "TIMESTAMP"
+				}
+			]`,
+			New: `[
+				{
+					"name": "IngestTime",
+					"type": "TIMESTAMP"
+				},
+				{
+					"name": "PageNo",
+					"type": "INTEGER",
+					"description": "otherVal"
+				}
+			]`,
+			ExpectDiffSuppress: false,
+		},
+		"nested field ordering changes": {
+			Old: `[
+				{
+					"name": "someValue",
+					"type": "INTEGER",
+					"fields": [
+						{
+							"name": "value1",
+							"type": "INTEGER",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						},
+						{
+							"name": "value2",
+							"type": "BOOLEAN",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						}
+					]
+				}
+			]`,
+			New: `[
+				{
+					"name": "someValue",
+					"type": "INTEGER",
+					"fields": [
+						{
+							"name": "value2",
+							"type": "BOOLEAN",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						},
+						{
+							"name": "value1",
+							"type": "INTEGER",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						}
+					]
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"policyTags": {
+			Old: `[
+				{
+					"mode": "NULLABLE",
+					"name": "providerphone",
+					"policyTags": {
+						"names": [
+							"projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"
+						]
+					},
+					"type":"STRING"
+				}
+			]`,
+			New: `[
+			  {
+			    "name": "providerphone",
+			    "type": "STRING",
+			    "policyTags": {
+			          "names": ["projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"]
+			        }
+			  }
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"multiple levels of reordering with policyTags set": {
+			Old: `[
+				{
+					"mode": "NULLABLE",
+					"name": "providerphone",
+					"type":"STRING",
+					"policyTags": {
+						"names": [
+							"projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"
+						]
+					},
+					"fields": [
+						{
+							"name": "value1",
+							"type": "INTEGER",
+							"mode": "NULLABLE",
+							"description": "someVal",
+							"policyTags": {
+								"names": [
+									"projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"
+								]
+							}
+						},
+						{
+							"name": "value2",
+							"type": "BOOLEAN",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						}
+					]
+				},
+				{
+					"name": "PageNo",
+					"type": "INTEGER"
+				},
+				{
+					"name": "IngestTime",
+					"type": "TIMESTAMP",
+					"fields": [
+						{
+							"name": "value3",
+							"type": "INTEGER",
+							"mode": "NULLABLE",
+							"description": "someVal",
+							"policyTags": {
+								"names": [
+									"projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"
+								]
+							}
+						},
+						{
+							"name": "value4",
+							"type": "BOOLEAN",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						}
+					]
+				}
+			]`,
+			New: `[
+				{
+					"name": "IngestTime",
+					"type": "TIMESTAMP",
+					"fields": [
+						{
+							"name": "value4",
+							"type": "BOOLEAN",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						},
+						{
+							"name": "value3",
+							"type": "INTEGER",
+							"mode": "NULLABLE",
+							"description": "someVal",
+							"policyTags": {
+								"names": [
+									"projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"
+								]
+							}
+						}
+					]
+				},
+				{
+					"mode": "NULLABLE",
+					"name": "providerphone",
+					"type":"STRING",
+					"policyTags": {
+						"names": [
+							"projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"
+						]
+					},
+					"fields": [
+						{
+							"name": "value1",
+							"type": "INTEGER",
+							"mode": "NULLABLE",
+							"description": "someVal",
+							"policyTags": {
+								"names": [
+									"projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"
+								]
+							}
+						},
+						{
+							"name": "value2",
+							"type": "BOOLEAN",
+							"mode": "NULLABLE",
+							"description": "someVal"
+						}
+					]
+				},
+				{
+					"name": "PageNo",
+					"type": "INTEGER"
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		tn := tn
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+
+			var a, b interface{}
+			if err := json.Unmarshal([]byte(tc.Old), &a); err != nil {
+				t.Fatalf(fmt.Sprintf("unable to unmarshal old json - %v", err))
+			}
+			if err := json.Unmarshal([]byte(tc.New), &b); err != nil {
+				t.Fatalf(fmt.Sprintf("unable to unmarshal new json - %v", err))
+			}
+			if bigQueryTableSchemaDiffSuppress("schema", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+				t.Fatalf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+			}
+		})
+	}
+}
 
 func TestAccBigQueryTable_Basic(t *testing.T) {
 	t.Parallel()
@@ -24,17 +406,19 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "DAY"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -57,9 +441,10 @@ func TestAccBigQueryTable_Kms(t *testing.T) {
 				Config: testAccBigQueryTableKms(cryptoKeyName, datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -80,17 +465,19 @@ func TestAccBigQueryTable_HourlyTimePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "HOUR"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -111,17 +498,19 @@ func TestAccBigQueryTable_MonthlyTimePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "MONTH"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -142,17 +531,19 @@ func TestAccBigQueryTable_YearlyTimePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "YEAR"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -174,9 +565,10 @@ func TestAccBigQueryTable_HivePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableHivePartitioning(bucketName, datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -201,7 +593,7 @@ func TestAccBigQueryTable_HivePartitioningCustomSchema(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"external_data_configuration.0.schema"},
+				ImportStateVerifyIgnore: []string{"external_data_configuration.0.schema", "deletion_protection"},
 			},
 		},
 	})
@@ -222,9 +614,10 @@ func TestAccBigQueryTable_RangePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableRangePartitioning(datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -245,9 +638,10 @@ func TestAccBigQueryTable_View(t *testing.T) {
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -268,17 +662,52 @@ func TestAccBigQueryTable_updateView(t *testing.T) {
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableWithNewSqlView(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_WithViewAndSchema(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithViewAndSchema(datasetID, tableID, "table description1"),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTableWithViewAndSchema(datasetID, tableID, "table description2"),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -291,6 +720,7 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Basic(t *testing.
 	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 	materialized_viewID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 	query := fmt.Sprintf("SELECT count(some_string) as count, some_int, ts FROM `%s.%s` WHERE DATE(ts) = '2019-01-01' GROUP BY some_int, ts", datasetID, tableID)
+	queryNew := strings.ReplaceAll(query, "2019", "2020")
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -304,13 +734,28 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Basic(t *testing.
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				ResourceName:            "google_bigquery_table.mv_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTableWithMatViewDailyTimePartitioning_basic(datasetID, tableID, materialized_viewID, queryNew),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+			{
+				ResourceName:            "google_bigquery_table.mv_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 		},
 	})
@@ -340,13 +785,13 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Update(t *testing
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				ResourceName:            "google_bigquery_table.mv_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableWithMatViewDailyTimePartitioning(datasetID, tableID, materialized_viewID, enable_refresh, refresh_interval_ms, query),
@@ -355,13 +800,13 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Update(t *testing
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				ResourceName:            "google_bigquery_table.mv_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 		},
 	})
@@ -393,6 +838,110 @@ func TestAccBigQueryExternalDataTable_CSV(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryExternalDataTable_CSV_WithSchemaAndConnectionID_UpdateNoConnectionID(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", randString(t, 10))
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	connectionID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	projectID := getTestProjectFromEnv()
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromGCSWithSchemaWithConnectionId(datasetID, tableID, connectionID, projectID, bucketName, objectName, TEST_SIMPLE_CSV, TEST_SIMPLE_CSV_SCHEMA),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTableFromGCSWithSchema(datasetID, tableID, bucketName, objectName, TEST_SIMPLE_CSV, TEST_SIMPLE_CSV_SCHEMA),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryExternalDataTable_CSV_WithSchema_UpdateToConnectionID(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", randString(t, 10))
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	connectionID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	projectID := getTestProjectFromEnv()
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromGCSWithSchema(datasetID, tableID, bucketName, objectName, TEST_SIMPLE_CSV, TEST_SIMPLE_CSV_SCHEMA),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTableFromGCSWithSchemaWithConnectionId(datasetID, tableID, connectionID, projectID, bucketName, objectName, TEST_SIMPLE_CSV, TEST_SIMPLE_CSV_SCHEMA),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataTable_bigtable(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 8),
+		"project":       getTestProjectFromEnv(),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromBigtable(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDataTable_sheet(t *testing.T) {
 	t.Parallel()
 
@@ -409,9 +958,10 @@ func TestAccBigQueryDataTable_sheet(t *testing.T) {
 				Config: testAccBigQueryTableFromSheet(context),
 			},
 			{
-				ResourceName:      "google_bigquery_table.table",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -435,60 +985,143 @@ func TestAccBigQueryDataTable_jsonEquivalency(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
-				Config: testAccBigQueryTable_jsonEqUpdate(datasetID, tableID),
+				Config: testAccBigQueryTable_jsonEqModeRemoved(datasetID, tableID),
 			},
 			{
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 		},
 	})
 }
 
-func TestUnitBigQueryDataTable_jsonEquivalency(t *testing.T) {
+func TestAccBigQueryDataTable_canReorderParameters(t *testing.T) {
 	t.Parallel()
 
-	for i, testcase := range testUnitBigQueryDataTableJSONEquivalencyTestCases {
-		var a, b interface{}
-		if err := json.Unmarshal([]byte(testcase.jsonA), &a); err != nil {
-			panic(fmt.Sprintf("unable to unmarshal json - %v", err))
-		}
-		if err := json.Unmarshal([]byte(testcase.jsonB), &b); err != nil {
-			panic(fmt.Sprintf("unable to unmarshal json - %v", err))
-		}
-		eq, err := jsonCompareWithMapKeyOverride(a, b, bigQueryTableMapKeyOverride)
-		if err != nil {
-			t.Errorf("ahhhh an error I did not expect this! especially not on testscase %v - %s", i, err)
-		}
-		if eq != testcase.equivalent {
-			t.Errorf("expected equivalency result of %v but got %v for testcase number %v", testcase.equivalent, eq, i)
-		}
-	}
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// we don't run any checks because the resource will error out if
+				// it attempts to destroy/tear down.
+				Config: testAccBigQueryTable_jsonPreventDestroy(datasetID, tableID),
+			},
+			{
+				Config: testAccBigQueryTable_jsonPreventDestroyOrderChanged(datasetID, tableID),
+			},
+			{
+				Config: testAccBigQueryTable_jsonEq(datasetID, tableID),
+			},
+		},
+	})
 }
 
-func TestUnitBigQueryDataTable_schemaIsChangable(t *testing.T) {
+func TestAccBigQueryDataTable_expandArray(t *testing.T) {
 	t.Parallel()
-	for _, testcase := range testUnitBigQueryDataTableIsChangableTestCases {
-		testcase.check(t)
-		testcaseNested := &testUnitBigQueryDataTableJSONChangeableTestCase{
-			testcase.name + "Nested",
-			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"fields\" : %s }]", testcase.jsonOld),
-			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INT64\", \"fields\" : %s }]", testcase.jsonNew),
-			testcase.changeable,
-		}
-		testcaseNested.check(t)
-	}
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_arrayInitial(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTable_arrayExpanded(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+		},
+	})
 }
 
-type testUnitBigQueryDataTableJSONEquivalencyTestCase struct {
-	jsonA      string
-	jsonB      string
-	equivalent bool
+func TestAccBigQueryTable_allowDestroy(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_noAllowDestroy(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config:      testAccBigQueryTable_noAllowDestroy(datasetID, tableID),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile("deletion_protection"),
+			},
+			{
+				Config: testAccBigQueryTable_noAllowDestroyUpdated(datasetID, tableID),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_emptySchema(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_mimicCreateFromConsole(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTable_emptySchema(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
 }
 
 type testUnitBigQueryDataTableJSONChangeableTestCase struct {
@@ -524,7 +1157,7 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 
 	err = resourceBigQueryTableSchemaCustomizeDiffFunc(d)
 	if err != nil {
-		t.Errorf("error on testcase %s - %w", testcase.name, err)
+		t.Errorf("error on testcase %s - %v", testcase.name, err)
 	}
 	if !testcase.changeable != d.IsForceNew {
 		t.Errorf("%s: expected d.IsForceNew to be %v, but was %v", testcase.name, !testcase.changeable, d.IsForceNew)
@@ -541,12 +1174,12 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 	{
 		name:       "arraySizeIncreases",
 		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
-		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"asomeValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
 		changeable: true,
 	},
 	{
 		name:       "arraySizeDecreases",
-		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"asomeValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
 		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
 		changeable: false,
 	},
@@ -580,6 +1213,22 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"DATETIME\", \"mode\" : \"NULLABLE\", \"description\" : \"some new value\" }]",
 		changeable: false,
 	},
+	// this is invalid but we need to make sure we don't cause a panic
+	// if users provide an invalid schema
+	{
+		name:       "typeChangeIgnoreNewMissingType",
+		jsonOld:    "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		jsonNew:    "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\" }]",
+		changeable: true,
+	},
+	// this is invalid but we need to make sure we don't cause a panic
+	// if users provide an invalid schema
+	{
+		name:       "typeChangeIgnoreOldMissingType",
+		jsonOld:    "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		jsonNew:    "[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\" }]",
+		changeable: true,
+	},
 	{
 		name:       "typeModeReqToNull",
 		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"BOOLEAN\", \"mode\" : \"REQUIRED\", \"description\" : \"someVal\" }]",
@@ -593,84 +1242,60 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 		changeable: false,
 	},
 	{
-		name:       "typeModeOmission",
+		name:       "modeToDefaultNullable",
 		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"BOOLEAN\", \"mode\" : \"REQUIRED\", \"description\" : \"someVal\" }]",
 		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"BOOLEAN\", \"description\" : \"some new value\" }]",
+		changeable: true,
+	},
+	{
+		name:       "orderOfArrayChangesAndDescriptionChanges",
+		jsonOld:    "[{\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"value2\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"value2\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"newVal\" },  {\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		changeable: true,
+	},
+	{
+		name:       "orderOfArrayChangesAndNameChanges",
+		jsonOld:    "[{\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"value2\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"value3\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"newVal\" },  {\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
 		changeable: false,
+	},
+	{
+		name: "policyTags",
+		jsonOld: `[
+			{
+				"mode": "NULLABLE",
+				"name": "providerphone",
+				"policyTags": {
+					"names": ["projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"]
+				},
+				"type":"STRING"
+			}
+		]`,
+		jsonNew: `[
+			{
+				"name": "providerphone",
+				"type": "STRING",
+				"policyTags": {
+					"names": ["projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"]
+				}
+			}
+		]`,
+		changeable: true,
 	},
 }
 
-var testUnitBigQueryDataTableJSONEquivalencyTestCases = []testUnitBigQueryDataTableJSONEquivalencyTestCase{
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
-		true,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
-		"[{\"someKey\": \"someValue\", \"finalKey\" : {} }]",
-		false,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
-		true,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"somethingRandom\"  }]",
-		false,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
-		true,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"somethingRandom\"  }]",
-		false,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INT64\"  }]",
-		true,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"somethingRandom\"  }]",
-		false,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT64\"  }]",
-		true,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
-		false,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOL\"  }]",
-		true,
-	},
-	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
-		false,
-	},
-	{
-		"[1,2,3]",
-		"[1,2,3]",
-		true,
-	},
-	{
-		"[1,2,3]",
-		"[1,2,\"banana\"]",
-		false,
-	},
+func TestUnitBigQueryDataTable_schemaIsChangable(t *testing.T) {
+	t.Parallel()
+	for _, testcase := range testUnitBigQueryDataTableIsChangableTestCases {
+		testcase.check(t)
+		testcaseNested := &testUnitBigQueryDataTableJSONChangeableTestCase{
+			testcase.name + "Nested",
+			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"fields\" : %s }]", testcase.jsonOld),
+			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INT64\", \"fields\" : %s }]", testcase.jsonNew),
+			testcase.changeable,
+		}
+		testcaseNested.check(t)
+	}
 }
 
 func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
@@ -726,6 +1351,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -792,6 +1418,7 @@ resource "google_kms_crypto_key_iam_member" "allow" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = "${google_bigquery_dataset.test.dataset_id}"
 
@@ -840,6 +1467,7 @@ func testAccBigQueryTableHivePartitioning(bucketName, datasetID, tableID string)
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "test" {
   name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -854,6 +1482,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -865,6 +1494,7 @@ resource "google_bigquery_table" "test" {
     hive_partitioning_options {
       mode = "AUTO"
       source_uri_prefix = "gs://${google_storage_bucket.test.name}/"
+	  require_partition_filter = true
     }
 
   }
@@ -877,6 +1507,7 @@ func testAccBigQueryTableHivePartitioningCustomSchema(bucketName, datasetID, tab
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "test" {
   name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -891,6 +1522,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -902,6 +1534,7 @@ resource "google_bigquery_table" "test" {
     hive_partitioning_options {
       mode = "CUSTOM"
       source_uri_prefix = "gs://${google_storage_bucket.test.name}/{key1:STRING}"
+	  require_partition_filter = true
     }
 
     schema = <<EOH
@@ -929,6 +1562,7 @@ func testAccBigQueryTableRangePartitioning(datasetID, tableID string) string {
   }
 
   resource "google_bigquery_table" "test" {
+	  deletion_protection = false
     table_id   = "%s"
     dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -964,6 +1598,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -979,6 +1614,51 @@ resource "google_bigquery_table" "test" {
 `, datasetID, tableID)
 }
 
+func testAccBigQueryTableWithViewAndSchema(datasetID, tableID, desc string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  description = "%s"
+
+  time_partitioning {
+    type = "DAY"
+  }
+
+  schema = jsonencode(
+  [
+
+	{
+	"description":"desc1",
+	"mode":"NULLABLE",
+	"name":"col1",
+	"type":"STRING"
+	},
+	{
+	"description":"desc2",
+	"mode":"NULLABLE",
+	"name":"col2",
+	"type":"STRING"
+	}
+  ]
+  )
+
+  view {
+    query = <<SQL
+select "val1" as col1, "val2" as col2
+SQL
+    use_legacy_sql = false
+  }
+}
+`, datasetID, tableID, desc)
+}
+
 func testAccBigQueryTableWithNewSqlView(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
@@ -986,6 +1666,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1008,6 +1689,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1057,6 +1739,7 @@ EOH
 }
 
 resource "google_bigquery_table" "mv_test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1083,6 +1766,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1132,6 +1816,7 @@ EOH
 }
 
 resource "google_bigquery_table" "mv_test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1160,6 +1845,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1222,6 +1908,7 @@ resource "google_bigquery_dataset" "test" {
 
 resource "google_storage_bucket" "test" {
   name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -1235,6 +1922,7 @@ EOF
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
   external_data_configuration {
@@ -1253,9 +1941,150 @@ resource "google_bigquery_table" "test" {
 `, datasetID, bucketName, objectName, content, tableID, format, quoteChar)
 }
 
+func testAccBigQueryTableFromGCSWithSchemaWithConnectionId(datasetID, tableID, connectionID, projectID, bucketName, objectName, content, schema string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+resource "google_storage_bucket_object" "test" {
+  name    = "%s"
+  content = <<EOF
+%s
+EOF
+  bucket = google_storage_bucket.test.name
+}
+resource "google_bigquery_connection" "test" {
+   connection_id = "%s"
+   location = "US"
+   cloud_resource {}
+}
+locals {
+   connection_id_split = split("/", google_bigquery_connection.test.name)
+   connection_id_reformatted = "${local.connection_id_split[1]}.${local.connection_id_split[3]}.${local.connection_id_split[5]}"
+}
+resource "google_project_iam_member" "test" {
+   role = "roles/storage.objectViewer"
+   project = "%s"
+   member = "serviceAccount:${google_bigquery_connection.test.cloud_resource[0].service_account_id}"
+}
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  schema = <<EOF
+  %s
+  EOF
+  external_data_configuration {
+    autodetect    = false
+    connection_id = local.connection_id_reformatted
+    source_format = "CSV"
+    csv_options {
+      encoding = "UTF-8"
+      quote = ""
+    }
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.test.name}",
+    ]
+  }
+}
+`, datasetID, bucketName, objectName, content, connectionID, projectID, tableID, schema)
+}
+
+func testAccBigQueryTableFromGCSWithSchema(datasetID, tableID, bucketName, objectName, content, schema string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+resource "google_storage_bucket_object" "test" {
+  name    = "%s"
+  content = <<EOF
+%s
+EOF
+  bucket = google_storage_bucket.test.name
+}
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  schema = <<EOF
+  %s
+  EOF
+  external_data_configuration {
+    autodetect    = false
+    source_format = "CSV"
+    csv_options {
+      encoding = "UTF-8"
+      quote = ""
+    }
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.test.name}",
+    ]
+  }
+}
+`, datasetID, bucketName, objectName, content, tableID, schema)
+}
+
+func testAccBigQueryTableFromBigtable(context map[string]interface{}) string {
+	return Nprintf(`
+	resource "google_bigtable_instance" "instance" {
+		name = "tf-test-bigtable-inst-%{random_suffix}"
+		cluster {
+			cluster_id = "tf-test-bigtable-%{random_suffix}"
+			zone       = "us-central1-b"
+		}
+		instance_type = "DEVELOPMENT"
+		deletion_protection = false
+	}
+	resource "google_bigtable_table" "table" {
+		name          = "%{random_suffix}"
+		instance_name = google_bigtable_instance.instance.name
+		column_family {
+			family = "cf-%{random_suffix}-first"
+		}
+		column_family {
+			family = "cf-%{random_suffix}-second"
+		}
+	}
+	resource "google_bigquery_table" "table" {
+		deletion_protection = false
+		dataset_id = google_bigquery_dataset.dataset.dataset_id
+		table_id   = "tf_test_bigtable_%{random_suffix}"
+		external_data_configuration {
+		  autodetect            = true
+		  source_format         = "BIGTABLE"
+		  ignore_unknown_values = true
+		  source_uris = [
+			"https://googleapis.com/bigtable/${google_bigtable_table.table.id}",
+		  ]
+		}
+	  }
+	  resource "google_bigquery_dataset" "dataset" {
+		dataset_id                  = "tf_test_ds_%{random_suffix}"
+		friendly_name               = "test"
+		description                 = "This is a test description"
+		location                    = "EU"
+		default_table_expiration_ms = 3600000
+		labels = {
+		  env = "default"
+		}
+	  }
+`, context)
+}
+
 func testAccBigQueryTableFromSheet(context map[string]interface{}) string {
 	return Nprintf(`
   resource "google_bigquery_table" "table" {
+	  deletion_protection = false
     dataset_id = google_bigquery_dataset.dataset.dataset_id
     table_id   = "tf_test_sheet_%{random_suffix}"
 
@@ -1312,6 +2141,213 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "nullable"
+        type        = "integer"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_jsonEqModeRemoved(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_jsonPreventDestroy(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+	lifecycle {
+		prevent_destroy = true
+	}
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_jsonPreventDestroyOrderChanged(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+	lifecycle {
+		prevent_destroy = true
+	}
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+			},
+			{
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_noAllowDestroy(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_noAllowDestroyUpdated(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_arrayInitial(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1338,13 +2374,14 @@ resource "google_bigquery_table" "test" {
 `, datasetID, tableID)
 }
 
-func testAccBigQueryTable_jsonEqUpdate(datasetID, tableID string) string {
+func testAccBigQueryTable_arrayExpanded(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1358,6 +2395,7 @@ resource "google_bigquery_table" "test" {
       {
         description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
         name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
         type        = "INTEGER"
       },
       {
@@ -1365,7 +2403,44 @@ resource "google_bigquery_table" "test" {
         name        = "creation_time"
         type        = "TIMESTAMP"
       },
+			{
+        description = "some new value"
+        name        = "a_new_value"
+        type        = "TIMESTAMP"
+      },
     ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_mimicCreateFromConsole(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  schema = <<EOF
+  [
+  ]
+  EOF
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_emptySchema(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 }
 `, datasetID, tableID)
 }
@@ -1380,3 +2455,21 @@ gauto,gAuto,4,web,Scottsdale,AZ,1-Jan-08,250000,USD,seed
 chosenlist-com,ChosenList.com,5,web,Scottsdale,AZ,1-Oct-06,140000,USD,seed
 chosenlist-com,ChosenList.com,5,web,Scottsdale,AZ,25-Jan-08,233750,USD,angel
 `
+var TEST_SIMPLE_CSV = `US,phone,100
+JP,tablet,300
+UK,laptop,200
+`
+var TEST_SIMPLE_CSV_SCHEMA = `[
+    {
+      "name": "country",
+      "type": "STRING"
+    },
+    {
+      "name": "product",
+      "type": "STRING"
+    },
+    {
+      "name": "price",
+      "type": "INT64"
+    }
+  ]`

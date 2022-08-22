@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Run"
-layout: "google"
 page_title: "Google: google_cloud_run_domain_mapping"
-sidebar_current: "docs-google-cloud-run-domain-mapping"
 description: |-
   Resource to hold the state and status of a user's domain mapping.
 ---
@@ -31,11 +29,6 @@ To get more information about DomainMapping, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/run/docs/mapping-custom-domains)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_domain_mapping_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Run Domain Mapping Basic
 
 
@@ -79,24 +72,24 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Name should be a verified domain
+  Name should be a [verified](https://support.google.com/webmasters/answer/9008080) domain
 
 * `spec` -
   (Required)
   The spec for this DomainMapping.
-  Structure is documented below.
+  Structure is [documented below](#nested_spec).
 
 * `metadata` -
   (Required)
   Metadata associated with this DomainMapping.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata).
 
 * `location` -
   (Required)
   The location of the cloud run instance. eg us-central1
 
 
-The `spec` block supports:
+<a name="nested_spec"></a>The `spec` block supports:
 
 * `force_override` -
   (Optional)
@@ -116,7 +109,7 @@ The `spec` block supports:
   Default value is `AUTOMATIC`.
   Possible values are `NONE` and `AUTOMATIC`.
 
-The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `labels` -
   (Optional)
@@ -174,15 +167,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `status` -
   The current status of the DomainMapping.
-  Structure is documented below.
+  Structure is [documented below](#nested_status).
 
 
-The `status` block contains:
+<a name="nested_status"></a>The `status` block contains:
 
 * `conditions` -
   Array of observed DomainMappingConditions, indicating the current state
   of the DomainMapping.
-  Structure is documented below.
+  Structure is [documented below](#nested_conditions).
 
 * `observed_generation` -
   ObservedGeneration is the 'Generation' of the DomainMapping that
@@ -193,13 +186,13 @@ The `status` block contains:
   The resource records required to configure this domain mapping. These
   records must be added to the domain's DNS configuration in order to
   serve the application via this domain mapping.
-  Structure is documented below.
+  Structure is [documented below](#nested_resource_records).
 
 * `mapped_route_name` -
   The name of the route that the mapping currently points to.
 
 
-The `conditions` block contains:
+<a name="nested_conditions"></a>The `conditions` block contains:
 
 * `message` -
   Human readable message indicating details about the current status.
@@ -213,7 +206,7 @@ The `conditions` block contains:
 * `type` -
   Type of domain mapping condition.
 
-The `resource_records` block supports:
+<a name="nested_resource_records"></a>The `resource_records` block supports:
 
 * `type` -
   (Optional)
@@ -233,8 +226,8 @@ The `resource_records` block supports:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

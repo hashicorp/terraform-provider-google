@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -124,6 +124,8 @@ resource "google_pubsub_topic" "example" {
   labels = {
     foo = "bar"
   }
+
+  message_retention_duration = "86600s"
 }
 
 resource "google_pubsub_topic_iam_member" "foo" {
@@ -143,6 +145,8 @@ resource "google_pubsub_topic" "example" {
   labels = {
     foo = "bar"
   }
+
+  message_retention_duration = "86600s"
 }
 
 data "google_iam_policy" "foo" {
@@ -168,6 +172,8 @@ resource "google_pubsub_topic" "example" {
   labels = {
     foo = "bar"
   }
+
+  message_retention_duration = "86600s"
 }
 
 data "google_iam_policy" "foo" {
@@ -189,6 +195,8 @@ resource "google_pubsub_topic" "example" {
   labels = {
     foo = "bar"
   }
+
+  message_retention_duration = "86600s"
 }
 
 resource "google_pubsub_topic_iam_binding" "foo" {
@@ -208,13 +216,15 @@ resource "google_pubsub_topic" "example" {
   labels = {
     foo = "bar"
   }
+
+  message_retention_duration = "86600s"
 }
 
 resource "google_pubsub_topic_iam_binding" "foo" {
   project = google_pubsub_topic.example.project
   topic = google_pubsub_topic.example.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

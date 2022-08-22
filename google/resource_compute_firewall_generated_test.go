@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -71,6 +68,51 @@ resource "google_compute_firewall" "default" {
 
 resource "google_compute_network" "default" {
   name = "tf-test-test-network%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccComputeFirewall_firewallWithTargetTagsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewall_firewallWithTargetTagsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_firewall.rules",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network"},
+			},
+		},
+	})
+}
+
+func testAccComputeFirewall_firewallWithTargetTagsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_firewall" "rules" {
+  project     = "%{project}"
+  name        = "tf-test-my-firewall-rule%{random_suffix}"
+  network     = "default"
+  description = "Creates firewall rule targeting tagged instances"
+
+  allow {
+    protocol  = "tcp"
+    ports     = ["80", "8080", "1000-2000"]
+  }
+
+  source_tags = ["foo"]
+  target_tags = ["web"]
 }
 `, context)
 }

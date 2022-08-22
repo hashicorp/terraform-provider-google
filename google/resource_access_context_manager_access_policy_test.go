@@ -78,6 +78,7 @@ func testSweepAccessContextManagerPolicies(region string) error {
 func TestAccAccessContextManager(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		"access_policy":              testAccAccessContextManagerAccessPolicy_basicTest,
+		"access_policy_scoped":       testAccAccessContextManagerAccessPolicy_scopedTest,
 		"service_perimeter":          testAccAccessContextManagerServicePerimeter_basicTest,
 		"service_perimeter_update":   testAccAccessContextManagerServicePerimeter_updateTest,
 		"service_perimeter_resource": testAccAccessContextManagerServicePerimeterResource_basicTest,
@@ -159,6 +160,38 @@ func testAccAccessContextManagerAccessPolicy_basic(org, title string) string {
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
   title  = "%s"
+}
+`, org, title)
+}
+
+func testAccAccessContextManagerAccessPolicy_scopedTest(t *testing.T) {
+	org := getTestOrgFromEnv(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessContextManagerAccessPolicy_scoped(org, "scoped policy"),
+			},
+			{
+				ResourceName:      "google_access_context_manager_access_policy.test-access",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccAccessContextManagerAccessPolicy_scoped(org, title string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+}
+resource "google_access_context_manager_access_policy" "test-access" {
+  parent = "organizations/%s"
+  title  = "%s"
+  scopes = ["projects/${data.google_project.project.number}"]
 }
 `, org, title)
 }

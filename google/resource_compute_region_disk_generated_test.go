@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -65,7 +62,7 @@ resource "google_compute_region_disk" "regiondisk" {
 
 resource "google_compute_disk" "disk" {
   name  = "tf-test-my-disk%{random_suffix}"
-  image = "debian-cloud/debian-9"
+  image = "debian-cloud/debian-11"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"

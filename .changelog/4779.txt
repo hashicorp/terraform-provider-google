@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added "instance_schedule_policy" field to "google_compute_resource_policy" resource
+```
+```release-note:enhancement
+compute: added "description" field to "google_compute_resource_policy" resource
+```

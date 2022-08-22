@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -92,4 +93,80 @@ func TestCloudScheduler_FlattenHttpHeaders(t *testing.T) {
 			t.Fatalf("Error matching output and expected: %#v vs %#v", output, c.Output)
 		}
 	}
+}
+
+func TestAccCloudSchedulerJob_schedulerPausedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSchedulerJob_schedulerPaused(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "paused", "true"),
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "state", "PAUSED"),
+				),
+			},
+			{
+				Config: testAccCloudSchedulerJob_schedulerUnPaused(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "paused", "false"),
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "state", "ENABLED"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCloudSchedulerJob_schedulerPaused(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloud_scheduler_job" "job" {
+  paused           = true
+  name             = "tf-test-test-job%{random_suffix}"
+  description      = "test http job with updated fields"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
+  }
+}
+`, context)
+}
+
+func testAccCloudSchedulerJob_schedulerUnPaused(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloud_scheduler_job" "job" {
+  paused           = false # Has been flipped 
+  name             = "tf-test-test-job%{random_suffix}"
+  description      = "test http job with updated fields"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
+  }
+}
+`, context)
 }

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_network"
-sidebar_current: "docs-google-compute-network"
 description: |-
   Manages a VPC network or legacy network resource on GCP.
 ---
@@ -44,18 +42,15 @@ resource "google_compute_network" "vpc_network" {
   name = "vpc-network"
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_custom_mtu&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Network Custom Mtu
 
 
 ```hcl
 resource "google_compute_network" "vpc_network" {
-  name = "vpc-network"
-  mtu  = 1500
+  project                 = "my-project-name"
+  name                    = "vpc-network"
+  auto_create_subnetworks = true
+  mtu                     = 1460
 }
 ```
 
@@ -105,6 +100,19 @@ The following arguments are supported:
   Maximum Transmission Unit in bytes. The minimum value for this field is 1460
   and the maximum value is 1500 bytes.
 
+* `enable_ula_internal_ipv6` -
+  (Optional)
+  Enable ULA internal ipv6 on this network. Enabling this feature will assign 
+  a /48 from google defined ULA prefix fd20::/20.
+
+* `internal_ipv6_range` -
+  (Optional)
+  When enabling ula internal ipv6, caller optionally can specify the /48 range 
+  they want from the google defined ULA prefix fd20::/20. The input must be a 
+  valid /48 ULA IPv6 address and must be within the fd20::/20. Operation will 
+  fail if the speficied /48 is already in used by another resource. 
+  If the field is not speficied, then a /48 range will be randomly allocated from fd20::/20 and returned via this field.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -129,9 +137,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

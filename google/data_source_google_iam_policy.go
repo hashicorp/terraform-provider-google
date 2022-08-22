@@ -16,14 +16,14 @@ import (
 // to express a Google Cloud IAM policy in a data resource. This is an example
 // of how the schema would be used in a config:
 //
-// data "google_iam_policy" "admin" {
-//   binding {
-//     role = "roles/storage.objectViewer"
-//     members = [
-//       "user:evanbrown@google.com",
-//     ]
-//   }
-// }
+//	data "google_iam_policy" "admin" {
+//	  binding {
+//	    role = "roles/storage.objectViewer"
+//	    members = [
+//	      "user:evanbrown@google.com",
+//	    ]
+//	  }
+//	}
 func dataSourceGoogleIamPolicy() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleIamPolicyRead,

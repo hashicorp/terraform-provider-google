@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_crypto_key"
-sidebar_current: "docs-google-kms-crypto-key"
 description: |-
   A `CryptoKey` represents a logical key that can be used for cryptographic operations.
 ---
@@ -111,7 +109,7 @@ The following arguments are supported:
   [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
   for possible inputs.
   Default value is `ENCRYPT_DECRYPT`.
-  Possible values are `ENCRYPT_DECRYPT`, `ASYMMETRIC_SIGN`, and `ASYMMETRIC_DECRYPT`.
+  Possible values are `ENCRYPT_DECRYPT`, `ASYMMETRIC_SIGN`, `ASYMMETRIC_DECRYPT`, and `MAC`.
 
 * `rotation_period` -
   (Optional)
@@ -123,7 +121,16 @@ The following arguments are supported:
 * `version_template` -
   (Optional)
   A template describing settings for new crypto key versions.
-  Structure is documented below.
+  Structure is [documented below](#nested_version_template).
+
+* `destroy_scheduled_duration` -
+  (Optional)
+  The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
+  If not specified at creation time, the default duration is 24 hours.
+
+* `import_only` -
+  (Optional)
+  Whether this key may contain imported versions only.
 
 * `skip_initial_version_creation` -
   (Optional)
@@ -131,7 +138,7 @@ The following arguments are supported:
   You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
 
 
-The `version_template` block supports:
+<a name="nested_version_template"></a>The `version_template` block supports:
 
 * `algorithm` -
   (Required)
@@ -140,9 +147,7 @@ The `version_template` block supports:
 
 * `protection_level` -
   (Optional)
-  The protection level to use when creating a version based on this template.
-  Default value is `SOFTWARE`.
-  Possible values are `SOFTWARE` and `HSM`.
+  The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL", "EXTERNAL_VPC". Defaults to "SOFTWARE".
 
 ## Attributes Reference
 
@@ -151,16 +156,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{key_ring}}/cryptoKeys/{{name}}`
 
 
-* `self_link`: The self link of the created CryptoKey. Its format is `{{key_ring}}/cryptoKeys/{{name}}`.
-
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Asset Inventory"
-layout: "google"
 page_title: "Google: google_cloud_asset_project_feed"
-sidebar_current: "docs-google-cloud-asset-project-feed"
 description: |-
   Describes a Cloud Asset Inventory feed used to to listen to asset updates.
 ---
@@ -31,11 +29,6 @@ To get more information about ProjectFeed, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/asset-inventory/docs)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_asset_project_feed&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Asset Project Feed
 
 
@@ -65,11 +58,6 @@ resource "google_cloud_asset_project_feed" "project_feed" {
     title = "created"
     description = "Send notifications on creation events"
   }
-
-  # Wait for the permission to be ready on the destination topic.
-  depends_on = [
-    google_pubsub_topic_iam_member.cloud_asset_writer,
-  ]
 }
 
 # The topic where the resource change notifications will be sent.
@@ -82,15 +70,6 @@ resource "google_pubsub_topic" "feed_output" {
 # the asset change notifications.
 data "google_project" "project" {
   project_id = "my-project-name"
-}
-
-# Allow the publishing role to the Cloud Asset service account of the project that
-# was used for sending the notifications.
-resource "google_pubsub_topic_iam_member" "cloud_asset_writer" {
-  project = "my-project-name"
-  topic   = google_pubsub_topic.feed_output.id
-  role    = "roles/pubsub.publisher"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudasset.iam.gserviceaccount.com"
 }
 ```
 
@@ -106,18 +85,18 @@ The following arguments are supported:
 * `feed_output_config` -
   (Required)
   Output configuration for asset feed destination.
-  Structure is documented below.
+  Structure is [documented below](#nested_feed_output_config).
 
 
-The `feed_output_config` block supports:
+<a name="nested_feed_output_config"></a>The `feed_output_config` block supports:
 
 * `pubsub_destination` -
   (Required)
   Destination on Cloud Pubsub.
-  Structure is documented below.
+  Structure is [documented below](#nested_pubsub_destination).
 
 
-The `pubsub_destination` block supports:
+<a name="nested_pubsub_destination"></a>The `pubsub_destination` block supports:
 
 * `topic` -
   (Required)
@@ -160,13 +139,13 @@ The `pubsub_destination` block supports:
   must be a valid CEL expression on a TemporalAsset with name temporal_asset. Example: a Feed with
   expression "temporal_asset.deleted == true" will only publish Asset deletions. Other fields of
   condition are optional.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)
@@ -202,9 +181,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

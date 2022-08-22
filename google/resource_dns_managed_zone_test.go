@@ -20,7 +20,7 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_basic(zoneSuffix, "description1"),
+				Config: testAccDnsManagedZone_basic(zoneSuffix, "description1", map[string]string{"foo": "bar", "ping": "pong"}),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.foobar",
@@ -28,7 +28,7 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsManagedZone_basic(zoneSuffix, "description2"),
+				Config: testAccDnsManagedZone_basic(zoneSuffix, "description2", map[string]string{"foo": "bar"}),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.foobar",
@@ -234,19 +234,20 @@ resource "google_dns_managed_zone" "foobar" {
 `, suffix, suffix)
 }
 
-func testAccDnsManagedZone_basic(suffix, description string) string {
+func testAccDnsManagedZone_basic(suffix, description string, labels map[string]string) string {
+	labelsRep := ""
+	for k, v := range labels {
+		labelsRep += fmt.Sprintf("%s = %q, ", k, v)
+	}
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
   name        = "mzone-test-%s"
   dns_name    = "tf-acctest-%s.hashicorptest.com."
   description = "%s"
-  labels = {
-    foo = "bar"
-  }
-
+  labels 	  = {%s}
   visibility = "public"
 }
-`, suffix, suffix, description)
+`, suffix, suffix, description, labelsRep)
 }
 
 func testAccDnsManagedZone_dnssec_on(suffix string) string {
@@ -340,7 +341,7 @@ resource "google_compute_network" "network-2" {
 }
 
 resource "google_compute_network" "network-3" {
-  name                    = "network-3-%s"
+  name                    = "tf-test-network-3-%s"
   auto_create_subnetworks = false
 }
 `, suffix, first_network, second_network, suffix, suffix, suffix)

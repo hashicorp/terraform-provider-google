@@ -37,12 +37,21 @@ func iamPolicyImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 	}
 }
 
-func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
+	settings := &IamSettings{}
+	for _, o := range options {
+		o(settings)
+	}
+
 	return &schema.Resource{
 		Create: ResourceIamPolicyCreate(newUpdaterFunc),
 		Read:   ResourceIamPolicyRead(newUpdaterFunc),
 		Update: ResourceIamPolicyUpdate(newUpdaterFunc),
 		Delete: ResourceIamPolicyDelete(newUpdaterFunc),
+
+		// if non-empty, this will be used to send a deprecation message when the
+		// resource is used.
+		DeprecationMessage: settings.DeprecationMessage,
 
 		Schema: mergeSchemas(IamPolicyBaseSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{

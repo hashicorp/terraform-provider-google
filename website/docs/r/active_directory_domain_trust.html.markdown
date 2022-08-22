@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Managed Microsoft Active Directory"
-layout: "google"
 page_title: "Google: google_active_directory_domain_trust"
-sidebar_current: "docs-google-active-directory-domain-trust"
 description: |-
   Adds a trust between Active Directory domains
 ---
@@ -32,7 +30,7 @@ To get more information about DomainTrust, see:
     * [Active Directory Trust](https://cloud.google.com/managed-microsoft-ad/docs/create-one-way-trust)
 
 ~> **Warning:** All arguments including `trust_handshake_secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Active Directory Domain Trust Basic
 
@@ -105,9 +103,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

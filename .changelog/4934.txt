@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: add `kms_key_version` as an output on `bigquery_table.encryption_configuration` and the `destination_encryption_configuration` blocks of `bigquery_job.query`, `bigquery_job.load`, and `bigquery_copy`.
+```

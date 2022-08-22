@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_fhir_store"
-sidebar_current: "docs-google-healthcare-fhir-store"
 description: |-
   A FhirStore is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.
 ---
@@ -196,7 +194,7 @@ The following arguments are supported:
 * `notification_config` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_notification_config).
 
 * `stream_configs` -
   (Optional)
@@ -206,10 +204,10 @@ The following arguments are supported:
   from the list, the server stops streaming to that location. Before adding a new config, you must add the required
   bigquery.dataEditor role to your project's Cloud Healthcare Service Agent service account. Some lag (typically on
   the order of dozens of seconds) is expected before the results show up in the streaming destination.
-  Structure is documented below.
+  Structure is [documented below](#nested_stream_configs).
 
 
-The `notification_config` block supports:
+<a name="nested_notification_config"></a>The `notification_config` block supports:
 
 * `pubsub_topic` -
   (Required)
@@ -217,10 +215,10 @@ The `notification_config` block supports:
   PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
   It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
   was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-  project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
   Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
 
-The `stream_configs` block supports:
+<a name="nested_stream_configs"></a>The `stream_configs` block supports:
 
 * `resource_types` -
   (Optional)
@@ -235,10 +233,10 @@ The `stream_configs` block supports:
   are named after the resource types, e.g. "Patient", "Observation". When there is no existing table for a given
   resource type, the server attempts to create one.
   See the [streaming config reference](https://cloud.google.com/healthcare/docs/reference/rest/v1beta1/projects.locations.datasets.fhirStores#streamconfig) for more details.
-  Structure is documented below.
+  Structure is [documented below](#nested_bigquery_destination).
 
 
-The `bigquery_destination` block supports:
+<a name="nested_bigquery_destination"></a>The `bigquery_destination` block supports:
 
 * `dataset_uri` -
   (Required)
@@ -247,18 +245,20 @@ The `bigquery_destination` block supports:
 * `schema_config` -
   (Required)
   The configuration for the exported BigQuery schema.
-  Structure is documented below.
+  Structure is [documented below](#nested_schema_config).
 
 
-The `schema_config` block supports:
+<a name="nested_schema_config"></a>The `schema_config` block supports:
 
 * `schema_type` -
   (Optional)
-  Specifies the output schema type. Only ANALYTICS is supported at this time.
+  Specifies the output schema type.
    * ANALYTICS: Analytics schema defined by the FHIR community.
     See https://github.com/FHIR/sql-on-fhir/blob/master/sql-on-fhir.md.
+   * ANALYTICS_V2: Analytics V2, similar to schema defined by the FHIR community, with added support for extensions with one or more occurrences and contained resources in stringified JSON.
+   * LOSSLESS: A data-driven schema generated from the fields present in the FHIR data being exported, with no additional simplification.
   Default value is `ANALYTICS`.
-  Possible values are `ANALYTICS`.
+  Possible values are `ANALYTICS`, `ANALYTICS_V2`, and `LOSSLESS`.
 
 * `recursive_structure_depth` -
   (Required)
@@ -282,9 +282,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

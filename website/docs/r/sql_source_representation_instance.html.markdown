@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud SQL"
-layout: "google"
 page_title: "Google: google_sql_source_representation_instance"
-sidebar_current: "docs-google-sql-source-representation-instance"
 description: |-
   A source representation instance is a Cloud SQL instance that represents
   the source database server to the Cloud SQL replica.
@@ -61,7 +59,7 @@ The following arguments are supported:
 * `database_version` -
   (Required)
   The MySQL version running on your source database server.
-  Possible values are `MYSQL_5_6`, `MYSQL_5_7`, and `MYSQL_8_0`.
+  Possible values are `MYSQL_5_5`, `MYSQL_5_6`, `MYSQL_5_7`, and `MYSQL_8_0`.
 
 * `host` -
   (Required)
@@ -97,8 +95,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,11 +70,8 @@ func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -119,11 +113,8 @@ func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -168,11 +159,8 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNotebooksInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -223,12 +211,10 @@ resource "google_notebooks_instance" "instance" {
 }
 
 data "google_compute_network" "my_network" {
-  provider = google-beta
   name = "default"
 }
 
 data "google_compute_subnetwork" "my_subnetwork" {
-  provider = google-beta
   name   = "default"
   region = "us-central1"
 }

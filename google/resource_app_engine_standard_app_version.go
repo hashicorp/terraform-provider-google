@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAppEngineStandardAppVersion() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -99,6 +97,21 @@ All files must be readable using the credentials supplied with this call.`,
 					},
 				},
 			},
+			"entrypoint": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `The entrypoint for the application.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"shell": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The format should be a shell command that can be fed to bash -c.`,
+						},
+					},
+				},
+			},
 			"runtime": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -109,6 +122,11 @@ All files must be readable using the credentials supplied with this call.`,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `AppEngine service resource`,
+			},
+			"app_engine_apis": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Allows App Engine second generation runtimes to access the legacy bundled services.`,
 			},
 			"automatic_scaling": {
 				Type:        schema.TypeList,
@@ -203,21 +221,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				},
 				ConflictsWith: []string{"automatic_scaling", "manual_scaling"},
 			},
-			"entrypoint": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `The entrypoint for the application.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"shell": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The format should be a shell command that can be fed to bash -c.`,
-						},
-					},
-				},
-			},
 			"env_variables": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -235,19 +238,19 @@ The first matching URL handles the request and other request handlers are not at
 						"auth_fail_action": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
+							ValidateFunc: validateEnum([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}),
 							Description:  `Actions to take when the user is not logged in. Possible values: ["AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED"]`,
 						},
 						"login": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
+							ValidateFunc: validateEnum([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}),
 							Description:  `Methods to restrict access to a URL based on login status. Possible values: ["LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED"]`,
 						},
 						"redirect_http_response_code": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
+							ValidateFunc: validateEnum([]string{"REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}),
 							Description:  `30x code to use when performing redirects for the secure field. Possible values: ["REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307"]`,
 						},
 						"script": {
@@ -269,7 +272,7 @@ Only the auto value is supported for Node.js in the App Engine standard environm
 						"security_level": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
+							ValidateFunc: validateEnum([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}),
 							Description:  `Security (HTTPS) enforcement for this URL. Possible values: ["SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS"]`,
 						},
 						"static_files": {
@@ -338,7 +341,7 @@ All URLs that begin with this prefix are handled by this handler, using the port
 				Description: `A list of the types of messages that this application is able to receive. Possible values: ["INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validation.StringInSlice([]string{"INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"}, false),
+					ValidateFunc: validateEnum([]string{"INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"}),
 				},
 				Set: schema.HashString,
 			},
@@ -393,7 +396,8 @@ Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manua
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `The version of the API in the given runtime environment.
-Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
+Please see the app.yaml reference for valid values at 'https://cloud.google.com/appengine/docs/standard/<language>/config/appref'\
+Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`,
 			},
 			"threadsafe": {
 				Type:        schema.TypeBool,
@@ -472,6 +476,12 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("threadsafe"); !isEmptyValue(reflect.ValueOf(threadsafeProp)) && (ok || !reflect.DeepEqual(v, threadsafeProp)) {
 		obj["threadsafe"] = threadsafeProp
+	}
+	appEngineApisProp, err := expandAppEngineStandardAppVersionAppEngineApis(d.Get("app_engine_apis"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("app_engine_apis"); !isEmptyValue(reflect.ValueOf(appEngineApisProp)) && (ok || !reflect.DeepEqual(v, appEngineApisProp)) {
+		obj["appEngineApis"] = appEngineApisProp
 	}
 	runtimeApiVersionProp, err := expandAppEngineStandardAppVersionRuntimeApiVersion(d.Get("runtime_api_version"), d, config)
 	if err != nil {
@@ -653,6 +663,9 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
+	if err := d.Set("app_engine_apis", flattenAppEngineStandardAppVersionAppEngineApis(res["appEngineApis"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
 	if err := d.Set("runtime_api_version", flattenAppEngineStandardAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
@@ -717,6 +730,12 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("threadsafe"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, threadsafeProp)) {
 		obj["threadsafe"] = threadsafeProp
+	}
+	appEngineApisProp, err := expandAppEngineStandardAppVersionAppEngineApis(d.Get("app_engine_apis"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("app_engine_apis"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, appEngineApisProp)) {
+		obj["appEngineApis"] = appEngineApisProp
 	}
 	runtimeApiVersionProp, err := expandAppEngineStandardAppVersionRuntimeApiVersion(d.Get("runtime_api_version"), d, config)
 	if err != nil {
@@ -937,6 +956,10 @@ func flattenAppEngineStandardAppVersionRuntime(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenAppEngineStandardAppVersionAppEngineApis(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenAppEngineStandardAppVersionRuntimeApiVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -1136,7 +1159,7 @@ func flattenAppEngineStandardAppVersionAutomaticScaling(v interface{}, d *schema
 func flattenAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1153,7 +1176,7 @@ func flattenAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(v i
 func flattenAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1174,7 +1197,7 @@ func flattenAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(v inter
 func flattenAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1222,7 +1245,7 @@ func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings
 func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1239,7 +1262,7 @@ func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings
 func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1275,7 +1298,7 @@ func flattenAppEngineStandardAppVersionBasicScalingIdleTimeout(v interface{}, d 
 func flattenAppEngineStandardAppVersionBasicScalingMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1305,7 +1328,7 @@ func flattenAppEngineStandardAppVersionManualScaling(v interface{}, d *schema.Re
 func flattenAppEngineStandardAppVersionManualScalingInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1328,6 +1351,10 @@ func expandAppEngineStandardAppVersionRuntime(v interface{}, d TerraformResource
 }
 
 func expandAppEngineStandardAppVersionThreadsafe(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAppEngineApis(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

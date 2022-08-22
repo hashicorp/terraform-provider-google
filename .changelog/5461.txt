@@ -1,0 +1,3 @@
+```release-note:bug 
+essentialcontacts: marked updating `email` in `google_essential_contacts_contact` as requiring recreation
+```

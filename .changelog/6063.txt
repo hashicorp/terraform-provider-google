@@ -1,0 +1,3 @@
+```release-note:bug
+storagetransfer: fixed perm diff on transfer_options for `google_storage_transfer_job`
+```

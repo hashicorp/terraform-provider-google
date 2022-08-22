@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_region_backend_service"
-sidebar_current: "docs-google-compute-region-backend-service"
 description: |-
   A Region Backend Service defines a regionally-scoped group of virtual
   machines that will serve traffic for load balancing.
@@ -32,6 +30,9 @@ To get more information about RegionBackendService, see:
 * [API documentation](https://cloud.google.com/compute/docs/reference/latest/regionBackendServices)
 * How-to Guides
     * [Internal TCP/UDP Load Balancing](https://cloud.google.com/compute/docs/load-balancing/internal/)
+
+~> **Warning:** All arguments including `iap.oauth2_client_secret` and `iap.oauth2_client_secret_sha256` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -70,7 +71,8 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_region_backend_service" "default" {
-  provider                        = google-beta
+  provider = google-beta
+
   name                            = "region-service"
   region                          = "us-central1"
   health_checks                   = [google_compute_region_health_check.default.id]
@@ -90,7 +92,8 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  provider           = google-beta
+  provider = google-beta
+
   name               = "rbs-health-check"
   region             = "us-central1"
 
@@ -220,7 +223,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 data "google_compute_image" "debian_image" {
-  family   = "debian-9"
+  family   = "debian-11"
   project  = "debian-cloud"
 }
 
@@ -274,6 +277,41 @@ resource "google_compute_subnetwork" "default" {
   network       = google_compute_network.default.id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_connection_tracking&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service Connection Tracking
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  provider                        = google-beta
+  name                            = "region-service"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.health_check.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  protocol                        = "TCP"
+  load_balancing_scheme           = "EXTERNAL"
+  connection_tracking_policy {
+    tracking_mode                                = "PER_SESSION"
+    connection_persistence_on_unhealthy_backends = "NEVER_PERSIST"
+    idle_timeout_sec                             = 60
+  }
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  provider           = google-beta
+  name               = "rbs-health-check"
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = 22
+  }
+}
+```
 
 ## Argument Reference
 
@@ -305,14 +343,14 @@ The following arguments are supported:
 * `backend` -
   (Optional)
   The set of backends that serve this RegionBackendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_backend).
 
 * `circuit_breakers` -
   (Optional)
   Settings controlling the volume of connections to a backend service. This field
   is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
   and the `protocol` is set to HTTP, HTTPS, or HTTP2.
-  Structure is documented below.
+  Structure is [documented below](#nested_circuit_breakers).
 
 * `consistent_hash` -
   (Optional)
@@ -326,12 +364,12 @@ The following arguments are supported:
     * `load_balancing_scheme` is set to INTERNAL_MANAGED
     * `protocol` is set to HTTP, HTTPS, or HTTP2
     * `locality_lb_policy` is set to MAGLEV or RING_HASH
-  Structure is documented below.
+  Structure is [documented below](#nested_consistent_hash).
 
 * `cdn_policy` -
   (Optional)
   Cloud CDN configuration for this BackendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_cdn_policy).
 
 * `connection_draining_timeout_sec` -
   (Optional)
@@ -345,7 +383,7 @@ The following arguments are supported:
 * `failover_policy` -
   (Optional)
   Policy for failovers.
-  Structure is documented below.
+  Structure is [documented below](#nested_failover_policy).
 
 * `enable_cdn` -
   (Optional)
@@ -355,42 +393,57 @@ The following arguments are supported:
   (Optional)
   The set of URLs to HealthCheck resources for health checking
   this RegionBackendService. Currently at most one health
-  check can be specified. 
+  check can be specified.
   A health check must be specified unless the backend service uses an internet
   or serverless NEG as a backend.
+
+* `iap` -
+  (Optional)
+  Settings for enabling Cloud Identity Aware Proxy
+  Structure is [documented below](#nested_iap).
 
 * `load_balancing_scheme` -
   (Optional)
   Indicates what kind of load balancing this regional backend service
   will be used for. A backend service created for one type of load
-  balancing cannot be used with the other(s).
+  balancing cannot be used with the other(s). For more information, refer to
+  [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service).
   Default value is `INTERNAL`.
-  Possible values are `EXTERNAL`, `INTERNAL`, and `INTERNAL_MANAGED`.
+  Possible values are `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL`, and `INTERNAL_MANAGED`.
 
 * `locality_lb_policy` -
   (Optional)
   The load balancing algorithm used within the scope of the locality.
-  The possible values are -
-  * ROUND_ROBIN - This is a simple policy in which each healthy backend
-                  is selected in round robin order.
-  * LEAST_REQUEST - An O(1) algorithm which selects two random healthy
-                    hosts and picks the host which has fewer active requests.
-  * RING_HASH - The ring/modulo hash load balancer implements consistent
-                hashing to backends. The algorithm has the property that the
-                addition/removal of a host from a set of N hosts only affects
-                1/N of the requests.
-  * RANDOM - The load balancer selects a random healthy host.
-  * ORIGINAL_DESTINATION - Backend host is selected based on the client
-                           connection metadata, i.e., connections are opened
-                           to the same address as the destination address of
-                           the incoming connection before the connection
-                           was redirected to the load balancer.
-  * MAGLEV - used as a drop in replacement for the ring hash load balancer.
-             Maglev is not as stable as ring hash but has faster table lookup
-             build times and host selection times. For more information about
-             Maglev, refer to https://ai.google/research/pubs/pub44824
-  This field is applicable only when the `load_balancing_scheme` is set to
-  INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  The possible values are:
+  * `ROUND_ROBIN`: This is a simple policy in which each healthy backend
+                   is selected in round robin order.
+  * `LEAST_REQUEST`: An O(1) algorithm which selects two random healthy
+                     hosts and picks the host which has fewer active requests.
+  * `RING_HASH`: The ring/modulo hash load balancer implements consistent
+                 hashing to backends. The algorithm has the property that the
+                 addition/removal of a host from a set of N hosts only affects
+                 1/N of the requests.
+  * `RANDOM`: The load balancer selects a random healthy host.
+  * `ORIGINAL_DESTINATION`: Backend host is selected based on the client
+                            connection metadata, i.e., connections are opened
+                            to the same address as the destination address of
+                            the incoming connection before the connection
+                            was redirected to the load balancer.
+  * `MAGLEV`: used as a drop in replacement for the ring hash load balancer.
+              Maglev is not as stable as ring hash but has faster table lookup
+              build times and host selection times. For more information about
+              Maglev, refer to https://ai.google/research/pubs/pub44824
+
+  This field is applicable to either:
+  * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+    and loadBalancingScheme set to INTERNAL_MANAGED.
+  * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
+
+  If session_affinity is not NONE, and this field is not set to MAGLEV or RING_HASH,
+  session affinity settings will not take effect.
+  Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
+  by a URL map that is bound to target gRPC proxy that has validate_for_proxyless
+  field set to true.
   Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, and `MAGLEV`.
 
 * `outlier_detection` -
@@ -398,13 +451,13 @@ The following arguments are supported:
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   This field is applicable only when the `load_balancing_scheme` is set
   to INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, or HTTP2.
-  Structure is documented below.
+  Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
   (Optional)
   A named port on a backend instance group representing the port for
   communication to the backend VMs in that group. Required when the
-  loadBalancingScheme is EXTERNAL, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED
+  loadBalancingScheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED
   and the backends are instance groups. The named port must be defined on each
   backend instance group. This parameter has no meaning if the backends are NEGs. API sets a
   default of "http" if not given.
@@ -415,13 +468,20 @@ The following arguments are supported:
   The protocol this RegionBackendService uses to communicate with backends.
   The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
   types and may result in errors if used with the GA API.
-  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, `UDP`, and `GRPC`.
+  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, `UDP`, `GRPC`, and `UNSPECIFIED`.
 
 * `session_affinity` -
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
   not applicable if the protocol is UDP.
-  Possible values are `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, and `HTTP_COOKIE`.
+  Possible values are `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, `HTTP_COOKIE`, and `CLIENT_IP_NO_DESTINATION`.
+
+* `connection_tracking_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Connection Tracking configuration for this BackendService.
+  This is available only for Layer 4 Internal Load Balancing and
+  Network Load Balancing.
+  Structure is [documented below](#nested_connection_tracking_policy).
 
 * `timeout_sec` -
   (Optional)
@@ -432,12 +492,17 @@ The following arguments are supported:
   (Optional)
   This field denotes the logging options for the load balancer traffic served by this backend service.
   If logging is enabled, logs will be exported to Stackdriver.
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `network` -
   (Optional)
   The URL of the network to which this backend service belongs.
   This field can only be specified when the load balancing scheme is set to INTERNAL.
+
+* `subsetting` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
+  Structure is [documented below](#nested_subsetting).
 
 * `region` -
   (Optional)
@@ -448,11 +513,13 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `backend` block supports:
+<a name="nested_backend"></a>The `backend` block supports:
 
 * `balancing_mode` -
   (Optional)
   Specifies the balancing mode for this backend.
+  See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
+  for an explanation of load balancing modes.
   Default value is `CONNECTION`.
   Possible values are `UTILIZATION`, `RATE`, and `CONNECTION`.
 
@@ -556,12 +623,12 @@ The `backend` block supports:
   CPU utilization target for the group. Valid range is [0.0, 1.0].
   Cannot be set for INTERNAL backend services.
 
-The `circuit_breakers` block supports:
+<a name="nested_circuit_breakers"></a>The `circuit_breakers` block supports:
 
 * `connect_timeout` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The timeout for new network connections to hosts.
-  Structure is documented below.
+  Structure is [documented below](#nested_connect_timeout).
 
 * `max_requests_per_connection` -
   (Optional)
@@ -591,7 +658,7 @@ The `circuit_breakers` block supports:
   Defaults to 3.
 
 
-The `connect_timeout` block supports:
+<a name="nested_connect_timeout"></a>The `connect_timeout` block supports:
 
 * `seconds` -
   (Required)
@@ -605,7 +672,7 @@ The `connect_timeout` block supports:
   with a 0 seconds field and a positive nanos field. Must
   be from 0 to 999,999,999 inclusive.
 
-The `consistent_hash` block supports:
+<a name="nested_consistent_hash"></a>The `consistent_hash` block supports:
 
 * `http_cookie` -
   (Optional)
@@ -613,7 +680,7 @@ The `consistent_hash` block supports:
   that will be used as the hash key for the consistent hash load
   balancer. If the cookie is not present, it will be generated.
   This field is applicable if the sessionAffinity is set to HTTP_COOKIE.
-  Structure is documented below.
+  Structure is [documented below](#nested_http_cookie).
 
 * `http_header_name` -
   (Optional)
@@ -630,12 +697,12 @@ The `consistent_hash` block supports:
   Defaults to 1024.
 
 
-The `http_cookie` block supports:
+<a name="nested_http_cookie"></a>The `http_cookie` block supports:
 
 * `ttl` -
   (Optional)
   Lifetime of the cookie.
-  Structure is documented below.
+  Structure is [documented below](#nested_ttl).
 
 * `name` -
   (Optional)
@@ -646,7 +713,7 @@ The `http_cookie` block supports:
   Path to set for the cookie.
 
 
-The `ttl` block supports:
+<a name="nested_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)
@@ -660,12 +727,12 @@ The `ttl` block supports:
   with a 0 seconds field and a positive nanos field. Must
   be from 0 to 999,999,999 inclusive.
 
-The `cdn_policy` block supports:
+<a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
 
 * `cache_key_policy` -
   (Optional)
   The CacheKeyPolicy for this CdnPolicy.
-  Structure is documented below.
+  Structure is [documented below](#nested_cache_key_policy).
 
 * `signed_url_cache_max_age_sec` -
   (Optional)
@@ -680,40 +747,40 @@ The `cdn_policy` block supports:
   responses will not be altered.
 
 * `default_ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  Specifies the default TTL for cached content served by this origin for responses 
+  (Optional)
+  Specifies the default TTL for cached content served by this origin for responses
   that do not have an existing valid TTL (max-age or s-max-age).
 
 * `max_ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies the maximum allowed TTL for cached content served by this origin.
 
 * `client_ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies the maximum allowed TTL for cached content served by this origin.
 
 * `negative_caching` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.
 
 * `negative_caching_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
   Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
-  Structure is documented below.
+  Structure is [documented below](#nested_negative_caching_policy).
 
 * `cache_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies the cache setting for all responses from this backend.
   The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
   Possible values are `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, and `CACHE_ALL_STATIC`.
 
 * `serve_while_stale` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
 
-The `cache_key_policy` block supports:
+<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `include_host` -
   (Optional)
@@ -748,10 +815,14 @@ The `cache_key_policy` block supports:
   '&' and '=' will be percent encoded and not treated as
   delimiters.
 
-The `negative_caching_policy` block supports:
+* `include_named_cookies` -
+  (Optional)
+  Names of cookies to include in cache keys.
+
+<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
   can be specified as values, and you cannot specify a status code more than once.
 
@@ -760,7 +831,7 @@ The `negative_caching_policy` block supports:
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
-The `failover_policy` block supports:
+<a name="nested_failover_policy"></a>The `failover_policy` block supports:
 
 * `disable_connection_drain_on_failover` -
   (Optional)
@@ -791,14 +862,29 @@ The `failover_policy` block supports:
   VMs with the best effort, or to all VMs when no VM is healthy.
   This field is only used with l4 load balancing.
 
-The `outlier_detection` block supports:
+<a name="nested_iap"></a>The `iap` block supports:
+
+* `oauth2_client_id` -
+  (Required)
+  OAuth2 Client ID for IAP
+
+* `oauth2_client_secret` -
+  (Required)
+  OAuth2 Client Secret for IAP
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `oauth2_client_secret_sha256` -
+  OAuth2 Client Secret SHA-256 for IAP
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_outlier_detection"></a>The `outlier_detection` block supports:
 
 * `base_ejection_time` -
   (Optional)
   The base time that a host is ejected for. The real time is equal to the base
   time multiplied by the number of times the host has been ejected. Defaults to
   30000ms or 30s.
-  Structure is documented below.
+  Structure is [documented below](#nested_base_ejection_time).
 
 * `consecutive_errors` -
   (Optional)
@@ -834,7 +920,7 @@ The `outlier_detection` block supports:
   (Optional)
   Time interval between ejection sweep analysis. This can result in both new
   ejections as well as hosts being returned to service. Defaults to 10 seconds.
-  Structure is documented below.
+  Structure is [documented below](#nested_interval).
 
 * `max_ejection_percent` -
   (Optional)
@@ -866,7 +952,7 @@ The `outlier_detection` block supports:
   runtime value should be 1900. Defaults to 1900.
 
 
-The `base_ejection_time` block supports:
+<a name="nested_base_ejection_time"></a>The `base_ejection_time` block supports:
 
 * `seconds` -
   (Required)
@@ -879,7 +965,7 @@ The `base_ejection_time` block supports:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
-The `interval` block supports:
+<a name="nested_interval"></a>The `interval` block supports:
 
 * `seconds` -
   (Required)
@@ -892,7 +978,44 @@ The `interval` block supports:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
-The `log_config` block supports:
+<a name="nested_connection_tracking_policy"></a>The `connection_tracking_policy` block supports:
+
+* `idle_timeout_sec` -
+  (Optional)
+  Specifies how long to keep a Connection Tracking entry while there is
+  no matching traffic (in seconds).
+  For L4 ILB the minimum(default) is 10 minutes and maximum is 16 hours.
+  For NLB the minimum(default) is 60 seconds and the maximum is 16 hours.
+
+* `tracking_mode` -
+  (Optional)
+  Specifies the key used for connection tracking. There are two options:
+  `PER_CONNECTION`: The Connection Tracking is performed as per the
+  Connection Key (default Hash Method) for the specific protocol.
+  `PER_SESSION`: The Connection Tracking is performed as per the
+  configured Session Affinity. It matches the configured Session Affinity.
+  Default value is `PER_CONNECTION`.
+  Possible values are `PER_CONNECTION` and `PER_SESSION`.
+
+* `connection_persistence_on_unhealthy_backends` -
+  (Optional)
+  Specifies connection persistence when backends are unhealthy.
+  If set to `DEFAULT_FOR_PROTOCOL`, the existing connections persist on
+  unhealthy backends only for connection-oriented protocols (TCP and SCTP)
+  and only if the Tracking Mode is PER_CONNECTION (default tracking mode)
+  or the Session Affinity is configured for 5-tuple. They do not persist
+  for UDP.
+  If set to `NEVER_PERSIST`, after a backend becomes unhealthy, the existing
+  connections on the unhealthy backend are never persisted on the unhealthy
+  backend. They are always diverted to newly selected healthy backends
+  (unless all backends are unhealthy).
+  If set to `ALWAYS_PERSIST`, existing connections always persist on
+  unhealthy backends regardless of protocol and session affinity. It is
+  generally not recommended to use this mode overriding the default.
+  Default value is `DEFAULT_FOR_PROTOCOL`.
+  Possible values are `DEFAULT_FOR_PROTOCOL`, `NEVER_PERSIST`, and `ALWAYS_PERSIST`.
+
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
   (Optional)
@@ -904,6 +1027,13 @@ The `log_config` block supports:
   the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
   where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
   The default value is 1.0.
+
+<a name="nested_subsetting"></a>The `subsetting` block supports:
+
+* `policy` -
+  (Required)
+  The algorithm used for subsetting.
+  Possible values are `CONSISTENT_HASH_SUBSETTING`.
 
 ## Attributes Reference
 
@@ -925,9 +1055,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

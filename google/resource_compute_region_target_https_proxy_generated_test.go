@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(t *
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -94,6 +91,7 @@ resource "google_compute_region_backend_service" "default" {
   region      = "us-central1"
   name        = "tf-test-backend-service%{random_suffix}"
   protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]

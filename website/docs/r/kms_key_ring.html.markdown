@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Key Management Service"
-layout: "google"
 page_title: "Google: google_kms_key_ring"
-sidebar_current: "docs-google-kms-key-ring"
 description: |-
   A `KeyRing` is a toplevel logical grouping of `CryptoKeys`.
 ---
@@ -75,15 +73,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/keyRings/{{name}}`
 
 
-* `self_link`: The self link of the created KeyRing in the format `projects/{project}/locations/{location}/keyRings/{name}`
-
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

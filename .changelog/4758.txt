@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: added support for `require_verified_chrome_os` in basic access levels.
+```

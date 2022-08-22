@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckStorageObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -61,7 +58,8 @@ resource "google_storage_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-static-content-bucket%{random_suffix}"
+  name     = "tf-test-static-content-bucket%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -84,7 +82,7 @@ func testAccCheckStorageObjectAccessControlDestroyProducer(t *testing.T) func(s 
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 			if err != nil {
 				return err
 			}

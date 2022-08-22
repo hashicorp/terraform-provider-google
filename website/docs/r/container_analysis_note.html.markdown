@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Container Registry"
-layout: "google"
 page_title: "Google: google_container_analysis_note"
-sidebar_current: "docs-google-container-analysis-note"
 description: |-
   A Container Analysis note is a high-level piece of metadata that
   describes a type of analysis that can be done for a resource.
@@ -105,10 +103,10 @@ The following arguments are supported:
   Note. It also provides a single point of lookup to find all attached
   Attestation Occurrences, even if they don't all live in the same
   project.
-  Structure is documented below.
+  Structure is [documented below](#nested_attestation_authority).
 
 
-The `attestation_authority` block supports:
+<a name="nested_attestation_authority"></a>The `attestation_authority` block supports:
 
 * `hint` -
   (Required)
@@ -120,10 +118,10 @@ The `attestation_authority` block supports:
   these hints should NOT be used to look up AttestationAuthorities
   in security sensitive contexts, such as when looking up
   Attestations to verify.
-  Structure is documented below.
+  Structure is [documented below](#nested_hint).
 
 
-The `hint` block supports:
+<a name="nested_hint"></a>The `hint` block supports:
 
 * `human_readable_name` -
   (Required)
@@ -144,7 +142,7 @@ The `hint` block supports:
 * `related_url` -
   (Optional)
   URLs associated with this note and related metadata.
-  Structure is documented below.
+  Structure is [documented below](#nested_related_url).
 
 * `expiration_time` -
   (Optional)
@@ -158,7 +156,7 @@ The `hint` block supports:
     If it is not provided, the provider project is used.
 
 
-The `related_url` block supports:
+<a name="nested_related_url"></a>The `related_url` block supports:
 
 * `url` -
   (Required)
@@ -189,9 +187,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

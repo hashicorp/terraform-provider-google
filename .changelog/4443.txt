@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `nic_type` field to `google_compute_instance` resource to support gVNIC
+```
+```release-note:enhancement
+compute: added `nic_type` field to `google_compute_instance_template ` resource to support gVNIC
+```

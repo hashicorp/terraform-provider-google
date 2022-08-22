@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -35,8 +34,8 @@ func resourceComputeAddress() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -60,13 +59,13 @@ except the last character, which cannot be a dash.`,
 				Description: `The static external IP address represented by this resource. Only
 IPv4 is supported. An address may only be specified for INTERNAL
 address types. The IP address must be inside the specified subnetwork,
-if any.`,
+if any. Set by the API if undefined.`,
 			},
 			"address_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "EXTERNAL", ""}, false),
+				ValidateFunc: validateEnum([]string{"INTERNAL", "EXTERNAL", ""}),
 				Description:  `The type of address to reserve. Default value: "EXTERNAL" Possible values: ["INTERNAL", "EXTERNAL"]`,
 				Default:      "EXTERNAL",
 			},
@@ -76,30 +75,54 @@ if any.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"network": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The URL of the network in which to reserve the address. This field
+can only be used with INTERNAL type with the VPC_PEERING and
+IPSEC_INTERCONNECT purposes.`,
+			},
 			"network_tier": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
+				ValidateFunc: validateEnum([]string{"PREMIUM", "STANDARD", ""}),
 				Description: `The networking tier used for configuring this address. If this field is not
 specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
+			"prefix_length": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The prefix length if the resource represents an IP range.`,
+			},
 			"purpose": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP", ""}, false),
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
 				Description: `The purpose of this resource, which can be one of the following values:
 
-* GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+* GCE_ENDPOINT for addresses that are used by VM instances, alias IP
+  ranges, internal load balancers, and similar resources.
 
-* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
+* SHARED_LOADBALANCER_VIP for an address that can be used by multiple
+  internal load balancers.
 
 * VPC_PEERING for addresses that are reserved for VPC peer networks.
 
-This should only be set when using an Internal address. Possible values: ["GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP"]`,
+* IPSEC_INTERCONNECT for addresses created from a private IP range
+  that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
+  Interconnect configuration. These addresses are regional resources.
+
+* PRIVATE_SERVICE_CONNECT for a private network address that is used
+to configure Private Service Connect. Only global internal addresses
+can use this purpose.
+
+This should only be set when using an Internal address.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -198,6 +221,18 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("subnetwork"); !isEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
 		obj["subnetwork"] = subnetworkProp
+	}
+	networkProp, err := expandComputeAddressNetwork(d.Get("network"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+		obj["network"] = networkProp
+	}
+	prefixLengthProp, err := expandComputeAddressPrefixLength(d.Get("prefix_length"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("prefix_length"); !isEmptyValue(reflect.ValueOf(prefixLengthProp)) && (ok || !reflect.DeepEqual(v, prefixLengthProp)) {
+		obj["prefixLength"] = prefixLengthProp
 	}
 	regionProp, err := expandComputeAddressRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -311,6 +346,12 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("users", flattenComputeAddressUsers(res["users"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err := d.Set("network", flattenComputeAddressNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err := d.Set("prefix_length", flattenComputeAddressPrefixLength(res["prefixLength"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d, config)); err != nil {
@@ -432,6 +473,30 @@ func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData, config *C
 	return v
 }
 
+func flattenComputeAddressNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeAddressPrefixLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -469,6 +534,18 @@ func expandComputeAddressSubnetwork(v interface{}, d TerraformResourceData, conf
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeAddressNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for network: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeAddressPrefixLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeAddressRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

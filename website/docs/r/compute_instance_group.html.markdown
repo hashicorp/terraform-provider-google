@@ -1,8 +1,6 @@
 ---
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_instance_group"
-sidebar_current: "docs-google-compute-instance-group-x"
 description: |-
   Manages an Instance Group within GCE.
 ---
@@ -80,7 +78,7 @@ resource "google_compute_instance_group" "staging_group" {
 }
 
 data "google_compute_image" "debian_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -135,12 +133,11 @@ The following arguments are supported:
 * `description` - (Optional) An optional textual description of the instance
     group.
 
-* `instances` - (Optional) List of instances in the group. They should be given
-    as either self_link or id. When adding instances they must all be in the same
-    network and zone as the instance group.
+* `instances` - (Optional) The list of instances in the group, in `self_link` format.
+    When adding instances they must all be in the same network and zone as the instance group.
 
 * `named_port` - (Optional) The named port configuration. See the section below
-    for details on configuration.
+    for details on configuration. Structure is [documented below](#nested_named_port).
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -150,7 +147,7 @@ The following arguments are supported:
     fails. Defaults to the network where the instances are in (if neither
     `network` nor `instances` is specified, this field will be blank).
 
-The `named_port` block supports:
+<a name="nested_named_port"></a>The `named_port` block supports:
 
 * `name` - (Required) The name which the port will be mapped to.
 

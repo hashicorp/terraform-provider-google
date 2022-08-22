@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputePacketMirroring_computePacketMirroringFullExample(t *testing.
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputePacketMirroringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -58,7 +55,7 @@ resource "google_compute_instance" "mirror" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -69,27 +66,6 @@ resource "google_compute_instance" "mirror" {
   }
 }
 
-resource "google_compute_packet_mirroring" "foobar" {
-  name = "tf-test-my-mirroring%{random_suffix}"
-  description = "bar"
-  network {
-    url = google_compute_network.default.id
-  }
-  collector_ilb {
-    url = google_compute_forwarding_rule.default.id
-  }
-  mirrored_resources {
-    tags = ["foo"]
-    instances {
-      url = google_compute_instance.mirror.id
-    }
-  }
-  filter {
-    ip_protocols = ["tcp"]
-    cidr_ranges = ["0.0.0.0/0"]
-    direction = "BOTH"
-  }
-}
 resource "google_compute_network" "default" {
   name = "tf-test-my-network%{random_suffix}"
 }
@@ -127,6 +103,28 @@ resource "google_compute_forwarding_rule" "default" {
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   network_tier           = "PREMIUM"
+}
+
+resource "google_compute_packet_mirroring" "foobar" {
+  name = "tf-test-my-mirroring%{random_suffix}"
+  description = "bar"
+  network {
+    url = google_compute_network.default.id
+  }
+  collector_ilb {
+    url = google_compute_forwarding_rule.default.id
+  }
+  mirrored_resources {
+    tags = ["foo"]
+    instances {
+      url = google_compute_instance.mirror.id
+    }
+  }
+  filter {
+    ip_protocols = ["tcp"]
+    cidr_ranges = ["0.0.0.0/0"]
+    direction = "BOTH"
+  }
 }
 `, context)
 }

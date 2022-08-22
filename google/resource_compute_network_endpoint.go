@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -34,20 +34,11 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(6 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
-			"instance": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `The name for a specific VM instance that the IP address belongs to.
-This is required for network endpoints of type GCE_VM_IP_PORT.
-The instance must be in the same zone of network endpoint group.`,
-			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -63,9 +54,18 @@ range).`,
 				DiffSuppressFunc: compareResourceNames,
 				Description:      `The network endpoint group this endpoint is part of.`,
 			},
+			"instance": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The name for a specific VM instance that the IP address belongs to.
+This is required for network endpoints of type GCE_VM_IP_PORT.
+The instance must be in the same zone of network endpoint group.`,
+			},
 			"port": {
 				Type:        schema.TypeInt,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `Port number of network endpoint.`,
 			},
@@ -277,13 +277,17 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	toDelete["instance"] = instanceProp
+	if instanceProp != "" {
+		toDelete["instance"] = instanceProp
+	}
 
 	portProp, err := expandNestedComputeNetworkEndpointPort(d.Get("port"), d, config)
 	if err != nil {
 		return err
 	}
-	toDelete["port"] = portProp
+	if portProp != 0 {
+		toDelete["port"] = portProp
+	}
 
 	ipAddressProp, err := expandNestedComputeNetworkEndpointIpAddress(d.Get("ip_address"), d, config)
 	if err != nil {
@@ -320,11 +324,12 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 
 func resourceComputeNetworkEndpointImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+	// instance is optional, so use * instead of + when reading the import id
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
-		"(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
-		"(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
+		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]*)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
+		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]*)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
+		"(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]*)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
+		"(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]*)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}

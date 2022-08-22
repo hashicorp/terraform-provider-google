@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_global_address"
-sidebar_current: "docs-google-compute-global-address"
 description: |-
   Represents a Global Address resource.
 ---
@@ -43,6 +41,30 @@ To get more information about GlobalAddress, see:
 ```hcl
 resource "google_compute_global_address" "default" {
   name = "global-appserver-ip"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_address_private_services_connect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Global Address Private Services Connect
+
+
+```hcl
+resource "google_compute_global_address" "default" {
+  provider      = google-beta
+  name          = "global-psconnect-ip"
+  address_type  = "INTERNAL"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.network.id
+  address       = "100.100.100.105"
+}
+
+resource "google_compute_network" "network" {
+  provider      = google-beta
+  name          = "tf-test%{random_suffix}"
+  auto_create_subnetworks = false
 }
 ```
 
@@ -88,7 +110,8 @@ The following arguments are supported:
   (Optional)
   The prefix length of the IP range. If not present, it means the
   address field is a single IP address.
-  This field is not applicable to addresses with addressType=EXTERNAL.
+  This field is not applicable to addresses with addressType=EXTERNAL,
+  or addressType=INTERNAL when purpose=PRIVATE_SERVICE_CONNECT
 
 * `address_type` -
   (Optional)
@@ -100,10 +123,9 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of the resource. For global internal addresses it can be
+  The purpose of the resource. Possible values include:
   * VPC_PEERING - for peer networks
-  This should only be set when using an Internal address.
-  Possible values are `VPC_PEERING`.
+  * PRIVATE_SERVICE_CONNECT - for ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Private Service Connect networks
 
 * `network` -
   (Optional)
@@ -126,6 +148,7 @@ In addition to the arguments listed above, the following computed attributes are
   Creation timestamp in RFC3339 text format.
 
 * `label_fingerprint` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 * `self_link` - The URI of the created resource.
@@ -136,9 +159,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

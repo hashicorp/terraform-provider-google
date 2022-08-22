@@ -44,7 +44,7 @@ func TestAccPubsubSubscription_basic(t *testing.T) {
 		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubSubscription_basic(topic, subscription, "bar", 20),
+				Config: testAccPubsubSubscription_basic(topic, subscription, "bar", 20, false),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -61,7 +61,6 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 
 	topic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
 	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", randString(t, 10))
-	subscriptionLong := fmt.Sprintf("projects/%s/subscriptions/%s", getTestProjectFromEnv(), subscriptionShort)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -69,7 +68,7 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "bar", 20),
+				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "bar", 20, false),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -78,10 +77,7 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "baz", 30),
-				Check: resource.TestCheckResourceAttr(
-					"google_pubsub_subscription.foo", "path", subscriptionLong,
-				),
+				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "baz", 30, true),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -213,7 +209,7 @@ resource "google_pubsub_subscription" "foo" {
 `, saAccount, topicFoo, subscription)
 }
 
-func testAccPubsubSubscription_basic(topic, subscription, label string, deadline int) string {
+func testAccPubsubSubscription_basic(topic, subscription, label string, deadline int, exactlyOnceDelivery bool) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
   name = "%s"
@@ -226,9 +222,13 @@ resource "google_pubsub_subscription" "foo" {
   labels = {
     foo = "%s"
   }
+  retry_policy {
+    minimum_backoff = "60.0s"
+  }
   ack_deadline_seconds = %d
+  enable_exactly_once_delivery = %t
 }
-`, topic, subscription, label, deadline)
+`, topic, subscription, label, deadline, exactlyOnceDelivery)
 }
 
 func testAccPubsubSubscription_topicOnly(topic string) string {

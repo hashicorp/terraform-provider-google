@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_client_config"
-sidebar_current: "docs-google-datasource-client-config"
 description: |-
   Get information about the configuration of the Google Cloud provider.
 ---
@@ -10,6 +8,9 @@ description: |-
 # google\_client\_config
 
 Use this data source to access the configuration of the Google Cloud provider.
+
+-> **Warning**: This resource persists a sensitive credential in the [remote state](https://www.terraform.io/language/state/sensitive-data) used by Terraform.
+Please take appropriate measures to protect your remote state.
 
 ## Example Usage
 
@@ -34,8 +35,6 @@ data "google_container_cluster" "my_cluster" {
 }
 
 provider "kubernetes" {
-  load_config_file = false
-
   host  = "https://${data.google_container_cluster.my_cluster.endpoint}"
   token = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(

@@ -20,7 +20,7 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 		"add1_port":     101,
 		"add2_port":     102,
 	}
-	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/neg-%s",
+	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/tf-test-neg-%s",
 		getTestProjectFromEnv(), getTestZoneFromEnv(), context["random_suffix"])
 
 	vcrTest(t, resource.TestCase{
@@ -138,7 +138,7 @@ resource "google_compute_network_endpoint" "add2" {
 func testAccComputeNetworkEndpoint_noNetworkEndpoints(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
-  name         = "neg-%{random_suffix}"
+  name         = "tf-test-neg-%{random_suffix}"
   zone         = "us-central1-a"
   network      = google_compute_network.default.self_link
   subnetwork   = google_compute_subnetwork.default.self_link
@@ -146,12 +146,12 @@ resource "google_compute_network_endpoint_group" "neg" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "neg-network-%{random_suffix}"
+  name                    = "tf-test-neg-network-%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "neg-subnetwork-%{random_suffix}"
+  name          = "tf-test-neg-subnetwork-%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.self_link
@@ -175,7 +175,7 @@ resource "google_compute_instance" "default" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 `, context)
@@ -203,7 +203,7 @@ func testAccCheckComputeNetworkEndpointWithPortsDestroyed(t *testing.T, negId st
 func testAccComputeNetworkEndpointsListEndpointPorts(t *testing.T, negId string) (map[string]struct{}, error) {
 	config := googleProviderConfig(t)
 
-	url := fmt.Sprintf("https://www.googleapis.com/compute/beta/%s/listNetworkEndpoints", negId)
+	url := fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/listNetworkEndpoints", negId)
 	res, err := sendRequest(config, "POST", "", url, config.userAgent, nil)
 	if err != nil {
 		return nil, err

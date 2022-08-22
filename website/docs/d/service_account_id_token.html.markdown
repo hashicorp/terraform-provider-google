@@ -1,22 +1,20 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_account_id_token"
-sidebar_current: "docs-google-service-account-id-token"
 description: |-
   Produces OpenID Connect token for service accounts
 ---
 
-# google\_service\_account\id\_token
+# google\_service\_account\_id\_token
 
-This data source provides a Google OpenID Connect (`oidc`) `id_token`.  Tokens issued from this data source are typically used to call external services that accept OIDC tokens for authentication (e.g. [Google Cloud Run](https://cloud.google.com/run/docs/authenticating/service-to-service)). 
+This data source provides a Google OpenID Connect (`oidc`) `id_token`.  Tokens issued from this data source are typically used to call external services that accept OIDC tokens for authentication (e.g. [Google Cloud Run](https://cloud.google.com/run/docs/authenticating/service-to-service)).
 
 For more information see
 [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
 
 ## Example Usage - ServiceAccount JSON credential file.
   `google_service_account_id_token` will use the configured [provider credentials](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#credentials-1)
-  
+
   ```hcl
   data "google_service_account_id_token" "oidc" {
     target_audience = "https://foo.bar/"

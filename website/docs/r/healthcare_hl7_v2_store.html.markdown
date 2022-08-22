@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Healthcare"
-layout: "google"
 page_title: "Google: google_healthcare_hl7_v2_store"
-sidebar_current: "docs-google-healthcare-hl7-v2-store"
 description: |-
   A Hl7V2Store is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.
 ---
@@ -219,7 +217,7 @@ The following arguments are supported:
 * `parser_config` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_parser_config).
 
 * `labels` -
   (Optional)
@@ -237,15 +235,15 @@ The following arguments are supported:
   A list of notification configs. Each configuration uses a filter to determine whether to publish a
   message (both Ingest & Create) on the corresponding notification destination. Only the message name
   is sent as part of the notification. Supplied by the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_notification_configs).
 
 * `notification_config` -
   (Optional, Deprecated)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_notification_config).
 
 
-The `parser_config` block supports:
+<a name="nested_parser_config"></a>The `parser_config` block supports:
 
 * `allow_null_header` -
   (Optional)
@@ -262,12 +260,12 @@ The `parser_config` block supports:
   store if schematized parsing is desired.
 
 * `version` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The version of the unschematized parser to be used when a custom `schema` is not set.
   Default value is `V1`.
-  Possible values are `V1` and `V2`.
+  Possible values are `V1`, `V2`, and `V3`.
 
-The `notification_configs` block supports:
+<a name="nested_notification_configs"></a>The `notification_configs` block supports:
 
 * `pubsub_topic` -
   (Required)
@@ -275,7 +273,7 @@ The `notification_configs` block supports:
   PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
   It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
   was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-  project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
   Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
   If a notification cannot be published to Cloud Pub/Sub, errors will be logged to Stackdriver
 
@@ -291,7 +289,7 @@ The `notification_configs` block supports:
   * PatientId(value, type), which matches if the message lists a patient having an ID of the given value and type in the PID-2, PID-3, or PID-4 segments. For example, PatientId("123456", "MRN").
   * labels.x, a string value of the label with key x as set using the Message.labels map. For example, labels."priority"="high". The operator :* can be used to assert the existence of a label. For example, labels."priority":*.
 
-The `notification_config` block supports:
+<a name="nested_notification_config"></a>The `notification_config` block supports:
 
 * `pubsub_topic` -
   (Required)
@@ -299,7 +297,7 @@ The `notification_config` block supports:
   PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
   It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
   was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-  project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
   Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
 
 ## Attributes Reference
@@ -317,9 +315,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

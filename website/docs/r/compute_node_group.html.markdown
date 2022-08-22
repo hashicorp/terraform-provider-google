@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_node_group"
-sidebar_current: "docs-google-compute-node-group"
 description: |-
   Represents a NodeGroup resource to manage a group of sole-tenant nodes.
 ---
@@ -53,7 +51,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "soletenant-group"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
   size          = 1
@@ -77,10 +75,13 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "soletenant-group"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
   maintenance_policy = "RESTART_IN_PLACE"
-  size          = 1
+  maintenance_window {
+    start_time = "08:00"
+  }
+  initial_size  = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
     mode      = "ONLY_SCALE_OUT"
@@ -99,10 +100,6 @@ The following arguments are supported:
   (Required)
   The URL of the node template to which this node group belongs.
 
-* `size` -
-  (Required)
-  The total number of nodes in the node group.
-
 
 - - -
 
@@ -115,15 +112,28 @@ The following arguments are supported:
   (Optional)
   Name of the resource.
 
+* `size` -
+  (Optional)
+  The total number of nodes in the node group. One of `initial_size` or `size` must be specified.
+
+* `initial_size` -
+  (Optional)
+  The initial number of nodes in the node group. One of `initial_size` or `size` must be specified.
+
 * `maintenance_policy` -
   (Optional)
   Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.
+
+* `maintenance_window` -
+  (Optional)
+  contains properties for the timeframe of maintenance
+  Structure is [documented below](#nested_maintenance_window).
 
 * `autoscaling_policy` -
   (Optional)
   If you use sole-tenant nodes for your workloads, you can use the node
   group autoscaler to automatically manage the sizes of your node groups.
-  Structure is documented below.
+  Structure is [documented below](#nested_autoscaling_policy).
 
 * `zone` -
   (Optional)
@@ -133,7 +143,13 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `autoscaling_policy` block supports:
+<a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
+
+* `start_time` -
+  (Required)
+  instances.start time of the window. This must be in UTC format that resolves to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both 13:00-5 and 08:00 are valid.
+
+<a name="nested_autoscaling_policy"></a>The `autoscaling_policy` block supports:
 
 * `mode` -
   (Required)
@@ -171,9 +187,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

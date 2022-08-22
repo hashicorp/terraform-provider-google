@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -21,8 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceAccessContextManagerAccessLevelCondition() *schema.Resource {
@@ -32,8 +30,8 @@ func resourceAccessContextManagerAccessLevelCondition() *schema.Resource {
 		Delete: resourceAccessContextManagerAccessLevelConditionDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -62,7 +60,7 @@ allowed.`,
 An empty list allows all management levels. Possible values: ["MANAGEMENT_UNSPECIFIED", "NONE", "BASIC", "COMPLETE"]`,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
-								ValidateFunc: validation.StringInSlice([]string{"MANAGEMENT_UNSPECIFIED", "NONE", "BASIC", "COMPLETE"}, false),
+								ValidateFunc: validateEnum([]string{"MANAGEMENT_UNSPECIFIED", "NONE", "BASIC", "COMPLETE"}),
 							},
 						},
 						"allowed_encryption_statuses": {
@@ -73,7 +71,7 @@ An empty list allows all management levels. Possible values: ["MANAGEMENT_UNSPEC
 An empty list allows all statuses. Possible values: ["ENCRYPTION_UNSPECIFIED", "ENCRYPTION_UNSUPPORTED", "UNENCRYPTED", "ENCRYPTED"]`,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
-								ValidateFunc: validation.StringInSlice([]string{"ENCRYPTION_UNSPECIFIED", "ENCRYPTION_UNSUPPORTED", "UNENCRYPTED", "ENCRYPTED"}, false),
+								ValidateFunc: validateEnum([]string{"ENCRYPTION_UNSPECIFIED", "ENCRYPTION_UNSUPPORTED", "UNENCRYPTED", "ENCRYPTED"}),
 							},
 						},
 						"os_constraints": {
@@ -88,8 +86,8 @@ An empty list allows all types and all versions.`,
 										Type:         schema.TypeString,
 										Required:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS"}, false),
-										Description:  `The operating system type of the device. Possible values: ["OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS"]`,
+										ValidateFunc: validateEnum([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS", "ANDROID", "IOS"}),
+										Description:  `The operating system type of the device. Possible values: ["OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS", "ANDROID", "IOS"]`,
 									},
 									"minimum_version": {
 										Type:     schema.TypeString,
@@ -322,11 +320,7 @@ func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.Resource
 		}
 
 		if res == nil {
-			// Nested object not found, spoof a 404 error for poll
-			return nil, &googleapi.Error{
-				Code:    404,
-				Message: "nested object AccessContextManagerAccessLevelCondition not found",
-			}
+			return nil, fake404("nested", "AccessContextManagerAccessLevelCondition")
 		}
 
 		return res, nil
@@ -816,10 +810,7 @@ func resourceAccessContextManagerAccessLevelConditionPatchDeleteEncoder(d *schem
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "AccessLevelCondition not found in list",
-		}
+		return nil, fake404("nested", "AccessContextManagerAccessLevelCondition")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)

@@ -1,0 +1,3 @@
+```release-note:bug
+composer: corrected the description of `image_version` field.
+```

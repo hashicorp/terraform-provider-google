@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_vpn_tunnel"
-sidebar_current: "docs-google-compute-vpn-tunnel"
 description: |-
   VPN tunnel resource.
 ---
@@ -33,7 +31,7 @@ To get more information about VpnTunnel, see:
     * [Networks and Tunnel Routing](https://cloud.google.com/vpn/docs/concepts/choosing-networks-routing)
 
 ~> **Warning:** All arguments including `shared_secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vpn_tunnel_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -45,7 +43,7 @@ state as plain-text. [Read more about sensitive data in state](/docs/state/sensi
 
 ```hcl
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name          = "tunnel1"
+  name          = "tunnel-1"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -59,12 +57,12 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name    = "vpn1"
+  name    = "vpn-1"
   network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name = "network1"
+  name = "network-1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
@@ -114,7 +112,7 @@ resource "google_compute_route" "route1" {
 ```hcl
 resource "google_compute_vpn_tunnel" "tunnel1" {
   provider      = google-beta
-  name          = "tunnel1"
+  name          = "tunnel-1"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -133,13 +131,13 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 
 resource "google_compute_vpn_gateway" "target_gateway" {
   provider = google-beta
-  name     = "vpn1"
+  name     = "vpn-1"
   network  = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
   provider = google-beta
-  name     = "network1"
+  name     = "network-1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
@@ -304,6 +302,7 @@ In addition to the arguments listed above, the following computed attributes are
   Hash of the shared secret.
 
 * `label_fingerprint` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 
@@ -317,9 +316,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

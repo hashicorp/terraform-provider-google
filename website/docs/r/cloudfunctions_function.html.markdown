@@ -1,18 +1,18 @@
 ---
 subcategory: "Cloud Functions"
-layout: "google"
 page_title: "Google: google_cloudfunctions_function"
-sidebar_current: "docs-google-cloudfunctions-function"
 description: |-
   Creates a new Cloud Function.
 ---
 
 # google\_cloudfunctions\_function
 
-Creates a new Cloud Function. For more information see
-[the official documentation](https://cloud.google.com/functions/docs/)
-and
-[API](https://cloud.google.com/functions/docs/apis).
+Creates a new Cloud Function. For more information see:
+
+* [API documentation](https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/functions/docs)
+
 
 ~> **Warning:** As of November 1, 2019, newly created Functions are
 private-by-default and will require [appropriate IAM permissions](https://cloud.google.com/functions/docs/reference/iam/roles)
@@ -24,7 +24,8 @@ for Cloud Functions.
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name = "test-bucket"
+  name     = "test-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -36,7 +37,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "function-test"
   description = "My function"
-  runtime     = "nodejs10"
+  runtime     = "nodejs16"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
@@ -60,7 +61,8 @@ resource "google_cloudfunctions_function_iam_member" "invoker" {
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name = "test-bucket"
+  name     = "test-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -72,14 +74,15 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "function-test"
   description = "My function"
-  runtime     = "nodejs10"
+  runtime     = "nodejs16"
 
-  available_memory_mb   = 128
-  source_archive_bucket = google_storage_bucket.bucket.name
-  source_archive_object = google_storage_bucket_object.archive.name
-  trigger_http          = true
-  timeout               = 60
-  entry_point           = "helloGET"
+  available_memory_mb          = 128
+  source_archive_bucket        = google_storage_bucket.bucket.name
+  source_archive_object        = google_storage_bucket_object.archive.name
+  trigger_http                 = true
+  https_trigger_security_level = "SECURE_ALWAYS"
+  timeout                      = 60
+  entry_point                  = "helloGET"
   labels = {
     my-label = "my-label-value"
   }
@@ -107,23 +110,28 @@ The following arguments are supported:
 * `name` - (Required) A user-defined name of the function. Function names must be unique globally.
 
 * `runtime` - (Required) The runtime in which the function is going to run.
-Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`, `"go113"`.
+Eg. `"nodejs16"`, `"python39"`, `"dotnet3"`, `"go116"`, `"java11"`, `"ruby30"`, `"php74"`, etc. Check the [official doc](https://cloud.google.com/functions/docs/concepts/exec#runtimes) for the up-to-date list.
 
 - - -
 
 * `description` - (Optional) Description of the function.
 
-* `available_memory_mb` - (Optional) Memory (in MB), available to the function. Default value is 256MB. Allowed values are: 128MB, 256MB, 512MB, 1024MB, 2048MB and 4096MB.
+* `available_memory_mb` - (Optional) Memory (in MB), available to the function. Default value is `256`. Possible values include `128`, `256`, `512`, `1024`, etc.
 
 * `timeout` - (Optional) Timeout (in seconds) for the function. Default value is 60 seconds. Cannot be more than 540 seconds.
 
 * `entry_point` - (Optional) Name of the function that will be executed when the Google Cloud Function is triggered.
 
-* `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is documented below. Cannot be used with `trigger_http`.
+* `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is [documented below](#nested_event_trigger). Cannot be used with `trigger_http`.
 
-* `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `trigger_bucket` and `trigger_topic`.
+* `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `event_trigger`.
 
-* `ingress_settings` - (Optional) String value that controls what traffic can reach the function. Allowed values are `ALLOW_ALL`, `ALLOW_INTERNAL_AND_GCLB` and `ALLOW_INTERNAL_ONLY`. Changes to this field will recreate the cloud function.
+* `https_trigger_security_level` - (Optional) The security level for the function. The following options are available:
+
+    * `SECURE_ALWAYS` Requests for a URL that match this handler that do not use HTTPS are automatically redirected to the HTTPS URL with the same path. Query parameters are reserved for the redirect.
+    * `SECURE_OPTIONAL` Both HTTP and HTTPS requests with URLs that match the handler succeed without redirects. The application can examine the request to determine which protocol was used and respond accordingly.
+
+* `ingress_settings` - (Optional) String value that controls what traffic can reach the function. Allowed values are `ALLOW_ALL`, `ALLOW_INTERNAL_AND_GCLB` and `ALLOW_INTERNAL_ONLY`. Check [ingress documentation](https://cloud.google.com/functions/docs/networking/network-settings#ingress_settings) to see the impact of each settings value. Changes to this field will recreate the cloud function.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the function. Label keys must follow the requirements at https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.
 
@@ -142,11 +150,24 @@ Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`, `"go113"`.
 * `source_archive_object` - (Optional) The source archive object (file) in archive bucket.
 
 * `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
-  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is documented below.
+  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is [documented below](#nested_source_repository). It must match the pattern `projects/{project}/locations/{location}/repositories/{repository}`.* 
+
+* `docker_registry` - (Optional) Docker Registry to use for storing the function's Docker images. Allowed values are CONTAINER_REGISTRY (default) and ARTIFACT_REGISTRY.
+
+* `docker_repository` - (Optional) User managed repository created in Artifact Registry optionally with a customer managed encryption key. If specified, deployments will use Artifact Registry. This is the repository to which the function docker image will be pushed after it is built by Cloud Build. If unspecified, Container Registry will be used by default, unless specified otherwise by other means.
+
+* `kms_key_name` - (Optional) Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources. It must match the pattern `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+  If specified, you must also provide an artifact registry repository using the `docker_repository` field that was created with the same KMS crypto key. Before deploying, please complete all pre-requisites described in https://cloud.google.com/functions/docs/securing/cmek#granting_service_accounts_access_to_the_key
 
 * `max_instances` - (Optional) The limit on the maximum number of function instances that may coexist at a given time.
 
-The `event_trigger` block supports:
+* `min_instances` - (Optional) The limit on the minimum number of function instances that may coexist at a given time.
+
+* `secret_environment_variables` - (Optional) Secret environment variables configuration. Structure is [documented below](#nested_secret_environment_variables).
+
+* `secret_volumes` - (Optional) Secret volumes configuration. Structure is [documented below](#nested_secret_volumes).
+
+<a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
 See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a
@@ -155,19 +176,45 @@ full reference of accepted triggers.
 * `resource` - (Required) Required. The name or partial URI of the resource from
 which to observe events. For example, `"myBucket"` or `"projects/my-project/topics/my-topic"`
 
-* `failure_policy` - (Optional) Specifies policy for failed executions. Structure is documented below.
+* `failure_policy` - (Optional) Specifies policy for failed executions. Structure is [documented below](#nested_failure_policy).
 
-The `failure_policy` block supports:
+<a name="nested_failure_policy"></a>The `failure_policy` block supports:
 
 * `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
-The `source_repository` block supports:
+<a name="nested_source_repository"></a>The `source_repository` block supports:
 
 * `url` - (Required) The URL pointing to the hosted repository where the function is defined. There are supported Cloud Source Repository URLs in the following formats:
 
     * To refer to a specific commit: `https://source.developers.google.com/projects/*/repos/*/revisions/*/paths/*`
     * To refer to a moveable alias (branch): `https://source.developers.google.com/projects/*/repos/*/moveable-aliases/*/paths/*`. To refer to HEAD, use the `master` moveable alias.
     * To refer to a specific fixed alias (tag): `https://source.developers.google.com/projects/*/repos/*/fixed-aliases/*/paths/*`
+
+<a name="nested_secret_environment_variables"></a>The `secret_environment_variables` block supports:
+
+* `key` - (Required) Name of the environment variable.
+
+* `project_id` - (Optional) Project identifier (due to a known limitation, only project number is supported by this field) of the project that contains the secret. If not set, it will be populated with the function's project, assuming that the secret exists in the same project as of the function.
+
+* `secret` - (Required) ID of the secret in secret manager (not the full resource name).
+
+* `version` - (Required) Version of the secret (version number or the string "latest"). It is recommended to use a numeric version for secret environment variables as any updates to the secret value is not reflected until new clones start.
+
+<a name="nested_secret_volumes"></a>The `secret_volumes` block supports:
+
+* `mount_path` - (Required) The path within the container to mount the secret volume. For example, setting the mount_path as "/etc/secrets" would mount the secret value files under the "/etc/secrets" directory. This directory will also be completely shadowed and unavailable to mount any other secrets. Recommended mount paths: "/etc/secrets" Restricted mount paths: "/cloudsql", "/dev/log", "/pod", "/proc", "/var/log".
+
+* `project_id` - (Optional) Project identifier (due to a known limitation, only project number is supported by this field) of the project that contains the secret. If not set, it will be populated with the function's project, assuming that the secret exists in the same project as of the function.
+
+* `secret` - (Required) ID of the secret in secret manager (not the full resource name).
+
+* `versions` - (Optional) List of secret versions to mount for this secret. If empty, the "latest" version of the secret will be made available in a file named after the secret under the mount point. Structure is [documented below](#nested_nested_versions).
+
+<a name="nested_versions"></a>The `versions` block supports:
+
+* `path` - (Required) Relative path of the file under the mount path where the secret value for this version will be fetched and made available. For example, setting the mount_path as "/etc/secrets" and path as "/secret_foo" would mount the secret value file at "/etc/secrets/secret_foo".
+
+* `version` - (Required) Version of the secret (version number or the string "latest"). It is preferable to use "latest" version with secret volumes as secret value changes are reflected immediately.
 
 ## Attributes Reference
 
@@ -182,7 +229,7 @@ exported:
 
 * `project` - Project of the function. If it is not provided, the provider project is used.
 
-* `region` - Region of function. Currently can be only "us-central1". If it is not provided, the provider region is used.
+* `region` - Region of function. If it is not provided, the provider region is used.
 
 ## Timeouts
 

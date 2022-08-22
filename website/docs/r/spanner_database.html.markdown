@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Spanner"
-layout: "google"
 page_title: "Google: google_spanner_database"
-sidebar_current: "docs-google-spanner-database"
 description: |-
   A Cloud Spanner Database which is hosted on a Spanner instance.
 ---
@@ -50,11 +48,13 @@ for more information on lifecycle parameters.
 resource "google_spanner_instance" "main" {
   config       = "regional-europe-west1"
   display_name = "main-instance"
+  num_nodes    = 1
 }
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
   name     = "my-database"
+  version_retention_period = "3d"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
     "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
@@ -81,6 +81,14 @@ The following arguments are supported:
 - - -
 
 
+* `version_retention_period` -
+  (Optional)
+  The retention period for the database. The retention period must be between 1 hour
+  and 7 days, and can be specified in days, hours, minutes, or seconds. For example,
+  the values 1d, 24h, 1440m, and 86400s are equivalent. Default value is 1h.
+  If this property is used, you must avoid adding new DDL statements to `ddl` that
+  update the database's version_retention_period.
+
 * `ddl` -
   (Optional)
   An optional list of DDL statements to run inside the newly created
@@ -88,12 +96,30 @@ The following arguments are supported:
   execute atomically with the creation of the database: if there is an
   error in any statement, the database is not created.
 
+* `encryption_config` -
+  (Optional)
+  Encryption configuration for the database
+  Structure is [documented below](#nested_encryption_config).
+
+* `database_dialect` -
+  (Optional)
+  The dialect of the Cloud Spanner Database.
+  If it is not provided, "GOOGLE_STANDARD_SQL" will be used.
+  Possible values are `GOOGLE_STANDARD_SQL` and `POSTGRESQL`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Fully qualified name of the KMS key to use to encrypt this database. This key must exist
+  in the same location as the Spanner Database.
 
 ## Attributes Reference
 
@@ -110,9 +136,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

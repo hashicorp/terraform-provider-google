@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed bug where `role_entity` user wouldn't update if the role changed.
+```

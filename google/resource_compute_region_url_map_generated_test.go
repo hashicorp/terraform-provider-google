@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -93,6 +90,7 @@ resource "google_compute_region_backend_service" "login" {
 
   name        = "login%{random_suffix}"
   protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]
@@ -103,6 +101,7 @@ resource "google_compute_region_backend_service" "home" {
 
   name        = "home%{random_suffix}"
   protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]
@@ -130,11 +129,8 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -264,11 +260,8 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -366,11 +359,8 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -481,11 +471,8 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

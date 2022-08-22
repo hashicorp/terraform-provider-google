@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_access_policy"
-sidebar_current: "docs-google-access-context-manager-access-policy"
 description: |-
   AccessPolicy is a container for AccessLevels (which define the necessary
   attributes to use GCP services) and ServicePerimeters (which define
@@ -38,9 +36,9 @@ To get more information about AccessPolicy, see:
     * [Access Policy Quickstart](https://cloud.google.com/access-context-manager/docs/quickstart)
 
 ~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
-you must specify a `billing_project` and set `user_project_override` to true 
-in the provider configuration. Otherwise the ACM API will return a 403 error. 
-Your account must have the `serviceusage.services.use` permission on the 
+you must specify a `billing_project` and set `user_project_override` to true
+in the provider configuration. Otherwise the ACM API will return a 403 error.
+Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
 ## Example Usage - Access Context Manager Access Policy Basic
@@ -49,7 +47,23 @@ Your account must have the `serviceusage.services.use` permission on the
 ```hcl
 resource "google_access_context_manager_access_policy" "access-policy" {
   parent = "organizations/123456789"
-  title  = "my policy"
+  title  = "Org Access Policy"
+}
+```
+## Example Usage - Access Context Manager Access Policy Scoped
+
+
+```hcl
+resource "google_project" "project" {
+  project_id      = "acm-test-proj-123"
+  name            = "acm-test-proj-123"
+  org_id          = "123456789"
+}
+
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/123456789"
+  title  = "Scoped Access Policy"
+  scopes = ["projects/${google_project.project.number}"]
 }
 ```
 
@@ -70,6 +84,11 @@ The following arguments are supported:
 
 - - -
 
+
+* `scopes` -
+  (Optional)
+  Folder or project on which this policy is applicable.
+  Format: folders/{{folder_id}} or projects/{{project_id}}
 
 
 ## Attributes Reference
@@ -93,9 +112,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,0 +1,4 @@
+```release-note:bug
+container : fixed container cluster not removed from the state when received 404 error on delete call for the resource `google_container_clsuter`
+
+```

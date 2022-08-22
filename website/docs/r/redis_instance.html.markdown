@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Memorystore (Redis)"
-layout: "google"
 page_title: "Google: google_redis_instance"
-sidebar_current: "docs-google-redis-instance"
 description: |-
   A Google Cloud Redis instance.
 ---
@@ -27,7 +25,7 @@ A Google Cloud Redis instance.
 
 To get more information about Instance, see:
 
-* [API documentation](https://cloud.google.com/memorystore/docs/redis/reference/rest/)
+* [API documentation](https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memorystore/docs/redis/)
 
@@ -72,6 +70,18 @@ resource "google_redis_instance" "cache" {
     my_key    = "my_val"
     other_key = "other_val"
   }
+
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "TUESDAY"
+      start_time {
+        hours = 0
+        minutes = 30
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
 }
 
 // This example assumes this network already exists.
@@ -95,33 +105,41 @@ data "google_compute_network" "redis-network" {
 
 
 ```hcl
-resource "google_compute_network" "network" {
-  name = "tf-test%{random_suffix}"
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "redis-test-network"
 }
 
 resource "google_compute_global_address" "service_range" {
-  name          = "tf-test%{random_suffix}"
+  name          = "address"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = google_compute_network.network.id
+  network       = data.google_compute_network.redis-network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.network.id
+  network                 = data.google_compute_network.redis-network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
 
 resource "google_redis_instance" "cache" {
-  name           = "tf-test%{random_suffix}"
+  name           = "private-cache"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = google_compute_network.network.id
+  authorized_network = data.google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
 
   redis_version     = "REDIS_4_0"
@@ -129,6 +147,96 @@ resource "google_redis_instance" "cache" {
 
   depends_on = [google_service_networking_connection.private_service_connection]
 
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=redis_instance_mrr&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Instance Mrr
+
+
+```hcl
+resource "google_redis_instance" "cache" {
+  name           = "mrr-memory-cache"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 5
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = data.google_compute_network.redis-network.id
+
+  redis_version     = "REDIS_6_X"
+  display_name      = "Terraform Test Instance"
+  reserved_ip_range = "192.168.0.0/28"
+  replica_count     = 5
+  read_replicas_mode = "READ_REPLICAS_ENABLED"
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "redis-test-network"
+}
+```
+## Example Usage - Redis Instance Cmek
+
+
+```hcl
+resource "google_redis_instance" "cache" {
+  name           = "cmek-memory-cache"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 1
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = data.google_compute_network.redis-network.id
+
+  redis_version     = "REDIS_6_X"
+  display_name      = "Terraform Test Instance"
+  reserved_ip_range = "192.168.0.0/29"
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
+  customer_managed_key = google_kms_crypto_key.redis_key.id
+}
+
+resource "google_kms_key_ring" "redis_keyring" {
+  name     = "redis-keyring"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "redis_key" {
+  name            = "redis-key"
+  key_ring        = google_kms_key_ring.redis_keyring.id
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "redis-test-network"
 }
 ```
 
@@ -196,13 +304,21 @@ The following arguments are supported:
   zonal failures. If [alternativeLocationId] is also provided, it must
   be different from [locationId].
 
+* `maintenance_policy` -
+  (Optional)
+  Maintenance policy for an instance.
+  Structure is [documented below](#nested_maintenance_policy).
+
+* `maintenance_schedule` -
+  (Optional)
+  Upcoming maintenance schedule.
+  Structure is [documented below](#nested_maintenance_schedule).
+
 * `redis_version` -
   (Optional)
   The version of Redis software. If not provided, latest supported
-  version will be used. Currently, the supported values are:
-  - REDIS_5_0 for Redis 5.0 compatibility
-  - REDIS_4_0 for Redis 4.0 compatibility
-  - REDIS_3_2 for Redis 3.2 compatibility
+  version will be used. Please check the API documentation linked 
+  at the top for the latest valid values.
 
 * `reserved_ip_range` -
   (Optional)
@@ -220,6 +336,42 @@ The following arguments are supported:
   Default value is `BASIC`.
   Possible values are `BASIC` and `STANDARD_HA`.
 
+* `transit_encryption_mode` -
+  (Optional)
+  The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
+  - SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentication
+  Default value is `DISABLED`.
+  Possible values are `SERVER_AUTHENTICATION` and `DISABLED`.
+
+* `replica_count` -
+  (Optional)
+  Optional. The number of replica nodes. The valid range for the Standard Tier with 
+  read replicas enabled is [1-5] and defaults to 2. If read replicas are not enabled
+  for a Standard Tier instance, the only valid value is 1 and the default is 1. 
+  The valid value for basic tier is 0 and the default is also 0.
+
+* `read_replicas_mode` -
+  (Optional)
+  Optional. Read replica mode. Can only be specified when trying to create the instance.
+  If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
+  - READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the 
+  instance cannot scale up or down the number of replicas.
+  - READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance 
+  can scale up and down the number of replicas.
+  Possible values are `READ_REPLICAS_DISABLED` and `READ_REPLICAS_ENABLED`.
+
+* `secondary_ip_range` -
+  (Optional)
+  Optional. Additional IP range for node placement. Required when enabling read replicas on
+  an existing instance. For DIRECT_PEERING mode value must be a CIDR range of size /28, or
+  "auto". For PRIVATE_SERVICE_ACCESS mode value must be the name of an allocated address 
+  range associated with the private service access connection, or "auto".
+
+* `customer_managed_key` -
+  (Optional)
+  Optional. The KMS key reference that you want to use to encrypt the data at rest for this Redis
+  instance. If this is provided, CMEK is enabled.
+
 * `region` -
   (Optional)
   The name of the Redis region of the instance.
@@ -228,6 +380,97 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `auth_string` - (Optional) AUTH String set on the instance. This field will only be populated if auth_enabled is true.
+
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `create_time` -
+  Output only. The time when the policy was created.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `update_time` -
+  Output only. The time when the policy was last updated.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `description` -
+  (Optional)
+  Optional. Description of what this policy is for.
+  Create/Update methods return INVALID_ARGUMENT if the
+  length is greater than 512.
+
+* `weekly_maintenance_window` -
+  (Optional)
+  Optional. Maintenance window that is applied to resources covered by this policy.
+  Minimum 1. For the current version, the maximum number
+  of weekly_window is expected to be one.
+  Structure is [documented below](#nested_weekly_maintenance_window).
+
+
+<a name="nested_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+
+* `day` -
+  (Required)
+  Required. The day of week that maintenance updates occur.
+  - DAY_OF_WEEK_UNSPECIFIED: The day of the week is unspecified.
+  - MONDAY: Monday
+  - TUESDAY: Tuesday
+  - WEDNESDAY: Wednesday
+  - THURSDAY: Thursday
+  - FRIDAY: Friday
+  - SATURDAY: Saturday
+  - SUNDAY: Sunday
+  Possible values are `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+
+* `duration` -
+  Output only. Duration of the maintenance window.
+  The current window is fixed at 1 hour.
+  A duration in seconds with up to nine fractional digits,
+  terminated by 's'. Example: "3.5s".
+
+* `start_time` -
+  (Required)
+  Required. Start time of the window in UTC time.
+  Structure is [documented below](#nested_start_time).
+
+
+<a name="nested_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+  An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59.
+  An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block supports:
+
+* `start_time` -
+  Output only. The start time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `end_time` -
+  Output only. The end time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `schedule_deadline_time` -
+  Output only. The deadline that the maintenance schedule start time
+  can not go beyond, including reschedule.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
 
 ## Attributes Reference
 
@@ -259,15 +502,57 @@ In addition to the arguments listed above, the following computed attributes are
   The value may change over time for a given instance so should be
   checked before each import/export operation.
 
+* `server_ca_certs` -
+  List of server CA certificates for the instance.
+  Structure is [documented below](#nested_server_ca_certs).
+
+* `nodes` -
+  Output only. Info per node.
+  Structure is [documented below](#nested_nodes).
+
+* `read_endpoint` -
+  Output only. Hostname or IP address of the exposed readonly Redis endpoint. Standard tier only.
+  Targets all healthy replica nodes in instance. Replication is asynchronous and replica nodes
+  will exhibit some lag behind the primary. Write requests must target 'host'.
+
+* `read_endpoint_port` -
+  Output only. The port number of the exposed readonly redis endpoint. Standard tier only. 
+  Write requests should target 'port'.
+
+
+<a name="nested_server_ca_certs"></a>The `server_ca_certs` block contains:
+
+* `serial_number` -
+  Serial number, as extracted from the certificate.
+
+* `cert` -
+  The certificate data in PEM format.
+
+* `create_time` -
+  The time when the certificate was created.
+
+* `expire_time` -
+  The time when the certificate expires.
+
+* `sha1_fingerprint` -
+  Sha1 Fingerprint of the certificate.
+
+<a name="nested_nodes"></a>The `nodes` block contains:
+
+* `id` -
+  Node identifying string. e.g. 'node-0', 'node-1'
+
+* `zone` -
+  Location of the node.
 
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

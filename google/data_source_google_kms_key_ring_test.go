@@ -21,7 +21,7 @@ func TestAccDataSourceGoogleKmsKeyRing_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleKmsKeyRing_basic(keyRingId),
-				Check:  resource.TestMatchResourceAttr("data.google_kms_key_ring.kms_key_ring", "self_link", regexp.MustCompile(kms.KeyRing.Name)),
+				Check:  resource.TestMatchResourceAttr("data.google_kms_key_ring.kms_key_ring", "id", regexp.MustCompile(kms.KeyRing.Name)),
 			},
 		},
 	})

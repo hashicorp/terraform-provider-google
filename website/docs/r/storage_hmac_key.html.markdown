@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Storage"
-layout: "google"
 page_title: "Google: google_storage_hmac_key"
-sidebar_current: "docs-google-storage-hmac-key"
 description: |-
   The hmacKeys resource represents an HMAC key within Cloud Storage.
 ---
@@ -34,11 +32,11 @@ To get more information about HmacKey, see:
     * [Official Documentation](https://cloud.google.com/storage/docs/authentication/managing-hmackeys)
 
 ~> **Warning:** All arguments including the `secret` value will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 On import, the `secret` value will not be retrieved.
 
 ~> **Warning:** All arguments including `secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=storage_hmac_key&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -49,10 +47,12 @@ state as plain-text. [Read more about sensitive data in state](/docs/state/sensi
 
 
 ```hcl
+# Create a new service account
 resource "google_service_account" "service_account" {
   account_id = "my-svc-acc"
 }
 
+#Create the HMAC key for the associated service account 
 resource "google_storage_hmac_key" "key" {
   service_account_email = google_service_account.service_account.email
 }
@@ -106,9 +106,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

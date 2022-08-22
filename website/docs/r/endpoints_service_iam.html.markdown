@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Endpoints"
-layout: "google"
 page_title: "Google: google_endpoints_service_iam"
-sidebar_current: "docs-google-endpoints-service-iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Endpoints Service
 ---
@@ -78,7 +76,6 @@ resource "google_endpoints_service_iam_member" "member" {
 
 The following arguments are supported:
 
-* `service_name` - (Required) The name of the service. Used to find the parent resource to bind the IAM policy to
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
@@ -88,6 +85,9 @@ The following arguments are supported:
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
+  * **projectOwner:projectid**: Owners of the given project. For example, "projectOwner:my-example-project"
+  * **projectEditor:projectid**: Editors of the given project. For example, "projectEditor:my-example-project"
+  * **projectViewer:projectid**: Viewers of the given project. For example, "projectViewer:my-example-project"
 
 * `role` - (Required) The role that should be applied. Only one
     `google_endpoints_service_iam_binding` can be used per role. Note that custom roles must be of the format
@@ -107,8 +107,8 @@ exported:
 
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
-* services/{{serviceName}}
-* {{serviceName}}
+* services/{{service_name}}
+* {{service_name}}
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
@@ -116,17 +116,17 @@ Cloud Endpoints service IAM resources can be imported using the resource identif
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_endpoints_service_iam_member.editor "services/{{serviceName}} roles/viewer user:jane@example.com"
+$ terraform import google_endpoints_service_iam_member.editor "services/{{service_name}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_endpoints_service_iam_binding.editor "services/{{serviceName}} roles/viewer"
+$ terraform import google_endpoints_service_iam_binding.editor "services/{{service_name}} roles/viewer"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
 ```
-$ terraform import google_endpoints_service_iam_policy.editor services/{{serviceName}}
+$ terraform import google_endpoints_service_iam_policy.editor services/{{service_name}}
 ```
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the

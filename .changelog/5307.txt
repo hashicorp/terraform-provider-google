@@ -1,0 +1,3 @@
+```release-note:new-datasource
+compute:  New `google_compute_router_status` data source
+```

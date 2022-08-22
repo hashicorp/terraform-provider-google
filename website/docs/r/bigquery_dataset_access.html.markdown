@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery"
-layout: "google"
 page_title: "Google: google_bigquery_dataset_access"
-sidebar_current: "docs-google-bigquery-dataset-access"
 description: |-
   Gives dataset access for a single entity.
 ---
@@ -81,6 +79,7 @@ resource "google_bigquery_dataset" "public" {
 }
 
 resource "google_bigquery_table" "public" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.public.dataset_id
   table_id   = "example_table"
 
@@ -88,6 +87,29 @@ resource "google_bigquery_table" "public" {
     query          = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
     use_legacy_sql = false
   }
+}
+```
+## Example Usage - Bigquery Dataset Access Authorized Dataset
+
+
+```hcl
+resource "google_bigquery_dataset_access" "access" {
+  dataset_id    = google_bigquery_dataset.private.dataset_id
+  dataset {
+    dataset{
+      project_id = google_bigquery_dataset.public.project
+      dataset_id = google_bigquery_dataset.public.dataset_id
+    }
+    target_types = ["VIEWS"]
+  }
+}
+
+resource "google_bigquery_dataset" "private" {
+  dataset_id = "private"
+}
+
+resource "google_bigquery_dataset" "public" {
+  dataset_id = "public"
 }
 ```
 
@@ -153,13 +175,18 @@ The following arguments are supported:
   this dataset. The role field is not required when this field is
   set. If that view is updated by any user, access to the view
   needs to be granted again via an update operation.
-  Structure is documented below.
+  Structure is [documented below](#nested_view).
+
+* `dataset` -
+  (Optional)
+  Grants all resources of particular types in a particular dataset read access to the current dataset.
+  Structure is [documented below](#nested_dataset).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `view` block supports:
+<a name="nested_view"></a>The `view` block supports:
 
 * `dataset_id` -
   (Required)
@@ -175,6 +202,29 @@ The `view` block supports:
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 1,024 characters.
 
+<a name="nested_dataset"></a>The `dataset` block supports:
+
+* `dataset` -
+  (Required)
+  The dataset this entry applies to
+  Structure is [documented below](#nested_dataset).
+
+* `target_types` -
+  (Required)
+  Which resources in the dataset this entry applies to. Currently, only views are supported,
+  but additional target types may be added in the future. Possible values: VIEWS
+
+
+<a name="nested_dataset"></a>The `dataset` block supports:
+
+* `dataset_id` -
+  (Required)
+  The ID of the dataset containing this table.
+
+* `project_id` -
+  (Required)
+  The ID of the project containing this table.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -187,8 +237,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

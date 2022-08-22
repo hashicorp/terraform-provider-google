@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_machine_image"
-sidebar_current: "docs-google-compute-machine-image"
 description: |-
   Represents a Machine Image resource.
 ---
@@ -51,7 +49,7 @@ resource "google_compute_instance" "vm" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -64,6 +62,64 @@ resource "google_compute_machine_image" "image" {
   provider        = google-beta
   name            = "image"
   source_instance = google_compute_instance.vm.self_link
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_machine_image_kms&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Machine Image Kms
+
+
+```hcl
+resource "google_compute_instance" "vm" {
+  provider     = google-beta
+  name         = "vm"
+  machine_type = "e2-medium"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_machine_image" "image" {
+  provider        = google-beta
+  name            = "image"
+  source_instance = google_compute_instance.vm.self_link
+  machine_image_encryption_key {
+    kms_key_name = google_kms_crypto_key.crypto_key.id
+  }
+  depends_on = [google_project_iam_member.kms-project-binding]
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  provider = google-beta
+  name     = "key"
+  key_ring = google_kms_key_ring.key_ring.id
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  provider = google-beta
+  name     = "keyring"
+  location = "us"
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  provider = google-beta
+  project  = data.google_project.project.project_id
+  role     = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member   = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
 }
 ```
 
@@ -99,13 +155,13 @@ The following arguments are supported:
   After you encrypt a machine image with a customer-supplied key, you must
   provide the same key if you use the machine image later (e.g. to create a
   instance from the image)
-  Structure is documented below.
+  Structure is [documented below](#nested_machine_image_encryption_key).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `machine_image_encryption_key` block supports:
+<a name="nested_machine_image_encryption_key"></a>The `machine_image_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -117,11 +173,12 @@ The `machine_image_encryption_key` block supports:
   customer-supplied encryption key that protects this resource.
 
 * `kms_key_name` -
+  (Optional)
   The name of the encryption key that is stored in Google Cloud KMS.
 
 * `kms_key_service_account` -
   (Optional)
-  The service account used for the encryption request for the given KMS key. 
+  The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
 ## Attributes Reference
@@ -140,8 +197,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

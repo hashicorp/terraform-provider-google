@@ -1,0 +1,3 @@
+```release-note:none
+sql: Add `POSTGRES_14` to available version docs
+```

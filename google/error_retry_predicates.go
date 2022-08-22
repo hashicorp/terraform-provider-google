@@ -6,10 +6,12 @@ import (
 	"log"
 	"net"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
+	"google.golang.org/grpc/status"
 )
 
 type RetryErrorPredicateFunc func(error) (bool, string)
@@ -30,6 +32,21 @@ var defaultErrorRetryPredicates = []RetryErrorPredicateFunc{
 	// we had this in our global default error retries.
 	// Keeping it as a default for now.
 	is409OperationInProgressError,
+
+	// GCE Error codes- we don't have a way to add these to all GCE resources
+	// easily, so add them globally.
+
+	// GCE Subnetworks are considered unready for a brief period when certain
+	// operations are performed on them, and the scope is likely too broad to
+	// apply a mutex. If we attempt an operation w/ an unready subnetwork, retry
+	// it.
+	isSubnetworkUnreadyError,
+
+	// As of February 2022 GCE seems to have added extra quota enforcement on
+	// reads, causing significant failure for our CI and for large customers.
+	// GCE returns the wrong error code, as this should be a 429, which we retry
+	// already.
+	is403QuotaExceededPerMinuteError,
 }
 
 /** END GLOBAL ERROR RETRY PREDICATES HERE **/
@@ -80,7 +97,7 @@ func isConnectionResetNetworkError(err error) (bool, string) {
 // Retry 409s because some APIs like Cloud SQL throw a 409 if concurrent calls
 // are being made.
 //
-//The only way right now to determine it is a retryable 409 due to
+// The only way right now to determine it is a retryable 409 due to
 // concurrent calls is to look at the contents of the error message.
 // See https://github.com/hashicorp/terraform-provider-google/issues/3279
 func is409OperationInProgressError(err error) (bool, string) {
@@ -92,6 +109,37 @@ func is409OperationInProgressError(err error) (bool, string) {
 	if gerr.Code == 409 && strings.Contains(gerr.Body, "operationInProgress") {
 		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 409 and error reason 'operationInProgress': %s", err)
 		return true, "Operation still in progress"
+	}
+	return false, ""
+}
+
+func isSubnetworkUnreadyError(err error) (bool, string) {
+	gerr, ok := err.(*googleapi.Error)
+	if !ok {
+		return false, ""
+	}
+
+	if gerr.Code == 400 && strings.Contains(gerr.Body, "resourceNotReady") && strings.Contains(gerr.Body, "subnetworks") {
+		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 400 and error reason 'resourceNotReady' w/ `subnetwork`: %s", err)
+		return true, "Subnetwork not ready"
+	}
+	return false, ""
+}
+
+// GCE (and possibly other APIs) incorrectly return a 403 rather than a 429 on
+// rate limits.
+func is403QuotaExceededPerMinuteError(err error) (bool, string) {
+	gerr, ok := err.(*googleapi.Error)
+	if !ok {
+		return false, ""
+	}
+	var QuotaRegex = regexp.MustCompile(`Quota exceeded for quota metric '(?P<Metric>.*)' and limit '(?P<Limit>.* per minute)' of service`)
+	if gerr.Code == 403 && QuotaRegex.MatchString(gerr.Body) {
+		matches := QuotaRegex.FindStringSubmatch(gerr.Body)
+		metric := matches[QuotaRegex.SubexpIndex("Metric")]
+		limit := matches[QuotaRegex.SubexpIndex("Limit")]
+		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 403 and error message 'Quota exceeded for quota metric `%s`: %s", metric, err)
+		return true, fmt.Sprintf("Waiting for quota limit %s to refresh", limit)
 	}
 	return false, ""
 }
@@ -181,7 +229,7 @@ func isSqlInternalError(err error) (bool, string) {
 // concurrent operations.
 func isSqlOperationInProgressError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
-		if strings.Contains(gerr.Body, "you cannot reuse the name of the deleted instance until one week from the deletion date.") {
+		if strings.Contains(gerr.Body, "instanceAlreadyExists") {
 			return false, ""
 		}
 
@@ -240,11 +288,14 @@ func isNotFilestoreQuotaError(err error) (bool, string) {
 }
 
 // Retry if App Engine operation returns a 409 with a specific message for
-// concurrent operations.
+// concurrent operations, or a 404 indicating p4sa has not yet propagated.
 func isAppEngineRetryableError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation is already in progress") {
 			return true, "Waiting for other concurrent App Engine changes to finish"
+		}
+		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "unable to retrieve p4sa") {
+			return true, "Waiting for P4SA propagation to GAIA"
 		}
 	}
 	return false, ""
@@ -322,5 +373,60 @@ func healthcareDatasetNotInitialized(err error) (bool, string) {
 			return true, "dataset not initialized - retrying"
 		}
 	}
+	return false, ""
+}
+
+// Cloud Run APIs may return a 409 on create to indicate that a resource has been deleted in the foreground
+// (eg GET and LIST) but not the backing apiserver. When we encounter a 409, we can retry it.
+// Note that due to limitations in MMv1's error_retry_predicates this is currently applied to all requests.
+// We only expect to receive it on create, though.
+func isCloudRunCreationConflict(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 {
+			return true, "saw a 409 - waiting until background deletion completes"
+		}
+	}
+
+	return false, ""
+}
+
+// If a service account is deleted in the middle of updating an IAM policy
+// it can cause the API to return an error. In fine-grained IAM resources we
+// read the policy, modify it, then send it back to the API. Retrying is
+// useful particularly in high-traffic projects.
+// We don't want to retry _every_ time we see this error because the
+// user-provided SA could trigger this too. At the callsite, we should check
+// if the current etag matches the old etag and short-circuit if they do as
+// that indicates the new config is the likely problem.
+func iamServiceAccountNotFound(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "Service account") && strings.Contains(gerr.Body, "does not exist") {
+			return true, "service account not found in IAM"
+		}
+	}
+
+	return false, ""
+}
+
+// Big Table uses gRPC and thus does not return errors of type *googleapi.Error.
+// Instead the errors returned are *status.Error. See the types of codes returned
+// here (https://pkg.go.dev/google.golang.org/grpc/codes#Code).
+func isBigTableRetryableError(err error) (bool, string) {
+	statusCode := status.Code(err)
+	if statusCode.String() == "FailedPrecondition" {
+		return true, "Waiting for table to be in a valid state"
+	}
+
+	return false, ""
+}
+
+// Concurrent Apigee operations can fail with a 400 error
+func isApigeeRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(strings.ToLower(gerr.Body), "the resource is locked by another operation") {
+			return true, "Waiting for other concurrent operations to finish"
+		}
+	}
+
 	return false, ""
 }

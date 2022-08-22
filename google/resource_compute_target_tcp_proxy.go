@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,11 +18,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeTargetTcpProxy() *schema.Resource {
@@ -37,9 +35,9 @@ func resourceComputeTargetTcpProxy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -67,10 +65,18 @@ character, which cannot be a dash.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"proxy_bind": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `This field only applies when the forwarding rule that references
+this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
+			},
 			"proxy_header": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+				ValidateFunc: validateEnum([]string{"NONE", "PROXY_V1", ""}),
 				Description: `Specifies the type of proxy header to append before sending data to
 the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 				Default: "NONE",
@@ -131,6 +137,12 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
 		obj["service"] = serviceProp
+	}
+	proxyBindProp, err := expandComputeTargetTcpProxyProxyBind(d.Get("proxy_bind"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+		obj["proxyBind"] = proxyBindProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies")
@@ -229,6 +241,9 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
 	if err := d.Set("backend_service", flattenComputeTargetTcpProxyBackendService(res["service"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+	}
+	if err := d.Set("proxy_bind", flattenComputeTargetTcpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -405,7 +420,7 @@ func flattenComputeTargetTcpProxyDescription(v interface{}, d *schema.ResourceDa
 func flattenComputeTargetTcpProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -434,6 +449,10 @@ func flattenComputeTargetTcpProxyBackendService(v interface{}, d *schema.Resourc
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeTargetTcpProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeTargetTcpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -452,4 +471,8 @@ func expandComputeTargetTcpProxyBackendService(v interface{}, d TerraformResourc
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeTargetTcpProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }

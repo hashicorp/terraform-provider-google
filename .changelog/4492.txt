@@ -1,0 +1,3 @@
+```release-note:bug
+redis: Fixed invalid value error on `auth_string` in `google_redis_instance`
+```

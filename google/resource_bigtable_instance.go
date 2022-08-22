@@ -36,10 +36,6 @@ func resourceBigtableInstance() *schema.Resource {
 			},
 		},
 
-		// ----------------------------------------------------------------------
-		// IMPORTANT: Do not add any additional ForceNew fields to this resource.
-		// Destroying/recreating instances can lead to data loss for users.
-		// ----------------------------------------------------------------------
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -81,6 +77,38 @@ func resourceBigtableInstance() *schema.Resource {
 							Default:      "SSD",
 							ValidateFunc: validation.StringInSlice([]string{"SSD", "HDD"}, false),
 							Description:  `The storage type to use. One of "SSD" or "HDD". Defaults to "SSD".`,
+						},
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Describes the Cloud KMS encryption key that will be used to protect the destination Bigtable cluster. The requirements for this key are: 1) The Cloud Bigtable service account associated with the project that contains this cluster must be granted the cloudkms.cryptoKeyEncrypterDecrypter role on the CMEK key. 2) Only regional keys can be used and the region of the CMEK key must match the region of the cluster. 3) All clusters within an instance must use the same CMEK key. Values are of the form projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}`,
+						},
+						"autoscaling_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "A list of Autoscaling configurations. Only one element is used and allowed.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_nodes": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `The minimum number of nodes for autoscaling.`,
+									},
+									"max_nodes": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `The maximum number of nodes for autoscaling.`,
+									},
+									"cpu_target": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `The target CPU utilization for autoscaling. Value must be between 10 and 80.`,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -349,12 +377,22 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 		storageType = "HDD"
 	}
 
-	return map[string]interface{}{
+	cluster := map[string]interface{}{
 		"zone":         c.Zone,
 		"num_nodes":    c.ServeNodes,
 		"cluster_id":   c.Name,
 		"storage_type": storageType,
+		"kms_key_name": c.KMSKeyName,
 	}
+	if c.AutoscalingConfig != nil {
+		cluster["autoscaling_config"] = make([]map[string]interface{}, 1)
+		autoscaling_config := cluster["autoscaling_config"].([]map[string]interface{})
+		autoscaling_config[0] = make(map[string]interface{})
+		autoscaling_config[0]["min_nodes"] = c.AutoscalingConfig.MinNodes
+		autoscaling_config[0]["max_nodes"] = c.AutoscalingConfig.MaxNodes
+		autoscaling_config[0]["cpu_target"] = c.AutoscalingConfig.CPUTargetPercent
+	}
+	return cluster
 }
 
 func expandBigtableClusters(clusters []interface{}, instanceID string, config *Config) ([]bigtable.ClusterConfig, error) {
@@ -372,13 +410,25 @@ func expandBigtableClusters(clusters []interface{}, instanceID string, config *C
 		case "HDD":
 			storageType = bigtable.HDD
 		}
-		results = append(results, bigtable.ClusterConfig{
+
+		cluster_config := bigtable.ClusterConfig{
 			InstanceID:  instanceID,
 			Zone:        zone,
 			ClusterID:   cluster["cluster_id"].(string),
 			NumNodes:    int32(cluster["num_nodes"].(int)),
 			StorageType: storageType,
-		})
+			KMSKeyName:  cluster["kms_key_name"].(string),
+		}
+		autoscaling_configs := cluster["autoscaling_config"].([]interface{})
+		if len(autoscaling_configs) > 0 {
+			autoscaling_config := autoscaling_configs[0].(map[string]interface{})
+			cluster_config.AutoscalingConfig = &bigtable.AutoscalingConfig{
+				MinNodes:         autoscaling_config["min_nodes"].(int),
+				MaxNodes:         autoscaling_config["max_nodes"].(int),
+				CPUTargetPercent: autoscaling_config["cpu_target"].(int),
+			}
+		}
+		results = append(results, cluster_config)
 	}
 	return results, nil
 }
@@ -399,7 +449,7 @@ func getBigtableZone(z string, config *Config) (string, error) {
 // act like a TypeSet while it's a TypeList underneath. It preserves state
 // ordering on updates, and causes the resource to get recreated if it would
 // attempt to perform an impossible change.
-// This doesn't use the standard unordered list utility (https://github.com/GoogleCloudPlatform/magic-modules/blob/master/templates/terraform/unordered_list_customize_diff.erb)
+// This doesn't use the standard unordered list utility (https://github.com/GoogleCloudPlatform/magic-modules/blob/main/templates/terraform/unordered_list_customize_diff.erb)
 // because some fields can't be modified using the API and we recreate the instance
 // when they're changed.
 func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
@@ -461,6 +511,7 @@ func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *sch
 		for i, e := range orderedClusters {
 			if e == nil {
 				orderedClusters[i] = elem
+				break
 			}
 		}
 	}

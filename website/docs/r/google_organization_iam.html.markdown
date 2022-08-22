@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_organization_iam"
-sidebar_current: "docs-google-organization-iam"
 description: |-
  Collection of resources to manage IAM policy for a organization.
 ---
@@ -23,17 +21,21 @@ Four different resources help you manage your IAM policy for a organization. Eac
 
 ## google\_organization\_iam\_policy
 
-~> **Be careful!** You can accidentally lock yourself out of your organization
-   using this resource. Deleting a `google_organization_iam_policy` removes access
-   from anyone without organization-level access to the organization. Proceed with caution.
-   It's not recommended to use `google_organization_iam_policy` with your provider organization
-   to avoid locking yourself out, and it should generally only be used with organizations
-   fully managed by Terraform. If you do use this resource, it is recommended to **import** the policy before
-   applying the change.
+!> **Warning:** New organizations have several default policies which will,
+   without extreme caution, be **overwritten** by use of this resource.
+   The safest alternative is to use multiple `google_organization_iam_binding`
+   resources. This resource makes it easy to remove your own access to
+   an organization, which will require a call to Google Support to have
+   fixed, and can take multiple days to resolve.
+   <br /><br />
+   In general, this resource should only be used with organizations
+   fully managed by Terraform.If you do use this resource,
+   the best way to be sure that you are not making dangerous changes is to start
+   by **importing** your existing policy, and examining the diff very closely.
 
 ```hcl
 resource "google_organization_iam_policy" "organization" {
-  organization     = "your-organization-id"
+  org_id      = "your-organization-id"
   policy_data = data.google_iam_policy.admin.policy_data
 }
 
@@ -52,7 +54,7 @@ With IAM Conditions:
 
 ```hcl
 resource "google_organization_iam_policy" "organization" {
-  organization     = "your-organization-id"
+  org_id      = "your-organization-id"
   policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 
@@ -181,20 +183,20 @@ will not be inferred from the provider.
 
 * `service` - (Required only by google\_organization\_iam\_audit\_config) Service which will be enabled for audit logging.  The special value `allServices` covers all services.  Note that if there are google\_organization\_iam\_audit\_config resources covering both `allServices` and a specific service then the union of the two AuditConfigs is used for that service: the `log_types` specified in each `audit_log_config` are enabled, and the `exempted_members` in each `audit_log_config` are exempted.
 
-* `audit_log_config` - (Required only by google\_organization\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is documented below.
+* `audit_log_config` - (Required only by google\_organization\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is [documented below](#nested_audit_log_config).
 
 * `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition).
 
 ---
 
-The `audit_log_config` block supports:
+<a name="nested_audit_log_config"></a>The `audit_log_config` block supports:
 
 * `log_type` - (Required) Permission type for which logging is to be configured.  Must be one of `DATA_READ`, `DATA_WRITE`, or `ADMIN_READ`.
 
 * `exempted_members` - (Optional) Identities that do not cause logging for this type of permission.  The format is the same as that for `members`.
 
-The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
 
@@ -242,3 +244,6 @@ terraform import google_organization_iam_audit_config.my_organization "your-orga
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `organizations/{{org_id}}/roles/{{role_id}}`.
+
+-> **Conditional IAM Bindings**: If you're importing a IAM binding with a condition block, make sure
+ to include the title of condition, e.g. `terraform import google_organization_iam_binding.my_organization "your-org-id roles/{{role_id}} condition-title"`

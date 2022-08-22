@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-layout: "google"
 page_title: "Google: google_access_context_manager_access_level_condition"
-sidebar_current: "docs-google-access-context-manager-access-level-condition"
 description: |-
   Allows configuring a single access level condition to be appended to an access level's conditions.
 ---
@@ -39,9 +37,9 @@ To get more information about AccessLevelCondition, see:
     * [Access Policy Quickstart](https://cloud.google.com/access-context-manager/docs/quickstart)
 
 ~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
-you must specify a `billing_project` and set `user_project_override` to true 
-in the provider configuration. Otherwise the ACM API will return a 403 error. 
-Your account must have the `serviceusage.services.use` permission on the 
+you must specify a `billing_project` and set `user_project_override` to true
+in the provider configuration. Otherwise the ACM API will return a 403 error.
+Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
 ## Example Usage - Access Context Manager Access Level Condition Basic
@@ -157,7 +155,7 @@ The following arguments are supported:
   Device specific restrictions, all restrictions must hold for
   the Condition to be true. If not specified, all devices are
   allowed.
-  Structure is documented below.
+  Structure is [documented below](#nested_device_policy).
 
 * `regions` -
   (Optional)
@@ -166,7 +164,7 @@ The following arguments are supported:
   Format: A valid ISO 3166-1 alpha-2 code.
 
 
-The `device_policy` block supports:
+<a name="nested_device_policy"></a>The `device_policy` block supports:
 
 * `require_screen_lock` -
   (Optional)
@@ -189,7 +187,7 @@ The `device_policy` block supports:
   (Optional)
   A list of allowed OS versions.
   An empty list allows all types and all versions.
-  Structure is documented below.
+  Structure is [documented below](#nested_os_constraints).
 
 * `require_admin_approval` -
   (Optional)
@@ -200,7 +198,7 @@ The `device_policy` block supports:
   Whether the device needs to be corp owned.
 
 
-The `os_constraints` block supports:
+<a name="nested_os_constraints"></a>The `os_constraints` block supports:
 
 * `minimum_version` -
   (Optional)
@@ -211,7 +209,7 @@ The `os_constraints` block supports:
 * `os_type` -
   (Required)
   The operating system type of the device.
-  Possible values are `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, and `DESKTOP_CHROME_OS`.
+  Possible values are `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, `DESKTOP_CHROME_OS`, `ANDROID`, and `IOS`.
 
 ## Attributes Reference
 
@@ -225,8 +223,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

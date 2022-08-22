@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -34,11 +34,8 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicTestExample(t *testin
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApigeeOrganizationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -48,7 +45,7 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicTestExample(t *testin
 				ResourceName:            "google_apigee_organization.org",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"project_id"},
+				ImportStateVerifyIgnore: []string{"project_id", "retention"},
 			},
 		},
 	})

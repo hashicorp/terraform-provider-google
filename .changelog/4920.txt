@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: Added `replace_with_info_type_config` to `dlp_deidentify_template`.
+```

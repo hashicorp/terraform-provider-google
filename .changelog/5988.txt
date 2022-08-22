@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `active_directory_config` field in `google_sql_database_instance`
+```

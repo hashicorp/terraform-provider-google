@@ -26,7 +26,8 @@ var (
 	resolveImageLink                   = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/[a-z0-9]+/projects/(%s)/global/images/(%s)", ProjectRegex, resolveImageImageRegex))
 
 	windowsSqlImage         = regexp.MustCompile("^sql-(?:server-)?([0-9]{4})-([a-z]+)-windows-(?:server-)?([0-9]{4})(?:-r([0-9]+))?-dc-v[0-9]+$")
-	canonicalUbuntuLtsImage = regexp.MustCompile("^ubuntu-(minimal-)?([0-9]+)-")
+	canonicalUbuntuLtsImage = regexp.MustCompile("^ubuntu-(minimal-)?([0-9]+)(?:.*(arm64))?.*$")
+	cosLtsImage             = regexp.MustCompile("^cos-([0-9]+)-")
 )
 
 // built-in projects to look for images/families containing the string
@@ -37,6 +38,7 @@ var imageMap = map[string]string{
 	"debian":      "debian-cloud",
 	"opensuse":    "opensuse-cloud",
 	"rhel":        "rhel-cloud",
+	"rocky-linux": "rocky-linux-cloud",
 	"sles":        "suse-cloud",
 	"ubuntu":      "ubuntu-os-cloud",
 	"windows":     "windows-cloud",
@@ -76,13 +78,18 @@ func sanityTestRegexMatches(expected int, got []string, regexType, name string) 
 // If it's in the form global/images/{image}, return it
 // If it's in the form global/images/family/{family}, return it
 // If it's in the form family/{family}, check if it's a family in the current project. If it is, return it as global/images/family/{family}.
-//    If not, check if it could be a GCP-provided family, and if it exists. If it does, return it as projects/{project}/global/images/family/{family}.
+//
+//	If not, check if it could be a GCP-provided family, and if it exists. If it does, return it as projects/{project}/global/images/family/{family}.
+//
 // If it's in the form {project}/{family-or-image}, check if it's an image in the named project. If it is, return it as projects/{project}/global/images/{image}.
-//    If not, check if it's a family in the named project. If it is, return it as projects/{project}/global/images/family/{family}.
+//
+//	If not, check if it's a family in the named project. If it is, return it as projects/{project}/global/images/family/{family}.
+//
 // If it's in the form {family-or-image}, check if it's an image in the current project. If it is, return it as global/images/{image}.
-//    If not, check if it could be a GCP-provided image, and if it exists. If it does, return it as projects/{project}/global/images/{image}.
-//    If not, check if it's a family in the current project. If it is, return it as global/images/family/{family}.
-//    If not, check if it could be a GCP-provided family, and if it exists. If it does, return it as projects/{project}/global/images/family/{family}
+//
+//	If not, check if it could be a GCP-provided image, and if it exists. If it does, return it as projects/{project}/global/images/{image}.
+//	If not, check if it's a family in the current project. If it is, return it as global/images/family/{family}.
+//	If not, check if it could be a GCP-provided family, and if it exists. If it does, return it as projects/{project}/global/images/family/{family}
 func resolveImage(c *Config, project, name, userAgent string) (string, error) {
 	var builtInProject string
 	for k, v := range imageMap {

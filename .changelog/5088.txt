@@ -1,0 +1,3 @@
+```release-note:bug
+Bigquery: fixed the permadiff bug on `location` of the `google_bigquery_dataset`
+```

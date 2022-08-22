@@ -1,0 +1,3 @@
+```release-note:bug
+serviceaccount: loosened restrictions on `account_id` for datasource `google_service_account`
+```

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data loss prevention"
-layout: "google"
 page_title: "Google: google_data_loss_prevention_stored_info_type"
-sidebar_current: "docs-google-data-loss-prevention-stored-info-type"
 description: |-
   Allows creation of custom info types.
 ---
@@ -31,11 +29,6 @@ To get more information about StoredInfoType, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dlp/docs/creating-stored-infotypes)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dlp_stored_info_type_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Dlp Stored Info Type Basic
 
 
@@ -51,11 +44,6 @@ resource "google_data_loss_prevention_stored_info_type" "basic" {
 	}
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dlp_stored_info_type_dictionary&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Dlp Stored Info Type Dictionary
 
 
@@ -72,11 +60,6 @@ resource "google_data_loss_prevention_stored_info_type" "dictionary" {
 	}
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dlp_stored_info_type_large_custom_dictionary&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Dlp Stored Info Type Large Custom Dictionary
 
 
@@ -98,6 +81,7 @@ resource "google_data_loss_prevention_stored_info_type" "large" {
 
 resource "google_storage_bucket" "bucket" {
   name          = "tf-test-bucket"
+  location      = "US"
   force_destroy = true
 }
 
@@ -136,20 +120,20 @@ The following arguments are supported:
 * `regex` -
   (Optional)
   Regular expression which defines the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_regex).
 
 * `dictionary` -
   (Optional)
   Dictionary which defines the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_dictionary).
 
 * `large_custom_dictionary` -
   (Optional)
   Dictionary which defines the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_large_custom_dictionary).
 
 
-The `regex` block supports:
+<a name="nested_regex"></a>The `regex` block supports:
 
 * `pattern` -
   (Required)
@@ -160,77 +144,77 @@ The `regex` block supports:
   (Optional)
   The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
 
-The `dictionary` block supports:
+<a name="nested_dictionary"></a>The `dictionary` block supports:
 
 * `word_list` -
   (Optional)
   List of words or phrases to search for.
-  Structure is documented below.
+  Structure is [documented below](#nested_word_list).
 
 * `cloud_storage_path` -
   (Optional)
   Newline-delimited file of words in Cloud Storage. Only a single file is accepted.
-  Structure is documented below.
+  Structure is [documented below](#nested_cloud_storage_path).
 
 
-The `word_list` block supports:
+<a name="nested_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-The `cloud_storage_path` block supports:
+<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-The `large_custom_dictionary` block supports:
+<a name="nested_large_custom_dictionary"></a>The `large_custom_dictionary` block supports:
 
 * `output_path` -
   (Required)
   Location to store dictionary artifacts in Google Cloud Storage. These files will only be accessible by project owners and the DLP API.
   If any of these artifacts are modified, the dictionary is considered invalid and can no longer be used.
-  Structure is documented below.
+  Structure is [documented below](#nested_output_path).
 
 * `cloud_storage_file_set` -
   (Optional)
   Set of files containing newline-delimited lists of dictionary phrases.
-  Structure is documented below.
+  Structure is [documented below](#nested_cloud_storage_file_set).
 
 * `big_query_field` -
   (Optional)
   Field in a BigQuery table where each cell represents a dictionary phrase.
-  Structure is documented below.
+  Structure is [documented below](#nested_big_query_field).
 
 
-The `output_path` block supports:
+<a name="nested_output_path"></a>The `output_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-The `cloud_storage_file_set` block supports:
+<a name="nested_cloud_storage_file_set"></a>The `cloud_storage_file_set` block supports:
 
 * `url` -
   (Required)
   The url, in the format `gs://<bucket>/<path>`. Trailing wildcard in the path is allowed.
 
-The `big_query_field` block supports:
+<a name="nested_big_query_field"></a>The `big_query_field` block supports:
 
 * `table` -
   (Required)
   Field in a BigQuery table where each cell represents a dictionary phrase.
-  Structure is documented below.
+  Structure is [documented below](#nested_table).
 
 * `field` -
   (Required)
   Designated field in the BigQuery table.
-  Structure is documented below.
+  Structure is [documented below](#nested_field).
 
 
-The `table` block supports:
+<a name="nested_table"></a>The `table` block supports:
 
 * `project_id` -
   (Required)
@@ -244,7 +228,7 @@ The `table` block supports:
   (Required)
   The name of the table.
 
-The `field` block supports:
+<a name="nested_field"></a>The `field` block supports:
 
 * `name` -
   (Required)
@@ -265,9 +249,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

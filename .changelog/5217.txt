@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added support for `logging_config` and `monitoring_config` to google_container_cluster
+```

@@ -2,6 +2,8 @@ package google
 
 import (
 	"fmt"
+	"net"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,23 +12,42 @@ import (
 
 func TestIpv6AddressDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
-		Old, New       string
+		Old, New       []string
 		ShouldSuppress bool
 	}{
 		"compact form should suppress diff": {
-			Old:            "2a03:b0c0:1:e0::29b:8001",
-			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
+			Old:            []string{"2a03:b0c0:1:e0::29b:8001"},
+			New:            []string{"2a03:b0c0:0001:00e0:0000:0000:029b:8001"},
 			ShouldSuppress: true,
 		},
 		"different address should not suppress diff": {
-			Old:            "2a03:b0c0:1:e00::29b:8001",
-			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
+			Old:            []string{"2a03:b0c0:1:e00::29b:8001"},
+			New:            []string{"2a03:b0c0:0001:00e0:0000:0000:029b:8001"},
 			ShouldSuppress: false,
+		},
+		"increase address should not suppress diff": {
+			Old:            []string{""},
+			New:            []string{"2a03:b0c0:0001:00e0:0000:0000:029b:8001"},
+			ShouldSuppress: false,
+		},
+		"decrease address should not suppress diff": {
+			Old:            []string{"2a03:b0c0:1:e00::29b:8001"},
+			New:            []string{""},
+			ShouldSuppress: false,
+		},
+		"switch address positions should suppress diff": {
+			Old:            []string{"2a03:b0c0:1:e00::28b:8001", "2a03:b0c0:1:e0::29b:8001"},
+			New:            []string{"2a03:b0c0:1:e0::29b:8001", "2a03:b0c0:1:e00::28b:8001"},
+			ShouldSuppress: true,
 		},
 	}
 
+	parseFunc := func(x string) string {
+		return net.ParseIP(x).String()
+	}
+
 	for tn, tc := range cases {
-		shouldSuppress := ipv6AddressDiffSuppress("", tc.Old, tc.New, nil)
+		shouldSuppress := rrdatasListDiffSuppress(tc.Old, tc.New, parseFunc, nil)
 		if shouldSuppress != tc.ShouldSuppress {
 			t.Errorf("%s: expected %t", tn, tc.ShouldSuppress)
 		}
@@ -44,10 +65,6 @@ func TestAccDNSRecordSet_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -66,7 +83,7 @@ func TestAccDNSRecordSet_basic(t *testing.T) {
 	})
 }
 
-func TestAccDNSRecordSet_modify(t *testing.T) {
+func TestAccDNSRecordSet_Update(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
@@ -77,24 +94,30 @@ func TestAccDNSRecordSet_modify(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.11", 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.11", 600),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -111,41 +134,19 @@ func TestAccDNSRecordSet_changeType(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
-			},
-			{
-				Config: testAccDnsRecordSet_bigChange(zoneName, 600),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDNSRecordSet_ns(t *testing.T) {
-	t.Parallel()
-
-	zoneName := fmt.Sprintf("dnszone-test-ns-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDnsRecordSet_ns(zoneName, 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
-				ImportStateId:     fmt.Sprintf("%s/%s.hashicorptest.com./NS", zoneName, zoneName),
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsRecordSet_bigChange(zoneName, 600),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./CNAME", getTestProjectFromEnv(), zoneName, zoneName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -157,17 +158,43 @@ func TestAccDNSRecordSet_nestedNS(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", randString(t, 10))
+	recordSetName := fmt.Sprintf("\"nested.%s.hashicorptest.com.\"", zoneName)
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsRecordSet_nestedNS(zoneName, 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
+				Config: testAccDnsRecordSet_NS(zoneName, recordSetName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/nested.%s.hashicorptest.com./NS", zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccDNSRecordSet_secondaryNS(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-ns-%s", randString(t, 10))
+	recordSetName := "google_dns_managed_zone.parent-zone.dns_name"
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_NS(zoneName, recordSetName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s/rrsets/%s.hashicorptest.com./NS", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -184,10 +211,12 @@ func TestAccDNSRecordSet_quotedTXT(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsRecordSet_quotedTXT(zoneName, 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/test-record.%s.hashicorptest.com./TXT", zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -204,64 +233,133 @@ func TestAccDNSRecordSet_uppercaseMX(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsRecordSet_uppercaseMX(zoneName, 300),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsRecordSetExists(
-						t, "google_dns_record_set.foobar", zoneName),
-				),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./MX", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_routingPolicyWRR(zoneName, "127.0.0.10", 300, 0.1),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsRecordSet_routingPolicyGEO(zoneName, "127.0.0.10", 300, "us-central1"),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccDNSRecordSet_changeRouting(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsRecordSet_routingPolicyGEO(zoneName, "127.0.0.10", 300, "us-central1"),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+// Tracks fix for https://github.com/hashicorp/terraform-provider-google/issues/12043
+func TestAccDNSRecordSet_interpolated(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_interpolated(zoneName),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/test-record.%s.hashicorptest.com./TXT", zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
 func testAccCheckDnsRecordSetDestroyProducer(t *testing.T) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
 
-		for _, rs := range s.RootModule().Resources {
-			// Deletion of the managed_zone implies everything is gone
-			if rs.Type == "google_dns_managed_zone" {
-				_, err := config.NewDnsClient(config.userAgent).ManagedZones.Get(
-					config.Project, rs.Primary.ID).Do()
-				if err == nil {
-					return fmt.Errorf("DNS ManagedZone still exists")
-				}
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_dns_record_set" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{managed_zone}}/rrsets/{{name}}/{{type}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("DNSResourceDnsRecordSet still exists at %s", url)
 			}
 		}
 
 		return nil
-	}
-}
-
-func testAccCheckDnsRecordSetExists(t *testing.T, resourceType, resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[resourceType]
-		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
-		}
-
-		dnsName := rs.Primary.Attributes["name"]
-		dnsType := rs.Primary.Attributes["type"]
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := googleProviderConfig(t)
-
-		resp, err := config.NewDnsClient(config.userAgent).ResourceRecordSets.List(
-			config.Project, resourceName).Name(dnsName).Type(dnsType).Do()
-		if err != nil {
-			return fmt.Errorf("Error confirming DNS RecordSet existence: %#v", err)
-		}
-		switch len(resp.Rrsets) {
-		case 0:
-			// The resource doesn't exist anymore
-			return fmt.Errorf("DNS RecordSet not found")
-		case 1:
-			return nil
-		default:
-			return fmt.Errorf("Only expected 1 record set, got %d", len(resp.Rrsets))
-		}
 	}
 }
 
@@ -283,7 +381,7 @@ resource "google_dns_record_set" "foobar" {
 `, zoneName, zoneName, zoneName, addr2, ttl)
 }
 
-func testAccDnsRecordSet_ns(name string, ttl int) string {
+func testAccDnsRecordSet_NS(name string, recordSetName string, ttl int) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "parent-zone" {
   name        = "%s"
@@ -293,30 +391,12 @@ resource "google_dns_managed_zone" "parent-zone" {
 
 resource "google_dns_record_set" "foobar" {
   managed_zone = google_dns_managed_zone.parent-zone.name
-  name         = "%s.hashicorptest.com."
+  name         = %s
   type         = "NS"
   rrdatas      = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
   ttl          = %d
 }
-`, name, name, name, ttl)
-}
-
-func testAccDnsRecordSet_nestedNS(name string, ttl int) string {
-	return fmt.Sprintf(`
-resource "google_dns_managed_zone" "parent-zone" {
-  name        = "%s"
-  dns_name    = "%s.hashicorptest.com."
-  description = "Test Description"
-}
-
-resource "google_dns_record_set" "foobar" {
-  managed_zone = google_dns_managed_zone.parent-zone.name
-  name         = "nested.%s.hashicorptest.com."
-  type         = "NS"
-  rrdatas      = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
-  ttl          = %d
-}
-`, name, name, name, ttl)
+`, name, name, recordSetName, ttl)
 }
 
 func testAccDnsRecordSet_bigChange(zoneName string, ttl int) string {
@@ -377,4 +457,78 @@ resource "google_dns_record_set" "foobar" {
   ttl = %d
 }
 `, name, name, name, ttl)
+}
+
+func testAccDnsRecordSet_routingPolicyWRR(zoneName, addr2 string, ttl int, weight float64) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+
+  routing_policy {
+    wrr {
+      weight       = 0.9
+      rrdatas      = ["127.0.0.1"]
+    }
+    wrr {
+      weight       = %g
+      rrdatas      = ["%s"]
+    }
+  }
+}
+`, zoneName, zoneName, zoneName, ttl, weight, addr2)
+}
+
+func testAccDnsRecordSet_routingPolicyGEO(zoneName, addr2 string, ttl int, location string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+
+  routing_policy {
+    geo {
+      location = "asia-east1"
+      rrdatas  = ["127.0.0.1"]
+    }
+    geo {
+      location = "%s"
+      rrdatas  = ["%s"]
+    }
+  }
+}
+`, zoneName, zoneName, zoneName, ttl, location, addr2)
+}
+
+func testAccDnsRecordSet_interpolated(zoneName string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "TXT"
+  rrdatas      = ["127.0.0.1", "firebase=${google_dns_managed_zone.parent-zone.id}"]
+  ttl          = 10
+}
+`, zoneName, zoneName, zoneName)
 }

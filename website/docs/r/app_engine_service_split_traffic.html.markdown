@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_service_split_traffic"
-sidebar_current: "docs-google-app-engine-service-split-traffic"
 description: |-
   Traffic routing configuration for versions within a single service.
 ---
@@ -29,17 +27,13 @@ To get more information about ServiceSplitTraffic, see:
 
 * [API documentation](https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1/apps.services)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=app_engine_service_split_traffic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - App Engine Service Split Traffic
 
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-	name = "appengine-static-content"
+	name     = "appengine-static-content"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -112,10 +106,10 @@ The following arguments are supported:
 * `split` -
   (Required)
   Mapping that defines fractional HTTP traffic diversion to different versions within the service.
-  Structure is documented below.
+  Structure is [documented below](#nested_split).
 
 
-The `split` block supports:
+<a name="nested_split"></a>The `split` block supports:
 
 * `shard_by` -
   (Optional)
@@ -149,9 +143,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

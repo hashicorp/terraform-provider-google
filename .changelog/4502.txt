@@ -1,0 +1,3 @@
+```release-note:bug
+ compute : fixed a bug where `guest_flush` could not be set to false for the resource `google_compute_resource_policy` 
+```

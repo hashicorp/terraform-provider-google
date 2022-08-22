@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,8 +32,8 @@ func resourceKMSSecretCiphertext() *schema.Resource {
 		Delete: resourceKMSSecretCiphertextDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -118,8 +118,6 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating SecretCiphertext %q: %#v", d.Id(), res)
-
 	// we don't set anything on read and instead do it all in create
 	ciphertext, ok := res["ciphertext"]
 	if !ok {
@@ -134,6 +132,8 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating SecretCiphertext %q: %#v", d.Id(), res)
 
 	return resourceKMSSecretCiphertextRead(d, meta)
 }

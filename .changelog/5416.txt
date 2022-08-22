@@ -1,0 +1,3 @@
+```release-note:bug
+logging: fixed a bug with updating `description` on `google_logging_project_sink`, `google_logging_folder_sink` and `google_logging_organization_sink` 
+```

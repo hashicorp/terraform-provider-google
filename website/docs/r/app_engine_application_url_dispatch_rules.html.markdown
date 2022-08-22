@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-layout: "google"
 page_title: "Google: google_app_engine_application_url_dispatch_rules"
-sidebar_current: "docs-google-app-engine-application-url-dispatch-rules"
 description: |-
   Rules to match an HTTP request and dispatch that request to a service.
 ---
@@ -75,7 +73,8 @@ resource "google_app_engine_standard_app_version" "admin_v3" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "appengine-test-bucket"
+  name     = "appengine-test-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -93,10 +92,10 @@ The following arguments are supported:
 * `dispatch_rules` -
   (Required)
   Rules to match an HTTP request and dispatch that request to a service.
-  Structure is documented below.
+  Structure is [documented below](#nested_dispatch_rules).
 
 
-The `dispatch_rules` block supports:
+<a name="nested_dispatch_rules"></a>The `dispatch_rules` block supports:
 
 * `domain` -
   (Optional)
@@ -132,9 +131,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

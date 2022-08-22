@@ -1,0 +1,6 @@
+```release-note:new-datasource
+`google_tags_tag_key`
+```
+```release-note:new-datasource
+`google_tags_tag_value`
+```

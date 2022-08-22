@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -493,7 +494,7 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 			input: []*cloudresourcemanager.Binding{
 				{
 					Role:    "role-1",
-					Members: []string{"deleted:serviceAccount:user-1", "user-2"},
+					Members: []string{"deleted:serviceAccount:useR-1", "user-2"},
 				},
 				{
 					Role:    "role-2",
@@ -511,11 +512,49 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 					Role:    "role-3",
 					Members: []string{"user-3"},
 				},
+				{
+					Role:    "role-4",
+					Members: []string{"deleted:principal:useR-1"},
+				},
 			},
 			expect: map[iamBindingKey]map[string]struct{}{
 				{"role-1", conditionKey{}}: {"deleted:serviceAccount:user-1": {}, "user-2": {}, "serviceAccount:user-3": {}},
 				{"role-2", conditionKey{}}: {"deleted:user:user-1": {}, "user-2": {}},
 				{"role-3", conditionKey{}}: {"user-3": {}},
+				{"role-4", conditionKey{}}: {"deleted:principal:useR-1": {}},
+			},
+		},
+		{
+			input: []*cloudresourcemanager.Binding{
+				{
+					Role:    "role-1",
+					Members: []string{"principalSet://iam.googleapis.com/projects/1066737951711/locations/global/workloadIdentityPools/example-pool/attribute.aws_role/arn:aws:sts::999999999999:assumed-role/some-eu-central-1-lambdaRole"},
+				},
+				{
+					Role:    "role-2",
+					Members: []string{"principal://iam.googleapis.com/projects/1066737951711/locations/global/workloadIdentityPools/example-pool/attribute.aws_role/arn:aws:sts::999999999999:assumed-role/some-eu-central-1-lambdaRole"},
+				},
+				{
+					Role:    "role-1",
+					Members: []string{"serviceAccount:useR-3"},
+				},
+				{
+					Role:    "role-2",
+					Members: []string{"user-2"},
+				},
+				{
+					Role:    "role-3",
+					Members: []string{"user-3"},
+				},
+				{
+					Role:    "role-3",
+					Members: []string{"principalHierarchy://iam.googleapis.com/projects/1066737951711/locations/global/workloadIdentityPools"},
+				},
+			},
+			expect: map[iamBindingKey]map[string]struct{}{
+				{"role-1", conditionKey{}}: {"principalSet://iam.googleapis.com/projects/1066737951711/locations/global/workloadIdentityPools/example-pool/attribute.aws_role/arn:aws:sts::999999999999:assumed-role/some-eu-central-1-lambdaRole": {}, "serviceAccount:user-3": {}},
+				{"role-2", conditionKey{}}: {"principal://iam.googleapis.com/projects/1066737951711/locations/global/workloadIdentityPools/example-pool/attribute.aws_role/arn:aws:sts::999999999999:assumed-role/some-eu-central-1-lambdaRole": {}, "user-2": {}},
+				{"role-3", conditionKey{}}: {"principalHierarchy://iam.googleapis.com/projects/1066737951711/locations/global/workloadIdentityPools": {}, "user-3": {}},
 			},
 		},
 	}
@@ -525,6 +564,84 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 		if !reflect.DeepEqual(got, tc.expect) {
 			t.Errorf("Unexpected value for createIamBindingsMap(%s).\nActual: %#v\nExpected: %#v\n",
 				debugPrintBindings(tc.input), got, tc.expect)
+		}
+	}
+}
+
+func TestIamMember_MemberDiffSuppress(t *testing.T) {
+	type IamMemberTestcase struct {
+		name  string
+		old   string
+		new   string
+		equal bool
+	}
+	var iamMemberTestcases = []IamMemberTestcase{
+		{
+			name:  "control",
+			old:   "somevalue",
+			new:   "somevalue",
+			equal: true,
+		},
+		{
+			name:  "principal same casing",
+			old:   "principal:someValueHere",
+			new:   "principal:someValueHere",
+			equal: true,
+		},
+		{
+			name:  "principal not same casing",
+			old:   "principal:somevalueHere",
+			new:   "principal:someValuehere",
+			equal: false,
+		},
+		{
+			name:  "principalSet same casing",
+			old:   "principalSet:someValueHere",
+			new:   "principalSet:someValueHere",
+			equal: true,
+		},
+		{
+			name:  "principalSet not same casing",
+			old:   "principalSet:somevalueHere",
+			new:   "principalSet:someValuehere",
+			equal: false,
+		},
+		{
+			name:  "principalHierarchy same casing",
+			old:   "principalHierarchy:someValueHere",
+			new:   "principalHierarchy:someValueHere",
+			equal: true,
+		},
+		{
+			name:  "principalHierarchy not same casing",
+			old:   "principalHierarchy:somevalueHere",
+			new:   "principalHierarchy:someValuehere",
+			equal: false,
+		},
+		{
+			name:  "serviceAccount same casing",
+			old:   "serviceAccount:same@case.com",
+			new:   "serviceAccount:same@case.com",
+			equal: true,
+		},
+		{
+			name:  "serviceAccount diff casing",
+			old:   "serviceAccount:sAme@casE.com",
+			new:   "serviceAccount:same@case.com",
+			equal: true,
+		},
+		{
+			name:  "random diff",
+			old:   "serviasfsfljJKLSD",
+			new:   "servicsFDJKLSFJdfjdlkfsf",
+			equal: false,
+		},
+	}
+
+	for _, testcase := range iamMemberTestcases {
+		areEqual := iamMemberCaseDiffSuppress("", testcase.old, testcase.new, &schema.ResourceData{})
+		if areEqual != testcase.equal {
+			t.Errorf("Testcase %s failed: expected equality to be %t but got %t", testcase.name, testcase.equal, areEqual)
 		}
 	}
 }

@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: Fixed a bug where terraform crashes when `force_destroy` is set in `google_vertex_ai_featurestore` resource
+```

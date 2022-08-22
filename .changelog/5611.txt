@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added `EXTERNAL_MANAGED` as option for `load_balancing_scheme` in `google_compute_global_forwarding_rule` resource
+```

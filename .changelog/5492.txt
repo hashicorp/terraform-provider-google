@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloud_composer: Added GA support for following fields:  `web_server_network_access_control`, `database_config`, `web_server_config`, `encryption_config`.
+```

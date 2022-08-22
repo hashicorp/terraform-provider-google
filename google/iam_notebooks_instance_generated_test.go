@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -229,7 +229,7 @@ resource "google_notebooks_instance_iam_binding" "foo" {
   location = google_notebooks_instance.instance.location
   instance_name = google_notebooks_instance.instance.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

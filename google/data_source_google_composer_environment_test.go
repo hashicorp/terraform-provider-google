@@ -77,7 +77,7 @@ func testAccCheckGoogleComposerEnvironmentMeta(n string) resource.TestCheckFunc 
 func testAccDataSourceComposerEnvironment_basic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_composer_environment" "test" {
-	name   = "composer-env-%{random_suffix}"
+	name   = "tf-test-composer-env-%{random_suffix}"
 	region = "us-central1"
 
 	config {
@@ -92,12 +92,12 @@ resource "google_composer_environment" "test" {
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-	name                    = "composer-net-%{random_suffix}"
+	name                    = "tf-test-composer-net-%{random_suffix}"
 	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-	name          = "composer-subnet-%{random_suffix}"
+	name          = "tf-test-composer-subnet-%{random_suffix}"
 	ip_cidr_range = "10.2.0.0/16"
 	region        = "us-central1"
 	network       = google_compute_network.test.self_link

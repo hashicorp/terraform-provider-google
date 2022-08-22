@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccFirestoreIndex_firestoreIndexBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFirestoreIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -69,10 +66,6 @@ resource "google_firestore_index" "my-index" {
     order      = "DESCENDING"
   }
 
-  fields {
-    field_path = "__name__"
-    order      = "DESCENDING"
-  }
 }
 `, context)
 }

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,12 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // waitForAttachmentToBeProvisioned waits for an attachment to leave the
@@ -57,9 +55,9 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -96,7 +94,7 @@ PARTNER type this will Pre-Activate the interconnect attachment`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}, false),
+				ValidateFunc: validateEnum([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}),
 				Description: `Provisioned bandwidth capacity for the interconnect attachment.
 For attachments of type DEDICATED, the user can set the bandwidth.
 For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
@@ -135,6 +133,27 @@ selected availability domain will be provided to the Partner via the
 pairing key so that the provisioned circuit will lie in the specified
 domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 			},
+			"encryption": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"NONE", "IPSEC", ""}),
+				Description: `Indicates the user-supplied encryption option of this interconnect
+attachment:
+
+NONE is the default value, which means that the attachment carries
+unencrypted traffic. VMs can send traffic to, or receive traffic
+from, this type of attachment.
+
+IPSEC indicates that the attachment carries only traffic encrypted by
+an IPsec device such as an HA VPN gateway. VMs cannot directly send
+traffic to, or receive traffic from, such an attachment. To use
+IPsec-encrypted Cloud Interconnect create the attachment using this
+option.
+
+Not currently available publicly. Default value: "NONE" Possible values: ["NONE", "IPSEC"]`,
+				Default: "NONE",
+			},
 			"interconnect": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -143,6 +162,41 @@ domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 				Description: `URL of the underlying Interconnect object that this attachment's
 traffic will traverse through. Required if type is DEDICATED, must not
 be set if type is PARTNER.`,
+			},
+			"ipsec_internal_addresses": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `URL of addresses that have been reserved for the interconnect
+attachment, Used only for interconnect attachment that has the
+encryption option as IPSEC.
+
+The addresses must be RFC 1918 IP address ranges. When creating HA
+VPN gateway over the interconnect attachment, if the attachment is
+configured to use an RFC 1918 IP address, then the VPN gateway's IP
+address will be allocated from the IP address range specified
+here.
+
+For example, if the HA VPN gateway's interface 0 is paired to this
+interconnect attachment, then an RFC 1918 IP address for the VPN
+gateway interface 0 will be allocated from the IP address specified
+for this interconnect attachment.
+
+If this field is not specified for interconnect attachment that has
+encryption option as IPSEC, later on when creating HA VPN gateway on
+this interconnect attachment, the HA VPN gateway's IP address will be
+allocated from regional external IP address pool.`,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
+			},
+			"mtu": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `Maximum Transmission Unit (MTU), in bytes, of packets passing through
+this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value will default to 1440.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -156,7 +210,7 @@ be set if type is PARTNER.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}, false),
+				ValidateFunc: validateEnum([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}),
 				Description: `The type of InterconnectAttachment you wish to create. Defaults to
 DEDICATED. Possible values: ["DEDICATED", "PARTNER", "PARTNER_PROVIDER"]`,
 			},
@@ -267,6 +321,12 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	mtuProp, err := expandComputeInterconnectAttachmentMtu(d.Get("mtu"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(mtuProp)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
+		obj["mtu"] = mtuProp
+	}
 	bandwidthProp, err := expandComputeInterconnectAttachmentBandwidth(d.Get("bandwidth"), d, config)
 	if err != nil {
 		return err
@@ -308,6 +368,18 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("vlan_tag8021q"); !isEmptyValue(reflect.ValueOf(vlanTag8021qProp)) && (ok || !reflect.DeepEqual(v, vlanTag8021qProp)) {
 		obj["vlanTag8021q"] = vlanTag8021qProp
+	}
+	ipsecInternalAddressesProp, err := expandComputeInterconnectAttachmentIpsecInternalAddresses(d.Get("ipsec_internal_addresses"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipsec_internal_addresses"); !isEmptyValue(reflect.ValueOf(ipsecInternalAddressesProp)) && (ok || !reflect.DeepEqual(v, ipsecInternalAddressesProp)) {
+		obj["ipsecInternalAddresses"] = ipsecInternalAddressesProp
+	}
+	encryptionProp, err := expandComputeInterconnectAttachmentEncryption(d.Get("encryption"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption"); !isEmptyValue(reflect.ValueOf(encryptionProp)) && (ok || !reflect.DeepEqual(v, encryptionProp)) {
+		obj["encryption"] = encryptionProp
 	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -357,11 +429,11 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
-
 	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
 	}
+
+	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
 
 	return resourceComputeInterconnectAttachmentRead(d, meta)
 }
@@ -415,6 +487,9 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("description", flattenComputeInterconnectAttachmentDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
+	if err := d.Set("mtu", flattenComputeInterconnectAttachmentMtu(res["mtu"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
 	if err := d.Set("bandwidth", flattenComputeInterconnectAttachmentBandwidth(res["bandwidth"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
@@ -449,6 +524,12 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("vlan_tag8021q", flattenComputeInterconnectAttachmentVlanTag8021q(res["vlanTag8021q"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("ipsec_internal_addresses", flattenComputeInterconnectAttachmentIpsecInternalAddresses(res["ipsecInternalAddresses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("encryption", flattenComputeInterconnectAttachmentEncryption(res["encryption"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"], d, config)); err != nil {
@@ -488,6 +569,12 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	mtuProp, err := expandComputeInterconnectAttachmentMtu(d.Get("mtu"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
+		obj["mtu"] = mtuProp
 	}
 	bandwidthProp, err := expandComputeInterconnectAttachmentBandwidth(d.Get("bandwidth"), d, config)
 	if err != nil {
@@ -622,6 +709,14 @@ func flattenComputeInterconnectAttachmentDescription(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenComputeInterconnectAttachmentMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles int given in float64 format
+	if floatVal, ok := v.(float64); ok {
+		return fmt.Sprintf("%d", int(floatVal))
+	}
+	return v
+}
+
 func flattenComputeInterconnectAttachmentBandwidth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -654,7 +749,7 @@ func flattenComputeInterconnectAttachmentPrivateInterconnectInfo(v interface{}, 
 func flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -698,7 +793,7 @@ func flattenComputeInterconnectAttachmentName(v interface{}, d *schema.ResourceD
 func flattenComputeInterconnectAttachmentVlanTag8021q(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -710,6 +805,21 @@ func flattenComputeInterconnectAttachmentVlanTag8021q(v interface{}, d *schema.R
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeInterconnectAttachmentIpsecInternalAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
+func flattenComputeInterconnectAttachmentEncryption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return "NONE"
+	}
+
+	return v
 }
 
 func flattenComputeInterconnectAttachmentRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -728,6 +838,10 @@ func expandComputeInterconnectAttachmentInterconnect(v interface{}, d TerraformR
 }
 
 func expandComputeInterconnectAttachmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentMtu(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -760,6 +874,26 @@ func expandComputeInterconnectAttachmentCandidateSubnets(v interface{}, d Terraf
 }
 
 func expandComputeInterconnectAttachmentVlanTag8021q(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentIpsecInternalAddresses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for ipsec_internal_addresses: nil")
+		}
+		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for ipsec_internal_addresses: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
+}
+
+func expandComputeInterconnectAttachmentEncryption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

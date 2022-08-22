@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_lite_subscription"
-sidebar_current: "docs-google-pubsub-lite-subscription"
 description: |-
   A named resource representing the stream of messages from a single,
   specific topic, to be delivered to the subscribing application.
@@ -29,9 +27,9 @@ specific topic, to be delivered to the subscribing application.
 
 To get more information about Subscription, see:
 
-* [API documentation](https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions)
+* [API documentation](https://cloud.google.com/pubsub/lite/docs/reference/rest/v1/admin.projects.locations.subscriptions)
 * How-to Guides
-    * [Managing Subscriptions](https://cloud.google.com/pubsub/docs/admin#managing_subscriptions)
+    * [Managing Subscriptions](https://cloud.google.com/pubsub/lite/docs/subscriptions)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_lite_subscription_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -90,7 +88,7 @@ The following arguments are supported:
 * `delivery_config` -
   (Optional)
   The settings for this subscription's message delivery.
-  Structure is documented below.
+  Structure is [documented below](#nested_delivery_config).
 
 * `region` -
   (Optional)
@@ -104,7 +102,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `delivery_config` block supports:
+<a name="nested_delivery_config"></a>The `delivery_config` block supports:
 
 * `delivery_requirement` -
   (Required)
@@ -123,9 +121,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

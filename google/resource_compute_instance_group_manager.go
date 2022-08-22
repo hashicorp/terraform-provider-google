@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -24,11 +23,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			State: resourceInstanceGroupManagerStateImporter,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(15 * time.Minute),
+			Update: schema.DefaultTimeout(15 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
-
 		Schema: map[string]*schema.Schema{
 			"base_instance_name": {
 				Type:        schema.TypeString,
@@ -100,7 +98,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional textual description of the instance group manager.`,
 			},
 
@@ -203,8 +200,15 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 						"minimal_action": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"RESTART", "REPLACE"}, false),
-							Description:  `Minimal action to be taken on an instance. You can specify either RESTART to restart existing instances or REPLACE to delete and create new instances from the target template. If you specify a RESTART, the Updater will attempt to perform that action only. However, if the Updater determines that the minimal action you specify is not enough to perform the update, it might perform a more disruptive action.`,
+							ValidateFunc: validation.StringInSlice([]string{"REFRESH", "RESTART", "REPLACE"}, false),
+							Description:  `Minimal action to be taken on an instance. You can specify either REFRESH to update without stopping instances, RESTART to restart existing instances or REPLACE to delete and create new instances from the target template. If you specify a REFRESH, the Updater will attempt to perform that action only. However, if the Updater determines that the minimal action you specify is not enough to perform the update, it might perform a more disruptive action.`,
+						},
+
+						"most_disruptive_allowed_action": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NONE", "REFRESH", "RESTART", "REPLACE"}, false),
+							Description:  `Most disruptive action that is allowed to be taken on an instance. You can specify either NONE to forbid any actions, REFRESH to allow actions that do not need instance restart, RESTART to allow actions that can be applied without instance replacing or REPLACE to allow all possible actions. If the Updater determines that the minimal update action needed is more disruptive than most disruptive allowed action you specify it will not perform the update at all.`,
 						},
 
 						"type": {
@@ -246,12 +250,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 							Description:   `The maximum number of instances(calculated as percentage) that can be unavailable during the update process. Conflicts with max_unavailable_fixed.`,
 						},
 
-						"min_ready_sec": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 3600),
-							Description:  `Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600].`,
-						},
 						"replacement_method": {
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -262,12 +260,19 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
-
 			"wait_for_instances": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: `Whether to wait for all instances to be created/updated before returning. Note that if this is set to true and the operation does not succeed, Terraform will continue trying until it times out.`,
+			},
+			"wait_for_instances_status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "STABLE",
+				ValidateFunc: validation.StringInSlice([]string{"STABLE", "UPDATED"}, false),
+
+				Description: `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
 			},
 			"stateful_disk": {
 				Type:        schema.TypeSet,
@@ -295,6 +300,63 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"status": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The status of this managed instance group.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"is_stable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `A bit indicating whether the managed instance group is in a stable state. A stable state means that: none of the instances in the managed instance group is currently undergoing any type of change (for example, creation, restart, or deletion); no future changes are scheduled for instances in the managed instance group; and the managed instance group itself is not being modified.`,
+						},
+
+						"version_target": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `A status of consistency of Instances' versions with their target version specified by version field on Instance Group Manager.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"is_reached": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `A bit indicating whether version target has been reached in this managed instance group, i.e. all instances are in their target version. Instances' target version are specified by version field on Instance Group Manager.`,
+									},
+								},
+							},
+						},
+						"stateful": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Stateful status of the given Instance Group Manager.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"has_stateful_config": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `A bit indicating whether the managed instance group has stateful configuration, that is, if you have configured any items in a stateful policy or in per-instance configs. The group might report that it has no stateful config even when there is still some preserved state on a managed instance, for example, if you have deleted all PICs but not yet applied those deletions.`,
+									},
+									"per_instance_configs": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Status of per-instance configs on the instance.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"all_effective": {
+													Type:        schema.TypeBool,
+													Computed:    true,
+													Description: `A bit indicating if all of the group's per-instance configs (listed in the output of a listPerInstanceConfigs API call) have status EFFECTIVE or there are no per-instance-configs.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -313,11 +375,11 @@ func getNamedPorts(nps []interface{}) []*compute.NamedPort {
 	return namedPorts
 }
 
-func getNamedPortsBeta(nps []interface{}) []*computeBeta.NamedPort {
-	namedPorts := make([]*computeBeta.NamedPort, 0, len(nps))
+func getNamedPortsBeta(nps []interface{}) []*compute.NamedPort {
+	namedPorts := make([]*compute.NamedPort, 0, len(nps))
 	for _, v := range nps {
 		np := v.(map[string]interface{})
-		namedPorts = append(namedPorts, &computeBeta.NamedPort{
+		namedPorts = append(namedPorts, &compute.NamedPort{
 			Name: np["name"].(string),
 			Port: int64(np["port"].(int)),
 		})
@@ -344,7 +406,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Build the parameter
-	manager := &computeBeta.InstanceGroupManager{
+	manager := &compute.InstanceGroupManager{
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		BaseInstanceName:    d.Get("base_instance_name").(string),
@@ -360,7 +422,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
-	op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Insert(
+	op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Insert(
 		project, zone, manager).Do()
 
 	if err != nil {
@@ -394,10 +456,17 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	if d.Get("wait_for_instances").(bool) {
+		err := computeIGMWaitForInstanceStatus(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceComputeInstanceGroupManagerRead(d, meta)
 }
 
-func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]interface{} {
+func flattenNamedPortsBeta(namedPorts []*compute.NamedPort) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(namedPorts))
 	for _, namedPort := range namedPorts {
 		namedPortMap := make(map[string]interface{})
@@ -409,7 +478,7 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 
 }
 
-func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[string]interface{} {
+func flattenVersions(versions []*compute.InstanceGroupManagerVersion) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(versions))
 	for _, version := range versions {
 		versionMap := make(map[string]interface{})
@@ -422,7 +491,7 @@ func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[
 	return result
 }
 
-func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) []map[string]interface{} {
+func flattenFixedOrPercent(fixedOrPercent *compute.FixedOrPercent) []map[string]interface{} {
 	result := make(map[string]interface{})
 	if value := fixedOrPercent.Percent; value > 0 {
 		result["percent"] = value
@@ -434,7 +503,7 @@ func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) []map[str
 	return []map[string]interface{}{result}
 }
 
-func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
+func getManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGroupManager, error) {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -450,7 +519,7 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 	zone, _ := getZone(d, config)
 	name := d.Get("name").(string)
 
-	manager, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
+	manager, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", name))
 	}
@@ -482,7 +551,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if operation != "" {
 		log.Printf("[DEBUG] in progress operation detected at %v, attempting to resume", operation)
 		zone, _ := getZone(d, config)
-		op := &computeBeta.Operation{
+		op := &compute.Operation{
 			Name: operation,
 			Zone: zone,
 		}
@@ -554,17 +623,14 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err = d.Set("update_policy", flattenUpdatePolicy(manager.UpdatePolicy)); err != nil {
 		return fmt.Errorf("Error setting update_policy in state: %s", err.Error())
 	}
+	if err = d.Set("status", flattenStatus(manager.Status)); err != nil {
+		return fmt.Errorf("Error setting status in state: %s", err.Error())
+	}
 
-	if d.Get("wait_for_instances").(bool) {
-		conf := resource.StateChangeConf{
-			Pending: []string{"creating", "error"},
-			Target:  []string{"created"},
-			Refresh: waitForInstancesRefreshFunc(getManager, d, meta),
-			Timeout: d.Timeout(schema.TimeoutCreate),
-		}
-		_, err := conf.WaitForState()
-		if err != nil {
-			return err
+	// If unset in state set to default value
+	if d.Get("wait_for_instances_status").(string) == "" {
+		if err := d.Set("wait_for_instances_status", "STABLE"); err != nil {
+			return fmt.Errorf("Error setting wait_for_instances_status in state: %s", err.Error())
 		}
 	}
 
@@ -573,6 +639,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
@@ -588,10 +655,16 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	updatedManager := &computeBeta.InstanceGroupManager{
+	updatedManager := &compute.InstanceGroupManager{
 		Fingerprint: d.Get("fingerprint").(string),
 	}
 	var change bool
+
+	if d.HasChange("description") {
+		updatedManager.Description = d.Get("description").(string)
+		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "Description")
+		change = true
+	}
 
 	if d.HasChange("target_pools") {
 		updatedManager.TargetPools = convertStringSet(d.Get("target_pools").(*schema.Set))
@@ -621,7 +694,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	}
 
 	if change {
-		op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
+		op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating managed group instances: %s", err)
 		}
@@ -639,12 +712,12 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 		// Build the parameters for a "SetNamedPorts" request:
 		namedPorts := getNamedPortsBeta(d.Get("named_port").(*schema.Set).List())
-		setNamedPorts := &computeBeta.InstanceGroupsSetNamedPortsRequest{
+		setNamedPorts := &compute.InstanceGroupsSetNamedPortsRequest{
 			NamedPorts: namedPorts,
 		}
 
 		// Make the request:
-		op, err := config.NewComputeBetaClient(userAgent).InstanceGroups.SetNamedPorts(
+		op, err := config.NewComputeClient(userAgent).InstanceGroups.SetNamedPorts(
 			project, zone, d.Get("name").(string), setNamedPorts).Do()
 
 		if err != nil {
@@ -663,7 +736,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.Partial(true)
 
 		targetSize := int64(d.Get("target_size").(int))
-		op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Resize(
+		op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Resize(
 			project, zone, d.Get("name").(string), targetSize).Do()
 
 		if err != nil {
@@ -679,11 +752,26 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 	d.Partial(false)
 
+	if d.Get("wait_for_instances").(bool) {
+		err := computeIGMWaitForInstanceStatus(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceComputeInstanceGroupManagerRead(d, meta)
 }
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if d.Get("wait_for_instances").(bool) {
+		err := computeIGMWaitForInstanceStatus(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
@@ -697,12 +785,12 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	zone, _ := getZone(d, config)
 	name := d.Get("name").(string)
 
-	op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
+	op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	attempt := 0
 	for err != nil && attempt < 20 {
 		attempt++
 		time.Sleep(2000 * time.Millisecond)
-		op, err = config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
+		op, err = config.NewComputeClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	}
 
 	if err != nil {
@@ -719,7 +807,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		instanceGroup, igErr := config.NewComputeBetaClient(userAgent).InstanceGroups.Get(
+		instanceGroup, igErr := config.NewComputeClient(userAgent).InstanceGroups.Get(
 			project, zone, name).Do()
 		if igErr != nil {
 			return fmt.Errorf("Error getting instance group size: %s", err)
@@ -740,11 +828,26 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.InstanceGroupManagerAutoHealingPolicy {
-	autoHealingPolicies := make([]*computeBeta.InstanceGroupManagerAutoHealingPolicy, 0, len(configured))
+func computeIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) error {
+	waitForUpdates := d.Get("wait_for_instances_status").(string) == "UPDATED"
+	conf := resource.StateChangeConf{
+		Pending: []string{"creating", "error", "updating per instance configs", "reaching version target"},
+		Target:  []string{"created"},
+		Refresh: waitForInstancesRefreshFunc(getManager, waitForUpdates, d, meta),
+		Timeout: d.Timeout(schema.TimeoutCreate),
+	}
+	_, err := conf.WaitForState()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func expandAutoHealingPolicies(configured []interface{}) []*compute.InstanceGroupManagerAutoHealingPolicy {
+	autoHealingPolicies := make([]*compute.InstanceGroupManagerAutoHealingPolicy, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
-		autoHealingPolicy := computeBeta.InstanceGroupManagerAutoHealingPolicy{
+		autoHealingPolicy := compute.InstanceGroupManagerAutoHealingPolicy{
 			HealthCheck:     data["health_check"].(string),
 			InitialDelaySec: int64(data["initial_delay_sec"].(int)),
 		}
@@ -754,27 +857,27 @@ func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.Instance
 	return autoHealingPolicies
 }
 
-func expandStatefulPolicy(configured []interface{}) *computeBeta.StatefulPolicy {
-	disks := make(map[string]computeBeta.StatefulPolicyPreservedStateDiskDevice)
+func expandStatefulPolicy(configured []interface{}) *compute.StatefulPolicy {
+	disks := make(map[string]compute.StatefulPolicyPreservedStateDiskDevice)
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
-		disk := computeBeta.StatefulPolicyPreservedStateDiskDevice{
+		disk := compute.StatefulPolicyPreservedStateDiskDevice{
 			AutoDelete: data["delete_rule"].(string),
 		}
 		disks[data["device_name"].(string)] = disk
 	}
 	if len(disks) > 0 {
-		return &computeBeta.StatefulPolicy{PreservedState: &computeBeta.StatefulPolicyPreservedState{Disks: disks}}
+		return &compute.StatefulPolicy{PreservedState: &compute.StatefulPolicyPreservedState{Disks: disks}}
 	}
 	return nil
 }
 
-func expandVersions(configured []interface{}) []*computeBeta.InstanceGroupManagerVersion {
-	versions := make([]*computeBeta.InstanceGroupManagerVersion, 0, len(configured))
+func expandVersions(configured []interface{}) []*compute.InstanceGroupManagerVersion {
+	versions := make([]*compute.InstanceGroupManagerVersion, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
-		version := computeBeta.InstanceGroupManagerVersion{
+		version := compute.InstanceGroupManagerVersion{
 			Name:             data["name"].(string),
 			InstanceTemplate: data["instance_template"].(string),
 			TargetSize:       expandFixedOrPercent(data["target_size"].([]interface{})),
@@ -785,40 +888,48 @@ func expandVersions(configured []interface{}) []*computeBeta.InstanceGroupManage
 	return versions
 }
 
-func expandFixedOrPercent(configured []interface{}) *computeBeta.FixedOrPercent {
-	fixedOrPercent := &computeBeta.FixedOrPercent{}
+func expandFixedOrPercent(configured []interface{}) *compute.FixedOrPercent {
+	fixedOrPercent := &compute.FixedOrPercent{}
 
 	for _, raw := range configured {
-		data := raw.(map[string]interface{})
-		if percent := data["percent"]; percent.(int) > 0 {
-			fixedOrPercent.Percent = int64(percent.(int))
-		} else {
-			fixedOrPercent.Fixed = int64(data["fixed"].(int))
-			fixedOrPercent.ForceSendFields = []string{"Fixed"}
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			if percent := data["percent"]; percent.(int) > 0 {
+				fixedOrPercent.Percent = int64(percent.(int))
+			} else {
+				fixedOrPercent.Fixed = int64(data["fixed"].(int))
+				fixedOrPercent.ForceSendFields = []string{"Fixed"}
+			}
 		}
 	}
 	return fixedOrPercent
 }
 
-func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupManagerUpdatePolicy {
-	updatePolicy := &computeBeta.InstanceGroupManagerUpdatePolicy{}
+func expandUpdatePolicy(configured []interface{}) *compute.InstanceGroupManagerUpdatePolicy {
+	updatePolicy := &compute.InstanceGroupManagerUpdatePolicy{}
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
 		updatePolicy.MinimalAction = data["minimal_action"].(string)
+		mostDisruptiveAllowedAction := data["most_disruptive_allowed_action"].(string)
+		if mostDisruptiveAllowedAction != "" {
+			updatePolicy.MostDisruptiveAllowedAction = mostDisruptiveAllowedAction
+		} else {
+			updatePolicy.NullFields = append(updatePolicy.NullFields, "MostDisruptiveAllowedAction")
+		}
 		updatePolicy.Type = data["type"].(string)
 		updatePolicy.ReplacementMethod = data["replacement_method"].(string)
 
 		// percent and fixed values are conflicting
 		// when the percent values are set, the fixed values will be ignored
 		if v := data["max_surge_percent"]; v.(int) > 0 {
-			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxSurge = &compute.FixedOrPercent{
 				Percent:    int64(v.(int)),
 				NullFields: []string{"Fixed"},
 			}
 		} else {
-			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxSurge = &compute.FixedOrPercent{
 				Fixed: int64(data["max_surge_fixed"].(int)),
 				// allow setting this value to 0
 				ForceSendFields: []string{"Fixed"},
@@ -827,27 +938,23 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 		}
 
 		if v := data["max_unavailable_percent"]; v.(int) > 0 {
-			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxUnavailable = &compute.FixedOrPercent{
 				Percent:    int64(v.(int)),
 				NullFields: []string{"Fixed"},
 			}
 		} else {
-			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxUnavailable = &compute.FixedOrPercent{
 				Fixed: int64(data["max_unavailable_fixed"].(int)),
 				// allow setting this value to 0
 				ForceSendFields: []string{"Fixed"},
 				NullFields:      []string{"Percent"},
 			}
 		}
-
-		if v, ok := data["min_ready_sec"]; ok {
-			updatePolicy.MinReadySec = int64(v.(int))
-		}
 	}
 	return updatePolicy
 }
 
-func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroupManagerAutoHealingPolicy) []map[string]interface{} {
+func flattenAutoHealingPolicies(autoHealingPolicies []*compute.InstanceGroupManagerAutoHealingPolicy) []map[string]interface{} {
 	autoHealingPoliciesSchema := make([]map[string]interface{}, 0, len(autoHealingPolicies))
 	for _, autoHealingPolicy := range autoHealingPolicies {
 		data := map[string]interface{}{
@@ -860,7 +967,7 @@ func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroup
 	return autoHealingPoliciesSchema
 }
 
-func flattenStatefulPolicy(statefulPolicy *computeBeta.StatefulPolicy) []map[string]interface{} {
+func flattenStatefulPolicy(statefulPolicy *compute.StatefulPolicy) []map[string]interface{} {
 	if statefulPolicy == nil || statefulPolicy.PreservedState == nil || statefulPolicy.PreservedState.Disks == nil {
 		return make([]map[string]interface{}, 0, 0)
 	}
@@ -876,7 +983,7 @@ func flattenStatefulPolicy(statefulPolicy *computeBeta.StatefulPolicy) []map[str
 	return result
 }
 
-func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
+func flattenUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	if updatePolicy != nil {
 		up := map[string]interface{}{}
@@ -894,8 +1001,8 @@ func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePol
 			up["max_unavailable_fixed"] = 0
 			up["max_unavailable_percent"] = 0
 		}
-		up["min_ready_sec"] = updatePolicy.MinReadySec
 		up["minimal_action"] = updatePolicy.MinimalAction
+		up["most_disruptive_allowed_action"] = updatePolicy.MostDisruptiveAllowedAction
 		up["type"] = updatePolicy.Type
 		up["replacement_method"] = updatePolicy.ReplacementMethod
 		results = append(results, up)
@@ -903,9 +1010,51 @@ func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePol
 	return results
 }
 
+func flattenStatus(status *compute.InstanceGroupManagerStatus) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"is_stable":      status.IsStable,
+		"stateful":       flattenStatusStateful(status.Stateful),
+		"version_target": flattenStatusVersionTarget(status.VersionTarget),
+	}
+	results = append(results, data)
+	return results
+}
+
+func flattenStatusStateful(stateful *compute.InstanceGroupManagerStatusStateful) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"has_stateful_config":  stateful.HasStatefulConfig,
+		"per_instance_configs": flattenStatusStatefulConfigs(stateful.PerInstanceConfigs),
+	}
+	results = append(results, data)
+	return results
+}
+
+func flattenStatusStatefulConfigs(statefulConfigs *compute.InstanceGroupManagerStatusStatefulPerInstanceConfigs) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"all_effective": statefulConfigs.AllEffective,
+	}
+	results = append(results, data)
+	return results
+}
+
+func flattenStatusVersionTarget(versionTarget *compute.InstanceGroupManagerStatusVersionTarget) []map[string]interface{} {
+	results := []map[string]interface{}{}
+	data := map[string]interface{}{
+		"is_reached": versionTarget.IsReached,
+	}
+	results = append(results, data)
+	return results
+}
+
 func resourceInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	if err := d.Set("wait_for_instances", false); err != nil {
 		return nil, fmt.Errorf("Error setting wait_for_instances: %s", err)
+	}
+	if err := d.Set("wait_for_instances_status", "STABLE"); err != nil {
+		return nil, fmt.Errorf("Error setting wait_for_instances_status: %s", err)
 	}
 	config := meta.(*Config)
 	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroupManagers/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {

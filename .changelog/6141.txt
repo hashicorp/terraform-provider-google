@@ -1,0 +1,6 @@
+```release-note:enhancement
+spanner: Added field `version_retention_period` to `google_spanner_database` resource
+```
+```release-note:enhancement
+spanner: Fixed issue where `ddl` and `version_retention_period` could not be set when first creating `google_spanner_database` using POSTGRESQL
+```

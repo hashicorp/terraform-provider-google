@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFilestoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -45,7 +42,7 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_filestore_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "zone"},
+				ImportStateVerifyIgnore: []string{"name", "zone", "location"},
 			},
 		},
 	})
@@ -55,7 +52,7 @@ func testAccFilestoreInstance_filestoreInstanceBasicExample(context map[string]i
 	return Nprintf(`
 resource "google_filestore_instance" "instance" {
   name = "tf-test-test-instance%{random_suffix}"
-  zone = "us-central1-b"
+  location = "us-central1-b"
   tier = "PREMIUM"
 
   file_shares {
@@ -66,6 +63,66 @@ resource "google_filestore_instance" "instance" {
   networks {
     network = "default"
     modes   = ["MODE_IPV4"]
+  }
+}
+`, context)
+}
+
+func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFilestoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFilestoreInstance_filestoreInstanceFullExample(context),
+			},
+			{
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "zone", "location"},
+			},
+		},
+	})
+}
+
+func testAccFilestoreInstance_filestoreInstanceFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_filestore_instance" "instance" {
+  name = "tf-test-test-instance%{random_suffix}"
+  location = "us-central1-b"
+  tier = "BASIC_SSD"
+
+  file_shares {
+    capacity_gb = 2660
+    name        = "share1"
+
+    nfs_export_options {
+      ip_ranges = ["10.0.0.0/24"]
+      access_mode = "READ_WRITE"
+      squash_mode = "NO_ROOT_SQUASH"
+   }
+
+   nfs_export_options {
+      ip_ranges = ["10.10.0.0/24"]
+      access_mode = "READ_ONLY"
+      squash_mode = "ROOT_SQUASH"
+      anon_uid = 123
+      anon_gid = 456
+   }
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+    connect_mode = "DIRECT_PEERING"
   }
 }
 `, context)
@@ -83,7 +140,7 @@ func testAccCheckFilestoreInstanceDestroyProducer(t *testing.T) func(s *terrafor
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+			url, err := replaceVarsForTest(config, rs, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 			if err != nil {
 				return err
 			}

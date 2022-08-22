@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_service_account"
-sidebar_current: "docs-google-datasource-service-account"
 description: |-
   Get the service account from a project.
 ---
@@ -44,7 +42,15 @@ resource "kubernetes_secret" "google-application-credentials" {
 
 The following arguments are supported:
 
-* `account_id` - (Required) The Service account id.  (This is the part of the service account's email field that comes before the @ symbol.)
+* `account_id` - (Required) The Google service account ID. This be one of:
+
+    * The name of the service account within the project (e.g. `my-service`)
+
+    * The fully-qualified path to a service account resource (e.g.
+      `projects/my-project/serviceAccounts/...`)
+
+    * The email address of the service account (e.g.
+      `my-service@my-project.iam.gserviceaccount.com`)
 
 * `project` - (Optional) The ID of the project that the service account is present in.
     Defaults to the provider project configuration.

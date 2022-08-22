@@ -1,7 +1,5 @@
 ---
-layout: "google"
 page_title: "Getting Started with the Google provider"
-sidebar_current: "docs-google-provider-guides-getting-started"
 description: |-
   Getting started with the Google Cloud Platform provider
 ---
@@ -13,7 +11,7 @@ description: |-
 * Create a project in the [Google Cloud Console](https://console.cloud.google.com/)
 and set up billing on that project. Any examples in this guide will be part of
 the [GCP "always free" tier](https://cloud.google.com/free/).
-* [Install Terraform](https://www.terraform.io/intro/getting-started/install.html)
+* [Install Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/gcp-get-started)
 and read the Terraform getting started guide that follows. This guide will
 assume basic proficiency with Terraform - it is an introduction to the Google
 provider.
@@ -22,11 +20,7 @@ provider.
 
 First, authenticate with GCP.  The easiest way to do this is to run
 `gcloud auth application-default login`, if you already have gcloud
-installed.  If you don't already have it, gcloud can be installed with
-`apt-get install google-cloud-sdk` on Debian-based machines.  For a
-production use-case, you will want to use service account authentication,
-which you can learn about further down in this doc, but for experimenting,
-gcloud authentication will work fine.
+installed.  If you don't already have it, you can install it from [here](https://cloud.google.com/sdk/docs/install).
 
 Next, create a Terraform config file named `"main.tf"`. Inside, you'll
 want to include the following configuration:
@@ -78,11 +72,11 @@ Add the following to your config file:
 ```hcl
 resource "google_compute_instance" "vm_instance" {
   name         = "terraform-instance"
-  machine_type = "f1-micro"
+  machine_type = "e2-micro"
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 
@@ -157,10 +151,11 @@ Terraform needs GCP credentials.
 ## Adding credentials
 In order to make requests against the GCP API, you need to authenticate to prove
 that it's you making the request. The preferred method of provisioning resources
-with Terraform is to use a [GCP service account](https://cloud.google.com/docs/authentication/getting-started),
-a "robot account" that can be granted a limited set of IAM permissions.
+with Terraform on your workstation is to use the Google Cloud SDK as we mentioned earlier.
 
-From [the service account key page in the Cloud Console](https://console.cloud.google.com/apis/credentials/serviceaccountkey)
+You can also use a Google Cloud Service Account with terraform.
+
+From [the service account key page in the Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts)
 choose an existing account, or create a new one. Next, download the JSON key
 file. Name it something you can remember, and store it somewhere secure on your
 machine.
@@ -184,6 +179,16 @@ quota or billing issues which don't seem to apply to you, you may want to set
 -> Remember to add this line to a startup file such as `bash_profile` or
 `bashrc` to store your credentials across sessions!
 
+### Using Terraform Cloud as the Backend
+You need to use a different [environment variable](https://www.terraform.io/docs/cloud/workspaces/variables.html) name to store your credentials in Terraform Cloud.
+1. Create an environment variable called `GOOGLE_CREDENTIALS` in your Terraform Cloud workspace.
+2. Remove the newline characters from your JSON key file and then paste the credentials into the environment variable value field.
+3. Mark the variable as **Sensitive** and click **Save variable**.
+
+All runs within the workspace will use the `GOOGLE_CREDENTIALS` variable to authenticate with Google Cloud Platform.
+
+~> **Note:** When running inside a CLI-driven TFC workspace, local environment variables will only be accessible when executed [locally](https://www.terraform.io/cloud-docs/workspaces/settings#execution-mode). All credentials environment variables (including default application credentials) need to be set in the [Variables tab](https://www.terraform.io/cloud-docs/workspaces/variables/managing-variables#workspace-specific-variables) in order to be accessible by workspaces executed remotely.
+
 ## Provisioning your resources
 By now, your config will look something like:
 
@@ -196,11 +201,11 @@ provider "google" {
 
 resource "google_compute_instance" "vm_instance" {
   name         = "terraform-instance"
-  machine_type = "f1-micro"
+  machine_type = "e2-micro"
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "debian-cloud/debian-11"
     }
   }
 

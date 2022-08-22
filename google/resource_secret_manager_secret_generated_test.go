@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSecretManagerSecretDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -45,7 +42,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret_id"},
+				ImportStateVerifyIgnore: []string{"ttl", "secret_id"},
 			},
 		},
 	})

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -34,8 +34,8 @@ func resourceKMSKeyRing() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -51,10 +51,6 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 				Required:    true,
 				ForceNew:    true,
 				Description: `The resource name for the KeyRing.`,
-			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -228,14 +224,10 @@ func resourceKMSKeyRingEncoder(d *schema.ResourceData, meta interface{}, obj map
 }
 
 func resourceKMSKeyRingDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// Take the returned long form of the name and use it as `self_link`.
-	// Then modify the name to be the user specified form.
+	// Modify the name to be the user specified form.
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	if err := d.Set("self_link", res["name"].(string)); err != nil {
-		return nil, fmt.Errorf("Error setting self_link: %s", err)
-	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

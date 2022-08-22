@@ -1,0 +1,3 @@
+```release-note:bug
+privateca: fixed the creation of subordinate `google_privateca_certificate_authority` with `max_issuer_path_length = 0`.
+```

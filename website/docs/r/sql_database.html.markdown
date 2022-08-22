@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud SQL"
-layout: "google"
 page_title: "Google: google_sql_database"
-sidebar_current: "docs-google-sql-database"
 description: |-
   Represents a SQL database inside the Cloud SQL instance, hosted in
   Google's cloud.
@@ -42,9 +40,11 @@ resource "google_sql_database" "database" {
   instance = google_sql_database_instance.instance.name
 }
 
+# See versions at https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance#database_version
 resource "google_sql_database_instance" "instance" {
-  name   = "my-database-instance"
-  region = "us-central1"
+  name             = "my-database-instance"
+  region           = "us-central1"
+  database_version = "MYSQL_8_0"
   settings {
     tier = "db-f1-micro"
   }
@@ -105,9 +105,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 15 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

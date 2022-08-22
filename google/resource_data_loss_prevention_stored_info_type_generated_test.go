@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,11 +73,8 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -121,11 +115,8 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDiction
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -160,6 +151,7 @@ resource "google_data_loss_prevention_stored_info_type" "large" {
 
 resource "google_storage_bucket" "bucket" {
   name          = "tf-test-tf-test-bucket%{random_suffix}"
+  location      = "US"
   force_destroy = true
 }
 

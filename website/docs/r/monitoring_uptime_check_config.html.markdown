@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Monitoring"
-layout: "google"
 page_title: "Google: google_monitoring_uptime_check_config"
-sidebar_current: "docs-google-monitoring-uptime-check-config"
 description: |-
   This message configures which resources and services to monitor for availability.
 ---
@@ -32,13 +30,8 @@ To get more information about UptimeCheckConfig, see:
     * [Official Documentation](https://cloud.google.com/monitoring/uptime-checks/)
 
 ~> **Warning:** All arguments including `http_check.auth_info.password` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=uptime_check_config_http&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Uptime Check Config Http
 
 
@@ -48,7 +41,7 @@ resource "google_monitoring_uptime_check_config" "http" {
   timeout      = "60s"
 
   http_check {
-    path = "/some-path"
+    path = "some-path"
     port = "8010"
     request_method = "POST"
     content_type = "URL_ENCODED"
@@ -64,15 +57,63 @@ resource "google_monitoring_uptime_check_config" "http" {
   }
 
   content_matchers {
-    content = "example"
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
   }
+
+  checker_type = "STATIC_IP_CHECKERS"
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=uptime_check_config_https&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
+## Example Usage - Uptime Check Config Status Code
+
+
+```hcl
+resource "google_monitoring_uptime_check_config" "status_code" {
+  display_name = "http-uptime-check"
+  timeout      = "60s"
+
+  http_check {
+    path = "some-path"
+    port = "8010"
+    request_method = "POST"
+    content_type = "URL_ENCODED"
+    body = "Zm9vJTI1M0RiYXI="
+
+    accepted_response_status_codes {
+      status_class = "STATUS_CLASS_2XX"
+    }
+    accepted_response_status_codes {
+            status_value = 301
+    }
+    accepted_response_status_codes {
+            status_value = 302
+    }
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "my-project-name"
+      host       = "192.168.1.1"
+    }
+  }
+
+  content_matchers {
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
+  }
+
+  checker_type = "STATIC_IP_CHECKERS"
+}
+```
 ## Example Usage - Uptime Check Config Https
 
 
@@ -98,6 +139,11 @@ resource "google_monitoring_uptime_check_config" "https" {
 
   content_matchers {
     content = "example"
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "REGEX_MATCH"
+    }
   }
 }
 ```
@@ -154,37 +200,42 @@ The following arguments are supported:
 * `content_matchers` -
   (Optional)
   The expected content on the page the check is run against. Currently, only the first entry in the list is supported, and other entries will be ignored. The server will look for an exact match of the string in the page response's content. This field is optional and should only be specified if a content match is required.
-  Structure is documented below.
+  Structure is [documented below](#nested_content_matchers).
 
 * `selected_regions` -
   (Optional)
   The list of regions from which the check will be run. Some regions contain one location, and others contain more than one. If this field is specified, enough regions to include a minimum of 3 locations must be provided, or an error message is returned. Not specifying this field will result in uptime checks running from all regions.
 
+* `checker_type` -
+  (Optional)
+  The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS.
+  Possible values are `STATIC_IP_CHECKERS` and `VPC_CHECKERS`.
+
 * `http_check` -
   (Optional)
   Contains information needed to make an HTTP or HTTPS check.
-  Structure is documented below.
+  Structure is [documented below](#nested_http_check).
 
 * `tcp_check` -
   (Optional)
   Contains information needed to make a TCP check.
-  Structure is documented below.
+  Structure is [documented below](#nested_tcp_check).
 
 * `resource_group` -
   (Optional)
   The group resource associated with the configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_resource_group).
 
 * `monitored_resource` -
   (Optional)
-  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer
-  Structure is documented below.
+  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance aws_elb_load_balancer  k8s_service  servicedirectory_service
+  Structure is [documented below](#nested_monitored_resource).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `content_matchers` block supports:
+<a name="nested_content_matchers"></a>The `content_matchers` block supports:
 
 * `content` -
   (Required)
@@ -194,9 +245,27 @@ The `content_matchers` block supports:
   (Optional)
   The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
   Default value is `CONTAINS_STRING`.
-  Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, and `NON_MATCHES_REGEX`.
+  Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, `NOT_MATCHES_REGEX`, `MATCHES_JSON_PATH`, and `NOT_MATCHES_JSON_PATH`.
 
-The `http_check` block supports:
+* `json_path_matcher` -
+  (Optional)
+  Information needed to perform a JSONPath content match. Used for `ContentMatcherOption::MATCHES_JSON_PATH` and `ContentMatcherOption::NOT_MATCHES_JSON_PATH`.
+  Structure is [documented below](#nested_json_path_matcher).
+
+
+<a name="nested_json_path_matcher"></a>The `json_path_matcher` block supports:
+
+* `json_path` -
+  (Required)
+  JSONPath within the response output pointing to the expected `ContentMatcher::content` to match against.
+
+* `json_matcher` -
+  (Optional)
+  Options to perform JSONPath content matching.
+  Default value is `EXACT_MATCH`.
+  Possible values are `EXACT_MATCH` and `REGEX_MATCH`.
+
+<a name="nested_http_check"></a>The `http_check` block supports:
 
 * `request_method` -
   (Optional)
@@ -212,7 +281,7 @@ The `http_check` block supports:
 * `auth_info` -
   (Optional)
   The authentication information. Optional when creating an HTTP check; defaults to empty.
-  Structure is documented below.
+  Structure is [documented below](#nested_auth_info).
 
 * `port` -
   (Optional)
@@ -224,7 +293,7 @@ The `http_check` block supports:
 
 * `path` -
   (Optional)
-  The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. Optional (defaults to "/").
+  The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. If the provided path does not begin with "/", a "/" will be prepended automatically. Optional (defaults to "/").
 
 * `use_ssl` -
   (Optional)
@@ -242,8 +311,13 @@ The `http_check` block supports:
   (Optional)
   The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".
 
+* `accepted_response_status_codes` -
+  (Optional)
+  If present, the check will only pass if the HTTP response status code is in this set of status codes. If empty, the HTTP status code will only pass if the HTTP status code is 200-299.
+  Structure is [documented below](#nested_accepted_response_status_codes).
 
-The `auth_info` block supports:
+
+<a name="nested_auth_info"></a>The `auth_info` block supports:
 
 * `password` -
   (Required)
@@ -254,13 +328,24 @@ The `auth_info` block supports:
   (Required)
   The username to authenticate.
 
-The `tcp_check` block supports:
+<a name="nested_accepted_response_status_codes"></a>The `accepted_response_status_codes` block supports:
+
+* `status_value` -
+  (Optional)
+  A status code to accept.
+
+* `status_class` -
+  (Optional)
+  A class of status codes to accept.
+  Possible values are `STATUS_CLASS_1XX`, `STATUS_CLASS_2XX`, `STATUS_CLASS_3XX`, `STATUS_CLASS_4XX`, `STATUS_CLASS_5XX`, and `STATUS_CLASS_ANY`.
+
+<a name="nested_tcp_check"></a>The `tcp_check` block supports:
 
 * `port` -
   (Required)
   The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) to construct the full URL.
 
-The `resource_group` block supports:
+<a name="nested_resource_group"></a>The `resource_group` block supports:
 
 * `resource_type` -
   (Optional)
@@ -271,7 +356,7 @@ The `resource_group` block supports:
   (Optional)
   The group of resources being monitored. Should be the `name` of a group
 
-The `monitored_resource` block supports:
+<a name="nested_monitored_resource"></a>The `monitored_resource` block supports:
 
 * `type` -
   (Required)
@@ -299,9 +384,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

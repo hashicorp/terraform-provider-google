@@ -5,11 +5,10 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
+	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
 // Test that an IAM binding can be applied to a folder
@@ -17,7 +16,7 @@ func TestAccFolderIamBinding_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -50,7 +49,7 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -78,7 +77,7 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/viewer",
-						Members: []string{"user:paddy@hashicorp.com"},
+						Members: []string{"user:gterraformtest1@gmail.com"},
 					}, org, fname),
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -97,7 +96,7 @@ func TestAccFolderIamBinding_multipleAtOnce(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -132,7 +131,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -160,7 +159,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
+						Members: []string{"user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"},
 					}, org, fname),
 				),
 			},
@@ -170,7 +169,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:paddy@hashicorp.com"},
+						Members: []string{"user:gterraformtest1@gmail.com"},
 					}, org, fname),
 				),
 			},
@@ -185,7 +184,7 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	fname := "terraform-" + randString(t, 10)
+	fname := "tf-test-" + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -203,7 +202,7 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/viewer",
-						Members: []string{"user:paddy@hashicorp.com"},
+						Members: []string{"user:gterraformtest1@gmail.com"},
 					}, org, fname),
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
@@ -255,25 +254,33 @@ func testAccCheckGoogleFolderIamBindingExists(t *testing.T, expected *cloudresou
 }
 
 func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config *Config) (*cloudresourcemanager.Policy, error) {
-	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, displayName)
-	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
-		Query: queryString,
-	}
-	searchResponse, err := config.NewResourceManagerV2Beta1Client(config.userAgent).Folders.Search(searchRequest).Do()
-	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
-			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
+	var folderMatch *resourceManagerV3.Folder
+	token := ""
+
+	for paginate := true; paginate; {
+		resp, err := config.NewResourceManagerV3Client(config.userAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
+		if err != nil {
+			return nil, fmt.Errorf("Error reading folder list: %s", err)
 		}
 
-		return nil, errwrap.Wrapf("Error reading folders: {{err}}", err)
+		for _, folder := range resp.Folders {
+			if folder.DisplayName == displayName {
+				if folderMatch != nil {
+					return nil, fmt.Errorf("More than one matching folder found")
+				}
+				folderMatch = folder
+			}
+		}
+
+		token = resp.NextPageToken
+		paginate = token != ""
 	}
 
-	folders := searchResponse.Folders
-	if len(folders) != 1 {
-		return nil, fmt.Errorf("expected exactly 1 folder, found %d", len(folders))
+	if folderMatch == nil {
+		return nil, fmt.Errorf("Folder not found: %s", displayName)
 	}
 
-	return getFolderIamPolicyByFolderName(folders[0].Name, config.userAgent, config)
+	return getFolderIamPolicyByFolderName(folderMatch.Name, config.userAgent, config)
 }
 
 func testAccFolderIamBasic(org, fname string) string {
@@ -315,7 +322,7 @@ resource "google_folder_iam_binding" "acceptance" {
 
 resource "google_folder_iam_binding" "multiple" {
   folder  = google_folder.acceptance.name
-  members = ["user:paddy@hashicorp.com"]
+  members = ["user:gterraformtest1@gmail.com"]
   role    = "roles/viewer"
 }
 `, org, fname)
@@ -330,7 +337,7 @@ resource "google_folder" "acceptance" {
 
 resource "google_folder_iam_binding" "acceptance" {
   folder  = google_folder.acceptance.name
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
   role    = "roles/compute.instanceAdmin"
 }
 `, org, fname)
@@ -345,7 +352,7 @@ resource "google_folder" "acceptance" {
 
 resource "google_folder_iam_binding" "acceptance" {
   folder  = google_folder.acceptance.name
-  members = ["user:paddy@hashicorp.com"]
+  members = ["user:gterraformtest1@gmail.com"]
   role    = "roles/compute.instanceAdmin"
 }
 `, org, fname)

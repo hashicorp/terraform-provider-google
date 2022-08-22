@@ -1,8 +1,6 @@
 ---
 subcategory: "Cloud Platform"
-layout: "google"
 page_title: "Google: google_iam_policy"
-sidebar_current: "docs-google-datasource-iam-policy"
 description: |-
   Generates an IAM policy that can be referenced by other resources, applying
   the policy to them.
@@ -85,9 +83,9 @@ each accept the following arguments:
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
 
-* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding. Structure is documented below.
+* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding. Structure is [documented below](#nested_condition).
 
-The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
 

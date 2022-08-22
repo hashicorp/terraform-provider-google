@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,8 +34,8 @@ func resourceComputeHaVpnGateway() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -44,7 +43,7 @@ func resourceComputeHaVpnGateway() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035.  Specifically, the name must be 1-63 characters long and
@@ -77,17 +76,33 @@ character, which cannot be a dash.`,
 			"vpn_interfaces": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 				Description: `A list of interfaces on this VPN gateway.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The numeric ID of this VPN gateway interface.`,
+						},
+						"interconnect_attachment": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description: `URL of the interconnect attachment resource. When the value
+of this field is present, the VPN Gateway will be used for
+IPsec-encrypted Cloud Interconnect; all Egress or Ingress
+traffic for this VPN Gateway interface will go through the
+specified interconnect attachment resource.
+
+Not currently available publicly.`,
 						},
 						"ip_address": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: `The external IP address for this VPN gateway interface.`,
 						},
 					},
@@ -133,6 +148,12 @@ func resourceComputeHaVpnGatewayCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	vpnInterfacesProp, err := expandComputeHaVpnGatewayVpnInterfaces(d.Get("vpn_interfaces"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpn_interfaces"); !isEmptyValue(reflect.ValueOf(vpnInterfacesProp)) && (ok || !reflect.DeepEqual(v, vpnInterfacesProp)) {
+		obj["vpnInterfaces"] = vpnInterfacesProp
 	}
 	regionProp, err := expandComputeHaVpnGatewayRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -337,8 +358,9 @@ func flattenComputeHaVpnGatewayVpnInterfaces(v interface{}, d *schema.ResourceDa
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"id":         flattenComputeHaVpnGatewayVpnInterfacesId(original["id"], d, config),
-			"ip_address": flattenComputeHaVpnGatewayVpnInterfacesIpAddress(original["ipAddress"], d, config),
+			"id":                      flattenComputeHaVpnGatewayVpnInterfacesId(original["id"], d, config),
+			"ip_address":              flattenComputeHaVpnGatewayVpnInterfacesIpAddress(original["ipAddress"], d, config),
+			"interconnect_attachment": flattenComputeHaVpnGatewayVpnInterfacesInterconnectAttachment(original["interconnectAttachment"], d, config),
 		})
 	}
 	return transformed
@@ -346,7 +368,7 @@ func flattenComputeHaVpnGatewayVpnInterfaces(v interface{}, d *schema.ResourceDa
 func flattenComputeHaVpnGatewayVpnInterfacesId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -362,6 +384,13 @@ func flattenComputeHaVpnGatewayVpnInterfacesId(v interface{}, d *schema.Resource
 
 func flattenComputeHaVpnGatewayVpnInterfacesIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeHaVpnGatewayVpnInterfacesInterconnectAttachment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeHaVpnGatewayRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -383,6 +412,58 @@ func expandComputeHaVpnGatewayNetwork(v interface{}, d TerraformResourceData, co
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeHaVpnGatewayVpnInterfaces(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedId, err := expandComputeHaVpnGatewayVpnInterfacesId(original["id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedId); val.IsValid() && !isEmptyValue(val) {
+			transformed["id"] = transformedId
+		}
+
+		transformedIpAddress, err := expandComputeHaVpnGatewayVpnInterfacesIpAddress(original["ip_address"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !isEmptyValue(val) {
+			transformed["ipAddress"] = transformedIpAddress
+		}
+
+		transformedInterconnectAttachment, err := expandComputeHaVpnGatewayVpnInterfacesInterconnectAttachment(original["interconnect_attachment"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedInterconnectAttachment); val.IsValid() && !isEmptyValue(val) {
+			transformed["interconnectAttachment"] = transformedInterconnectAttachment
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeHaVpnGatewayVpnInterfacesId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHaVpnGatewayVpnInterfacesIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHaVpnGatewayVpnInterfacesInterconnectAttachment(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseRegionalFieldValue("interconnectAttachments", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for interconnect_attachment: %s", err)
 	}
 	return f.RelativeLink(), nil
 }

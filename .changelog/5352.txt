@@ -1,0 +1,4 @@
+```release-note:breaking-change
+storage: changed the `location` field to `Required` in `google_storage_bucket ` resource
+
+```

@@ -280,7 +280,7 @@ resource "google_project_iam_binding" "acceptance" {
 
 resource "google_project_iam_binding" "multiple" {
   project = google_project.acceptance.project_id
-  members = ["user:paddy@hashicorp.com"]
+  members = ["user:gterraformtest1@gmail.com"]
   role    = "%s"
 }
 `, pid, name, org, role, role2)
@@ -296,7 +296,7 @@ resource "google_project" "acceptance" {
 
 resource "google_project_iam_binding" "acceptance" {
   project = google_project.acceptance.project_id
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
   role    = "%s"
 }
 `, pid, name, org, role)
@@ -312,7 +312,7 @@ resource "google_project" "acceptance" {
 
 resource "google_project_iam_binding" "acceptance" {
   project = google_project.acceptance.project_id
-  members = ["user:paddy@hashicorp.com"]
+  members = ["user:gterraformtest1@gmail.com"]
   role    = "%s"
 }
 `, pid, name, org, role)

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -21,10 +21,10 @@ import (
 	"log"
 	"reflect"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -76,6 +76,64 @@ func resourceComputeFirewallEnableLoggingCustomizeDiff(_ context.Context, diff *
 	return nil
 }
 
+// Per https://github.com/hashicorp/terraform-provider-google/issues/2924
+// Make one of the source_ parameters Required in ingress google_compute_firewall
+func resourceComputeFirewallSourceFieldsCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	direction := diff.Get("direction").(string)
+
+	if direction != "EGRESS" {
+		_, tagsOk := diff.GetOk("source_tags")
+		_, rangesOk := diff.GetOk("source_ranges")
+		_, sasOk := diff.GetOk("source_service_accounts")
+
+		_, tagsExist := diff.GetOkExists("source_tags")
+		_, rangesExist := diff.GetOkExists("source_ranges")
+		_, sasExist := diff.GetOkExists("source_service_accounts")
+
+		if !tagsOk && !rangesOk && !sasOk && !tagsExist && !rangesExist && !sasExist {
+			return fmt.Errorf("one of source_tags, source_ranges, or source_service_accounts must be defined")
+		}
+	}
+
+	return nil
+}
+
+func diffSuppressSourceRanges(k, old, new string, d *schema.ResourceData) bool {
+	if k == "source_ranges.#" {
+		if old == "1" && new == "0" {
+			// Allow diffing on the individual element if we are going from 1 -> 0
+			// this allows for diff suppress on ["0.0.0.0/0"] -> []
+			return true
+		}
+		// For any other source_ranges.# diff, don't suppress
+		return false
+	}
+	kLength := "source_ranges.#"
+	oldLength, newLength := d.GetChange(kLength)
+	oldInt, ok := oldLength.(int)
+
+	if !ok {
+		return false
+	}
+
+	newInt, ok := newLength.(int)
+	if !ok {
+		return false
+	}
+
+	// Diff suppress only should suppress removing the default range
+	// This should probably be newInt == 0, but due to Terraform core internals
+	// (bug?) values found via GetChange may not have the correct new value
+	// in some circumstances
+	if oldInt == 1 && newInt == 1 {
+		if old == "0.0.0.0/0" && new == "" {
+			return true
+		}
+	}
+	// For any other source_ranges value diff, don't suppress
+	return false
+}
+
 func resourceComputeFirewall() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFirewallCreate,
@@ -88,21 +146,24 @@ func resourceComputeFirewall() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		SchemaVersion: 1,
 		MigrateState:  resourceComputeFirewallMigrateState,
-		CustomizeDiff: resourceComputeFirewallEnableLoggingCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			resourceComputeFirewallEnableLoggingCustomizeDiff,
+			resourceComputeFirewallSourceFieldsCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCPName,
+				ValidateFunc: validateGCEName,
 				Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
@@ -160,11 +221,12 @@ must be expressed in CIDR format. Only IPv4 is supported.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS", ""}, false),
+				ValidateFunc: validateEnum([]string{"INGRESS", "EGRESS", ""}),
 				Description: `Direction of traffic to which this firewall applies; default is
 INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
 destinationRanges; For EGRESS traffic, it is NOT supported to specify
-sourceRanges OR sourceTags. Possible values: ["INGRESS", "EGRESS"]`,
+'source_ranges' OR 'source_tags'. For INGRESS traffic, one of 'source_ranges',
+'source_tags' or 'source_service_accounts' is required. Possible values: ["INGRESS", "EGRESS"]`,
 			},
 			"disabled": {
 				Type:     schema.TypeBool,
@@ -186,7 +248,7 @@ If defined, logging is enabled, and logs will be exported to Cloud Logging.`,
 						"metadata": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"}, false),
+							ValidateFunc: validateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"}),
 							Description:  `This field denotes whether to include or exclude metadata for firewall logs. Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"]`,
 						},
 					},
@@ -205,9 +267,9 @@ precedence over ALLOW rules having equal priority.`,
 				Default: 1000,
 			},
 			"source_ranges": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Optional: true,
+				Type:             schema.TypeSet,
+				Optional:         true,
+				DiffSuppressFunc: diffSuppressSourceRanges,
 				Description: `If source ranges are specified, the firewall will apply only to
 traffic that has source IP address in these ranges. These ranges must
 be expressed in CIDR format. One or both of sourceRanges and
@@ -215,7 +277,8 @@ sourceTags may be set. If both properties are set, the firewall will
 apply to traffic that has source IP address within sourceRanges OR the
 source IP that belongs to a tag listed in the sourceTags property. The
 connection does not need to match both properties for the firewall to
-apply. Only IPv4 is supported.`,
+apply. Only IPv4 is supported. For INGRESS traffic, one of 'source_ranges',
+'source_tags' or 'source_service_accounts' is required.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -235,7 +298,8 @@ apply to traffic that has source IP address within sourceRanges OR the
 source IP belongs to an instance with service account listed in
 sourceServiceAccount. The connection does not need to match both
 properties for the firewall to apply. sourceServiceAccounts cannot be
-used at the same time as sourceTags or targetTags.`,
+used at the same time as sourceTags or targetTags. For INGRESS traffic,
+one of 'source_ranges', 'source_tags' or 'source_service_accounts' is required.`,
 				MaxItems: 10,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -254,12 +318,13 @@ address. One or both of sourceRanges and sourceTags may be set. If
 both properties are set, the firewall will apply to traffic that has
 source IP address within sourceRanges OR the source IP that belongs to
 a tag listed in the sourceTags property. The connection does not need
-to match both properties for the firewall to apply.`,
+to match both properties for the firewall to apply. For INGRESS traffic,
+one of 'source_ranges', 'source_tags' or 'source_service_accounts' is required.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Set:           schema.HashString,
-				ConflictsWith: []string{"destination_ranges", "source_service_accounts", "target_service_accounts"},
+				ConflictsWith: []string{"source_service_accounts", "destination_ranges", "target_service_accounts"},
 			},
 			"target_service_accounts": {
 				Type:     schema.TypeSet,
@@ -912,7 +977,7 @@ func flattenComputeFirewallNetwork(v interface{}, d *schema.ResourceData, config
 func flattenComputeFirewallPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+		if intVal, err := stringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

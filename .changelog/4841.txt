@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed bug where `encryption` showed a perma-diff on resources created prior to the feature being released.
+```

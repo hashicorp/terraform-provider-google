@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Identity"
-layout: "google"
 page_title: "Google: google_cloud_identity_group_membership"
-sidebar_current: "docs-google-cloud-identity-group-membership"
 description: |-
   A Membership defines a relationship between a Group and an entity belonging to that Group, referred to as a "member".
 ---
@@ -25,6 +23,11 @@ description: |-
 A Membership defines a relationship between a Group and an entity belonging to that Group, referred to as a "member".
 
 
+To get more information about GroupMembership, see:
+
+* [API documentation](https://cloud.google.com/identity/docs/reference/rest/v1/groups.memberships)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/identity/docs/how-to/memberships-google-groups)
 
 ~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
 you must specify a `billing_project` and set `user_project_override` to true 
@@ -32,11 +35,6 @@ in the provider configuration. Otherwise the Cloud Identity API will return a 40
 Your account must have the `serviceusage.services.use` permission on the 
 `billing_project` you defined.
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_identity_group_membership&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Identity Group Membership
 
 
@@ -81,11 +79,6 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_identity_group_membership_user&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Identity Group Membership User
 
 
@@ -130,14 +123,14 @@ The following arguments are supported:
   (Required)
   The MembershipRoles that apply to the Membership.
   Must not contain duplicate MembershipRoles with the same name.
-  Structure is documented below.
+  Structure is [documented below](#nested_roles).
 
 * `group` -
   (Required)
   The name of the Group to create this membership in.
 
 
-The `roles` block supports:
+<a name="nested_roles"></a>The `roles` block supports:
 
 * `name` -
   (Required)
@@ -150,15 +143,15 @@ The `roles` block supports:
 * `member_key` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   EntityKey of the member.
-  Structure is documented below.
+  Structure is [documented below](#nested_member_key).
 
 * `preferred_member_key` -
   (Optional)
   EntityKey of the member.
-  Structure is documented below.
+  Structure is [documented below](#nested_preferred_member_key).
 
 
-The `member_key` block supports:
+<a name="nested_member_key"></a>The `member_key` block supports:
 
 * `id` -
   (Required)
@@ -178,7 +171,7 @@ The `member_key` block supports:
   The namespace must correspond to an identity source created in Admin Console
   and must be in the form of `identitysources/{identity_source_id}`.
 
-The `preferred_member_key` block supports:
+<a name="nested_preferred_member_key"></a>The `preferred_member_key` block supports:
 
 * `id` -
   (Required)
@@ -222,9 +215,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

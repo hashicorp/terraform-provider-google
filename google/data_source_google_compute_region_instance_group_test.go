@@ -35,7 +35,7 @@ resource "google_compute_target_pool" "foo" {
 
 data "google_compute_image" "debian" {
   project = "debian-cloud"
-  name    = "debian-9-stretch-v20171129"
+  name    = "debian-11-bullseye-v20220719"
 }
 
 resource "google_compute_instance_template" "foo" {

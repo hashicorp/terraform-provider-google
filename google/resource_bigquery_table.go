@@ -6,6 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -14,10 +18,35 @@ import (
 	"google.golang.org/api/bigquery/v2"
 )
 
+func bigQueryTableSortArrayByName(array []interface{}) {
+	sort.Slice(array, func(i, k int) bool {
+		return array[i].(map[string]interface{})["name"].(string) < array[k].(map[string]interface{})["name"].(string)
+	})
+}
+
+func bigQueryArrayToMapIndexedByName(array []interface{}) map[string]interface{} {
+	out := map[string]interface{}{}
+	for _, v := range array {
+		name := v.(map[string]interface{})["name"].(string)
+		out[name] = v
+	}
+	return out
+}
+
+func bigQueryTablecheckNameExists(jsonList []interface{}) error {
+	for _, m := range jsonList {
+		if _, ok := m.(map[string]interface{})["name"]; !ok {
+			return fmt.Errorf("No name in schema %+v", m)
+		}
+	}
+
+	return nil
+}
+
 // Compares two json's while optionally taking in a compareMapKeyVal function.
 // This function will override any comparison of a given map[string]interface{}
 // on a specific key value allowing for a separate equality in specific scenarios
-func jsonCompareWithMapKeyOverride(a, b interface{}, compareMapKeyVal func(key string, val1, val2 map[string]interface{}) bool) (bool, error) {
+func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVal func(key string, val1, val2 map[string]interface{}) bool) (bool, error) {
 	switch a.(type) {
 	case []interface{}:
 		arrayA := a.([]interface{})
@@ -27,8 +56,20 @@ func jsonCompareWithMapKeyOverride(a, b interface{}, compareMapKeyVal func(key s
 		} else if len(arrayA) != len(arrayB) {
 			return false, nil
 		}
+
+		// Sort fields by name so reordering them doesn't cause a diff.
+		if key == "schema" || key == "fields" {
+			if err := bigQueryTablecheckNameExists(arrayA); err != nil {
+				return false, err
+			}
+			bigQueryTableSortArrayByName(arrayA)
+			if err := bigQueryTablecheckNameExists(arrayB); err != nil {
+				return false, err
+			}
+			bigQueryTableSortArrayByName(arrayB)
+		}
 		for i := range arrayA {
-			eq, err := jsonCompareWithMapKeyOverride(arrayA[i], arrayB[i], compareMapKeyVal)
+			eq, err := jsonCompareWithMapKeyOverride(strconv.Itoa(i), arrayA[i], arrayB[i], compareMapKeyVal)
 			if err != nil {
 				return false, err
 			} else if !eq {
@@ -44,22 +85,22 @@ func jsonCompareWithMapKeyOverride(a, b interface{}, compareMapKeyVal func(key s
 		}
 
 		var unionOfKeys map[string]bool = make(map[string]bool)
-		for key := range objectA {
-			unionOfKeys[key] = true
+		for subKey := range objectA {
+			unionOfKeys[subKey] = true
 		}
-		for key := range objectB {
-			unionOfKeys[key] = true
+		for subKey := range objectB {
+			unionOfKeys[subKey] = true
 		}
 
-		for key := range unionOfKeys {
-			eq := compareMapKeyVal(key, objectA, objectB)
+		for subKey := range unionOfKeys {
+			eq := compareMapKeyVal(subKey, objectA, objectB)
 			if !eq {
-				valA, ok1 := objectA[key]
-				valB, ok2 := objectB[key]
+				valA, ok1 := objectA[subKey]
+				valB, ok2 := objectB[subKey]
 				if !ok1 || !ok2 {
 					return false, nil
 				}
-				eq, err := jsonCompareWithMapKeyOverride(valA, valB, compareMapKeyVal)
+				eq, err := jsonCompareWithMapKeyOverride(subKey, valA, valB, compareMapKeyVal)
 				if err != nil || !eq {
 					return false, err
 				}
@@ -91,14 +132,17 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 	valB := objectB[key]
 	switch key {
 	case "mode":
-		eq := bigQueryTableModeEq(valA, valB)
+		eq := bigQueryTableNormalizeMode(valA) == bigQueryTableNormalizeMode(valB)
 		return eq
 	case "description":
 		equivalentSet := []interface{}{nil, ""}
 		eq := valueIsInArray(valA, equivalentSet) && valueIsInArray(valB, equivalentSet)
 		return eq
 	case "type":
-		return bigQueryTableTypeEq(valA, valB)
+		if valA == nil || valB == nil {
+			return false
+		}
+		return bigQueryTableTypeEq(valA.(string), valB.(string))
 	}
 
 	// otherwise rely on default behavior
@@ -106,7 +150,7 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 }
 
 // Compare the JSON strings are equal
-func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+func bigQueryTableSchemaDiffSuppress(name, old, new string, _ *schema.ResourceData) bool {
 	// The API can return an empty schema which gets encoded to "null" during read.
 	if old == "null" {
 		old = "[]"
@@ -116,13 +160,13 @@ func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData)
 	}
 	var a, b interface{}
 	if err := json.Unmarshal([]byte(old), &a); err != nil {
-		log.Printf("[DEBUG] unable to unmarshal json - %v", err)
+		log.Printf("[DEBUG] unable to unmarshal old json - %v", err)
 	}
 	if err := json.Unmarshal([]byte(new), &b); err != nil {
-		log.Printf("[DEBUG] unable to unmarshal json - %v", err)
+		log.Printf("[DEBUG] unable to unmarshal new json - %v", err)
 	}
 
-	eq, err := jsonCompareWithMapKeyOverride(a, b, bigQueryTableMapKeyOverride)
+	eq, err := jsonCompareWithMapKeyOverride(name, a, b, bigQueryTableMapKeyOverride)
 	if err != nil {
 		log.Printf("[DEBUG] %v", err)
 		log.Printf("[DEBUG] Error comparing JSON: %v, %v", old, new)
@@ -131,28 +175,32 @@ func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData)
 	return eq
 }
 
-func bigQueryTableTypeEq(old, new interface{}) bool {
+func bigQueryTableTypeEq(old, new string) bool {
+	// Do case-insensitive comparison. https://github.com/hashicorp/terraform-provider-google/issues/9472
+	oldUpper := strings.ToUpper(old)
+	newUpper := strings.ToUpper(new)
+
 	equivalentSet1 := []interface{}{"INTEGER", "INT64"}
 	equivalentSet2 := []interface{}{"FLOAT", "FLOAT64"}
 	equivalentSet3 := []interface{}{"BOOLEAN", "BOOL"}
-	eq0 := old == new
-	eq1 := valueIsInArray(old, equivalentSet1) && valueIsInArray(new, equivalentSet1)
-	eq2 := valueIsInArray(old, equivalentSet2) && valueIsInArray(new, equivalentSet2)
-	eq3 := valueIsInArray(old, equivalentSet3) && valueIsInArray(new, equivalentSet3)
+	eq0 := oldUpper == newUpper
+	eq1 := valueIsInArray(oldUpper, equivalentSet1) && valueIsInArray(newUpper, equivalentSet1)
+	eq2 := valueIsInArray(oldUpper, equivalentSet2) && valueIsInArray(newUpper, equivalentSet2)
+	eq3 := valueIsInArray(oldUpper, equivalentSet3) && valueIsInArray(newUpper, equivalentSet3)
 	eq := eq0 || eq1 || eq2 || eq3
 	return eq
 }
 
-func bigQueryTableModeEq(old, new interface{}) bool {
-	equivalentSet := []interface{}{nil, "NULLABLE"}
-	eq0 := old == new
-	eq1 := valueIsInArray(old, equivalentSet) && valueIsInArray(new, equivalentSet)
-	eq := eq0 || eq1
-	return eq
+func bigQueryTableNormalizeMode(mode interface{}) string {
+	if mode == nil {
+		return "NULLABLE"
+	}
+	// Upper-case to get case-insensitive comparisons. https://github.com/hashicorp/terraform-provider-google/issues/9472
+	return strings.ToUpper(mode.(string))
 }
 
-func bigQueryTableModeIsForceNew(old, new interface{}) bool {
-	eq := bigQueryTableModeEq(old, new)
+func bigQueryTableModeIsForceNew(old, new string) bool {
+	eq := old == new
 	reqToNull := old == "REQUIRED" && new == "NULLABLE"
 	return !eq && !reqToNull
 }
@@ -172,9 +220,32 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error)
 			// if not growing not changeable
 			return false, nil
 		}
-		for i := range arrayOld {
+		if err := bigQueryTablecheckNameExists(arrayOld); err != nil {
+			return false, err
+		}
+		mapOld := bigQueryArrayToMapIndexedByName(arrayOld)
+		if err := bigQueryTablecheckNameExists(arrayNew); err != nil {
+			return false, err
+		}
+		mapNew := bigQueryArrayToMapIndexedByName(arrayNew)
+		for key := range mapNew {
+			// making unchangeable if an newly added column is with REQUIRED mode
+			if _, ok := mapOld[key]; !ok {
+				items := mapNew[key].(map[string]interface{})
+				for k := range items {
+					if k == "mode" && fmt.Sprintf("%v", items[k]) == "REQUIRED" {
+						return false, nil
+					}
+				}
+			}
+		}
+		for key := range mapOld {
+			// all old keys should be represented in the new config
+			if _, ok := mapNew[key]; !ok {
+				return false, nil
+			}
 			if isChangable, err :=
-				resourceBigQueryTableSchemaIsChangeable(arrayOld[i], arrayNew[i]); err != nil || !isChangable {
+				resourceBigQueryTableSchemaIsChangeable(mapOld[key], mapNew[key]); err != nil || !isChangable {
 				return false, err
 			}
 		}
@@ -186,7 +257,6 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error)
 			// if both aren't objects
 			return false, nil
 		}
-
 		var unionOfKeys map[string]bool = make(map[string]bool)
 		for key := range objectOld {
 			unionOfKeys[key] = true
@@ -194,7 +264,6 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error)
 		for key := range objectNew {
 			unionOfKeys[key] = true
 		}
-
 		for key := range unionOfKeys {
 			valOld := objectOld[key]
 			valNew := objectNew[key]
@@ -204,11 +273,18 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error)
 					return false, nil
 				}
 			case "type":
-				if !bigQueryTableTypeEq(valOld, valNew) {
+				if valOld == nil || valNew == nil {
+					// This is invalid, so it shouldn't require a ForceNew
+					return true, nil
+				}
+				if !bigQueryTableTypeEq(valOld.(string), valNew.(string)) {
 					return false, nil
 				}
 			case "mode":
-				if bigQueryTableModeIsForceNew(valOld, valNew) {
+				if bigQueryTableModeIsForceNew(
+					bigQueryTableNormalizeMode(valOld),
+					bigQueryTableNormalizeMode(valNew),
+				) {
 					return false, nil
 				}
 			case "fields":
@@ -352,7 +428,7 @@ func resourceBigQueryTable() *schema.Resource {
 							Required:    true,
 							Description: `The data format. Supported values are: "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET", "ORC" and "DATASTORE_BACKUP". To use "GOOGLE_SHEETS" the scopes must include "googleapis.com/auth/drive.readonly".`,
 							ValidateFunc: validation.StringInSlice([]string{
-								"CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "DATASTORE_BACKUP", "PARQUET", "ORC",
+								"CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "DATASTORE_BACKUP", "PARQUET", "ORC", "BIGTABLE",
 							}, false),
 						},
 						// SourceURIs [Required] The fully-qualified URIs that point to your data in Google Cloud.
@@ -496,6 +572,14 @@ func resourceBigQueryTable() *schema.Resource {
 										Optional:    true,
 										Description: `When set, what mode of hive partitioning to use when reading data.`,
 									},
+									// RequirePartitionFilter: [Optional] If set to true, queries over this table
+									// require a partition filter that can be used for partition elimination to be
+									// specified.
+									"require_partition_filter": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If set to true, queries over this table require a partition filter that can be used for partition elimination to be specified.`,
+									},
 									// SourceUriPrefix: [Optional] [Experimental] When hive partition detection is requested, a common for all source uris must be required.
 									// The prefix must end immediately before the partition key encoding begins.
 									"source_uri_prefix": {
@@ -524,6 +608,16 @@ func resourceBigQueryTable() *schema.Resource {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: `The maximum number of bad records that BigQuery can ignore when reading data.`,
+						},
+						// ConnectionId: [Optional] The connection specifying the credentials
+						// to be used to read external storage, such as Azure Blob,
+						// Cloud Storage, or S3. The connectionId can have the form
+						// "{{project}}.{{location}}.{{connection_id}}" or
+						// "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".
+						"connection_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connectionId can have the form "{{project}}.{{location}}.{{connection_id}}" or "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".`,
 						},
 					},
 				},
@@ -624,6 +718,7 @@ func resourceBigQueryTable() *schema.Resource {
 						"query": {
 							Type:        schema.TypeString,
 							Required:    true,
+							ForceNew:    true,
 							Description: `A query whose result is persisted.`,
 						},
 					},
@@ -754,6 +849,11 @@ func resourceBigQueryTable() *schema.Resource {
 							Required:    true,
 							Description: `The self link or full name of a key which should be used to encrypt this table. Note that the default bigquery service account will need to have encrypt/decrypt permissions on this key - you may want to see the google_bigquery_default_service_account datasource and the google_kms_crypto_key_iam_binding resource.`,
 						},
+						"kms_key_version": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The self link or full name of the kms key version used to encrypt this table.`,
+						},
 					},
 				},
 			},
@@ -830,6 +930,13 @@ func resourceBigQueryTable() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Describes the table type.`,
+			},
+
+			"deletion_protection": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -947,15 +1054,40 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	datasetID := d.Get("dataset_id").(string)
 
-	log.Printf("[INFO] Creating BigQuery table: %s", table.TableReference.TableId)
+	if table.View != nil && table.Schema != nil {
 
-	res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
-	if err != nil {
-		return err
+		log.Printf("[INFO] Removing schema from table definition because big query does not support setting schema on view creation")
+		schemaBack := table.Schema
+		table.Schema = nil
+
+		log.Printf("[INFO] Creating BigQuery table: %s without schema", table.TableReference.TableId)
+
+		res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] BigQuery table %s has been created", res.Id)
+		d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
+
+		table.Schema = schemaBack
+		log.Printf("[INFO] Updating BigQuery table: %s with schema", table.TableReference.TableId)
+		if _, err = config.NewBigQueryClient(userAgent).Tables.Update(project, datasetID, res.TableReference.TableId, table).Do(); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] BigQuery table %s has been update with schema", res.Id)
+	} else {
+		log.Printf("[INFO] Creating BigQuery table: %s", table.TableReference.TableId)
+
+		res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] BigQuery table %s has been created", res.Id)
+		d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
 	}
-
-	log.Printf("[INFO] BigQuery table %s has been created", res.Id)
-	d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
 
 	return resourceBigQueryTableRead(d, meta)
 }
@@ -1141,6 +1273,9 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
+	}
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -1209,6 +1344,9 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	if v, ok := raw["source_format"]; ok {
 		edc.SourceFormat = v.(string)
 	}
+	if v, ok := raw["connection_id"]; ok {
+		edc.ConnectionId = v.(string)
+	}
 
 	return edc, nil
 
@@ -1245,6 +1383,10 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.SourceFormat != "" {
 		result["source_format"] = edc.SourceFormat
+	}
+
+	if edc.ConnectionId != "" {
+		result["connection_id"] = edc.ConnectionId
 	}
 
 	return []map[string]interface{}{result}, nil
@@ -1362,6 +1504,10 @@ func expandHivePartitioningOptions(configured interface{}) *bigquery.HivePartiti
 		opts.Mode = v.(string)
 	}
 
+	if v, ok := raw["require_partition_filter"]; ok {
+		opts.RequirePartitionFilter = v.(bool)
+	}
+
 	if v, ok := raw["source_uri_prefix"]; ok {
 		opts.SourceUriPrefix = v.(string)
 	}
@@ -1374,6 +1520,10 @@ func flattenHivePartitioningOptions(opts *bigquery.HivePartitioningOptions) []ma
 
 	if opts.Mode != "" {
 		result["mode"] = opts.Mode
+	}
+
+	if opts.RequirePartitionFilter {
+		result["require_partition_filter"] = opts.RequirePartitionFilter
 	}
 
 	if opts.SourceUriPrefix != "" {
@@ -1459,7 +1609,20 @@ func expandRangePartitioning(configured interface{}) (*bigquery.RangePartitionin
 }
 
 func flattenEncryptionConfiguration(ec *bigquery.EncryptionConfiguration) []map[string]interface{} {
-	return []map[string]interface{}{{"kms_key_name": ec.KmsKeyName}}
+	re := regexp.MustCompile(`(projects/.*/locations/.*/keyRings/.*/cryptoKeys/.*)/cryptoKeyVersions/.*`)
+	paths := re.FindStringSubmatch(ec.KmsKeyName)
+
+	if len(paths) > 0 {
+		return []map[string]interface{}{
+			{
+				"kms_key_name":    paths[1],
+				"kms_key_version": ec.KmsKeyName,
+			},
+		}
+	}
+
+	//	The key name was returned, no need to set the version
+	return []map[string]interface{}{{"kms_key_name": ec.KmsKeyName, "kms_key_version": ""}}
 }
 
 func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interface{} {
@@ -1547,6 +1710,11 @@ func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 		"(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
+	}
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
 	}
 
 	// Replace import id for the resource id

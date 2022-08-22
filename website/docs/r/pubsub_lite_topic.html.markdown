@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-layout: "google"
 page_title: "Google: google_pubsub_lite_topic"
-sidebar_current: "docs-google-pubsub-lite-topic"
 description: |-
   A named resource to which messages are sent by publishers.
 ---
@@ -27,9 +25,9 @@ A named resource to which messages are sent by publishers.
 
 To get more information about Topic, see:
 
-* [API documentation](https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics)
+* [API documentation](https://cloud.google.com/pubsub/lite/docs/reference/rest/v1/admin.projects.locations.topics)
 * How-to Guides
-    * [Managing Topics](https://cloud.google.com/pubsub/docs/admin#managing_topics)
+    * [Managing Topics](https://cloud.google.com/pubsub/lite/docs/topics)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_lite_topic_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -40,6 +38,12 @@ To get more information about Topic, see:
 
 
 ```hcl
+resource "google_pubsub_lite_reservation" "example" {
+  name = "example-reservation"
+  project = data.google_project.project.number
+  throughput_capacity = 2
+}
+
 resource "google_pubsub_lite_topic" "example" {
   name = "example-topic"
   project = data.google_project.project.number
@@ -54,6 +58,10 @@ resource "google_pubsub_lite_topic" "example" {
 
   retention_config {
     per_partition_bytes = 32212254720
+  }
+
+  reservation_config {
+    throughput_reservation = google_pubsub_lite_reservation.example.name
   }
 }
 
@@ -77,12 +85,17 @@ The following arguments are supported:
 * `partition_config` -
   (Optional)
   The settings for this topic's partitions.
-  Structure is documented below.
+  Structure is [documented below](#nested_partition_config).
 
 * `retention_config` -
   (Optional)
   The settings for a topic's message retention.
-  Structure is documented below.
+  Structure is [documented below](#nested_retention_config).
+
+* `reservation_config` -
+  (Optional)
+  The settings for this topic's Reservation usage.
+  Structure is [documented below](#nested_reservation_config).
 
 * `region` -
   (Optional)
@@ -96,7 +109,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `partition_config` block supports:
+<a name="nested_partition_config"></a>The `partition_config` block supports:
 
 * `count` -
   (Required)
@@ -105,10 +118,10 @@ The `partition_config` block supports:
 * `capacity` -
   (Optional)
   The capacity configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_capacity).
 
 
-The `capacity` block supports:
+<a name="nested_capacity"></a>The `capacity` block supports:
 
 * `publish_mib_per_sec` -
   (Required)
@@ -118,7 +131,7 @@ The `capacity` block supports:
   (Required)
   Publish throughput capacity per partition in MiB/s. Must be >= 4 and <= 16.
 
-The `retention_config` block supports:
+<a name="nested_retention_config"></a>The `retention_config` block supports:
 
 * `per_partition_bytes` -
   (Required)
@@ -129,7 +142,15 @@ The `retention_config` block supports:
 * `period` -
   (Optional)
   How long a published message is retained. If unset, messages will be retained as
-  long as the bytes retained for each partition is below perPartitionBytes.
+  long as the bytes retained for each partition is below perPartitionBytes. A
+  duration in seconds with up to nine fractional digits, terminated by 's'.
+  Example: "3.5s".
+
+<a name="nested_reservation_config"></a>The `reservation_config` block supports:
+
+* `throughput_reservation` -
+  (Optional)
+  The Reservation to use for this topic's throughput capacity.
 
 ## Attributes Reference
 
@@ -143,9 +164,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

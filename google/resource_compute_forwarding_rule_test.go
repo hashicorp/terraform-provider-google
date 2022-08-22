@@ -44,6 +44,8 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 	addrName := fmt.Sprintf("tf-%s", randString(t, 10))
 	poolName := fmt.Sprintf("tf-%s", randString(t, 10))
 	ruleName := fmt.Sprintf("tf-%s", randString(t, 10))
+	addressRefFieldRaw := "address"
+	addressRefFieldID := "id"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -51,7 +53,16 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName),
+				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName, addressRefFieldID),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ip_address"}, // ignore ip_address because we've specified it by ID
+			},
+			{
+				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName, addressRefFieldRaw),
 			},
 			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
@@ -128,7 +139,7 @@ resource "google_compute_forwarding_rule" "foobar" {
 `, poolName, poolName, ruleName)
 }
 
-func testAccComputeForwardingRule_ip(addrName, poolName, ruleName string) string {
+func testAccComputeForwardingRule_ip(addrName, poolName, ruleName, addressRefFieldValue string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "foo" {
   name = "%s"
@@ -142,13 +153,13 @@ resource "google_compute_target_pool" "foobar-tp" {
 
 resource "google_compute_forwarding_rule" "foobar" {
   description = "Resource created for Terraform acceptance testing"
-  ip_address  = google_compute_address.foo.address
+  ip_address  = google_compute_address.foo.%s
   ip_protocol = "TCP"
   name        = "%s"
   port_range  = "80-81"
   target      = google_compute_target_pool.foobar-tp.self_link
 }
-`, addrName, poolName, ruleName)
+`, addrName, poolName, addressRefFieldValue, ruleName)
 }
 
 func testAccComputeForwardingRule_networkTier(poolName, ruleName string) string {

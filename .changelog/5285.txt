@@ -1,0 +1,3 @@
+```release-note:deprecation
+compute: deprecated the `enable_display` field in `google_compute_instance_template` in the `google` (GA) provider. It will only be available in the `google-beta` provider in a future release, as the underlying feature is in beta.
+```

@@ -20,7 +20,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlUser_mysql(instance, "password"),
+				Config: testGoogleSqlUser_mysql(instance, "password", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
@@ -28,7 +28,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 			},
 			{
 				// Update password
-				Config: testGoogleSqlUser_mysql(instance, "new_password"),
+				Config: testGoogleSqlUser_mysql(instance, "new_password", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
@@ -40,6 +40,67 @@ func TestAccSqlUser_mysql(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
+func TestAccSqlUser_mysqlDisabled(t *testing.T) {
+	t.Parallel()
+
+	instance := fmt.Sprintf("i-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_mysql(instance, "password", true),
+			},
+			{
+				ResourceName:            "google_sql_user.user1",
+				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+			{
+				// Update password
+				Config: testGoogleSqlUser_mysql(instance, "password", false),
+			},
+			{
+				ResourceName:            "google_sql_user.user1",
+				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
+func TestAccSqlUser_iamUser(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
+	t.Parallel()
+
+	instance := fmt.Sprintf("i-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_iamUser(instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
+				),
+			},
+			{
+				ResourceName:      "google_sql_user.user1",
+				ImportStateId:     fmt.Sprintf("%s/%s/%%/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), instance, instance, getTestProjectFromEnv()),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -201,6 +262,10 @@ func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error 
 			users, err := config.NewSqlAdminClient(config.userAgent).Users.List(config.Project,
 				instance).Do()
 
+			if users == nil {
+				return nil
+			}
+
 			for _, user := range users.Items {
 				if user.Name == name && user.Host == host {
 					return fmt.Errorf("User still %s exists %s", name, err)
@@ -214,11 +279,12 @@ func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error 
 	}
 }
 
-func testGoogleSqlUser_mysql(instance, password string) string {
+func testGoogleSqlUser_mysql(instance, password string, disabled bool) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -230,6 +296,10 @@ resource "google_sql_user" "user1" {
   instance = google_sql_database_instance.instance.name
   host     = "google.com"
   password = "%s"
+  sql_server_user_details {
+    disabled = "%t"
+    server_roles = [ "admin" ]  	
+  }
 }
 
 resource "google_sql_user" "user2" {
@@ -238,7 +308,7 @@ resource "google_sql_user" "user2" {
   host     = "gmail.com"
   password = "hunter2"
 }
-`, instance, password)
+`, instance, password, disabled)
 }
 
 func testGoogleSqlUser_postgres(instance, password string) string {
@@ -322,4 +392,65 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, instance)
+}
+
+func testGoogleSqlUser_iamUser(instance string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  database_version = "MYSQL_8_0"
+  name             = "%s"
+  region           = "us-central1"
+
+  settings {
+    tier              = "db-f1-micro"
+    availability_type = "REGIONAL"
+
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+
+  deletion_protection = false
+}
+
+resource "google_sql_database" "db" {
+  name     = "%s"
+  instance = google_sql_database_instance.instance.name
+}
+
+resource "google_service_account" "sa" {
+  account_id   = "%s"
+  display_name = "%s"
+}
+
+resource "google_service_account_key" "sa_key" {
+  service_account_id = google_service_account.sa.email
+}
+
+resource "google_sql_user" "user1" {
+  name     = google_service_account.sa.email
+  instance = google_sql_database_instance.instance.name
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+}
+
+resource "google_project_iam_member" "instance_user" {
+  project = data.google_project.project.project_id
+  role    = "roles/cloudsql.instanceUser"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_project_iam_member" "sa_user" {
+  project = data.google_project.project.project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+`, instance, instance, instance, instance)
 }

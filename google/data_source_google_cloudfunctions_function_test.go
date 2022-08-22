@@ -37,7 +37,8 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 func testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName, bucketName, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {

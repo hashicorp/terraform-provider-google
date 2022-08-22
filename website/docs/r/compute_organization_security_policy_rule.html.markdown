@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_organization_security_policy_rule"
-sidebar_current: "docs-google-compute-organization-security-policy-rule"
 description: |-
   A rule for the OrganizationSecurityPolicy.
 ---
@@ -33,18 +31,12 @@ To get more information about OrganizationSecurityPolicyRule, see:
 * How-to Guides
     * [Creating firewall rules](https://cloud.google.com/vpc/docs/using-firewall-policies#create-rules)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=organization_security_policy_rule_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Organization Security Policy Rule Basic
 
 
 ```hcl
 resource "google_compute_organization_security_policy" "policy" {
   provider = google-beta
-
   display_name = "tf-test%{random_suffix}"
   parent       = "organizations/123456789"
 }
@@ -87,7 +79,7 @@ The following arguments are supported:
 * `match` -
   (Required)
   A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.
-  Structure is documented below.
+  Structure is [documented below](#nested_match).
 
 * `action` -
   (Required)
@@ -99,7 +91,7 @@ The following arguments are supported:
   The ID of the OrganizationSecurityPolicy this rule applies to.
 
 
-The `match` block supports:
+<a name="nested_match"></a>The `match` block supports:
 
 * `description` -
   (Optional)
@@ -115,10 +107,10 @@ The `match` block supports:
 * `config` -
   (Required)
   The configuration options for matching the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_config).
 
 
-The `config` block supports:
+<a name="nested_config"></a>The `config` block supports:
 
 * `src_ip_ranges` -
   (Optional)
@@ -133,10 +125,10 @@ The `config` block supports:
 * `layer4_config` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
-  Structure is documented below.
+  Structure is [documented below](#nested_layer4_config).
 
 
-The `layer4_config` block supports:
+<a name="nested_layer4_config"></a>The `layer4_config` block supports:
 
 * `ip_protocol` -
   (Required)
@@ -202,9 +194,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
@@ -213,5 +205,4 @@ OrganizationSecurityPolicyRule can be imported using any of these accepted forma
 
 ```
 $ terraform import google_compute_organization_security_policy_rule.default {{policy_id}}/priority/{{priority}}
-$ terraform import google_compute_organization_security_policy_rule.default {{policy_id}}/{{priority}}
 ```

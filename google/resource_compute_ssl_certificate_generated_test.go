@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -32,11 +32,8 @@ func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -80,6 +77,7 @@ func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing
 		Providers: testAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
+			"time":   {},
 		},
 		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -133,11 +131,8 @@ func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *tes
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeManagedSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -138,6 +135,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 		Providers: testAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
+			"time":   {},
 		},
 		CheckDestroy: testAccCheckComputeManagedSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -165,7 +163,7 @@ resource "google_compute_target_https_proxy" "default" {
 }
 
 locals {
-  managed_domains = list("test.example.com")
+  managed_domains = tolist(["test.example.com"])
 }
 
 resource "random_id" "certificate" {

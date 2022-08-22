@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-layout: "google"
 page_title: "Google: google_compute_address"
-sidebar_current: "docs-google-compute-address"
 description: |-
   Represents an Address resource.
 ---
@@ -114,7 +112,7 @@ resource "google_compute_address" "static" {
 }
 
 data "google_compute_image" "debian_image" {
-  family  = "debian-9"
+  family  = "debian-11"
   project = "debian-cloud"
 }
 
@@ -135,6 +133,29 @@ resource "google_compute_instance" "instance_with_ip" {
       nat_ip = google_compute_address.static.address
     }
   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_address_ipsec_interconnect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Address Ipsec Interconnect
+
+
+```hcl
+resource "google_compute_address" "ipsec-interconnect-address" {
+  name          = "test-address"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.1.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_compute_network" "network" {
+  name                    = "test-network"
+  auto_create_subnetworks = false
 }
 ```
 
@@ -161,7 +182,7 @@ The following arguments are supported:
   The static external IP address represented by this resource. Only
   IPv4 is supported. An address may only be specified for INTERNAL
   address types. The IP address must be inside the specified subnetwork,
-  if any.
+  if any. Set by the API if undefined.
 
 * `address_type` -
   (Optional)
@@ -176,11 +197,18 @@ The following arguments are supported:
 * `purpose` -
   (Optional)
   The purpose of this resource, which can be one of the following values:
-  * GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
-  * SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
+  * GCE_ENDPOINT for addresses that are used by VM instances, alias IP
+    ranges, internal load balancers, and similar resources.
+  * SHARED_LOADBALANCER_VIP for an address that can be used by multiple
+    internal load balancers.
   * VPC_PEERING for addresses that are reserved for VPC peer networks.
+  * IPSEC_INTERCONNECT for addresses created from a private IP range
+    that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
+    Interconnect configuration. These addresses are regional resources.
+  * PRIVATE_SERVICE_CONNECT for a private network address that is used
+  to configure Private Service Connect. Only global internal addresses
+  can use this purpose.
   This should only be set when using an Internal address.
-  Possible values are `GCE_ENDPOINT`, `VPC_PEERING`, and `SHARED_LOADBALANCER_VIP`.
 
 * `network_tier` -
   (Optional)
@@ -198,6 +226,16 @@ The following arguments are supported:
 * `labels` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Labels to apply to this address.  A list of key->value pairs.
+
+* `network` -
+  (Optional)
+  The URL of the network in which to reserve the address. This field
+  can only be used with INTERNAL type with the VPC_PEERING and
+  IPSEC_INTERCONNECT purposes.
+
+* `prefix_length` -
+  (Optional)
+  The prefix length if the resource represents an IP range.
 
 * `region` -
   (Optional)
@@ -221,6 +259,7 @@ In addition to the arguments listed above, the following computed attributes are
   The URLs of the resources that are using this address.
 
 * `label_fingerprint` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 * `self_link` - The URI of the created resource.
@@ -231,9 +270,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -45,7 +42,7 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_node_group.nodes",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_template", "zone"},
+				ImportStateVerifyIgnore: []string{"node_template", "initial_size", "zone"},
 			},
 		},
 	})
@@ -61,7 +58,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "tf-test-soletenant-group%{random_suffix}"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
   size          = 1
@@ -78,11 +75,8 @@ func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -92,7 +86,7 @@ func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
 				ResourceName:            "google_compute_node_group.nodes",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_template", "zone"},
+				ImportStateVerifyIgnore: []string{"node_template", "initial_size", "zone"},
 			},
 		},
 	})
@@ -108,10 +102,13 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "tf-test-soletenant-group%{random_suffix}"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
   maintenance_policy = "RESTART_IN_PLACE"
-  size          = 1
+  maintenance_window {
+    start_time = "08:00"
+  }
+  initial_size  = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
     mode      = "ONLY_SCALE_OUT"

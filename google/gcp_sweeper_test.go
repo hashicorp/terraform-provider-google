@@ -12,6 +12,12 @@ import (
 var testResourcePrefixes = []string{
 	"tf-test",
 	"tfgen",
+	"gke-us-central1-tf",  // composer-created disks which are abandoned by design (https://cloud.google.com/composer/pricing)
+	"gcs-bucket-tf-test-", // https://github.com/hashicorp/terraform-provider-google/issues/8909
+	"df-",                 // https://github.com/hashicorp/terraform-provider-google/issues/8909
+	"resourcegroup-",      // https://github.com/hashicorp/terraform-provider-google/issues/8924
+	"cluster-",            // https://github.com/hashicorp/terraform-provider-google/issues/8924
+	"k8s-fw-",             // firewall rules are getting created and not cleaned up by k8 resources using this prefix
 }
 
 func TestMain(m *testing.M) {
@@ -26,13 +32,12 @@ func sharedConfigForRegion(region string) (*Config, error) {
 		return nil, fmt.Errorf("set project using any of these env variables %v", projectEnvVars)
 	}
 
-	creds := getTestCredsFromEnv()
-	if creds == "" {
+	if v := multiEnvSearch(credsEnvVars); v == "" {
 		return nil, fmt.Errorf("set credentials using any of these env variables %v", credsEnvVars)
 	}
 
 	conf := &Config{
-		Credentials: creds,
+		Credentials: getTestCredsFromEnv(),
 		Region:      region,
 		Project:     project,
 	}

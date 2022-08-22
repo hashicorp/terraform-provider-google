@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -13,9 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Memcache"
-layout: "google"
 page_title: "Google: google_memcache_instance"
-sidebar_current: "docs-google-memcache-instance"
 description: |-
   A Google Cloud Memcache instance.
 ---
@@ -24,12 +22,10 @@ description: |-
 
 A Google Cloud Memcache instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Instance, see:
 
-* [API documentation](https://cloud.google.com/memorystore/docs/memcached/reference/rest)
+* [API documentation](https://cloud.google.com/memorystore/docs/memcached/reference/rest/v1/projects.locations.instances)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memcache/docs/creating-instances)
 
@@ -42,29 +38,33 @@ To get more information about Instance, see:
 
 
 ```hcl
-resource "google_compute_network" "network" {
-  provider = google-beta
-  name = "tf-test%{random_suffix}"
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Memcache instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "memcache_network" {
+  name = "test-network"
 }
 
 resource "google_compute_global_address" "service_range" {
-  provider = google-beta
-  name          = "tf-test%{random_suffix}"
+  name          = "address"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = google_compute_network.network.id
+  network       = data.google_compute_network.memcache_network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  provider = google-beta
-  network                 = google_compute_network.network.id
+  network                 = data.google_compute_network.memcache_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
 
 resource "google_memcache_instance" "instance" {
-  provider = google-beta
   name = "test-instance"
   authorized_network = google_service_networking_connection.private_service_connection.network
 
@@ -74,6 +74,19 @@ resource "google_memcache_instance" "instance" {
   }
   node_count = 1
   memcache_version = "MEMCACHE_1_5"
+
+  maintenance_policy {
+    weekly_maintenance_window {
+      day      = "SATURDAY"
+      duration = "14400s"
+      start_time {
+        hours = 0
+        minutes = 30
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
 }
 ```
 
@@ -93,10 +106,10 @@ The following arguments are supported:
 * `node_config` -
   (Required)
   Configuration for memcache nodes.
-  Structure is documented below.
+  Structure is [documented below](#nested_node_config).
 
 
-The `node_config` block supports:
+<a name="nested_node_config"></a>The `node_config` block supports:
 
 * `cpu_count` -
   (Required)
@@ -138,7 +151,12 @@ The `node_config` block supports:
 * `memcache_parameters` -
   (Optional)
   User-specified parameters for this memcache instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_memcache_parameters).
+
+* `maintenance_policy` -
+  (Optional)
+  Maintenance policy for an instance.
+  Structure is [documented below](#nested_maintenance_policy).
 
 * `region` -
   (Optional)
@@ -148,7 +166,7 @@ The `node_config` block supports:
     If it is not provided, the provider project is used.
 
 
-The `memcache_parameters` block supports:
+<a name="nested_memcache_parameters"></a>The `memcache_parameters` block supports:
 
 * `id` -
   This is a unique ID associated with this set of parameters.
@@ -156,6 +174,79 @@ The `memcache_parameters` block supports:
 * `params` -
   (Optional)
   User-defined set of parameters to use in the memcache process.
+
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `create_time` -
+  Output only. The time when the policy was created.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits
+
+* `update_time` -
+  Output only. The time when the policy was updated.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `description` -
+  (Optional)
+  Optional. Description of what this policy is for.
+  Create/Update methods return INVALID_ARGUMENT if the
+  length is greater than 512.
+
+* `weekly_maintenance_window` -
+  (Required)
+  Required. Maintenance window that is applied to resources covered by this policy.
+  Minimum 1. For the current version, the maximum number of weekly_maintenance_windows
+  is expected to be one.
+  Structure is [documented below](#nested_weekly_maintenance_window).
+
+
+<a name="nested_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+
+* `day` -
+  (Required)
+  Required. The day of week that maintenance updates occur.
+  - DAY_OF_WEEK_UNSPECIFIED: The day of the week is unspecified.
+  - MONDAY: Monday
+  - TUESDAY: Tuesday
+  - WEDNESDAY: Wednesday
+  - THURSDAY: Thursday
+  - FRIDAY: Friday
+  - SATURDAY: Saturday
+  - SUNDAY: Sunday
+  Possible values are `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+
+* `duration` -
+  (Required)
+  Required. The length of the maintenance window, ranging from 3 hours to 8 hours.
+  A duration in seconds with up to nine fractional digits,
+  terminated by 's'. Example: "3.5s".
+
+* `start_time` -
+  (Required)
+  Required. Start time of the window in UTC time.
+  Structure is [documented below](#nested_start_time).
+
+
+<a name="nested_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+  An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59.
+  An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
 ## Attributes Reference
 
@@ -165,7 +256,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `memcache_nodes` -
   Additional information about the instance state, if available.
-  Structure is documented below.
+  Structure is [documented below](#nested_memcache_nodes).
 
 * `create_time` -
   Creation timestamp in RFC3339 text format.
@@ -176,8 +267,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `memcache_full_version` -
   The full version of memcached server running on this instance.
 
+* `maintenance_schedule` -
+  Output only. Published maintenance schedule.
+  Structure is [documented below](#nested_maintenance_schedule).
 
-The `memcache_nodes` block contains:
+
+<a name="nested_memcache_nodes"></a>The `memcache_nodes` block contains:
 
 * `node_id` -
   Identifier of the Memcached node. The node id does not include project or location like the Memcached instance name.
@@ -193,6 +288,24 @@ The `memcache_nodes` block contains:
 
 * `state` -
   Current state of the Memcached node.
+
+<a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block contains:
+
+* `start_time` -
+  Output only. The start time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `end_time` -
+  Output only. The end time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `schedule_deadline_time` -
+  Output only. The deadline that the maintenance schedule start time
+  can not go beyond, including reschedule.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
 
 ## Timeouts
 

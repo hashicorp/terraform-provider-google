@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -11,6 +11,7 @@
 //     .github/CONTRIBUTING.md.
 //
 // ----------------------------------------------------------------------------
+
 package google
 
 import (
@@ -31,19 +32,12 @@ func (w *NetworkManagementOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
 	// Returns the proper get.
-	url := fmt.Sprintf("https://networkmanagement.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("%s%s", w.Config.NetworkManagementBasePath, w.CommonOperationWaiter.Op.Name)
 
 	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createNetworkManagementWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*NetworkManagementOperationWaiter, error) {
-	if val, ok := op["name"]; !ok || val == "" {
-		// An operation could also be indicated with a "metadata" field.
-		if _, ok := op["metadata"]; !ok {
-			// This was a synchronous call - there is no operation to wait for.
-			return nil, nil
-		}
-	}
 	w := &NetworkManagementOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -58,8 +52,7 @@ func createNetworkManagementWaiter(config *Config, op map[string]interface{}, pr
 // nolint: deadcode,unused
 func networkManagementOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createNetworkManagementWaiter(config, op, project, activity, userAgent)
-	if err != nil || w == nil {
-		// If w is nil, the op was synchronous.
+	if err != nil {
 		return err
 	}
 	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
@@ -69,8 +62,12 @@ func networkManagementOperationWaitTimeWithResponse(config *Config, op map[strin
 }
 
 func networkManagementOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	if val, ok := op["name"]; !ok || val == "" {
+		// This was a synchronous call - there is no operation to wait for.
+		return nil
+	}
 	w, err := createNetworkManagementWaiter(config, op, project, activity, userAgent)
-	if err != nil || w == nil {
+	if err != nil {
 		// If w is nil, the op was synchronous.
 		return err
 	}

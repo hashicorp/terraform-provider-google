@@ -1,0 +1,3 @@
+```release-note:enhancement
+spanner: increased the default timeout on `google_spanner_instance` operations from 4 minutes to 20 minutes, significantly reducing the likelihood that resources will time out
+```

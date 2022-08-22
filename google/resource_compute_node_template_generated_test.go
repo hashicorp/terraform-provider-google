@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNodeTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -57,6 +54,53 @@ resource "google_compute_node_template" "template" {
   name      = "tf-test-soletenant-tmpl%{random_suffix}"
   region    = "us-central1"
   node_type = "n1-node-96-624"
+}
+`, context)
+}
+
+func TestAccComputeNodeTemplate_nodeTemplateServerBindingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNodeTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNodeTemplate_nodeTemplateServerBindingExample(context),
+			},
+			{
+				ResourceName:            "google_compute_node_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputeNodeTemplate_nodeTemplateServerBindingExample(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_compute_node_types" "central1a" {
+  zone     = "us-central1-a"
+}
+
+resource "google_compute_node_template" "template" {
+  name      = "tf-test-soletenant-with-licenses%{random_suffix}"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+
+  node_affinity_labels = {
+    foo = "baz"
+  }
+
+  server_binding {
+    type = "RESTART_NODE_ON_MINIMAL_SERVERS"
+  }
 }
 `, context)
 }

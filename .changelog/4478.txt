@@ -1,0 +1,6 @@
+```release-note:enhancement
+* bigquery: added `deletion_protection` field to `google_bigquery_table` to make deleting them require an explicit intent.
+```
+```release-note:note
+* `google_bigquery_table` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource.
+```

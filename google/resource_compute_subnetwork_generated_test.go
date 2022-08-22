@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -31,11 +31,8 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -79,11 +76,8 @@ func TestAccComputeSubnetwork_subnetworkLoggingConfigExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -117,6 +111,99 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
 resource "google_compute_network" "custom-test" {
   name                    = "tf-test-log-test-network%{random_suffix}"
   auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeSubnetwork_subnetworkIpv6Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_subnetworkIpv6Example(context),
+			},
+			{
+				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_subnetworkIpv6Example(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_subnetwork" "subnetwork-ipv6" {
+  name          = "tf-test-ipv6-test-subnetwork%{random_suffix}"
+  
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+  
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
+
+  network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "tf-test-ipv6-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeSubnetwork_subnetworkInternalIpv6Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_subnetworkInternalIpv6Example(context),
+			},
+			{
+				ResourceName:            "google_compute_subnetwork.subnetwork-internal-ipv6",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_subnetworkInternalIpv6Example(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_subnetwork" "subnetwork-internal-ipv6" {
+  name          = "tf-test-internal-ipv6-test-subnetwork%{random_suffix}"
+  
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+  
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
+
+  network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "tf-test-internal-ipv6-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = true
 }
 `, context)
 }

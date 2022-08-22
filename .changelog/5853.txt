@@ -1,0 +1,3 @@
+```release-note:bug
+iam: fixed an issue where special identifiers `allAuthenticatedUsers` and `allUsers` were flattened to lower case in IAM members.
+```
