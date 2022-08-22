@@ -1,4 +1,20 @@
-## 4.33.0 (Unreleased)
+## 4.34.0 (Unreleased)
+
+## 4.33.0 (August 22, 2022)
+
+FEATURES:
+* **New Resource:** `google_cloudfunctions2_function` ([#12322](https://github.com/hashicorp/terraform-provider-google/pull/12322))
+
+IMPROVEMENTS:
+* container: added update support for `authenticator_groups_config` in `google_container_cluster` ([#12310](https://github.com/hashicorp/terraform-provider-google/pull/12310))
+* dataflow: added ability to import `google_dataflow_job` ([#12316](https://github.com/hashicorp/terraform-provider-google/pull/12316))
+* dns: added `managed_zone_id` attribute to `google_dns_managed_zone` data source ([#12312](https://github.com/hashicorp/terraform-provider-google/pull/12312))
+* monitoring: added `accepted_response_status_codes` to `monitoring_uptime_check` ([#12313](https://github.com/hashicorp/terraform-provider-google/pull/12313))
+* sql: added `password_validation_policy` field to `google_cloud_sql` resource ([#12320](https://github.com/hashicorp/terraform-provider-google/pull/12320))
+
+BUG FIXES:
+* bigquery: removed force replacement for `display_name` on `google_bigquery_data_transfer_config` ([#12311](https://github.com/hashicorp/terraform-provider-google/pull/12311))
+* compute: fixed permadiff for `instance_termination_action` in `google_compute_instance_template` ([#12309](https://github.com/hashicorp/terraform-provider-google/pull/12309))
 
 ## 4.32.0 (August 15, 2022)
 
