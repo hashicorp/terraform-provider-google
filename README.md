@@ -27,7 +27,7 @@ Using the provider
 See the [Google Provider documentation](https://www.terraform.io/docs/providers/google/index.html) to get started using the
 Google provider.
 
-We also maintain the 'google-beta' provider for preview features and features at a beta [launch stage](https://cloud.google.com/products#product-launch-stages). See [Provider Versions](https://www.terraform.io/docs/providers/google/provider_versions.html)
+We also maintain the 'google-beta' provider for preview features and features at a beta [launch stage](https://cloud.google.com/products#product-launch-stages). See [Provider Versions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_versions)
 for more details on how to use `google-beta`.
 
 Upgrading the provider
