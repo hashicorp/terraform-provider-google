@@ -349,7 +349,7 @@ The optional `settings.insights_config` subblock for instances declares [Query I
 
 * `record_client_address` - True if Query Insights will record client address when enabled.
 
-The optional `settings.passward_validation_policy` subblock for instances declares [Password Validation Policy](https://cloud.google.com/sql/docs/postgres/built-in-authentication) configuration. It contains:
+The optional `settings.password_validation_policy` subblock for instances declares [Password Validation Policy](https://cloud.google.com/sql/docs/postgres/built-in-authentication) configuration. It contains:
 
 * `min_length` - Specifies the minimum number of characters that the password must have.
 
