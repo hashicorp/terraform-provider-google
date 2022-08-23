@@ -75,10 +75,9 @@ func resourceDataplexAsset() *schema.Resource {
 			},
 
 			"name": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "The name of the asset.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the asset.",
 			},
 
 			"resource_spec": {
@@ -177,6 +176,7 @@ func DataplexAssetDiscoverySpecSchema() *schema.Resource {
 
 			"csv_options": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: "Optional. Configuration for CSV data.",
 				MaxItems:    1,
@@ -199,6 +199,7 @@ func DataplexAssetDiscoverySpecSchema() *schema.Resource {
 
 			"json_options": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: "Optional. Configuration for Json data.",
 				MaxItems:    1,
@@ -712,11 +713,11 @@ func flattenDataplexAssetDiscoverySpec(obj *dataplex.AssetDiscoverySpec) interfa
 
 func expandDataplexAssetDiscoverySpecCsvOptions(o interface{}) *dataplex.AssetDiscoverySpecCsvOptions {
 	if o == nil {
-		return dataplex.EmptyAssetDiscoverySpecCsvOptions
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 || objArr[0] == nil {
-		return dataplex.EmptyAssetDiscoverySpecCsvOptions
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataplex.AssetDiscoverySpecCsvOptions{
@@ -744,11 +745,11 @@ func flattenDataplexAssetDiscoverySpecCsvOptions(obj *dataplex.AssetDiscoverySpe
 
 func expandDataplexAssetDiscoverySpecJsonOptions(o interface{}) *dataplex.AssetDiscoverySpecJsonOptions {
 	if o == nil {
-		return dataplex.EmptyAssetDiscoverySpecJsonOptions
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 || objArr[0] == nil {
-		return dataplex.EmptyAssetDiscoverySpecJsonOptions
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataplex.AssetDiscoverySpecJsonOptions{

@@ -163,6 +163,7 @@ func DataplexZoneDiscoverySpecSchema() *schema.Resource {
 
 			"csv_options": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: "Optional. Configuration for CSV data.",
 				MaxItems:    1,
@@ -185,6 +186,7 @@ func DataplexZoneDiscoverySpecSchema() *schema.Resource {
 
 			"json_options": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: "Optional. Configuration for Json data.",
 				MaxItems:    1,
@@ -589,11 +591,11 @@ func flattenDataplexZoneDiscoverySpec(obj *dataplex.ZoneDiscoverySpec) interface
 
 func expandDataplexZoneDiscoverySpecCsvOptions(o interface{}) *dataplex.ZoneDiscoverySpecCsvOptions {
 	if o == nil {
-		return dataplex.EmptyZoneDiscoverySpecCsvOptions
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 || objArr[0] == nil {
-		return dataplex.EmptyZoneDiscoverySpecCsvOptions
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataplex.ZoneDiscoverySpecCsvOptions{
@@ -621,11 +623,11 @@ func flattenDataplexZoneDiscoverySpecCsvOptions(obj *dataplex.ZoneDiscoverySpecC
 
 func expandDataplexZoneDiscoverySpecJsonOptions(o interface{}) *dataplex.ZoneDiscoverySpecJsonOptions {
 	if o == nil {
-		return dataplex.EmptyZoneDiscoverySpecJsonOptions
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 || objArr[0] == nil {
-		return dataplex.EmptyZoneDiscoverySpecJsonOptions
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataplex.ZoneDiscoverySpecJsonOptions{
