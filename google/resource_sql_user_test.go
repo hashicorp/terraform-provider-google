@@ -307,6 +307,7 @@ resource "google_sql_user" "user2" {
   instance = google_sql_database_instance.instance.name
   host     = "gmail.com"
   password = "hunter2"
+  depends_on = [google_sql_user.user1]
 }
 `, instance, password, disabled)
 }
