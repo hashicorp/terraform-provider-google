@@ -761,6 +761,8 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(t *testi
 }
 
 func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeReplica(t *testing.T) {
+	// Service Networking
+	skipIfVcr(t)
 	t.Parallel()
 
 	databaseName := "tf-test-" + randString(t, 10)
@@ -792,6 +794,8 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeReplica(t
 }
 
 func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone(t *testing.T) {
+	// Service Networking
+	skipIfVcr(t)
 	t.Parallel()
 
 	databaseName := "tf-test-" + randString(t, 10)
