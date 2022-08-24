@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed comparing column family name when reading a GC policy.
+```

@@ -246,6 +246,7 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	defer c.Close()
 
 	name := d.Get("table").(string)
+	columnFamily := d.Get("column_family").(string)
 	ti, err := c.TableInfo(ctx, name)
 	if err != nil {
 		log.Printf("[WARN] Removing %s because it's gone", name)
@@ -254,7 +255,7 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	for _, fi := range ti.FamilyInfos {
-		if fi.Name == name {
+		if fi.Name == columnFamily {
 			d.SetId(fi.GCPolicy)
 			break
 		}
