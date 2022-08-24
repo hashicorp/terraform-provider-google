@@ -88,6 +88,17 @@ func caseDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	return strings.ToUpper(old) == strings.ToUpper(new)
 }
 
+// The core logic is to split on a reguar expression provided as an arugment to the function for both old and new value
+// Then convert the arrays back to strings with join back on a space to then set to upper case and compare to see if equal
+func caseDiffWithMultiDelimitSuppress(delimit string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		expr := regexp.MustCompile(delimit)
+		postSplitOld := strings.Join(expr.Split(old, -1), " ")
+		postSplitNew := strings.Join(expr.Split(new, -1), " ")
+		return strings.ToUpper(postSplitOld) == strings.ToUpper(postSplitNew)
+	}
+}
+
 // Port range '80' and '80-80' is equivalent.
 // `old` is read from the server and always has the full range format (e.g. '80-80', '1024-2048').
 // `new` can be either a single port or a port range.
