@@ -266,7 +266,7 @@ func googleProviderConfig(t *testing.T) *Config {
 	return testAccProvider.Meta().(*Config)
 }
 
-func getTestAccProviders(testName string) map[string]*schema.Provider {
+func getTestAccProviders(testName string, c resource.TestCase) map[string]*schema.Provider {
 	prov := Provider()
 	if isVcrEnabled() {
 		old := prov.ConfigureContextFunc
@@ -276,9 +276,15 @@ func getTestAccProviders(testName string) map[string]*schema.Provider {
 	} else {
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
 	}
+	var testProvider string
+	providerMapKeys := reflect.ValueOf(c.Providers).MapKeys()
+	if strings.Contains(providerMapKeys[0].String(), "google-beta") {
+		testProvider = "google-beta"
+	} else {
+		testProvider = "google"
+	}
 	return map[string]*schema.Provider{
-		"google":      prov,
-		"google-beta": prov,
+		testProvider: prov,
 	}
 }
 
@@ -292,7 +298,7 @@ func isVcrEnabled() bool {
 // Can be called when VCR is not enabled, and it will behave as normal
 func vcrTest(t *testing.T, c resource.TestCase) {
 	if isVcrEnabled() {
-		providers := getTestAccProviders(t.Name())
+		providers := getTestAccProviders(t.Name(), c)
 		c.Providers = providers
 		defer closeRecorder(t)
 	} else if isReleaseDiffEnabled() {
