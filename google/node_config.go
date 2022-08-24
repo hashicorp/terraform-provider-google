@@ -188,7 +188,39 @@ func schemaNodeConfig() *schema.Schema {
 					Default:     false,
 					Description: `Whether the nodes are created as preemptible VM instances.`,
 				},
-
+				"reservation_affinity": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `The reservation affinity configuration for the node pool.`,
+					ForceNew:    true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"consume_reservation_type": {
+								Type:         schema.TypeString,
+								Required:     true,
+								ForceNew:     true,
+								Description:  `Corresponds to the type of reservation consumption.`,
+								ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"}, false),
+							},
+							"key": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								ForceNew:    true,
+								Description: `The label key of a reservation resource.`,
+							},
+							"values": {
+								Type:        schema.TypeSet,
+								Description: "The label values of the reservation resource.",
+								ForceNew:    true,
+								Optional:    true,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+						},
+					},
+				},
 				"spot": {
 					Type:        schema.TypeBool,
 					Optional:    true,
@@ -369,6 +401,21 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		}
 	}
 
+	if v, ok := nodeConfig["reservation_affinity"]; ok && len(v.([]interface{})) > 0 {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		valuesSet := conf["values"].(*schema.Set)
+		values := make([]string, valuesSet.Len())
+		for i, value := range valuesSet.List() {
+			values[i] = value.(string)
+		}
+
+		nc.ReservationAffinity = &container.ReservationAffinity{
+			ConsumeReservationType: conf["consume_reservation_type"].(string),
+			Key:                    conf["key"].(string),
+			Values:                 values,
+		}
+	}
+
 	if scopes, ok := nodeConfig["oauth_scopes"]; ok {
 		scopesSet := scopes.(*schema.Set)
 		scopes := make([]string, scopesSet.Len())
@@ -496,6 +543,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"local_ssd_count":          c.LocalSsdCount,
 		"gcfs_config":              flattenGcfsConfig(c.GcfsConfig),
 		"gvnic":                    flattenGvnic(c.Gvnic),
+		"reservation_affinity":     flattenGKEReservationAffinity(c.ReservationAffinity),
 		"service_account":          c.ServiceAccount,
 		"metadata":                 c.Metadata,
 		"image_type":               c.ImageType,
@@ -556,6 +604,18 @@ func flattenGvnic(c *container.VirtualNIC) []map[string]interface{} {
 	if c != nil {
 		result = append(result, map[string]interface{}{
 			"enabled": c.Enabled,
+		})
+	}
+	return result
+}
+
+func flattenGKEReservationAffinity(c *container.ReservationAffinity) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"consume_reservation_type": c.ConsumeReservationType,
+			"key":                      c.Key,
+			"values":                   c.Values,
 		})
 	}
 	return result
