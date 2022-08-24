@@ -747,6 +747,8 @@ gvnic {
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.
 
+* `reservation_affinity` (Optional) The configuration of the desired reservation which instances could take capacity from. Structure is [documented below](#nested_reservation_affinity).
+
 * `spot` - (Optional) A boolean that represents whether the underlying node VMs are spot.
     See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms)
     for more information. Defaults to false.
@@ -926,6 +928,19 @@ recommended that you omit the block entirely if the field is not set to `true`.
 
 * `enabled` (Optional) - Whether the cluster master is accessible globally or
 not.
+
+<a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
+
+* `consume_reservation_type` (Required) The type of reservation consumption
+    Accepted values are:
+
+    * `"UNSPECIFIED"`: Default value. This should not be used.
+    * `"NO_RESERVATION"`: Do not consume from any reserved capacity.
+    * `"ANY_RESERVATION"`: Consume any reservation available.
+    * `"SPECIFIC_RESERVATION"`: Must consume from a specific reservation. Must specify key value fields for specifying the reservations.
+* `key` (Optional) The label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify "compute.googleapis.com/reservation-name" as the key and specify the name of your reservation as its value.
+* `values` (Optional) The list of label values of reservation resources. For example: the name of the specific reservation when using a key of "compute.googleapis.com/reservation-name"
+
 
 <a name="nested_sandbox_config"></a>The `sandbox_config` block supports:
 

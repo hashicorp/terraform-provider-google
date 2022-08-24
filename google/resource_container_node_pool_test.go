@@ -189,6 +189,71 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withReservationAffinity(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withReservationAffinity(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.0.consume_reservation_type", "ANY_RESERVATION"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_reservation_affinity",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withReservationAffinitySpecific(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	reservation := fmt.Sprintf("tf-test-reservation-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withReservationAffinitySpecific(cluster, reservation, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.0.consume_reservation_type", "SPECIFIC_RESERVATION"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.0.key", "compute.googleapis.com/reservation-name"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.0.values.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.0.values.0", reservation),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_reservation_affinity",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 	t.Parallel()
 
@@ -1222,6 +1287,88 @@ resource "google_container_node_pool" "np_with_node_config" {
   }
 }
 `, cluster, nodePool)
+}
+
+func testAccContainerNodePool_withReservationAffinity(cluster, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+}
+
+resource "google_container_node_pool" "with_reservation_affinity" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    machine_type    = "n1-standard-1"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+    reservation_affinity {
+      consume_reservation_type = "ANY_RESERVATION"
+    }
+  }
+}
+`, cluster, np)
+}
+
+func testAccContainerNodePool_withReservationAffinitySpecific(cluster, reservation, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+}
+
+resource "google_compute_reservation" "gce_reservation" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      machine_type     = "n1-standard-1"
+    }
+  }
+
+  specific_reservation_required = true
+}
+
+resource "google_container_node_pool" "with_reservation_affinity" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    machine_type    = "n1-standard-1"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+    reservation_affinity {
+      consume_reservation_type = "SPECIFIC_RESERVATION"
+      key = "compute.googleapis.com/reservation-name"
+      values = [
+        google_compute_reservation.gce_reservation.name
+      ]
+    }
+  }
+}
+`, cluster, reservation, np)
 }
 
 func testAccContainerNodePool_withWorkloadMetadataConfig(cluster, np string) string {
