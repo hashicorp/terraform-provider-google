@@ -111,6 +111,29 @@ The following arguments are supported:
   the Environment and cannot be changed.
   Possible values are `API_PROXY_TYPE_UNSPECIFIED`, `PROGRAMMABLE`, and `CONFIGURABLE`.
 
+* `node_config` -
+  (Optional)
+  NodeConfig for setting the min/max number of nodes associated with the environment.
+  Structure is [documented below](#nested_node_config).
+
+
+<a name="nested_node_config"></a>The `node_config` block supports:
+
+* `min_node_count` -
+  (Optional)
+  The minimum total number of gateway nodes that the is reserved for all instances that
+  has the specified environment. If not specified, the default is determined by the
+  recommended minimum number of nodes for that gateway.
+
+* `max_node_count` -
+  (Optional)
+  The maximum total number of gateway nodes that the is reserved for all instances that
+  has the specified environment. If not specified, the default is determined by the
+  recommended maximum number of nodes for that gateway.
+
+* `current_aggregate_node_count` -
+  The current total number of gateway nodes that each environment currently has across
+  all instances.
 
 ## Attributes Reference
 

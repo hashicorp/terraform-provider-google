@@ -45,6 +45,7 @@ func resourceApigeeEnvironment() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The resource ID of the environment.`,
 			},
 			"org_id": {
@@ -89,6 +90,37 @@ Creating, updating, or deleting target servers. Possible values: ["DEPLOYMENT_TY
 				ForceNew:    true,
 				Description: `Display name of the environment.`,
 			},
+			"node_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `NodeConfig for setting the min/max number of nodes associated with the environment.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_node_count": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The maximum total number of gateway nodes that the is reserved for all instances that
+has the specified environment. If not specified, the default is determined by the
+recommended maximum number of nodes for that gateway.`,
+						},
+						"min_node_count": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The minimum total number of gateway nodes that the is reserved for all instances that
+has the specified environment. If not specified, the default is determined by the
+recommended minimum number of nodes for that gateway.`,
+						},
+						"current_aggregate_node_count": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The current total number of gateway nodes that each environment currently has across
+all instances.`,
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -131,6 +163,12 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("api_proxy_type"); !isEmptyValue(reflect.ValueOf(apiProxyTypeProp)) && (ok || !reflect.DeepEqual(v, apiProxyTypeProp)) {
 		obj["apiProxyType"] = apiProxyTypeProp
+	}
+	nodeConfigProp, err := expandApigeeEnvironmentNodeConfig(d.Get("node_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("node_config"); !isEmptyValue(reflect.ValueOf(nodeConfigProp)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
+		obj["nodeConfig"] = nodeConfigProp
 	}
 
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
@@ -225,6 +263,9 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("api_proxy_type", flattenApigeeEnvironmentApiProxyType(res["apiProxyType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
+	if err := d.Set("node_config", flattenApigeeEnvironmentNodeConfig(res["nodeConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
 
 	return nil
 }
@@ -239,35 +280,11 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandApigeeEnvironmentName(d.Get("name"), d, config)
+	nodeConfigProp, err := expandApigeeEnvironmentNodeConfig(d.Get("node_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	displayNameProp, err := expandApigeeEnvironmentDisplayName(d.Get("display_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
-		obj["displayName"] = displayNameProp
-	}
-	descriptionProp, err := expandApigeeEnvironmentDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-	deploymentTypeProp, err := expandApigeeEnvironmentDeploymentType(d.Get("deployment_type"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("deployment_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
-		obj["deploymentType"] = deploymentTypeProp
-	}
-	apiProxyTypeProp, err := expandApigeeEnvironmentApiProxyType(d.Get("api_proxy_type"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("api_proxy_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, apiProxyTypeProp)) {
-		obj["apiProxyType"] = apiProxyTypeProp
+	} else if v, ok := d.GetOkExists("node_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
+		obj["nodeConfig"] = nodeConfigProp
 	}
 
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
@@ -276,13 +293,24 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Updating Environment %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("node_config") {
+		updateMask = append(updateMask, "nodeConfig")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Environment %q: %s", d.Id(), err)
@@ -405,6 +433,35 @@ func flattenApigeeEnvironmentApiProxyType(v interface{}, d *schema.ResourceData,
 	return v
 }
 
+func flattenApigeeEnvironmentNodeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min_node_count"] =
+		flattenApigeeEnvironmentNodeConfigMinNodeCount(original["minNodeCount"], d, config)
+	transformed["max_node_count"] =
+		flattenApigeeEnvironmentNodeConfigMaxNodeCount(original["maxNodeCount"], d, config)
+	transformed["current_aggregate_node_count"] =
+		flattenApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(original["currentAggregateNodeCount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandApigeeEnvironmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -422,5 +479,50 @@ func expandApigeeEnvironmentDeploymentType(v interface{}, d TerraformResourceDat
 }
 
 func expandApigeeEnvironmentApiProxyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentNodeConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinNodeCount, err := expandApigeeEnvironmentNodeConfigMinNodeCount(original["min_node_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinNodeCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["minNodeCount"] = transformedMinNodeCount
+	}
+
+	transformedMaxNodeCount, err := expandApigeeEnvironmentNodeConfigMaxNodeCount(original["max_node_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxNodeCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxNodeCount"] = transformedMaxNodeCount
+	}
+
+	transformedCurrentAggregateNodeCount, err := expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(original["current_aggregate_node_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCurrentAggregateNodeCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["currentAggregateNodeCount"] = transformedCurrentAggregateNodeCount
+	}
+
+	return transformed, nil
+}
+
+func expandApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
