@@ -53,12 +53,12 @@ The following arguments are supported:
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
     Cloud Storage bucket, a PubSub topic, a BigQuery dataset or a Cloud Logging bucket. Examples:
-```
-"storage.googleapis.com/[GCS_BUCKET]"
-"bigquery.googleapis.com/projects/[PROJECT_ID]/datasets/[DATASET]"
-"pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_ID]"
-"logging.googleapis.com/projects/[PROJECT_ID]]/locations/global/buckets/[BUCKET_ID]"
-```
+
+    - `storage.googleapis.com/[GCS_BUCKET]`
+    - `bigquery.googleapis.com/projects/[PROJECT_ID]/datasets/[DATASET]`
+    - `pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_ID]`
+    - `logging.googleapis.com/projects/[PROJECT_ID]]/locations/global/buckets/[BUCKET_ID]`
+
     The writer associated with the sink must have access to write to the above resource.
 
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
@@ -71,13 +71,13 @@ The following arguments are supported:
 
 * `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure [documented below](#nested_bigquery_options).
 
-* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is [documented below](#nested_exclusions).
+* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both `filter` and one of `exclusions.filter`, it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is [documented below](#nested_exclusions).
 
 <a name="nested_bigquery_options"></a>The `bigquery_options` block supports:
 
 * `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
     By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
-    tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
+    tables, the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
     has to be used instead. In both cases, tables are sharded based on UTC timezone.
 
 <a name="nested_exclusions"></a>The `exclusions` block supports:

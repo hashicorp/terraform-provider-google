@@ -45,7 +45,7 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 		"exclusions": {
 			Type:        schema.TypeList,
 			Optional:    true,
-			Description: `Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.`,
+			Description: `Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion's filters, it will not be exported.`,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"name": {
