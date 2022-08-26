@@ -15,13 +15,13 @@
 subcategory: "Cloud DNS"
 page_title: "Google: google_dns_response_policy"
 description: |-
-  A Response Policy is a collection of selectors that apply to queries 
+  A Response Policy is a collection of selectors that apply to queries
   made against one or more Virtual Private Cloud networks.
 ---
 
 # google\_dns\_response\_policy
 
-A Response Policy is a collection of selectors that apply to queries 
+A Response Policy is a collection of selectors that apply to queries
 made against one or more Virtual Private Cloud networks.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
