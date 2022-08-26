@@ -191,6 +191,6 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("name", instance.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, instance.Zone, instance.Name))
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, GetResourceNameFromSelfLink(instance.Zone), instance.Name))
 	return nil
 }
