@@ -305,6 +305,79 @@ given time.`,
 							Description: `The limit on the minimum number of function instances that may coexist at a
 given time.`,
 						},
+						"secret_environment_variables": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Secret environment variables configuration.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Name of the environment variable.`,
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.`,
+									},
+									"secret": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Name of the secret in secret manager (not the full resource name).`,
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Version of the secret (version number or the string 'latest'). It is recommended to use a numeric version for secret environment variables as any updates to the secret value is not reflected until new instances start.`,
+									},
+								},
+							},
+						},
+						"secret_volumes": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Secret volumes configuration.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"mount_path": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The path within the container to mount the secret volume. For example, setting the mountPath as /etc/secrets would mount the secret value files under the /etc/secrets directory. This directory will also be completely shadowed and unavailable to mount any other secrets. Recommended mount path: /etc/secrets`,
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.`,
+									},
+									"secret": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Name of the secret in secret manager (not the full resource name).`,
+									},
+									"versions": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Optional:    true,
+										Description: `List of secret versions to mount for this secret. If empty, the latest version of the secret will be made available in a file named after the secret under the mount point.'`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"path": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Relative path of the file under the mount path where the secret value for this version will be fetched and made available. For example, setting the mountPath as '/etc/secrets' and path as secret_foo would mount the secret value file at /etc/secrets/secret_foo.`,
+												},
+												"version": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Version of the secret (version number or the string 'latest'). It is preferable to use latest version with secret volumes as secret value changes are reflected immediately.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"service": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -956,6 +1029,10 @@ func flattenCloudfunctions2functionServiceConfig(v interface{}, d *schema.Resour
 		flattenCloudfunctions2functionServiceConfigServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	transformed["all_traffic_on_latest_revision"] =
 		flattenCloudfunctions2functionServiceConfigAllTrafficOnLatestRevision(original["allTrafficOnLatestRevision"], d, config)
+	transformed["secret_environment_variables"] =
+		flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariables(original["secretEnvironmentVariables"], d, config)
+	transformed["secret_volumes"] =
+		flattenCloudfunctions2functionServiceConfigSecretVolumes(original["secretVolumes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudfunctions2functionServiceConfigService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1046,6 +1123,103 @@ func flattenCloudfunctions2functionServiceConfigServiceAccountEmail(v interface{
 }
 
 func flattenCloudfunctions2functionServiceConfigAllTrafficOnLatestRevision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":        flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesKey(original["key"], d, config),
+			"project_id": flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesProjectId(original["projectId"], d, config),
+			"secret":     flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesSecret(original["secret"], d, config),
+			"version":    flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesVersion(original["version"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariablesVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretVolumes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"mount_path": flattenCloudfunctions2functionServiceConfigSecretVolumesMountPath(original["mountPath"], d, config),
+			"project_id": flattenCloudfunctions2functionServiceConfigSecretVolumesProjectId(original["projectId"], d, config),
+			"secret":     flattenCloudfunctions2functionServiceConfigSecretVolumesSecret(original["secret"], d, config),
+			"versions":   flattenCloudfunctions2functionServiceConfigSecretVolumesVersions(original["versions"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudfunctions2functionServiceConfigSecretVolumesMountPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretVolumesProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretVolumesSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretVolumesVersions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"version": flattenCloudfunctions2functionServiceConfigSecretVolumesVersionsVersion(original["version"], d, config),
+			"path":    flattenCloudfunctions2functionServiceConfigSecretVolumesVersionsPath(original["path"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudfunctions2functionServiceConfigSecretVolumesVersionsVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigSecretVolumesVersionsPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1498,6 +1672,20 @@ func expandCloudfunctions2functionServiceConfig(v interface{}, d TerraformResour
 		transformed["allTrafficOnLatestRevision"] = transformedAllTrafficOnLatestRevision
 	}
 
+	transformedSecretEnvironmentVariables, err := expandCloudfunctions2functionServiceConfigSecretEnvironmentVariables(original["secret_environment_variables"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretEnvironmentVariables); val.IsValid() && !isEmptyValue(val) {
+		transformed["secretEnvironmentVariables"] = transformedSecretEnvironmentVariables
+	}
+
+	transformedSecretVolumes, err := expandCloudfunctions2functionServiceConfigSecretVolumes(original["secret_volumes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretVolumes); val.IsValid() && !isEmptyValue(val) {
+		transformed["secretVolumes"] = transformedSecretVolumes
+	}
+
 	return transformed, nil
 }
 
@@ -1557,6 +1745,157 @@ func expandCloudfunctions2functionServiceConfigServiceAccountEmail(v interface{}
 }
 
 func expandCloudfunctions2functionServiceConfigAllTrafficOnLatestRevision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretEnvironmentVariables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedKey, err := expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesKey(original["key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["key"] = transformedKey
+		}
+
+		transformedProjectId, err := expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedSecret, err := expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesSecret(original["secret"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSecret); val.IsValid() && !isEmptyValue(val) {
+			transformed["secret"] = transformedSecret
+		}
+
+		transformedVersion, err := expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesSecret(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretEnvironmentVariablesVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretVolumes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedMountPath, err := expandCloudfunctions2functionServiceConfigSecretVolumesMountPath(original["mount_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMountPath); val.IsValid() && !isEmptyValue(val) {
+			transformed["mountPath"] = transformedMountPath
+		}
+
+		transformedProjectId, err := expandCloudfunctions2functionServiceConfigSecretVolumesProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedSecret, err := expandCloudfunctions2functionServiceConfigSecretVolumesSecret(original["secret"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSecret); val.IsValid() && !isEmptyValue(val) {
+			transformed["secret"] = transformedSecret
+		}
+
+		transformedVersions, err := expandCloudfunctions2functionServiceConfigSecretVolumesVersions(original["versions"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersions); val.IsValid() && !isEmptyValue(val) {
+			transformed["versions"] = transformedVersions
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretVolumesMountPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretVolumesProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretVolumesSecret(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretVolumesVersions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedVersion, err := expandCloudfunctions2functionServiceConfigSecretVolumesVersionsVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
+		transformedPath, err := expandCloudfunctions2functionServiceConfigSecretVolumesVersionsPath(original["path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+			transformed["path"] = transformedPath
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretVolumesVersionsVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigSecretVolumesVersionsPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
