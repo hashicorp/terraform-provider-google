@@ -99,7 +99,7 @@ func testSweepMonitoringNotificationChannel(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://monitoring.googleapis.com/v3/{{name}}"
+		deleteTemplate := "https://monitoring.googleapis.com/v3/{{name}}?force={{force_delete}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
