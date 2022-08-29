@@ -1068,6 +1068,23 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"service_external_ips_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: `If set, and enabled=true, services with external ips field will not be blocked`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `When enabled, services with exterenal ips specified will be allowed.`,
+						},
+					},
+				},
+			},
+
 			"mesh_certificates": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -1453,6 +1470,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
 	}
 
+	if v, ok := d.GetOk("service_external_ips_config"); ok {
+		cluster.NetworkConfig.ServiceExternalIpsConfig = expandServiceExternalIpsConfig(v)
+	}
+
 	if v, ok := d.GetOk("mesh_certificates"); ok {
 		cluster.MeshCertificates = expandMeshCertificates(v)
 	}
@@ -1786,6 +1807,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("workload_identity_config", flattenWorkloadIdentityConfig(cluster.WorkloadIdentityConfig, d, config)); err != nil {
+		return err
+	}
+
+	if err := d.Set("service_external_ips_config", flattenServiceExternalIpsConfig(cluster.NetworkConfig.ServiceExternalIpsConfig)); err != nil {
 		return err
 	}
 
@@ -2450,6 +2475,33 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			log.Printf("[INFO] GKE cluster %s vertical pod autoscaling has been updated", d.Id())
 		}
+	}
+
+	if d.HasChange("service_external_ips_config") {
+		c := d.Get("service_external_ips_config")
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredServiceExternalIpsConfig: expandServiceExternalIpsConfig(c),
+			},
+		}
+
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, location, "updating GKE cluster service externalips config", userAgent, d.Timeout(schema.TimeoutUpdate))
+		}
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s service externalips config  has been updated", d.Id())
 	}
 
 	if d.HasChange("mesh_certificates") {
@@ -3230,6 +3282,18 @@ func expandVerticalPodAutoscaling(configured interface{}) *container.VerticalPod
 	}
 }
 
+func expandServiceExternalIpsConfig(configured interface{}) *container.ServiceExternalIPsConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.ServiceExternalIPsConfig{
+		Enabled:         config["enabled"].(bool),
+		ForceSendFields: []string{"Enabled"},
+	}
+}
+
 func expandMeshCertificates(configured interface{}) *container.MeshCertificates {
 	l := configured.([]interface{})
 	if len(l) == 0 {
@@ -3793,6 +3857,17 @@ func flattenResourceUsageExportConfig(c *container.ResourceUsageExportConfig) []
 			"bigquery_destination": []map[string]interface{}{
 				{"dataset_id": c.BigqueryDestination.DatasetId},
 			},
+		},
+	}
+}
+
+func flattenServiceExternalIpsConfig(c *container.ServiceExternalIPsConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enabled": c.Enabled,
 		},
 	}
 }

@@ -137,6 +137,9 @@ for more details. Structure is [documented below](#nested_cluster_autoscaling).
 * `binary_authorization` - (Optional) Configuration options for the Binary
   Authorization feature. Structure is [documented below](#nested_binary_authorization).
 
+* `service_external_ips_config` - (Optional)
+    Structure is [documented below](#nested_service_external_ips_config).
+
 * `mesh_certificates` - (Optional)
     Structure is [documented below](#nested_mesh_encryption).
 
@@ -426,6 +429,10 @@ addons_config {
 * `evaluation_mode` - (Optional) Mode of operation for Binary Authorization policy evaluation. Valid values are `DISABLED`
   and `PROJECT_SINGLETON_POLICY_ENFORCE`. `PROJECT_SINGLETON_POLICY_ENFORCE` is functionally equivalent to the
   deprecated `enable_binary_authorization` parameter being set to `true`.
+
+<a name="nested_service_external_ips_config"></a>The `service_external_ips_config` block supports:
+
+* `enabled` - (Required) Controls whether external ips specified by a service will be allowed. It is enabled by default.
 
 <a name="nested_mesh_certificates"></a>The `mesh_certificates` block supports:
 

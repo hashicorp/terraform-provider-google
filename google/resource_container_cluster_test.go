@@ -2045,6 +2045,37 @@ func TestAccContainerCluster_errorNoClusterCreated(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withExternalIpsConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	pid := getTestProjectFromEnv()
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withExternalIpsConfig(pid, clusterName, true),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_external_ips_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withExternalIpsConfig(pid, clusterName, false),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_external_ips_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMeshCertificatesConfig(t *testing.T) {
 	t.Parallel()
 
@@ -4370,6 +4401,22 @@ resource "google_container_cluster" "with_resource_labels" {
   initial_node_count = 1
 }
 `, location)
+}
+
+func testAccContainerCluster_withExternalIpsConfig(projectID string, clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+	data "google_project" "project" {
+  		project_id = "%s"
+	}
+
+	resource "google_container_cluster" "with_external_ips_config" {
+		name               = "%s"
+		location           = "us-central1-a"
+		initial_node_count = 1
+		service_external_ips_config {
+			enabled = %v
+		}
+	}`, projectID, clusterName, enabled)
 }
 
 func testAccContainerCluster_withMeshCertificatesConfigEnabled(projectID string, clusterName string) string {
