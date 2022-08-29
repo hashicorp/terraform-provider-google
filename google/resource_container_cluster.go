@@ -3368,6 +3368,7 @@ func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint 
 		MaxPodsPerNode: int64(v.(int)),
 	}
 }
+
 func expandResourceUsageExportConfig(configured interface{}) *container.ResourceUsageExportConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
