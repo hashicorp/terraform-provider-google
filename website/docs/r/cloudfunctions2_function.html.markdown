@@ -373,6 +373,145 @@ resource "google_cloudfunctions2_function" "function" {
 }
 # [END functions_v2_basic_auditlogs]
 ```
+## Example Usage - Cloudfunctions2 Secret Env
+
+
+```hcl
+locals {
+  project = "my-project-name" # Google Cloud Platform Project ID
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "${local.project}-gcf-source"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+ 
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "function-source.zip"  # Add path to the zipped function source code
+}
+ 
+resource "google_cloudfunctions2_function" "function" {
+  name = "function-secret"
+  location = "us-central1"
+  description = "a new function"
+ 
+  build_config {
+    runtime = "nodejs16"
+    entry_point = "helloHttp"  # Set the entry point 
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+  }
+ 
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+
+    secret_environment_variables {
+      key        = "TEST"
+      project_id = local.project
+      secret     = google_secret_manager_secret.secret.secret_id
+      version    = "latest"
+    }
+  }
+  depends_on = [google_secret_manager_secret_version.secret]
+}
+
+resource "google_secret_manager_secret" "secret" {
+  secret_id = "secret"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }  
+}
+
+resource "google_secret_manager_secret_version" "secret" {
+  secret = google_secret_manager_secret.secret.name
+
+  secret_data = "secret"
+  enabled = true
+}
+```
+## Example Usage - Cloudfunctions2 Secret Volume
+
+
+```hcl
+locals {
+  project = "my-project-name" # Google Cloud Platform Project ID
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "${local.project}-gcf-source"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+ 
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "function-source.zip"  # Add path to the zipped function source code
+}
+ 
+resource "google_cloudfunctions2_function" "function" {
+  name = "function-secret"
+  location = "us-central1"
+  description = "a new function"
+ 
+  build_config {
+    runtime = "nodejs16"
+    entry_point = "helloHttp"  # Set the entry point 
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+  }
+ 
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+
+    secret_volumes {
+      mount_path = "/etc/secrets"
+      project_id = local.project
+      secret     = google_secret_manager_secret.secret.secret_id
+    }
+  }
+  depends_on = [google_secret_manager_secret_version.secret]
+}
+
+resource "google_secret_manager_secret" "secret" {
+  secret_id = "secret"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }  
+}
+
+resource "google_secret_manager_secret_version" "secret" {
+  secret = google_secret_manager_secret.secret.name
+
+  secret_data = "secret"
+  enabled = true
+}
+```
 
 ## Argument Reference
 
@@ -578,6 +717,65 @@ The following arguments are supported:
 * `all_traffic_on_latest_revision` -
   (Optional)
   Whether 100% of traffic is routed to the latest revision. Defaults to true.
+
+* `secret_environment_variables` -
+  (Optional)
+  Secret environment variables configuration.
+  Structure is [documented below](#nested_secret_environment_variables).
+
+* `secret_volumes` -
+  (Optional)
+  Secret volumes configuration.
+  Structure is [documented below](#nested_secret_volumes).
+
+
+<a name="nested_secret_environment_variables"></a>The `secret_environment_variables` block supports:
+
+* `key` -
+  (Required)
+  Name of the environment variable.
+
+* `project_id` -
+  (Required)
+  Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.
+
+* `secret` -
+  (Required)
+  Name of the secret in secret manager (not the full resource name).
+
+* `version` -
+  (Required)
+  Version of the secret (version number or the string 'latest'). It is recommended to use a numeric version for secret environment variables as any updates to the secret value is not reflected until new instances start.
+
+<a name="nested_secret_volumes"></a>The `secret_volumes` block supports:
+
+* `mount_path` -
+  (Required)
+  The path within the container to mount the secret volume. For example, setting the mountPath as /etc/secrets would mount the secret value files under the /etc/secrets directory. This directory will also be completely shadowed and unavailable to mount any other secrets. Recommended mount path: /etc/secrets
+
+* `project_id` -
+  (Required)
+  Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.
+
+* `secret` -
+  (Required)
+  Name of the secret in secret manager (not the full resource name).
+
+* `versions` -
+  (Optional)
+  List of secret versions to mount for this secret. If empty, the latest version of the secret will be made available in a file named after the secret under the mount point.'
+  Structure is [documented below](#nested_versions).
+
+
+<a name="nested_versions"></a>The `versions` block supports:
+
+* `version` -
+  (Required)
+  Version of the secret (version number or the string 'latest'). It is preferable to use latest version with secret volumes as secret value changes are reflected immediately.
+
+* `path` -
+  (Required)
+  Relative path of the file under the mount path where the secret value for this version will be fetched and made available. For example, setting the mountPath as '/etc/secrets' and path as secret_foo would mount the secret value file at /etc/secrets/secret_foo.
 
 <a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
