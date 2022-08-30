@@ -78,6 +78,36 @@ Valid only when 'RuntimeType' is set to CLOUD. The value can be updated only whe
 				Optional:    true,
 				Description: `The display name of the Apigee organization.`,
 			},
+			"properties": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Properties defined in the Apigee organization profile.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"property": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `List of all properties in the object.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Name of the property.`,
+									},
+									"value": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Value of the property.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"retention": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -176,6 +206,12 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("runtime_database_encryption_key_name"); !isEmptyValue(reflect.ValueOf(runtimeDatabaseEncryptionKeyNameProp)) && (ok || !reflect.DeepEqual(v, runtimeDatabaseEncryptionKeyNameProp)) {
 		obj["runtimeDatabaseEncryptionKeyName"] = runtimeDatabaseEncryptionKeyNameProp
+	}
+	propertiesProp, err := expandApigeeOrganizationProperties(d.Get("properties"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("properties"); !isEmptyValue(reflect.ValueOf(propertiesProp)) && (ok || !reflect.DeepEqual(v, propertiesProp)) {
+		obj["properties"] = propertiesProp
 	}
 
 	obj, err = resourceApigeeOrganizationEncoder(d, meta, obj)
@@ -290,6 +326,9 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("runtime_database_encryption_key_name", flattenApigeeOrganizationRuntimeDatabaseEncryptionKeyName(res["runtimeDatabaseEncryptionKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
+	if err := d.Set("properties", flattenApigeeOrganizationProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Organization: %s", err)
+	}
 
 	return nil
 }
@@ -345,6 +384,12 @@ func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("runtime_database_encryption_key_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runtimeDatabaseEncryptionKeyNameProp)) {
 		obj["runtimeDatabaseEncryptionKeyName"] = runtimeDatabaseEncryptionKeyNameProp
+	}
+	propertiesProp, err := expandApigeeOrganizationProperties(d.Get("properties"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("properties"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, propertiesProp)) {
+		obj["properties"] = propertiesProp
 	}
 
 	obj, err = resourceApigeeOrganizationEncoder(d, meta, obj)
@@ -497,6 +542,46 @@ func flattenApigeeOrganizationRuntimeDatabaseEncryptionKeyName(v interface{}, d 
 	return v
 }
 
+func flattenApigeeOrganizationProperties(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["property"] =
+		flattenApigeeOrganizationPropertiesProperty(original["property"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApigeeOrganizationPropertiesProperty(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":  flattenApigeeOrganizationPropertiesPropertyName(original["name"], d, config),
+			"value": flattenApigeeOrganizationPropertiesPropertyValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenApigeeOrganizationPropertiesPropertyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenApigeeOrganizationPropertiesPropertyValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandApigeeOrganizationDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -522,6 +607,62 @@ func expandApigeeOrganizationBillingType(v interface{}, d TerraformResourceData,
 }
 
 func expandApigeeOrganizationRuntimeDatabaseEncryptionKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeOrganizationProperties(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProperty, err := expandApigeeOrganizationPropertiesProperty(original["property"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProperty); val.IsValid() && !isEmptyValue(val) {
+		transformed["property"] = transformedProperty
+	}
+
+	return transformed, nil
+}
+
+func expandApigeeOrganizationPropertiesProperty(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandApigeeOrganizationPropertiesPropertyName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedValue, err := expandApigeeOrganizationPropertiesPropertyValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !isEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandApigeeOrganizationPropertiesPropertyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeOrganizationPropertiesPropertyValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
