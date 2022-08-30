@@ -120,7 +120,7 @@ For more information, check out Hashicorp's documentation on the [0.13+ filesyst
 
 If multiple versions are available in a plugin directory (for example after `terraform providers mirror` is used), Terraform will pick the most up-to-date provider version within version constraints. As such, we recommend using a version that is several major versions ahead for your local copy of the provider, such as `5.0.0`.
 
-If Terraform is using a cached version of the provider, you can delete the `.terraform/plugins` directory to force it to re-fetch the provider binary.
+If Terraform is using a cached version of the provider, you can delete `.terraform/providers` (or `.terraform/plugins` for older Terraform versions) in your working directory to force it to re-fetch the provider binary.
 
 ### Building terraform binary from source
 
