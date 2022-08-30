@@ -31,11 +31,6 @@ To get more information about Featurestore, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featurestore&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Vertex Ai Featurestore
 
 
@@ -49,6 +44,9 @@ resource "google_vertex_ai_featurestore" "featurestore" {
   region   = "us-central1"
   online_serving_config {
     fixed_node_count = 2
+  }
+  encryption_spec {
+    kms_key_name = "kms-name"
   }
   force_destroy = true
 }
@@ -76,6 +74,11 @@ The following arguments are supported:
   Config for online serving resources.
   Structure is [documented below](#nested_online_serving_config).
 
+* `encryption_spec` -
+  (Optional)
+  If set, both of the online and offline data storage will be secured by this key.
+  Structure is [documented below](#nested_encryption_spec).
+
 * `region` -
   (Optional)
   The region of the dataset. eg us-central1
@@ -90,6 +93,12 @@ The following arguments are supported:
 * `fixed_node_count` -
   (Required)
   The number of nodes for each cluster. The number of nodes will not scale automatically but can be scaled manually by providing different values when updating.
+
+<a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
+
+* `kms_key_name` -
+  (Required)
+  The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key. The key needs to be in the same region as where the compute resource is created.
 
 ## Attributes Reference
 
