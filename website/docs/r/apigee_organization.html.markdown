@@ -176,6 +176,11 @@ The following arguments are supported:
   If not specified, a Google-Managed encryption key will be used.
   Valid only when `RuntimeType` is CLOUD. For example: `projects/foo/locations/us/keyRings/bar/cryptoKeys/baz`.
 
+* `properties` -
+  (Optional)
+  Properties defined in the Apigee organization profile.
+  Structure is [documented below](#nested_properties).
+
 * `retention` -
   (Optional)
   Optional. This setting is applicable only for organizations that are soft-deleted (i.e., BillingType
@@ -185,6 +190,24 @@ The following arguments are supported:
   Default value is `DELETION_RETENTION_UNSPECIFIED`.
   Possible values are `DELETION_RETENTION_UNSPECIFIED` and `MINIMUM`.
 
+
+<a name="nested_properties"></a>The `properties` block supports:
+
+* `property` -
+  (Optional)
+  List of all properties in the object.
+  Structure is [documented below](#nested_property).
+
+
+<a name="nested_property"></a>The `property` block supports:
+
+* `name` -
+  (Optional)
+  Name of the property.
+
+* `value` -
+  (Optional)
+  Value of the property.
 
 ## Attributes Reference
 
