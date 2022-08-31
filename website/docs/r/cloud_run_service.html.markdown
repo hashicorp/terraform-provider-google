@@ -44,7 +44,6 @@ To get more information about Service, see:
 
 ~> **Warning:** `google_cloudrun_service` creates a Managed Google Cloud Run Service. If you need to create
 a Cloud Run Service on Anthos(GKE/VMWare) then you will need to create it using the kubernetes alpha provider.
-Have a look at the Cloud Run Anthos example below.
 
 ## Example Usage - Cloud Run Service Pubsub
 
