@@ -177,7 +177,6 @@ If this parameter is 0, a default value of 5 is used.`,
 			"enable_exactly_once_delivery": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Description: `If 'true', Pub/Sub provides the following guarantees for the delivery
 of a message with a given value of messageId on this Subscriptions':
 
@@ -702,6 +701,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
 		obj["retryPolicy"] = retryPolicyProp
 	}
+	enableExactlyOnceDeliveryProp, err := expandPubsubSubscriptionEnableExactlyOnceDelivery(d.Get("enable_exactly_once_delivery"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_exactly_once_delivery"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableExactlyOnceDeliveryProp)) {
+		obj["enableExactlyOnceDelivery"] = enableExactlyOnceDeliveryProp
+	}
 
 	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -750,6 +755,10 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("retry_policy") {
 		updateMask = append(updateMask, "retryPolicy")
+	}
+
+	if d.HasChange("enable_exactly_once_delivery") {
+		updateMask = append(updateMask, "enableExactlyOnceDelivery")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
