@@ -1,4 +1,22 @@
-## 4.34.0 (Unreleased)
+## 4.35.0 (Unreleased)
+
+## 4.34.0 (August 29, 2022)
+NOTES:
+* updated Bigtable go client version from 1.13 to 1.16. ([#12349](https://github.com/hashicorp/terraform-provider-google/pull/12349))
+
+IMPROVEMENTS:
+* apigee: added support for specifying retention when deleting `google_apigee_organization` ([#12336](https://github.com/hashicorp/terraform-provider-google/pull/12336))
+* appengine: added `app_engine_apis` field to `google_app_engine_standard_app_version` resource ([#12339](https://github.com/hashicorp/terraform-provider-google/pull/12339))
+* cloudfunction2: promoted to `google_cloudfunctions2_function` ga ([#12322](https://github.com/hashicorp/terraform-provider-google/pull/12322))
+* compute: improved error messaging for compute errors ([#12333](https://github.com/hashicorp/terraform-provider-google/pull/12333))
+* container: added general field `reservation_affinity` to `google_container_node_pool` ([#12375](https://github.com/hashicorp/terraform-provider-google/pull/12375))
+* container: added field `auto_provisioning_network_tags` to `google_container_cluster` (beta) ([#12347](https://github.com/hashicorp/terraform-provider-google/pull/12347))
+* sql: added support for major version upgrade to `google_sql_database_instance ` resource ([#12338](https://github.com/hashicorp/terraform-provider-google/pull/12338))
+
+BUG FIXES:
+* bigtable: fixed comparing column family name when reading a GC policy. ([#12381](https://github.com/hashicorp/terraform-provider-google/pull/12381))
+* bigtable: passed `isTopeLevel` in getGCPolicyFromJSON() instead of hardcoding it to true. ([#12351](https://github.com/hashicorp/terraform-provider-google/pull/12351))
+* composer: corrected the description of `image_version` field. ([#12329](https://github.com/hashicorp/terraform-provider-google/pull/12329))
 
 ## 4.33.0 (August 22, 2022)
 
