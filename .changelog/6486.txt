@@ -1,0 +1,3 @@
+```release-note:enhancement
+pubsub: made enableExactlyOnceDelivery mutable so that it updates subscription in-place and avoids recreation of the subscription.
+```
