@@ -1222,6 +1222,15 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigSchema
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"shielded_instance_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Shielded Instance Config for clusters using Compute Engine Shielded VMs.",
+				MaxItems:    1,
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSchema(),
+			},
+
 			"subnetwork": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -1287,6 +1296,33 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReserv
 				ForceNew:    true,
 				Description: "Optional. Corresponds to the label values of reservation resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable_integrity_monitoring": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Defines whether instances have integrity monitoring enabled. Integrity monitoring compares the most recent boot measurements to the integrity policy baseline and returns a pair of pass/fail results depending on whether they match or not.",
+			},
+
+			"enable_secure_boot": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Defines whether the instances have Secure Boot enabled. Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails.",
+			},
+
+			"enable_vtpm": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Defines whether the instance have the vTPM enabled. Virtual Trusted Platform Module protects objects like keys, certificates and enables Measured Boot by performing the measurements needed to create a known good boot baseline, called the integrity policy baseline.",
 			},
 		},
 	}
@@ -3162,6 +3198,7 @@ func expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig
 		ReservationAffinity:     expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(obj["reservation_affinity"]),
 		ServiceAccount:          dcl.String(obj["service_account"].(string)),
 		ServiceAccountScopes:    expandStringArray(obj["service_account_scopes"]),
+		ShieldedInstanceConfig:  expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(obj["shielded_instance_config"]),
 		Subnetwork:              dcl.String(obj["subnetwork"].(string)),
 		Tags:                    expandStringArray(obj["tags"]),
 		Zone:                    dcl.StringOrNil(obj["zone"].(string)),
@@ -3181,6 +3218,7 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 		"reservation_affinity":       flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(obj.ReservationAffinity),
 		"service_account":            obj.ServiceAccount,
 		"service_account_scopes":     obj.ServiceAccountScopes,
+		"shielded_instance_config":   flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(obj.ShieldedInstanceConfig),
 		"subnetwork":                 obj.Subnetwork,
 		"tags":                       obj.Tags,
 		"zone":                       obj.Zone,
@@ -3240,6 +3278,36 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 		"consume_reservation_type": obj.ConsumeReservationType,
 		"key":                      obj.Key,
 		"values":                   obj.Values,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(o interface{}) *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig {
+	if o == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return dataproc.EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig{
+		EnableIntegrityMonitoring: dcl.Bool(obj["enable_integrity_monitoring"].(bool)),
+		EnableSecureBoot:          dcl.Bool(obj["enable_secure_boot"].(bool)),
+		EnableVtpm:                dcl.Bool(obj["enable_vtpm"].(bool)),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(obj *dataproc.WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"enable_integrity_monitoring": obj.EnableIntegrityMonitoring,
+		"enable_secure_boot":          obj.EnableSecureBoot,
+		"enable_vtpm":                 obj.EnableVtpm,
 	}
 
 	return []interface{}{transformed}
