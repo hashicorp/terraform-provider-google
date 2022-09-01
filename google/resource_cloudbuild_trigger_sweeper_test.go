@@ -61,7 +61,7 @@ func testSweepCloudBuildTrigger(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers", "?")[0]
+	listTemplate := strings.Split("https://cloudbuild.googleapis.com/v1/projects/{{project}}/locations/{{location}}/triggers", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -103,7 +103,7 @@ func testSweepCloudBuildTrigger(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers/{{trigger_id}}"
+		deleteTemplate := "https://cloudbuild.googleapis.com/v1/projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
