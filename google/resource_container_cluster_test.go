@@ -1195,6 +1195,68 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolCIA(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-nodepool-%s", randString(t, 10))
+	npName := fmt.Sprintf("tf-test-cluster-nodepool-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerRegionalCluster_withNodePoolCIA(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count", "0"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.max_node_count", "0"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.total_min_node_count", "3"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.total_max_node_count", "21"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.location_policy", "BALANCED"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerRegionalClusterUpdate_withNodePoolCIA(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count", "0"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.max_node_count", "0"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.total_min_node_count", "4"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.total_max_node_count", "32"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.location_policy", "ANY"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerRegionalCluster_withNodePoolBasic(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.min_node_count"),
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.max_node_count"),
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.total_min_node_count"),
+					resource.TestCheckNoResourceAttr("google_container_cluster.with_node_pool", "node_pool.0.autoscaling.0.total_max_node_count"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 	// Randomness
 	skipIfVcr(t)
@@ -3728,6 +3790,61 @@ resource "google_container_cluster" "with_node_pool" {
   }
 }
 `, cluster, np)
+}
+
+func testAccContainerRegionalCluster_withNodePoolCIA(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool" {
+  name     = "%s"
+  location = "us-central1"
+  min_master_version = "1.24"
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 2
+    autoscaling {
+      total_min_node_count = 3
+      total_max_node_count = 21
+      location_policy = "BALANCED"
+    }
+  }
+}
+`, cluster, np)
+}
+
+func testAccContainerRegionalClusterUpdate_withNodePoolCIA(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool" {
+  name     = "%s"
+  location = "us-central1"
+  min_master_version = "1.24"
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 2
+    autoscaling {
+      total_min_node_count = 4
+      total_max_node_count = 32
+      location_policy = "ANY"
+    }
+  }
+}
+`, cluster, np)
+}
+
+func testAccContainerRegionalCluster_withNodePoolBasic(cluster, nodePool string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool" {
+  name     = "%s"
+  location = "us-central1"
+  min_master_version = "1.24"
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 2
+  }
+}
+`, cluster, nodePool)
 }
 
 func testAccContainerCluster_withNodePoolNamePrefix(cluster, npPrefix string) string {

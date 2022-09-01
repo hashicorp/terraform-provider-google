@@ -478,6 +478,63 @@ func TestAccContainerNodePool_regionalAutoscaling(t *testing.T) {
 	})
 }
 
+//This test exists to validate a node pool with total size *and* and update to it.
+func TestAccContainerNodePool_totalSize(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_totalSize(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.total_min_node_count", "4"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.total_max_node_count", "12"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.location_policy", "BALANCED"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_updateTotalSize(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.total_min_node_count", "2"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.total_max_node_count", "22"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "autoscaling.0.location_policy", "ANY"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_basicTotalSize(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_container_node_pool.np", "autoscaling.0.min_node_count"),
+					resource.TestCheckNoResourceAttr("google_container_node_pool.np", "autoscaling.0.max_node_count"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// autoscaling.# = 0 is equivalent to no autoscaling at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_autoscaling(t *testing.T) {
 	t.Parallel()
 
@@ -1083,6 +1140,73 @@ resource "google_container_node_pool" "np" {
     min_node_count = 1
     max_node_count = 3
   }
+}
+`, cluster, np)
+}
+
+func testAccContainerNodePool_totalSize(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 3
+  min_master_version = "1.24"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+  autoscaling {
+    total_min_node_count = 4
+    total_max_node_count = 12
+    location_policy      = "BALANCED"
+  }
+}
+`, cluster, np)
+}
+
+func testAccContainerNodePool_updateTotalSize(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 3
+  min_master_version = "1.24"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+  autoscaling {
+    total_min_node_count = 2
+    total_max_node_count = 22
+    location_policy      = "ANY"
+  }
+}
+`, cluster, np)
+}
+
+func testAccContainerNodePool_basicTotalSize(cluster, np string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  user_project_override = true
+}
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 3
+  min_master_version = "1.24"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
 }
 `, cluster, np)
 }

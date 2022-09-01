@@ -171,12 +171,24 @@ cluster.
 * `placement_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Specifies a custom placement policy for the
   nodes.
 
-<a name="nested_autoscaling"></a>The `autoscaling` block supports:
+<a name="nested_autoscaling"></a>The `autoscaling` block supports (either total or per zone limits are required):
 
-* `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=0 and
-    <= `max_node_count`.
+* `min_node_count` - (Optional) Minimum number of nodes per zone in the NodePool.
+    Must be >=0 and <= `max_node_count`. Cannot be used with total limits.
 
-* `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.
+* `max_node_count` - (Optional) Maximum number of nodes per zone in the NodePool.
+    Must be >= min_node_count. Cannot be used with total limits.
+
+* `total_min_node_count` - (Optional) Total minimum number of nodes in the NodePool.
+    Must be >=0 and <= `total_max_node_count`. Cannot be used with per zone limits.
+
+* `total_max_node_count` - (Optional) Total maximum number of nodes in the NodePool.
+    Must be >= total_min_node_count. Cannot be used with per zone limits.
+
+* `location_policy` - (Optional) Location policy specifies the algorithm used when scaling-up the node pool. \
+    "BALANCED" - Is a best effort policy that aims to balance the sizes of available zones. \
+    "ANY" - Instructs the cluster autoscaler to prioritize utilization of unused reservations,
+    and reduce preemption risk for Spot VMs.
 
 <a name="nested_management"></a>The `management` block supports:
 
