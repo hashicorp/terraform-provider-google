@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -78,7 +79,20 @@ func resourceCloudBuildTrigger() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		SchemaVersion: 1,
+		SchemaVersion: 2,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceCloudBuildTriggerResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceCloudBuildTriggerUpgradeV0,
+				Version: 0,
+			},
+			{
+				Type:    resourceCloudBuildTriggerResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceCloudBuildTriggerUpgradeV1,
+				Version: 1,
+			},
+		},
+
 		CustomizeDiff: stepTimeoutCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
@@ -860,6 +874,14 @@ a build.`,
 					Type: schema.TypeString,
 				},
 			},
+			"location": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The [Cloud Build location](https://cloud.google.com/build/docs/locations) for the trigger.
+If not specified, "global" is used.`,
+				Default: "global",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1192,7 +1214,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 		obj["build"] = buildProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers")
 	if err != nil {
 		return err
 	}
@@ -1217,7 +1239,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/triggers/{{trigger_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1234,10 +1256,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 
 	// Store the ID now. We tried to set it before and it failed because
 	// trigger_id didn't exist yet.
-	id, err = replaceVars(d, config, "projects/{{project}}/triggers/{{trigger_id}}")
+	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
+	// Force legacy id format for global triggers.
+	id = strings.ReplaceAll(id, "/locations/global/", "/")
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Trigger %q: %#v", d.Id(), res)
@@ -1252,7 +1276,7 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -1270,6 +1294,8 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
+	// To support import with the legacy id format.
+	url = strings.ReplaceAll(url, "/locations//", "/locations/global/")
 	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudBuildTrigger %q", d.Id()))
@@ -1477,7 +1503,7 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["build"] = buildProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -1516,7 +1542,7 @@ func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -1541,6 +1567,7 @@ func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/triggers/(?P<trigger_id>[^/]+)",
 		"projects/(?P<project>[^/]+)/triggers/(?P<trigger_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<trigger_id>[^/]+)",
 		"(?P<trigger_id>[^/]+)",
@@ -1549,11 +1576,20 @@ func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/triggers/{{trigger_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Force legacy id format for global triggers.
+	id = strings.ReplaceAll(id, "/locations//", "/")
+	id = strings.ReplaceAll(id, "/locations/global/", "/")
+	d.SetId(id)
+	if d.Get("location") == "" {
+		// Happens when imported with legacy import format.
+		d.Set("location", "global")
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -3739,4 +3775,987 @@ func expandCloudBuildTriggerBuildOptionsVolumesName(v interface{}, d TerraformRe
 
 func expandCloudBuildTriggerBuildOptionsVolumesPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceCloudBuildTriggerUpgradeV1(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	// Versions 0 and 1 didn't support location. Default them to global.
+	rawState["location"] = "global"
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
+}
+
+func resourceCloudBuildTriggerResourceV1() *schema.Resource {
+	// Cloud Build Triggers started with V1 since its beginnings.
+	return resourceCloudBuildTriggerResourceV0()
+}
+
+func resourceCloudBuildTriggerUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	// Do nothing as V0 and V1 are exactly the same.
+	return rawState, nil
+}
+
+func resourceCloudBuildTriggerResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceCloudBuildTriggerCreate,
+		Read:   resourceCloudBuildTriggerRead,
+		Update: resourceCloudBuildTriggerUpdate,
+		Delete: resourceCloudBuildTriggerDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceCloudBuildTriggerImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
+		},
+
+		SchemaVersion: 1,
+		CustomizeDiff: stepTimeoutCustomizeDiff,
+
+		Schema: map[string]*schema.Schema{
+			"approval_config": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `Configuration for manual approval to start a build invocation of this BuildTrigger. 
+Builds created by this trigger will require approval before they execute. 
+Any user with a Cloud Build Approver role for the project can approve a build.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"approval_required": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Whether or not approval is needed. If this is set on a build, it will become pending when run, 
+and will need to be explicitly approved to start.`,
+							Default: false,
+						},
+					},
+				},
+			},
+			"build": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Contents of the build template. Either a filename or build template must be provided.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"step": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `The operations to be performed on the workspace.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The name of the container image that will run this particular build step.
+If the image is available in the host's Docker daemon's cache, it will be
+run directly. If not, the host will attempt to pull the image first, using
+the builder service account's credentials if necessary.
+The Docker daemon's cache will already have the latest versions of all of
+the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders 
+for images and examples).
+The Docker daemon will also have cached many of the layers for some popular
+images, like "ubuntu", "debian", but they will be refreshed at the time
+you attempt to use them.
+If you built an image in a previous build step, it will be stored in the
+host's Docker daemon's cache and is available to use as the name for a
+later build step.`,
+									},
+									"args": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of arguments that will be presented to the step when it is started.
+If the image used to run the step's container has an entrypoint, the args
+are used as arguments to that entrypoint. If the image does not define an
+entrypoint, the first element in args is used as the entrypoint, and the
+remainder will be used as arguments.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"dir": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Working directory to use when running this step's container.
+If this value is a relative path, it is relative to the build's working
+directory. If this value is absolute, it may be outside the build's working
+directory, in which case the contents of the path may not be persisted
+across build step executions, unless a 'volume' for that path is specified.
+If the build specifies a 'RepoSource' with 'dir' and a step with a
+'dir',
+which specifies an absolute path, the 'RepoSource' 'dir' is ignored
+for the step's execution.`,
+									},
+									"entrypoint": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Entrypoint to be used instead of the build step image's
+default entrypoint.
+If unset, the image's default entrypoint is used`,
+									},
+									"env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of environment variable definitions to be used when
+running a step.
+The elements are of the form "KEY=VALUE" for the environment variable
+"KEY" being given the value "VALUE".`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Unique identifier for this build step, used in 'wait_for' to
+reference this build step as a dependency.`,
+									},
+									"secret_env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of environment variables which are encrypted using
+a Cloud Key
+Management Service crypto key. These values must be specified in
+the build's 'Secret'.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"timeout": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Time limit for executing this build step. If not defined,
+the step has no
+time limit and will be allowed to continue to run until either it
+completes or the build itself times out.`,
+									},
+									"timing": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Output only. Stores timing information for executing this
+build step.`,
+									},
+									"volumes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `List of volumes to mount into the build step.
+Each volume is created as an empty volume prior to execution of the
+build step. Upon completion of the build, volumes and their contents
+are discarded.
+Using a named volume in only one step is not valid as it is
+indicative of a build request with an incorrect configuration.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Name of the volume to mount.
+Volume names must be unique per build step and must be valid names for
+Docker volumes. Each named volume must be used by at least two build steps.`,
+												},
+												"path": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Path at which to mount the volume.
+Paths must be absolute and cannot conflict with other volume paths on
+the same build step or with certain reserved volume paths.`,
+												},
+											},
+										},
+									},
+									"wait_for": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The ID(s) of the step(s) that this build step depends on.
+This build step will not start until all the build steps in 'wait_for'
+have completed successfully. If 'wait_for' is empty, this build step
+will start when all previous build steps in the 'Build.Steps' list
+have completed successfully.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"artifacts": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Artifacts produced by the build that should be uploaded upon successful completion of all build steps.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"images": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of images to be pushed upon the successful completion of all build steps.
+The images will be pushed using the builder service account's credentials.
+The digests of the pushed images will be stored in the Build resource's results field.
+If any of the images fail to be pushed, the build is marked FAILURE.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"objects": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of objects to be uploaded to Cloud Storage upon successful completion of all build steps.
+Files in the workspace matching specified paths globs will be uploaded to the
+Cloud Storage location using the builder service account's credentials.
+The location and generation of the uploaded objects will be stored in the Build resource's results field.
+If any objects fail to be pushed, the build is marked FAILURE.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"location": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Cloud Storage bucket and optional object path, in the form "gs://bucket/path/to/somewhere/".
+Files in the workspace matching any path pattern will be uploaded to Cloud Storage with
+this location as a prefix.`,
+												},
+												"paths": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Path globs used to match files in the build's workspace.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"timing": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Output only. Stores timing information for pushing all artifact objects.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"end_time": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `End of time span.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+															},
+															"start_time": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Start of time span.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"available_secrets": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Secrets and secret environment variables.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"secret_manager": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Pairs a secret environment variable with a SecretVersion in Secret Manager.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"env": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Environment variable name to associate with the secret. Secret environment
+variables must be unique across all of a build's secrets, and must be used
+by at least one build step.`,
+												},
+												"version_name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Resource name of the SecretVersion. In format: projects/*/secrets/*/versions/*`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"images": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A list of images to be pushed upon the successful completion of all build steps.
+The images are pushed using the builder service account's credentials.
+The digests of the pushed images will be stored in the Build resource's results field.
+If any of the images fail to be pushed, the build status is marked FAILURE.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"logs_bucket": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Google Cloud Storage bucket where logs should be written. 
+Logs file names will be of the format ${logsBucket}/log-${build_id}.txt.`,
+						},
+						"options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Special options for this build.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disk_size_gb": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Requested disk size for the VM that runs the build. Note that this is NOT "disk free";
+some of the space will be used by the operating system and build utilities.
+Also note that this is the minimum disk size that will be allocated for the build --
+the build may run with a larger disk than requested. At present, the maximum disk size
+is 1000GB; builds that request more than the maximum are rejected with an error.`,
+									},
+									"dynamic_substitutions": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Option to specify whether or not to apply bash style string operations to the substitutions.
+NOTE this is always enabled for triggered builds and cannot be overridden in the build configuration file.`,
+									},
+									"env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of global environment variable definitions that will exist for all build steps
+in this build. If a variable is defined in both globally and in a build step,
+the variable will use the build step value.
+The elements are of the form "KEY=VALUE" for the environment variable "KEY" being given the value "VALUE".`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"log_streaming_option": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF", ""}),
+										Description:  `Option to define build log streaming behavior to Google Cloud Storage. Possible values: ["STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF"]`,
+									},
+									"logging": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "CLOUD_LOGGING_ONLY", "NONE", ""}),
+										Description:  `Option to specify the logging mode, which determines if and where build logs are stored. Possible values: ["LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "CLOUD_LOGGING_ONLY", "NONE"]`,
+									},
+									"machine_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32", ""}),
+										Description:  `Compute Engine machine type on which to run the build. Possible values: ["UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32"]`,
+									},
+									"requested_verify_option": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"NOT_VERIFIED", "VERIFIED", ""}),
+										Description:  `Requested verifiability options. Possible values: ["NOT_VERIFIED", "VERIFIED"]`,
+									},
+									"secret_env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of global environment variables, which are encrypted using a Cloud Key Management
+Service crypto key. These values must be specified in the build's Secret. These variables
+will be available to all build steps in this build.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"source_provenance_hash": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Requested hash for SourceProvenance. Possible values: ["NONE", "SHA256", "MD5"]`,
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: validateEnum([]string{"NONE", "SHA256", "MD5"}),
+										},
+									},
+									"substitution_option": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"MUST_MATCH", "ALLOW_LOOSE", ""}),
+										Description: `Option to specify behavior when there is an error in the substitution checks.
+NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot be overridden
+in the build configuration file. Possible values: ["MUST_MATCH", "ALLOW_LOOSE"]`,
+									},
+									"volumes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Global list of volumes to mount for ALL build steps
+Each volume is created as an empty volume prior to starting the build process.
+Upon completion of the build, volumes and their contents are discarded. Global
+volume names and paths cannot conflict with the volumes defined a build step.
+Using a global volume in a build with only one step is not valid as it is indicative
+of a build request with an incorrect configuration.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Name of the volume to mount.
+Volume names must be unique per build step and must be valid names for Docker volumes.
+Each named volume must be used by at least two build steps.`,
+												},
+												"path": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Path at which to mount the volume.
+Paths must be absolute and cannot conflict with other volume paths on the same
+build step or with certain reserved volume paths.`,
+												},
+											},
+										},
+									},
+									"worker_pool": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Option to specify a WorkerPool for the build. Format projects/{project}/workerPools/{workerPool}
+This field is experimental.`,
+									},
+								},
+							},
+						},
+						"queue_ttl": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `TTL in queue for this build. If provided and the build is enqueued longer than this value, 
+the build will expire and the build status will be EXPIRED.
+The TTL starts ticking from createTime.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+						"secret": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Secrets to decrypt using Cloud Key Management Service.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"kms_key_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Cloud KMS key name to use to decrypt these envs.`,
+									},
+									"secret_env": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Description: `Map of environment variable name to its encrypted value.
+Secret environment variables must be unique across all of a build's secrets, 
+and must be used by at least one build step. Values can be at most 64 KB in size. 
+There can be at most 100 secret values across all of a build's secrets.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"source": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The location of the source files to build.
+One of 'storageSource' or 'repoSource' must be provided.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"repo_source": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Location of the source in a Google Cloud Source Repository.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"repo_name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Name of the Cloud Source Repository.`,
+												},
+												"branch_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Regex matching branches to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+described at https://github.com/google/re2/wiki/Syntax`,
+													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
+												},
+												"commit_sha": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Explicit commit SHA to build. Exactly one a of branch name, tag, or commit SHA must be provided.`,
+													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
+												},
+												"dir": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Directory, relative to the source root, in which to run the build.
+This must be a relative path. If a step's dir is specified and is an absolute path, 
+this value is ignored for that step's execution.`,
+												},
+												"invert_regex": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Only trigger a build if the revision regex does NOT match the revision regex.`,
+												},
+												"project_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `ID of the project that owns the Cloud Source Repository. 
+If omitted, the project ID requesting the build is assumed.`,
+												},
+												"substitutions": {
+													Type:        schema.TypeMap,
+													Optional:    true,
+													Description: `Substitutions to use in a triggered build. Should only be used with triggers.run`,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+												},
+												"tag_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Regex matching tags to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+described at https://github.com/google/re2/wiki/Syntax`,
+													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
+												},
+											},
+										},
+									},
+									"storage_source": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Location of the source in an archive file in Google Cloud Storage.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"bucket": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Google Cloud Storage bucket containing the source.`,
+												},
+												"object": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Google Cloud Storage object containing the source.
+This object must be a gzipped archive file (.tar.gz) containing source to build.`,
+												},
+												"generation": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Google Cloud Storage generation for the object. 
+If the generation is omitted, the latest generation will be used`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"substitutions": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Description: `Substitutions data for Build resource.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"tags": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Tags for annotation of a Build. These are not docker tags.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"timeout": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Amount of time that this build should be allowed to run, to second granularity.
+If this amount of time elapses, work on the build will cease and the build status will be TIMEOUT.
+This timeout must be equal to or greater than the sum of the timeouts for build steps within the build.
+The expected format is the number of seconds followed by s.
+Default time is ten minutes (600s).`,
+							Default: "600s",
+						},
+					},
+				},
+				ExactlyOneOf: []string{"filename", "build", "git_file_source"},
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Human-readable description of the trigger.`,
+			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether the trigger is disabled or not. If true, the trigger will never result in a build.`,
+			},
+			"filename": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Path, from the source root, to a file whose contents is used for the template. 
+Either a filename or build template must be provided. Set this only when using trigger_template or github.
+When using Pub/Sub, Webhook or Manual set the file name using git_file_source instead.`,
+				ExactlyOneOf: []string{"filename", "build", "git_file_source"},
+			},
+			"filter": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A Common Expression Language string. Used only with Pub/Sub and Webhook.`,
+			},
+			"git_file_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The file source describing the local or remote Build template.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"path": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The path of the file, with the repo root as the root of the path.`,
+						},
+						"repo_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validateEnum([]string{"UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"}),
+							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
+Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"]`,
+						},
+						"revision": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the 
+filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions 
+If unspecified, the revision from which the trigger invocation originated is assumed to be the revision from which to read the specified path.`,
+						},
+						"uri": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The URI of the repo (optional). If unspecified, the repo from which the trigger 
+invocation originated is assumed to be the repo from which to read the specified path.`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"filename", "git_file_source", "build"},
+			},
+			"github": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
+One of 'trigger_template', 'github', 'pubsub_config' or 'webhook_config' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Name of the repository. For example: The name for
+https://github.com/googlecloudplatform/cloud-builders is "cloud-builders".`,
+						},
+						"owner": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Owner of the repository. For example: The owner for
+https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`,
+						},
+						"pull_request": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `filter to match changes in pull requests. Specify only one of 'pull_request' or 'push'.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"branch": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Regex of branches to match.`,
+									},
+									"comment_control": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateEnum([]string{"COMMENTS_DISABLED", "COMMENTS_ENABLED", "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY", ""}),
+										Description:  `Whether to block builds on a "/gcbrun" comment from a repository owner or collaborator. Possible values: ["COMMENTS_DISABLED", "COMMENTS_ENABLED", "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY"]`,
+									},
+									"invert_regex": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, branches that do NOT match the git_ref will trigger a build.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"github.0.pull_request", "github.0.push"},
+						},
+						"push": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `filter to match changes in refs, like branches or tags. Specify only one of 'pull_request' or 'push'.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"branch": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Regex of branches to match.  Specify only one of branch or tag.`,
+										ExactlyOneOf: []string{"github.0.push.0.branch", "github.0.push.0.tag"},
+									},
+									"invert_regex": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When true, only trigger a build if the revision regex does NOT match the git_ref regex.`,
+									},
+									"tag": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Regex of tags to match.  Specify only one of branch or tag.`,
+										ExactlyOneOf: []string{"github.0.push.0.branch", "github.0.push.0.tag"},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"github.0.pull_request", "github.0.push"},
+						},
+					},
+				},
+				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
+			},
+			"ignored_files": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `ignoredFiles and includedFiles are file glob matches using https://golang.org/pkg/path/filepath/#Match
+extended with support for '**'.
+If ignoredFiles and changed files are both empty, then they are not
+used to determine whether or not to trigger a build.
+If ignoredFiles is not empty, then we ignore any files that match any
+of the ignored_file globs. If the change has no files that are outside
+of the ignoredFiles globs, then we do not trigger a build.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"include_build_logs": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateEnum([]string{"INCLUDE_BUILD_LOGS_UNSPECIFIED", "INCLUDE_BUILD_LOGS_WITH_STATUS", ""}),
+				Description: `Build logs will be sent back to GitHub as part of the checkrun
+result.  Values can be INCLUDE_BUILD_LOGS_UNSPECIFIED or
+INCLUDE_BUILD_LOGS_WITH_STATUS Possible values: ["INCLUDE_BUILD_LOGS_UNSPECIFIED", "INCLUDE_BUILD_LOGS_WITH_STATUS"]`,
+			},
+			"included_files": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `ignoredFiles and includedFiles are file glob matches using https://golang.org/pkg/path/filepath/#Match
+extended with support for '**'.
+If any of the files altered in the commit pass the ignoredFiles filter
+and includedFiles is empty, then as far as this filter is concerned, we
+should trigger the build.
+If any of the files altered in the commit pass the ignoredFiles filter
+and includedFiles is not empty, then we make sure that at least one of
+those files matches a includedFiles glob. If not, then we do not trigger
+a build.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `Name of the trigger. Must be unique within the project.`,
+			},
+			"pubsub_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `PubsubConfig describes the configuration of a trigger that creates 
+a build whenever a Pub/Sub message is published.
+One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"topic": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the topic from which this subscription is receiving messages.`,
+						},
+						"service_account_email": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Service account that will make the push request.`,
+						},
+						"state": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Potential issues with the underlying Pub/Sub subscription configuration.
+Only populated on get requests.`,
+						},
+						"subscription": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Output only. Name of the subscription.`,
+						},
+					},
+				},
+				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
+			},
+			"service_account": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The service account used for all user-controlled operations including
+triggers.patch, triggers.run, builds.create, and builds.cancel.
+If no service account is set, then the standard Cloud Build service account
+([PROJECT_NUM]@system.gserviceaccount.com) will be used instead.
+Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}`,
+			},
+			"source_to_build": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The repo and ref of the repository from which to build. 
+This field is used only for those triggers that do not respond to SCM events. 
+Triggers that respond to such events build source at whatever commit caused the event. 
+This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
+One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ref": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The branch or tag to use. Must start with "refs/" (required).`,
+						},
+						"repo_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validateEnum([]string{"UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"}),
+							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
+Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB"]`,
+						},
+						"uri": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The URI of the repo (required).`,
+						},
+					},
+				},
+				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
+			},
+			"substitutions": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Substitutions data for Build resource.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"tags": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Tags for annotation of a BuildTrigger`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"trigger_template": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Template describing the types of source changes to trigger a build.
+Branch and tag names in trigger templates are interpreted as regular
+expressions. Any branch or tag change that matches that regular
+expression will trigger a build.
+One of 'trigger_template', 'github', 'pubsub_config', 'webhook_config' or 'source_to_build' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"branch_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+This field is a regular expression.`,
+							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
+						},
+						"commit_sha": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.`,
+							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
+						},
+						"dir": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Directory, relative to the source root, in which to run the build.
+This must be a relative path. If a step's dir is specified and
+is an absolute path, this value is ignored for that step's
+execution.`,
+						},
+						"invert_regex": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Only trigger a build if the revision regex does NOT match the revision regex.`,
+						},
+						"project_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `ID of the project that owns the Cloud Source Repository. If
+omitted, the project ID requesting the build is assumed.`,
+						},
+						"repo_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Name of the Cloud Source Repository. If omitted, the name "default" is assumed.`,
+							Default:     "default",
+						},
+						"tag_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
+This field is a regular expression.`,
+							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
+						},
+					},
+				},
+				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
+			},
+			"webhook_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `WebhookConfig describes the configuration of a trigger that creates 
+a build whenever a webhook is sent to a trigger's webhook URL.
+One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Resource name for the secret required as a URL parameter.`,
+						},
+						"state": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Potential issues with the underlying Pub/Sub subscription configuration.
+Only populated on get requests.`,
+						},
+					},
+				},
+				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time when the trigger was created.`,
+			},
+			"trigger_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique identifier for the trigger.`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
 }
