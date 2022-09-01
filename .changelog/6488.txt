@@ -1,0 +1,4 @@
+```release-note:enhancement
+container: added field `node_pool_defaults` to `resource_container_cluster`.
+
+```
