@@ -84,16 +84,37 @@ var schemaNodePool = map[string]*schema.Schema{
 			Schema: map[string]*schema.Schema{
 				"min_node_count": {
 					Type:         schema.TypeInt,
-					Required:     true,
+					Optional:     true,
 					ValidateFunc: validation.IntAtLeast(0),
-					Description:  `Minimum number of nodes in the NodePool. Must be >=0 and <= max_node_count.`,
+					Description:  `Minimum number of nodes per zone in the node pool. Must be >=0 and <= max_node_count. Cannot be used with total limits.`,
 				},
 
 				"max_node_count": {
 					Type:         schema.TypeInt,
-					Required:     true,
-					ValidateFunc: validation.IntAtLeast(1),
-					Description:  `Maximum number of nodes in the NodePool. Must be >= min_node_count.`,
+					Optional:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `Maximum number of nodes per zone in the node pool. Must be >= min_node_count. Cannot be used with total limits.`,
+				},
+
+				"total_min_node_count": {
+					Type:         schema.TypeInt,
+					Optional:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `Minimum number of all nodes in the node pool. Must be >=0 and <= total_max_node_count. Cannot be used with per zone limits.`,
+				},
+
+				"total_max_node_count": {
+					Type:         schema.TypeInt,
+					Optional:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `Maximum number of all nodes in the node pool. Must be >= total_min_node_count. Cannot be used with per zone limits.`,
+				},
+
+				"location_policy": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					ValidateFunc: validation.StringInSlice([]string{"BALANCED", "ANY"}, false),
+					Description:  `Location policy specifies the algorithm used when scaling-up the node pool. "BALANCED" - Is a best effort policy that aims to balance the sizes of available zones. "ANY" - Instructs the cluster autoscaler to prioritize utilization of unused reservations, and reduces preemption risk for Spot VMs.`,
 				},
 			},
 		},
@@ -695,10 +716,13 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 	if v, ok := d.GetOk(prefix + "autoscaling"); ok {
 		autoscaling := v.([]interface{})[0].(map[string]interface{})
 		np.Autoscaling = &container.NodePoolAutoscaling{
-			Enabled:         true,
-			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
-			MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
-			ForceSendFields: []string{"MinNodeCount"},
+			Enabled:           true,
+			MinNodeCount:      int64(autoscaling["min_node_count"].(int)),
+			MaxNodeCount:      int64(autoscaling["max_node_count"].(int)),
+			TotalMinNodeCount: int64(autoscaling["total_min_node_count"].(int)),
+			TotalMaxNodeCount: int64(autoscaling["total_max_node_count"].(int)),
+			LocationPolicy:    autoscaling["location_policy"].(string),
+			ForceSendFields:   []string{"MinNodeCount", "MaxNodeCount", "TotalMinNodeCount", "TotalMaxNodeCount"},
 		}
 	}
 
@@ -787,8 +811,11 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 		if np.Autoscaling.Enabled {
 			nodePool["autoscaling"] = []map[string]interface{}{
 				{
-					"min_node_count": np.Autoscaling.MinNodeCount,
-					"max_node_count": np.Autoscaling.MaxNodeCount,
+					"min_node_count":       np.Autoscaling.MinNodeCount,
+					"max_node_count":       np.Autoscaling.MaxNodeCount,
+					"total_min_node_count": np.Autoscaling.TotalMinNodeCount,
+					"total_max_node_count": np.Autoscaling.TotalMaxNodeCount,
+					"location_policy":      np.Autoscaling.LocationPolicy,
 				},
 			}
 		} else {
@@ -839,10 +866,13 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		if v, ok := d.GetOk(prefix + "autoscaling"); ok {
 			autoscaling := v.([]interface{})[0].(map[string]interface{})
 			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
-				Enabled:         true,
-				MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
-				MaxNodeCount:    int64(autoscaling["max_node_count"].(int)),
-				ForceSendFields: []string{"MinNodeCount"},
+				Enabled:           true,
+				MinNodeCount:      int64(autoscaling["min_node_count"].(int)),
+				MaxNodeCount:      int64(autoscaling["max_node_count"].(int)),
+				TotalMinNodeCount: int64(autoscaling["total_min_node_count"].(int)),
+				TotalMaxNodeCount: int64(autoscaling["total_max_node_count"].(int)),
+				LocationPolicy:    autoscaling["location_policy"].(string),
+				ForceSendFields:   []string{"MinNodeCount", "TotalMinNodeCount"},
 			}
 		} else {
 			update.DesiredNodePoolAutoscaling = &container.NodePoolAutoscaling{
