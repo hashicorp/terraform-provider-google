@@ -146,6 +146,8 @@ $ terraform import google_monitoring_dashboard.default projects/{{project}}/dash
 $ terraform import google_monitoring_dashboard.default {{dashboard_id}}
 ```
 
+The `dashboard_id` can be found in either the response of the google cloud api or in the url when viewing the dashboard in the google cloud console.
+
 ## User Project Overrides
 
 This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).
