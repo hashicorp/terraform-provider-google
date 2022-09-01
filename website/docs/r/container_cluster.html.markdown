@@ -269,6 +269,8 @@ region are guaranteed to support the same version.
     [autopilot](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison) clusters and
     [node auto-provisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)-enabled clusters. Structure is [documented below](#nested_node_pool_auto_config).
 
+* `node_pool_defaults` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Default NodePool settings for the entire cluster. These settings are overridden if specified on the specific NodePool object. Structure is [documented below](#nested_node_pool_defaults).
+
 * `node_version` - (Optional) The Kubernetes version on the nodes. Must either be unset
     or set to the same value as `min_master_version` on create. Defaults to the default
     version set by GKE which is not necessarily the latest version. This only affects
@@ -866,6 +868,13 @@ node_pool_auto_config {
   }
 }
 ```
+
+<a name="nested_node_pool_defaults"></a>The `node_pool_defaults` block supports:
+* `node_config_defaults` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Subset of NodeConfig message that has defaults.
+
+The `node_config_defaults` block supports:
+
+* `gcfs_config` (Optional) The default Google Container Filesystem (GCFS) configuration at the cluster level. e.g. enable [image streaming](https://cloud.google.com/kubernetes-engine/docs/how-to/image-streaming) across all the node pools within the cluster. Structure is [documented below](#nested_gcfs_config).
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:
 

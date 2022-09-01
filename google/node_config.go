@@ -16,6 +16,26 @@ var defaultOauthScopes = []string{
 	"https://www.googleapis.com/auth/trace.append",
 }
 
+func schemaGcfsConfig(forceNew bool) *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `GCFS configuration for this node.`,
+		ForceNew:    forceNew,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"enabled": {
+					Type:        schema.TypeBool,
+					Required:    true,
+					ForceNew:    forceNew,
+					Description: `Whether or not GCFS is enabled`,
+				},
+			},
+		},
+	}
+}
+
 func schemaNodeConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
@@ -104,23 +124,7 @@ func schemaNodeConfig() *schema.Schema {
 					Description:  `The number of local SSD disks to be attached to the node.`,
 				},
 
-				"gcfs_config": {
-					Type:        schema.TypeList,
-					Optional:    true,
-					MaxItems:    1,
-					Description: `GCFS configuration for this node.`,
-					ForceNew:    true,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"enabled": {
-								Type:        schema.TypeBool,
-								Required:    true,
-								ForceNew:    true,
-								Description: `Whether or not GCFS is enabled`,
-							},
-						},
-					},
-				},
+				"gcfs_config": schemaGcfsConfig(true),
 
 				"gvnic": {
 					Type:        schema.TypeList,
