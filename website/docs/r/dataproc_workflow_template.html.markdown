@@ -730,6 +730,10 @@ The `gce_cluster_config` block supports:
 * `service_account_scopes` -
   (Optional)
   Optional. The URIs of service account scopes to be included in Compute Engine instances. The following base set of scopes is always included: * https://www.googleapis.com/auth/cloud.useraccounts.readonly * https://www.googleapis.com/auth/devstorage.read_write * https://www.googleapis.com/auth/logging.write If no scopes are specified, the following defaults are also provided: * https://www.googleapis.com/auth/bigquery * https://www.googleapis.com/auth/bigtable.admin.table * https://www.googleapis.com/auth/bigtable.data * https://www.googleapis.com/auth/devstorage.full_control
+
+* `shielded_instance_config` -
+  (Optional)
+  Optional. Shielded Instance Config for clusters using [Compute Engine Shielded VMs](https://cloud.google.com/security/shielded-cloud/shielded-vm). Structure [defined below](#nested_shielded_instance_config).
     
 * `subnetwork` -
   (Optional)
@@ -762,6 +766,32 @@ The `reservation_affinity` block supports:
 * `values` -
   (Optional)
   Optional. Corresponds to the label values of reservation resource.
+
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+
+```hcl
+cluster_config {
+  gce_cluster_config {
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_vtpm                 = true
+      enable_integrity_monitoring = true
+    }
+  }
+}
+```
+
+* `enable_secure_boot` -
+  (Optional)
+  Optional. Defines whether instances have [Secure Boot](https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#secure-boot) enabled.
+    
+* `enable_vtpm` -
+  (Optional)
+  Optional. Defines whether instances have the [vTPM](https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#vtpm) enabled.
+    
+* `enable_integrity_monitoring` -
+  (Optional)
+  Optional. Defines whether instances have [Integrity Monitoring](https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#integrity-monitoring) enabled.
     
 The `gke_cluster_config` block supports:
     
