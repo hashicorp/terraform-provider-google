@@ -59,16 +59,13 @@ first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
 			},
-			"ssl_certificates": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `A list of SslCertificate resources that are used to authenticate
-connections between users and the load balancer. At least one
-SSL certificate must be specified.`,
-				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					DiffSuppressFunc: compareSelfLinkOrResourceName,
-				},
+			"certificate_map": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `A reference to the CertificateMap resource uri that identifies a certificate map
+associated with the given target proxy. This field can only be set for global target proxies.
+Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}'.`,
+				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -83,6 +80,18 @@ SSL certificate must be specified.`,
 				Description: `Specifies the type of proxy header to append before sending data to
 the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 				Default: "NONE",
+			},
+			"ssl_certificates": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A list of SslCertificate resources that are used to authenticate
+connections between users and the load balancer. At least one
+SSL certificate must be specified.`,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
+				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
 			},
 			"ssl_policy": {
 				Type:             schema.TypeString,
@@ -154,6 +163,12 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(sslCertificatesProp)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
 		obj["sslCertificates"] = sslCertificatesProp
+	}
+	certificateMapProp, err := expandComputeTargetSslProxyCertificateMap(d.Get("certificate_map"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("certificate_map"); !isEmptyValue(reflect.ValueOf(certificateMapProp)) && (ok || !reflect.DeepEqual(v, certificateMapProp)) {
+		obj["certificateMap"] = certificateMapProp
 	}
 	sslPolicyProp, err := expandComputeTargetSslProxySslPolicy(d.Get("ssl_policy"), d, config)
 	if err != nil {
@@ -263,6 +278,9 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("ssl_certificates", flattenComputeTargetSslProxySslCertificates(res["sslCertificates"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
+	if err := d.Set("certificate_map", flattenComputeTargetSslProxyCertificateMap(res["certificateMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
+	}
 	if err := d.Set("ssl_policy", flattenComputeTargetSslProxySslPolicy(res["sslPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
@@ -369,6 +387,40 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetSslProxies/{{name}}/setSslCertificates")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating TargetSslProxy %q: %#v", d.Id(), res)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating TargetSslProxy", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("certificate_map") {
+		obj := make(map[string]interface{})
+
+		certificateMapProp, err := expandComputeTargetSslProxyCertificateMap(d.Get("certificate_map"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("certificate_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificateMapProp)) {
+			obj["certificateMap"] = certificateMapProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetSslProxies/{{name}}/setCertificateMap")
 		if err != nil {
 			return err
 		}
@@ -544,6 +596,10 @@ func flattenComputeTargetSslProxySslCertificates(v interface{}, d *schema.Resour
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
+func flattenComputeTargetSslProxyCertificateMap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeTargetSslProxySslPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -585,6 +641,10 @@ func expandComputeTargetSslProxySslCertificates(v interface{}, d TerraformResour
 		req = append(req, f.RelativeLink())
 	}
 	return req, nil
+}
+
+func expandComputeTargetSslProxyCertificateMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeTargetSslProxySslPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
