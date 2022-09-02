@@ -801,6 +801,12 @@ Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`
 				Optional:    true,
 				Description: `The path or name of the app's main executable.`,
 			},
+			"service_account": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The identity that the deployed version will run as. Admin API will use the App Engine Appspot service account as
+default if this field is neither provided in app.yaml file nor through CLI flag.`,
+			},
 			"serving_status": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -935,6 +941,12 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("runtime_main_executable_path"); !isEmptyValue(reflect.ValueOf(runtimeMainExecutablePathProp)) && (ok || !reflect.DeepEqual(v, runtimeMainExecutablePathProp)) {
 		obj["runtimeMainExecutablePath"] = runtimeMainExecutablePathProp
+	}
+	serviceAccountProp, err := expandAppEngineFlexibleAppVersionServiceAccount(d.Get("service_account"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(serviceAccountProp)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
+		obj["serviceAccount"] = serviceAccountProp
 	}
 	apiConfigProp, err := expandAppEngineFlexibleAppVersionApiConfig(d.Get("api_config"), d, config)
 	if err != nil {
@@ -1148,6 +1160,9 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("runtime_main_executable_path", flattenAppEngineFlexibleAppVersionRuntimeMainExecutablePath(res["runtimeMainExecutablePath"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
+	if err := d.Set("service_account", flattenAppEngineFlexibleAppVersionServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
+	}
 	if err := d.Set("api_config", flattenAppEngineFlexibleAppVersionApiConfig(res["apiConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
@@ -1269,6 +1284,12 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("runtime_main_executable_path"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runtimeMainExecutablePathProp)) {
 		obj["runtimeMainExecutablePath"] = runtimeMainExecutablePathProp
+	}
+	serviceAccountProp, err := expandAppEngineFlexibleAppVersionServiceAccount(d.Get("service_account"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
+		obj["serviceAccount"] = serviceAccountProp
 	}
 	apiConfigProp, err := expandAppEngineFlexibleAppVersionApiConfig(d.Get("api_config"), d, config)
 	if err != nil {
@@ -1775,6 +1796,10 @@ func flattenAppEngineFlexibleAppVersionHandlersStaticFilesApplicationReadable(v 
 }
 
 func flattenAppEngineFlexibleAppVersionRuntimeMainExecutablePath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2833,6 +2858,10 @@ func expandAppEngineFlexibleAppVersionHandlersStaticFilesApplicationReadable(v i
 }
 
 func expandAppEngineFlexibleAppVersionRuntimeMainExecutablePath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

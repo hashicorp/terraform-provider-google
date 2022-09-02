@@ -58,10 +58,28 @@ resource "google_project_service" "service" {
   disable_dependent_services = false
 }
 
+resource "google_service_account" "custom_service_account" {
+  project      = google_project_service.service.project
+  account_id   = "my-account"
+  display_name = "Custom Service Account"
+}
+
 resource "google_project_iam_member" "gae_api" {
   project = google_project_service.service.project
   role    = "roles/compute.networkUser"
-  member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
+  member  = "serviceAccount:${google_service_account.custom_service_account.email}"
+}
+
+resource "google_project_iam_member" "logs_writer" {
+  project = google_project_service.service.project
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.custom_service_account.email}"
+}
+
+resource "google_project_iam_member" "storage_viewer" {
+  project = google_project_service.service.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.custom_service_account.email}"
 }
 
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
@@ -112,6 +130,7 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
   }
 
   noop_on_destroy = true
+  service_account = google_service_account.custom_service_account.email
 }
 
 resource "google_storage_bucket" "bucket" {
@@ -271,6 +290,11 @@ The following arguments are supported:
 * `runtime_main_executable_path` -
   (Optional)
   The path or name of the app's main executable.
+
+* `service_account` -
+  (Optional)
+  The identity that the deployed version will run as. Admin API will use the App Engine Appspot service account as
+  default if this field is neither provided in app.yaml file nor through CLI flag.
 
 * `api_config` -
   (Optional)
