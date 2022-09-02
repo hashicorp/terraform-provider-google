@@ -288,9 +288,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 40 minutes.
-- `update` - Default is 40 minutes.
-- `delete` - Default is 40 minutes.
+- `create` - Default is 60 minutes.
+- `update` - Default is 60 minutes.
+- `delete` - Default is 60 minutes.
 
 ## Import
 
