@@ -10,7 +10,6 @@ IMPROVEMENTS:
 * container: added `enable_cost_allocation` to `google_container_cluster` ([#12416](https://github.com/hashicorp/terraform-provider-google/pull/12416))
 * dns: added `behavior` field to `google_dns_response_policy_rule` resource ([#12407](https://github.com/hashicorp/terraform-provider-google/pull/12407))
 * monitoring: added `force_delete` field to `google_monitoring_notification_channel` resource ([#12414](https://github.com/hashicorp/terraform-provider-google/pull/12414))
-* vertexai: added `encryption_spec` field to `google_vertex_ai_featurestore` resource (beta) ([#12430](https://github.com/hashicorp/terraform-provider-google/pull/12430))
 
 BUG FIXES:
 * compute: fixed the `id` format of the data source `google_compute_instance` ([#12405](https://github.com/hashicorp/terraform-provider-google/pull/12405))
