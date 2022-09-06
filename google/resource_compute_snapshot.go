@@ -62,6 +62,17 @@ character, which cannot be a dash.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `A reference to the disk used to create this snapshot.`,
 			},
+			"chain_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Creates the new snapshot in the snapshot chain labeled with the 
+specified name. The chain name must be 1-63 characters long and 
+comply with RFC1035. This is an uncommon option only for advanced 
+service owners who needs to create separate snapshot chains, for 
+example, for chargeback tracking.  When you describe your snapshot 
+resource, this field is visible only if it has a non-empty value.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -222,6 +233,12 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := make(map[string]interface{})
+	chainNameProp, err := expandComputeSnapshotChainName(d.Get("chain_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("chain_name"); !isEmptyValue(reflect.ValueOf(chainNameProp)) && (ok || !reflect.DeepEqual(v, chainNameProp)) {
+		obj["chainName"] = chainNameProp
+	}
 	nameProp, err := expandComputeSnapshotName(d.Get("name"), d, config)
 	if err != nil {
 		return err
@@ -377,6 +394,9 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
 	if err := d.Set("disk_size_gb", flattenComputeSnapshotDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err := d.Set("chain_name", flattenComputeSnapshotChainName(res["chainName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
 	if err := d.Set("name", flattenComputeSnapshotName(res["name"], d, config)); err != nil {
@@ -579,6 +599,10 @@ func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData, con
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeSnapshotChainName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeSnapshotName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -663,6 +687,10 @@ func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d 
 
 func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func expandComputeSnapshotChainName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeSnapshotName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
