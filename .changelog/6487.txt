@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added field `chain_name` to resource `google_compute_snapshot` 
+```
+```release-note:enhancement
+compute: added field `chain_name` to resource `google_compute_resource_policy. snapshot_properties` 
+```

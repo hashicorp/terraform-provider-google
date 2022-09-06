@@ -301,6 +301,14 @@ the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"chain_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `Creates the new snapshot in the snapshot chain labeled with the 
+specified name. The chain name must be 1-63 characters long and comply 
+with RFC1035.`,
+									},
 									"guest_flush": {
 										Type:         schema.TypeBool,
 										Optional:     true,
@@ -793,6 +801,8 @@ func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(v inte
 		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorageLocations(original["storageLocations"], d, config)
 	transformed["guest_flush"] =
 		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(original["guestFlush"], d, config)
+	transformed["chain_name"] =
+		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesChainName(original["chainName"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -807,6 +817,10 @@ func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorage
 }
 
 func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesChainName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1202,6 +1216,13 @@ func expandComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(v inter
 		transformed["guestFlush"] = transformedGuestFlush
 	}
 
+	transformedChainName, err := expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesChainName(original["chain_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedChainName); val.IsValid() && !isEmptyValue(val) {
+		transformed["chainName"] = transformedChainName
+	}
+
 	return transformed, nil
 }
 
@@ -1222,6 +1243,10 @@ func expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorageL
 }
 
 func expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesChainName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

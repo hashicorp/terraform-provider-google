@@ -75,6 +75,39 @@ resource "google_compute_disk" "persistent" {
   zone  = "us-central1-a"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=snapshot_chainname&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Snapshot Chainname
+
+
+```hcl
+resource "google_compute_snapshot" "snapshot" {
+  name        = "my-snapshot"
+  source_disk = google_compute_disk.persistent.id
+  zone        = "us-central1-a"
+  chain_name  = "snapshot-chain"
+  labels = {
+    my_label = "value"
+  }
+  storage_locations = ["us-central1"]
+}
+
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "debian-disk"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+```
 
 ## Argument Reference
 
@@ -98,6 +131,15 @@ The following arguments are supported:
 
 - - -
 
+
+* `chain_name` -
+  (Optional)
+  Creates the new snapshot in the snapshot chain labeled with the 
+  specified name. The chain name must be 1-63 characters long and 
+  comply with RFC1035. This is an uncommon option only for advanced 
+  service owners who needs to create separate snapshot chains, for 
+  example, for chargeback tracking.  When you describe your snapshot 
+  resource, this field is visible only if it has a non-empty value.
 
 * `description` -
   (Optional)
