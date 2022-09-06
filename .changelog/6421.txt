@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_analytics_hub_data_exchange` (beta)
+```
+```release-note:new-resource
+`google_analytics_hub_data_exchange_iam_binding` (beta)
+```
+```release-note:new-resource
+`google_analytics_hub_data_exchange_iam_member` (beta)
+```
+```release-note:new-resource
+`google_analytics_hub_data_exchange_iam_policy` (beta)
+```
