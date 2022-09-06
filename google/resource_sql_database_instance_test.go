@@ -1164,7 +1164,7 @@ func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 	databaseName := "tf-test-" + randString(t, 10)
 	rootPassword := randString(t, 15)
 	addressName := "tf-test-" + randString(t, 10)
-	networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-allocated-ip-range")
+	networkName := BootstrapSharedTestNetwork(t, "sql-instance-sqlserver-audit")
 	bucketName := fmt.Sprintf("%s-%d", "tf-test-bucket", randInt(t))
 	uploadInterval := "900s"
 	retentionInterval := "86400s"

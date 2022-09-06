@@ -54,11 +54,16 @@ func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) 
 }
 
 var cloudRunGoogleProvidedTemplateAnnotations = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.run\.googleapis\.com/sandbox`)
+var cloudRunGoogleProvidedTemplateAnnotations_autoscaling_maxscale = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.autoscaling\.knative\.dev/maxScale`)
 
 func cloudrunTemplateAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Suppress diffs for the annotations provided by API
 	if cloudRunGoogleProvidedTemplateAnnotations.MatchString(k) &&
 		old == "gvisor" && new == "" {
+		return true
+	}
+
+	if cloudRunGoogleProvidedTemplateAnnotations_autoscaling_maxscale.MatchString(k) && new == "" {
 		return true
 	}
 
