@@ -73,13 +73,13 @@ Unlike transitionRoutes, these handlers are evaluated on a first-match basis. Th
 						"target_flow": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target flow to transition to. 
+							Description: `The target flow to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 						},
 						"target_page": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target page to transition to. 
+							Description: `The target page to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.`,
 						},
 						"trigger_fulfillment": {
@@ -168,7 +168,7 @@ If not specified, the agent's default language is used. Many languages are suppo
 						"classification_threshold": {
 							Type:     schema.TypeFloat,
 							Optional: true,
-							Description: `To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold. 
+							Description: `To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold.
 If the returned score value is less than the threshold value, then a no-match event will be triggered. The score values range from 0.0 (completely uncertain) to 1.0 (completely certain). If set to 0.0, the default of 0.3 is used.`,
 						},
 						"model_training_mode": {
@@ -194,7 +194,7 @@ If the returned score value is less than the threshold value, then a no-match ev
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The agent to create a flow for. 
+				Description: `The agent to create a flow for.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.`,
 			},
 			"transition_route_groups": {
@@ -214,7 +214,7 @@ Format:projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Fl
 				Description: `A flow's transition routes serve two purposes:
 They are responsible for matching the user's first utterances in the flow.
 They are inherited by every page's [transition routes][Page.transition_routes] and can support use cases such as the user saying "help" or "can I talk to a human?", which can be handled in a common way regardless of the current page. Transition routes defined in the page have higher priority than those defined in the flow.
-  
+
 TransitionRoutes are evalauted in the following order:
   TransitionRoutes with intent specified.
   TransitionRoutes with only condition specified.
@@ -230,19 +230,19 @@ At least one of intent or condition must be specified. When both intent and cond
 						"intent": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The unique identifier of an Intent. 
+							Description: `The unique identifier of an Intent.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/<Intent ID>. Indicates that the transition can only happen when the given intent is matched. At least one of intent or condition must be specified. When both intent and condition are specified, the transition can only happen when both are fulfilled.`,
 						},
 						"target_flow": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target flow to transition to. 
+							Description: `The target flow to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 						},
 						"target_page": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target page to transition to. 
+							Description: `The target page to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.`,
 						},
 						"trigger_fulfillment": {
@@ -313,7 +313,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<F
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The unique identifier of the flow. 
+				Description: `The unique identifier of the flow.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 			},
 		},

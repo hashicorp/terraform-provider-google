@@ -121,13 +121,13 @@ func resourceDialogflowCXPage() *schema.Resource {
 						"target_flow": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target flow to transition to. 
+							Description: `The target flow to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 						},
 						"target_page": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target page to transition to. 
+							Description: `The target page to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.`,
 						},
 						"trigger_fulfillment": {
@@ -216,7 +216,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<F
 									"entity_type": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `The entity type of the parameter. 
+										Description: `The entity type of the parameter.
 Format: projects/-/locations/-/agents/-/entityTypes/<System Entity Type ID> for system entity types (for example, projects/-/locations/-/agents/-/entityTypes/sys.date), or projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/entityTypes/<Entity Type ID> for developer entity types.`,
 									},
 									"fill_behavior": {
@@ -294,13 +294,13 @@ Format: projects/-/locations/-/agents/-/entityTypes/<System Entity Type ID> for 
 									"redact": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Description: `Indicates whether the parameter content should be redacted in log. 
+										Description: `Indicates whether the parameter content should be redacted in log.
 If redaction is enabled, the parameter content will be replaced by parameter name during logging. Note: the parameter content is subject to redaction if either parameter level redaction or entity type level redaction is enabled.`,
 									},
 									"required": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Description: `Indicates whether the parameter is required. Optional parameters will not trigger prompts; however, they are filled if the user specifies them. 
+										Description: `Indicates whether the parameter is required. Optional parameters will not trigger prompts; however, they are filled if the user specifies them.
 Required parameters must be filled before form filling concludes.`,
 									},
 								},
@@ -331,7 +331,7 @@ If not specified, the agent's default language is used. Many languages are suppo
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The flow to create a page for. 
+				Description: `The flow to create a page for.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 			},
 			"transition_route_groups": {
@@ -367,19 +367,19 @@ At least one of intent or condition must be specified. When both intent and cond
 						"intent": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The unique identifier of an Intent. 
+							Description: `The unique identifier of an Intent.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/<Intent ID>. Indicates that the transition can only happen when the given intent is matched. At least one of intent or condition must be specified. When both intent and condition are specified, the transition can only happen when both are fulfilled.`,
 						},
 						"target_flow": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target flow to transition to. 
+							Description: `The target flow to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 						},
 						"target_page": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The target page to transition to. 
+							Description: `The target page to transition to.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.`,
 						},
 						"trigger_fulfillment": {
@@ -450,7 +450,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<F
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The unique identifier of the page. 
+				Description: `The unique identifier of the page.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.`,
 			},
 		},

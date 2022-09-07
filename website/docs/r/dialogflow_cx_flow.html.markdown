@@ -124,7 +124,6 @@ The following arguments are supported:
   A flow's transition routes serve two purposes:
   They are responsible for matching the user's first utterances in the flow.
   They are inherited by every page's [transition routes][Page.transition_routes] and can support use cases such as the user saying "help" or "can I talk to a human?", which can be handled in a common way regardless of the current page. Transition routes defined in the page have higher priority than those defined in the flow.
-
   TransitionRoutes are evalauted in the following order:
     TransitionRoutes with intent specified.
     TransitionRoutes with only condition specified.
@@ -153,7 +152,7 @@ The following arguments are supported:
 
 * `parent` -
   (Optional)
-  The agent to create a flow for. 
+  The agent to create a flow for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
 
 * `language_code` -
@@ -173,7 +172,7 @@ The following arguments are supported:
 
 * `intent` -
   (Optional)
-  The unique identifier of an Intent. 
+  The unique identifier of an Intent.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/<Intent ID>. Indicates that the transition can only happen when the given intent is matched. At least one of intent or condition must be specified. When both intent and condition are specified, the transition can only happen when both are fulfilled.
 
 * `condition` -
@@ -188,12 +187,12 @@ The following arguments are supported:
 
 * `target_page` -
   (Optional)
-  The target page to transition to. 
+  The target page to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.
 
 * `target_flow` -
   (Optional)
-  The target flow to transition to. 
+  The target flow to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
@@ -250,12 +249,12 @@ The following arguments are supported:
 
 * `target_page` -
   (Optional)
-  The target page to transition to. 
+  The target page to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.
 
 * `target_flow` -
   (Optional)
-  The target flow to transition to. 
+  The target flow to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
@@ -307,7 +306,7 @@ The following arguments are supported:
 
 * `classification_threshold` -
   (Optional)
-  To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold. 
+  To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold.
   If the returned score value is less than the threshold value, then a no-match event will be triggered. The score values range from 0.0 (completely uncertain) to 1.0 (completely certain). If set to 0.0, the default of 0.3 is used.
 
 * `model_training_mode` -
@@ -324,7 +323,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{parent}}/flows/{{name}}`
 
 * `name` -
-  The unique identifier of the flow. 
+  The unique identifier of the flow.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 

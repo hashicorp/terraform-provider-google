@@ -152,7 +152,7 @@ The following arguments are supported:
 
 * `parent` -
   (Optional)
-  The flow to create a page for. 
+  The flow to create a page for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 * `language_code` -
@@ -224,12 +224,12 @@ The following arguments are supported:
 
 * `required` -
   (Optional)
-  Indicates whether the parameter is required. Optional parameters will not trigger prompts; however, they are filled if the user specifies them. 
+  Indicates whether the parameter is required. Optional parameters will not trigger prompts; however, they are filled if the user specifies them.
   Required parameters must be filled before form filling concludes.
 
 * `entity_type` -
   (Optional)
-  The entity type of the parameter. 
+  The entity type of the parameter.
   Format: projects/-/locations/-/agents/-/entityTypes/<System Entity Type ID> for system entity types (for example, projects/-/locations/-/agents/-/entityTypes/sys.date), or projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/entityTypes/<Entity Type ID> for developer entity types.
 
 * `is_list` -
@@ -243,7 +243,7 @@ The following arguments are supported:
 
 * `redact` -
   (Optional)
-  Indicates whether the parameter content should be redacted in log. 
+  Indicates whether the parameter content should be redacted in log.
   If redaction is enabled, the parameter content will be replaced by parameter name during logging. Note: the parameter content is subject to redaction if either parameter level redaction or entity type level redaction is enabled.
 
 
@@ -299,7 +299,7 @@ The following arguments are supported:
 
 * `intent` -
   (Optional)
-  The unique identifier of an Intent. 
+  The unique identifier of an Intent.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/<Intent ID>. Indicates that the transition can only happen when the given intent is matched. At least one of intent or condition must be specified. When both intent and condition are specified, the transition can only happen when both are fulfilled.
 
 * `condition` -
@@ -314,12 +314,12 @@ The following arguments are supported:
 
 * `target_page` -
   (Optional)
-  The target page to transition to. 
+  The target page to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.
 
 * `target_flow` -
   (Optional)
-  The target flow to transition to. 
+  The target flow to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
@@ -376,12 +376,12 @@ The following arguments are supported:
 
 * `target_page` -
   (Optional)
-  The target page to transition to. 
+  The target page to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.
 
 * `target_flow` -
   (Optional)
-  The target flow to transition to. 
+  The target flow to transition to.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
@@ -429,7 +429,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{parent}}/pages/{{name}}`
 
 * `name` -
-  The unique identifier of the page. 
+  The unique identifier of the page.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page ID>.
 
 

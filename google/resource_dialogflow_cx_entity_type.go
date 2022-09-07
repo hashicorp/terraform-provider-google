@@ -100,7 +100,7 @@ For KIND_LIST entity types: A string that can contain references to other entity
 			"excluded_phrases": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `Collection of exceptional words and phrases that shouldn't be matched. For example, if you have a size entity type with entry giant(an adjective), you might consider adding giants(a noun) as an exclusion. 
+				Description: `Collection of exceptional words and phrases that shouldn't be matched. For example, if you have a size entity type with entry giant(an adjective), you might consider adding giants(a noun) as an exclusion.
 If the kind of entity type is KIND_MAP, then the phrases specified by entities and excluded phrases should be mutually exclusive.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -126,7 +126,7 @@ If not specified, the agent's default language is used. Many languages are suppo
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The agent to create a entity type for. 
+				Description: `The agent to create a entity type for.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.`,
 			},
 			"redact": {

@@ -20,7 +20,7 @@ description: |-
 
 # google\_dialogflow\_cx\_entity\_type
 
-Entities are extracted from user input and represent parameters that are meaningful to your application. 
+Entities are extracted from user input and represent parameters that are meaningful to your application.
 For example, a date range, a proper name such as a geographic location or landmark, and so on. Entities represent actionable data for your application.
 
 
@@ -119,7 +119,7 @@ The following arguments are supported:
 
 * `excluded_phrases` -
   (Optional)
-  Collection of exceptional words and phrases that shouldn't be matched. For example, if you have a size entity type with entry giant(an adjective), you might consider adding giants(a noun) as an exclusion. 
+  Collection of exceptional words and phrases that shouldn't be matched. For example, if you have a size entity type with entry giant(an adjective), you might consider adding giants(a noun) as an exclusion.
   If the kind of entity type is KIND_MAP, then the phrases specified by entities and excluded phrases should be mutually exclusive.
   Structure is [documented below](#nested_excluded_phrases).
 
@@ -133,7 +133,7 @@ The following arguments are supported:
 
 * `parent` -
   (Optional)
-  The agent to create a entity type for. 
+  The agent to create a entity type for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
 
 * `language_code` -
