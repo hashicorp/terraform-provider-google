@@ -612,7 +612,7 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 		CheckDestroy: testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucket_versioning(bucketName),
+				Config: testAccStorageBucket_versioning(bucketName, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
@@ -620,6 +620,57 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 						"google_storage_bucket.bucket", "versioning.#", "1"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "versioning.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testAccStorageBucket_versioning_empty(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testAccStorageBucket_versioning(bucketName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testAccStorageBucket_versioning_empty(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "versioning.0.enabled", "false"),
 				),
 			},
 			{
@@ -1255,15 +1306,25 @@ resource "google_storage_bucket" "bucket" {
 `, bucketName)
 }
 
-func testAccStorageBucket_versioning(bucketName string) string {
+func testAccStorageBucket_versioning(bucketName, enabled string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name          = "%s"
   location      = "US"
   force_destroy = true
   versioning {
-    enabled = "true"
+    enabled = "%s"
   }
+}
+`, bucketName, enabled)
+}
+
+func testAccStorageBucket_versioning_empty(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
 }
 `, bucketName)
 }
