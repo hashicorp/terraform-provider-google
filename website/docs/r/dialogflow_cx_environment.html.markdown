@@ -21,7 +21,7 @@ description: |-
 # google\_dialogflow\_cx\_environment
 
 Represents an environment for an agent. You can create multiple versions of your agent and publish them to separate environments.
-When you edit an agent, you are editing the draft agent. At any point, you can save the draft agent as an agent version, which is an immutable snapshot of your agent. 
+When you edit an agent, you are editing the draft agent. At any point, you can save the draft agent as an agent version, which is an immutable snapshot of your agent.
 When you save the draft agent, it is published to the default environment. When you create agent versions, you can publish them to custom environments. You can create a variety of custom environments for testing, development, production, etc.
 
 
@@ -101,7 +101,7 @@ The following arguments are supported:
 
 * `parent` -
   (Optional)
-  The Agent to create an Environment for. 
+  The Agent to create an Environment for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
 
 

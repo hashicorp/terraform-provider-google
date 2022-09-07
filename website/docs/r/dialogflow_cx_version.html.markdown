@@ -81,7 +81,7 @@ The following arguments are supported:
 
 * `parent` -
   (Optional)
-  The Flow to create an Version for. 
+  The Flow to create an Version for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
@@ -119,7 +119,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `classification_threshold` -
   (Optional)
-  To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold. If the returned score value is less than the threshold value, then a no-match event will be triggered. 
+  To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold. If the returned score value is less than the threshold value, then a no-match event will be triggered.
   The score values range from 0.0 (completely uncertain) to 1.0 (completely certain). If set to 0.0, the default of 0.3 is used.
 
 * `model_training_mode` -

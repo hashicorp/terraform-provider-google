@@ -74,7 +74,7 @@ func resourceDialogflowCXEnvironment() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The Agent to create an Environment for. 
+				Description: `The Agent to create an Environment for.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.`,
 			},
 			"name": {

@@ -60,7 +60,7 @@ func resourceDialogflowCXVersion() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The Flow to create an Version for. 
+				Description: `The Flow to create an Version for.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 			},
 			"create_time": {
@@ -82,7 +82,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<F
 						"classification_threshold": {
 							Type:     schema.TypeFloat,
 							Optional: true,
-							Description: `To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold. If the returned score value is less than the threshold value, then a no-match event will be triggered. 
+							Description: `To filter out false positive results and still get variety in matched natural language inputs for your agent, you can tune the machine learning classification threshold. If the returned score value is less than the threshold value, then a no-match event will be triggered.
 The score values range from 0.0 (completely uncertain) to 1.0 (completely certain). If set to 0.0, the default of 0.3 is used.`,
 						},
 						"model_training_mode": {

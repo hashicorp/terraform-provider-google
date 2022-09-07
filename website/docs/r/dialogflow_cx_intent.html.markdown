@@ -118,7 +118,7 @@ The following arguments are supported:
 
 * `is_fallback` -
   (Optional)
-  Indicates whether this is a fallback intent. Currently only default fallback intent is allowed in the agent, which is added upon agent creation. 
+  Indicates whether this is a fallback intent. Currently only default fallback intent is allowed in the agent, which is added upon agent creation.
   Adding training phrases to fallback intent is useful in the case of requests that are mistakenly matched, since training phrases assigned to fallback intents act as negative examples that triggers no-match event.
 
 * `labels` -
@@ -182,7 +182,7 @@ The following arguments are supported:
 
 * `entity_type` -
   (Required)
-  The entity type of the parameter. 
+  The entity type of the parameter.
   Format: projects/-/locations/-/agents/-/entityTypes/<System Entity Type ID> for system entity types (for example, projects/-/locations/-/agents/-/entityTypes/sys.date), or projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/entityTypes/<Entity Type ID> for developer entity types.
 
 * `is_list` -
@@ -191,7 +191,7 @@ The following arguments are supported:
 
 * `redact` -
   (Optional)
-  Indicates whether the parameter content should be redacted in log. If redaction is enabled, the parameter content will be replaced by parameter name during logging. 
+  Indicates whether the parameter content should be redacted in log. If redaction is enabled, the parameter content will be replaced by parameter name during logging.
   Note: the parameter content is subject to redaction if either parameter level redaction or entity type level redaction is enabled.
 
 ## Attributes Reference
@@ -201,7 +201,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{parent}}/intents/{{name}}`
 
 * `name` -
-  The unique identifier of the intent.  
+  The unique identifier of the intent.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/<Intent ID>.
 
 

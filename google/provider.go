@@ -888,9 +888,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 231
+// Generated resources: 232
 // Generated IAM resources: 138
-// Total generated resources: 369
+// Total generated resources: 370
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1107,6 +1107,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dialogflow_cx_page":                                    resourceDialogflowCXPage(),
 			"google_dialogflow_cx_entity_type":                             resourceDialogflowCXEntityType(),
 			"google_dialogflow_cx_environment":                             resourceDialogflowCXEnvironment(),
+			"google_dialogflow_cx_webhook":                                 resourceDialogflowCXWebhook(),
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
 			"google_dns_policy":                                            resourceDNSPolicy(),
 			"google_document_ai_processor":                                 resourceDocumentAIProcessor(),

@@ -59,7 +59,7 @@ func resourceDialogflowCXIntent() *schema.Resource {
 			"is_fallback": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Description: `Indicates whether this is a fallback intent. Currently only default fallback intent is allowed in the agent, which is added upon agent creation. 
+				Description: `Indicates whether this is a fallback intent. Currently only default fallback intent is allowed in the agent, which is added upon agent creation.
 Adding training phrases to fallback intent is useful in the case of requests that are mistakenly matched, since training phrases assigned to fallback intents act as negative examples that triggers no-match event.`,
 			},
 			"labels": {
@@ -87,7 +87,7 @@ If not specified, the agent's default language is used. Many languages are suppo
 						"entity_type": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: `The entity type of the parameter. 
+							Description: `The entity type of the parameter.
 Format: projects/-/locations/-/agents/-/entityTypes/<System Entity Type ID> for system entity types (for example, projects/-/locations/-/agents/-/entityTypes/sys.date), or projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/entityTypes/<Entity Type ID> for developer entity types.`,
 						},
 						"id": {
@@ -103,7 +103,7 @@ Format: projects/-/locations/-/agents/-/entityTypes/<System Entity Type ID> for 
 						"redact": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Description: `Indicates whether the parameter content should be redacted in log. If redaction is enabled, the parameter content will be replaced by parameter name during logging. 
+							Description: `Indicates whether the parameter content should be redacted in log. If redaction is enabled, the parameter content will be replaced by parameter name during logging.
 Note: the parameter content is subject to redaction if either parameter level redaction or entity type level redaction is enabled.`,
 						},
 					},
@@ -170,7 +170,7 @@ Part.text is set to a part of the phrase that you want to annotate, and the para
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The unique identifier of the intent.  
+				Description: `The unique identifier of the intent.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/<Intent ID>.`,
 			},
 		},
