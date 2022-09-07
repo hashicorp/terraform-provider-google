@@ -66,10 +66,20 @@ type Formatter struct {
 // Borrowed logic from https://github.com/sirupsen/logrus/blob/master/json_formatter.go and https://github.com/t-tomalak/logrus-easy-formatter/blob/master/formatter.go
 func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	// Suppress logs if TF_LOG is not DEBUG or TRACE
-	// Also suppress frequent transport spam
-	if !logging.IsDebugOrHigher() || strings.Contains(entry.Message, "transport is closing") {
+	if !logging.IsDebugOrHigher() {
 		return nil, nil
 	}
+
+	// Also suppress based on log content
+	// - frequent transport spam
+	// - ListenSocket logs from gRPC
+	isTransportSpam := strings.Contains(entry.Message, "transport is closing")
+	listenSocketRegex := regexp.MustCompile(`\[Server #\d+( ListenSocket #\d+)*\]`) // Match patterns like `[Server #00]` or `[Server #00 ListenSocket #00]`
+	isListenSocketLog := listenSocketRegex.MatchString(entry.Message)
+	if isTransportSpam || isListenSocketLog {
+		return nil, nil
+	}
+
 	output := f.LogFormat
 	entry.Level = logrus.DebugLevel // Force Entries to be Debug
 
