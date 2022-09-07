@@ -1,0 +1,3 @@
+```release-note:bug
+notebooks: fixed perma-diff in `google_notebooks_instance`
+```
