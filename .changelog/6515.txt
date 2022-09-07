@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigtable: combined create table and create column families into a single API call.
+```
