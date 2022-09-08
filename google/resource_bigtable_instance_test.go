@@ -207,10 +207,55 @@ func TestAccBigtableInstance_createWithAutoscalingAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				// Create Autoscaling config with 2 nodes.
+				// Create Autoscaling config with 2 nodes. Default storage_target is set by service based on storage type.
 				Config: testAccBigtableInstance_autoscalingCluster(instanceName, 2, 5, 70),
-				Check: resource.ComposeTestCheckFunc(resource.TestCheckResourceAttr("google_bigtable_instance.instance",
-					"cluster.0.num_nodes", "2")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "cluster.0.num_nodes", "2"),
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "cluster.0.autoscaling_config.0.storage_target", "8192"),
+				),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+			{
+				// Update Autoscaling configs. storage_target is unchanged.
+				Config: testAccBigtableInstance_autoscalingCluster(instanceName, 1, 5, 80),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "cluster.0.autoscaling_config.0.storage_target", "8192"),
+				),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+		},
+	})
+}
+
+func TestAccBigtableInstance_createWithAutoscalingAndUpdateWithStorageTarget(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create Autoscaling config with 2 nodes. Set storage_target to a non-default value.
+				Config: autoscalingClusterConfigWithStorageTarget(instanceName, 2, 5, 70, 9000),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "cluster.0.num_nodes", "2"),
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "cluster.0.autoscaling_config.0.storage_target", "9000"),
+				),
 			},
 			{
 				ResourceName:            "google_bigtable_instance.instance",
@@ -220,7 +265,10 @@ func TestAccBigtableInstance_createWithAutoscalingAndUpdate(t *testing.T) {
 			},
 			{
 				// Update Autoscaling configs.
-				Config: testAccBigtableInstance_autoscalingCluster(instanceName, 1, 5, 80),
+				Config: autoscalingClusterConfigWithStorageTarget(instanceName, 1, 5, 80, 10000),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "cluster.0.autoscaling_config.0.storage_target", "10000"),
+				),
 			},
 			{
 				ResourceName:            "google_bigtable_instance.instance",
@@ -605,4 +653,22 @@ func testAccBigtableInstance_autoscalingCluster(instanceName string, min int, ma
 	  deletion_protection = false
 
 	}`, instanceName, instanceName, min, max, cpuTarget)
+}
+
+func autoscalingClusterConfigWithStorageTarget(instanceName string, min int, max int, cpuTarget int, storageTarget int) string {
+	return fmt.Sprintf(`resource "google_bigtable_instance" "instance" {
+		name = "%s"
+		cluster {
+			cluster_id   = "%s"
+			storage_type = "HDD"
+			autoscaling_config {
+				min_nodes = %d
+				max_nodes = %d
+				cpu_target = %d
+				storage_target = %d
+			}
+		}
+	  deletion_protection = false
+
+	}`, instanceName, instanceName, min, max, cpuTarget, storageTarget)
 }
