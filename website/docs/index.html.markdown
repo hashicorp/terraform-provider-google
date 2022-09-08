@@ -10,7 +10,7 @@ The Google provider is used to configure your [Google Cloud Platform](https://cl
 See the [Getting Started](/docs/providers/google/guides/getting_started.html) page for an introduction to using the provider.
 
 To learn the basics of Terraform using this provider, follow the
-hands-on [get started tutorials](https://learn.hashicorp.com/tutorials/terraform/infrastructure-as-code?in=terraform/gcp-get-started) on HashiCorp's Learn platform. For more involved examples, try [provisioning a GKE cluster](https://learn.hashicorp.com/tutorials/terraform/gke) and deploying [Consul-backed Vault into it using Terraform Cloud](https://learn.hashicorp.com/tutorials/terraform/kubernetes-consul-vault-pipeline).
+hands-on [get started tutorials](https://learn.hashicorp.com/tutorials/terraform/infrastructure-as-code?in=terraform/gcp-get-started). For more involved examples, try [provisioning a GKE cluster](https://learn.hashicorp.com/tutorials/terraform/gke) and deploying [Consul-backed Vault into it using Terraform Cloud](https://learn.hashicorp.com/tutorials/terraform/kubernetes-consul-vault-pipeline).
 
 A typical provider configuration will look something like:
 
