@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: Added read-only field `connectionState` to `google_apigee_endpoint_attachment`
+```
