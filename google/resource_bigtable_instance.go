@@ -107,6 +107,12 @@ func resourceBigtableInstance() *schema.Resource {
 										Required:    true,
 										Description: `The target CPU utilization for autoscaling. Value must be between 10 and 80.`,
 									},
+									"storage_target": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Computed:    true,
+										Description: `The target storage utilization for autoscaling, in GB, for each node in a cluster. This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD cluster and between 8192 (8TiB) and 16384 (16 TiB) for an HDD cluster. If not set, whatever is already set for the cluster will not change, or if the cluster is just being created, it will use the default value of 2560 for SSD clusters and 8192 for HDD clusters.`,
+									},
 								},
 							},
 						},
@@ -391,6 +397,7 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 		autoscaling_config[0]["min_nodes"] = c.AutoscalingConfig.MinNodes
 		autoscaling_config[0]["max_nodes"] = c.AutoscalingConfig.MaxNodes
 		autoscaling_config[0]["cpu_target"] = c.AutoscalingConfig.CPUTargetPercent
+		autoscaling_config[0]["storage_target"] = c.AutoscalingConfig.StorageUtilizationPerNode
 	}
 	return cluster
 }
@@ -423,9 +430,10 @@ func expandBigtableClusters(clusters []interface{}, instanceID string, config *C
 		if len(autoscaling_configs) > 0 {
 			autoscaling_config := autoscaling_configs[0].(map[string]interface{})
 			cluster_config.AutoscalingConfig = &bigtable.AutoscalingConfig{
-				MinNodes:         autoscaling_config["min_nodes"].(int),
-				MaxNodes:         autoscaling_config["max_nodes"].(int),
-				CPUTargetPercent: autoscaling_config["cpu_target"].(int),
+				MinNodes:                  autoscaling_config["min_nodes"].(int),
+				MaxNodes:                  autoscaling_config["max_nodes"].(int),
+				CPUTargetPercent:          autoscaling_config["cpu_target"].(int),
+				StorageUtilizationPerNode: autoscaling_config["storage_target"].(int),
 			}
 		}
 		results = append(results, cluster_config)
