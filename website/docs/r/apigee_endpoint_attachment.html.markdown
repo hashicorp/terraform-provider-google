@@ -108,6 +108,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `host` -
   Host that can be used in either HTTP Target Endpoint directly, or as the host in Target Server.
 
+* `connection_state` -
+  State of the endpoint attachment connection to the service attachment.
+
 
 ## Timeouts
 

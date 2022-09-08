@@ -65,6 +65,11 @@ in the format 'organizations/{{org_name}}'.`,
 				ForceNew:    true,
 				Description: `Format: projects/*/regions/*/serviceAttachments/*`,
 			},
+			"connection_state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State of the endpoint attachment connection to the service attachment.`,
+			},
 			"host": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -191,6 +196,9 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 	if err := d.Set("service_attachment", flattenApigeeEndpointAttachmentServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
 	}
+	if err := d.Set("connection_state", flattenApigeeEndpointAttachmentConnectionState(res["connectionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
+	}
 
 	return nil
 }
@@ -282,6 +290,10 @@ func flattenApigeeEndpointAttachmentHost(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenApigeeEndpointAttachmentServiceAttachment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenApigeeEndpointAttachmentConnectionState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
