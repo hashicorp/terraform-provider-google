@@ -43,8 +43,8 @@ func dataSourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	// pem_csr is only applicable for SUBORDINATE CertificateAuthorities
-	if d.Get("type") == "SUBORDINATE" {
+	// pem_csr is only applicable for SUBORDINATE CertificateAuthorities when their state is AWAITING_USER_ACTIVATION
+	if d.Get("type") == "SUBORDINATE" && d.Get("state") == "AWAITING_USER_ACTIVATION" {
 		url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:fetch")
 		if err != nil {
 			return err

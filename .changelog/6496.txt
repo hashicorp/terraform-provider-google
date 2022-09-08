@@ -1,0 +1,3 @@
+```release-note:bug
+privateca: fixed an issue that blocked subordinate CA data sources when `state` was not `AWAITING_USER_ACTIVATION`
+```
