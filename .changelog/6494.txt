@@ -1,0 +1,3 @@
+```release-note:enhancement
+dns: Added in validation for trailing dot at end of DNS record name
+```
