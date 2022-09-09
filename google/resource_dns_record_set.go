@@ -88,10 +88,11 @@ func resourceDnsRecordSet() *schema.Resource {
 			},
 
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The DNS name this record set will apply to.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateRecordNameTrailingDot,
+				Description:  `The DNS name this record set will apply to.`,
 			},
 
 			"rrdatas": {
@@ -619,4 +620,19 @@ func flattenDnsRecordSetRoutingPolicyGEO(geo *dns.RRSetRoutingPolicyGeoPolicy) [
 		ris = append(ris, ri)
 	}
 	return ris
+}
+
+func validateRecordNameTrailingDot(v interface{}, k string) (warnings []string, errors []error) {
+	value := v.(string)
+	len_value := len(value)
+	if len_value == 0 {
+		errors = append(errors, fmt.Errorf("the empty string is not a valid name field value"))
+		return nil, errors
+	}
+	last1 := value[len_value-1:]
+	if last1 != "." {
+		errors = append(errors, fmt.Errorf("%q (%q) doesn't end with %q, name field must end with trailing dot, for example test.example.com. (note the trailing dot)", k, value, "."))
+		return nil, errors
+	}
+	return nil, nil
 }

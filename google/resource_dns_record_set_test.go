@@ -10,6 +10,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestValidateRecordNameTrailingDot(t *testing.T) {
+	cases := []StringValidationTestCase{
+		// No errors
+		{TestName: "trailing dot", Value: "test-record.hashicorptest.com."},
+
+		// With errors
+		{TestName: "empty string", Value: "", ExpectError: true},
+		{TestName: "no trailing dot", Value: "test-record.hashicorptest.com", ExpectError: true},
+	}
+
+	es := testStringValidationCases(cases, validateRecordNameTrailingDot)
+	if len(es) > 0 {
+		t.Errorf("Failed to validate DNS Record name with value: %v", es)
+	}
+}
+
 func TestIpv6AddressDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New       []string
