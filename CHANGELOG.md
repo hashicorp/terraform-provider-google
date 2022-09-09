@@ -1,4 +1,64 @@
-## 4.35.0 (Unreleased)
+## 4.36.0 (Unreleased)
+
+UNKNOWN CHANGELOG TYPE:
+* Add field `node_pool_defaults` to `resource_container_cluster`. ([#12452](https://github.com/hashicorp/terraform-provider-google/pull/12452))
+* Made github actions use go 1.18 ([#12454](https://github.com/hashicorp/terraform-provider-google/pull/12454))
+* Remove Mentions of HashiCorp Learn ([#12480](https://github.com/hashicorp/terraform-provider-google/pull/12480))
+
+FEATURES:
+* **New Resource:** `google_analytics_hub_data_exchange_iam_binding` (beta) ([#12474](https://github.com/hashicorp/terraform-provider-google/pull/12474))
+* **New Resource:** `google_analytics_hub_data_exchange_iam_member` (beta) ([#12474](https://github.com/hashicorp/terraform-provider-google/pull/12474))
+* **New Resource:** `google_analytics_hub_data_exchange_iam_policy` (beta) ([#12474](https://github.com/hashicorp/terraform-provider-google/pull/12474))
+* **New Resource:** `google_analytics_hub_data_exchange` (beta) ([#12474](https://github.com/hashicorp/terraform-provider-google/pull/12474))
+* **New Resource:** google_datastream_connection_profile ([#12475](https://github.com/hashicorp/terraform-provider-google/pull/12475))
+
+IMPROVEMENTS:
+* apigee: added a `properties` field to the Apigee Organization resource ([#12433](https://github.com/hashicorp/terraform-provider-google/pull/12433))
+* appengine: Added field `serviceAccount` to `app_engine_flexible_app_version` ([#12463](https://github.com/hashicorp/terraform-provider-google/pull/12463))
+* bigtable: increased timeout in table creation. ([#12468](https://github.com/hashicorp/terraform-provider-google/pull/12468))
+* cloudbuild: added `location` field to `google_cloudbuild_trigger` resource ([#12450](https://github.com/hashicorp/terraform-provider-google/pull/12450))
+* compute: added `certificate_map` to `compute_target_ssl_proxy` resource ([#12467](https://github.com/hashicorp/terraform-provider-google/pull/12467))
+* compute: added field `chain_name` to resource `google_compute_resource_policy. snapshot_properties` ([#12481](https://github.com/hashicorp/terraform-provider-google/pull/12481))
+* compute: added field `chain_name` to resource `google_compute_snapshot` ([#12481](https://github.com/hashicorp/terraform-provider-google/pull/12481))
+* container: added `autoscaling.total_min_node_count`, `autoscaling.total_max_node_count`, and `autoscaling.location_policy` to `google_container_cluster.node_pool` ([#12453](https://github.com/hashicorp/terraform-provider-google/pull/12453))
+* container: added `autoscaling.total_min_node_count`, `autoscaling.total_max_node_count`, and `autoscaling.location_policy` to `google_container_node_pool` resource ([#12453](https://github.com/hashicorp/terraform-provider-google/pull/12453))
+* dataproc: added option `shielded_instance_config` to resource `google_dataproc_workflow_template`. ([#12451](https://github.com/hashicorp/terraform-provider-google/pull/12451))
+* metastore: extended default timeouts for `google_dataproc_metastore_service` from 40m to 60m ([#12462](https://github.com/hashicorp/terraform-provider-google/pull/12462))
+* pubsub: made enableExactlyOnceDelivery mutable so that it updates subscription in-place and avoids recreation of the subscription. ([#12438](https://github.com/hashicorp/terraform-provider-google/pull/12438))
+
+## 4.35.0 (September 6, 2022)
+
+IMPROVEMENTS:
+* apigee: added support for `nodeConfig` in `google_apigee_environment` ([#12394](https://github.com/hashicorp/terraform-provider-google/pull/12394))
+* apigee: added a `properties` field to `google_apigee_organization` ([#12433](https://github.com/hashicorp/terraform-provider-google/pull/12433))
+* cloudfunctions2: added `secret_environment_variables` and `secret_volumes` to `google_cloudfunctions2_function` ([#12417](https://github.com/hashicorp/terraform-provider-google/pull/12417))
+* compute: added support for param `visible_core_count` in `google_compute_instance` and `google_compute_instance_template` under `advanced_machine_features` ([#12404](https://github.com/hashicorp/terraform-provider-google/pull/12404))
+* compute: added support documentation links to error messages for certain Compute Operation errors. ([#12418](https://github.com/hashicorp/terraform-provider-google/pull/12418))
+* container: added `service_external_ips_config` support to `cluster_container` resource. ([#12415](https://github.com/hashicorp/terraform-provider-google/pull/12415))
+* container: added `enable_cost_allocation` to `google_container_cluster` ([#12416](https://github.com/hashicorp/terraform-provider-google/pull/12416))
+* dns: added `behavior` field to `google_dns_response_policy_rule` resource ([#12407](https://github.com/hashicorp/terraform-provider-google/pull/12407))
+* monitoring: added `force_delete` field to `google_monitoring_notification_channel` resource ([#12414](https://github.com/hashicorp/terraform-provider-google/pull/12414))
+
+BUG FIXES:
+* compute: fixed the `id` format of the data source `google_compute_instance` ([#12405](https://github.com/hashicorp/terraform-provider-google/pull/12405))
+
+## 4.34.0 (August 29, 2022)
+NOTES:
+* updated Bigtable go client version from 1.13 to 1.16. ([#12349](https://github.com/hashicorp/terraform-provider-google/pull/12349))
+
+IMPROVEMENTS:
+* apigee: added support for specifying retention when deleting `google_apigee_organization` ([#12336](https://github.com/hashicorp/terraform-provider-google/pull/12336))
+* appengine: added `app_engine_apis` field to `google_app_engine_standard_app_version` resource ([#12339](https://github.com/hashicorp/terraform-provider-google/pull/12339))
+* cloudfunction2: promoted to `google_cloudfunctions2_function` ga ([#12322](https://github.com/hashicorp/terraform-provider-google/pull/12322))
+* compute: improved error messaging for compute errors ([#12333](https://github.com/hashicorp/terraform-provider-google/pull/12333))
+* container: added general field `reservation_affinity` to `google_container_node_pool` ([#12375](https://github.com/hashicorp/terraform-provider-google/pull/12375))
+* container: added field `auto_provisioning_network_tags` to `google_container_cluster` (beta) ([#12347](https://github.com/hashicorp/terraform-provider-google/pull/12347))
+* sql: added support for major version upgrade to `google_sql_database_instance ` resource ([#12338](https://github.com/hashicorp/terraform-provider-google/pull/12338))
+
+BUG FIXES:
+* bigtable: fixed comparing column family name when reading a GC policy. ([#12381](https://github.com/hashicorp/terraform-provider-google/pull/12381))
+* bigtable: passed `isTopeLevel` in getGCPolicyFromJSON() instead of hardcoding it to true. ([#12351](https://github.com/hashicorp/terraform-provider-google/pull/12351))
+* composer: corrected the description of `image_version` field. ([#12329](https://github.com/hashicorp/terraform-provider-google/pull/12329))
 
 ## 4.34.0 (August 29, 2022)
 NOTES:
