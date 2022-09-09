@@ -347,8 +347,10 @@ exported:
 
 ## Import
 
-BigQuery tables can be imported using the `project`, `dataset_id`, and `table_id`, e.g.
+BigQuery tables imported using any of these accepted formats:
 
 ```
-$ terraform import google_bigquery_table.default gcp-project/foo/bar
+$ terraform import google_bigquery_table.default projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}
+$ terraform import google_bigquery_table.default {{project}}/{{dataset_id}}/{{table_id}}
+$ terraform import google_bigquery_table.default {{dataset_id}}/{{table_id}}
 ```
