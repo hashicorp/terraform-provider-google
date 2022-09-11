@@ -422,6 +422,15 @@ Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`
 							Required:    true,
 							Description: `Full Serverless VPC Access Connector name e.g. /projects/my-project/locations/us-central1/connectors/c1.`,
 						},
+						"egress_setting": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The egress setting for the connector, controlling what traffic is diverted through it.`,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validateEnum([]string{"EGRESS_SETTING_UNSPECIFIED", "ALL_TRAFFIC", "PRIVATE_IP_RANGES"}),
+							},
+						},
 					},
 				},
 			},
@@ -1751,11 +1760,21 @@ func expandAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d Terraf
 	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
 		transformed["name"] = transformedName
 	}
+	transformedEgressSetting, err := expandAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(original["egress_setting"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEgressSetting); val.IsValid() && !isEmptyValue(val) {
+		transformed["egressSetting"] = transformedEgressSetting
+	}
 
 	return transformed, nil
 }
 
 func expandAppEngineStandardAppVersionVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
