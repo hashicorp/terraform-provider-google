@@ -104,7 +104,7 @@ resource "google_vpc_access_connector" "connector" {
   provider      = google-beta
   region        = "us-west1"
   ip_cidr_range = "10.8.0.0/28"
-  max_throughput= 300
+  max_throughput= 1000
   network       = google_compute_network.default.name
   depends_on    = [google_project_service.vpcaccess_api]
 }
@@ -190,7 +190,7 @@ The following arguments are supported:
 
 * `min_throughput` -
   (Optional)
-  Minimum throughput of the connector in Mbps. Default and min is 200.
+  Minimum throughput of the connector in Mbps. Default and min is 500.
 
 * `min_instances` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -202,7 +202,7 @@ The following arguments are supported:
 
 * `max_throughput` -
   (Optional)
-  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 300.
+  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 1000.
 
 * `subnet` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
