@@ -1,4 +1,22 @@
-## 4.36.0 (Unreleased)
+## 4.37.0 (Unreleased)
+
+## 4.36.0 (September 12, 2022)
+
+FEATURES:
+* **New Resource:** `google_datastream_connection_profile` ([#12475](https://github.com/hashicorp/terraform-provider-google/pull/12475))
+
+IMPROVEMENTS:
+* appengine: added field `service_account` to `google_app_engine_flexible_app_version` ([#12463](https://github.com/hashicorp/terraform-provider-google/pull/12463))
+* bigtable: increased timeout in `google_bigtable_table` creation. ([#12468](https://github.com/hashicorp/terraform-provider-google/pull/12468))
+* cloudbuild: added `location` field to `google_cloudbuild_trigger` resource ([#12450](https://github.com/hashicorp/terraform-provider-google/pull/12450))
+* compute: added `certificate_map` to `compute_target_ssl_proxy` resource ([#12467](https://github.com/hashicorp/terraform-provider-google/pull/12467))
+* compute: added field `chain_name` to `google_compute_resource_policy.snapshot_properties` ([#12481](https://github.com/hashicorp/terraform-provider-google/pull/12481))
+* compute: added field `chain_name` to resource `google_compute_snapshot` ([#12481](https://github.com/hashicorp/terraform-provider-google/pull/12481))
+* container: added `autoscaling.total_min_node_count`, `autoscaling.total_max_node_count`, and `autoscaling.location_policy` to `google_container_cluster.node_pool` ([#12453](https://github.com/hashicorp/terraform-provider-google/pull/12453))
+* container: added field `node_pool_defaults` to `resource_container_cluster`. ([#12452](https://github.com/hashicorp/terraform-provider-google/pull/12452))
+* dataproc: added option `shielded_instance_config` to resource `google_dataproc_workflow_template`. ([#12451](https://github.com/hashicorp/terraform-provider-google/pull/12451))
+* metastore: extended default timeouts for `google_dataproc_metastore_service` from 40m to 60m ([#12462](https://github.com/hashicorp/terraform-provider-google/pull/12462))
+* pubsub: made `google_pubsub_subscription.enable_exactly_once_delivery` mutable so that it updates subscription without recreation. ([#12438](https://github.com/hashicorp/terraform-provider-google/pull/12438))
 
 ## 4.35.0 (September 6, 2022)
 
