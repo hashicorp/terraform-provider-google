@@ -1,0 +1,3 @@
+```release-note:new-resource
+Apigee: Added Apigee NAT address resource `google_apigee_nat_address`
+```
