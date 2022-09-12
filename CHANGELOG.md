@@ -1,7 +1,7 @@
 ## 4.36.0 (Unreleased)
 
 FEATURES:
-* **New Resource:** google_datastream_connection_profile ([#12475](https://github.com/hashicorp/terraform-provider-google/pull/12475))
+* **New Resource:** `google_datastream_connection_profile` ([#12475](https://github.com/hashicorp/terraform-provider-google/pull/12475))
 
 IMPROVEMENTS:
 * appengine: added field `service_account` to `google_app_engine_flexible_app_version` ([#12463](https://github.com/hashicorp/terraform-provider-google/pull/12463))
