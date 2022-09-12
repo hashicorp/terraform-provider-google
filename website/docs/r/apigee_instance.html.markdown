@@ -243,7 +243,7 @@ The following arguments are supported:
 
 * `peering_cidr_range` -
   (Optional)
-  The size of the CIDR block range that will be reserved by the instance. For valid values, 
+  The size of the CIDR block range that will be reserved by the instance. For valid values,
   see [CidrRange](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.instances#CidrRange) on the documentation.
 
 * `ip_range` -

@@ -108,7 +108,7 @@ Input format: "a.b.c.d/22"`,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `The size of the CIDR block range that will be reserved by the instance. For valid values, 
+				Description: `The size of the CIDR block range that will be reserved by the instance. For valid values,
 see [CidrRange](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.instances#CidrRange) on the documentation.`,
 			},
 			"host": {
