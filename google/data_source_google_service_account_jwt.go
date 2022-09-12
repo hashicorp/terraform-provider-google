@@ -1,8 +1,10 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 
@@ -17,6 +19,11 @@ func dataSourceGoogleServiceAccountJwt() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `A JSON-encoded JWT claims set that will be included in the signed JWT.`,
+			},
+			"expires_in": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Number of seconds until the JWT expires. If set and non-zero an `exp` claim will be added to the payload derived from the current timestamp plus expires_in seconds.",
 			},
 			"target_service_account": {
 				Type:         schema.TypeString,
@@ -40,6 +47,10 @@ func dataSourceGoogleServiceAccountJwt() *schema.Resource {
 	}
 }
 
+var (
+	dataSourceGoogleServiceAccountJwtNow = time.Now
+)
+
 func dataSourceGoogleServiceAccountJwtRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -49,10 +60,30 @@ func dataSourceGoogleServiceAccountJwtRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	payload := d.Get("payload").(string)
+
+	if expiresIn := d.Get("expires_in").(int); expiresIn != 0 {
+		var decoded map[string]interface{}
+
+		if err := json.Unmarshal([]byte(payload), &decoded); err != nil {
+			return fmt.Errorf("error decoding `payload` while adding `exp` field: %w", err)
+		}
+
+		decoded["exp"] = dataSourceGoogleServiceAccountJwtNow().Add(time.Duration(expiresIn) * time.Second).Unix()
+
+		payloadBytesWithExp, err := json.Marshal(decoded)
+
+		if err != nil {
+			return fmt.Errorf("error re-encoding `payload` while adding `exp` field: %w", err)
+		}
+
+		payload = string(payloadBytesWithExp)
+	}
+
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 
 	jwtRequest := &iamcredentials.SignJwtRequest{
-		Payload:   d.Get("payload").(string),
+		Payload:   payload,
 		Delegates: convertStringSet(d.Get("delegates").(*schema.Set)),
 	}
 

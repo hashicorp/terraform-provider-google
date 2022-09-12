@@ -7,6 +7,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"fmt"
 
@@ -18,6 +19,7 @@ const (
 	jwtTestSubject          = "custom-subject"
 	jwtTestFoo              = "bar"
 	jwtTestComplexFooNested = "baz"
+	jwtTestExpiresIn        = 60
 )
 
 type jwtTestPayload struct {
@@ -28,6 +30,8 @@ type jwtTestPayload struct {
 	ComplexFoo struct {
 		Nested string `json:"nested"`
 	} `json:"complexFoo"`
+
+	Expiration int64 `json:"exp"`
 }
 
 func testAccCheckServiceAccountJwtValue(name, audience string) resource.TestCheckFunc {
@@ -78,6 +82,12 @@ func testAccCheckServiceAccountJwtValue(name, audience string) resource.TestChec
 			return fmt.Errorf("invalid 'foo', expected '%s', got '%s'", jwtTestComplexFooNested, payload.ComplexFoo.Nested)
 		}
 
+		expectedExpiration := dataSourceGoogleServiceAccountJwtNow().Add(jwtTestExpiresIn * time.Second).Unix()
+
+		if payload.Expiration != expectedExpiration {
+			return fmt.Errorf("invalid 'exp', expected '%d', got '%d'", expectedExpiration, payload.Expiration)
+		}
+
 		return nil
 	}
 }
@@ -89,11 +99,28 @@ func TestAccDataSourceGoogleServiceAccountJwt(t *testing.T) {
 	serviceAccount := getTestServiceAccountFromEnv(t)
 	targetServiceAccountEmail := BootstrapServiceAccount(t, getTestProjectFromEnv(), serviceAccount)
 
+	staticTime := time.Now()
+
+	// Override the current time with one that is set to a static value, to compare against later.
+	dataSourceGoogleServiceAccountJwtNow = func() time.Time {
+		return staticTime
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
+				Config: testAccCheckGoogleServiceAccountJwt(targetServiceAccountEmail),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckServiceAccountJwtValue(resourceName, targetAudience),
+				),
+			},
+			{
+				PreConfig: func() {
+					// Bump the hardcoded time to ensure terraform responds well to the JWT expiration changing.
+					staticTime = time.Now().Add(10 * time.Second)
+				},
 				Config: testAccCheckGoogleServiceAccountJwt(targetServiceAccountEmail),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckServiceAccountJwtValue(resourceName, targetAudience),
@@ -115,6 +142,8 @@ data "google_service_account_jwt" "default" {
         nested: "%s"
       }
     })
+
+    expires_in = %d
 }
-`, targetServiceAccount, jwtTestSubject, jwtTestFoo, jwtTestComplexFooNested)
+`, targetServiceAccount, jwtTestSubject, jwtTestFoo, jwtTestComplexFooNested, jwtTestExpiresIn)
 }
