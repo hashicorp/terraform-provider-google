@@ -1,0 +1,3 @@
+```release-note:bug
+vpcaccess: updated defaults for `minThroughput` and `maxThroughput` on `google_vpc_access_connector`
+```
