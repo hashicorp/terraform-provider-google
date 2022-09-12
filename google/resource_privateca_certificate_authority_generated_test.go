@@ -105,6 +105,7 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
