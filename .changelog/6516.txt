@@ -1,0 +1,4 @@
+```release-note:enhancement
+google_compute_instance: removed shortname from the description of attribute resource_policies
+
+```

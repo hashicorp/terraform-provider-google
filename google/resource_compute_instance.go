@@ -822,7 +822,7 @@ func resourceComputeInstance() *schema.Resource {
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 				Optional:         true,
 				MaxItems:         1,
-				Description:      `A list of short names or self_links of resource policies to attach to the instance. Currently a max of 1 resource policy is supported.`,
+				Description:      `A list of self_links of resource policies to attach to the instance. Currently a max of 1 resource policy is supported.`,
 			},
 
 			"reservation_affinity": {
