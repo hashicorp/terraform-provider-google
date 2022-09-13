@@ -1,0 +1,4 @@
+```release-note:enhancement
+google_project: added validation for field project_id in data source.
+
+```
