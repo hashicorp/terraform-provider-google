@@ -55,19 +55,19 @@ func resourceVPCAccessConnector() *schema.Resource {
 			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
-				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(200, 1000),
-				Description:  `Maximum throughput of the connector in Mbps, must be greater than 'min_throughput'. Default is 1000.`,
+				Description:  `Maximum throughput of the connector in Mbps, must be greater than 'min_throughput'. Default is 300.`,
+				Default:      300,
 			},
 			"min_throughput": {
 				Type:         schema.TypeInt,
-				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(200, 1000),
-				Description:  `Minimum throughput of the connector in Mbps. Default and min is 500.`,
+				Description:  `Minimum throughput of the connector in Mbps. Default and min is 200.`,
+				Default:      200,
 			},
 			"network": {
 				Type:             schema.TypeString,
