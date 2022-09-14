@@ -30,16 +30,19 @@ go into the four categories and rules therein.
 Resource/datasource naming conventions and entry differences.
 
 <h4 id="resource-map-resource-removal-or-rename"> Removing or Renaming an resource </h4>
- > In terraform resources should be retained whenever possible. A removable of an resource will result in a configuration breakage wherever a dependency on that resource exists. Renaming or Removing a resources are functionally equivalent in terms of configuration breakages.
+
+* In terraform resources should be retained whenever possible. A removable of an resource will result in a configuration breakage wherever a dependency on that resource exists. Renaming or Removing a resources are functionally equivalent in terms of configuration breakages.
 
 ### Resource Level Breakages
 Individual resource breakages like field entry removals or behavior within a resource.
 
 <h4 id="resource-schema-field-removal-or-rename"> Removing or Renaming an field </h4>
-In terraform fields should be retained whenever possible. A removable of an field will result in a configuration breakage wherever a dependency on that field exists. Renaming or Removing a field are functionally equivalent in terms of configuration breakages.
+
+* In terraform fields should be retained whenever possible. A removable of an field will result in a configuration breakage wherever a dependency on that field exists. Renaming or Removing a field are functionally equivalent in terms of configuration breakages.
 
 ### Field Level Breakages
 Field level conventions like attribute changes and naming conventions.
 
 <h4 id="field-optional-to-required"> Optional to Required Field </h4>
-A field cannot go from optional to required as existing terraform modules may not have this field defined. Thus breaking their modules in sequential plan or applies.
+
+* A field cannot go from optional to required as existing terraform modules may not have this field defined. Thus breaking their modules in sequential plan or applies.
