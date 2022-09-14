@@ -30,7 +30,7 @@ go into the four categories and rules therein.
 Resource/datasource naming conventions and entry differences.
 
 <h4 id="resource-map-resource-removal-or-rename"> Removing or Renaming an resource </h4>
- * In terraform resources should be retained whenever possible. A removable of an resource will result in a configuration breakage wherever a dependency on that resource exists. Renaming or Removing a resources are functionally equivalent in terms of configuration breakages.
+ > In terraform resources should be retained whenever possible. A removable of an resource will result in a configuration breakage wherever a dependency on that resource exists. Renaming or Removing a resources are functionally equivalent in terms of configuration breakages.
 
 ### Resource Level Breakages
 Individual resource breakages like field entry removals or behavior within a resource.
