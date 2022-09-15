@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: added drift detection on `gc_rules` for `google_bigtable_gc_policy`
+```

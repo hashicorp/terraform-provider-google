@@ -255,10 +255,32 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	for _, fi := range ti.FamilyInfos {
-		if fi.Name == columnFamily {
-			d.SetId(fi.GCPolicy)
-			break
+		if fi.Name != columnFamily {
+			continue
 		}
+
+		d.SetId(fi.GCPolicy)
+
+		// No GC Policy.
+		if fi.FullGCPolicy.String() == "" {
+			return nil
+		}
+
+		// Only set `gc_rules`` when the legacy fields are not set. We are not planning to support legacy fields.
+		maxAge := d.Get("max_age")
+		maxVersion := d.Get("max_version")
+		if d.Get("mode") == "" && len(maxAge.([]interface{})) == 0 && len(maxVersion.([]interface{})) == 0 {
+			gcRuleString, err := gcPolicyToGCRuleString(fi.FullGCPolicy, true)
+			if err != nil {
+				return err
+			}
+			gcRuleJsonString, err := json.Marshal(gcRuleString)
+			if err != nil {
+				return fmt.Errorf("Error marshaling GC policy to json: %s", err)
+			}
+			d.Set("gc_rules", string(gcRuleJsonString))
+		}
+		break
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -266,6 +288,71 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	return nil
+}
+
+// Recursively convert Bigtable GC policy to JSON format in a map.
+func gcPolicyToGCRuleString(gc bigtable.GCPolicy, topLevel bool) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+	switch bigtable.GetPolicyType(gc) {
+	case bigtable.PolicyMaxAge:
+		age := gc.(bigtable.MaxAgeGCPolicy).GetDurationString()
+		if topLevel {
+			rule := make(map[string]interface{})
+			rule["max_age"] = age
+			rules := []interface{}{}
+			rules = append(rules, rule)
+			result["rules"] = rules
+		} else {
+			result["max_age"] = age
+		}
+		break
+	case bigtable.PolicyMaxVersion:
+		// bigtable.MaxVersionsGCPolicy is an int.
+		// Not sure why max_version is a float64.
+		// TODO: Maybe change max_version to an int.
+		version := float64(int(gc.(bigtable.MaxVersionsGCPolicy)))
+		if topLevel {
+			rule := make(map[string]interface{})
+			rule["max_version"] = version
+			rules := []interface{}{}
+			rules = append(rules, rule)
+			result["rules"] = rules
+		} else {
+			result["max_version"] = version
+		}
+		break
+	case bigtable.PolicyUnion:
+		result["mode"] = "union"
+		rules := []interface{}{}
+		for _, c := range gc.(bigtable.UnionGCPolicy).Children {
+			gcRuleString, err := gcPolicyToGCRuleString(c, false)
+			if err != nil {
+				return nil, err
+			}
+			rules = append(rules, gcRuleString)
+		}
+		result["rules"] = rules
+		break
+	case bigtable.PolicyIntersection:
+		result["mode"] = "intersection"
+		rules := []interface{}{}
+		for _, c := range gc.(bigtable.IntersectionGCPolicy).Children {
+			gcRuleString, err := gcPolicyToGCRuleString(c, false)
+			if err != nil {
+				return nil, err
+			}
+			rules = append(rules, gcRuleString)
+		}
+		result["rules"] = rules
+	default:
+		break
+	}
+
+	if err := validateNestedPolicy(result, topLevel); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) error {
