@@ -308,10 +308,11 @@ is set to true.`,
 							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. If you want to set this field, set disk_autoresize to false.`,
 						},
 						"disk_type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "PD_SSD",
-							Description: `The type of data disk: PD_SSD or PD_HDD.`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Default:          "PD_SSD",
+							DiffSuppressFunc: caseDiffDashSuppress,
+							Description:      `The type of data disk: PD_SSD or PD_HDD.`,
 						},
 						"ip_configuration": {
 							Type:     schema.TypeList,
@@ -1830,4 +1831,9 @@ func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *Config
 	}
 
 	return nil
+}
+
+func caseDiffDashSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	postReplaceNew := strings.Replace(new, "-", "_", -1)
+	return strings.ToUpper(postReplaceNew) == strings.ToUpper(old)
 }

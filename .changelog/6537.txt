@@ -1,0 +1,3 @@
+```release-note:bug
+google_sql_database_instance: fixed a bug causing a perma-diff on disk_type due to API values being downcased
+```
