@@ -1,0 +1,4 @@
+```release-note: enhancement
+redis: Added `persistence_config` field to the `google_redis_instance` resource.
+
+```
