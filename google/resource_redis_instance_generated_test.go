@@ -131,6 +131,49 @@ data "google_compute_network" "redis-network" {
 `, context)
 }
 
+func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(context),
+			},
+			{
+				ResourceName:            "google_redis_instance.cache-persis",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_redis_instance" "cache-persis" {
+  name           = "tf-test-ha-memory-cache-persis%{random_suffix}"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 1
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  persistence_config {
+    persistence_mode = "RDB"
+    rdb_snapshot_period = "TWELVE_HOURS"
+  }
+}
+`, context)
+}
+
 func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()

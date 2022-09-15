@@ -298,6 +298,57 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"persistence_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Maintenance policy for an instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"persistence_mode": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: validateEnum([]string{"DISABLED", "RDB"}),
+							Description: `Optional. Controls whether Persistence features are enabled. If not provided, the existing value will be used.
+
+- DISABLED: 	Persistence is disabled for the instance, and any existing snapshots are deleted.
+- RDB: RDB based Persistence is enabled. Possible values: ["DISABLED", "RDB"]`,
+						},
+						"rdb_snapshot_period": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validateEnum([]string{"ONE_HOUR", "SIX_HOURS", "TWELVE_HOURS", "TWENTY_FOUR_HOURS"}),
+							Description: `Optional. Available snapshot periods for scheduling.
+
+- ONE_HOUR:	Snapshot every 1 hour.
+- SIX_HOURS:	Snapshot every 6 hours.
+- TWELVE_HOURS:	Snapshot every 12 hours.
+- TWENTY_FOUR_HOURS:	Snapshot every 24 horus. Possible values: ["ONE_HOUR", "SIX_HOURS", "TWELVE_HOURS", "TWENTY_FOUR_HOURS"]`,
+						},
+						"rdb_snapshot_start_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `Optional. Date and time that the first snapshot was/will be attempted,
+and to which future snapshots will be aligned. If not provided,
+the current time will be used.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution
+and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+						},
+						"rdb_next_snapshot_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Output only. The next time that a snapshot attempt is scheduled to occur.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up
+to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+						},
+					},
+				},
+			},
 			"read_replicas_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -305,9 +356,9 @@ resolution and up to nine fractional digits.`,
 				ValidateFunc: validateEnum([]string{"READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED", ""}),
 				Description: `Optional. Read replica mode. Can only be specified when trying to create the instance.
 If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
-- READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the 
+- READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the
 instance cannot scale up or down the number of replicas.
-- READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance 
+- READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance
 can scale up and down the number of replicas. Possible values: ["READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED"]`,
 			},
 			"redis_configs": {
@@ -323,7 +374,7 @@ https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locat
 				Computed: true,
 				Optional: true,
 				Description: `The version of Redis software. If not provided, latest supported
-version will be used. Please check the API documentation linked 
+version will be used. Please check the API documentation linked
 at the top for the latest valid values.`,
 			},
 			"region": {
@@ -337,9 +388,9 @@ at the top for the latest valid values.`,
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				Description: `Optional. The number of replica nodes. The valid range for the Standard Tier with 
+				Description: `Optional. The number of replica nodes. The valid range for the Standard Tier with
 read replicas enabled is [1-5] and defaults to 2. If read replicas are not enabled
-for a Standard Tier instance, the only valid value is 1 and the default is 1. 
+for a Standard Tier instance, the only valid value is 1 and the default is 1.
 The valid value for basic tier is 0 and the default is also 0.`,
 			},
 			"reserved_ip_range": {
@@ -360,7 +411,7 @@ network.`,
 				DiffSuppressFunc: secondaryIpDiffSuppress,
 				Description: `Optional. Additional IP range for node placement. Required when enabling read replicas on
 an existing instance. For DIRECT_PEERING mode value must be a CIDR range of size /28, or
-"auto". For PRIVATE_SERVICE_ACCESS mode value must be the name of an allocated address 
+"auto". For PRIVATE_SERVICE_ACCESS mode value must be the name of an allocated address
 range associated with the private service access connection, or "auto".`,
 			},
 			"tier": {
@@ -447,7 +498,7 @@ will exhibit some lag behind the primary. Write requests must target 'host'.`,
 			"read_endpoint_port": {
 				Type:     schema.TypeInt,
 				Computed: true,
-				Description: `Output only. The port number of the exposed readonly redis endpoint. Standard tier only. 
+				Description: `Output only. The port number of the exposed readonly redis endpoint. Standard tier only.
 Write requests should target 'port'.`,
 			},
 			"server_ca_certs": {
@@ -562,6 +613,12 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	persistenceConfigProp, err := expandRedisInstancePersistenceConfig(d.Get("persistence_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("persistence_config"); !isEmptyValue(reflect.ValueOf(persistenceConfigProp)) && (ok || !reflect.DeepEqual(v, persistenceConfigProp)) {
+		obj["persistenceConfig"] = persistenceConfigProp
 	}
 	maintenancePolicyProp, err := expandRedisInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
 	if err != nil {
@@ -792,6 +849,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("name", flattenRedisInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("persistence_config", flattenRedisInstancePersistenceConfig(res["persistenceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("maintenance_policy", flattenRedisInstanceMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -887,6 +947,12 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("redis_configs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, redisConfigsProp)) {
 		obj["redisConfigs"] = redisConfigsProp
 	}
+	persistenceConfigProp, err := expandRedisInstancePersistenceConfig(d.Get("persistence_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("persistence_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, persistenceConfigProp)) {
+		obj["persistenceConfig"] = persistenceConfigProp
+	}
 	maintenancePolicyProp, err := expandRedisInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
 	if err != nil {
 		return err
@@ -951,6 +1017,10 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("redis_configs") {
 		updateMask = append(updateMask, "redisConfigs")
+	}
+
+	if d.HasChange("persistence_config") {
+		updateMask = append(updateMask, "persistenceConfig")
 	}
 
 	if d.HasChange("maintenance_policy") {
@@ -1163,6 +1233,41 @@ func flattenRedisInstanceName(v interface{}, d *schema.ResourceData, config *Con
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
+}
+
+func flattenRedisInstancePersistenceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["persistence_mode"] =
+		flattenRedisInstancePersistenceConfigPersistenceMode(original["persistenceMode"], d, config)
+	transformed["rdb_snapshot_period"] =
+		flattenRedisInstancePersistenceConfigRdbSnapshotPeriod(original["rdbSnapshotPeriod"], d, config)
+	transformed["rdb_next_snapshot_time"] =
+		flattenRedisInstancePersistenceConfigRdbNextSnapshotTime(original["rdbNextSnapshotTime"], d, config)
+	transformed["rdb_snapshot_start_time"] =
+		flattenRedisInstancePersistenceConfigRdbSnapshotStartTime(original["rdbSnapshotStartTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenRedisInstancePersistenceConfigPersistenceMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenRedisInstancePersistenceConfigRdbSnapshotPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenRedisInstancePersistenceConfigRdbNextSnapshotTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenRedisInstancePersistenceConfigRdbSnapshotStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenRedisInstanceMaintenancePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1562,6 +1667,62 @@ func expandRedisInstanceLocationId(v interface{}, d TerraformResourceData, confi
 
 func expandRedisInstanceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
+}
+
+func expandRedisInstancePersistenceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPersistenceMode, err := expandRedisInstancePersistenceConfigPersistenceMode(original["persistence_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPersistenceMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["persistenceMode"] = transformedPersistenceMode
+	}
+
+	transformedRdbSnapshotPeriod, err := expandRedisInstancePersistenceConfigRdbSnapshotPeriod(original["rdb_snapshot_period"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRdbSnapshotPeriod); val.IsValid() && !isEmptyValue(val) {
+		transformed["rdbSnapshotPeriod"] = transformedRdbSnapshotPeriod
+	}
+
+	transformedRdbNextSnapshotTime, err := expandRedisInstancePersistenceConfigRdbNextSnapshotTime(original["rdb_next_snapshot_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRdbNextSnapshotTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["rdbNextSnapshotTime"] = transformedRdbNextSnapshotTime
+	}
+
+	transformedRdbSnapshotStartTime, err := expandRedisInstancePersistenceConfigRdbSnapshotStartTime(original["rdb_snapshot_start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRdbSnapshotStartTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["rdbSnapshotStartTime"] = transformedRdbSnapshotStartTime
+	}
+
+	return transformed, nil
+}
+
+func expandRedisInstancePersistenceConfigPersistenceMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisInstancePersistenceConfigRdbSnapshotPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisInstancePersistenceConfigRdbNextSnapshotTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisInstancePersistenceConfigRdbSnapshotStartTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandRedisInstanceMaintenancePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
