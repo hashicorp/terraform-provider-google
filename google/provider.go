@@ -888,9 +888,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 233
+// Generated resources: 234
 // Generated IAM resources: 138
-// Total generated resources: 371
+// Total generated resources: 372
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1096,6 +1096,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dataproc_metastore_service_iam_policy":                 ResourceIamPolicy(DataprocMetastoreServiceIamSchema, DataprocMetastoreServiceIamUpdaterProducer, DataprocMetastoreServiceIdParseFunc),
 			"google_datastore_index":                                       resourceDatastoreIndex(),
 			"google_datastream_connection_profile":                         resourceDatastreamConnectionProfile(),
+			"google_datastream_private_connection":                         resourceDatastreamPrivateConnection(),
 			"google_deployment_manager_deployment":                         resourceDeploymentManagerDeployment(),
 			"google_dialogflow_agent":                                      resourceDialogflowAgent(),
 			"google_dialogflow_intent":                                     resourceDialogflowIntent(),
