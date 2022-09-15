@@ -1,29 +1,22 @@
 ## 4.37.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Remove Mentions of HashiCorp Learn ([#12480](https://github.com/hashicorp/terraform-provider-google/pull/12480))
-* google_project Datasource project_id Validated ([#12553](https://github.com/hashicorp/terraform-provider-google/pull/12553))
-* shortname removed from the resource_policies description ([#12552](https://github.com/hashicorp/terraform-provider-google/pull/12552))
-
 FEATURES:
-* **New Resource:** Apigee: Added Apigee NAT address resource `google_apigee_nat_address` ([#12536](https://github.com/hashicorp/terraform-provider-google/pull/12536))
-* **New Resource:** google_filestore_snapshot ([#12490](https://github.com/hashicorp/terraform-provider-google/pull/12490))
+* **New Resource:** `google_apigee_nat_address` ([#12536](https://github.com/hashicorp/terraform-provider-google/pull/12536))
+* **New Resource:** `google_dialogflow_cx_webhook` ([#12498](https://github.com/hashicorp/terraform-provider-google/pull/12498))
+* **New Resource:** `google_filestore_snapshot` ([#12490](https://github.com/hashicorp/terraform-provider-google/pull/12490))
 
 IMPROVEMENTS:
-* apigee: Added read-only field `connectionState` to `google_apigee_endpoint_attachment` ([#12500](https://github.com/hashicorp/terraform-provider-google/pull/12500))
-* bigquery: fixed incorrect documentation formatting for `source_uris` attributes ([#12506](https://github.com/hashicorp/terraform-provider-google/pull/12506))
+* apigee: added read-only field `connectionState` to `google_apigee_endpoint_attachment` ([#12500](https://github.com/hashicorp/terraform-provider-google/pull/12500))
 * bigtable: added support for `autoscaling_config.storage_target` to `google_bigtable_instance` ([#12510](https://github.com/hashicorp/terraform-provider-google/pull/12510))
-* bigtable: combined create table and create column families into a single API call. ([#12497](https://github.com/hashicorp/terraform-provider-google/pull/12497))
-* dialogflowcx: added `google_dialogflow_cx_webhook` resource to support Dialogflow CX webhook API ([#12498](https://github.com/hashicorp/terraform-provider-google/pull/12498))
-* dns: Added in validation for trailing dot at end of DNS record name ([#12521](https://github.com/hashicorp/terraform-provider-google/pull/12521))
-* google_service_account_jwt: added `expires_in` attribute for generating `exp` claim. ([#12539](https://github.com/hashicorp/terraform-provider-google/pull/12539))
+* cloudbuild: added support for `BITBUCKET` option to `git_source.repo_type` in `google_cloudbuild_trigger` ([#12542](https://github.com/hashicorp/terraform-provider-google/pull/12542))
+* dns: added in validation for trailing dot at end of DNS record name ([#12521](https://github.com/hashicorp/terraform-provider-google/pull/12521))
+* project: added validation for field `project_id` in `google_project` datasource. ([#12553](https://github.com/hashicorp/terraform-provider-google/pull/12553))
+* serviceaccount: added `expires_in` attribute for generating `exp` claim  to `google_service_account_jwt` datasource ([#12539](https://github.com/hashicorp/terraform-provider-google/pull/12539))
 
 BUG FIXES:
-* cloudbuild: added support for `"BITBUCKET"` option to `git_source.repo_type` in `google_cloudbuild_trigger` ([#12542](https://github.com/hashicorp/terraform-provider-google/pull/12542))
 * notebooks: fixed perma-diff in `google_notebooks_instance` ([#12493](https://github.com/hashicorp/terraform-provider-google/pull/12493))
-* privateca: fixed an issue that blocked subordinate CA data sources when `state` was not `AWAITING_USER_ACTIVATION` ([#12511](https://github.com/hashicorp/terraform-provider-google/pull/12511))
+* privateca: fixed an issue that blocked subordinate `google_privateca_certificate_authority` datasources when `state` was not `AWAITING_USER_ACTIVATION` ([#12511](https://github.com/hashicorp/terraform-provider-google/pull/12511))
 * storage: fixed permdiff on the field `versioning` of `google_storage_bucket` ([#12495](https://github.com/hashicorp/terraform-provider-google/pull/12495))
-* vpcaccess: updated defaults for `minThroughput` and `maxThroughput` on `google_vpc_access_connector` ([#12543](https://github.com/hashicorp/terraform-provider-google/pull/12543))
 
 ## 4.36.0 (September 12, 2022)
 
