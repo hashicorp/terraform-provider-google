@@ -25,6 +25,7 @@ var (
 		"transfer_spec.0.transfer_options.0.overwrite_objects_already_existing_in_sink",
 		"transfer_spec.0.transfer_options.0.delete_objects_unique_in_sink",
 		"transfer_spec.0.transfer_options.0.delete_objects_from_source_after_transfer",
+		"transfer_spec.0.transfer_options.0.overwrite_when",
 	}
 
 	transferSpecDataSourceKeys = []string{
@@ -283,6 +284,13 @@ func transferOptionsSchema() *schema.Schema {
 					AtLeastOneOf:  transferOptionsKeys,
 					ConflictsWith: []string{"transfer_spec.transfer_options.delete_objects_unique_in_sink"},
 					Description:   `Whether objects should be deleted from the source after they are transferred to the sink. Note that this option and delete_objects_unique_in_sink are mutually exclusive.`,
+				},
+				"overwrite_when": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					AtLeastOneOf: transferOptionsKeys,
+					ValidateFunc: validation.StringInSlice([]string{"DIFFERENT", "NEVER", "ALWAYS"}, false),
+					Description:  `When to overwrite objects that already exist in the sink. If not set, overwrite behavior is determined by overwriteObjectsAlreadyExistingInSink.`,
 				},
 			},
 		},
@@ -995,6 +1003,7 @@ func expandTransferOptions(options []interface{}) *storagetransfer.TransferOptio
 		DeleteObjectsFromSourceAfterTransfer:  option["delete_objects_from_source_after_transfer"].(bool),
 		DeleteObjectsUniqueInSink:             option["delete_objects_unique_in_sink"].(bool),
 		OverwriteObjectsAlreadyExistingInSink: option["overwrite_objects_already_existing_in_sink"].(bool),
+		OverwriteWhen:                         option["overwrite_when"].(string),
 	}
 }
 
@@ -1003,6 +1012,7 @@ func flattenTransferOption(option *storagetransfer.TransferOptions) []map[string
 		"delete_objects_from_source_after_transfer":  option.DeleteObjectsFromSourceAfterTransfer,
 		"delete_objects_unique_in_sink":              option.DeleteObjectsUniqueInSink,
 		"overwrite_objects_already_existing_in_sink": option.OverwriteObjectsAlreadyExistingInSink,
+		"overwrite_when":                             option.OverwriteWhen,
 	}
 
 	return []map[string]interface{}{data}

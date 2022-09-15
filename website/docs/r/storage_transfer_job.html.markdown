@@ -157,6 +157,8 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 * `delete_objects_from_source_after_transfer` - (Optional) Whether objects should be deleted from the source after they are transferred to the sink. Note that this option and `delete_objects_unique_in_sink` are mutually exclusive.
 
+* `overwrite_when` - (Optional) When to overwrite objects that already exist in the sink. If not set, overwrite behavior is determined by `overwrite_objects_already_existing_in_sink`. Possible values: ALWAYS, DIFFERENT, NEVER.
+
 <a name="nested_gcs_data_sink"></a>The `gcs_data_sink` block supports:
 
 * `bucket_name` - (Required) Google Cloud Storage bucket name.
