@@ -381,8 +381,8 @@ func resourceComputePerInstanceConfigUpdate(d *schema.ResourceData, meta interfa
 	}
 	obj["minimalAction"] = minAction
 
-	mostDisruptiveAction := d.Get("most_disruptive_action_allowed")
-	if mostDisruptiveAction != "" {
+	mostDisruptiveAction := d.Get("most_disruptive_allowed_action")
+	if isEmptyValue(reflect.ValueOf(mostDisruptiveAction)) {
 		mostDisruptiveAction = "REPLACE"
 	}
 	obj["mostDisruptiveActionAllowed"] = mostDisruptiveAction
