@@ -873,6 +873,7 @@ func Provider() *schema.Provider {
 			"google_tags_tag_key":                                 dataSourceGoogleTagsTagKey(),
 			"google_tags_tag_value":                               dataSourceGoogleTagsTagValue(),
 			"google_tpu_tensorflow_versions":                      dataSourceTpuTensorflowVersions(),
+			"google_vpc_access_connector":                         dataSourceVPCAccessConnector(),
 			"google_redis_instance":                               dataSourceGoogleRedisInstance(),
 			// ####### END datasources ###########
 		},
