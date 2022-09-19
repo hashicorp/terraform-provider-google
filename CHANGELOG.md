@@ -1,4 +1,22 @@
-## 4.37.0 (Unreleased)
+## 4.37.0 (September 19, 2022)
+
+FEATURES:
+* **New Resource:** `google_apigee_nat_address` ([#12536](https://github.com/hashicorp/terraform-provider-google/pull/12536))
+* **New Resource:** `google_dialogflow_cx_webhook` ([#12498](https://github.com/hashicorp/terraform-provider-google/pull/12498))
+* **New Resource:** `google_filestore_snapshot` ([#12490](https://github.com/hashicorp/terraform-provider-google/pull/12490))
+
+IMPROVEMENTS:
+* apigee: added read-only field `connection_state` to `google_apigee_endpoint_attachment` ([#12500](https://github.com/hashicorp/terraform-provider-google/pull/12500))
+* bigtable: added support for `autoscaling_config.storage_target` to `google_bigtable_instance` ([#12510](https://github.com/hashicorp/terraform-provider-google/pull/12510))
+* cloudbuild: added support for `BITBUCKET` option to `git_source.repo_type` in `google_cloudbuild_trigger` ([#12542](https://github.com/hashicorp/terraform-provider-google/pull/12542))
+* dns: added in validation for trailing dot at end of DNS record name ([#12521](https://github.com/hashicorp/terraform-provider-google/pull/12521))
+* project: added validation for field `project_id` in `google_project` datasource. ([#12553](https://github.com/hashicorp/terraform-provider-google/pull/12553))
+* serviceaccount: added `expires_in` attribute for generating `exp` claim  to `google_service_account_jwt` datasource ([#12539](https://github.com/hashicorp/terraform-provider-google/pull/12539))
+
+BUG FIXES:
+* notebooks: fixed perma-diff in `google_notebooks_instance` ([#12493](https://github.com/hashicorp/terraform-provider-google/pull/12493))
+* privateca: fixed an issue that blocked subordinate CA data sources when `state` was not `AWAITING_USER_ACTIVATION` ([#12511](https://github.com/hashicorp/terraform-provider-google/pull/12511))
+* storage: fixed permdiff on the field `versioning` of `google_storage_bucket` ([#12495](https://github.com/hashicorp/terraform-provider-google/pull/12495))
 
 ## 4.36.0 (September 12, 2022)
 
