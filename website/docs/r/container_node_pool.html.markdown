@@ -181,14 +181,17 @@ cluster.
 
 * `total_min_node_count` - (Optional) Total minimum number of nodes in the NodePool.
     Must be >=0 and <= `total_max_node_count`. Cannot be used with per zone limits.
+    Total size limits are supported only in 1.24.1+ clusters.
 
 * `total_max_node_count` - (Optional) Total maximum number of nodes in the NodePool.
     Must be >= total_min_node_count. Cannot be used with per zone limits.
+    Total size limits are supported only in 1.24.1+ clusters.
 
-* `location_policy` - (Optional) Location policy specifies the algorithm used when scaling-up the node pool. \
-    "BALANCED" - Is a best effort policy that aims to balance the sizes of available zones. \
-    "ANY" - Instructs the cluster autoscaler to prioritize utilization of unused reservations,
-    and reduce preemption risk for Spot VMs.
+* `location_policy` - (Optional) Location policy specifies the algorithm used when
+  scaling-up the node pool. Location policy is supported only in 1.24.1+ clusters.
+    * "BALANCED" - Is a best effort policy that aims to balance the sizes of available zones.
+    * "ANY" - Instructs the cluster autoscaler to prioritize utilization of unused reservations,
+      and reduce preemption risk for Spot VMs.
 
 <a name="nested_management"></a>The `management` block supports:
 
