@@ -8,7 +8,7 @@
 
 The Terraform Google provider is a plugin that allows [Terraform](https://www.terraform.io) to manage resources on Google Cloud Platform. This provider is maintained by the [Terraform team at Google](https://cloudplatform.googleblog.com/2017/03/partnering-on-open-source-Google-and-HashiCorp-engineers-on-managing-GCP-infrastructure.html) and the Terraform team at [HashiCorp](https://www.hashicorp.com/)
 
-The ['google-beta' provider](https://github.com/hashicorp/terraform-provider-google-beta) contains preview features and features at a beta [launch stage](https://cloud.google.com/products#product-launch-stages). Refer to the [provider versions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_versions) documentation for more information about how to use `google-beta`.
+This is the `google` provider, containing generally available features. To use preview features or features at a beta [launch stage](https://cloud.google.com/products#product-launch-stages), you may use the ['google-beta' provider](https://github.com/hashicorp/terraform-provider-google-beta). Refer to the [provider versions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_versions) documentation for more information about how to use `google-beta`.
 
 ## Quick Starts
 
@@ -18,10 +18,6 @@ The ['google-beta' provider](https://github.com/hashicorp/terraform-provider-goo
 ## Provider Usage
 
 Please see [instructions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference) on how to configure the Google Provider.
-
-### Using local Provider
-
-Please see [instructions](https://github.com/GoogleCloudPlatform/magic-modules#using-released-terraform-binary-with-local-provider-binary) on how to use your locally generated provider binary.
 
 ### Upgrading the provider
 
