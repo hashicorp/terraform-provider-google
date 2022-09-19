@@ -1,0 +1,3 @@
+```release-note:bug
+certificatemanager: updated public/private PEM fields `certificatePem` / `privatekeyPem` to `pemCertificate` / `pemPrivateKey` 
+```
