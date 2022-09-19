@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed unable to set 0 for `lifecycle_rule.condition.age` on `google_storage_bucket`
+```
