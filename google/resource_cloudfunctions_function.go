@@ -112,6 +112,12 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ValidateFunc: validateResourceCloudFunctionsFunctionName,
 			},
 
+			"build_worker_pool": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Name of the Cloud Build Custom Worker Pool that should be used to build the function.`,
+			},
+
 			"source_archive_bucket": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -483,6 +489,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.Description = v.(string)
 	}
 
+	if v, ok := d.GetOk("build_worker_pool"); ok {
+		function.BuildWorkerPool = v.(string)
+	}
+
 	if v, ok := d.GetOk("entry_point"); ok {
 		function.EntryPoint = v.(string)
 	}
@@ -592,6 +602,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	if err := d.Set("description", function.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("build_worker_pool", function.BuildWorkerPool); err != nil {
+		return fmt.Errorf("Error setting build_worker_pool: %s", err)
 	}
 	if err := d.Set("entry_point", function.EntryPoint); err != nil {
 		return fmt.Errorf("Error setting entry_point: %s", err)
@@ -758,6 +771,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("description") {
 		function.Description = d.Get("description").(string)
 		updateMaskArr = append(updateMaskArr, "description")
+	}
+
+	if d.HasChange("build_worker_pool") {
+		function.BuildWorkerPool = d.Get("build_worker_pool").(string)
+		updateMaskArr = append(updateMaskArr, "build_worker_pool")
 	}
 
 	if d.HasChange("timeout") {

@@ -245,6 +245,46 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	})
 }
 
+func TestAccCloudFunctionsFunction_buildworkerpool(t *testing.T) {
+	t.Parallel()
+
+	var function cloudfunctions.CloudFunction
+
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
+	location := "us-central1"
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
+	proj := getTestProjectFromEnv()
+
+	defer os.Remove(zipFilePath) // clean up
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_buildworkerpool(functionName, bucketName, zipFilePath, location),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						t, funcResourceName, &function),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"name", functionName),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"build_worker_pool", fmt.Sprintf("projects/%s/locations/%s/workerPools/pool-%s", proj, location, functionName)),
+				),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
+			},
+		},
+	})
+}
+
 func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 	t.Parallel()
 
@@ -764,6 +804,44 @@ resource "google_cloudfunctions_function" "function" {
   min_instances = 5
 }
 `, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_buildworkerpool(functionName string, bucketName string, zipFilePath string, location string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
+}
+
+resource "google_cloudbuild_worker_pool" "pool" {
+  name     = "pool-%[3]s"
+  location = "%s"
+  worker_config {
+    disk_size_gb   = 100
+    machine_type   = "e2-standard-4"
+    no_external_ip = false
+  }
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%[3]s"
+  runtime               = "nodejs10"
+  description           = "test function"
+  docker_registry       = "CONTAINER_REGISTRY"
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
+  trigger_http          = true
+  timeout               = 61
+  entry_point           = "helloGET"
+  build_worker_pool		= google_cloudbuild_worker_pool.pool.id
+}`, bucketName, zipFilePath, functionName, location)
 }
 
 func testAccCloudFunctionsFunction_pubsub(functionName string, bucketName string,
