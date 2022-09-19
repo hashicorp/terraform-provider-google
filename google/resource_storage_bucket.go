@@ -1161,6 +1161,7 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 
 	if v, ok := condition["age"]; ok {
 		transformed.Age = int64(v.(int))
+		transformed.ForceSendFields = append(transformed.ForceSendFields, "Age")
 	}
 
 	if v, ok := condition["created_before"]; ok {
