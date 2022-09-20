@@ -327,7 +327,7 @@ channel. Structure is [documented below](#nested_release_channel).
 * `subnetwork` - (Optional) The name or self_link of the Google Compute Engine
 subnetwork in which the cluster's instances are launched.
 
-* `vertical_pod_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `vertical_pod_autoscaling` - (Optional)
     Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
     Structure is [documented below](#nested_vertical_pod_autoscaling).
 
