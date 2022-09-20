@@ -82,7 +82,7 @@ func resourceDatastreamConnectionProfile() *schema.Resource {
 							ForceNew:      true,
 							Description:   `SSH password.`,
 							Sensitive:     true,
-							ConflictsWith: []string{},
+							ConflictsWith: []string{"forward_ssh_connectivity.0.private_key"},
 						},
 						"port": {
 							Type:        schema.TypeInt,
@@ -96,7 +96,7 @@ func resourceDatastreamConnectionProfile() *schema.Resource {
 							ForceNew:      true,
 							Description:   `SSH private key.`,
 							Sensitive:     true,
-							ConflictsWith: []string{},
+							ConflictsWith: []string{"forward_ssh_connectivity.0.password"},
 						},
 					},
 				},
