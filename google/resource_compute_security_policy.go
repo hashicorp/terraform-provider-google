@@ -324,6 +324,23 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"DISABLED", "STANDARD"}, false),
 							Description:  `JSON body parsing. Supported values include: "DISABLED", "STANDARD".`,
 						},
+						"json_custom_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: `Custom configuration to apply the JSON parsing. Only applicable when JSON parsing is set to STANDARD.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content_types": {
+										Type:        schema.TypeSet,
+										Required:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `A list of custom Content-Type header values to apply the JSON parsing.`,
+									},
+								},
+							},
+						},
 						"log_level": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -530,7 +547,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("advanced_options_config") {
 		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config").([]interface{}))
-		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdvancedOptionsConfig", "advancedOptionsConfig.jsonParsing", "advancedOptionsConfig.logLevel")
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdvancedOptionsConfig", "advancedOptionsConfig.jsonParsing", "advancedOptionsConfig.jsonCustomConfig", "advancedOptionsConfig.logLevel")
 	}
 
 	if d.HasChange("adaptive_protection_config") {
@@ -778,8 +795,9 @@ func expandSecurityPolicyAdvancedOptionsConfig(configured []interface{}) *comput
 
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyAdvancedOptionsConfig{
-		JsonParsing: data["json_parsing"].(string),
-		LogLevel:    data["log_level"].(string),
+		JsonParsing:      data["json_parsing"].(string),
+		JsonCustomConfig: expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(data["json_custom_config"].([]interface{})),
+		LogLevel:         data["log_level"].(string),
 	}
 }
 
@@ -789,8 +807,33 @@ func flattenSecurityPolicyAdvancedOptionsConfig(conf *compute.SecurityPolicyAdva
 	}
 
 	data := map[string]interface{}{
-		"json_parsing": conf.JsonParsing,
-		"log_level":    conf.LogLevel,
+		"json_parsing":       conf.JsonParsing,
+		"json_custom_config": flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf.JsonCustomConfig),
+		"log_level":          conf.LogLevel,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(configured []interface{}) *compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		// If configuration is unset, return an empty JsonCustomConfig; this ensures the ContentTypes list can be cleared
+		return &compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig{}
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig{
+		ContentTypes: convertStringArr(data["content_types"].(*schema.Set).List()),
+	}
+}
+
+func flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf *compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"content_types": schema.NewSet(schema.HashString, convertStringArrToInterface(conf.ContentTypes)),
 	}
 
 	return []map[string]interface{}{data}

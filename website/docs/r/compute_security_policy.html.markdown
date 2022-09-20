@@ -63,16 +63,7 @@ The following arguments are supported:
     security policy, a default rule with action "allow" will be added. Structure is [documented below](#nested_rule).
 
 * `advanced_options_config` - (Optional) [Advanced Configuration Options](https://cloud.google.com/armor/docs/security-policy-overview#json-parsing).
-
-<a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
-
-* `json_parsing` - Whether or not to JSON parse the payload body. Defaults to `DISABLED`.
-  * DISABLED - Don't parse JSON payloads in POST bodies.
-  * STANDARD - Parse JSON payloads in POST bodies.
-
-* `log_level` - Log level to use. Defaults to `NORMAL`.
-  * NORMAL - Normal log level.
-  * VERBOSE - Verbose log level.
+    Structure is [documented below](#nested_advanced_options_config).
 
 * `adaptive_protection_config` - (Optional) Configuration for [Google Cloud Armor Adaptive Protection](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_adaptive_protection_config).
 
@@ -82,6 +73,26 @@ The following arguments are supported:
   * CLOUD_ARMOR_EDGE - Cloud Armor edge security policies can be configured to filter incoming HTTP requests targeting backend services
     (including Cloud CDN-enabled) as well as backend buckets (Cloud Storage).
     They filter requests before the request is served from Google's cache.
+
+<a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
+
+* `json_parsing` - Whether or not to JSON parse the payload body. Defaults to `DISABLED`.
+  * DISABLED - Don't parse JSON payloads in POST bodies.
+  * STANDARD - Parse JSON payloads in POST bodies.
+
+* `json_custom_config` - Custom configuration to apply the JSON parsing. Only applicable when
+    `json_parsing` is set to `STANDARD`. Structure is [documented below](#nested_json_custom_config).
+
+* `log_level` - Log level to use. Defaults to `NORMAL`.
+  * NORMAL - Normal log level.
+  * VERBOSE - Verbose log level.
+
+<a name="nested_json_custom_config"></a>The `json_custom_config` block supports:
+
+* `content_types` - A list of custom Content-Type header values to apply the JSON parsing. The
+    format of the Content-Type header values is defined in
+    [RFC 1341](https://www.ietf.org/rfc/rfc1341.txt). When configuring a custom Content-Type header
+    value, only the type/subtype needs to be specified, and the parameters should be excluded.
 
 <a name="nested_rule"></a>The `rule` block supports:
 
