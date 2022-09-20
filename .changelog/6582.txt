@@ -1,0 +1,3 @@
+```release-note:bug
+project: Removed incorrect validation on `google_project` datasource
+```
