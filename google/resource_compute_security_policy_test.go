@@ -423,6 +423,14 @@ resource "google_compute_security_policy" "policy" {
 
   advanced_options_config {
     json_parsing = "STANDARD"
+    json_custom_config {
+      content_types = [
+        "application/json",
+        "application/vnd.api+json",
+        "application/vnd.collection+json",
+        "application/vnd.hyper+json"
+      ]
+    }
     log_level    = "VERBOSE"
   }
 }
