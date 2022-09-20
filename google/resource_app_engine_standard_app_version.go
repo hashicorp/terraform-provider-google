@@ -422,6 +422,11 @@ Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`
 							Required:    true,
 							Description: `Full Serverless VPC Access Connector name e.g. /projects/my-project/locations/us-central1/connectors/c1.`,
 						},
+						"egress_setting": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The egress setting for the connector, controlling what traffic is diverted through it.`,
+						},
 					},
 				},
 			},
@@ -1116,9 +1121,15 @@ func flattenAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d *sche
 	transformed := make(map[string]interface{})
 	transformed["name"] =
 		flattenAppEngineStandardAppVersionVPCAccessConnectorName(original["name"], d, config)
+	transformed["egress_setting"] =
+		flattenAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(original["egressSetting"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAppEngineStandardAppVersionVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1752,10 +1763,21 @@ func expandAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d Terraf
 		transformed["name"] = transformedName
 	}
 
+	transformedEgressSetting, err := expandAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(original["egress_setting"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEgressSetting); val.IsValid() && !isEmptyValue(val) {
+		transformed["egressSetting"] = transformedEgressSetting
+	}
+
 	return transformed, nil
 }
 
 func expandAppEngineStandardAppVersionVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

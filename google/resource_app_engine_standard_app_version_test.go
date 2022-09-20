@@ -1,8 +1,9 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccAppEngineStandardAppVersion_update(t *testing.T) {
@@ -166,14 +167,14 @@ resource "google_project_service" "vpcaccess_api" {
 }
 
 resource "google_vpc_access_connector" "bar" {
-	depends_on = [
+  depends_on = [
     google_project_service.vpcaccess_api
   ]
-	project = google_project.my_project.project_id
-	name = "bar"
-	region = "us-central1"
-	ip_cidr_range = "10.8.0.0/28"
-	network = "default"
+  project = google_project.my_project.project_id
+  name = "bar"
+  region = "us-central1"
+  ip_cidr_range = "10.8.0.0/28"
+  network = "default"
 }
 
 resource "google_app_engine_standard_app_version" "foo" {
@@ -182,8 +183,9 @@ resource "google_app_engine_standard_app_version" "foo" {
   service    = "default"
   runtime    = "python38"
 
-	vpc_access_connector {
-		name = "${google_vpc_access_connector.bar.id}"
+  vpc_access_connector {
+    name           = "${google_vpc_access_connector.bar.id}"
+    egress_setting = "ALL_TRAFFIC"
   }
 
   entrypoint {
