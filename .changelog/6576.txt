@@ -1,0 +1,6 @@
+```release-note:enhancement
+eventarc: added `channels` and `conditions` fields to `google_eventarc_trigger`
+```
+```release-note:enhancement
+clouddeploy: added `serial_pipeline.stages.strategy` field to `google_clouddeploy_delivery_pipeline
+```
