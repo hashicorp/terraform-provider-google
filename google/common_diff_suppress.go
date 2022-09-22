@@ -108,6 +108,8 @@ func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // to an empty block. This might occur in situations where removing a block completely
 // is impossible (if it's computed or part of an AtLeastOneOf), so instead the user sets
 // its values to empty.
+// NOTE: Using Optional + Computed is *strongly* preferred to this DSF, as it's
+// more well understood and resilient to API changes.
 func emptyOrUnsetBlockDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	o, n := d.GetChange(strings.TrimSuffix(k, ".#"))
 	return emptyOrUnsetBlockDiffSuppressLogic(k, old, new, o, n)
