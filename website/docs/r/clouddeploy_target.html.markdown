@@ -103,10 +103,6 @@ The following arguments are supported:
   (Optional)
   Optional. Whether or not the `Target` requires approval.
   
-* `run` -
-  (Optional)
-  Information specifying a Cloud Run deployment target.
-  
 
 
 The `anthos_cluster` block supports:
@@ -120,10 +116,6 @@ The `execution_configs` block supports:
 * `artifact_storage` -
   (Optional)
   Optional. Cloud Storage location in which to store execution outputs. This can either be a bucket ("gs://my-bucket") or a path within a bucket ("gs://my-bucket/my-dir"). If unspecified, a default bucket located in the same region will be used.
-    
-* `execution_timeout` -
-  (Optional)
-  Optional. Execution timeout for a Cloud Build Execution. This must be between 10m and 24h in seconds format. If unspecified, a default timeout of 1h is used.
     
 * `service_account` -
   (Optional)
@@ -146,12 +138,6 @@ The `gke` block supports:
 * `internal_ip` -
   (Optional)
   Optional. If true, `cluster` is accessed using the private IP address of the control plane endpoint. Otherwise, the default IP address of the control plane endpoint is used. The default IP address is the private IP address for clusters with private control-plane endpoints and the public IP address otherwise. Only specify this option when `cluster` is a [private GKE cluster](https://cloud.google.com/kubernetes-engine/docs/concepts/private-cluster-concept).
-    
-The `run` block supports:
-    
-* `location` -
-  (Required)
-  Required. The location where the Cloud Run Service should be located. Format is `projects/{project}/locations/{location}`.
     
 ## Attributes Reference
 

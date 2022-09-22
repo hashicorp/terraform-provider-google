@@ -116,25 +116,9 @@ The `stages` block supports:
   (Optional)
   Skaffold profiles to use when rendering the manifest for this stage's `Target`.
     
-* `strategy` -
-  (Optional)
-  Optional. The strategy to use for a `Rollout` to this stage.
-    
 * `target_id` -
   (Optional)
   The target_id to which this stage points. This field refers exclusively to the last segment of a target name. For example, this field would just be `my-target` (rather than `projects/project/locations/location/targets/my-target`). The location of the `Target` is inferred to be the same as the location of the `DeliveryPipeline` that contains this `Stage`.
-    
-The `strategy` block supports:
-    
-* `standard` -
-  (Optional)
-  Standard deployment strategy executes a single deploy and allows verifying the deployment.
-    
-The `standard` block supports:
-    
-* `verify` -
-  (Optional)
-  Whether to verify a deployment.
     
 ## Attributes Reference
 
