@@ -916,6 +916,42 @@ func TestAccBigQueryExternalDataTable_CSV_WithSchema_UpdateToConnectionID(t *tes
 	})
 }
 
+func TestAccBigQueryExternalDataTable_CSV_WithSchema_UpdateAllowQuotedNewlines(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", randString(t, 10))
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromGCSWithSchema(datasetID, tableID, bucketName, objectName, TEST_SIMPLE_CSV, TEST_SIMPLE_CSV_SCHEMA),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTableFromGCSWithSchema_UpdatAllowQuotedNewlines(datasetID, tableID, bucketName, objectName, TEST_SIMPLE_CSV, TEST_SIMPLE_CSV_SCHEMA),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDataTable_bigtable(t *testing.T) {
 	t.Parallel()
 
@@ -2025,6 +2061,47 @@ resource "google_bigquery_table" "test" {
     csv_options {
       encoding = "UTF-8"
       quote = ""
+    }
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.test.name}",
+    ]
+  }
+}
+`, datasetID, bucketName, objectName, content, tableID, schema)
+}
+
+func testAccBigQueryTableFromGCSWithSchema_UpdatAllowQuotedNewlines(datasetID, tableID, bucketName, objectName, content, schema string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+resource "google_storage_bucket_object" "test" {
+  name    = "%s"
+  content = <<EOF
+%s
+EOF
+  bucket = google_storage_bucket.test.name
+}
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  schema = <<EOF
+  %s
+  EOF
+  external_data_configuration {
+    autodetect    = false
+    source_format = "CSV"
+    csv_options {
+      encoding = "UTF-8"
+      quote = ""
+	  allow_quoted_newlines = "false"
+      allow_jagged_rows     = "false"
     }
     source_uris = [
       "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.test.name}",

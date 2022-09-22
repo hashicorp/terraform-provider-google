@@ -1,0 +1,3 @@
+```release-note:bug
+compute: send `allow_quoted_newlines` and `allow_jagged_rows` when they are set to false on `google_bigquery_table`
+```
