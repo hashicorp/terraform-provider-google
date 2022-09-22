@@ -1,0 +1,3 @@
+```release-note:enhancement
+storage: added `notification_config` field to `google_storage_transfer_job` resource
+```
