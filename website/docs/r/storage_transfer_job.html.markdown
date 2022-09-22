@@ -39,6 +39,16 @@ resource "google_storage_bucket_iam_member" "s3-backup-bucket" {
   depends_on = [google_storage_bucket.s3-backup-bucket]
 }
 
+resource "google_pubsub_topic" "topic" {
+  name = "${var.pubsub_topic_name}"
+}
+
+resource "google_pubsub_topic_iam_member" "notification_config" {
+  topic = google_pubsub_topic.topic.id
+  role = "roles/pubsub.publisher"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
 resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
   description = "Nightly backup of S3 bucket"
   project     = var.project
@@ -86,7 +96,16 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
     repeat_interval = "604800s"
   }
 
-  depends_on = [google_storage_bucket_iam_member.s3-backup-bucket]
+  notification_config {
+    pubsub_topic  = google_pubsub_topic.topic.id
+    event_types   = [
+      "TRANSFER_OPERATION_SUCCESS",
+      "TRANSFER_OPERATION_FAILED"
+    ]
+    payload_format = "JSON"
+  }
+
+  depends_on = [google_storage_bucket_iam_member.s3-backup-bucket, google_pubsub_topic_iam_member.notification_config]
 }
 ```
 
@@ -106,6 +125,8 @@ The following arguments are supported:
 	is not provided, the provider project is used.
 
 * `status` - (Optional) Status of the job. Default: `ENABLED`. **NOTE: The effect of the new job status takes place during a subsequent job run. For example, if you change the job status from ENABLED to DISABLED, and an operation spawned by the transfer is running, the status change would not affect the current operation.**
+
+* `notification_config` - (Optional) Notification configuration. This is not supported for transfers involving PosixFilesystem. Structure [documented below](#nested_notification_config).
 
 <a name="nested_transfer_spec"></a>The `transfer_spec` block supports:
 
@@ -228,6 +249,14 @@ The `azure_credentials` block supports:
 * `seconds` - (Optional) Seconds of minutes of the time. Must normally be from 0 to 59.
 
 * `nanos` - (Required) Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_notification_config"></a>The `notification_config` block supports:
+
+* `pubsub_topic` - (Required) The Topic.name of the Pub/Sub topic to which to publish notifications. Must be of the format: projects/{project}/topics/{topic}. Not matching this format results in an INVALID_ARGUMENT error.
+
+* `event_types` - (Optional) Event types for which a notification is desired. If empty, send notifications for all event types. The valid types are "TRANSFER_OPERATION_SUCCESS", "TRANSFER_OPERATION_FAILED", "TRANSFER_OPERATION_ABORTED".
+
+* `payload_format` - (Required) The desired format of the notification message payloads. One of "NONE" or "JSON".
 
 ## Attributes Reference
 
