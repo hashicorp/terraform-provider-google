@@ -59,10 +59,10 @@ is an owner of the specified group in Cloud Identity.`,
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `Output only. Identifier of the brand, in the format
-'projects/{project_number}/brands/{brand_id}'. NOTE: The brand
-identification corresponds to the project number as only one
-brand per project can be created.`,
+				Description: `Output only. Identifier of the brand, in the format 'projects/{project_number}/brands/{brand_id}'
+NOTE: The name can also be expressed as 'projects/{project_id}/brands/{brand_id}', e.g. when importing.
+NOTE: The brand identification corresponds to the project number as only one
+brand can be created per project.`,
 			},
 			"org_internal_only": {
 				Type:        schema.TypeBool,
@@ -266,15 +266,32 @@ func resourceIapBrandImport(d *schema.ResourceData, meta interface{}) ([]*schema
 	}
 
 	nameParts := strings.Split(d.Get("name").(string), "/")
-	if len(nameParts) != 4 {
+	if len(nameParts) != 4 && len(nameParts) != 2 {
 		return nil, fmt.Errorf(
-			"Saw %s when the name is expected to have shape %s",
+			"Saw %s when the name is expected to have either shape %s or %s",
 			d.Get("name"),
 			"projects/{{project}}/brands/{{name}}",
+			"{{project}}/{{name}}",
 		)
 	}
 
-	if err := d.Set("project", nameParts[1]); err != nil {
+	var project string
+	if len(nameParts) == 4 {
+		project = nameParts[1]
+	}
+	if len(nameParts) == 2 {
+		project = nameParts[0] // Different index
+
+		// Set `name` (and `id`) as a 4-part format so Read func produces valid URL
+		brand := nameParts[1]
+		name := fmt.Sprintf("projects/%s/brands/%s", project, brand)
+		if err := d.Set("name", name); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
+		d.SetId(name)
+	}
+
+	if err := d.Set("project", project); err != nil {
 		return nil, fmt.Errorf("Error setting project: %s", err)
 	}
 	return []*schema.ResourceData{d}, nil
