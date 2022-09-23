@@ -117,7 +117,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Type:        schema.TypeBool,
 				Default:     true,
 				Optional:    true,
-				Description: `Used to block Terraform from deleting a SQL Instance.`,
+				Description: `Used to block Terraform from deleting a SQL Instance. Defaults to true.`,
 			},
 			"settings": {
 				Type:         schema.TypeList,
@@ -191,7 +191,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 settings.backup_configuration.enabled is set to true.
 For MySQL instances, ensure that settings.backup_configuration.binary_log_enabled is set to true.
 For Postgres instances, ensure that settings.backup_configuration.point_in_time_recovery_enabled
-is set to true.`,
+is set to true. Defaults to ZONAL.`,
 						},
 						"backup_configuration": {
 							Type:     schema.TypeList,
@@ -292,7 +292,7 @@ is set to true.`,
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     true,
-							Description: `Enables auto-resizing of the storage size. Defaults to true. Set to false if you want to set disk_size.`,
+							Description: `Enables auto-resizing of the storage size. Defaults to true.`,
 						},
 						"disk_autoresize_limit": {
 							Type:        schema.TypeInt,
@@ -305,14 +305,14 @@ is set to true.`,
 							Optional: true,
 							// Default is likely 10gb, but it is undocumented and may change.
 							Computed:    true,
-							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. If you want to set this field, set disk_autoresize to false.`,
+							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB.`,
 						},
 						"disk_type": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Default:          "PD_SSD",
 							DiffSuppressFunc: caseDiffDashSuppress,
-							Description:      `The type of data disk: PD_SSD or PD_HDD.`,
+							Description:      `The type of data disk: PD_SSD or PD_HDD. Defaults to PD_SSD.`,
 						},
 						"ip_configuration": {
 							Type:     schema.TypeList,
@@ -634,7 +634,7 @@ is set to true.`,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
-							Description:  `The number of seconds between connect retries.`,
+							Description:  `The number of seconds between connect retries. MySQL's default is 60 seconds.`,
 						},
 						"dump_file_path": {
 							Type:         schema.TypeString,
