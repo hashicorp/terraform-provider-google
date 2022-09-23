@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(t *testing.T) {
+func TestAccCertificateManagerCertificate_certificateManagerCertificateBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -36,28 +36,47 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 		CheckDestroy: testAccCheckCertificateManagerCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context),
+				Config: testAccCertificateManagerCertificate_certificateManagerCertificateBasicExample(context),
 			},
 			{
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_managed", "name"},
+				ImportStateVerifyIgnore: []string{"name", "managed.0.dns_authorizations"},
 			},
 		},
 	})
 }
 
-func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context map[string]interface{}) string {
+func testAccCertificateManagerCertificate_certificateManagerCertificateBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-self-managed-cert%{random_suffix}"
+  name        = "tf-test-dns-cert%{random_suffix}"
   description = "The default cert"
   scope       = "EDGE_CACHE"
-  self_managed {
-    pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
-    pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
+  managed {
+    domains = [
+      google_certificate_manager_dns_authorization.instance.domain,
+      google_certificate_manager_dns_authorization.instance2.domain,
+      ]
+    dns_authorizations = [
+      google_certificate_manager_dns_authorization.instance.id,
+      google_certificate_manager_dns_authorization.instance2.id,
+      ]
   }
+}
+
+
+resource "google_certificate_manager_dns_authorization" "instance" {
+  name        = "tf-test-dns-auth%{random_suffix}"
+  description = "The default dnss"
+  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+}
+
+resource "google_certificate_manager_dns_authorization" "instance2" {
+  name        = "tf-test-dns-auth2%{random_suffix}"
+  description = "The default dnss"
+  domain      = "subdomain2%{random_suffix}.hashicorptest.com"
 }
 `, context)
 }
