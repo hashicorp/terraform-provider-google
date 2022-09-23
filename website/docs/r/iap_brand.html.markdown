@@ -94,10 +94,10 @@ In addition to the arguments listed above, the following computed attributes are
   Whether the brand is only intended for usage inside the GSuite organization only.
 
 * `name` -
-  Output only. Identifier of the brand, in the format
-  `projects/{project_number}/brands/{brand_id}`. NOTE: The brand
-  identification corresponds to the project number as only one
-  brand per project can be created.
+  Output only. Identifier of the brand, in the format `projects/{project_number}/brands/{brand_id}`
+  NOTE: The name can also be expressed as `projects/{project_id}/brands/{brand_id}`, e.g. when importing.
+  NOTE: The brand identification corresponds to the project number as only one
+  brand can be created per project.
 
 
 ## Timeouts
@@ -114,7 +114,9 @@ This resource provides the following
 Brand can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_iap_brand.default {{name}}
+$ terraform import google_iap_brand.default projects/{{project_id}}/brands/{{brand_id}}
+$ terraform import google_iap_brand.default projects/{{project_number}}/brands/{{brand_id}}
+$ terraform import google_iap_brand.default {{project_number}}/{{brand_id}}
 ```
 
 ## User Project Overrides

@@ -1,0 +1,3 @@
+```release-note:enhancement
+iap: added ability to import `google_iap_brand` using ID in {{project}}/{{brand_id}} format
+```
