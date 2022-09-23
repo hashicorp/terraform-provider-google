@@ -115,7 +115,7 @@ The following arguments are supported:
     Stackdriver logs for requests that trigger a preview action are annotated as such.
 
 * `rate_limit_options` - (Optional)
-    Must be specified if the `action` is "rate_based_bad" or "throttle". Cannot be specified for other actions. Structure is [documented below](#nested_rate_limit_options).
+    Must be specified if the `action` is "rate_based_ban" or "throttle". Cannot be specified for other actions. Structure is [documented below](#nested_rate_limit_options).
 
 * `redirect_options` - (Optional)
     Can be specified if the `action` is "redirect". Cannot be specified for other actions. Structure is [documented below](#nested_redirect_options).
