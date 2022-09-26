@@ -681,6 +681,25 @@ func resourceContainerCluster() *schema.Resource {
 										Optional:    true,
 										Description: `The pubsub topic to push upgrade notifications to. Must be in the same project as the cluster. Must be in the format: projects/{project}/topics/{topic}.`,
 									},
+									"filter": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										MaxItems:    1,
+										Description: `Allows filtering to one or more specific event types. If event types are present, those and only those event types will be transmitted to the cluster. Other types will be skipped. If no filter is specified, or no event types are present, all event types will be sent`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"event_type": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `Can be used to filter what notifications are sent. Valid values include include UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT and SECURITY_BULLETIN_EVENT`,
+													Elem: &schema.Schema{
+														Type:         schema.TypeString,
+														ValidateFunc: validation.StringInSlice([]string{"UPGRADE_AVAILABLE_EVENT", "UPGRADE_EVENT", "SECURITY_BULLETIN_EVENT"}, false),
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -3138,12 +3157,22 @@ func expandNotificationConfig(configured interface{}) *container.NotificationCon
 		if len(v.([]interface{})) > 0 {
 			pubsub := notificationConfig["pubsub"].([]interface{})[0].(map[string]interface{})
 
-			return &container.NotificationConfig{
+			nc := &container.NotificationConfig{
 				Pubsub: &container.PubSub{
 					Enabled: pubsub["enabled"].(bool),
 					Topic:   pubsub["topic"].(string),
 				},
 			}
+
+			if vv, ok := pubsub["filter"]; ok && len(vv.([]interface{})) > 0 {
+				filter := vv.([]interface{})[0].(map[string]interface{})
+				eventType := filter["event_type"].([]interface{})
+				nc.Pubsub.Filter = &container.Filter{
+					EventType: convertStringArr(eventType),
+				}
+			}
+
+			return nc
 		}
 	}
 
@@ -3464,6 +3493,27 @@ func expandContainerClusterAuthenticatorGroupsConfig(configured interface{}) *co
 func flattenNotificationConfig(c *container.NotificationConfig) []map[string]interface{} {
 	if c == nil {
 		return nil
+	}
+
+	if c.Pubsub.Filter != nil {
+		filter := []map[string]interface{}{}
+		if len(c.Pubsub.Filter.EventType) > 0 {
+			filter = append(filter, map[string]interface{}{
+				"event_type": c.Pubsub.Filter.EventType,
+			})
+		}
+
+		return []map[string]interface{}{
+			{
+				"pubsub": []map[string]interface{}{
+					{
+						"enabled": c.Pubsub.Enabled,
+						"topic":   c.Pubsub.Topic,
+						"filter":  filter,
+					},
+				},
+			},
+		}
 	}
 
 	return []map[string]interface{}{

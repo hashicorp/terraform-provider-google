@@ -244,6 +244,46 @@ func TestAccContainerCluster_withNotificationConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withFilteredNotificationConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	topic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
+	newTopic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withFilteredNotificationConfig(clusterName, topic),
+			},
+			{
+				ResourceName:      "google_container_cluster.filtered_notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withFilteredNotificationConfigUpdate(clusterName, newTopic),
+			},
+			{
+				ResourceName:      "google_container_cluster.filtered_notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_disableFilteredNotificationConfig(clusterName, newTopic),
+			},
+			{
+				ResourceName:      "google_container_cluster.filtered_notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withConfidentialNodes(t *testing.T) {
 	t.Parallel()
 
@@ -2767,7 +2807,7 @@ resource "google_container_cluster" "notification_config" {
   notification_config {
 	pubsub {
 	  enabled = true
-	  topic = google_pubsub_topic.%s.id
+	  topic   = google_pubsub_topic.%s.id
 	}
   }
 }
@@ -2787,6 +2827,78 @@ resource "google_container_cluster" "notification_config" {
   }
 }
 `, clusterName)
+}
+
+func testAccContainerCluster_withFilteredNotificationConfig(clusterName string, topic string) string {
+
+	return fmt.Sprintf(`
+
+resource "google_pubsub_topic" "%s" {
+  name = "%s"
+}
+
+resource "google_container_cluster" "filtered_notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  notification_config {
+	pubsub {
+	  enabled = true
+	  topic   = google_pubsub_topic.%s.id
+	  filter {
+		event_type = ["UPGRADE_EVENT", "SECURITY_BULLETIN_EVENT"]
+	  }
+	}
+  }
+}
+`, topic, topic, clusterName, topic)
+}
+
+func testAccContainerCluster_withFilteredNotificationConfigUpdate(clusterName string, topic string) string {
+
+	return fmt.Sprintf(`
+
+resource "google_pubsub_topic" "%s" {
+  name = "%s"
+}
+
+resource "google_container_cluster" "filtered_notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  notification_config {
+	pubsub {
+	  enabled = true
+	  topic   = google_pubsub_topic.%s.id
+	  filter {
+		event_type = ["UPGRADE_AVAILABLE_EVENT"]
+	  }
+	}
+  }
+}
+`, topic, topic, clusterName, topic)
+}
+
+func testAccContainerCluster_disableFilteredNotificationConfig(clusterName string, topic string) string {
+
+	return fmt.Sprintf(`
+
+resource "google_pubsub_topic" "%s" {
+  name = "%s"
+}
+
+resource "google_container_cluster" "filtered_notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  notification_config {
+	pubsub {
+	  enabled = true
+	  topic   = google_pubsub_topic.%s.id
+	}
+  }
+}
+`, topic, topic, clusterName, topic)
 }
 
 func testAccContainerCluster_withConfidentialNodes(clusterName string, npName string) string {
