@@ -886,6 +886,8 @@ The `pubsub` block supports:
 
 * `topic` (Optional) - The pubsub topic to push upgrade notifications to. Must be in the same project as the cluster. Must be in the format: `projects/{project}/topics/{topic}`.
 
+* `filter` (Optional) - Choose what type of notifications you want to receive. If no filters are applied, you'll receive all notification types. Structure is [documented below](#nested_notification_filter).
+
 ```hcl
 notification_config {
   pubsub {
@@ -894,6 +896,10 @@ notification_config {
   }
 }
 ```
+
+<a name="nested_notification_filter"></a> The `filter` block supports:
+
+* `event_type` (Optional) - Can be used to filter what notifications are sent. Accepted values are `UPGRADE_AVAILABLE_EVENT`, `UPGRADE_EVENT` and `SECURITY_BULLETIN_EVENT`. See [Filtering notifications](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-notifications#filtering) for more details.
 
 <a name="nested_confidential_nodes"></a> The `confidential_nodes` block supports:
 
