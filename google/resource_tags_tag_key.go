@@ -64,6 +64,24 @@ The short name must be 1-63 characters, beginning and ending with an alphanumeri
 				ValidateFunc: validation.StringLenBetween(0, 256),
 				Description:  `User-assigned description of the TagKey. Must not exceed 256 characters.`,
 			},
+			"purpose": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"GCE_FIREWALL", ""}),
+				Description: `Optional. A purpose cannot be changed once set.
+
+A purpose denotes that this Tag is intended for use in policies of a specific policy engine, and will involve that policy engine in management operations involving this Tag. Possible values: ["GCE_FIREWALL"]`,
+			},
+			"purpose_data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optional. Purpose data cannot be changed once set.
+
+Purpose data corresponds to the policy system that the tag is intended for. For example, the GCE_FIREWALL purpose expects data in the following format: 'network = "<project-name>/<vpc-name>"'.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -118,6 +136,18 @@ func resourceTagsTagKeyCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	purposeProp, err := expandTagsTagKeyPurpose(d.Get("purpose"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("purpose"); !isEmptyValue(reflect.ValueOf(purposeProp)) && (ok || !reflect.DeepEqual(v, purposeProp)) {
+		obj["purpose"] = purposeProp
+	}
+	purposeDataProp, err := expandTagsTagKeyPurposeData(d.Get("purpose_data"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("purpose_data"); !isEmptyValue(reflect.ValueOf(purposeDataProp)) && (ok || !reflect.DeepEqual(v, purposeDataProp)) {
+		obj["purposeData"] = purposeDataProp
 	}
 
 	lockName, err := replaceVars(d, config, "tagKeys/{{parent}}")
@@ -223,6 +253,9 @@ func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading TagKey: %s", err)
 	}
 	if err := d.Set("update_time", flattenTagsTagKeyUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
+	if err := d.Set("purpose", flattenTagsTagKeyPurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagKey: %s", err)
 	}
 
@@ -391,6 +424,10 @@ func flattenTagsTagKeyUpdateTime(v interface{}, d *schema.ResourceData, config *
 	return v
 }
 
+func flattenTagsTagKeyPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandTagsTagKeyParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -401,4 +438,19 @@ func expandTagsTagKeyShortName(v interface{}, d TerraformResourceData, config *C
 
 func expandTagsTagKeyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandTagsTagKeyPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandTagsTagKeyPurposeData(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

@@ -62,6 +62,17 @@ The following arguments are supported:
   (Optional)
   User-assigned description of the TagKey. Must not exceed 256 characters.
 
+* `purpose` -
+  (Optional)
+  Optional. A purpose cannot be changed once set.
+  A purpose denotes that this Tag is intended for use in policies of a specific policy engine, and will involve that policy engine in management operations involving this Tag.
+  Possible values are `GCE_FIREWALL`.
+
+* `purpose_data` -
+  (Optional)
+  Optional. Purpose data cannot be changed once set.
+  Purpose data corresponds to the policy system that the tag is intended for. For example, the GCE_FIREWALL purpose expects data in the following format: `network = "<project-name>/<vpc-name>"`.
+
 
 ## Attributes Reference
 
