@@ -118,6 +118,44 @@ resource "google_bigquery_dataset" "bq_dataset" {
   delete_contents_on_destroy = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=healthcare_fhir_store_notification_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Healthcare Fhir Store Notification Config
+
+
+```hcl
+resource "google_healthcare_fhir_store" "default" {
+  name    = "example-fhir-store"
+  dataset = google_healthcare_dataset.dataset.id
+  version = "R4"
+
+  enable_update_create          = false
+  disable_referential_integrity = false
+  disable_resource_versioning   = false
+  enable_history_import         = false
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+
+  notification_configs {
+    pubsub_topic = "${google_pubsub_topic.topic.id}" 
+    send_full_resource = true
+  }
+}
+
+resource "google_pubsub_topic" "topic" {
+  name     = "fhir-notifications"
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "example-dataset"
+  location = "us-central1"
+}
+```
 
 ## Argument Reference
 
@@ -206,6 +244,11 @@ The following arguments are supported:
   the order of dozens of seconds) is expected before the results show up in the streaming destination.
   Structure is [documented below](#nested_stream_configs).
 
+* `notification_configs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of notifcation configs that configure the notification for every resource mutation in this FHIR store.
+  Structure is [documented below](#nested_notification_configs).
+
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:
 
@@ -266,6 +309,25 @@ The following arguments are supported:
   resource is a recursive structure; when the depth is 2, the CodeSystem table will have a column called
   concept.concept but not concept.concept.concept. If not specified or set to 0, the server will use the default
   value 2. The maximum depth allowed is 5.
+
+<a name="nested_notification_configs"></a>The `notification_configs` block supports:
+
+* `pubsub_topic` -
+  (Required)
+  The Cloud Pub/Sub topic that notifications of changes are published on. Supplied by the client.
+  PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
+  It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
+  was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
+  Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
+
+* `send_full_resource` -
+  (Optional)
+  Whether to send full FHIR resource to this Pub/Sub topic for Create and Update operation.
+  Note that setting this to true does not guarantee that all resources will be sent in the format of 
+  full FHIR resource. When a resource change is too large or during heavy traffic, only the resource name will be
+  sent. Clients should always check the "payloadType" label from a Pub/Sub message to determine whether 
+  it needs to fetch the full resource as a separate operation.
 
 ## Attributes Reference
 
