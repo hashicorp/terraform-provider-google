@@ -191,6 +191,18 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecretVersion %q", d.Id()))
 	}
 
+	res, err = resourceSecretManagerSecretVersionDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing SecretManagerSecretVersion because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("enabled", flattenSecretManagerSecretVersionEnabled(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecretVersion: %s", err)
 	}
@@ -381,4 +393,12 @@ func expandSecretManagerSecretVersionPayloadSecretData(v interface{}, d Terrafor
 	}
 
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
+}
+
+func resourceSecretManagerSecretVersionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	if v := res["state"]; v == "DESTROYED" {
+		return nil, nil
+	}
+
+	return res, nil
 }

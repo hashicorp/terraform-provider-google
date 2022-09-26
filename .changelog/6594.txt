@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: fix a bug where `google_secret_manager_secret_version` that was destroyed outside of Terraform would not be recreated on apply
+```
