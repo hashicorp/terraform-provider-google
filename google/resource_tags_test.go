@@ -14,17 +14,18 @@ import (
 
 func TestAccTags(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"tagKeyBasic":        testAccTagsTagKey_tagKeyBasic,
-		"tagKeyUpdate":       testAccTagsTagKey_tagKeyUpdate,
-		"tagKeyIamBinding":   testAccTagsTagKeyIamBinding,
-		"tagKeyIamMember":    testAccTagsTagKeyIamMember,
-		"tagKeyIamPolicy":    testAccTagsTagKeyIamPolicy,
-		"tagValueBasic":      testAccTagsTagValue_tagValueBasic,
-		"tagValueUpdate":     testAccTagsTagValue_tagValueUpdate,
-		"tagBindingBasic":    testAccTagsTagBinding_tagBindingBasic,
-		"tagValueIamBinding": testAccTagsTagValueIamBinding,
-		"tagValueIamMember":  testAccTagsTagValueIamMember,
-		"tagValueIamPolicy":  testAccTagsTagValueIamPolicy,
+		"tagKeyBasic":                       testAccTagsTagKey_tagKeyBasic,
+		"tagKeyBasicWithPurposeGceFirewall": testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
+		"tagKeyUpdate":                      testAccTagsTagKey_tagKeyUpdate,
+		"tagKeyIamBinding":                  testAccTagsTagKeyIamBinding,
+		"tagKeyIamMember":                   testAccTagsTagKeyIamMember,
+		"tagKeyIamPolicy":                   testAccTagsTagKeyIamPolicy,
+		"tagValueBasic":                     testAccTagsTagValue_tagValueBasic,
+		"tagValueUpdate":                    testAccTagsTagValue_tagValueUpdate,
+		"tagBindingBasic":                   testAccTagsTagBinding_tagBindingBasic,
+		"tagValueIamBinding":                testAccTagsTagValueIamBinding,
+		"tagValueIamMember":                 testAccTagsTagValueIamMember,
+		"tagValueIamPolicy":                 testAccTagsTagValueIamPolicy,
 	}
 
 	for name, tc := range testCases {
@@ -65,6 +66,44 @@ resource "google_tags_tag_key" "key" {
   short_name = "foo%{random_suffix}"
   description = "For foo%{random_suffix} resources."
 }
+`, context)
+}
+
+func testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall(t *testing.T) {
+	context := map[string]interface{}{
+		"org_id":        getTestOrgFromEnv(t),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckTagsTagKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewallExample(context),
+			},
+		},
+	})
+}
+
+func testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewallExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_network" "tag_network" {
+	name = "vpc-%{random_suffix}"
+	auto_create_subnetworks = false
+}
+
+resource "google_tags_tag_key" "key" {
+	  parent = "organizations/%{org_id}"
+	  short_name = "foo%{random_suffix}"
+	  description = "For foo%{random_suffix} resources."
+	  purpose = "GCE_FIREWALL"
+	  # purpose_data expects either a selfLinkWithId (not a property of google_compute_network) or the format <project-name>/<vpc-name>.
+	  # selfLink is not sufficient and will result in an error, so we build a string to match the second option.
+	  purpose_data = {network = "${google_compute_network.tag_network.project}/${google_compute_network.tag_network.name}"}
+	}
+
 `, context)
 }
 
