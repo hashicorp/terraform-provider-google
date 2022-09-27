@@ -515,7 +515,21 @@ is set to true. Defaults to ZONAL.`,
 				Computed:    true,
 				Description: `The connection name of the instance to be used in connection strings. For example, when connecting with Cloud SQL Proxy.`,
 			},
-
+			"maintenance_version": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				Description:      `Maintenance version.`,
+				DiffSuppressFunc: maintenanceVersionDiffSuppress,
+			},
+			"available_maintenance_versions": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Description: `Available Maintenance versions.`,
+			},
 			"database_version": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -536,7 +550,6 @@ is set to true. Defaults to ZONAL.`,
 				Sensitive:   true,
 				Description: `Initial root password. Required for MS SQL Server.`,
 			},
-
 			"ip_address": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -869,6 +882,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}))
 	if ok {
 		instance.Settings = desiredSettings
+	}
+
+	if _, ok := d.GetOk("maintenance_version"); ok {
+		instance.MaintenanceVersion = d.Get("maintenance_version").(string)
 	}
 
 	instance.RootPassword = d.Get("root_password").(string)
@@ -1280,6 +1297,12 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("connection_name", instance.ConnectionName); err != nil {
 		return fmt.Errorf("Error setting connection_name: %s", err)
 	}
+	if err := d.Set("maintenance_version", instance.MaintenanceVersion); err != nil {
+		return fmt.Errorf("Error setting maintenance_version: %s", err)
+	}
+	if err := d.Set("available_maintenance_versions", instance.AvailableMaintenanceVersions); err != nil {
+		return fmt.Errorf("Error setting available_maintenance_version: %s", err)
+	}
 	if err := d.Set("service_account_email_address", instance.ServiceAccountEmailAddress); err != nil {
 		return fmt.Errorf("Error setting service_account_email_address: %s", err)
 	}
@@ -1356,14 +1379,40 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	var maintenance_version string
+	if v, ok := d.GetOk("maintenance_version"); ok {
+		maintenance_version = v.(string)
+	}
 
 	desiredSetting := d.Get("settings")
 	var op *sqladmin.Operation
 	var instance *sqladmin.DatabaseInstance
+
 	// Check if the database version is being updated, because patching database version is an atomic operation and can not be
 	// performed with other fields, we first patch database version before updating the rest of the fields.
 	if v, ok := d.GetOk("database_version"); ok {
 		instance = &sqladmin.DatabaseInstance{DatabaseVersion: v.(string)}
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Check if the maintenance version is being updated, because patching maintenance version is an atomic operation and can not be
+	// performed with other fields, we first patch maintenance version before updating the rest of the fields.
+	if d.HasChange("maintenance_version") {
+		instance = &sqladmin.DatabaseInstance{MaintenanceVersion: maintenance_version}
 		err = retryTimeDuration(func() (rerr error) {
 			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
 			return rerr
@@ -1424,6 +1473,16 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	return resourceSqlDatabaseInstanceRead(d, meta)
+}
+
+func maintenanceVersionDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	// Ignore the database version part and only compare the last part of the maintenance version which represents the release date of the version.
+	if len(old) > 14 && len(new) > 14 && old[len(old)-14:] >= new[len(new)-14:] {
+		log.Printf("[DEBUG] Maintenance version in configuration [%s] is older than current maintenance version [%s] on instance. Suppressing diff", new, old)
+		return true
+	} else {
+		return false
+	}
 }
 
 func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{}) error {
