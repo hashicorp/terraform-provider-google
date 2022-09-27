@@ -649,3 +649,28 @@ func TestCheckGCSName(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckGoogleIamPolicy(t *testing.T) {
+	cases := []struct {
+		valid bool
+		json  string
+	}{
+		{
+			valid: false,
+			json:  `{"bindings":[{"condition":{"description":"","expression":"request.time \u003c timestamp(\"2020-01-01T00:00:00Z\")","title":"expires_after_2019_12_31-no-description"},"members":["user:admin@example.com"],"role":"roles/privateca.certificateManager"},{"condition":{"description":"Expiring at midnight of 2019-12-31","expression":"request.time \u003c timestamp(\"2020-01-01T00:00:00Z\")","title":"expires_after_2019_12_31"},"members":["user:admin@example.com"],"role":"roles/privateca.certificateManager"}]}`,
+		},
+		{
+			valid: true,
+			json:  `{"bindings":[{"condition":{"expression":"request.time \u003c timestamp(\"2020-01-01T00:00:00Z\")","title":"expires_after_2019_12_31-no-description"},"members":["user:admin@example.com"],"role":"roles/privateca.certificateManager"},{"condition":{"description":"Expiring at midnight of 2019-12-31","expression":"request.time \u003c timestamp(\"2020-01-01T00:00:00Z\")","title":"expires_after_2019_12_31"},"members":["user:admin@example.com"],"role":"roles/privateca.certificateManager"}]}`,
+		},
+	}
+
+	for _, tc := range cases {
+		err := checkGoogleIamPolicy(tc.json)
+		if tc.valid && err != nil {
+			t.Errorf("The JSON is marked as valid but triggered an error: %s", tc.json)
+		} else if !tc.valid && err == nil {
+			t.Errorf("The JSON is marked as not valid but failed to trigger an error: %s", tc.json)
+		}
+	}
+}

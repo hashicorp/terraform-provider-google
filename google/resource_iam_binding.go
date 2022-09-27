@@ -310,7 +310,7 @@ func expandIamCondition(v interface{}) *cloudresourcemanager.Expr {
 		Description:     original["description"].(string),
 		Expression:      original["expression"].(string),
 		Title:           original["title"].(string),
-		ForceSendFields: []string{"Description", "Expression", "Title"},
+		ForceSendFields: []string{"Expression", "Title"},
 	}
 }
 

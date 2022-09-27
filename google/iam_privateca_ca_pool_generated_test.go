@@ -16,6 +16,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -25,8 +26,13 @@ func TestAccPrivatecaCaPoolIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/privateca.certificateManager",
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -60,8 +66,13 @@ func TestAccPrivatecaCaPoolIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/privateca.certificateManager",
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -86,8 +97,13 @@ func TestAccPrivatecaCaPoolIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/privateca.certificateManager",
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -105,6 +121,194 @@ func TestAccPrivatecaCaPoolIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				Config: testAccPrivatecaCaPoolIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccPrivatecaCaPoolIamBindingGenerated_withCondition(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCaPoolIamBinding_withConditionGenerated(context),
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccPrivatecaCaPoolIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCaPoolIamBinding_withAndWithoutConditionGenerated(context),
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_binding.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_binding.foo2",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_binding.foo3",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccPrivatecaCaPoolIamMemberGenerated_withCondition(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCaPoolIamMember_withConditionGenerated(context),
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccPrivatecaCaPoolIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCaPoolIamMember_withAndWithoutConditionGenerated(context),
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_member.foo2",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_privateca_ca_pool_iam_member.foo3",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccPrivatecaCaPoolIamPolicyGenerated_withCondition(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":           randString(t, 10),
+		"role":                    "roles/privateca.certificateManager",
+		"condition_title":         "expires_after_2019_12_31",
+		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+		"condition_desc":          "Expiring at midnight of 2019-12-31",
+		"condition_title_no_desc": "expires_after_2019_12_31-no-description",
+		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
+	}
+
+	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
+	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCaPoolIamPolicy_withConditionGenerated(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					// TODO(SarahFrench) - uncomment once https://github.com/GoogleCloudPlatform/magic-modules/pull/6466 merged
+					// resource.TestCheckResourceAttr("data.google_iam_policy.foo", "policy_data", expectedPolicyData),
+					resource.TestCheckResourceAttr("google_privateca_ca_pool_iam_policy.foo", "policy_data", expectedPolicyData),
+					resource.TestCheckResourceAttrWith("data.google_iam_policy.foo", "policy_data", checkGoogleIamPolicy),
+				),
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_policy.foo",
@@ -235,6 +439,198 @@ resource "google_privateca_ca_pool_iam_binding" "foo" {
   ca_pool = google_privateca_ca_pool.default.id
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
+}
+`, context)
+}
+
+func testAccPrivatecaCaPoolIamBinding_withConditionGenerated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name = "tf-test-my-pool%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl = true
+  }
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_privateca_ca_pool_iam_binding" "foo" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
+  condition {
+    title       = "%{condition_title}"
+    description = "%{condition_desc}"
+    expression  = "%{condition_expr}"
+  }
+}
+`, context)
+}
+
+func testAccPrivatecaCaPoolIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name = "tf-test-my-pool%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl = true
+  }
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_privateca_ca_pool_iam_binding" "foo" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
+}
+
+resource "google_privateca_ca_pool_iam_binding" "foo2" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
+  condition {
+    title       = "%{condition_title}"
+    description = "%{condition_desc}"
+    expression  = "%{condition_expr}"
+  }
+}
+
+resource "google_privateca_ca_pool_iam_binding" "foo3" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
+  condition {
+    # Check that lack of description doesn't cause any issues
+    # Relates to issue : https://github.com/hashicorp/terraform-provider-google/issues/8701
+    title       = "%{condition_title_no_desc}"
+    expression  = "%{condition_expr_no_desc}"
+  }
+}
+`, context)
+}
+
+func testAccPrivatecaCaPoolIamMember_withConditionGenerated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name = "tf-test-my-pool%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl = true
+  }
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_privateca_ca_pool_iam_member" "foo" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
+  condition {
+    title       = "%{condition_title}"
+    description = "%{condition_desc}"
+    expression  = "%{condition_expr}"
+  }
+}
+`, context)
+}
+
+func testAccPrivatecaCaPoolIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name = "tf-test-my-pool%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl = true
+  }
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_privateca_ca_pool_iam_member" "foo" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
+}
+
+resource "google_privateca_ca_pool_iam_member" "foo2" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
+  condition {
+    title       = "%{condition_title}"
+    description = "%{condition_desc}"
+    expression  = "%{condition_expr}"
+  }
+}
+
+resource "google_privateca_ca_pool_iam_member" "foo3" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
+  condition {
+    # Check that lack of description doesn't cause any issues
+    # Relates to issue : https://github.com/hashicorp/terraform-provider-google/issues/8701
+    title       = "%{condition_title_no_desc}"
+    expression  = "%{condition_expr_no_desc}"
+  }
+}
+`, context)
+}
+
+func testAccPrivatecaCaPoolIamPolicy_withConditionGenerated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name = "tf-test-my-pool%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl = true
+  }
+  labels = {
+    foo = "bar"
+  }
+}
+
+data "google_iam_policy" "foo" {
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+    condition {
+      # Check that lack of description doesn't cause any issues
+      # Relates to issue : https://github.com/hashicorp/terraform-provider-google/issues/8701
+      title       = "%{condition_title_no_desc}"
+      expression  = "%{condition_expr_no_desc}"
+    }
+  }
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+    condition {
+      title       = "%{condition_title}"
+      description = "%{condition_desc}"
+      expression  = "%{condition_expr}"
+    }
+  }
+}
+
+resource "google_privateca_ca_pool_iam_policy" "foo" {
+  ca_pool = google_privateca_ca_pool.default.id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
