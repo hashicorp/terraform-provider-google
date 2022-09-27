@@ -186,6 +186,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
 	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	zipFileUpdatePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerUpdatePath)
+	random_suffix := randString(t, 10)
 	defer os.Remove(zipFilePath) // clean up
 
 	vcrTest(t, resource.TestCase{
@@ -209,7 +210,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 			{
-				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFileUpdatePath),
+				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFileUpdatePath, random_suffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCloudFunctionsFunctionExists(
 						t, funcResourceName, &function),
@@ -218,7 +219,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function updated"),
 					resource.TestCheckResourceAttr(funcResourceName,
-						"docker_registry", "CONTAINER_REGISTRY"),
+						"docker_registry", "ARTIFACT_REGISTRY"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "91"),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -762,7 +763,7 @@ resource "google_cloudfunctions_function" "function" {
 `, bucketName, zipFilePath, functionName)
 }
 
-func testAccCloudFunctionsFunction_updated(functionName string, bucketName string, zipFilePath string) string {
+func testAccCloudFunctionsFunction_updated(functionName string, bucketName string, zipFilePath string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "%s"
@@ -778,7 +779,8 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name                         = "%s"
   description                  = "test function updated"
-  docker_registry              = "CONTAINER_REGISTRY"
+  docker_registry              = "ARTIFACT_REGISTRY"
+  docker_repository = google_artifact_registry_repository.my-repo.id
   available_memory_mb          = 256
   source_archive_bucket        = google_storage_bucket.bucket.name
   source_archive_object        = google_storage_bucket_object.archive.name
@@ -802,8 +804,16 @@ resource "google_cloudfunctions_function" "function" {
   }
   max_instances = 15
   min_instances = 5
+  region = "us-central1"
 }
-`, bucketName, zipFilePath, functionName)
+
+resource "google_artifact_registry_repository" "my-repo" {
+	location      = "us-central1"
+	repository_id = "tf-test-my-repository%s"
+	description   = "example docker repository with cmek"
+	format        = "DOCKER"
+}
+`, bucketName, zipFilePath, functionName, randomSuffix)
 }
 
 func testAccCloudFunctionsFunction_buildworkerpool(functionName string, bucketName string, zipFilePath string, location string) string {

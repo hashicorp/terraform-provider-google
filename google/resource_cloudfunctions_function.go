@@ -834,12 +834,12 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("docker_repository") {
-		function.Runtime = d.Get("docker_repository").(string)
+		function.DockerRepository = d.Get("docker_repository").(string)
 		updateMaskArr = append(updateMaskArr, "dockerRepository")
 	}
 
 	if d.HasChange("kms_key_name") {
-		function.Runtime = d.Get("docker_repository").(string)
+		function.KmsKeyName = d.Get("kms_key_name").(string)
 		updateMaskArr = append(updateMaskArr, "kmsKeyName")
 	}
 
