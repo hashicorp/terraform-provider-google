@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccCertificateManagerCertificate_certificateManagerCertificateBasicExample(t *testing.T) {
+func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -36,47 +36,28 @@ func TestAccCertificateManagerCertificate_certificateManagerCertificateBasicExam
 		CheckDestroy: testAccCheckCertificateManagerCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCertificateManagerCertificate_certificateManagerCertificateBasicExample(context),
+				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context),
 			},
 			{
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "managed.0.dns_authorizations"},
+				ImportStateVerifyIgnore: []string{"self_managed", "name"},
 			},
 		},
 	})
 }
 
-func testAccCertificateManagerCertificate_certificateManagerCertificateBasicExample(context map[string]interface{}) string {
+func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-dns-cert%{random_suffix}"
+  name        = "tf-test-self-managed-cert%{random_suffix}"
   description = "The default cert"
   scope       = "EDGE_CACHE"
-  managed {
-    domains = [
-      google_certificate_manager_dns_authorization.instance.domain,
-      google_certificate_manager_dns_authorization.instance2.domain,
-      ]
-    dns_authorizations = [
-      google_certificate_manager_dns_authorization.instance.id,
-      google_certificate_manager_dns_authorization.instance2.id,
-      ]
+  self_managed {
+    pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
+    pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
   }
-}
-
-
-resource "google_certificate_manager_dns_authorization" "instance" {
-  name        = "tf-test-dns-auth%{random_suffix}"
-  description = "The default dnss"
-  domain      = "subdomain%{random_suffix}.hashicorptest.com"
-}
-
-resource "google_certificate_manager_dns_authorization" "instance2" {
-  name        = "tf-test-dns-auth2%{random_suffix}"
-  description = "The default dnss"
-  domain      = "subdomain2%{random_suffix}.hashicorptest.com"
 }
 `, context)
 }
