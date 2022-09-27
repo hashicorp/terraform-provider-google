@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed unable to manage Cloud Armor `adaptive_protection_config` on `google_compute_security_policy`
+```
