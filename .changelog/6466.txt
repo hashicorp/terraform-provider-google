@@ -1,0 +1,3 @@
+```release-note:bug
+iam: fixed diffs between `policy_data` from `google_iam_policy` data source and policy data in API responses
+```

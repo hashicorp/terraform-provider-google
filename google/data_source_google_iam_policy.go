@@ -16,14 +16,14 @@ import (
 // to express a Google Cloud IAM policy in a data resource. This is an example
 // of how the schema would be used in a config:
 //
-//	data "google_iam_policy" "admin" {
-//	  binding {
-//	    role = "roles/storage.objectViewer"
-//	    members = [
-//	      "user:evanbrown@google.com",
-//	    ]
-//	  }
-//	}
+// data "google_iam_policy" "admin" {
+//   binding {
+//     role = "roles/storage.objectViewer"
+//     members = [
+//       "user:evanbrown@google.com",
+//     ]
+//   }
+// }
 func dataSourceGoogleIamPolicy() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleIamPolicyRead,
@@ -119,30 +119,52 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	bset := d.Get("binding").(*schema.Set)
 	aset := d.Get("audit_config").(*schema.Set)
 
-	// All binding{} blocks will be converted and stored in an array
-	bindings = make([]*cloudresourcemanager.Binding, bset.Len())
-	policy.Bindings = bindings
-
 	// Convert each config binding into a cloudresourcemanager.Binding
-	for i, v := range bset.List() {
+	// and merge member lists of equivalent binding{} blocks from the config provided by the user
+	bindingMap := map[string]*cloudresourcemanager.Binding{}
+	for _, v := range bset.List() {
 		binding := v.(map[string]interface{})
 		members := convertStringSet(binding["members"].(*schema.Set))
 		condition := expandIamCondition(binding["condition"])
 
-		// Sort members to get simpler diffs as it's what the API does
-		sort.Strings(members)
+		// Map keys are used to identify binding{} blocks that are identical except for the member lists
+		key := binding["role"].(string)
+		if condition != nil {
+			key += fmt.Sprintf("-[%s]-[%s]-[%s]-[%s]", condition.Expression, condition.Title, condition.Description, condition.Location)
+		}
 
-		policy.Bindings[i] = &cloudresourcemanager.Binding{
-			Role:      binding["role"].(string),
-			Members:   members,
-			Condition: condition,
+		if val, ok := bindingMap[key]; ok {
+			// Add members to existing cloudresourcemanager.Binding in the map
+			m := append(val.Members, members...)
+			binding := bindingMap[key]
+			binding.Members = m
+			bindingMap[key] = binding
+		} else {
+			// Add new cloudresourcemanager.Binding to the map
+			bindingMap[key] = &cloudresourcemanager.Binding{
+				Role:      binding["role"].(string),
+				Members:   members,
+				Condition: condition,
+			}
 		}
 	}
 
-	// Sort bindings by their role name to get simpler diffs as it's what the API does
-	sort.Slice(bindings, func(i, j int) bool {
-		return bindings[i].Role < bindings[j].Role
-	})
+	// All binding{} blocks, post conversion to cloudresourcemanager.Binding and combining of member lists, are stored in an array
+	bindings = []*cloudresourcemanager.Binding{}
+	for _, v := range bindingMap {
+		v := v
+		bindings = append(bindings, v)
+	}
+	policy.Bindings = bindings
+
+	// Sort bindings within the list to get simpler diffs, as it's what the API does
+	// Sorting is based on the binding's role + condition fields
+	sort.Slice(policy.Bindings, iamPolicyBindingsLessFunction(policy))
+
+	// Sort members within each binding in the list to get simpler diffs, as it's what the API does
+	for i := 0; i < len(policy.Bindings); i++ {
+		sort.Strings(policy.Bindings[i].Members)
+	}
 
 	// Convert each audit_config into a cloudresourcemanager.AuditConfig
 	policy.AuditConfigs = expandAuditConfig(aset)
@@ -184,4 +206,55 @@ func expandAuditConfig(set *schema.Set) []*cloudresourcemanager.AuditConfig {
 		})
 	}
 	return auditConfigs
+}
+
+func iamPolicyBindingsLessFunction(policy cloudresourcemanager.Policy) func(i, j int) bool {
+
+	return func(i, j int) bool {
+		// Sort bindings by role, if they're not the same
+		sameRole := policy.Bindings[i].Role == policy.Bindings[j].Role
+		if !sameRole {
+			return policy.Bindings[i].Role < policy.Bindings[j].Role
+		}
+
+		iConditionOk := policy.Bindings[i].Condition != nil
+		jConditionOk := policy.Bindings[j].Condition != nil
+
+		// If both bindings lack conditions we cannot sort them further
+		if !iConditionOk && !jConditionOk {
+			return false
+		}
+
+		// Sort by presence of a condition on only one of the two bindings
+		if !iConditionOk && jConditionOk {
+			return true
+		}
+		if iConditionOk && !jConditionOk {
+			return false
+		}
+
+		// At this point both bindings have conditions
+
+		sameExpression := policy.Bindings[i].Condition.Expression == policy.Bindings[j].Condition.Expression
+		sameTitle := policy.Bindings[i].Condition.Title == policy.Bindings[j].Condition.Title
+		sameDescription := policy.Bindings[i].Condition.Description == policy.Bindings[j].Condition.Description
+
+		// Don't sort if conditions are the same
+		if sameExpression && sameTitle && sameDescription {
+			return false
+		}
+
+		// Sort by both bindings' conditions' expressions, if they're not equivalent
+		if !sameExpression {
+			return policy.Bindings[i].Condition.Expression < policy.Bindings[j].Condition.Expression
+		}
+
+		// Sort by both bindings' conditions' titles, if they're not equivalent
+		if !sameTitle {
+			return policy.Bindings[i].Condition.Title < policy.Bindings[j].Condition.Title
+		}
+
+		// Comparing conditions' descriptions is the last available way to sort
+		return policy.Bindings[i].Condition.Description < policy.Bindings[j].Condition.Description
+	}
 }
