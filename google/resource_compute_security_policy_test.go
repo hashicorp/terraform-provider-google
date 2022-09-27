@@ -176,6 +176,14 @@ func TestAccComputeSecurityPolicy_withAdaptiveProtection(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtectionUpdate(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -448,6 +456,22 @@ resource "google_compute_security_policy" "policy" {
       enable = true
       rule_visibility = "STANDARD"
 	}
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdaptiveProtectionUpdate(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = false
+      rule_visibility = "STANDARD"
+    }
   }
 }
 `, spName)

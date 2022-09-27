@@ -857,8 +857,9 @@ func expandLayer7DdosDefenseConfig(configured []interface{}) *compute.SecurityPo
 
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig{
-		Enable:         data["enable"].(bool),
-		RuleVisibility: data["rule_visibility"].(string),
+		Enable:          data["enable"].(bool),
+		RuleVisibility:  data["rule_visibility"].(string),
+		ForceSendFields: []string{"Enable"},
 	}
 }
 
