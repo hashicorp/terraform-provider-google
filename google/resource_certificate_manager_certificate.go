@@ -185,21 +185,40 @@ certificates before they expire remains the user's responsibility.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"certificate_pem": {
+							Type:       schema.TypeString,
+							Optional:   true,
+							Deprecated: "Deprecated in favor of `pem_certificate`",
+							Description: `**Deprecated** The certificate chain in PEM-encoded form.
+
+Leaf certificate comes first, followed by intermediate ones if any.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"self_managed.0.certificate_pem", "self_managed.0.pem_certificate"},
+						},
+						"pem_certificate": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 							Description: `The certificate chain in PEM-encoded form.
 
 Leaf certificate comes first, followed by intermediate ones if any.`,
-							Sensitive: true,
+							ExactlyOneOf: []string{"self_managed.0.certificate_pem", "self_managed.0.pem_certificate"},
+						},
+						"pem_private_key": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
+							ExactlyOneOf: []string{"self_managed.0.private_key_pem", "self_managed.0.pem_private_key"},
 						},
 						"private_key_pem": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The private key of the leaf certificate in PEM-encoded form.`,
-							Sensitive:   true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Deprecated:   "Deprecated in favor of `pem_private_key`",
+							Description:  `**Deprecated** The private key of the leaf certificate in PEM-encoded form.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"self_managed.0.private_key_pem", "self_managed.0.pem_private_key"},
 						},
 					},
 				},
+				Sensitive:    true,
 				ExactlyOneOf: []string{"self_managed", "managed"},
 			},
 			"project": {
@@ -339,9 +358,6 @@ func resourceCertificateManagerCertificateRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("scope", flattenCertificateManagerCertificateScope(res["scope"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("self_managed", flattenCertificateManagerCertificateSelfManaged(res["selfManaged"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("managed", flattenCertificateManagerCertificateManaged(res["managed"], d, config)); err != nil {
@@ -503,29 +519,6 @@ func flattenCertificateManagerCertificateScope(v interface{}, d *schema.Resource
 	return v
 }
 
-func flattenCertificateManagerCertificateSelfManaged(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["certificate_pem"] =
-		flattenCertificateManagerCertificateSelfManagedCertificatePem(original["certificatePem"], d, config)
-	transformed["private_key_pem"] =
-		flattenCertificateManagerCertificateSelfManagedPrivateKeyPem(original["privateKeyPem"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCertificateManagerCertificateSelfManagedCertificatePem(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenCertificateManagerCertificateSelfManagedPrivateKeyPem(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
 func flattenCertificateManagerCertificateManaged(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -661,6 +654,20 @@ func expandCertificateManagerCertificateSelfManaged(v interface{}, d TerraformRe
 		transformed["privateKeyPem"] = transformedPrivateKeyPem
 	}
 
+	transformedPemCertificate, err := expandCertificateManagerCertificateSelfManagedPemCertificate(original["pem_certificate"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPemCertificate); val.IsValid() && !isEmptyValue(val) {
+		transformed["pemCertificate"] = transformedPemCertificate
+	}
+
+	transformedPemPrivateKey, err := expandCertificateManagerCertificateSelfManagedPemPrivateKey(original["pem_private_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPemPrivateKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["pemPrivateKey"] = transformedPemPrivateKey
+	}
+
 	return transformed, nil
 }
 
@@ -669,6 +676,14 @@ func expandCertificateManagerCertificateSelfManagedCertificatePem(v interface{},
 }
 
 func expandCertificateManagerCertificateSelfManagedPrivateKeyPem(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCertificateManagerCertificateSelfManagedPemCertificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCertificateManagerCertificateSelfManagedPemPrivateKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
