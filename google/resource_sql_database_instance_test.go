@@ -37,6 +37,39 @@ func init() {
 	})
 }
 
+func TestMaintenanceVersionDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New       string
+		ShouldSuppress bool
+	}{
+		"older configuration maintenance version than current version should suppress diff": {
+			Old:            "MYSQL_8_0_26.R20220508.01_09",
+			New:            "MYSQL_5_7_37.R20210508.01_03",
+			ShouldSuppress: true,
+		},
+		"older configuration maintenance version than current version should suppress diff with lexicographically smaller database version": {
+			Old:            "MYSQL_5_8_10.R20220508.01_09",
+			New:            "MYSQL_5_8_7.R20210508.01_03",
+			ShouldSuppress: true,
+		},
+		"newer configuration maintenance version than current version should not suppress diff": {
+			Old:            "MYSQL_5_7_37.R20210508.01_03",
+			New:            "MYSQL_8_0_26.R20220508.01_09",
+			ShouldSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			if maintenanceVersionDiffSuppress("version", tc.Old, tc.New, nil) != tc.ShouldSuppress {
+				t.Fatalf("%q => %q expect DiffSuppress to return %t", tc.Old, tc.New, tc.ShouldSuppress)
+			}
+		})
+	}
+}
+
 func testSweepDatabases(region string) error {
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
@@ -362,6 +395,46 @@ func TestAccSqlDatabaseInstance_settings_deletionProtection(t *testing.T) {
 			{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_settings_deletionProtection, databaseName, "false"),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_maintenanceVersion(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_maintenanceVersionWithOldVersion, databaseName),
+				ExpectError: regexp.MustCompile(
+					`.*Maintenance version \(MYSQL_5_7_37.R20210508.01_03\) must not be set.*`),
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic3, databaseName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_maintenanceVersionWithOldVersion, databaseName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1776,6 +1849,18 @@ resource "google_sql_database_instance" "instance" {
     }
 
     activation_policy = "ALWAYS"
+  }
+}
+`
+var testGoogleSqlDatabaseInstance_maintenanceVersionWithOldVersion = `
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  maintenance_version = "MYSQL_5_7_37.R20210508.01_03"
+  settings {
+    tier = "db-f1-micro"
   }
 }
 `

@@ -184,6 +184,8 @@ includes an up-to-date reference of supported versions.
     created. This is done because after a name is used, it cannot be reused for
     up to [one week](https://cloud.google.com/sql/docs/delete-instance).
 
+* `maintenance_version`  - (Optional) The current software version on the instance. This attribute can not be set during creation. Refer to `available_maintenance_versions` attribute to see what `maintenance_version` are available for upgrade. When this attribute gets updated, it will cause an instance restart. Setting a `maintenance_version` value that is older than the current one on the instance will be ignored.
+
 * `master_instance_name` - (Optional) The name of the existing instance that will
     act as the master in the replication setup. Note, this requires the master to
     have `binary_log_enabled` set, as well as existing backups.
@@ -448,6 +450,8 @@ instance.
 * `first_ip_address` - The first IPv4 address of any type assigned. This is to
 support accessing the [first address in the list in a terraform output](https://github.com/hashicorp/terraform-provider-google/issues/912)
 when the resource is configured with a `count`.
+
+* `available_maintenance_versions`  - The list of all maintenance versions applicable on the instance.
 
 * `public_ip_address` - The first public (`PRIMARY`) IPv4 address assigned. This is
 a workaround for an [issue fixed in Terraform 0.12](https://github.com/hashicorp/terraform/issues/17048)
