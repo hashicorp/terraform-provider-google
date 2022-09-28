@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_compute_snapshot'
+```
