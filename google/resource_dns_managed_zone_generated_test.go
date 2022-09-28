@@ -311,6 +311,47 @@ resource "google_compute_network" "network-target" {
 `, context)
 }
 
+func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(context),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.cloud-logging-enabled-zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
+  name        = "tf-test-cloud-logging-enabled-zone%{random_suffix}"
+  dns_name    = "services.example.com."
+  description = "Example cloud logging enabled DNS zone"
+  labels = {
+    foo = "bar"
+  }
+
+  cloud_logging_config {
+    enable_logging = true
+  }
+}
+`, context)
+}
+
 func testAccCheckDNSManagedZoneDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

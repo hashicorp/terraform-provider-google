@@ -1,0 +1,3 @@
+```release-note:enhancement
+dns: Added general field `cloud_logging_config` to `google_dns_managed_zone`
+```

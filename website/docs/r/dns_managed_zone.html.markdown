@@ -214,6 +214,28 @@ resource "google_compute_network" "network" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dns_managed_zone_cloud_logging&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dns Managed Zone Cloud Logging
+
+
+```hcl
+resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
+  name        = "cloud-logging-enabled-zone"
+  dns_name    = "services.example.com."
+  description = "Example cloud logging enabled DNS zone"
+  labels = {
+    foo = "bar"
+  }
+
+  cloud_logging_config {
+    enable_logging = true
+  }
+}
+```
 
 ## Argument Reference
 
@@ -282,6 +304,11 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The presence of this field indicates that this zone is backed by Service Directory. The value of this field contains information related to the namespace associated with the zone.
   Structure is [documented below](#nested_service_directory_config).
+
+* `cloud_logging_config` -
+  (Optional)
+  Cloud logging configuration
+  Structure is [documented below](#nested_cloud_logging_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -415,6 +442,12 @@ The following arguments are supported:
   `https://servicedirectory.googleapis.com/v1/projects/{project}/locations/{location}/namespaces/{namespace_id}`
   or simply `projects/{project}/locations/{location}/namespaces/{namespace_id}`
   Ignored for `public` visibility zones.
+
+<a name="nested_cloud_logging_config"></a>The `cloud_logging_config` block supports:
+
+* `enable_logging` -
+  (Required)
+  If set, enable query logging for this ManagedZone. False by default, making logging opt-in.
 
 ## Attributes Reference
 
