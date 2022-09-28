@@ -1,0 +1,4 @@
+```release-note:enhancement
+sql: added  `password_policy` field to `google_sql_user` resource
+
+```
