@@ -100,6 +100,22 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
+The optional `password_policy` block is only supported by Mysql. The `password_policy` block supports:
+
+* `allowed_failed_attempts` - (Optional) Number of failed attempts allowed before the user get locked.
+
+* `password_expiration_duration` - (Optional) Password expiration duration with one week grace period.
+
+* `enable_failed_attempts_check` - (Optional) If true, the check that will lock user after too many failed login attempts will be enabled.
+
+* `enable_password_verification` - (Optional) If true, the user must specify the current password before changing the password. This flag is supported only for MySQL.
+
+The read only `password_policy.status` subblock supports:
+
+* `locked` - (read only) If true, user does not have login privileges.
+
+* `password_expiration_time` - (read only) Password expiration duration with one week grace period.
+
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.

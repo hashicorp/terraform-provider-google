@@ -279,6 +279,43 @@ func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error 
 	}
 }
 
+func TestAccSqlUser_mysqlPasswordPolicy(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
+	t.Parallel()
+
+	instance := fmt.Sprintf("tf-test-i%d", randInt(t))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_mysqlPasswordPolicy(instance, "password", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
+				),
+			},
+			{
+				// Update password
+				Config: testGoogleSqlUser_mysqlPasswordPolicy(instance, "new_password", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_user.user2",
+				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
 func testGoogleSqlUser_mysql(instance, password string, disabled bool) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
@@ -308,6 +345,48 @@ resource "google_sql_user" "user2" {
   host     = "gmail.com"
   password = "hunter2"
   depends_on = [google_sql_user.user1]
+}
+`, instance, password, disabled)
+}
+
+func testGoogleSqlUser_mysqlPasswordPolicy(instance, password string, disabled bool) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+
+resource "google_sql_user" "user1" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  host     = "google.com"
+  password = "%s"
+  sql_server_user_details {
+    disabled = "%t"
+    server_roles = [ "admin" ]  	
+  }
+  password_policy {
+    allowed_failed_attempts  = 6
+    password_expiration_duration  =  "2592000s"
+    enable_failed_attempts_check = true
+    enable_password_verification = true
+  }
+}
+
+resource "google_sql_user" "user2" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  host     = "gmail.com"
+  password = "hunter2"
+  password_policy {
+    allowed_failed_attempts  = 6
+    enable_failed_attempts_check = true
+  }
 }
 `, instance, password, disabled)
 }
