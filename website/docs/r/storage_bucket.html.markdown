@@ -66,13 +66,13 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the bucket.
 
+* `location` - (Required) The [GCS location](https://cloud.google.com/storage/docs/bucket-locations).
+
 - - -
 
 * `force_destroy` - (Optional, Default: false) When deleting a bucket, this
     boolean option will delete all contained objects. If you try to delete a
     bucket that contains objects, Terraform will fail that run.
-
-* `location` - (Required) The [GCS location](https://cloud.google.com/storage/docs/bucket-locations)
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
