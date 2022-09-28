@@ -166,6 +166,11 @@ The following arguments are supported:
   Cloud CDN configuration for this Backend Bucket.
   Structure is [documented below](#nested_cdn_policy).
 
+* `compression_mode` -
+  (Optional)
+  Compress text responses using Brotli or gzip compression, based on the client's Accept-Encoding header.
+  Possible values are `AUTOMATIC` and `DISABLED`.
+
 * `edge_security_policy` -
   (Optional)
   The security policy associated with this backend bucket.
