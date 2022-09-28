@@ -151,6 +151,44 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 	})
 }
 
+func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
+	t.Parallel()
+
+	zoneSuffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_cloudLoggingConfig_basic(zoneSuffix),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsManagedZone_cloudLoggingConfig_update(zoneSuffix, true),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsManagedZone_cloudLoggingConfig_update(zoneSuffix, false),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 	//t.Parallel()
 
@@ -377,6 +415,36 @@ resource "google_compute_network" "network-1" {
   auto_create_subnetworks = false
 }
 `, suffix, first_nameserver, first_forwarding_path, second_nameserver, second_forwarding_path, suffix)
+}
+
+func testAccDnsManagedZone_cloudLoggingConfig_basic(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "foobar" {
+  name        = "mzone-test-%s"
+  dns_name    = "tf-acctest-%s.hashicorptest.com."
+  description = "Example DNS zone"
+  labels = {
+    foo = "bar"
+  }
+}
+`, suffix, suffix)
+}
+
+func testAccDnsManagedZone_cloudLoggingConfig_update(suffix string, enableCloudLogging bool) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "foobar" {
+  name        = "mzone-test-%s"
+  dns_name    = "tf-acctest-%s.hashicorptest.com."
+  description = "Example DNS zone"
+  labels = {
+    foo = "bar"
+  }
+
+  cloud_logging_config {
+    enable_logging = %t
+  }
+}
+`, suffix, suffix, enableCloudLogging)
 }
 
 func TestDnsManagedZoneImport_parseImportId(t *testing.T) {

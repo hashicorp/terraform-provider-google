@@ -57,6 +57,22 @@ func resourceDNSManagedZone() *schema.Resource {
 				Description: `User assigned name for this resource.
 Must be unique within the project.`,
 			},
+			"cloud_logging_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Cloud logging configuration`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_logging": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `If set, enable query logging for this ManagedZone. False by default, making logging opt-in.`,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -378,6 +394,12 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("peering_config"); !isEmptyValue(reflect.ValueOf(peeringConfigProp)) && (ok || !reflect.DeepEqual(v, peeringConfigProp)) {
 		obj["peeringConfig"] = peeringConfigProp
 	}
+	cloudLoggingConfigProp, err := expandDNSManagedZoneCloudLoggingConfig(d.Get("cloud_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cloud_logging_config"); !isEmptyValue(reflect.ValueOf(cloudLoggingConfigProp)) && (ok || !reflect.DeepEqual(v, cloudLoggingConfigProp)) {
+		obj["cloudLoggingConfig"] = cloudLoggingConfigProp
+	}
 
 	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones")
 	if err != nil {
@@ -491,6 +513,9 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("peering_config", flattenDNSManagedZonePeeringConfig(res["peeringConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
+	if err := d.Set("cloud_logging_config", flattenDNSManagedZoneCloudLoggingConfig(res["cloudLoggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
 
 	return nil
 }
@@ -564,6 +589,12 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("peering_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peeringConfigProp)) {
 		obj["peeringConfig"] = peeringConfigProp
+	}
+	cloudLoggingConfigProp, err := expandDNSManagedZoneCloudLoggingConfig(d.Get("cloud_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cloud_logging_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cloudLoggingConfigProp)) {
+		obj["cloudLoggingConfig"] = cloudLoggingConfigProp
 	}
 
 	obj, err = resourceDNSManagedZoneUpdateEncoder(d, meta, obj)
@@ -980,6 +1011,23 @@ func flattenDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d 
 	return v
 }
 
+func flattenDNSManagedZoneCloudLoggingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_logging"] =
+		flattenDNSManagedZoneCloudLoggingConfigEnableLogging(original["enableLogging"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDNSManagedZoneCloudLoggingConfigEnableLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandDNSManagedZoneDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1283,6 +1331,29 @@ func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d T
 		return "", err
 	}
 	return ConvertSelfLinkToV1(url), nil
+}
+
+func expandDNSManagedZoneCloudLoggingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableLogging, err := expandDNSManagedZoneCloudLoggingConfigEnableLogging(original["enable_logging"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableLogging); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableLogging"] = transformedEnableLogging
+	}
+
+	return transformed, nil
+}
+
+func expandDNSManagedZoneCloudLoggingConfigEnableLogging(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceDNSManagedZoneUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
