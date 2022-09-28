@@ -905,11 +905,37 @@ func flattenCloudfunctions2functionBuildConfigSourceStorageSource(v interface{},
 }
 
 func flattenCloudfunctions2functionBuildConfigSourceStorageSourceBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return d.Get("build_config.0.source.0.storage_source.0.bucket")
+	// This flatten function is shared between the resource and the datasource.
+	// TF Input format: {bucket-name}
+	// GET Response format: gcf-v2-sources-{Project-number}-{location}
+	// As TF Input and GET response values have different format,
+	// we will return TF Input value to prevent state drift.
+
+	if bVal, ok := d.GetOk("build_config.0.source.0.storage_source.0.bucket"); ok {
+		return bVal
+	}
+
+	// For the datasource, there is no prior TF Input for this attribute.
+	// Hence, GET Response value is returned.
+
+	return v
 }
 
 func flattenCloudfunctions2functionBuildConfigSourceStorageSourceObject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return d.Get("build_config.0.source.0.storage_source.0.object")
+	// This flatten function is shared between the resource and the datasource.
+	// TF Input format: {object-name}
+	// GET Response format: {function-name}/{object-name}
+	// As TF Input and GET response values have different format,
+	// we will return TF Input value to prevent state drift.
+
+	if ObjVal, ok := d.GetOk("build_config.0.source.0.storage_source.0.object"); ok {
+		return ObjVal
+	}
+
+	// For the datasource, there is no prior TF Input for this attribute.
+	// Hence, GET Response value is returned.
+
+	return v
 }
 
 func flattenCloudfunctions2functionBuildConfigSourceStorageSourceGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
