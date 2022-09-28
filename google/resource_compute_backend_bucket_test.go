@@ -126,6 +126,45 @@ func TestAccComputeBackendBucket_withSecurityPolicy(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendBucket_withCompressionMode(t *testing.T) {
+	t.Parallel()
+
+	backendName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	storageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_withCompressionMode(backendName, storageName, "DISABLED"),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_withCompressionMode(backendName, storageName, "AUTOMATIC"),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_basic(backendName, storageName),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeBackendBucket_basic(backendName, storageName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
@@ -255,4 +294,20 @@ resource "google_compute_security_policy" "policy" {
   type = "CLOUD_ARMOR_EDGE"
 }
 `, bucketName, polLink, bucketName, polName)
+}
+
+func testAccComputeBackendBucket_withCompressionMode(backendName, storageName, compressionMode string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "foobar" {
+  name             = "%s"
+  bucket_name      = google_storage_bucket.bucket_one.name
+  enable_cdn       = true
+  compression_mode = "%s"
+}
+
+resource "google_storage_bucket" "bucket_one" {
+  name     = "%s"
+  location = "EU"
+}
+`, backendName, compressionMode, storageName)
 }

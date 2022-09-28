@@ -309,6 +309,11 @@ The following arguments are supported:
   is applicable only when the load_balancing_scheme is set to INTERNAL_SELF_MANAGED.
   Structure is [documented below](#nested_circuit_breakers).
 
+* `compression_mode` -
+  (Optional)
+  Compress text responses using Brotli or gzip compression, based on the client's Accept-Encoding header.
+  Possible values are `AUTOMATIC` and `DISABLED`.
+
 * `consistent_hash` -
   (Optional)
   Consistent Hash-based load balancing can be used to provide soft session

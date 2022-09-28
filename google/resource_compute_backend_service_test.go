@@ -657,6 +657,45 @@ func TestAccComputeBackendService_trafficDirectorUpdateBasic(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendService_withCompressionMode(t *testing.T) {
+	t.Parallel()
+
+	backendName := fmt.Sprintf("foo-%s", randString(t, 10))
+	checkName := fmt.Sprintf("bar-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withCompressionMode(backendName, checkName, "DISABLED"),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCompressionMode(backendName, checkName, "AUTOMATIC"),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_basic(backendName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeBackendService_trafficDirectorBasic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -1470,4 +1509,22 @@ resource "google_compute_http_health_check" "zero" {
   timeout_sec        = 1
 }
 `, serviceName, enabled, checkName)
+}
+
+func testAccComputeBackendService_withCompressionMode(serviceName, checkName, compressionMode string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name             = "%s"
+  health_checks    = [google_compute_http_health_check.zero.self_link]
+  enable_cdn       = true
+  compression_mode = "%s"
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, compressionMode, checkName)
 }
