@@ -1,0 +1,3 @@
+```release-note:new-resource
+vertex_ai_featurestore_entitytype_feature
+```
