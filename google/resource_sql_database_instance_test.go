@@ -1275,13 +1275,16 @@ func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 func TestAccSqlDatabaseInstance_mysqlMajorVersionUpgrade(t *testing.T) {
 	t.Parallel()
 
+	databaseName := "tf-test-" + randString(t, 10)
+
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlDatabaseInstance_basic2,
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic3, databaseName),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1290,7 +1293,8 @@ func TestAccSqlDatabaseInstance_mysqlMajorVersionUpgrade(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
 			},
 			{
-				Config: testGoogleSqlDatabaseInstance_basic2_update,
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic3_update, databaseName),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1360,10 +1364,11 @@ resource "google_sql_database_instance" "instance" {
 }
 `
 
-var testGoogleSqlDatabaseInstance_basic2_update = `
+var testGoogleSqlDatabaseInstance_basic3 = `
 resource "google_sql_database_instance" "instance" {
+  name                = "%s"
   region              = "us-central1"
-  database_version    = "MYSQL_8_0"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -1371,11 +1376,11 @@ resource "google_sql_database_instance" "instance" {
 }
 `
 
-var testGoogleSqlDatabaseInstance_basic3 = `
+var testGoogleSqlDatabaseInstance_basic3_update = `
 resource "google_sql_database_instance" "instance" {
   name                = "%s"
   region              = "us-central1"
-  database_version    = "MYSQL_5_7"
+  database_version    = "MYSQL_8_0"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
