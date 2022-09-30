@@ -1,0 +1,3 @@
+```release-note:none
+compute: Updated documentation for `initialize_params` in `google_compute_instance`
+```
