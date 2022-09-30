@@ -63,6 +63,43 @@ resource "google_datastream_connection_profile" "default" {
 `, context)
 }
 
+func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDatastreamConnectionProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExample(context),
+			},
+			{
+				ResourceName:            "google_datastream_connection_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_datastream_connection_profile" "default" {
+	display_name          = "Connection profile"
+	location              = "us-central1"
+	connection_profile_id = "tf-test-my-profile%{random_suffix}"
+
+	bigquery_profile {}
+}
+`, context)
+}
+
 func TestAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(t *testing.T) {
 	t.Parallel()
 

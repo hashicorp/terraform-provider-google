@@ -379,7 +379,6 @@ The following arguments are supported:
 * `enum_value` -
   (Optional)
   Holds the value for a tag field with enum type. This value must be one of the allowed values in the definition of this enum.
-  Structure is [documented below](#nested_enum_value).
 
 - - -
 

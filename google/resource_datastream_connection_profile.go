@@ -59,6 +59,16 @@ func resourceDatastreamConnectionProfile() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name of the location this repository is located in.`,
 			},
+			"bigquery_profile": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `BigQuery warehouse profile.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
+				},
+				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile"},
+			},
 			"forward_ssh_connectivity": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -120,7 +130,7 @@ func resourceDatastreamConnectionProfile() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "postgresql_profile"},
+				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile"},
 			},
 			"labels": {
 				Type:        schema.TypeMap,
@@ -212,7 +222,7 @@ If this field is used then the 'client_certificate' and the
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "postgresql_profile"},
+				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile"},
 			},
 			"oracle_profile": {
 				Type:        schema.TypeList,
@@ -256,7 +266,7 @@ If this field is used then the 'client_certificate' and the
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "postgresql_profile"},
+				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile"},
 			},
 			"postgresql_profile": {
 				Type:        schema.TypeList,
@@ -294,7 +304,7 @@ If this field is used then the 'client_certificate' and the
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "postgresql_profile"},
+				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile"},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -349,6 +359,12 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("mysql_profile"); !isEmptyValue(reflect.ValueOf(mysqlProfileProp)) && (ok || !reflect.DeepEqual(v, mysqlProfileProp)) {
 		obj["mysqlProfile"] = mysqlProfileProp
+	}
+	bigqueryProfileProp, err := expandDatastreamConnectionProfileBigqueryProfile(d.Get("bigquery_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bigquery_profile"); ok || !reflect.DeepEqual(v, bigqueryProfileProp) {
+		obj["bigqueryProfile"] = bigqueryProfileProp
 	}
 	postgresqlProfileProp, err := expandDatastreamConnectionProfilePostgresqlProfile(d.Get("postgresql_profile"), d, config)
 	if err != nil {
@@ -474,6 +490,9 @@ func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interf
 	if err := d.Set("mysql_profile", flattenDatastreamConnectionProfileMysqlProfile(res["mysqlProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
 	}
+	if err := d.Set("bigquery_profile", flattenDatastreamConnectionProfileBigqueryProfile(res["bigqueryProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
 	if err := d.Set("postgresql_profile", flattenDatastreamConnectionProfilePostgresqlProfile(res["postgresqlProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
 	}
@@ -530,6 +549,12 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("mysql_profile"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mysqlProfileProp)) {
 		obj["mysqlProfile"] = mysqlProfileProp
 	}
+	bigqueryProfileProp, err := expandDatastreamConnectionProfileBigqueryProfile(d.Get("bigquery_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bigquery_profile"); ok || !reflect.DeepEqual(v, bigqueryProfileProp) {
+		obj["bigqueryProfile"] = bigqueryProfileProp
+	}
 	postgresqlProfileProp, err := expandDatastreamConnectionProfilePostgresqlProfile(d.Get("postgresql_profile"), d, config)
 	if err != nil {
 		return err
@@ -569,6 +594,10 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("mysql_profile") {
 		updateMask = append(updateMask, "mysqlProfile")
+	}
+
+	if d.HasChange("bigquery_profile") {
+		updateMask = append(updateMask, "bigqueryProfile")
 	}
 
 	if d.HasChange("postgresql_profile") {
@@ -865,6 +894,14 @@ func flattenDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v inte
 
 func flattenDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenDatastreamConnectionProfileBigqueryProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDatastreamConnectionProfilePostgresqlProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1248,6 +1285,21 @@ func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v inter
 
 func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDatastreamConnectionProfileBigqueryProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
