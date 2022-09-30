@@ -79,10 +79,12 @@ func resourceStorageBucket() *schema.Resource {
 			},
 
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `A set of key/value label pairs to assign to the bucket.`,
+				Type:     schema.TypeMap,
+				Optional: true,
+				// GCP (Dataplex) automatically adds labels
+				DiffSuppressFunc: resourceDataplexLabelDiffSuppress,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				Description:      `A set of key/value label pairs to assign to the bucket.`,
 			},
 
 			"location": {
@@ -366,6 +368,22 @@ func resourceStorageBucket() *schema.Resource {
 		},
 		UseJSONNumber: true,
 	}
+}
+
+const resourceDataplexGoogleProvidedLabelPrefix = "labels.goog-dataplex"
+
+func resourceDataplexLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if strings.HasPrefix(k, resourceDataplexGoogleProvidedLabelPrefix) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.HasPrefix(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
 }
 
 // Is the old bucket retention policy locked?
