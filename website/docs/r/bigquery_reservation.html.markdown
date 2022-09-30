@@ -25,7 +25,7 @@ A reservation is a mechanism used to guarantee BigQuery slots to users.
 
 To get more information about Reservation, see:
 
-* [API documentation](https://cloud.google.com/bigquery/docs/reference/reservations/rest/v1beta1/projects.locations.reservations/create)
+* [API documentation](https://cloud.google.com/bigquery/docs/reference/reservations/rest/v1/projects.locations.reservations/create)
 * How-to Guides
     * [Introduction to Reservations](https://cloud.google.com/bigquery/docs/reservations-intro)
 
@@ -43,8 +43,9 @@ resource "google_bigquery_reservation" "reservation" {
 	location       = "asia-northeast1"
 	// Set to 0 for testing purposes
 	// In reality this would be larger than zero
-	slot_capacity  = 0
+	slot_capacity     = 0
 	ignore_idle_slots = false
+	concurrency       = 0
 }
 ```
 
@@ -71,6 +72,15 @@ The following arguments are supported:
   If false, any query using this reservation will use idle slots from other reservations within
   the same admin project. If true, a query using this reservation will execute with the slot
   capacity specified above at most.
+
+* `concurrency` -
+  (Optional)
+  Maximum number of queries that are allowed to run concurrently in this reservation. This is a soft limit due to asynchronous nature of the system and various optimizations for small queries. Default value is 0 which means that concurrency will be automatically set based on the reservation size.
+
+* `multi_region_auxiliary` -
+  (Optional)
+  Applicable only for reservations located within one of the BigQuery multi-regions (US or EU).
+  If set to true, this reservation is placed in the organization's secondary region which is designated for disaster recovery purposes. If false, this reservation is placed in the organization's default region.
 
 * `location` -
   (Optional)

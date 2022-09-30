@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigqueryreservation: add `concurrency` and `multiRegionAuxiliary` to `google_bigquery_reservation`
+```
