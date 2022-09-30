@@ -6,7 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * certificatemanager: added public/private PEM fields `pem_certificate` / `pem_private_key` and deprecated `certificate_pem` / `private_key_pem` ([#12664](https://github.com/hashicorp/terraform-provider-google/pull/12664))
-* clouddeploy: added `serial_pipeline.stages.strategy` field to `google_clouddeploy_delivery_pipeline ([#12619](https://github.com/hashicorp/terraform-provider-google/pull/12619))
+* clouddeploy: added `serial_pipeline.stages.strategy` field to `google_clouddeploy_delivery_pipeline` ([#12619](https://github.com/hashicorp/terraform-provider-google/pull/12619))
 * container: added `notification_config.pubsub.filter` field to `google_container_cluster` ([#12643](https://github.com/hashicorp/terraform-provider-google/pull/12643))
 * eventarc: added `channels` and `conditions` fields to `google_eventarc_trigger` ([#12619](https://github.com/hashicorp/terraform-provider-google/pull/12619))
 * healthcare: added `notification_configs ` field to `google_healthcare_fhir_store` resource ([#12646](https://github.com/hashicorp/terraform-provider-google/pull/12646))
