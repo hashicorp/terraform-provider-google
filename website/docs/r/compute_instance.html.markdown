@@ -30,6 +30,9 @@ resource "google_compute_instance" "default" {
   boot_disk {
     initialize_params {
       image = "debian-cloud/debian-11"
+      labels = {
+        my_label = "value"
+      }
     }
   }
 
@@ -230,6 +233,9 @@ is desired, you will need to modify your state file manually using
     [google_compute_image data source](/docs/providers/google/d/compute_image.html).
     For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
     These images can be referred by family name here.
+
+* `labels` - (Optional) A set of key/value label pairs assigned to the disk. This  
+    field is only applicable for persistent disks.
 
 <a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
