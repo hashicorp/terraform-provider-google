@@ -839,7 +839,7 @@ func expandTransferSchedules(transferSchedules []interface{}) *storagetransfer.S
 }
 
 func flattenTransferSchedule(transferSchedule *storagetransfer.Schedule) []map[string]interface{} {
-	if reflect.DeepEqual(transferSchedule, &storagetransfer.Schedule{}) {
+	if transferSchedule == nil || reflect.DeepEqual(transferSchedule, &storagetransfer.Schedule{}) {
 		return nil
 	}
 
