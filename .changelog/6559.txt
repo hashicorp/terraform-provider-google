@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataflow : added support of `labels` to resource `google_dataflow_flextemplate_job` (beta)
+```
