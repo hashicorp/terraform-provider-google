@@ -1,0 +1,3 @@
+```release-note:bug
+storagetransfer: fixed a crash in `google_storagetransfer_job` refreshes when `transfer_schedule` was empty
+```
