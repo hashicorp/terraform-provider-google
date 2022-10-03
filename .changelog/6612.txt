@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigtable: updated the retryable logic
+```

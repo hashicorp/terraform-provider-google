@@ -5,8 +5,10 @@ import (
 	"testing"
 
 	"google.golang.org/api/googleapi"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 func TestIsAppEngineRetryableError_operationInProgress(t *testing.T) {
@@ -114,19 +116,34 @@ func TestIs403QuotaExceededPerMinuteError_perDayQuotaExceededNotRetryable(t *tes
 	}
 }
 
-func TestGRPCRetryable(t *testing.T) {
-	code := codes.FailedPrecondition
-	err := status.Error(code, "is retryable")
-	isRetryable, _ := isBigTableRetryableError(err)
+// An error with retry info is retryable.
+func TestBigtableError_retryable(t *testing.T) {
+	retryInfo := &errdetails.RetryInfo{
+		RetryDelay: &durationpb.Duration{Seconds: 10, Nanos: 10},
+	}
+	status, _ := status.New(codes.FailedPrecondition, "is retryable").WithDetails(retryInfo)
+	isRetryable, _ := isBigTableRetryableError(status.Err())
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
 	}
 }
 
-func TestGRPCNotRetryable(t *testing.T) {
-	code := codes.InvalidArgument
-	err := status.Error(code, "is noto retryable")
-	isRetryable, _ := isBigTableRetryableError(err)
+// An error without retry info is not retryable.
+func TestBigtableError_withoutRetryInfoNotRetryable(t *testing.T) {
+	status := status.New(codes.FailedPrecondition, "is not retryable")
+	isRetryable, _ := isBigTableRetryableError(status.Err())
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
+	}
+}
+
+// An OK status with retry info is not retryable.
+func TestBigtableError_okIsNotRetryable(t *testing.T) {
+	retryInfo := &errdetails.RetryInfo{
+		RetryDelay: &durationpb.Duration{Seconds: 10, Nanos: 10},
+	}
+	status, _ := status.New(codes.OK, "is not retryable").WithDetails(retryInfo)
+	isRetryable, _ := isBigTableRetryableError(status.Err())
 	if isRetryable {
 		t.Errorf("Error incorrectly detected as retryable")
 	}
