@@ -75,7 +75,7 @@ The following arguments are supported:
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
 
 * `kms_key_name` -
-  (Optional)
+  (Required)
   Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
   Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key. The key needs to be in the same region as where the resource is created.
 
