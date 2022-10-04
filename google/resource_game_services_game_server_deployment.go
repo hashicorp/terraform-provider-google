@@ -148,6 +148,7 @@ func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
+
 		return fmt.Errorf("Error waiting to create GameServerDeployment: %s", err)
 	}
 
