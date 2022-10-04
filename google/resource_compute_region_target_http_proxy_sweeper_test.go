@@ -74,7 +74,7 @@ func testSweepComputeRegionTargetHttpProxy(region string) error {
 		return nil
 	}
 
-	resourceList, ok := res["items"]
+	resourceList, ok := res["regionTargetHttpProxies"]
 	if !ok {
 		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
 		return nil
