@@ -652,6 +652,7 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
+
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
 
