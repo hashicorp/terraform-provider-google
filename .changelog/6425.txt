@@ -1,0 +1,12 @@
+```release-note:new-resource
+google_bigquery_datapolicy_data_policy
+```
+```release-note:new-resource
+google_bigquery_datapolicy_data_policy_iam_binding
+```
+```release-note:new-resource
+google_bigquery_datapolicy_data_policy_iam_member
+```
+```release-note:new-resource
+google_bigquery_datapolicy_data_policy_iam_policy
+```
