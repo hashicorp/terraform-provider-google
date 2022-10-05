@@ -1,0 +1,3 @@
+```release-note:enhancement
+metastore: add bigquery support for `google_dataproc_metastore_service`
+```

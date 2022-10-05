@@ -42,10 +42,10 @@ resource "google_dataproc_metastore_federation" "default" {
   version       = "3.1.2"
 
   backend_metastores {
-      rank           = "1"
-      name           = google_dataproc_metastore_service.default.id
-      metastore_type = "DATAPROC_METASTORE" 
-    }
+    rank           = "1"
+    name           = google_dataproc_metastore_service.default.id
+    metastore_type = "DATAPROC_METASTORE" 
+  }
 }
 
 resource "google_dataproc_metastore_service" "default" {
@@ -59,6 +59,51 @@ resource "google_dataproc_metastore_service" "default" {
     version           = "3.1.2"
     endpoint_protocol = "GRPC"
   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dataproc_metastore_federation_bigquery&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataproc Metastore Federation Bigquery
+
+
+```hcl
+resource "google_dataproc_metastore_federation" "default" {
+  provider      = google-beta
+  location      = "us-central1"
+  federation_id = "fed-2"
+  version       = "3.1.2"
+
+  backend_metastores {
+    rank           = "2"
+    name           = data.google_project.project.id
+    metastore_type = "BIGQUERY" 
+  }
+
+  backend_metastores {
+    rank           = "1"
+    name           = google_dataproc_metastore_service.default.id
+    metastore_type = "DATAPROC_METASTORE" 
+  }
+}
+
+resource "google_dataproc_metastore_service" "default" {
+  provider   = google-beta
+  service_id = "fed-2"
+  location   = "us-central1"
+  tier       = "DEVELOPER"
+
+
+  hive_metastore_config {
+    version           = "3.1.2"
+    endpoint_protocol = "GRPC"
+  }
+}
+
+data "google_project" "project" {
+  provider      = google-beta
 }
 ```
 
@@ -89,12 +134,12 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  The relative resource name of the metastore that is being federated.
+  The relative resource name of the metastore that is being federated. The formats of the relative resource names for the currently supported metastores are listed below: Dataplex: projects/{projectId}/locations/{location}/lakes/{lake_id} BigQuery: projects/{projectId} Dataproc Metastore: projects/{projectId}/locations/{location}/services/{serviceId}
 
 * `metastore_type` -
   (Required)
   The type of the backend metastore.
-  Possible values are `METASTORE_TYPE_UNSPECIFIED` and `DATAPROC_METASTORE`.
+  Possible values are `METASTORE_TYPE_UNSPECIFIED`, `DATAPROC_METASTORE`, and `BIGQUERY`.
 
 - - -
 
