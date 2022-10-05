@@ -1,0 +1,3 @@
+```release-note:enhancement
+storage: added `custom_placement_config` field to `google_storage_bucket` resource to support custom dual-region GCS buckets
+```
