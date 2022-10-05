@@ -103,6 +103,29 @@ func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_dualLocation(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_dualLocation(bucketName),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_customAttributes(t *testing.T) {
 	t.Parallel()
 
@@ -1283,6 +1306,19 @@ resource "google_storage_bucket" "bucket" {
   name          = "%s"
   location      = "eu"
   force_destroy = true
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_dualLocation(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "ASIA"
+  force_destroy = true
+  custom_placement_config {
+    data_locations = ["ASIA-EAST1", "ASIA-SOUTHEAST1"]
+  }
 }
 `, bucketName)
 }

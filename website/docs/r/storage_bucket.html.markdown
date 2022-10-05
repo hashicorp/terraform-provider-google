@@ -101,6 +101,8 @@ The following arguments are supported:
 
 * `uniform_bucket_level_access` - (Optional, Default: false) Enables [Uniform bucket-level access](https://cloud.google.com/storage/docs/uniform-bucket-level-access) access to a bucket.
 
+* `custom_placement_config` - (Optional) The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty. Structure is [documented below](#nested_custom_placement_config).
+
 <a name="nested_lifecycle_rule"></a>The `lifecycle_rule` block supports:
 
 * `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is [documented below](#nested_action).
@@ -188,6 +190,10 @@ The following arguments are supported:
   This data source calls an API which creates the account if required, ensuring your Terraform applies cleanly and repeatedly irrespective of the
   state of the project.
   You should take care for race conditions when the same Terraform manages IAM policy on the Cloud KMS crypto key. See the data source page for more details.
+
+<a name="nested_custom_placement_config"></a>The `custom_placement_config` block supports:
+
+* `data_locations` - (Required) The list of individual regions that comprise a dual-region bucket. See [Cloud Storage bucket locations](https://cloud.google.com/storage/docs/dual-regions#availability) for a list of acceptable regions. **Note**: If any of the data_locations changes, it will [recreate the bucket](https://cloud.google.com/storage/docs/locations#key-concepts).
 
 ## Attributes Reference
 
