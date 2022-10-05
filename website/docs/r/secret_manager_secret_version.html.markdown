@@ -113,5 +113,5 @@ This resource provides the following
 SecretVersion can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_secret_manager_secret_version.default {{name}}/{{name}}
+$ terraform import google_secret_manager_secret_version.default projects/{{project}}/secrets/{{secret_id}}/versions/{{version}}
 ```
