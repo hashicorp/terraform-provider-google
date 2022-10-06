@@ -67,12 +67,14 @@ The following arguments are supported:
 
 * `adaptive_protection_config` - (Optional) Configuration for [Google Cloud Armor Adaptive Protection](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_adaptive_protection_config).
 
-* `type` - The type indicates the intended use of the security policy.
+* `type` - The type indicates the intended use of the security policy. This field can be set only at resource creation time.
   * CLOUD_ARMOR - Cloud Armor backend security policies can be configured to filter incoming HTTP requests targeting backend services.
     They filter requests before they hit the origin servers.
   * CLOUD_ARMOR_EDGE - Cloud Armor edge security policies can be configured to filter incoming HTTP requests targeting backend services
     (including Cloud CDN-enabled) as well as backend buckets (Cloud Storage).
     They filter requests before the request is served from Google's cache.
+  * CLOUD_ARMOR_INTERNAL_SERVICE - Cloud Armor internal service policies can be configured to filter HTTP requests targeting services 
+    managed by Traffic Director in a service mesh. They filter requests before the request is served from the application.
 
 <a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
 
