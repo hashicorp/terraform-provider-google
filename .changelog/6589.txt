@@ -1,0 +1,3 @@
+```release-note:enhancement
+appengine: added support for `service_account` field to `google_app_engine_standard_app_version` resource
+```
