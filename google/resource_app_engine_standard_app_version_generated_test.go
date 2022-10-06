@@ -51,6 +51,23 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 
 func testAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_service_account" "custom_service_account" {
+  account_id   = "tf-test-my-account%{random_suffix}"
+  display_name = "Custom Service Account"
+}
+
+resource "google_project_iam_member" "gae_api" {
+  project = google_service_account.custom_service_account.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${google_service_account.custom_service_account.email}"
+}
+
+resource "google_project_iam_member" "storage_viewer" {
+  project = google_service_account.custom_service_account.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.custom_service_account.email}"
+}
+
 resource "google_app_engine_standard_app_version" "myapp_v1" {
   version_id = "v1"
   service    = "myapp"
@@ -85,6 +102,7 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
   }
 
   delete_service_on_destroy = true
+  service_account = google_service_account.custom_service_account.email
 }
 
 resource "google_app_engine_standard_app_version" "myapp_v2" {
@@ -112,6 +130,7 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
   }
 
   noop_on_destroy = true
+  service_account = google_service_account.custom_service_account.email
 }
 
 resource "google_storage_bucket" "bucket" {
