@@ -83,6 +83,48 @@ resource "google_data_fusion_instance" "extended_instance" {
 data "google_app_engine_default_service_account" "default" {
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=data_fusion_instance_cmek&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Data Fusion Instance Cmek
+
+
+```hcl
+resource "google_data_fusion_instance" "basic_cmek" {
+  name   = "my-instance"
+  region = "us-central1"
+  type   = "BASIC"
+
+  crypto_key_config {
+    key_reference = google_kms_crypto_key.crypto_key.id
+  }
+
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key_binding]
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "my-instance"
+  key_ring = google_kms_key_ring.key_ring.id
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  name     = "my-instance"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datafusion.iam.gserviceaccount.com"
+  ]
+}
+
+data "google_project" "project" {}
+```
 
 ## Argument Reference
 
@@ -151,6 +193,11 @@ The following arguments are supported:
   Network configuration options. These are required when a private Data Fusion instance is to be created.
   Structure is [documented below](#nested_network_config).
 
+* `crypto_key_config` -
+  (Optional)
+  The crypto key configuration. This field is used by the Customer-Managed Encryption Keys (CMEK) feature.
+  Structure is [documented below](#nested_crypto_key_config).
+
 * `region` -
   (Optional)
   The region of the Data Fusion instance.
@@ -171,6 +218,12 @@ The following arguments are supported:
   Name of the network in the project with which the tenant project
   will be peered for executing pipelines. In case of shared VPC where the network resides in another host
   project the network should specified in the form of projects/{host-project-id}/global/networks/{network}
+
+<a name="nested_crypto_key_config"></a>The `crypto_key_config` block supports:
+
+* `key_reference` -
+  (Required)
+  The name of the key which is used to encrypt/decrypt customer data. For key in Cloud KMS, the key should be in the format of projects/*/locations/*/keyRings/*/cryptoKeys/*.
 
 ## Attributes Reference
 

@@ -63,6 +63,23 @@ available, such as support for streaming pipelines, higher number of concurrent 
 with restrictive capabilities. This is to help enterprises design and develop their data ingestion and integration 
 pipelines at low cost. Possible values: ["BASIC", "ENTERPRISE", "DEVELOPER"]`,
 			},
+			"crypto_key_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The crypto key configuration. This field is used by the Customer-Managed Encryption Keys (CMEK) feature.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key_reference": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The name of the key which is used to encrypt/decrypt customer data. For key in Cloud KMS, the key should be in the format of projects/*/locations/*/keyRings/*/cryptoKeys/*.`,
+						},
+					},
+				},
+			},
 			"dataproc_service_account": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -273,6 +290,12 @@ func resourceDataFusionInstanceCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("network_config"); !isEmptyValue(reflect.ValueOf(networkConfigProp)) && (ok || !reflect.DeepEqual(v, networkConfigProp)) {
 		obj["networkConfig"] = networkConfigProp
 	}
+	cryptoKeyConfigProp, err := expandDataFusionInstanceCryptoKeyConfig(d.Get("crypto_key_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("crypto_key_config"); !isEmptyValue(reflect.ValueOf(cryptoKeyConfigProp)) && (ok || !reflect.DeepEqual(v, cryptoKeyConfigProp)) {
+		obj["cryptoKeyConfig"] = cryptoKeyConfigProp
+	}
 
 	url, err := replaceVars(d, config, "{{DataFusionBasePath}}projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
 	if err != nil {
@@ -428,6 +451,9 @@ func resourceDataFusionInstanceRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("network_config", flattenDataFusionInstanceNetworkConfig(res["networkConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("crypto_key_config", flattenDataFusionInstanceCryptoKeyConfig(res["cryptoKeyConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
@@ -660,6 +686,23 @@ func flattenDataFusionInstanceNetworkConfigNetwork(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenDataFusionInstanceCryptoKeyConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key_reference"] =
+		flattenDataFusionInstanceCryptoKeyConfigKeyReference(original["keyReference"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataFusionInstanceCryptoKeyConfigKeyReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandDataFusionInstanceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
 }
@@ -745,5 +788,28 @@ func expandDataFusionInstanceNetworkConfigIpAllocation(v interface{}, d Terrafor
 }
 
 func expandDataFusionInstanceNetworkConfigNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataFusionInstanceCryptoKeyConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKeyReference, err := expandDataFusionInstanceCryptoKeyConfigKeyReference(original["key_reference"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeyReference); val.IsValid() && !isEmptyValue(val) {
+		transformed["keyReference"] = transformedKeyReference
+	}
+
+	return transformed, nil
+}
+
+func expandDataFusionInstanceCryptoKeyConfigKeyReference(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

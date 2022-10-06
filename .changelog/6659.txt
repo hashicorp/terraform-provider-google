@@ -1,0 +1,3 @@
+```release-note:enhancement
+datafusion: added `crypto_key_config` field to `google_data_fusion_instance` resource
+```
