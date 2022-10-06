@@ -117,6 +117,68 @@ data "google_app_engine_default_service_account" "default" {
 `, context)
 }
 
+func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataFusionInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataFusionInstance_dataFusionInstanceCmekExample(context),
+			},
+			{
+				ResourceName:            "google_data_fusion_instance.basic_cmek",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccDataFusionInstance_dataFusionInstanceCmekExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_fusion_instance" "basic_cmek" {
+  name   = "tf-test-my-instance%{random_suffix}"
+  region = "us-central1"
+  type   = "BASIC"
+
+  crypto_key_config {
+    key_reference = google_kms_crypto_key.crypto_key.id
+  }
+
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key_binding]
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "tf-test-my-instance%{random_suffix}"
+  key_ring = google_kms_key_ring.key_ring.id
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  name     = "tf-test-my-instance%{random_suffix}"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datafusion.iam.gserviceaccount.com"
+  ]
+}
+
+data "google_project" "project" {}
+`, context)
+}
+
 func testAccCheckDataFusionInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
