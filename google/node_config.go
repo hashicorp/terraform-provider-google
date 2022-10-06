@@ -93,6 +93,30 @@ func schemaNodeConfig() *schema.Schema {
 								ForceNew:    true,
 								Description: `Size of partitions to create on the GPU. Valid values are described in the NVIDIA mig user guide (https://docs.nvidia.com/datacenter/tesla/mig-user-guide/#partitioning)`,
 							},
+							"gpu_sharing_config": {
+								Type:        schema.TypeList,
+								MaxItems:    1,
+								Optional:    true,
+								ForceNew:    true,
+								ConfigMode:  schema.SchemaConfigModeAttr,
+								Description: `Configuration for GPU sharing.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"gpu_sharing_strategy": {
+											Type:        schema.TypeString,
+											Required:    true,
+											ForceNew:    true,
+											Description: `The type of GPU sharing strategy to enable on the GPU node. Possible values are described in the API package (https://pkg.go.dev/google.golang.org/api/container/v1#GPUSharingConfig)`,
+										},
+										"max_shared_clients_per_gpu": {
+											Type:        schema.TypeInt,
+											Required:    true,
+											ForceNew:    true,
+											Description: `The maximum number of containers that can share a GPU.`,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -370,11 +394,21 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 			if data["count"].(int) == 0 {
 				continue
 			}
-			guestAccelerators = append(guestAccelerators, &container.AcceleratorConfig{
+			guestAcceleratorConfig := &container.AcceleratorConfig{
 				AcceleratorCount: int64(data["count"].(int)),
 				AcceleratorType:  data["type"].(string),
 				GpuPartitionSize: data["gpu_partition_size"].(string),
-			})
+			}
+
+			if v, ok := data["gpu_sharing_config"]; ok && len(v.([]interface{})) > 0 {
+				gpuSharingConfig := data["gpu_sharing_config"].([]interface{})[0].(map[string]interface{})
+				guestAcceleratorConfig.GpuSharingConfig = &container.GPUSharingConfig{
+					GpuSharingStrategy:     gpuSharingConfig["gpu_sharing_strategy"].(string),
+					MaxSharedClientsPerGpu: int64(gpuSharingConfig["max_shared_clients_per_gpu"].(int)),
+				}
+			}
+
+			guestAccelerators = append(guestAccelerators, guestAcceleratorConfig)
 		}
 		nc.Accelerators = guestAccelerators
 	}
@@ -573,11 +607,20 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 func flattenContainerGuestAccelerators(c []*container.AcceleratorConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	for _, accel := range c {
-		result = append(result, map[string]interface{}{
+		accelerator := map[string]interface{}{
 			"count":              accel.AcceleratorCount,
 			"type":               accel.AcceleratorType,
 			"gpu_partition_size": accel.GpuPartitionSize,
-		})
+		}
+		if accel.GpuSharingConfig != nil {
+			accelerator["gpu_sharing_config"] = []map[string]interface{}{
+				{
+					"gpu_sharing_strategy":       accel.GpuSharingConfig.GpuSharingStrategy,
+					"max_shared_clients_per_gpu": accel.GpuSharingConfig.MaxSharedClientsPerGpu,
+				},
+			}
+		}
+		result = append(result, accelerator)
 	}
 	return result
 }

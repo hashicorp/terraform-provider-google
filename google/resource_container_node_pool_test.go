@@ -1635,6 +1635,10 @@ resource "google_container_node_pool" "np_with_gpu" {
       type  = "nvidia-tesla-a100"
       gpu_partition_size = "1g.5gb"
       count = 1
+      gpu_sharing_config {
+        gpu_sharing_strategy = "TIME_SHARING"
+        max_shared_clients_per_gpu = 2
+      }
     }
   }
 }
