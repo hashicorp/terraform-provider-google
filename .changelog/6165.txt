@@ -1,0 +1,3 @@
+```release-note:breaking-change
+sql: updated `google_sql_user.sql_server_user_details` to be read only. Any configuration attempting to set this field is invalid and will cause the provider to crash during plan time.
+```
