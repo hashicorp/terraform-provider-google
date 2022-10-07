@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed a bug causing a perma-diff in `google_monitoring_alert_policy` when `cross_series_reducer` was set to "REDUCE_NONE"
+```

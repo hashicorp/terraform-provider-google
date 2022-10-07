@@ -24,6 +24,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// API does not return a value for REDUCE_NONE
+func crossSeriesReducerDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return (new == "" && old == "REDUCE_NONE") || (new == "REDUCE_NONE" && old == "")
+}
+
 func resourceMonitoringAlertPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringAlertPolicyCreate,
@@ -117,9 +122,10 @@ this field must be defined;
 otherwise an error is returned.`,
 												},
 												"cross_series_reducer": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													ValidateFunc: validateEnum([]string{"REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05", ""}),
+													Type:             schema.TypeString,
+													Optional:         true,
+													ValidateFunc:     validateEnum([]string{"REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05", ""}),
+													DiffSuppressFunc: crossSeriesReducerDiffSuppress,
 													Description: `The approach to be used to combine
 time series. Not all reducer
 functions may be applied to all
@@ -421,9 +427,10 @@ this field must be defined;
 otherwise an error is returned.`,
 												},
 												"cross_series_reducer": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													ValidateFunc: validateEnum([]string{"REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05", ""}),
+													Type:             schema.TypeString,
+													Optional:         true,
+													ValidateFunc:     validateEnum([]string{"REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05", ""}),
+													DiffSuppressFunc: crossSeriesReducerDiffSuppress,
 													Description: `The approach to be used to combine
 time series. Not all reducer
 functions may be applied to all
@@ -539,9 +546,10 @@ this field must be defined;
 otherwise an error is returned.`,
 												},
 												"cross_series_reducer": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													ValidateFunc: validateEnum([]string{"REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05", ""}),
+													Type:             schema.TypeString,
+													Optional:         true,
+													ValidateFunc:     validateEnum([]string{"REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05", ""}),
+													DiffSuppressFunc: crossSeriesReducerDiffSuppress,
 													Description: `The approach to be used to combine
 time series. Not all reducer
 functions may be applied to all
