@@ -396,6 +396,10 @@ func TestAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCGCSnippet_sqlDatabaseInstanceSqlserverExample(context),
