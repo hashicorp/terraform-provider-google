@@ -249,7 +249,7 @@ resource "google_monitoring_alert_policy" "full" {
 
       aggregations {
         alignment_period     = "60s"
-        cross_series_reducer = "REDUCE_MEAN"
+        cross_series_reducer = "REDUCE_NONE"
         per_series_aligner   = "ALIGN_MEAN"
 
         group_by_fields = [
