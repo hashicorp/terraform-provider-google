@@ -301,6 +301,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_CLOUD_IDENTITY_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[CloudIdentityBasePathKey]),
 			},
+			"cloud_ids_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUD_IDS_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[CloudIdsBasePathKey]),
+			},
 			"cloud_iot_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -892,9 +900,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 235
+// Generated resources: 236
 // Generated IAM resources: 138
-// Total generated resources: 373
+// Total generated resources: 374
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -978,6 +986,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudfunctions2_function_iam_policy":                   ResourceIamPolicy(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc),
 			"google_cloud_identity_group":                                  resourceCloudIdentityGroup(),
 			"google_cloud_identity_group_membership":                       resourceCloudIdentityGroupMembership(),
+			"google_cloud_ids_endpoint":                                    resourceCloudIdsEndpoint(),
 			"google_cloudiot_registry":                                     resourceCloudIotDeviceRegistry(),
 			"google_cloudiot_registry_iam_binding":                         ResourceIamBinding(CloudIotDeviceRegistryIamSchema, CloudIotDeviceRegistryIamUpdaterProducer, CloudIotDeviceRegistryIdParseFunc),
 			"google_cloudiot_registry_iam_member":                          ResourceIamMember(CloudIotDeviceRegistryIamSchema, CloudIotDeviceRegistryIamUpdaterProducer, CloudIotDeviceRegistryIdParseFunc),
@@ -1509,6 +1518,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
 	config.Cloudfunctions2BasePath = d.Get("cloudfunctions2_custom_endpoint").(string)
 	config.CloudIdentityBasePath = d.Get("cloud_identity_custom_endpoint").(string)
+	config.CloudIdsBasePath = d.Get("cloud_ids_custom_endpoint").(string)
 	config.CloudIotBasePath = d.Get("cloud_iot_custom_endpoint").(string)
 	config.CloudRunBasePath = d.Get("cloud_run_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
