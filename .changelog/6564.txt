@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_bigquery_analytics_hub_listing` (beta)
+```
+```release-note:new-resource
+`google_bigquery_analytics_hub_listing_iam_binding` (beta)
+```
+```release-note:new-resource
+`google_bigquery_analytics_hub_listing_iam_member` (beta)
+```
+```release-note:new-resource
+`google_bigquery_analytics_hub_listing_iam_policy` (beta)
+```
