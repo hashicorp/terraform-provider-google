@@ -1,0 +1,3 @@
+```release-note:enhancement
+filestore: removed constraint that forced multiple `google_filestore_instance` creations to occur serially
+```
