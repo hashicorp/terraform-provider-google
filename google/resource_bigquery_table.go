@@ -586,6 +586,22 @@ func resourceBigQueryTable() *schema.Resource {
 								},
 							},
 						},
+						// AvroOptions: [Optional] Additional options if sourceFormat is set to AVRO.
+						"avro_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Additional options if source_format is set to "AVRO"`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"use_avro_logical_types": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `If sourceFormat is set to "AVRO", indicates whether to interpret logical types as the corresponding BigQuery data type (for example, TIMESTAMP), instead of using the raw type (for example, INTEGER).`,
+									},
+								},
+							},
+						},
 
 						// IgnoreUnknownValues: [Optional] Indicates if BigQuery should
 						// allow extra values that are not represented in the table schema.
@@ -1324,6 +1340,9 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	if v, ok := raw["hive_partitioning_options"]; ok {
 		edc.HivePartitioningOptions = expandHivePartitioningOptions(v)
 	}
+	if v, ok := raw["avro_options"]; ok {
+		edc.AvroOptions = expandAvroOptions(v)
+	}
 	if v, ok := raw["ignore_unknown_values"]; ok {
 		edc.IgnoreUnknownValues = v.(bool)
 	}
@@ -1368,6 +1387,10 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.HivePartitioningOptions != nil {
 		result["hive_partitioning_options"] = flattenHivePartitioningOptions(edc.HivePartitioningOptions)
+	}
+
+	if edc.AvroOptions != nil {
+		result["avro_options"] = flattenAvroOptions(edc.AvroOptions)
 	}
 
 	if edc.IgnoreUnknownValues {
@@ -1526,6 +1549,31 @@ func flattenHivePartitioningOptions(opts *bigquery.HivePartitioningOptions) []ma
 
 	if opts.SourceUriPrefix != "" {
 		result["source_uri_prefix"] = opts.SourceUriPrefix
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func expandAvroOptions(configured interface{}) *bigquery.AvroOptions {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	opts := &bigquery.AvroOptions{}
+
+	if v, ok := raw["use_avro_logical_types"]; ok {
+		opts.UseAvroLogicalTypes = v.(bool)
+	}
+
+	return opts
+}
+
+func flattenAvroOptions(opts *bigquery.AvroOptions) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if opts.UseAvroLogicalTypes {
+		result["use_avro_logical_types"] = opts.UseAvroLogicalTypes
 	}
 
 	return []map[string]interface{}{result}

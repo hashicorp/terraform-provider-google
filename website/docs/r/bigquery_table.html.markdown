@@ -170,6 +170,10 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
     partitioning on an unsupported format will lead to an error, as will providing
     an invalid specification. Structure is [documented below](#nested_hive_partitioning_options).
 
+* `avro_options` (Optional) - Additional options if `source_format` is set to  
+    "AVRO".  Structure is [documented below](#nested_avro_options).
+
+
 * `ignore_unknown_values` (Optional) - Indicates if BigQuery should
     allow extra values that are not represented in the table schema.
     If true, the extra values are ignored. If false, records with
@@ -260,6 +264,13 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
     partitioning is requested with either AUTO or STRINGS detection, the common prefix
     can be either of `gs://bucket/path_to_table` or `gs://bucket/path_to_table/`.
     Note that when `mode` is set to `CUSTOM`, you must encode the partition key schema within the `source_uri_prefix` by setting `source_uri_prefix` to `gs://bucket/path_to_table/{key1:TYPE1}/{key2:TYPE2}/{key3:TYPE3}`.
+
+<a name="nested_avro_options"></a>The `avro_options` block supports:
+
+* `use_avro_logical_types` (Optional) - If is set to true, indicates whether  
+    to interpret logical types as the corresponding BigQuery data type  
+    (for example, TIMESTAMP), instead of using the raw type (for example, INTEGER).
+    
 
 <a name="nested_time_partitioning"></a>The `time_partitioning` block supports:
 
