@@ -1,0 +1,3 @@
+```release-note:note
+Updated regex validation of resource ids to prevent leading slashes
+```

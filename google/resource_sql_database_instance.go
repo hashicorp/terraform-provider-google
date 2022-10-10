@@ -17,7 +17,8 @@ import (
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
-const privateNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
+// Match fully-qualified or relative URLs
+const privateNetworkLinkRegex = "^(?:http(?:s)?://.+/)?projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
 
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
