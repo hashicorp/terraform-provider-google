@@ -1,0 +1,3 @@
+```release-note:none
+Consolidate BQ reservation resources to one section in docs
+```
