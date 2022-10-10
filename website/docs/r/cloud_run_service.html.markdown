@@ -225,6 +225,50 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+## Example Usage - Cloud Run Service Probes
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  provider = google-beta
+
+  name     = "cloudrun-srv"
+  location = "us-central1"
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage" = "BETA"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        startup_probe {
+          initial_delay_seconds = 0
+          timeout_seconds = 1
+          period_seconds = 3
+          failure_threshold = 1
+          tcp_socket {
+            port = 8080
+          }
+        }
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata.0.annotations,
+    ]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -455,6 +499,13 @@ The following arguments are supported:
   Only supports SecretVolumeSources.
   Structure is [documented below](#nested_volume_mounts).
 
+* `startup_probe` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Startup probe of application within the container.
+  All other probes are disabled if a startup probe is provided, until it
+  succeeds. Container will not be added to service endpoints if the probe fails.
+  Structure is [documented below](#nested_startup_probe).
+
 
 <a name="nested_env_from"></a>The `env_from` block supports:
 
@@ -599,6 +650,69 @@ The following arguments are supported:
 * `name` -
   (Required)
   This must match the Name of a Volume.
+
+<a name="nested_startup_probe"></a>The `startup_probe` block supports:
+
+* `initial_delay_seconds` -
+  (Optional)
+  Number of seconds after the container has started before the probe is
+  initiated.
+  Defaults to 0 seconds. Minimum value is 0. Maximum value is 240.
+
+* `timeout_seconds` -
+  (Optional)
+  Number of seconds after which the probe times out.
+  Defaults to 1 second. Minimum value is 1. Maximum value is 3600.
+  Must be smaller than periodSeconds.
+
+* `period_seconds` -
+  (Optional)
+  How often (in seconds) to perform the probe.
+  Default to 10 seconds. Minimum value is 1. Maximum value is 240.
+
+* `failure_threshold` -
+  (Optional)
+  Minimum consecutive failures for the probe to be considered failed after
+  having succeeded. Defaults to 3. Minimum value is 1.
+
+* `tcp_socket` -
+  (Optional)
+  TcpSocket specifies an action involving a TCP port.
+  Structure is [documented below](#nested_tcp_socket).
+
+* `http_get` -
+  (Optional)
+  HttpGet specifies the http request to perform.
+  Structure is [documented below](#nested_http_get).
+
+
+<a name="nested_tcp_socket"></a>The `tcp_socket` block supports:
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+
+<a name="nested_http_get"></a>The `http_get` block supports:
+
+* `path` -
+  (Optional)
+  Path to access on the HTTP server. If set, it should not be empty string.
+
+* `http_headers` -
+  (Optional)
+  Custom headers to set in the request. HTTP allows repeated headers.
+  Structure is [documented below](#nested_http_headers).
+
+
+<a name="nested_http_headers"></a>The `http_headers` block supports:
+
+* `name` -
+  (Required)
+  The header field name.
+
+* `value` -
+  (Optional)
+  The header field value.
 
 <a name="nested_volumes"></a>The `volumes` block supports:
 

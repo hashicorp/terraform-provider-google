@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrun: added field `startup_probe` to resource `google_cloud_run_service` (beta)
+```
