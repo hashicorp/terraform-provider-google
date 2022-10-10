@@ -3,7 +3,7 @@
 
 FEATURES:
 * **New Data Source:** `google_cloudfunctions2_function` ([#12673](https://github.com/hashicorp/terraform-provider-google/pull/12673))
-* **New Data Source:** `google_compute_snapshot' ([#12671](https://github.com/hashicorp/terraform-provider-google/pull/12671))
+* **New Data Source:** `google_compute_snapshot` ([#12671](https://github.com/hashicorp/terraform-provider-google/pull/12671))
 * **New Resource:** `google_compute_region_target_tcp_proxy` ([#12715](https://github.com/hashicorp/terraform-provider-google/pull/12715))
 * **New Resource:** `google_identity_platform_config` ([#12665](https://github.com/hashicorp/terraform-provider-google/pull/12665))
 * **New Resource:** `google_bigquery_datapolicy_data_policy` ([#12725](https://github.com/hashicorp/terraform-provider-google/pull/12725))
