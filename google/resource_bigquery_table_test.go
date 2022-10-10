@@ -599,6 +599,32 @@ func TestAccBigQueryTable_HivePartitioningCustomSchema(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_AvroPartitioning(t *testing.T) {
+	t.Parallel()
+	bucketName := testBucketName(t)
+	resourceName := "google_bigquery_table.test"
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	avroFilePath := "./test-fixtures/bigquerytable/avro-generated.avro"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableAvroPartitioning(bucketName, avroFilePath, datasetID, tableID),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_RangePartitioning(t *testing.T) {
 	t.Parallel()
 	resourceName := "google_bigquery_table.test"
@@ -1589,6 +1615,44 @@ EOH
   depends_on = ["google_storage_bucket_object.test"]
 }
 `, bucketName, datasetID, tableID)
+}
+
+func testAccBigQueryTableAvroPartitioning(bucketName, avroFilePath, datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_object" "test" {
+  name    = "key1=20200330/init.avro"
+  source = "%s"
+  bucket  = google_storage_bucket.test.name
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  external_data_configuration {
+    source_format = "AVRO"
+    autodetect = true
+    source_uris= ["gs://${google_storage_bucket.test.name}/*"]
+
+    avro_options {
+      use_avro_logical_types = true
+    }
+
+  }
+  depends_on = ["google_storage_bucket_object.test"]
+}
+`, bucketName, avroFilePath, datasetID, tableID)
 }
 
 func testAccBigQueryTableRangePartitioning(datasetID, tableID string) string {
