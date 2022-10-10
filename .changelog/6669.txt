@@ -1,0 +1,3 @@
+```release-note:bug
+kms: fixed apply failure when `google_kms_crypto_key` is removed after its versions were destroyed earlier
+```

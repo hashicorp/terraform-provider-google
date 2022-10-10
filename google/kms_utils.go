@@ -188,15 +188,18 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, userAgent string, confi
 	}
 
 	for _, version := range versionsResponse.CryptoKeyVersions {
-		request := &cloudkms.DestroyCryptoKeyVersionRequest{}
-		destroyCall := versionsClient.Destroy(version.Name, request)
-		if config.UserProjectOverride {
-			destroyCall.Header().Set("X-Goog-User-Project", cryptoKeyId.KeyRingId.Project)
-		}
-		_, err = destroyCall.Do()
+		// skip the versions that have been destroyed earlier
+		if version.State == "ENABLED" {
+			request := &cloudkms.DestroyCryptoKeyVersionRequest{}
+			destroyCall := versionsClient.Destroy(version.Name, request)
+			if config.UserProjectOverride {
+				destroyCall.Header().Set("X-Goog-User-Project", cryptoKeyId.KeyRingId.Project)
+			}
+			_, err = destroyCall.Do()
 
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
 		}
 	}
 
