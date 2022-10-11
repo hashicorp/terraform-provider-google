@@ -11,6 +11,14 @@ Creates a Google Cloud Bigtable GC Policy inside a family. For more information 
 [the official documentation](https://cloud.google.com/bigtable/) and
 [API](https://cloud.google.com/bigtable/docs/go/reference).
 
+-> **Warning**: We don't recommend having multiple GC policies for the same column
+family as it may result in unexpected behavior.
+
+-> **Note**: GC policies associated with a replicated table cannot be destroyed directly.
+Destroying a GC policy is translated into never perform garbage collection, this is
+considered relaxing from pure age-based or version-based GC policy, hence not allowed.
+The workaround is unreplicating the instance first by updating the instance to have one
+cluster.
 
 ## Example Usage
 
