@@ -269,6 +269,8 @@ The optional `settings.sql_server_audit_config` subblock supports:
 
 * `retention_interval` - (Optional) How long to keep generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s". 
 
+* `timezone` - (Optional) The timezone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.
+
 The optional `settings.backup_configuration` subblock supports:
 
 * `binary_log_enabled` - (Optional) True if binary logging is enabled.

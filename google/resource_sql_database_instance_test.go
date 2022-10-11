@@ -1272,6 +1272,32 @@ func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_Timezone(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+	rootPassword := randString(t, 15)
+	addressName := "tf-test-" + randString(t, 10)
+	networkName := BootstrapSharedTestNetwork(t, "sql-instance-sqlserver-audit")
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_Timezone(networkName, addressName, databaseName, rootPassword, "Pacific Standard Time"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_mysqlMajorVersionUpgrade(t *testing.T) {
 	t.Parallel()
 
@@ -1506,6 +1532,44 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, bucketName, networkName, addressName, databaseName, rootPassword, bucketName, retentionInterval, uploadInterval)
+}
+
+func testGoogleSqlDatabaseInstance_Timezone(networkName, addressName, databaseName, rootPassword, timezone string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name = "%s"
+}
+
+resource "google_compute_global_address" "foobar" {
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.servicenet.self_link
+}
+
+resource "google_service_networking_connection" "foobar" {
+  network                 = data.google_compute_network.servicenet.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.foobar.name]
+}
+resource "google_sql_database_instance" "instance" {
+	depends_on = [google_service_networking_connection.foobar]
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password    = "%s"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-1-3840"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    time_zone = "%s"
+  }
+}
+`, networkName, addressName, databaseName, rootPassword, timezone)
 }
 
 func testGoogleSqlDatabaseInstanceConfig_withoutReplica(instanceName string) string {
