@@ -1,0 +1,3 @@
+```release-note:none
+bigtable: updated Cloud Bigtable GC policy documentation
+```
