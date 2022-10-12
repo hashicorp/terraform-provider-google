@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `source_disk` field to `google_compute_disk` and `google_compute_region_disk` resource
+```

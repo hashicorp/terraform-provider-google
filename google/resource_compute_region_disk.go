@@ -172,6 +172,21 @@ valid values:
 * 'global/snapshots/snapshot'
 * 'snapshot'`,
 			},
+			"source_disk": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: sourceDiskDiffSupress,
+				Description: `The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
+For example, the following are valid values:
+
+* https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks/{disk}
+* https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks/{disk}
+* projects/{project}/zones/{zone}/disks/{disk}
+* projects/{project}/regions/{region}/disks/{disk}
+* zones/{zone}/disks/{disk}
+* regions/{region}/disks/{disk}`,
+			},
 			"source_snapshot_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -227,6 +242,13 @@ internally during updates.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Last detach timestamp in RFC3339 text format.`,
+			},
+			"source_disk_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The ID value of the disk used to create this image. This value may
+be used to determine whether the image was taken from the current
+or a previous instance of a given disk name.`,
 			},
 			"source_snapshot_id": {
 				Type:     schema.TypeString,
@@ -318,6 +340,12 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
+	}
+	sourceDiskProp, err := expandComputeRegionDiskSourceDisk(d.Get("source_disk"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_disk"); !isEmptyValue(reflect.ValueOf(sourceDiskProp)) && (ok || !reflect.DeepEqual(v, sourceDiskProp)) {
+		obj["sourceDisk"] = sourceDiskProp
 	}
 	regionProp, err := expandComputeRegionDiskRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -475,6 +503,12 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("type", flattenComputeRegionDiskType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err := d.Set("source_disk", flattenComputeRegionDiskSourceDisk(res["sourceDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err := d.Set("source_disk_id", flattenComputeRegionDiskSourceDiskId(res["sourceDiskId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("region", flattenComputeRegionDiskRegion(res["region"], d, config)); err != nil {
@@ -799,6 +833,14 @@ func flattenComputeRegionDiskType(v interface{}, d *schema.ResourceData, config 
 	return NameFromSelfLinkStateFunc(v)
 }
 
+func flattenComputeRegionDiskSourceDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskSourceDiskId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionDiskRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -922,6 +964,10 @@ func expandComputeRegionDiskType(v interface{}, d TerraformResourceData, config 
 		return nil, fmt.Errorf("Invalid value for type: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionDiskSourceDisk(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionDiskRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
