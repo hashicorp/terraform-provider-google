@@ -60,6 +60,19 @@ resource "google_storage_bucket" "auto-expire" {
   }
 }
 ```
+
+## Example Usage - Enabling public access prevention
+
+```hcl
+resource "google_storage_bucket" "auto-expire" {
+  name          = "no-public-access-bucket"
+  location      = "US"
+  force_destroy = true
+
+  public_access_prevention = "enforced"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -100,6 +113,8 @@ The following arguments are supported:
 * `requester_pays` - (Optional, Default: false) Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.
 
 * `uniform_bucket_level_access` - (Optional, Default: false) Enables [Uniform bucket-level access](https://cloud.google.com/storage/docs/uniform-bucket-level-access) access to a bucket.
+
+* `public_access_prevention` - (Optional) Prevents public access to a bucket. Acceptable values are "inherited" or "enforced". If "inherited", the bucket uses [public access prevention](https://cloud.google.com/storage/docs/public-access-prevention). only if the bucket is subject to the public access prevention organization policy constraint. Defaults to "inherited".
 
 * `custom_placement_config` - (Optional) The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty. Structure is [documented below](#nested_custom_placement_config).
 

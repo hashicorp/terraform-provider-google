@@ -386,6 +386,12 @@ func resourceStorageBucket() *schema.Resource {
 				},
 				Description: `The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty.`,
 			},
+			"public_access_prevention": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Prevents public access to a bucket.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -650,7 +656,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if d.HasChange("uniform_bucket_level_access") {
+	if d.HasChange("uniform_bucket_level_access") || d.HasChange("public_access_prevention") {
 		sb.IamConfiguration = expandIamConfiguration(d)
 	}
 
@@ -1142,6 +1148,10 @@ func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfigurat
 		},
 	}
 
+	if v, ok := d.GetOk("public_access_prevention"); ok {
+		cfg.PublicAccessPrevention = v.(string)
+	}
+
 	return cfg
 }
 
@@ -1503,6 +1513,12 @@ func setStorageBucket(d *schema.ResourceData, config *Config, res *storage.Bucke
 	} else {
 		if err := d.Set("uniform_bucket_level_access", false); err != nil {
 			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+	}
+
+	if res.IamConfiguration != nil && res.IamConfiguration.PublicAccessPrevention != "" {
+		if err := d.Set("public_access_prevention", res.IamConfiguration.PublicAccessPrevention); err != nil {
+			return fmt.Errorf("Error setting public_access_prevention: %s", err)
 		}
 	}
 
