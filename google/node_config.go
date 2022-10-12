@@ -268,7 +268,6 @@ func schemaNodeConfig() *schema.Schema {
 				"tags": {
 					Type:        schema.TypeList,
 					Optional:    true,
-					ForceNew:    true,
 					Elem:        &schema.Schema{Type: schema.TypeString},
 					Description: `The list of instance tags applied to all nodes.`,
 				},
