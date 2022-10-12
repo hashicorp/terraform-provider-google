@@ -27,6 +27,16 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// diffsupress for beta and to check change in source_disk attribute
+func sourceDiskDiffSupress(_, old, new string, _ *schema.ResourceData) bool {
+	s1 := strings.TrimPrefix(old, "https://www.googleapis.com/compute/beta")
+	s2 := strings.TrimPrefix(new, "https://www.googleapis.com/compute/v1")
+	if strings.HasSuffix(s1, s2) {
+		return true
+	}
+	return false
+}
+
 // Is the new disk size smaller than the old one?
 func isDiskShrinkage(_ context.Context, old, new, _ interface{}) bool {
 	// It's okay to remove size entirely.
@@ -412,6 +422,21 @@ following are valid values:
 * 'global/snapshots/snapshot'
 * 'snapshot'`,
 			},
+			"source_disk": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: sourceDiskDiffSupress,
+				Description: `The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
+For example, the following are valid values:
+
+* https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks/{disk}
+* https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks/{disk}
+* projects/{project}/zones/{zone}/disks/{disk}
+* projects/{project}/regions/{region}/disks/{disk}
+* zones/{zone}/disks/{disk}
+* regions/{region}/disks/{disk}`,
+			},
 			"source_image_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -537,6 +562,13 @@ internally during updates.`,
 				Computed:    true,
 				Description: `Last detach timestamp in RFC3339 text format.`,
 			},
+			"source_disk_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The ID value of the disk used to create this image. This value may
+be used to determine whether the image was taken from the current
+or a previous instance of a given disk name.`,
+			},
 			"source_image_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -624,6 +656,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("physical_block_size_bytes"); !isEmptyValue(reflect.ValueOf(physicalBlockSizeBytesProp)) && (ok || !reflect.DeepEqual(v, physicalBlockSizeBytesProp)) {
 		obj["physicalBlockSizeBytes"] = physicalBlockSizeBytesProp
+	}
+	sourceDiskProp, err := expandComputeDiskSourceDisk(d.Get("source_disk"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_disk"); !isEmptyValue(reflect.ValueOf(sourceDiskProp)) && (ok || !reflect.DeepEqual(v, sourceDiskProp)) {
+		obj["sourceDisk"] = sourceDiskProp
 	}
 	typeProp, err := expandComputeDiskType(d.Get("type"), d, config)
 	if err != nil {
@@ -799,6 +837,12 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("physical_block_size_bytes", flattenComputeDiskPhysicalBlockSizeBytes(res["physicalBlockSizeBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("source_disk", flattenComputeDiskSourceDisk(res["sourceDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("source_disk_id", flattenComputeDiskSourceDiskId(res["sourceDiskId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("type", flattenComputeDiskType(res["type"], d, config)); err != nil {
@@ -1124,6 +1168,14 @@ func flattenComputeDiskPhysicalBlockSizeBytes(v interface{}, d *schema.ResourceD
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeDiskSourceDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeDiskSourceDiskId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeDiskType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -1307,6 +1359,10 @@ func expandComputeDiskSize(v interface{}, d TerraformResourceData, config *Confi
 }
 
 func expandComputeDiskPhysicalBlockSizeBytes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskSourceDisk(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

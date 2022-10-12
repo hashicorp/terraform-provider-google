@@ -122,6 +122,17 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
 
+* `source_disk` -
+  (Optional)
+  The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
+  For example, the following are valid values:
+  * https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks/{disk}
+  * https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks/{disk}
+  * projects/{project}/zones/{zone}/disks/{disk}
+  * projects/{project}/regions/{region}/disks/{disk}
+  * zones/{zone}/disks/{disk}
+  * regions/{region}/disks/{disk}
+
 * `type` -
   (Optional)
   URL of the disk type resource describing which disk type to use to
@@ -296,6 +307,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `users` -
   Links to the users of the disk (attached instances) in form:
   project/zones/zone/instances/instance
+
+* `source_disk_id` -
+  The ID value of the disk used to create this image. This value may
+  be used to determine whether the image was taken from the current
+  or a previous instance of a given disk name.
 
 * `source_image_id` -
   The ID value of the image used to create this disk. This value

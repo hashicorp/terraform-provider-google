@@ -585,6 +585,34 @@ func testAccCheckEncryptionKey(t *testing.T, n string, disk *compute.Disk) resou
 	}
 }
 
+func TestAccComputeDisk_cloneDisk(t *testing.T) {
+	t.Parallel()
+	pid := getTestProjectFromEnv()
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	var disk compute.Disk
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_diskClone(diskName, "self_link"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.disk-clone", pid, &disk),
+				),
+			},
+			{
+				ResourceName:      "google_compute_disk.disk-clone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -832,4 +860,34 @@ resource "google_compute_disk" "foobar" {
   size = 1
 }
 `, diskName)
+}
+
+func testAccComputeDisk_diskClone(diskName, refSelector string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-11"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_disk" "foobar" {
+		name  = "%s"
+		image = data.google_compute_image.my_image.self_link
+		size  = 50
+		type  = "pd-ssd"
+		zone  = "us-central1-a"
+		labels = {
+			my-label = "my-label-value"
+		}
+	}
+
+	resource "google_compute_disk" "disk-clone" {
+		name  = "%s"
+		source_disk = google_compute_disk.foobar.%s
+		type  = "pd-ssd"
+		zone  = "us-central1-a"
+		labels = {
+			my-label = "my-label-value"
+		}
+	}
+`, diskName, diskName+"-clone", refSelector)
 }
