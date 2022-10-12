@@ -23,6 +23,7 @@ func TestAccDataSourceGoogleAppEngineDefaultServiceAccount_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "unique_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "name"),
 					resource.TestCheckResourceAttrSet(resourceName, "display_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "member"),
 				),
 			},
 		},

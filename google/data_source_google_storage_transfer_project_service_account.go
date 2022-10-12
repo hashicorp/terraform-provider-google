@@ -23,6 +23,10 @@ func dataSourceGoogleStorageTransferProjectServiceAccount() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"member": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -53,6 +57,9 @@ func dataSourceGoogleStorageTransferProjectServiceAccountRead(d *schema.Resource
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("member", "serviceAccount:"+serviceAccount.AccountEmail); err != nil {
+		return fmt.Errorf("Error setting member: %s", err)
 	}
 	return nil
 }

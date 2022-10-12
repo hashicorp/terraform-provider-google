@@ -19,6 +19,7 @@ func TestAccDataSourceGoogleBigqueryDefaultServiceAccount_basic(t *testing.T) {
 				Config: testAccCheckGoogleBigqueryDefaultServiceAccount_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
+					resource.TestCheckResourceAttrSet(resourceName, "member"),
 				),
 			},
 		},

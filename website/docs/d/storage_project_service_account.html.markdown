@@ -96,3 +96,5 @@ The following attributes are exported:
 
 * `email_address` - The email address of the service account. This value is often used to refer to the service account
 in order to grant IAM permissions.
+
+* `member` - The Identity of the service account in the form `serviceAccount:{email_address}`. This value is often used to refer to the service account in order to grant IAM permissions.

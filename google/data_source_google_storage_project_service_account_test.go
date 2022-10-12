@@ -19,6 +19,7 @@ func TestAccDataSourceGoogleStorageProjectServiceAccount_basic(t *testing.T) {
 				Config: testAccCheckGoogleStorageProjectServiceAccount_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "email_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "member"),
 				),
 			},
 		},
