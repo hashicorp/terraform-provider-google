@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -21,6 +22,10 @@ func dataSourceGoogleStorageProjectServiceAccount() *schema.Resource {
 				ForceNew: true,
 			},
 			"email_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"member": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -56,6 +61,9 @@ func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, me
 	}
 	if err := d.Set("email_address", serviceAccount.EmailAddress); err != nil {
 		return fmt.Errorf("Error setting email_address: %s", err)
+	}
+	if err := d.Set("member", "serviceAccount:"+serviceAccount.EmailAddress); err != nil {
+		return fmt.Errorf("Error setting member: %s", err)
 	}
 
 	d.SetId(serviceAccount.EmailAddress)

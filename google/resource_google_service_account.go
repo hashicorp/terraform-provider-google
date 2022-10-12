@@ -69,6 +69,11 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the project that the service account will be created in. Defaults to the provider project configuration.`,
 			},
+			"member": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The Identity of the service account in the form 'serviceAccount:{email}'. This value is often used to refer to the service account in order to grant IAM permissions.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -180,6 +185,9 @@ func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) 
 	}
 	if err := d.Set("disabled", sa.Disabled); err != nil {
 		return fmt.Errorf("Error setting disabled: %s", err)
+	}
+	if err := d.Set("member", "serviceAccount:"+sa.Email); err != nil {
+		return fmt.Errorf("Error setting member: %s", err)
 	}
 	return nil
 }

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -16,6 +17,10 @@ func dataSourceGoogleBigqueryDefaultServiceAccount() *schema.Resource {
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"member": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -45,6 +50,9 @@ func dataSourceGoogleBigqueryDefaultServiceAccountRead(d *schema.ResourceData, m
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("member", "serviceAccount:"+projectResource.Email); err != nil {
+		return fmt.Errorf("Error setting member: %s", err)
 	}
 	return nil
 }

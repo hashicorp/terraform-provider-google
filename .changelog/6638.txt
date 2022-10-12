@@ -1,0 +1,12 @@
+```release-note:enhancement
+appengine: added `member` field to `google_app_engine_default_service_account` datasource
+```
+```release-note:enhancement
+bigquery: added `member` field to `google_bigquery_default_service_account` datasource
+```
+```release-note:enhancement
+storage: added `member` field to `google_storage_project_service_account` and `google_storage_transfer_project_service_account` datasource
+```
+```release-note:enhancement
+serviceaccount: added `member` field to `google_service_account` resource and datasource
+```
