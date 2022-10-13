@@ -46,61 +46,6 @@ To get more information about Service, see:
 a Cloud Run Service on Anthos(GKE/VMWare) then you will need to create it using the kubernetes alpha provider.
 Have a look at the Cloud Run Anthos example below.
 
-## Example Usage - Cloud Run Service Pubsub
-
-
-```hcl
-resource "google_cloud_run_service" "default" {
-    name     = "cloud_run_service_name"
-    location = "us-central1"
-    template {
-      spec {
-            containers {
-                image = "gcr.io/cloudrun/hello"
-            }
-      }
-    }
-    traffic {
-      percent         = 100
-      latest_revision = true
-    }
-}
-
-resource "google_service_account" "sa" {
-  account_id   = "cloud-run-pubsub-invoker"
-  display_name = "Cloud Run Pub/Sub Invoker"
-}
-
-resource "google_cloud_run_service_iam_binding" "binding" {
-  location = google_cloud_run_service.default.location
-  service = google_cloud_run_service.default.name
-  role = "roles/run.invoker"
-  members = ["serviceAccount:${google_service_account.sa.email}"]
-}
-
-resource "google_project_iam_binding" "project" {
-  role    = "roles/iam.serviceAccountTokenCreator"
-  members = ["serviceAccount:${google_service_account.sa.email}"]
-}
-
-resource "google_pubsub_topic" "topic" {
-  name = "pubsub_topic"
-}
-
-resource "google_pubsub_subscription" "subscription" {
-  name  = "pubsub_subscription"
-  topic = google_pubsub_topic.topic.name
-  push_config {
-    push_endpoint = google_cloud_run_service.default.status[0].url
-    oidc_token {
-      service_account_email = google_service_account.sa.email
-    }
-    attributes = {
-      x-goog-version = "v1"
-    }
-  }
-}
-```
 ## Example Usage - Cloud Run Service Basic
 
 
@@ -169,7 +114,6 @@ resource "google_sql_database_instance" "instance" {
 
 
 ```hcl
-# Example of how to deploy a publicly-accessible Cloud Run application
 
 resource "google_cloud_run_service" "default" {
   name     = "cloudrun-srv"
@@ -199,30 +143,6 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   service     = google_cloud_run_service.default.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
-}
-```
-## Example Usage - Cloud Run Service Add Tag
-
-
-```hcl
-resource "google_cloud_run_service" "default" {
-  name     = "cloudrun-srv"
-  location = "us-central1"
-
-  template {}
-
-  traffic {
-    percent       = 100
-    # This revision needs to already exist
-    revision_name = "cloudrun-srv-green"
-  }
-
-  traffic {
-    # Deploy new revision with 0% traffic
-    percent       = 0
-    revision_name = "cloudrun-srv-blue"
-    tag           = "tag-name"
-  }
 }
 ```
 ## Example Usage - Cloud Run Service Probes
