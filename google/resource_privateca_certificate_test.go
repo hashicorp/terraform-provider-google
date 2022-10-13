@@ -61,6 +61,7 @@ resource "google_privateca_certificate_authority" "default" {
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
 	location = "%{pool_location}"
 	deletion_protection = false
+	skip_grace_period = true
 	config {
 		subject_config {
 			subject {
@@ -139,6 +140,7 @@ resource "google_privateca_certificate_authority" "default" {
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
 	location = "%{pool_location}"
 	deletion_protection = false
+	skip_grace_period = true
 	config {
 		subject_config {
 			subject {
