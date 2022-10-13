@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Added support for the Disk type and size configuration on the GKE Node Auto-provisioning
+```

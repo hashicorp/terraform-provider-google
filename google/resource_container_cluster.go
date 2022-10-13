@@ -368,6 +368,20 @@ func resourceContainerCluster() *schema.Resource {
 										Default:     "default",
 										Description: `The Google Cloud Platform Service Account to be used by the node VMs.`,
 									},
+									"disk_size": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      100,
+										Description:  `Size of the disk attached to each node, specified in GB. The smallest allowed disk size is 10GB.`,
+										ValidateFunc: validation.IntAtLeast(10),
+									},
+									"disk_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "pd-standard",
+										Description:  `Type of the disk attached to each node.`,
+										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced"}, false),
+									},
 									"image_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
@@ -3121,6 +3135,8 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	npd := &container.AutoprovisioningNodePoolDefaults{
 		OauthScopes:    convertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount: config["service_account"].(string),
+		DiskSizeGb:     int64(config["disk_size"].(int)),
+		DiskType:       config["disk_type"].(string),
 		ImageType:      config["image_type"].(string),
 		BootDiskKmsKey: config["boot_disk_kms_key"].(string),
 	}
@@ -3872,6 +3888,8 @@ func flattenAutoProvisioningDefaults(a *container.AutoprovisioningNodePoolDefaul
 	r := make(map[string]interface{})
 	r["oauth_scopes"] = a.OauthScopes
 	r["service_account"] = a.ServiceAccount
+	r["disk_size"] = a.DiskSizeGb
+	r["disk_type"] = a.DiskType
 	r["image_type"] = a.ImageType
 	r["boot_disk_kms_key"] = a.BootDiskKmsKey
 
