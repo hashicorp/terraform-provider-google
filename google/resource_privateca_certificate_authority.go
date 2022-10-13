@@ -555,6 +555,15 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 				Optional:    true,
 				Description: `The signed CA certificate issued from the subordinated CA's CSR. This is needed when activating the subordiante CA with a third party issuer.`,
 			},
+			"skip_grace_period": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `If this flag is set, the Certificate Authority will be deleted as soon as
+possible without a 30-day grace period where undeletion would have been
+allowed. If you proceed, there will be no way to recover this CA.
+Use with care. Defaults to 'false'.`,
+				Default: false,
+			},
 			"subordinate_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -1063,7 +1072,7 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}?ignoreActiveCertificates={{ignore_active_certificates_on_deletion}}")
+	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}?ignoreActiveCertificates={{ignore_active_certificates_on_deletion}}&skipGracePeriod={{skip_grace_period}}")
 	if err != nil {
 		return err
 	}

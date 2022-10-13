@@ -1,0 +1,3 @@
+```release-note:enhancement
+privateca: add a new field `skip_grace_period` to skip the grace period when deleting a CertificateAuthority.
+```
