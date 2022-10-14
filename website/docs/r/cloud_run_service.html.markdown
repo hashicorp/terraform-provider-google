@@ -173,6 +173,11 @@ resource "google_cloud_run_service" "default" {
             port = 8080
           }
         }
+        liveness_probe {
+          http_get {
+            path = "/"
+          }
+        }
       }
     }
   }
@@ -424,7 +429,15 @@ The following arguments are supported:
   Startup probe of application within the container.
   All other probes are disabled if a startup probe is provided, until it
   succeeds. Container will not be added to service endpoints if the probe fails.
+  More info:
+  https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
   Structure is [documented below](#nested_startup_probe).
+
+* `liveness_probe` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Periodic probe of container liveness. Container will be restarted if the probe fails. More info:
+  https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+  Structure is [documented below](#nested_liveness_probe).
 
 
 <a name="nested_env_from"></a>The `env_from` block supports:
@@ -611,6 +624,58 @@ The following arguments are supported:
 * `port` -
   (Optional)
   Port number to access on the container. Number must be in the range 1 to 65535.
+
+<a name="nested_http_get"></a>The `http_get` block supports:
+
+* `path` -
+  (Optional)
+  Path to access on the HTTP server. If set, it should not be empty string.
+
+* `http_headers` -
+  (Optional)
+  Custom headers to set in the request. HTTP allows repeated headers.
+  Structure is [documented below](#nested_http_headers).
+
+
+<a name="nested_http_headers"></a>The `http_headers` block supports:
+
+* `name` -
+  (Required)
+  The header field name.
+
+* `value` -
+  (Optional)
+  The header field value.
+
+<a name="nested_liveness_probe"></a>The `liveness_probe` block supports:
+
+* `initial_delay_seconds` -
+  (Optional)
+  Number of seconds after the container has started before the probe is
+  initiated.
+  Defaults to 0 seconds. Minimum value is 0. Maximum value is 3600.
+
+* `timeout_seconds` -
+  (Optional)
+  Number of seconds after which the probe times out.
+  Defaults to 1 second. Minimum value is 1. Maximum value is 3600.
+  Must be smaller than period_seconds.
+
+* `period_seconds` -
+  (Optional)
+  How often (in seconds) to perform the probe.
+  Default to 10 seconds. Minimum value is 1. Maximum value is 3600.
+
+* `failure_threshold` -
+  (Optional)
+  Minimum consecutive failures for the probe to be considered failed after
+  having succeeded. Defaults to 3. Minimum value is 1.
+
+* `http_get` -
+  (Optional)
+  HttpGet specifies the http request to perform.
+  Structure is [documented below](#nested_http_get).
+
 
 <a name="nested_http_get"></a>The `http_get` block supports:
 
