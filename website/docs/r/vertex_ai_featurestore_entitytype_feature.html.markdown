@@ -22,21 +22,23 @@ description: |-
 
 Feature Metadata information that describes an attribute of an entity type. For example, apple is an entity type, and color is a feature that describes apple.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about FeaturestoreEntitytypeFeature, see:
 
-* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featurestores.entityTypes.features)
+* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes.features)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featurestore_entitytype_feature&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Vertex Ai Featurestore Entitytype Feature
 
 
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
-  provider = google-beta
   name     = "terraform"
   labels = {
     foo = "bar"
@@ -48,8 +50,47 @@ resource "google_vertex_ai_featurestore" "featurestore" {
 }
 
 resource "google_vertex_ai_featurestore_entitytype" "entity" {
-  provider = google-beta
   name     = "terraform"
+  labels = {
+    foo = "bar"
+  }
+  featurestore = google_vertex_ai_featurestore.featurestore.id
+}
+
+resource "google_vertex_ai_featurestore_entitytype_feature" "feature" {
+  name     = "terraform"
+  labels = {
+    foo = "bar"
+  }
+  entitytype = google_vertex_ai_featurestore_entitytype.entity.id
+
+  value_type = "INT64_ARRAY"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featurestore_entitytype_feature_with_beta_fields&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Featurestore Entitytype Feature With Beta Fields
+
+
+```hcl
+resource "google_vertex_ai_featurestore" "featurestore" {
+  provider = google-beta
+  name     = "terraform2"
+  labels = {
+    foo = "bar"
+  }
+  region   = "us-central1"
+  online_serving_config {
+    fixed_node_count = 2
+  }
+}
+
+resource "google_vertex_ai_featurestore_entitytype" "entity" {
+  provider = google-beta
+  name     = "terraform2"
   labels = {
     foo = "bar"
   }
@@ -64,7 +105,7 @@ resource "google_vertex_ai_featurestore_entitytype" "entity" {
 
 resource "google_vertex_ai_featurestore_entitytype_feature" "feature" {
   provider = google-beta
-  name     = "terraform"
+  name     = "terraform2"
   labels = {
     foo = "bar"
   }
