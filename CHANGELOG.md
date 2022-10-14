@@ -1,6 +1,6 @@
 ## 4.41.0 (Unreleased)
 BREAKING CHANGES:
-* sql: updated `google_sql_user.sql_server_user_details` to be read only. Any configuration attempting to set this field is invalid and will cause the provider to crash during plan time. ([#12742](https://github.com/hashicorp/terraform-provider-google/pull/12742))
+* sql: updated `google_sql_user.sql_server_user_details` to be read only. Any configuration attempting to set this field is invalid and will cause the provider to fail during plan time. ([#12742](https://github.com/hashicorp/terraform-provider-google/pull/12742))
 
 FEATURES:
 * **New Resource:**  `google_cloud_ids_endpoint` ([#12744](https://github.com/hashicorp/terraform-provider-google/pull/12744))
