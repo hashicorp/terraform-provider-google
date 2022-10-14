@@ -22,12 +22,10 @@ description: |-
 
 A collection of DataItems and Annotations on them.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Featurestore, see:
 
-* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featurestores)
+* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
@@ -36,7 +34,6 @@ To get more information about Featurestore, see:
 
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
-  provider = google-beta
   name     = "terraform"
   labels = {
     foo = "bar"

@@ -1,0 +1,5 @@
+```release-note:new-resource
+`google_vertex_ai_featurestore` (ga only)
+`google_vertex_ai_featurestore_entitytype` (ga only)
+`google_vertex_ai_featurestore_entitytype_feature` (ga only)
+```

@@ -22,12 +22,10 @@ description: |-
 
 An entity type is a type of object in a system that needs to be modeled and have stored information about. For example, driver is an entity type, and driver0 is an instance of an entity type driver.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about FeaturestoreEntitytype, see:
 
-* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featurestores.entityTypes)
+* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
@@ -36,7 +34,6 @@ To get more information about FeaturestoreEntitytype, see:
 
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
-  provider = google-beta
   name     = "terraform"
   labels = {
     foo = "bar"
@@ -51,8 +48,35 @@ resource "google_vertex_ai_featurestore" "featurestore" {
 }
 
 resource "google_vertex_ai_featurestore_entitytype" "entity" {
-  provider = google-beta
   name     = "terraform"
+  labels = {
+    foo = "bar"
+  }
+  featurestore = google_vertex_ai_featurestore.featurestore.id
+}
+```
+## Example Usage - Vertex Ai Featurestore Entitytype With Beta Fields
+
+
+```hcl
+resource "google_vertex_ai_featurestore" "featurestore" {
+  provider = google-beta
+  name     = "terraform2"
+  labels = {
+    foo = "bar"
+  }
+  region   = "us-central1"
+  online_serving_config {
+    fixed_node_count = 2
+  }
+  encryption_spec {
+    kms_key_name = "kms-name"
+  }
+}
+
+resource "google_vertex_ai_featurestore_entitytype" "entity" {
+  provider = google-beta
+  name     = "terraform2"
   labels = {
     foo = "bar"
   }
@@ -109,7 +133,7 @@ The following arguments are supported:
   The monitoring schedule for snapshot analysis. For EntityType-level config: unset / disabled = true indicates disabled by default for Features under it; otherwise by default enable snapshot analysis monitoring with monitoringInterval for Features under it.
 
 * `monitoring_interval` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Configuration of the snapshot analysis based monitoring pipeline running interval. The value is rolled up to full day.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
