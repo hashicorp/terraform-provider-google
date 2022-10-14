@@ -1,4 +1,26 @@
 ## 4.41.0 (Unreleased)
+BREAKING CHANGES:
+* sql: updated `google_sql_user.sql_server_user_details` to be read only. Any configuration attempting to set this field is invalid and will cause the provider to crash during plan time. ([#12742](https://github.com/hashicorp/terraform-provider-google/pull/12742))
+
+FEATURES:
+* **New Resource:**  ([#12744](https://github.com/hashicorp/terraform-provider-google/pull/12744))
+* **New Resource:** `google_bigquery_analytics_hub_listing_iam_binding` (beta) ([#12754](https://github.com/hashicorp/terraform-provider-google/pull/12754))
+* **New Resource:** `google_bigquery_analytics_hub_listing_iam_member` (beta) ([#12754](https://github.com/hashicorp/terraform-provider-google/pull/12754))
+* **New Resource:** `google_bigquery_analytics_hub_listing_iam_policy` (beta) ([#12754](https://github.com/hashicorp/terraform-provider-google/pull/12754))
+* **New Resource:** `google_bigquery_analytics_hub_listing` (beta) ([#12754](https://github.com/hashicorp/terraform-provider-google/pull/12754))
+
+IMPROVEMENTS:
+* appengine: added support for `service_account` field to `google_app_engine_standard_app_version` resource ([#12732](https://github.com/hashicorp/terraform-provider-google/pull/12732))
+* bigquery: added `avro_options` field to `google_bigquery_table` resource ([#12750](https://github.com/hashicorp/terraform-provider-google/pull/12750))
+* cloudrun: added field `startup_probe` to resource `google_cloud_run_service` (beta) ([#12756](https://github.com/hashicorp/terraform-provider-google/pull/12756))
+* compute: added `node_config.0.guest_accelerator.0.gpu_sharing_config` field to `google_container_node_pool` resource ([#12733](https://github.com/hashicorp/terraform-provider-google/pull/12733))
+* datafusion: added `crypto_key_config` field to `google_data_fusion_instance` resource ([#12737](https://github.com/hashicorp/terraform-provider-google/pull/12737))
+* filestore: removed constraint that forced multiple `google_filestore_instance` creations to occur serially ([#12753](https://github.com/hashicorp/terraform-provider-google/pull/12753))
+
+BUG FIXES:
+* kms: fixed apply failure when `google_kms_crypto_key` is removed after its versions were destroyed earlier ([#12752](https://github.com/hashicorp/terraform-provider-google/pull/12752))
+* monitoring: fixed a bug causing a perma-diff in `google_monitoring_alert_policy` when `cross_series_reducer` was set to "REDUCE_NONE" ([#12741](https://github.com/hashicorp/terraform-provider-google/pull/12741))
+
 
 ## 4.40.0 (October 10, 2022)
 
