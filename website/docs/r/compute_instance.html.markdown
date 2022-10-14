@@ -121,7 +121,8 @@ The following arguments are supported:
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance. Ssh keys attached in the Cloud Console will be removed.
-    Add them to your config in order to keep them attached to your instance.
+    Add them to your config in order to keep them attached to your instance. A
+    list of default metadata values (e.g. ssh-keys) can be found [here](https://cloud.google.com/compute/docs/metadata/default-metadata-values)
 
 -> Depending on the OS you choose for your instance, some metadata keys have
    special functionality.  Most linux-based images will run the content of
