@@ -1,0 +1,3 @@
+```release-note:new-resource
+google_monitoring_generic_service
+```
