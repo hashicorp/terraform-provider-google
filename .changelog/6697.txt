@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: Ensured topics are recreated when their schemas change.
+```
