@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Made `vm_count` in `google_compute_resource_policy` optional
+```

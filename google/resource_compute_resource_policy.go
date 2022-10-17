@@ -71,7 +71,6 @@ which cannot be a dash.`,
 							ForceNew: true,
 							Description: `The number of availability domains instances will be spread across. If two instances are in different
 availability domain, they will not be put in the same low latency network`,
-							AtLeastOneOf: []string{"group_placement_policy.0.vm_count", "group_placement_policy.0.availability_domain_count"},
 						},
 						"collocation": {
 							Type:         schema.TypeString,
@@ -90,7 +89,6 @@ attached. Possible values: ["COLLOCATED"]`,
 							Description: `Number of VMs in this placement group. Google does not recommend that you use this field
 unless you use a compact policy and you want your policy to work only if it contains this
 exact number of VMs.`,
-							AtLeastOneOf: []string{"group_placement_policy.0.vm_count", "group_placement_policy.0.availability_domain_count"},
 						},
 					},
 				},
