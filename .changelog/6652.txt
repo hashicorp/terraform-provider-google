@@ -1,0 +1,3 @@
+```release-note:enhancement
+firebase: added deletion support and new field `deletion_policy` for `google_firebase_web_app`
+```
