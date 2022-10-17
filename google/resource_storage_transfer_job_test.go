@@ -504,6 +504,17 @@ resource "google_storage_transfer_job" "transfer_job" {
     payload_format = "JSON"
   }
 
+  logging_config {
+    log_actions      = [
+      "COPY",
+      "DELETE"
+    ]
+    log_action_states = [
+      "SUCCEEDED",
+      "FAILED"
+    ]
+  }
+
   depends_on = [
     google_storage_bucket_iam_member.data_source,
     google_storage_bucket_iam_member.data_sink,
@@ -636,6 +647,10 @@ resource "google_storage_transfer_job" "transfer_job" {
       seconds = 0
       nanos   = 0
     }
+  }
+
+  logging_config {
+    enable_on_prem_gcs_transfer_logs = true
   }
 
   depends_on = [

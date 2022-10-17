@@ -172,6 +172,42 @@ func resourceStorageTransferJob() *schema.Resource {
 				},
 				Description: `Notification configuration.`,
 			},
+			"logging_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_actions": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							ConflictsWith: []string{"logging_config.enable_on_prem_gcs_transfer_logs"},
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice([]string{"FIND", "DELETE", "COPY"}, false),
+							},
+							Description: `Specifies the actions to be logged. Not supported for transfers with PosifxFilesystem data sources; use enable_on_prem_gcs_transfer_logs instead.`,
+						},
+						"log_action_states": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							ConflictsWith: []string{"logging_config.enable_on_prem_gcs_transfer_logs"},
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice([]string{"SUCCEEDED", "FAILED"}, false),
+							},
+							Description: `States in which logActions are logged. Not supported for transfers with PosifxFilesystem data sources; use enable_on_prem_gcs_transfer_logs instead.`,
+						},
+						"enable_on_prem_gcs_transfer_logs": {
+							Type:          schema.TypeBool,
+							Optional:      true,
+							ConflictsWith: []string{"logging_config.log_actions,logging_config.log_action_states"},
+							Description:   `For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer.`,
+						},
+					},
+				},
+				Description: `Logging configuration.`,
+			},
 			"schedule": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -538,6 +574,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		Schedule:           expandTransferSchedules(d.Get("schedule").([]interface{})),
 		TransferSpec:       expandTransferSpecs(d.Get("transfer_spec").([]interface{})),
 		NotificationConfig: expandTransferJobNotificationConfig(d.Get("notification_config").([]interface{})),
+		LoggingConfig:      expandTransferJobLoggingConfig(d.Get("logging_config").([]interface{})),
 	}
 
 	var res *storagetransfer.TransferJob
@@ -619,6 +656,11 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	err = d.Set("logging_config", flattenTransferJobLoggingConfig(res.LoggingConfig))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -671,6 +713,15 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 			transferJob.NotificationConfig = expandTransferJobNotificationConfig(v.([]interface{}))
 		} else {
 			transferJob.NotificationConfig = nil
+		}
+	}
+
+	if d.HasChange("logging_config") {
+		fieldMask = append(fieldMask, "logging_config")
+		if v, ok := d.GetOk("logging_config"); ok {
+			transferJob.LoggingConfig = expandTransferJobLoggingConfig(v.([]interface{}))
+		} else {
+			transferJob.LoggingConfig = nil
 		}
 	}
 
@@ -1149,6 +1200,36 @@ func flattenTransferJobNotificationConfig(notificationConfig *storagetransfer.No
 
 	if notificationConfig.EventTypes != nil {
 		data["event_types"] = convertStringArrToInterface(notificationConfig.EventTypes)
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandTransferJobLoggingConfig(loggingConfigs []interface{}) *storagetransfer.LoggingConfig {
+	if len(loggingConfigs) == 0 || loggingConfigs[0] == nil {
+		return nil
+	}
+
+	loggingConfig := loggingConfigs[0].(map[string]interface{})
+	var apiData = &storagetransfer.LoggingConfig{
+		LogActions:                  loggingConfig["log_actions"].([]string),
+		LogActionStates:             loggingConfig["log_action_states"].([]string),
+		EnableOnpremGcsTransferLogs: loggingConfig["enable_on_prem_gcs_transfer_logs"].(bool),
+	}
+
+	log.Printf("[DEBUG] apiData: %v\n\n", apiData)
+	return apiData
+}
+
+func flattenTransferJobLoggingConfig(loggingConfig *storagetransfer.LoggingConfig) []map[string]interface{} {
+	if loggingConfig == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"log_actions":                      loggingConfig.LogActions,
+		"log_action_states":                loggingConfig.LogActionStates,
+		"enable_on_prem_gcs_transfer_logs": loggingConfig.EnableOnpremGcsTransferLogs,
 	}
 
 	return []map[string]interface{}{data}
