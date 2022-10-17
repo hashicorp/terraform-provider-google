@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added general field `rules` to `google_compute_router_nat`
+```
