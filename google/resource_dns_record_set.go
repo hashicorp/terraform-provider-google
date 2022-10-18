@@ -336,14 +336,13 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 
 	zone := d.Get("managed_zone").(string)
 
-	// NS records must always have a value, so we short-circuit delete
-	// this allows terraform delete to work, but may have unexpected
-	// side-effects when deleting just that record set.
-	// Unfortunately, you can set NS records on subdomains, and those
-	// CAN and MUST be deleted, so we need to retrieve the managed zone,
-	// check if what we're looking at is a subdomain, and only not delete
-	// if it's not actually a subdomain
-	if d.Get("type").(string) == "NS" {
+	// root-level NS and SOA records must always have some value, so we
+	// short-ciruit deletes of these. This allows terraform delete to
+	// work when managing such records.
+	// NS records on subdomains are not root-level constructs. They
+	// CAN and MUST be deleted. We check if the NS record set is on a
+	// subdomain and only really delete when it is.
+	if d.Get("type").(string) == "NS" || d.Get("type").(string) == "SOA" {
 		mz, err := config.NewDnsClient(userAgent).ManagedZones.Get(project, zone).Do()
 		if err != nil {
 			return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
@@ -351,7 +350,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 		domain := mz.DnsName
 
 		if domain == d.Get("name").(string) {
-			log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
+			log.Printf("[DEBUG] root-level %s records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.", d.Get("type").(string))
 			return nil
 		}
 	}
