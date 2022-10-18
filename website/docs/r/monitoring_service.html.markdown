@@ -91,6 +91,8 @@ The following arguments are supported:
 * `basic_service` -
   (Optional)
   A well-known service type, defined by its service type and service labels.
+  Valid values are described at
+  https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/api/api-structures#basic-svc-w-basic-sli
   Structure is [documented below](#nested_basic_service).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
