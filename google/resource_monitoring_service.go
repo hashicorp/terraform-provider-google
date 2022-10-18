@@ -50,11 +50,13 @@ func resourceMonitoringGenericService() *schema.Resource {
 service ID.`,
 			},
 			"basic_service": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `A well-known service type, defined by its service type and service labels.`,
-				MaxItems:    1,
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `A well-known service type, defined by its service type and service labels.
+Valid values are described at
+https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/api/api-structures#basic-svc-w-basic-sli`,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_labels": {
