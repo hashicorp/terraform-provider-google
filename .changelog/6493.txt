@@ -1,0 +1,3 @@
+```release-note:enhancement
+Enable IAM resources for Security Command Center sources
+```
