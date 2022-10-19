@@ -1,0 +1,141 @@
+on:
+  workflow_call:
+    inputs:
+      goreleaser-release-args:
+        description: 'goreleaser release Arguments (e.g. --skip-validate)'
+        required: false
+        type: string
+      gpg-public-key-id:
+        description: 'GPG Public Key Identifier for Signature Filename'
+        default: '72D7468F'
+        required: false
+        type: string
+      release-notes:
+        description: 'Enable release notes handling (must have previously uploaded artifact named "release-notes" with file "release-notes.txt")'
+        required: false
+        type: boolean
+      hc-releases-aws-role-duration-seconds:
+        description: 'AWS IAM Role session duration, in seconds, for hc-releases'
+        default: 3600
+        required: false
+        type: number
+      setup-go-version:
+        description: 'setup-go Go Version'
+        required: true
+        type: string
+      signore-signer:
+        description: 'signore Signer'
+        default: 'signing_subkey_CD27AB87'
+        required: false
+        type: string
+      product-version:
+        description: 'Product Version (e.g. v1.2.3 or github.ref_name)'
+        required: true
+        type: string
+
+    secrets:
+      hc-releases-github-token:
+        description: 'GitHub Personal Access Token to Access hc-releases (HASHI_RELEASES_GITHUB_TOKEN)'
+        required: true
+      hc-releases-terraform-registry-sync-token:
+        description: 'Terraform Registry Sync Token for hc-releases (TF_PROVIDER_RELEASE_TERRAFORM_REGISTRY_SYNC_TOKEN)'
+        required: true
+      setup-signore-github-token:
+        description: 'GitHub Personal Access Token to Access setup-signore (HASHI_SIGNORE_GITHUB_TOKEN)'
+        required: true
+      # See also: TF-279 Repository Owned HashiCorp Provider Releases
+      signore-client-id:
+        description: 'signore Client Identifier (SIGNORE_CLIENT_ID)'
+        required: true
+      signore-client-secret:
+        description: 'signore Client Secret (SIGNORE_CLIENT_SECRET)'
+        required: true
+      hc-releases-key-staging:
+        description: 'Key for hc-releases staging (HC_RELEASES_KEY_STAGING)'
+        required: true
+      hc-releases-key-prod:
+        description: 'Key for hc-releases prod (HC_RELEASES_KEY_PROD)'
+        required: true
+      hc-releases-host-prod:
+        description: 'Host for hc-releases prod (HC_RELEASES_HOST_PROD)'
+        required: true
+      hc-releases-host-staging:
+        description: 'Host for hc-releases staging (HC_RELEASES_HOST_STAGING)'
+        required: true
+
+
+jobs:
+  Release:
+    # Reach out in #team-rel-eng to get your repositories allow-listed to use custom runners
+    # Custom runners range in size from 4 core to 64 core and sizes `small` through `xl` are supported
+    runs-on: [custom, linux, large]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Allow tag to be fetched when ref is a commit
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ inputs.setup-go-version }}
+      # See also: ENGSRV-063: setup-hc-releases GitHub Action
+      -
+        name: Setup hc-releases
+        uses: hashicorp/setup-hc-releases@v2
+        with:
+          github-token: ${{ secrets.hc-releases-github-token }}
+      # See also: ENGSRV-065: setup-signore GitHub Action
+      - uses: hashicorp/setup-signore@v2
+        with:
+          github-token: ${{ secrets.setup-signore-github-token }}
+      - if: inputs.release-notes != true
+        name: goreleaser release (without release notes)
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          args: release --rm-dist ${{ inputs.goreleaser-release-args }}
+        env:
+          HC_RELEASES_HOST: ${{ secrets.hc-releases-host-staging }}
+          HC_RELEASES_KEY: ${{ secrets.hc-releases-key-staging }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_PUBLIC_KEY_ID: ${{ inputs.gpg-public-key-id }}
+          SIGNORE_CLIENT_ID: ${{ secrets.signore-client-id }}
+          SIGNORE_CLIENT_SECRET: ${{ secrets.signore-client-secret }}
+          SIGNORE_SIGNER: ${{ inputs.signore-signer }}
+      - if: inputs.release-notes
+        id: release-notes-download
+        name: Release Notes Download
+        uses: actions/download-artifact@v3
+        with:
+          name: release-notes
+          path: /tmp
+      - if: inputs.release-notes
+        name: goreleaser release (with release notes)
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          args: release --release-notes ${{ steps.release-notes-download.outputs.download-path }}/release-notes.txt --rm-dist ${{ inputs.goreleaser-release-args }}
+        env:
+          HC_RELEASES_HOST: ${{ secrets.hc-releases-host-staging }}
+          HC_RELEASES_KEY: ${{ secrets.hc-releases-key-staging }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_PUBLIC_KEY_ID: ${{ inputs.gpg-public-key-id }}
+          SIGNORE_CLIENT_ID: ${{ secrets.signore-client-id }}
+          SIGNORE_CLIENT_SECRET: ${{ secrets.signore-client-secret }}
+          SIGNORE_SIGNER: ${{ inputs.signore-signer }}
+      -
+        name: Create Release metadata
+        uses: hashicorp/actions-hc-releases-create-metadata@v1
+        with:
+          private-tools-token: ${{ secrets.hc-releases-github-token }}
+          product-name: ${{ github.event.repository.name }}
+          version: ${{ inputs.product-version }}
+          hc-releases-host: ${{ secrets.hc-releases-host-staging }}
+          hc-releases-key: ${{ secrets.hc-releases-key-staging }}
+      -
+        name: Promote
+        uses: hashicorp/actions-hc-releases-promote@v1
+        with:
+          product-name: ${{ github.event.repository.name }}
+          version: ${{ inputs.product-version }}
+          hc-releases-host: ${{ secrets.hc-releases-host-prod }}
+          hc-releases-key: ${{ secrets.hc-releases-key-prod }}
+          hc-releases-source_env_key: ${{ secrets.hc-releases-key-staging }}
+          hc-releases-terraform-registry-sync-token: ${{ secrets.hc-releases-terraform-registry-sync-token }}
