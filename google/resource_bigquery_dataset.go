@@ -179,6 +179,11 @@ The default value is multi-regional location 'US'.
 Changing this forces a new resource to be created.`,
 				Default: "US",
 			},
+			"max_time_travel_hours": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Defines the time travel window in hours. The value can be from 48 to 168 hours (2 to 7 days).`,
+			},
 			"creation_time": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -344,6 +349,12 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := make(map[string]interface{})
+	maxTimeTravelHoursProp, err := expandBigQueryDatasetMaxTimeTravelHours(d.Get("max_time_travel_hours"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("max_time_travel_hours"); !isEmptyValue(reflect.ValueOf(maxTimeTravelHoursProp)) && (ok || !reflect.DeepEqual(v, maxTimeTravelHoursProp)) {
+		obj["maxTimeTravelHours"] = maxTimeTravelHoursProp
+	}
 	accessProp, err := expandBigQueryDatasetAccess(d.Get("access"), d, config)
 	if err != nil {
 		return err
@@ -475,6 +486,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 
+	if err := d.Set("max_time_travel_hours", flattenBigQueryDatasetMaxTimeTravelHours(res["maxTimeTravelHours"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
 	if err := d.Set("access", flattenBigQueryDatasetAccess(res["access"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
@@ -546,6 +560,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	maxTimeTravelHoursProp, err := expandBigQueryDatasetMaxTimeTravelHours(d.Get("max_time_travel_hours"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("max_time_travel_hours"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maxTimeTravelHoursProp)) {
+		obj["maxTimeTravelHours"] = maxTimeTravelHoursProp
+	}
 	accessProp, err := expandBigQueryDatasetAccess(d.Get("access"), d, config)
 	if err != nil {
 		return err
@@ -684,6 +704,10 @@ func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenBigQueryDatasetMaxTimeTravelHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -927,6 +951,10 @@ func flattenBigQueryDatasetDefaultEncryptionConfiguration(v interface{}, d *sche
 }
 func flattenBigQueryDatasetDefaultEncryptionConfigurationKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func expandBigQueryDatasetMaxTimeTravelHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandBigQueryDatasetAccess(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

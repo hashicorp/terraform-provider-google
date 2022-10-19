@@ -177,6 +177,10 @@ The following arguments are supported:
 - - -
 
 
+* `max_time_travel_hours` -
+  (Optional)
+  Defines the time travel window in hours. The value can be from 48 to 168 hours (2 to 7 days).
+
 * `access` -
   (Optional)
   An array of objects that define dataset access for one or more entities.
