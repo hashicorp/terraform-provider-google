@@ -202,6 +202,12 @@ The elements are of the form "KEY=VALUE" for the environment variable
 										Description: `Unique identifier for this build step, used in 'wait_for' to
 reference this build step as a dependency.`,
 									},
+									"script": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A shell script to be executed in the step. 
+When script is provided, the user cannot specify the entrypoint or args.`,
+									},
 									"secret_env": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -2172,6 +2178,7 @@ func flattenCloudBuildTriggerBuildStep(v interface{}, d *schema.ResourceData, co
 			"timing":     flattenCloudBuildTriggerBuildStepTiming(original["timing"], d, config),
 			"volumes":    flattenCloudBuildTriggerBuildStepVolumes(original["volumes"], d, config),
 			"wait_for":   flattenCloudBuildTriggerBuildStepWaitFor(original["waitFor"], d, config),
+			"script":     flattenCloudBuildTriggerBuildStepScript(original["script"], d, config),
 		})
 	}
 	return transformed
@@ -2240,6 +2247,10 @@ func flattenCloudBuildTriggerBuildStepVolumesPath(v interface{}, d *schema.Resou
 }
 
 func flattenCloudBuildTriggerBuildStepWaitFor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepScript(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -3413,6 +3424,13 @@ func expandCloudBuildTriggerBuildStep(v interface{}, d TerraformResourceData, co
 			transformed["waitFor"] = transformedWaitFor
 		}
 
+		transformedScript, err := expandCloudBuildTriggerBuildStepScript(original["script"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScript); val.IsValid() && !isEmptyValue(val) {
+			transformed["script"] = transformedScript
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3492,6 +3510,10 @@ func expandCloudBuildTriggerBuildStepVolumesPath(v interface{}, d TerraformResou
 }
 
 func expandCloudBuildTriggerBuildStepWaitFor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepScript(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

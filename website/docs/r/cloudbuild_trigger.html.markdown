@@ -81,6 +81,11 @@ resource "google_cloudbuild_trigger" "build-trigger" {
       secret_env = ["MY_SECRET"]
     }
 
+    step {
+      name   = "ubuntu"
+      script = "echo hello" # using script field
+    }
+    
     source {
       storage_source {
         bucket = "mybucket"
@@ -907,6 +912,11 @@ The following arguments are supported:
   have completed successfully. If `wait_for` is empty, this build step
   will start when all previous build steps in the `Build.Steps` list
   have completed successfully.
+
+* `script` -
+  (Optional)
+  A shell script to be executed in the step. 
+  When script is provided, the user cannot specify the entrypoint or args.
 
 
 <a name="nested_volumes"></a>The `volumes` block supports:
