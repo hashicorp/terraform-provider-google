@@ -796,6 +796,7 @@ func Provider() *schema.Provider {
 			"google_composer_environment":                         dataSourceGoogleComposerEnvironment(),
 			"google_composer_image_versions":                      dataSourceGoogleComposerImageVersions(),
 			"google_compute_address":                              dataSourceGoogleComputeAddress(),
+			"google_compute_addresses":                            dataSourceGoogleComputeAddresses(),
 			"google_compute_backend_service":                      dataSourceGoogleComputeBackendService(),
 			"google_compute_backend_bucket":                       dataSourceGoogleComputeBackendBucket(),
 			"google_compute_default_service_account":              dataSourceGoogleComputeDefaultServiceAccount(),
