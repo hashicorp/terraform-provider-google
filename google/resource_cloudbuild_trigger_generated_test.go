@@ -111,6 +111,11 @@ resource "google_cloudbuild_trigger" "build-trigger" {
       secret_env = ["MY_SECRET"]
     }
 
+    step {
+      name   = "ubuntu"
+      script = "echo hello" # using script field
+    }
+    
     source {
       storage_source {
         bucket = "mybucket"
