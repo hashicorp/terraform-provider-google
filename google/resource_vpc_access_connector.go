@@ -53,6 +53,20 @@ func resourceVPCAccessConnector() *schema.Resource {
 				Description:  `The range of internal addresses that follows RFC 4632 notation. Example: '10.132.0.0/28'.`,
 				RequiredWith: []string{"network"},
 			},
+			"machine_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Machine type of VM Instance underlying connector. Default is e2-micro`,
+				Default:     "e2-micro",
+			},
+			"max_instances": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Maximum value of instances in autoscaling group underlying the connector.`,
+			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -60,6 +74,13 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ValidateFunc: validation.IntBetween(200, 1000),
 				Description:  `Maximum throughput of the connector in Mbps, must be greater than 'min_throughput'. Default is 300.`,
 				Default:      300,
+			},
+			"min_instances": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Minimum value of instances in autoscaling group underlying the connector.`,
 			},
 			"min_throughput": {
 				Type:         schema.TypeInt,
@@ -76,7 +97,7 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareResourceNames,
 				Description:      `Name or self_link of the VPC network. Required if 'ip_cidr_range' is set.`,
-				ExactlyOneOf:     []string{"network"},
+				ExactlyOneOf:     []string{"network", "subnet.0.name"},
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -84,6 +105,32 @@ func resourceVPCAccessConnector() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Region where the VPC Access connector resides. If it is not provided, the provider region is used.`,
+			},
+			"subnet": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The subnet in which to house the connector`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Subnet name (relative, not fully qualified). E.g. if the full subnet selfLink is
+https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/subnetworks/{subnetName} the correct input for this field would be {subnetName}"`,
+							ExactlyOneOf: []string{"network", "subnet.0.name"},
+						},
+						"project_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Project in which the subnet exists. If not set, this project is assumed to be the project for which the connector create request was issued.`,
+						},
+					},
+				},
 			},
 			"self_link": {
 				Type:        schema.TypeString,
@@ -132,17 +179,41 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("ip_cidr_range"); !isEmptyValue(reflect.ValueOf(ipCidrRangeProp)) && (ok || !reflect.DeepEqual(v, ipCidrRangeProp)) {
 		obj["ipCidrRange"] = ipCidrRangeProp
 	}
+	machineTypeProp, err := expandVPCAccessConnectorMachineType(d.Get("machine_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("machine_type"); !isEmptyValue(reflect.ValueOf(machineTypeProp)) && (ok || !reflect.DeepEqual(v, machineTypeProp)) {
+		obj["machineType"] = machineTypeProp
+	}
 	minThroughputProp, err := expandVPCAccessConnectorMinThroughput(d.Get("min_throughput"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("min_throughput"); !isEmptyValue(reflect.ValueOf(minThroughputProp)) && (ok || !reflect.DeepEqual(v, minThroughputProp)) {
 		obj["minThroughput"] = minThroughputProp
 	}
+	minInstancesProp, err := expandVPCAccessConnectorMinInstances(d.Get("min_instances"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("min_instances"); !isEmptyValue(reflect.ValueOf(minInstancesProp)) && (ok || !reflect.DeepEqual(v, minInstancesProp)) {
+		obj["minInstances"] = minInstancesProp
+	}
+	maxInstancesProp, err := expandVPCAccessConnectorMaxInstances(d.Get("max_instances"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("max_instances"); !isEmptyValue(reflect.ValueOf(maxInstancesProp)) && (ok || !reflect.DeepEqual(v, maxInstancesProp)) {
+		obj["maxInstances"] = maxInstancesProp
+	}
 	maxThroughputProp, err := expandVPCAccessConnectorMaxThroughput(d.Get("max_throughput"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("max_throughput"); !isEmptyValue(reflect.ValueOf(maxThroughputProp)) && (ok || !reflect.DeepEqual(v, maxThroughputProp)) {
 		obj["maxThroughput"] = maxThroughputProp
+	}
+	subnetProp, err := expandVPCAccessConnectorSubnet(d.Get("subnet"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("subnet"); !isEmptyValue(reflect.ValueOf(subnetProp)) && (ok || !reflect.DeepEqual(v, subnetProp)) {
+		obj["subnet"] = subnetProp
 	}
 
 	obj, err = resourceVPCAccessConnectorEncoder(d, meta, obj)
@@ -281,10 +352,22 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("state", flattenVPCAccessConnectorState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connector: %s", err)
 	}
+	if err := d.Set("machine_type", flattenVPCAccessConnectorMachineType(res["machineType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
 	if err := d.Set("min_throughput", flattenVPCAccessConnectorMinThroughput(res["minThroughput"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connector: %s", err)
 	}
+	if err := d.Set("min_instances", flattenVPCAccessConnectorMinInstances(res["minInstances"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err := d.Set("max_instances", flattenVPCAccessConnectorMaxInstances(res["maxInstances"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
 	if err := d.Set("max_throughput", flattenVPCAccessConnectorMaxThroughput(res["maxThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
+	if err := d.Set("subnet", flattenVPCAccessConnectorSubnet(res["subnet"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connector: %s", err)
 	}
 
@@ -379,7 +462,45 @@ func flattenVPCAccessConnectorState(v interface{}, d *schema.ResourceData, confi
 	return v
 }
 
+func flattenVPCAccessConnectorMachineType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVPCAccessConnectorMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVPCAccessConnectorMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := stringToFixed64(strVal); err == nil {
@@ -413,6 +534,29 @@ func flattenVPCAccessConnectorMaxThroughput(v interface{}, d *schema.ResourceDat
 	return v // let terraform core handle it otherwise
 }
 
+func flattenVPCAccessConnectorSubnet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenVPCAccessConnectorSubnetName(original["name"], d, config)
+	transformed["project_id"] =
+		flattenVPCAccessConnectorSubnetProjectId(original["projectId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVPCAccessConnectorSubnetName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenVPCAccessConnectorSubnetProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -425,11 +569,57 @@ func expandVPCAccessConnectorIpCidrRange(v interface{}, d TerraformResourceData,
 	return v, nil
 }
 
+func expandVPCAccessConnectorMachineType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVPCAccessConnectorMinThroughput(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
+func expandVPCAccessConnectorMinInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVPCAccessConnectorMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVPCAccessConnectorMaxThroughput(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVPCAccessConnectorSubnet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandVPCAccessConnectorSubnetName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedProjectId, err := expandVPCAccessConnectorSubnetProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	return transformed, nil
+}
+
+func expandVPCAccessConnectorSubnetName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVPCAccessConnectorSubnetProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

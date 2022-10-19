@@ -1,0 +1,3 @@
+```release-note:enhancement
+vpcaccess - promoted `machine_type`, `min_instances`, `max_instances`, and `subnet` in `google_vpc_access_connector` to GA
+```
