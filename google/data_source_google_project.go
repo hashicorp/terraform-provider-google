@@ -12,6 +12,7 @@ func dataSourceGoogleProject() *schema.Resource {
 
 	addOptionalFieldsToSchema(dsSchema, "project_id")
 
+	dsSchema["project_id"].ValidateFunc = validateDSProjectID()
 	return &schema.Resource{
 		Read:   datasourceGoogleProjectRead,
 		Schema: dsSchema,

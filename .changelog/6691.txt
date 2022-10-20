@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudplatform: Validated `project_id` for `google_project` data-source
+```
