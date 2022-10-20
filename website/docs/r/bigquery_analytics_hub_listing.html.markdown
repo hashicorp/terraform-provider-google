@@ -22,12 +22,10 @@ description: |-
 
 A Bigquery Analytics Hub data exchange listing
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Listing, see:
 
-* [API documentation](https://cloud.google.com/bigquery/docs/reference/analytics-hub/rest/v1beta1/projects.locations.dataExchanges.listings)
+* [API documentation](https://cloud.google.com/bigquery/docs/reference/analytics-hub/rest/v1/projects.locations.dataExchanges.listings)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/bigquery/docs/analytics-hub-introduction)
 
@@ -41,7 +39,6 @@ To get more information about Listing, see:
 
 ```hcl
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
-  provider = google-beta
   location         = "US"
   data_exchange_id = "my_data_exchange"
   display_name     = "my_data_exchange"
@@ -49,7 +46,6 @@ resource "google_bigquery_analytics_hub_data_exchange" "listing" {
 }
 
 resource "google_bigquery_analytics_hub_listing" "listing" {
-  provider = google-beta
   location         = "US"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
   listing_id       = "my_listing"
@@ -62,7 +58,6 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 
 resource "google_bigquery_dataset" "listing" {
-  provider = google-beta
   dataset_id                  = "my_listing"
   friendly_name               = "my_listing"
   description                 = "example data exchange"

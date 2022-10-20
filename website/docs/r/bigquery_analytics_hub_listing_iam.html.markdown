@@ -30,15 +30,12 @@ Three different resources help you manage your IAM policy for Bigquery Analytics
 ~> **Note:** `google_bigquery_analytics_hub_listing_iam_binding` resources **can be** used in conjunction with `google_bigquery_analytics_hub_listing_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## google\_bigquery\_analytics\_hub\_listing\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -48,7 +45,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_bigquery_analytics_hub_listing_iam_policy" "policy" {
-  provider = google-beta
   project = google_bigquery_analytics_hub_listing.listing.project
   location = google_bigquery_analytics_hub_listing.listing.location
   data_exchange_id = google_bigquery_analytics_hub_listing.listing.data_exchange_id
@@ -61,7 +57,6 @@ resource "google_bigquery_analytics_hub_listing_iam_policy" "policy" {
 
 ```hcl
 resource "google_bigquery_analytics_hub_listing_iam_binding" "binding" {
-  provider = google-beta
   project = google_bigquery_analytics_hub_listing.listing.project
   location = google_bigquery_analytics_hub_listing.listing.location
   data_exchange_id = google_bigquery_analytics_hub_listing.listing.data_exchange_id
@@ -77,7 +72,6 @@ resource "google_bigquery_analytics_hub_listing_iam_binding" "binding" {
 
 ```hcl
 resource "google_bigquery_analytics_hub_listing_iam_member" "member" {
-  provider = google-beta
   project = google_bigquery_analytics_hub_listing.listing.project
   location = google_bigquery_analytics_hub_listing.listing.location
   data_exchange_id = google_bigquery_analytics_hub_listing.listing.data_exchange_id

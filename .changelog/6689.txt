@@ -1,0 +1,12 @@
+```release-note:new-resource
+google_bigquery_analytics_hub_listing GA only
+```
+```release-note:new-resource
+google_bigquery_analytics_hub_listing_iam_* GA only
+```
+```release-note:new-resource
+google_bigquery_analytics_hub_data_exchange GA only
+```
+```release-note:new-resource
+google_bigquery_analytics_hub_data_exchange_iam_* GA only
+```
