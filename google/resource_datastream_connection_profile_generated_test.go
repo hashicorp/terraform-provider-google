@@ -63,7 +63,7 @@ resource "google_datastream_connection_profile" "default" {
 `, context)
 }
 
-func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExample(t *testing.T) {
+func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -76,7 +76,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExamp
 		CheckDestroy: testAccCheckDatastreamConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExample(context),
+				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(context),
 			},
 			{
 				ResourceName:            "google_datastream_connection_profile.default",
@@ -88,14 +88,37 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExamp
 	})
 }
 
-func testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryExample(context map[string]interface{}) string {
+func testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_datastream_private_connection" "private_connection" {
+	display_name          = "Connection profile"
+	location              = "us-central1"
+	private_connection_id = "tf-test-my-connection%{random_suffix}"
+
+	labels = {
+		key = "value"
+	}
+
+	vpc_peering_config {
+		vpc = google_compute_network.default.id
+		subnet = "10.0.0.0/29"
+	}
+}
+
+resource "google_compute_network" "default" {
+	name = "tf-test-my-network%{random_suffix}"
+}
+
 resource "google_datastream_connection_profile" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
 	connection_profile_id = "tf-test-my-profile%{random_suffix}"
 
 	bigquery_profile {}
+
+	private_connectivity {
+		private_connection = google_datastream_private_connection.private_connection.id
+	}
 }
 `, context)
 }
