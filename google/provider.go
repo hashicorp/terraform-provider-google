@@ -824,6 +824,7 @@ func Provider() *schema.Provider {
 			"google_compute_network_endpoint_group":               dataSourceGoogleComputeNetworkEndpointGroup(),
 			"google_compute_node_types":                           dataSourceGoogleComputeNodeTypes(),
 			"google_compute_regions":                              dataSourceGoogleComputeRegions(),
+			"google_compute_region_network_endpoint_group":        dataSourceGoogleComputeRegionNetworkEndpointGroup(),
 			"google_compute_region_instance_group":                dataSourceGoogleComputeRegionInstanceGroup(),
 			"google_compute_region_ssl_certificate":               dataSourceGoogleRegionComputeSslCertificate(),
 			"google_compute_resource_policy":                      dataSourceGoogleComputeResourcePolicy(),
