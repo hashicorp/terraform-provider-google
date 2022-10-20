@@ -1,0 +1,3 @@
+```release-note:none
+spanner: updated examples in the doc of `google_spanner_instance_iam_member`
+```
