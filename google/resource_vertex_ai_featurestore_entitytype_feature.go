@@ -222,7 +222,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, m
 }
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData, meta interface{}) error {
-	var project string
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -276,15 +275,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
-	if v, ok := d.GetOk("entitytype"); ok {
-		re := regexp.MustCompile("projects/([a-zA-Z0-9-]*)/(?:locations|regions)/([a-zA-Z0-9-]*)")
-		switch {
-		case re.MatchString(v.(string)):
-			if res := re.FindStringSubmatch(v.(string)); len(res) == 3 && res[1] != "" {
-				project = res[1]
-			}
-		}
-	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
@@ -297,14 +287,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 		return fmt.Errorf("Error updating FeaturestoreEntitytypeFeature %q: %s", d.Id(), err)
 	} else {
 		log.Printf("[DEBUG] Finished updating FeaturestoreEntitytypeFeature %q: %#v", d.Id(), res)
-	}
-
-	err = vertexAIOperationWaitTime(
-		config, res, project, "Updating FeaturestoreEntitytypeFeature", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return err
 	}
 
 	return resourceVertexAIFeaturestoreEntitytypeFeatureRead(d, meta)

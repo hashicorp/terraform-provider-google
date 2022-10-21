@@ -323,14 +323,6 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		log.Printf("[DEBUG] Finished updating Dataset %q: %#v", d.Id(), res)
 	}
 
-	err = vertexAIOperationWaitTime(
-		config, res, project, "Updating Dataset", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return err
-	}
-
 	return resourceVertexAIDatasetRead(d, meta)
 }
 
