@@ -1,0 +1,3 @@
+```release-note:none
+validation: updated error message from `RFC3399` to `RFC3339`
+```
