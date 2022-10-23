@@ -1,0 +1,9 @@
+```release-note:enhancement
+dns: added `primary_backup` to `routing_policy` block of `google_dns_record_set` resource
+```
+```release-note:enhancement
+dns: added `enable_geo_fencing` to `routing_policy` block of `google_dns_record_set` resource
+```
+```release-note:enhancement
+dns: added `health_checked_targets` to `wrr` and `geo` blocks of `google_dns_record_set` resource
+```

@@ -263,6 +263,9 @@ func TestAccDNSRecordSet_uppercaseMX(t *testing.T) {
 func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 	t.Parallel()
 
+	networkName := fmt.Sprintf("tf-test-network-%s", randString(t, 10))
+	backendName := fmt.Sprintf("tf-test-backend-%s", randString(t, 10))
+	forwardingRuleName := fmt.Sprintf("tf-test-forwarding-rule-%s", randString(t, 10))
 	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -270,7 +273,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsRecordSet_routingPolicyWRR(zoneName, "127.0.0.10", 300, 0.1),
+				Config: testAccDnsRecordSet_routingPolicyWRR(networkName, backendName, forwardingRuleName, zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -279,7 +282,16 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsRecordSet_routingPolicyGEO(zoneName, "127.0.0.10", 300, "us-central1"),
+				Config: testAccDnsRecordSet_routingPolicyGEO(networkName, backendName, forwardingRuleName, zoneName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", getTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsRecordSet_routingPolicyPrimaryBackup(networkName, backendName, forwardingRuleName, zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -294,6 +306,9 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 	t.Parallel()
 
+	networkName := fmt.Sprintf("tf-test-network-%s", randString(t, 10))
+	backendName := fmt.Sprintf("tf-test-backend-%s", randString(t, 10))
+	forwardingRuleName := fmt.Sprintf("tf-test-forwarding-rule-%s", randString(t, 10))
 	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -310,7 +325,7 @@ func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsRecordSet_routingPolicyGEO(zoneName, "127.0.0.10", 300, "us-central1"),
+				Config: testAccDnsRecordSet_routingPolicyGEO(networkName, backendName, forwardingRuleName, zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -475,8 +490,27 @@ resource "google_dns_record_set" "foobar" {
 `, name, name, name, ttl)
 }
 
-func testAccDnsRecordSet_routingPolicyWRR(zoneName, addr2 string, ttl int, weight float64) string {
+func testAccDnsRecordSet_routingPolicyWRR(networkName, backendName, forwardingRuleName, zoneName string, ttl int) string {
 	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name = "%s"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name   = "%s"
+  region = "us-central1"
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name   = "%s"
+  region = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.backend.id
+  all_ports             = true
+  network               = google_compute_network.default.name
+}
+
 resource "google_dns_managed_zone" "parent-zone" {
   name        = "%s"
   dns_name    = "%s.hashicorptest.com."
@@ -491,20 +525,56 @@ resource "google_dns_record_set" "foobar" {
 
   routing_policy {
     wrr {
-      weight       = 0.9
-      rrdatas      = ["127.0.0.1"]
+      weight  = 0
+      rrdatas = ["1.2.3.4", "4.3.2.1"]
     }
+
     wrr {
-      weight       = %g
-      rrdatas      = ["%s"]
+      weight  = 0
+      rrdatas = ["2.3.4.5", "5.4.3.2"]
+    }
+
+    wrr {
+      weight = 1.0
+
+      health_checked_targets {
+        internal_load_balancers {
+          load_balancer_type = "regionalL4ilb"
+          ip_address         = google_compute_forwarding_rule.default.ip_address
+          port               = "80"
+          ip_protocol        = "tcp"
+          network_url        = google_compute_network.default.id
+          project            = google_compute_forwarding_rule.default.project
+          region             = google_compute_forwarding_rule.default.region
+        }
+      }
     }
   }
 }
-`, zoneName, zoneName, zoneName, ttl, weight, addr2)
+`, networkName, backendName, forwardingRuleName, zoneName, zoneName, zoneName, ttl)
 }
 
-func testAccDnsRecordSet_routingPolicyGEO(zoneName, addr2 string, ttl int, location string) string {
+func testAccDnsRecordSet_routingPolicyGEO(networkName, backendName, forwardingRuleName, zoneName string, ttl int) string {
 	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name = "%s"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name   = "%s"
+  region = "us-central1"
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name   = "%s"
+  region = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.backend.id
+  all_ports             = true
+  network               = google_compute_network.default.name
+}
+
 resource "google_dns_managed_zone" "parent-zone" {
   name        = "%s"
   dns_name    = "%s.hashicorptest.com."
@@ -518,17 +588,101 @@ resource "google_dns_record_set" "foobar" {
   ttl          = %d
 
   routing_policy {
+    enable_geo_fencing = true
+
+    geo {
+      location = "us-east4"
+      rrdatas  = ["1.2.3.4", "4.3.2.1"]
+    }
+
     geo {
       location = "asia-east1"
-      rrdatas  = ["127.0.0.1"]
+      rrdatas  = ["2.3.4.5", "5.4.3.2"]
     }
+
     geo {
-      location = "%s"
-      rrdatas  = ["%s"]
+      location = "us-central1"
+
+      health_checked_targets {
+        internal_load_balancers {
+          load_balancer_type = "regionalL4ilb"
+          ip_address         = google_compute_forwarding_rule.default.ip_address
+          port               = "80"
+          ip_protocol        = "tcp"
+          network_url        = google_compute_network.default.id
+          project            = google_compute_forwarding_rule.default.project
+          region             = google_compute_forwarding_rule.default.region
+        }
+      }
     }
   }
 }
-`, zoneName, zoneName, zoneName, ttl, location, addr2)
+`, networkName, backendName, forwardingRuleName, zoneName, zoneName, zoneName, ttl)
+}
+
+func testAccDnsRecordSet_routingPolicyPrimaryBackup(networkName, backendName, forwardingRuleName, zoneName string, ttl int) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name = "%s"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name   = "%s"
+  region = "us-central1"
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name   = "%s"
+  region = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.backend.id
+  all_ports             = true
+  network               = google_compute_network.default.name
+}
+
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+
+  routing_policy {
+    primary_backup {
+      trickle_ratio                  = 0.1
+      enable_geo_fencing_for_backups = true
+
+      primary {
+        internal_load_balancers {
+          load_balancer_type = "regionalL4ilb"
+          ip_address         = google_compute_forwarding_rule.default.ip_address
+          port               = "80"
+          ip_protocol        = "tcp"
+          network_url        = google_compute_network.default.id
+          project            = google_compute_forwarding_rule.default.project
+          region             = google_compute_forwarding_rule.default.region
+        }
+      }
+
+      backup_geo {
+        location = "us-west1"
+        rrdatas  = ["1.2.3.4"]
+      }
+
+      backup_geo {
+        location = "asia-east1"
+        rrdatas  = ["5.6.7.8"]
+      }
+    }
+  }
+}
+`, networkName, backendName, forwardingRuleName, zoneName, zoneName, zoneName, ttl)
 }
 
 func testAccDnsRecordSet_interpolated(zoneName string) string {

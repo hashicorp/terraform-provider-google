@@ -9,6 +9,7 @@ import (
 	"net"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/dns/v1"
 )
 
@@ -126,36 +127,70 @@ func resourceDnsRecordSet() *schema.Resource {
 									},
 									"rrdatas": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
+									"health_checked_targets": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The list of targets to be health checked. Note that if DNSSEC is enabled for this zone, only one of `rrdatas` or `health_checked_targets` can be set.",
+										MaxItems:    1,
+										Elem:        healthCheckedTargetSchema,
+									},
 								},
 							},
-							ExactlyOneOf: []string{"routing_policy.0.wrr", "routing_policy.0.geo"},
+							ExactlyOneOf:  []string{"routing_policy.0.wrr", "routing_policy.0.geo", "routing_policy.0.primary_backup"},
+							ConflictsWith: []string{"routing_policy.0.enable_geo_fencing"},
 						},
 						"geo": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Description:  `The configuration for Geo location based routing policy.`,
+							Elem:         geoPolicySchema,
+							ExactlyOneOf: []string{"routing_policy.0.wrr", "routing_policy.0.geo", "routing_policy.0.primary_backup"},
+						},
+						"enable_geo_fencing": {
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Description:   "Specifies whether to enable fencing for geo queries.",
+							ConflictsWith: []string{"routing_policy.0.wrr", "routing_policy.0.primary_backup"},
+						},
+						"primary_backup": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `The configuration for Geo location based routing policy.`,
+							Description: "The configuration for a primary-backup policy with global to regional failover. Queries are responded to with the global primary targets, but if none of the primary targets are healthy, then we fallback to a regional failover policy.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"location": {
-										Type:        schema.TypeString,
+									"primary": {
+										Type:        schema.TypeList,
 										Required:    true,
-										Description: `The location name defined in Google Cloud.`,
+										Description: "The list of global primary targets to be health checked.",
+										MaxItems:    1,
+										Elem:        healthCheckedTargetSchema,
 									},
-									"rrdatas": {
-										Type:     schema.TypeList,
-										Required: true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
+									"backup_geo": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "The backup geo targets, which provide a regional failover policy for the otherwise global primary targets.",
+										Elem:        geoPolicySchema,
+									},
+									"enable_geo_fencing_for_backups": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: "Specifies whether to enable fencing for backup geo queries.",
+									},
+									"trickle_ratio": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: "Specifies the percentage of traffic to send to the backup targets even when the primary targets are healthy.",
 									},
 								},
 							},
-							ExactlyOneOf: []string{"routing_policy.0.wrr", "routing_policy.0.geo"},
+							ExactlyOneOf:  []string{"routing_policy.0.wrr", "routing_policy.0.geo", "routing_policy.0.primary_backup"},
+							ConflictsWith: []string{"routing_policy.0.enable_geo_fencing"},
 						},
 					},
 				},
@@ -186,6 +221,82 @@ func resourceDnsRecordSet() *schema.Resource {
 	}
 }
 
+var geoPolicySchema *schema.Resource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"location": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: `The location name defined in Google Cloud.`,
+		},
+		"rrdatas": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		"health_checked_targets": {
+			Type:        schema.TypeList,
+			Optional:    true,
+			Description: "For A and AAAA types only. The list of targets to be health checked. These can be specified along with `rrdatas` within this item.",
+			MaxItems:    1,
+			Elem:        healthCheckedTargetSchema,
+		},
+	},
+}
+
+var healthCheckedTargetSchema *schema.Resource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"internal_load_balancers": {
+			Type:        schema.TypeList,
+			Required:    true,
+			Description: "The list of internal load balancers to health check.",
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"load_balancer_type": {
+						Type:         schema.TypeString,
+						Required:     true,
+						Description:  `The type of load balancer. This value is case-sensitive. Possible values: ["regionalL4ilb"]`,
+						ValidateFunc: validation.StringInSlice([]string{"regionalL4ilb"}, false),
+					},
+					"ip_address": {
+						Type:        schema.TypeString,
+						Required:    true,
+						Description: "The frontend IP address of the load balancer.",
+					},
+					"port": {
+						Type:        schema.TypeString,
+						Required:    true,
+						Description: "The configured port of the load balancer.",
+					},
+					"ip_protocol": {
+						Type:         schema.TypeString,
+						Required:     true,
+						Description:  `The configured IP protocol of the load balancer. This value is case-sensitive. Possible values: ["tcp", "udp"]`,
+						ValidateFunc: validation.StringInSlice([]string{"tcp", "udp"}, false),
+					},
+					"network_url": {
+						Type:             schema.TypeString,
+						Required:         true,
+						DiffSuppressFunc: compareSelfLinkOrResourceName,
+						Description:      "The fully qualified url of the network in which the load balancer belongs. This should be formatted like `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`.",
+					},
+					"project": {
+						Type:        schema.TypeString,
+						Required:    true,
+						Description: "The ID of the project in which the load balancer belongs.",
+					},
+					"region": {
+						Type:        schema.TypeString,
+						Optional:    true,
+						Description: "The region of the load balancer. Only needed for regional load balancers.",
+					},
+				},
+			},
+		},
+	},
+}
+
 func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -208,10 +319,15 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		Type: rType,
 		Ttl:  int64(d.Get("ttl").(int)),
 	}
-	if rrdatas := rrdata(d); len(rrdatas) > 0 {
+	if rrdatas := expandDnsRecordSetRrdata(d.Get("rrdatas").([]interface{})); len(rrdatas) > 0 {
 		rset.Rrdatas = rrdatas
 	}
-	if rp := routingPolicy(d); rp != nil {
+
+	rp, err := expandDnsRecordSetRoutingPolicy(d.Get("routing_policy").([]interface{}), d, config)
+	if err != nil {
+		return err
+	}
+	if rp != nil {
 		rset.RoutingPolicy = rp
 	}
 	chg := &dns.Change{
@@ -356,6 +472,11 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 		}
 	}
 
+	routingPolicy, err := expandDnsRecordSetRoutingPolicy(d.Get("routing_policy").([]interface{}), d, config)
+	if err != nil {
+		return err
+	}
+
 	// Build the change
 	chg := &dns.Change{
 		Deletions: []*dns.ResourceRecordSet{
@@ -363,8 +484,8 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 				Name:          d.Get("name").(string),
 				Type:          d.Get("type").(string),
 				Ttl:           int64(d.Get("ttl").(int)),
-				Rrdatas:       rrdata(d),
-				RoutingPolicy: routingPolicy(d),
+				Rrdatas:       expandDnsRecordSetRrdata(d.Get("rrdatas").([]interface{})),
+				RoutingPolicy: routingPolicy,
 			},
 		},
 	}
@@ -414,6 +535,16 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 	oldRoutingPolicyRaw, _ := d.GetChange("routing_policy")
 	oldRoutingPolicyList := oldRoutingPolicyRaw.([]interface{})
 
+	oldRoutingPolicy, err := expandDnsRecordSetRoutingPolicy(oldRoutingPolicyList, d, config)
+	if err != nil {
+		return err
+	}
+
+	newRoutingPolicy, err := expandDnsRecordSetRoutingPolicy(d.Get("routing_policy").([]interface{}), d, config)
+	if err != nil {
+		return err
+	}
+
 	chg := &dns.Change{
 		Deletions: []*dns.ResourceRecordSet{
 			{
@@ -421,7 +552,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 				Type:          oldType.(string),
 				Ttl:           int64(oldTtl.(int)),
 				Rrdatas:       make([]string, oldCount),
-				RoutingPolicy: convertRoutingPolicy(oldRoutingPolicyList),
+				RoutingPolicy: oldRoutingPolicy,
 			},
 		},
 		Additions: []*dns.ResourceRecordSet{
@@ -429,8 +560,8 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 				Name:          recordName,
 				Type:          newType.(string),
 				Ttl:           int64(newTtl.(int)),
-				Rrdatas:       rrdata(d),
-				RoutingPolicy: routingPolicy(d),
+				Rrdatas:       expandDnsRecordSetRrdata(d.Get("rrdatas").([]interface{})),
+				RoutingPolicy: newRoutingPolicy,
 			},
 		},
 	}
@@ -481,108 +612,192 @@ func resourceDnsRecordSetImportState(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func rrdata(d *schema.ResourceData) []string {
-	if _, ok := d.GetOk("rrdatas"); !ok {
-		return []string{}
-	}
-	rrdatasCount := d.Get("rrdatas.#").(int)
-	data := make([]string, rrdatasCount)
-	for i := 0; i < rrdatasCount; i++ {
-		data[i] = d.Get(fmt.Sprintf("rrdatas.%d", i)).(string)
-	}
-	return data
+func expandDnsRecordSetRrdata(configured []interface{}) []string {
+	return convertStringArr(configured)
 }
 
-func routingPolicy(d *schema.ResourceData) *dns.RRSetRoutingPolicy {
-	rp, ok := d.GetOk("routing_policy")
-	if !ok {
-		return nil
-	}
-	rps := rp.([]interface{})
-	if len(rps) == 0 {
-		return nil
-	}
-	return convertRoutingPolicy(rps)
-}
-
-// converconvertRoutingPolicy converts []interface{} type value to *dns.RRSetRoutingPolicy one if ps is valid data.
-func convertRoutingPolicy(ps []interface{}) *dns.RRSetRoutingPolicy {
-	if len(ps) != 1 {
-		return nil
-	}
-	p, ok := ps[0].(map[string]interface{})
-	if !ok {
-		return nil
+func expandDnsRecordSetRoutingPolicy(configured []interface{}, d TerraformResourceData, config *Config) (*dns.RRSetRoutingPolicy, error) {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil, nil
 	}
 
-	wrrRawItems, _ := p["wrr"].([]interface{})
-	geoRawItems, _ := p["geo"].([]interface{})
+	data := configured[0].(map[string]interface{})
+	wrrRawItems, _ := data["wrr"].([]interface{})
+	geoRawItems, _ := data["geo"].([]interface{})
+	rawPrimaryBackup, _ := data["primary_backup"].([]interface{})
 
 	if len(wrrRawItems) > 0 {
-		wrrItems := make([]*dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem, len(wrrRawItems))
-		for i, item := range wrrRawItems {
-			wi, _ := item.(map[string]interface{})
-			irrdatas := wi["rrdatas"].([]interface{})
-			if len(irrdatas) == 0 {
-				return nil
-			}
-			rrdatas := make([]string, len(irrdatas))
-			for j, rrdata := range irrdatas {
-				rrdatas[j], ok = rrdata.(string)
-				if !ok {
-					return nil
-				}
-			}
-			weight, ok := wi["weight"].(float64)
-			if !ok {
-				return nil
-			}
-			wrrItems[i] = &dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem{
-				Weight:  weight,
-				Rrdatas: rrdatas,
-			}
+		wrrItems, err := expandDnsRecordSetRoutingPolicyWrrItems(wrrRawItems, d, config)
+		if err != nil {
+			return nil, err
 		}
-
 		return &dns.RRSetRoutingPolicy{
 			Wrr: &dns.RRSetRoutingPolicyWrrPolicy{
 				Items: wrrItems,
 			},
-		}
+		}, nil
 	}
 
 	if len(geoRawItems) > 0 {
-		geoItems := make([]*dns.RRSetRoutingPolicyGeoPolicyGeoPolicyItem, len(geoRawItems))
-		for i, item := range geoRawItems {
-			gi, _ := item.(map[string]interface{})
-			irrdatas := gi["rrdatas"].([]interface{})
-			if len(irrdatas) == 0 {
-				return nil
-			}
-			rrdatas := make([]string, len(irrdatas))
-			for j, rrdata := range irrdatas {
-				rrdatas[j], ok = rrdata.(string)
-				if !ok {
-					return nil
-				}
-			}
-			location, ok := gi["location"].(string)
-			if !ok {
-				return nil
-			}
-			geoItems[i] = &dns.RRSetRoutingPolicyGeoPolicyGeoPolicyItem{
-				Location: location,
-				Rrdatas:  rrdatas,
-			}
+		geoItems, err := expandDnsRecordSetRoutingPolicyGeoItems(geoRawItems, d, config)
+		if err != nil {
+			return nil, err
 		}
-
 		return &dns.RRSetRoutingPolicy{
 			Geo: &dns.RRSetRoutingPolicyGeoPolicy{
-				Items: geoItems,
+				Items:         geoItems,
+				EnableFencing: data["enable_geo_fencing"].(bool),
 			},
-		}
+		}, nil
 	}
 
-	return nil // unreachable here if ps is valid data
+	if len(rawPrimaryBackup) > 0 {
+		primaryBackup, err := expandDnsRecordSetRoutingPolicyPrimaryBackup(rawPrimaryBackup, d, config)
+		if err != nil {
+			return nil, err
+		}
+		return &dns.RRSetRoutingPolicy{
+			PrimaryBackup: primaryBackup,
+		}, nil
+	}
+
+	return nil, nil // unreachable here if ps is valid data
+}
+
+func expandDnsRecordSetRoutingPolicyWrrItems(configured []interface{}, d TerraformResourceData, config *Config) ([]*dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem, error) {
+	items := make([]*dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem, 0, len(configured))
+	for _, raw := range configured {
+		item, err := expandDnsRecordSetRoutingPolicyWrrItem(raw, d, config)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
+func expandDnsRecordSetRoutingPolicyWrrItem(configured interface{}, d TerraformResourceData, config *Config) (*dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem, error) {
+	data := configured.(map[string]interface{})
+	healthCheckedTargets, err := expandDnsRecordSetHealthCheckedTargets(data["health_checked_targets"].([]interface{}), d, config)
+	if err != nil {
+		return nil, err
+	}
+	return &dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem{
+		Rrdatas:              convertStringArr(data["rrdatas"].([]interface{})),
+		Weight:               data["weight"].(float64),
+		HealthCheckedTargets: healthCheckedTargets,
+	}, nil
+}
+
+func expandDnsRecordSetRoutingPolicyGeoItems(configured []interface{}, d TerraformResourceData, config *Config) ([]*dns.RRSetRoutingPolicyGeoPolicyGeoPolicyItem, error) {
+	items := make([]*dns.RRSetRoutingPolicyGeoPolicyGeoPolicyItem, 0, len(configured))
+	for _, raw := range configured {
+		item, err := expandDnsRecordSetRoutingPolicyGeoItem(raw, d, config)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
+func expandDnsRecordSetRoutingPolicyGeoItem(configured interface{}, d TerraformResourceData, config *Config) (*dns.RRSetRoutingPolicyGeoPolicyGeoPolicyItem, error) {
+	data := configured.(map[string]interface{})
+	healthCheckedTargets, err := expandDnsRecordSetHealthCheckedTargets(data["health_checked_targets"].([]interface{}), d, config)
+	if err != nil {
+		return nil, err
+	}
+	return &dns.RRSetRoutingPolicyGeoPolicyGeoPolicyItem{
+		Rrdatas:              convertStringArr(data["rrdatas"].([]interface{})),
+		Location:             data["location"].(string),
+		HealthCheckedTargets: healthCheckedTargets,
+	}, nil
+}
+
+func expandDnsRecordSetHealthCheckedTargets(configured []interface{}, d TerraformResourceData, config *Config) (*dns.RRSetRoutingPolicyHealthCheckTargets, error) {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil, nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	internalLoadBalancers, err := expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancers(data["internal_load_balancers"].([]interface{}), d, config)
+	if err != nil {
+		return nil, err
+	}
+	return &dns.RRSetRoutingPolicyHealthCheckTargets{
+		InternalLoadBalancers: internalLoadBalancers,
+	}, nil
+}
+
+func expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancers(configured []interface{}, d TerraformResourceData, config *Config) ([]*dns.RRSetRoutingPolicyLoadBalancerTarget, error) {
+	ilbs := make([]*dns.RRSetRoutingPolicyLoadBalancerTarget, 0, len(configured))
+	for _, raw := range configured {
+		ilb, err := expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancer(raw, d, config)
+		if err != nil {
+			return nil, err
+		}
+		ilbs = append(ilbs, ilb)
+	}
+	return ilbs, nil
+}
+
+func expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancer(configured interface{}, d TerraformResourceData, config *Config) (*dns.RRSetRoutingPolicyLoadBalancerTarget, error) {
+	data := configured.(map[string]interface{})
+	networkUrl, err := expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancerNetworkUrl(data["network_url"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	return &dns.RRSetRoutingPolicyLoadBalancerTarget{
+		LoadBalancerType: data["load_balancer_type"].(string),
+		IpAddress:        data["ip_address"].(string),
+		Port:             data["port"].(string),
+		IpProtocol:       data["ip_protocol"].(string),
+		NetworkUrl:       networkUrl.(string),
+		Project:          data["project"].(string),
+		Region:           data["region"].(string),
+	}, nil
+}
+
+func expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancerNetworkUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil || v.(string) == "" {
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		return v, nil
+	}
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	if err != nil {
+		return "", err
+	}
+	return ConvertSelfLinkToV1(url), nil
+}
+
+func expandDnsRecordSetRoutingPolicyPrimaryBackup(configured []interface{}, d TerraformResourceData, config *Config) (*dns.RRSetRoutingPolicyPrimaryBackupPolicy, error) {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil, nil
+	}
+
+	data := configured[0].(map[string]interface{})
+
+	geoRawItems, _ := data["backup_geo"].([]interface{})
+
+	primaryTargets, err := expandDnsRecordSetHealthCheckedTargets(data["primary"].([]interface{}), d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := expandDnsRecordSetRoutingPolicyGeoItems(geoRawItems, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dns.RRSetRoutingPolicyPrimaryBackupPolicy{
+		PrimaryTargets: primaryTargets,
+		TrickleTraffic: data["trickle_ratio"].(float64),
+		BackupGeoTargets: &dns.RRSetRoutingPolicyGeoPolicy{
+			Items:         items,
+			EnableFencing: data["enable_geo_fencing_for_backups"].(bool),
+		},
+	}, nil
 }
 
 func flattenDnsRecordSetRoutingPolicy(policy *dns.RRSetRoutingPolicy) []interface{} {
@@ -596,6 +811,10 @@ func flattenDnsRecordSetRoutingPolicy(policy *dns.RRSetRoutingPolicy) []interfac
 	}
 	if policy.Geo != nil {
 		p["geo"] = flattenDnsRecordSetRoutingPolicyGEO(policy.Geo)
+		p["enable_geo_fencing"] = policy.Geo.EnableFencing
+	}
+	if policy.PrimaryBackup != nil {
+		p["primary_backup"] = flattenDnsRecordSetRoutingPolicyPrimaryBackup(policy.PrimaryBackup)
 	}
 	return append(ps, p)
 }
@@ -606,6 +825,7 @@ func flattenDnsRecordSetRoutingPolicyWRR(wrr *dns.RRSetRoutingPolicyWrrPolicy) [
 		ri := make(map[string]interface{})
 		ri["weight"] = item.Weight
 		ri["rrdatas"] = item.Rrdatas
+		ri["health_checked_targets"] = flattenDnsRecordSetHealthCheckedTargets(item.HealthCheckedTargets)
 		ris = append(ris, ri)
 	}
 	return ris
@@ -617,9 +837,54 @@ func flattenDnsRecordSetRoutingPolicyGEO(geo *dns.RRSetRoutingPolicyGeoPolicy) [
 		ri := make(map[string]interface{})
 		ri["location"] = item.Location
 		ri["rrdatas"] = item.Rrdatas
+		ri["health_checked_targets"] = flattenDnsRecordSetHealthCheckedTargets(item.HealthCheckedTargets)
 		ris = append(ris, ri)
 	}
 	return ris
+}
+
+func flattenDnsRecordSetHealthCheckedTargets(targets *dns.RRSetRoutingPolicyHealthCheckTargets) []map[string]interface{} {
+	if targets == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"internal_load_balancers": flattenDnsRecordSetInternalLoadBalancers(targets.InternalLoadBalancers),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenDnsRecordSetInternalLoadBalancers(ilbs []*dns.RRSetRoutingPolicyLoadBalancerTarget) []map[string]interface{} {
+	ilbsSchema := make([]map[string]interface{}, 0, len(ilbs))
+	for _, ilb := range ilbs {
+		data := map[string]interface{}{
+			"load_balancer_type": ilb.LoadBalancerType,
+			"ip_address":         ilb.IpAddress,
+			"port":               ilb.Port,
+			"ip_protocol":        ilb.IpProtocol,
+			"network_url":        ilb.NetworkUrl,
+			"project":            ilb.Project,
+			"region":             ilb.Region,
+		}
+		ilbsSchema = append(ilbsSchema, data)
+	}
+	return ilbsSchema
+}
+
+func flattenDnsRecordSetRoutingPolicyPrimaryBackup(primaryBackup *dns.RRSetRoutingPolicyPrimaryBackupPolicy) []map[string]interface{} {
+	if primaryBackup == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"primary":                        flattenDnsRecordSetHealthCheckedTargets(primaryBackup.PrimaryTargets),
+		"trickle_ratio":                  primaryBackup.TrickleTraffic,
+		"backup_geo":                     flattenDnsRecordSetRoutingPolicyGEO(primaryBackup.BackupGeoTargets),
+		"enable_geo_fencing_for_backups": primaryBackup.BackupGeoTargets.EnableFencing,
+	}
+
+	return []map[string]interface{}{data}
 }
 
 func validateRecordNameTrailingDot(v interface{}, k string) (warnings []string, errors []error) {
