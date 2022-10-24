@@ -2311,6 +2311,37 @@ func TestAccContainerCluster_withMeshCertificatesConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withCostManagementConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	pid := getTestProjectFromEnv()
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_updateCostManagementConfig(pid, clusterName, true),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_cost_management_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_updateCostManagementConfig(pid, clusterName, false),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_cost_management_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withDatabaseEncryption(t *testing.T) {
 	t.Parallel()
 
@@ -4841,6 +4872,22 @@ func testAccContainerCluster_updateMeshCertificatesConfig(projectID string, clus
 			mesh_certificates {
 			enable_certificates = %v
 			}
+	}`, projectID, clusterName, enabled)
+}
+
+func testAccContainerCluster_updateCostManagementConfig(projectID string, clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+	data "google_project" "project" {
+  		project_id = "%s"
+	}
+
+	resource "google_container_cluster" "with_cost_management_config" {
+		name               = "%s"
+		location           = "us-central1-a"
+		initial_node_count = 1
+		cost_management_config {
+			enabled = %v
+		}
 	}`, projectID, clusterName, enabled)
 }
 
