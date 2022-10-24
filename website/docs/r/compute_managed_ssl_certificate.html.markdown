@@ -108,23 +108,10 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 
-resource "google_dns_managed_zone" "zone" {
-  name     = "dnszone"
-  dns_name = "sslcert.tf-test.club."
-}
-
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "forwarding-rule"
   target     = google_compute_target_https_proxy.default.id
   port_range = 443
-}
-
-resource "google_dns_record_set" "set" {
-  name         = "sslcert.tf-test.club."
-  type         = "A"
-  ttl          = 3600
-  managed_zone = google_dns_managed_zone.zone.name
-  rrdatas      = [google_compute_global_forwarding_rule.default.ip_address]
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
