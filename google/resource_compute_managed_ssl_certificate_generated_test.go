@@ -101,23 +101,10 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 
-resource "google_dns_managed_zone" "zone" {
-  name     = "dnszone%{random_suffix}"
-  dns_name = "sslcert.tf-test.club."
-}
-
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "tf-test-forwarding-rule%{random_suffix}"
   target     = google_compute_target_https_proxy.default.id
   port_range = 443
-}
-
-resource "google_dns_record_set" "set" {
-  name         = "sslcert.tf-test.club."
-  type         = "A"
-  ttl          = 3600
-  managed_zone = google_dns_managed_zone.zone.name
-  rrdatas      = [google_compute_global_forwarding_rule.default.ip_address]
 }
 `, context)
 }
