@@ -1,0 +1,4 @@
+```release-note:bug
+redis: Updated`rdb_snapshot_period` to optional in the `persistence_config` resource.
+
+```

@@ -418,7 +418,7 @@ The following arguments are supported:
   Possible values are `DISABLED` and `RDB`.
 
 * `rdb_snapshot_period` -
-  (Required)
+  (Optional)
   Optional. Available snapshot periods for scheduling.
   - ONE_HOUR:	Snapshot every 1 hour.
   - SIX_HOURS:	Snapshot every 6 hours.
