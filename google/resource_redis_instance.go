@@ -318,8 +318,8 @@ resolution and up to nine fractional digits.`,
 						},
 						"rdb_snapshot_period": {
 							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validateEnum([]string{"ONE_HOUR", "SIX_HOURS", "TWELVE_HOURS", "TWENTY_FOUR_HOURS"}),
+							Optional:     true,
+							ValidateFunc: validateEnum([]string{"ONE_HOUR", "SIX_HOURS", "TWELVE_HOURS", "TWENTY_FOUR_HOURS", ""}),
 							Description: `Optional. Available snapshot periods for scheduling.
 
 - ONE_HOUR:	Snapshot every 1 hour.
