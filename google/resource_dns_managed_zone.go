@@ -282,9 +282,10 @@ defined by the server`,
 				},
 			},
 			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `Set this true to delete all records in the zone.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

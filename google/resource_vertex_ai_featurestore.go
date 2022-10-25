@@ -107,9 +107,10 @@ func resourceVertexAIFeaturestore() *schema.Resource {
 				Description: `The timestamp of when the featurestore was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
 			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `If set to true, any EntityTypes and Features for this Featurestore will also be deleted`,
 			},
 			"project": {
 				Type:     schema.TypeString,
