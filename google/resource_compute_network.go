@@ -122,6 +122,8 @@ is selected by GCP.`,
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+				Description: `If set to 'true', default routes ('0.0.0.0/0') will be deleted
+immediately after network creation. Defaults to 'false'.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

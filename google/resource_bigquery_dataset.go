@@ -205,6 +205,9 @@ milliseconds since the epoch.`,
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+				Description: `If set to 'true', delete all the tables in the
+dataset when destroying the resource; otherwise,
+destroying the resource will fail if tables are present.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

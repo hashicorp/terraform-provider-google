@@ -442,14 +442,16 @@ Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`
 				Description: `Full path to the Version resource in the API. Example, "v1".`,
 			},
 			"noop_on_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `If set to 'true', the application version will not be deleted.`,
 			},
 			"delete_service_on_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `If set to 'true', the service will be deleted if it is the last version.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

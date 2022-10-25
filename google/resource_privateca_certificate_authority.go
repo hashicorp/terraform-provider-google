@@ -682,10 +682,13 @@ fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+				Description: `Whether or not to allow Terraform to destroy the CertificateAuthority. Unless this field is set to false
+in Terraform state, a 'terraform destroy' or 'terraform apply' that would delete the instance will fail.`,
 			},
 			"desired_state": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Desired state of the CertificateAuthority. Set this field to 'STAGED' to create a 'STAGED' root CA.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

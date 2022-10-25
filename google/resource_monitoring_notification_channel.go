@@ -149,6 +149,11 @@ The [CHANNEL_ID] is automatically assigned by the server on creation.`,
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+				Description: `If true, the notification channel will be deleted regardless
+of its use in alert policies (the policies will be updated
+to remove the channel). If false, channels that are still
+referenced by an existing alerting policy will fail to be
+deleted in a delete operation.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
