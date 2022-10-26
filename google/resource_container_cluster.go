@@ -1206,6 +1206,7 @@ func resourceContainerCluster() *schema.Resource {
 			"datapath_provider": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				ForceNew:         true,
 				Computed:         true,
 				Description:      `The desired datapath provider for this cluster. By default, uses the IPTables-based kube-proxy implementation.`,
 				ValidateFunc:     validation.StringInSlice([]string{"DATAPATH_PROVIDER_UNSPECIFIED", "LEGACY_DATAPATH", "ADVANCED_DATAPATH"}, false),
