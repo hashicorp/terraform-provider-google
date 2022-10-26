@@ -1,0 +1,5 @@
+```release-note:new-resource
+google_vertex_ai_featurestore_iam_binding (beta)
+google_vertex_ai_featurestore_iam_member (beta)
+google_vertex_ai_featurestore_iam_policy (beta)
+```
