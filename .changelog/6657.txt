@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed unable to update `datapath_provider` on `google_container_cluster` so that modifying the `datapath_provider` field will recreating the resource now
+```
