@@ -119,7 +119,7 @@ resource "google_compute_subnetwork" "network-for-l7lb" {
   name          = "l7lb-test-subnetwork"
   ip_cidr_range = "10.0.0.0/22"
   region        = "us-central1"
-  purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
+  purpose       = "REGIONAL_MANAGED_PROXY"
   role          = "ACTIVE"
   network       = google_compute_network.custom-test.id
 }
@@ -225,14 +225,14 @@ The following arguments are supported:
 * `purpose` -
   (Optional)
   The purpose of the resource. A subnetwork with purpose set to
-  INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
-  reserved for Internal HTTP(S) Load Balancing.
-  If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the `role` field.
+  REGIONAL_MANAGED_PROXY is a user-created subnetwork that is
+  reserved for Internal HTTP(S) Load Balancing and Regional external HTTP(S) load balancer.
+  If set to REGIONAL_MANAGED_PROXY you must also set the `role` field.
 
 * `role` -
   (Optional)
   The role of subnetwork. Currently, this field is only used when
-  purpose = INTERNAL_HTTPS_LOAD_BALANCER. The value can be set to ACTIVE
+  purpose = REGIONAL_MANAGED_PROXY. The value can be set to ACTIVE
   or BACKUP. An ACTIVE subnetwork is one that is currently being used
   for Internal HTTP(S) Load Balancing. A BACKUP subnetwork is one that
   is ready to be promoted to ACTIVE or is currently draining.
@@ -268,7 +268,7 @@ The following arguments are supported:
   (Optional)
   Denotes the logging options for the subnetwork flow logs. If logging is enabled
   logs will be exported to Stackdriver. This field cannot be set if the `purpose` of this
-  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`
+  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER` or `REGIONAL_MANAGED_PROXY`
   Structure is [documented below](#nested_log_config).
 
 * `stack_type` -
