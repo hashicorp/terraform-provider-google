@@ -39,6 +39,7 @@ func TestAccContainerEngineVersions_filtered(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_container_engine_versions.versions", "valid_master_versions.#", "0"),
 					resource.TestCheckResourceAttr("data.google_container_engine_versions.versions", "valid_node_versions.#", "0"),
+					resource.TestCheckResourceAttr("data.google_container_engine_versions.versions", "release_channel_valid_versions.#", "0"),
 				),
 			},
 		},

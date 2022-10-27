@@ -51,6 +51,16 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"release_channel_valid_versions": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeList,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+			},
 		},
 	}
 }
@@ -117,12 +127,22 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error setting default_cluster_version: %s", err)
 	}
 
-	channels := map[string]string{}
-	for _, v := range resp.Channels {
-		channels[v.Channel] = v.DefaultVersion
+	channelDefaultVersion := map[string]string{}
+	channelValidVersions := map[string][]string{}
+	for _, channelResp := range resp.Channels {
+		channelDefaultVersion[channelResp.Channel] = channelResp.DefaultVersion
+		channelValidVersions[channelResp.Channel] = make([]string, 0)
+		for _, v := range channelResp.ValidVersions {
+			if strings.HasPrefix(v, d.Get("version_prefix").(string)) {
+				validNodeVersions = append(channelValidVersions[channelResp.Channel], v)
+			}
+		}
 	}
-	if err := d.Set("release_channel_default_version", channels); err != nil {
+	if err := d.Set("release_channel_default_version", channelDefaultVersion); err != nil {
 		return fmt.Errorf("Error setting release_channel_default_version: %s", err)
+	}
+	if err := d.Set("release_channel_valid_versions", channelValidVersions); err != nil {
+		return fmt.Errorf("Error setting release_channel_valid_versions: %s", err)
 	}
 
 	d.SetId(time.Now().UTC().String())
