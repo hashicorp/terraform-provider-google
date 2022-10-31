@@ -1,5 +1,52 @@
 ## 4.42.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_compute_addresses` ([#12829](https://github.com/hashicorp/terraform-provider-google/pull/12829))
+* **New Data Source:** `google_compute_region_network_endpoint_group` ([#12849](https://github.com/hashicorp/terraform-provider-google/pull/12849))
+* **New Resource:** `google_alloydb_cluster` ([#12772](https://github.com/hashicorp/terraform-provider-google/pull/12772))
+* **New Resource:** `google_bigquery_analytics_hub_data_exchange_iam` ([#12845](https://github.com/hashicorp/terraform-provider-google/pull/12845))
+* **New Resource:** `google_bigquery_analytics_hub_data_exchange` ([#12845](https://github.com/hashicorp/terraform-provider-google/pull/12845))
+* **New Resource:** `google_bigquery_analytics_hub_listing_iam` ([#12845](https://github.com/hashicorp/terraform-provider-google/pull/12845))
+* **New Resource:** `google_bigquery_analytics_hub_listing` ([#12845](https://github.com/hashicorp/terraform-provider-google/pull/12845))
+* **New Resource:** `google_iam_workforce_pool` ([#12863](https://github.com/hashicorp/terraform-provider-google/pull/12863))
+* **New Resource:** `google_monitoring_generic_service` ([#12796](https://github.com/hashicorp/terraform-provider-google/pull/12796))
+* **New Resource:** `google_scc_source_iam_binding` ([#12840](https://github.com/hashicorp/terraform-provider-google/pull/12840))
+* **New Resource:** `google_scc_source_iam_member` ([#12840](https://github.com/hashicorp/terraform-provider-google/pull/12840))
+* **New Resource:** `google_scc_source_iam_policy` ([#12840](https://github.com/hashicorp/terraform-provider-google/pull/12840))
+* **New Resource:** `google_vertex_ai_endpoint` ([#12858](https://github.com/hashicorp/terraform-provider-google/pull/12858))
+* **New Resource:** `google_vertex_ai_featurestore_entitytype_feature` ([#12797](https://github.com/hashicorp/terraform-provider-google/pull/12797))
+* **New Resource:** `google_vertex_ai_featurestore_entitytype` ([#12797](https://github.com/hashicorp/terraform-provider-google/pull/12797))
+* **New Resource:** `google_vertex_ai_featurestore` ([#12797](https://github.com/hashicorp/terraform-provider-google/pull/12797))
+
+IMPROVEMENTS:
+* appengine: added `member` field to `google_app_engine_default_service_account` datasource ([#12768](https://github.com/hashicorp/terraform-provider-google/pull/12768))
+* bigquery: added `max_time_travel_hours` field in `google_bigquery_dataset` resource ([#12830](https://github.com/hashicorp/terraform-provider-google/pull/12830))
+* bigquery: added `member` field to `google_bigquery_default_service_account` datasource ([#12768](https://github.com/hashicorp/terraform-provider-google/pull/12768))
+* cloudbuild: added `script` field to `google_cloudbuild_trigger` resource ([#12841](https://github.com/hashicorp/terraform-provider-google/pull/12841))
+* cloudplatform: validated `project_id` for `google_project` data-source ([#12846](https://github.com/hashicorp/terraform-provider-google/pull/12846))
+* compute: added `source_disk` field to `google_compute_disk` and `google_compute_region_disk` resource ([#12779](https://github.com/hashicorp/terraform-provider-google/pull/12779))
+* compute: added general field `rules` to `google_compute_router_nat` ([#12815](https://github.com/hashicorp/terraform-provider-google/pull/12815))
+* container: added support for in-place update of `node_config.0.tags` for `google_container_node_pool` resource ([#12773](https://github.com/hashicorp/terraform-provider-google/pull/12773))
+* container: added support for the Disk type and size configuration on the GKE Node Auto-provisioning ([#12786](https://github.com/hashicorp/terraform-provider-google/pull/12786))
+* container: promote `enable_cost_allocation` field in `google_container_cluster` to GA ([#12866](https://github.com/hashicorp/terraform-provider-google/pull/12866))
+* datastream: added `private_connectivity` field to `google_datastream_connection_profile` ([#12844](https://github.com/hashicorp/terraform-provider-google/pull/12844))
+* dns: added `enable_geo_fencing` to `routing_policy` block of `google_dns_record_set` resource ([#12859](https://github.com/hashicorp/terraform-provider-google/pull/12859))
+* dns: added `health_checked_targets` to `wrr` and `geo` blocks of `google_dns_record_set` resource ([#12859](https://github.com/hashicorp/terraform-provider-google/pull/12859))
+* dns: added `primary_backup` to `routing_policy` block of `google_dns_record_set` resource ([#12859](https://github.com/hashicorp/terraform-provider-google/pull/12859))
+* firebase: added deletion support and new field `deletion_policy` for `google_firebase_web_app` ([#12812](https://github.com/hashicorp/terraform-provider-google/pull/12812))
+* privateca: added a new field `skip_grace_period` to skip the grace period when deleting a CertificateAuthority. ([#12784](https://github.com/hashicorp/terraform-provider-google/pull/12784))
+* serviceaccount: added `member` field to `google_service_account` resource and datasource ([#12768](https://github.com/hashicorp/terraform-provider-google/pull/12768))
+* sql: added `time_zone` field in `google_sql_database_instance` ([#12760](https://github.com/hashicorp/terraform-provider-google/pull/12760))
+* storage: added `member` field to `google_storage_project_service_account` and `google_storage_transfer_project_service_account` datasource ([#12768](https://github.com/hashicorp/terraform-provider-google/pull/12768))
+* storage: promoted `public_access_prevention` field on `google_storage_bucket` resource to GA ([#12766](https://github.com/hashicorp/terraform-provider-google/pull/12766))
+* vpcaccess: promoted `machine_type`, `min_instances`, `max_instances`, and `subnet` in `google_vpc_access_connector` to GA ([#12838](https://github.com/hashicorp/terraform-provider-google/pull/12838))
+
+BUG FIXES:
+* compute: made `vm_count` in `google_compute_resource_policy` optional ([#12807](https://github.com/hashicorp/terraform-provider-google/pull/12807))
+* container: fixed inability to update `datapath_provider` on `google_container_cluster` by making field changes trigger resource recreation ([#12887](https://github.com/hashicorp/terraform-provider-google/pull/12887))
+* pubsub: ensured topics are recreated when their schemas change. ([#12806](https://github.com/hashicorp/terraform-provider-google/pull/12806))
+* redis: updated `persistence_config.rdb_snapshot_period` to optional in the `google_redis_instance` resource. ([#12872](https://github.com/hashicorp/terraform-provider-google/pull/12872))
+
 ## 4.41.0 (October 17, 2022)
 
 KNOWN ISSUES:
