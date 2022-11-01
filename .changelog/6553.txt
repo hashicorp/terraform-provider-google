@@ -1,0 +1,4 @@
+```release-note:new-resource
+kms: Add new resource CryptoKeyVersions
+
+```

@@ -85,6 +85,19 @@ func (s *kmsCryptoKeyId) terraformId() string {
 	return fmt.Sprintf("%s/%s", s.KeyRingId.terraformId(), s.Name)
 }
 
+type kmsCryptoKeyVersionId struct {
+	CryptoKeyId kmsCryptoKeyId
+	Name        string
+}
+
+func (s *kmsCryptoKeyVersionId) cryptoKeyVersionId() string {
+	return fmt.Sprintf(s.Name)
+}
+
+func (s *kmsCryptoKeyVersionId) terraformId() string {
+	return fmt.Sprintf("%s/%s", s.CryptoKeyId.terraformId(), s.Name)
+}
+
 func validateKmsCryptoKeyRotationPeriod(value interface{}, _ string) (ws []string, errors []error) {
 	period := value.(string)
 	pattern := regexp.MustCompile(`^([0-9.]*\d)s$`)
@@ -171,7 +184,26 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 			Name: parts[4],
 		}, nil
 	}
+
 	return nil, fmt.Errorf("Invalid CryptoKey id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}` or `{locationId}/{keyRingName}/{cryptoKeyName}, got id: %s`", id)
+}
+func parseKmsCryptoKeyVersionId(id string, config *Config) (*kmsCryptoKeyVersionId, error) {
+	cryptoKeyVersionRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})/cryptoKeyVersions/([a-zA-Z0-9_-]{1,63})$")
+
+	if parts := cryptoKeyVersionRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
+		return &kmsCryptoKeyVersionId{
+			CryptoKeyId: kmsCryptoKeyId{
+				KeyRingId: kmsKeyRingId{
+					Project:  parts[1],
+					Location: parts[2],
+					Name:     parts[3],
+				},
+				Name: parts[4],
+			},
+			Name: "projects/" + parts[1] + "/locations/" + parts[2] + "/keyRings/" + parts[3] + "/cryptoKeys/" + parts[4] + "/cryptoKeyVersions/" + parts[5],
+		}, nil
+	}
+	return nil, fmt.Errorf("Invalid CryptoKeyVersion id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}/{cryptoKeyVersion}` or `{locationId}/{keyRingName}/{cryptoKeyName}/{cryptoKeyVersion}, got id: %s`", id)
 }
 
 func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, userAgent string, config *Config) error {
@@ -201,6 +233,21 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, userAgent string, confi
 				return err
 			}
 		}
+	}
+
+	return nil
+}
+
+func deleteCryptoKeyVersions(cryptoKeyVersionId *kmsCryptoKeyVersionId, d *schema.ResourceData, userAgent string, config *Config) error {
+	versionsClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
+	request := &cloudkms.DestroyCryptoKeyVersionRequest{}
+	destroyCall := versionsClient.Destroy(cryptoKeyVersionId.Name, request)
+	if config.UserProjectOverride {
+		destroyCall.Header().Set("X-Goog-User-Project", cryptoKeyVersionId.CryptoKeyId.KeyRingId.Project)
+	}
+	_, err := destroyCall.Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ID %s", cryptoKeyVersionId.Name))
 	}
 
 	return nil
