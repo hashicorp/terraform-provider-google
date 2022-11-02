@@ -2184,6 +2184,29 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsBootDiskKmsKey(t *testi
 	})
 }
 
+func TestAccContainerCluster_nodeAutoprovisioningDefaultsShieldedInstance(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaultsShieldedInstance(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.nap_shielded_instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 	t.Parallel()
 
@@ -4052,6 +4075,36 @@ resource "google_container_cluster" "nap_boot_disk_kms_key" {
   }
 }
 `, project, clusterName, kmsKeyName)
+}
+
+func testAccContainerCluster_autoprovisioningDefaultsShieldedInstance(cluster string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+resource "google_container_cluster" "nap_shielded_instance" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  cluster_autoscaling {
+    enabled = true
+    resource_limits {
+      resource_type = "cpu"
+      maximum       = 2
+    }
+    resource_limits {
+      resource_type = "memory"
+      maximum       = 2048
+    }
+    auto_provisioning_defaults {
+	  shielded_instance_config {
+	    enable_integrity_monitoring = true
+	    enable_secure_boot          = true
+	  }
+    }
+  }
+}`, cluster)
 }
 
 func testAccContainerCluster_withNodePoolAutoscaling(cluster, np string) string {
