@@ -321,9 +321,14 @@ The following arguments are supported:
 <a name="nested_actions"></a>The `actions` block supports:
 
 * `save_findings` -
-  (Required)
+  (Optional)
   Schedule for triggered jobs
   Structure is [documented below](#nested_save_findings).
+
+* `pub_sub` -
+  (Optional)
+  Publish a message into a given Pub/Sub topic when the job completes.
+  Structure is [documented below](#nested_pub_sub).
 
 
 <a name="nested_save_findings"></a>The `save_findings` block supports:
@@ -367,6 +372,12 @@ The following arguments are supported:
   (Optional)
   Name of the table. If is not set a new one will be generated for you with the following format:
   `dlp_googleapis_yyyy_mm_dd_[dlp_job_id]`. Pacific timezone will be used for generating the date details.
+
+<a name="nested_pub_sub"></a>The `pub_sub` block supports:
+
+* `topic` -
+  (Required)
+  Cloud Pub/Sub topic to send notifications to.
 
 ## Attributes Reference
 

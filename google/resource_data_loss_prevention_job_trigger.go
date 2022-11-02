@@ -102,9 +102,25 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 							Description: `A task to execute on the completion of a job.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"pub_sub": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Publish a message into a given Pub/Sub topic when the job completes.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"topic": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Cloud Pub/Sub topic to send notifications to.`,
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
+									},
 									"save_findings": {
 										Type:        schema.TypeList,
-										Required:    true,
+										Optional:    true,
 										Description: `Schedule for triggered jobs`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -160,6 +176,7 @@ Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLU
 												},
 											},
 										},
+										ExactlyOneOf: []string{},
 									},
 								},
 							},
@@ -1114,6 +1131,7 @@ func flattenDataLossPreventionJobTriggerInspectJobActions(v interface{}, d *sche
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"save_findings": flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindings(original["saveFindings"], d, config),
+			"pub_sub":       flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pubSub"], d, config),
 		})
 	}
 	return transformed
@@ -1176,6 +1194,23 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfi
 }
 
 func flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigOutputSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["topic"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(original["topic"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1701,6 +1736,13 @@ func expandDataLossPreventionJobTriggerInspectJobActions(v interface{}, d Terraf
 			transformed["saveFindings"] = transformedSaveFindings
 		}
 
+		transformedPubSub, err := expandDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pub_sub"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPubSub); val.IsValid() && !isEmptyValue(val) {
+			transformed["pubSub"] = transformedPubSub
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1797,6 +1839,29 @@ func expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfig
 }
 
 func expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigOutputSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsPubSub(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTopic, err := expandDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(original["topic"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTopic); val.IsValid() && !isEmptyValue(val) {
+		transformed["topic"] = transformedTopic
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
