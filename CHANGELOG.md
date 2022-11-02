@@ -1,5 +1,10 @@
 ## 4.43.0 (Unreleased)
 
+## 4.42.1 (November 2, 2022)
+
+BUG FIXES:
+* storage: fixed a crash in `google_storage_bucket` when upgrading provider to version `4.42.0` with `lifecycle_rule.condition.age` unset ([#12922](https://github.com/hashicorp/terraform-provider-google/pull/12922))
+
 ## 4.42.0 (October 31, 2022)
 
 FEATURES:
