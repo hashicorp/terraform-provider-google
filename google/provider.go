@@ -717,6 +717,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_STORAGE_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[StorageBasePathKey]),
 			},
+			"storage_transfer_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_STORAGE_TRANSFER_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[StorageTransferBasePathKey]),
+			},
 			"tags_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -768,7 +776,6 @@ func Provider() *schema.Provider {
 			IAMCustomEndpointEntryKey:               IAMCustomEndpointEntry,
 			ServiceNetworkingCustomEndpointEntryKey: ServiceNetworkingCustomEndpointEntry,
 			ServiceUsageCustomEndpointEntryKey:      ServiceUsageCustomEndpointEntry,
-			StorageTransferCustomEndpointEntryKey:   StorageTransferCustomEndpointEntry,
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
 
 			// dcl
@@ -910,9 +917,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 244
+// Generated resources: 245
 // Generated IAM resources: 150
-// Total generated resources: 394
+// Total generated resources: 395
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1286,6 +1293,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_object_access_control":                         resourceStorageObjectAccessControl(),
 			"google_storage_default_object_access_control":                 resourceStorageDefaultObjectAccessControl(),
 			"google_storage_hmac_key":                                      resourceStorageHmacKey(),
+			"google_storage_transfer_agent_pool":                           resourceStorageTransferAgentPool(),
 			"google_tags_tag_key":                                          resourceTagsTagKey(),
 			"google_tags_tag_key_iam_binding":                              ResourceIamBinding(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
 			"google_tags_tag_key_iam_member":                               ResourceIamMember(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
@@ -1597,6 +1605,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
 	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
 	config.StorageBasePath = d.Get("storage_custom_endpoint").(string)
+	config.StorageTransferBasePath = d.Get("storage_transfer_custom_endpoint").(string)
 	config.TagsBasePath = d.Get("tags_custom_endpoint").(string)
 	config.TPUBasePath = d.Get("tpu_custom_endpoint").(string)
 	config.VertexAIBasePath = d.Get("vertex_ai_custom_endpoint").(string)
@@ -1613,7 +1622,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
 	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
-	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
 	// dcl
