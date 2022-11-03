@@ -44,6 +44,7 @@ resource "google_cloud_identity_group" "cloud_identity_group_basic" {
 
   labels = {
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+	"cloudidentity.googleapis.com/groups.security" = ""
   }
 }
 `, context)

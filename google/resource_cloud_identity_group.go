@@ -83,12 +83,15 @@ and must be in the form of 'identitysources/{identity_source_id}'.`,
 			"labels": {
 				Type:     schema.TypeMap,
 				Required: true,
-				ForceNew: true,
-				Description: `The labels that apply to the Group.
+				Description: `One or more label entries that apply to the Group. Currently supported labels contain a key with an empty value.
 
-Must not contain more than one entry. Must contain the entry
-'cloudidentity.googleapis.com/groups.discussion_forum': '' if the Group is a Google Group or
-'system/groups/external': '' if the Group is an external-identity-mapped group.`,
+Google Groups are the default type of group and have a label with a key of cloudidentity.googleapis.com/groups.discussion_forum and an empty value.
+
+Existing Google Groups can have an additional label with a key of cloudidentity.googleapis.com/groups.security and an empty value added to them. This is an immutable change and the security label cannot be removed once added.
+
+Dynamic groups have a label with a key of cloudidentity.googleapis.com/groups.dynamic.
+
+Identity-mapped groups for Cloud Search have a label with a key of system/groups/external and an empty value.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"parent": {
@@ -342,6 +345,12 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	labelsProp, err := expandCloudIdentityGroupLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 	if err != nil {
@@ -357,6 +366,10 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -376,6 +389,11 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error updating Group %q: %s", d.Id(), err)
 	} else {
 		log.Printf("[DEBUG] Finished updating Group %q: %#v", d.Id(), res)
+	}
+
+	err = PollingWaitTime(resourceCloudIdentityGroupPollRead(d, meta), PollCheckForExistenceWith403, "Updating Group", d.Timeout(schema.TimeoutUpdate), 10)
+	if err != nil {
+		return err
 	}
 
 	return resourceCloudIdentityGroupRead(d, meta)
@@ -406,6 +424,11 @@ func resourceCloudIdentityGroupDelete(d *schema.ResourceData, meta interface{}) 
 	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Group")
+	}
+
+	err = PollingWaitTime(resourceCloudIdentityGroupPollRead(d, meta), PollCheckForAbsenceWith403, "Deleting Group", d.Timeout(schema.TimeoutCreate), 10)
+	if err != nil {
+		return fmt.Errorf("Error waiting to delete Group: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished deleting Group %q: %#v", d.Id(), res)
