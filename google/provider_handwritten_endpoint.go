@@ -98,16 +98,6 @@ var ServiceUsageCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[ServiceUsageBasePathKey]),
 }
 
-var StorageTransferCustomEndpointEntryKey = "storage_transfer_custom_endpoint"
-var StorageTransferCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_STORAGE_TRANSFER_CUSTOM_ENDPOINT",
-	}, DefaultBasePaths[StorageTransferBasePathKey]),
-}
-
 var BigtableAdminCustomEndpointEntryKey = "bigtable_custom_endpoint"
 var BigtableAdminCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,

@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_storage_transfer_agent_pool`
+```
