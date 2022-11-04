@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed apply failure when `description` is set to empty string on `google_dns_managed_zone`
+```
