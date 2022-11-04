@@ -66,7 +66,6 @@ to the BackendService.`,
 				Description: `A reference to the CertificateMap resource uri that identifies a certificate map 
 associated with the given target proxy. This field can only be set for global target proxies.
 Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}'.`,
-				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -103,7 +102,6 @@ certificate must be specified.`,
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
-				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
 			},
 			"ssl_policy": {
 				Type:             schema.TypeString,
