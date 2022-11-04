@@ -1,0 +1,3 @@
+```release-note:bug
+compute: made `target_https_proxy` possible to set `ssl_certificates` and `certificate_map` at the same time
+```
