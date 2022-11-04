@@ -2212,6 +2212,7 @@ resource "google_sql_database_instance" "instance" {
       query_string_length     = 256
       record_application_tags = true
       record_client_address   = true
+      query_plans_per_minute  = 10
     }
   }
 }

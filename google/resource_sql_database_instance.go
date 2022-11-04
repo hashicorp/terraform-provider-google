@@ -81,6 +81,7 @@ var (
 		"settings.0.insights_config.0.query_string_length",
 		"settings.0.insights_config.0.record_application_tags",
 		"settings.0.insights_config.0.record_client_address",
+		"settings.0.insights_config.0.query_plans_per_minute",
 	}
 )
 
@@ -465,6 +466,14 @@ is set to true. Defaults to ZONAL.`,
 										Optional:     true,
 										AtLeastOneOf: insightsConfigKeys,
 										Description:  `True if Query Insights will record client address when enabled.`,
+									},
+									"query_plans_per_minute": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validation.IntBetween(0, 20),
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `Number of query execution plans captured by Insights per minute for all queries combined. Between 0 and 20. Default to 5.`,
 									},
 								},
 							},
@@ -1253,6 +1262,7 @@ func expandInsightsConfig(configured []interface{}) *sqladmin.InsightsConfig {
 		QueryStringLength:     int64(_insightsConfig["query_string_length"].(int)),
 		RecordApplicationTags: _insightsConfig["record_application_tags"].(bool),
 		RecordClientAddress:   _insightsConfig["record_client_address"].(bool),
+		QueryPlansPerMinute:   int64(_insightsConfig["query_plans_per_minute"].(int)),
 	}
 }
 
@@ -1806,6 +1816,7 @@ func flattenInsightsConfig(insightsConfig *sqladmin.InsightsConfig) interface{} 
 		"query_string_length":     insightsConfig.QueryStringLength,
 		"record_application_tags": insightsConfig.RecordApplicationTags,
 		"record_client_address":   insightsConfig.RecordClientAddress,
+		"query_plans_per_minute":  insightsConfig.QueryPlansPerMinute,
 	}
 
 	return []map[string]interface{}{data}

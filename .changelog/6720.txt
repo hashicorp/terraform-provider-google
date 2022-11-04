@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `query_plan_per_minute` field to `insights_config` in `google_sql_database_instance` resource
+```
