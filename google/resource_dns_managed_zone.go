@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/dns/v1"
 )
 
@@ -74,10 +75,11 @@ Must be unique within the project.`,
 				},
 			},
 			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `A textual description field. Defaults to 'Managed by Terraform'.`,
-				Default:     "Managed by Terraform",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
+				Description:  `A textual description field. Defaults to 'Managed by Terraform'.`,
+				Default:      "Managed by Terraform",
 			},
 			"dnssec_config": {
 				Type:        schema.TypeList,
