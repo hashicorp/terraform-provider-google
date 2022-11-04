@@ -1,0 +1,3 @@
+```release-note:bug
+billingbudget: fixed a bug where `budget_filter.credit_types_treatment` in `google_billing_budget` resource was not updating.
+```
