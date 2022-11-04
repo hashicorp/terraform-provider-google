@@ -147,6 +147,7 @@ resource "google_billing_budget" "budget" {
     labels  = {
       label = "bar"
     }
+    credit_types_treatment = "EXCLUDE_ALL_CREDITS"
   }
 
   amount {
@@ -241,6 +242,7 @@ resource "google_billing_budget" "budget" {
     labels  = {
       label1 = "bar2"
     }
+    credit_types_treatment = "INCLUDE_ALL_CREDITS"
     services = ["services/24E6-581D-38E5"] # Bigquery
   }
 
