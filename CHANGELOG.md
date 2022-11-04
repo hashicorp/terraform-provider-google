@@ -1,7 +1,7 @@
 ## 4.43.0 (Unreleased)
 
 FEATURES:
-* * **New Resource:** `google_kms_crypto_key_version` ([#12926](https://github.com/hashicorp/terraform-provider-google/pull/12926))
+* **New Resource:** `google_kms_crypto_key_version` ([#12926](https://github.com/hashicorp/terraform-provider-google/pull/12926))
 
 ## 4.42.1 (November 2, 2022)
 
