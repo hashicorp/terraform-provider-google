@@ -1,5 +1,11 @@
 ## 4.43.0 (Unreleased)
 
+FEATURES:
+* * **New Resource:** `google_kms_crypto_key_version` ([#12926](https://github.com/hashicorp/terraform-provider-google/pull/12926))
+
+IMPROVEMENTS:
+* bigtable: updated the max number of clusters supported documentation ([#12923](https://github.com/hashicorp/terraform-provider-google/pull/12923))
+
 ## 4.42.1 (November 2, 2022)
 
 BUG FIXES:
