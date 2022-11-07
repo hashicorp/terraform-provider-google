@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: updated the error handling logic to remove the resource on resource not found error only
+```

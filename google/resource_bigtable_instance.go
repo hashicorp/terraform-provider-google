@@ -246,9 +246,12 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	instance, err := c.InstanceInfo(ctx, instanceName)
 	if err != nil {
-		log.Printf("[WARN] Removing %s because it's gone", instanceName)
-		d.SetId("")
-		return nil
+		if isNotFoundGrpcError(err) {
+			log.Printf("[WARN] Removing %s because it's gone", instanceName)
+			d.SetId("")
+			return nil
+		}
+		return err
 	}
 
 	if err := d.Set("project", project); err != nil {

@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestConvertStringArr(t *testing.T) {
@@ -692,6 +694,21 @@ func TestConflictError(t *testing.T) {
 		t.Error("did not find that a wrapped 412 was a conflict error.")
 	}
 	// skipping negative tests as other cases may be added later.
+}
+
+func TestIsNotFoundGrpcErrort(t *testing.T) {
+	error_status := status.New(codes.FailedPrecondition, "FailedPrecondition error")
+	if isNotFoundGrpcError(error_status.Err()) {
+		t.Error("found FailedPrecondition as a NotFound error")
+	}
+	error_status = status.New(codes.OK, "OK")
+	if isNotFoundGrpcError(error_status.Err()) {
+		t.Error("found OK as a NotFound error")
+	}
+	error_status = status.New(codes.NotFound, "NotFound error")
+	if !isNotFoundGrpcError(error_status.Err()) {
+		t.Error("expect a NotFound error")
+	}
 }
 
 func TestSnakeToPascalCase(t *testing.T) {

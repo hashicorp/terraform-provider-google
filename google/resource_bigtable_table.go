@@ -173,9 +173,12 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	table, err := c.TableInfo(ctx, name)
 	if err != nil {
-		log.Printf("[WARN] Removing %s because it's gone", name)
-		d.SetId("")
-		return nil
+		if isNotFoundGrpcError(err) {
+			log.Printf("[WARN] Removing %s because it's gone", name)
+			d.SetId("")
+			return nil
+		}
+		return err
 	}
 
 	if err := d.Set("project", project); err != nil {

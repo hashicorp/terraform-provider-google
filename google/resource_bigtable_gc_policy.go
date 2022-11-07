@@ -256,9 +256,12 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	columnFamily := d.Get("column_family").(string)
 	ti, err := c.TableInfo(ctx, name)
 	if err != nil {
-		log.Printf("[WARN] Removing %s because it's gone", name)
-		d.SetId("")
-		return nil
+		if isNotFoundGrpcError(err) {
+			log.Printf("[WARN] Removing the GC policy because the parent table %s is gone", name)
+			d.SetId("")
+			return nil
+		}
+		return err
 	}
 
 	for _, fi := range ti.FamilyInfos {
