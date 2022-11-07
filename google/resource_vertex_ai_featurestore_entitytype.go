@@ -104,6 +104,11 @@ If this is populated with [FeaturestoreMonitoringConfig.monitoring_interval] spe
 				Computed:    true,
 				Description: `The timestamp of when the featurestore was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The region of the EntityType.",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -129,6 +134,11 @@ func resourceVertexAIFeaturestoreEntitytypeCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("monitoring_config"); !isEmptyValue(reflect.ValueOf(monitoringConfigProp)) && (ok || !reflect.DeepEqual(v, monitoringConfigProp)) {
 		obj["monitoringConfig"] = monitoringConfigProp
+	}
+
+	obj, err = resourceVertexAIFeaturestoreEntitytypeEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{featurestore}}/entityTypes?entityTypeId={{name}}")
@@ -253,6 +263,11 @@ func resourceVertexAIFeaturestoreEntitytypeUpdate(d *schema.ResourceData, meta i
 		obj["monitoringConfig"] = monitoringConfigProp
 	}
 
+	obj, err = resourceVertexAIFeaturestoreEntitytypeEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{featurestore}}/entityTypes/{{name}}")
 	if err != nil {
 		return err
@@ -355,6 +370,13 @@ func resourceVertexAIFeaturestoreEntitytypeImport(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	featurestore := d.Get("featurestore").(string)
+
+	re := regexp.MustCompile("^projects/(.+)/locations/(.+)/featurestores/(.+)$")
+	if parts := re.FindStringSubmatch(featurestore); parts != nil {
+		d.Set("region", parts[2])
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -451,4 +473,15 @@ func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysis(v inte
 
 func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceVertexAIFeaturestoreEntitytypeEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	if v, ok := d.GetOk("featurestore"); ok {
+		re := regexp.MustCompile("projects/(.+)/locations/(.+)/featurestores/(.+)$")
+		if parts := re.FindStringSubmatch(v.(string)); parts != nil {
+			d.Set("region", parts[2])
+		}
+	}
+
+	return obj, nil
 }
