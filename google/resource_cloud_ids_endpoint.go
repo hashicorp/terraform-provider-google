@@ -75,15 +75,15 @@ func resourceCloudIdsEndpoint() *schema.Resource {
 				Computed:    true,
 				Description: `Creation timestamp in RFC 3339 text format.`,
 			},
-			"endpoint": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Internal IP address of the endpoint's network entry point.`,
-			},
 			"endpoint_forwarding_rule": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `URL of the endpoint's network address to which traffic is to be sent by Packet Mirroring.`,
+			},
+			"endpoint_ip": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Internal IP address of the endpoint's network entry point.`,
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -243,10 +243,10 @@ func resourceCloudIdsEndpointRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("description", flattenCloudIdsEndpointDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
-	if err := d.Set("endpoint_forwarding_rule", flattenCloudIdsEndpointEndpointForwardingRule(res["endpoint_forwarding_rule"], d, config)); err != nil {
+	if err := d.Set("endpoint_forwarding_rule", flattenCloudIdsEndpointEndpointForwardingRule(res["endpointForwardingRule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
-	if err := d.Set("endpoint", flattenCloudIdsEndpointEndpoint(res["endpoint"], d, config)); err != nil {
+	if err := d.Set("endpoint_ip", flattenCloudIdsEndpointEndpointIp(res["endpointIp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
 	if err := d.Set("severity", flattenCloudIdsEndpointSeverity(res["severity"], d, config)); err != nil {
@@ -348,7 +348,7 @@ func flattenCloudIdsEndpointEndpointForwardingRule(v interface{}, d *schema.Reso
 	return v
 }
 
-func flattenCloudIdsEndpointEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointEndpointIp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

@@ -105,7 +105,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `endpoint_forwarding_rule` -
   URL of the endpoint's network address to which traffic is to be sent by Packet Mirroring.
 
-* `endpoint` -
+* `endpoint_ip` -
   Internal IP address of the endpoint's network entry point.
 
 
