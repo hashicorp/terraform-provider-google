@@ -46,7 +46,7 @@ resource "google_project" "default" {
   billing_account =  "000000-0000000-0000000-000000"
 }
 
-resource "google_project_service" "apigee" {
+resource "google_project_service" "identitytoolkit" {
   project = google_project.project.project_id
   service = "identitytoolkit.googleapis.com"
 }
