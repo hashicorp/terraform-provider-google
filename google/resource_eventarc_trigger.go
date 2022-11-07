@@ -108,6 +108,13 @@ func resourceEventarcTrigger() *schema.Resource {
 				Elem:        EventarcTriggerTransportSchema(),
 			},
 
+			"conditions": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "Output only. The reason(s) why a trigger is in FAILED state.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -411,6 +418,9 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err = d.Set("transport", flattenEventarcTriggerTransport(res.Transport)); err != nil {
 		return fmt.Errorf("error setting transport in state: %s", err)
+	}
+	if err = d.Set("conditions", res.Conditions); err != nil {
+		return fmt.Errorf("error setting conditions in state: %s", err)
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)

@@ -181,7 +181,7 @@ func ClouddeployDeliveryPipelineConditionSchema() *schema.Resource {
 			"targets_present_condition": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "Detalis around targets enumerated in the pipeline.",
+				Description: "Details around targets enumerated in the pipeline.",
 				Elem:        ClouddeployDeliveryPipelineConditionTargetsPresentConditionSchema(),
 			},
 		},

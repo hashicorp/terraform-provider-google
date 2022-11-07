@@ -1,0 +1,16 @@
+```release-note:enhancement
+clouddeploy: Added support for Cloud Run Targets (beta)
+```
+```release-note:enhancement
+clouddeploy: Added support for Deployment Verification standard strategy (beta)
+```
+```release-note:enhancement
+clouddeploy: Added execution_configs.execution_timeout in target resource. (beta)
+```
+```release-note:enhancement
+compute: machine_type field in compute instance resource now accepts short name.
+```
+```release-note:enhancement
+orgpolicy: Changed spec.rules type from Array to Set in policy resource.
+https://github.com/hashicorp/terraform-provider-google/issues/12363
+```

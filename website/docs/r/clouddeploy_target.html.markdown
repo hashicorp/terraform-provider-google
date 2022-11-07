@@ -23,6 +23,42 @@ description: |-
 
 The Cloud Deploy `Target` resource
 
+## Example Usage - run_target
+tests creating and updating a cloud run target
+```hcl
+resource "google_clouddeploy_target" "primary" {
+  location = "us-west1"
+  name     = "target"
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  description = "basic description"
+
+  execution_configs {
+    usages            = ["RENDER", "DEPLOY"]
+    execution_timeout = "3600s"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+
+  project          = "my-project-name"
+  require_approval = false
+
+  run {
+    location = "projects/my-project-name/locations/us-west1"
+  }
+  provider = google-beta
+}
+
+```
 ## Example Usage - target
 Creates a basic Cloud Deploy target
 ```hcl
@@ -103,6 +139,10 @@ The following arguments are supported:
   (Optional)
   Optional. Whether or not the `Target` requires approval.
   
+* `run` -
+  (Optional)
+  (Beta only) Information specifying a Cloud Run deployment target.
+  
 
 
 The `anthos_cluster` block supports:
@@ -116,6 +156,10 @@ The `execution_configs` block supports:
 * `artifact_storage` -
   (Optional)
   Optional. Cloud Storage location in which to store execution outputs. This can either be a bucket ("gs://my-bucket") or a path within a bucket ("gs://my-bucket/my-dir"). If unspecified, a default bucket located in the same region will be used.
+    
+* `execution_timeout` -
+  (Optional)
+  Optional. Execution timeout for a Cloud Build Execution. This must be between 10m and 24h in seconds format. If unspecified, a default timeout of 1h is used.
     
 * `service_account` -
   (Optional)
@@ -138,6 +182,12 @@ The `gke` block supports:
 * `internal_ip` -
   (Optional)
   Optional. If true, `cluster` is accessed using the private IP address of the control plane endpoint. Otherwise, the default IP address of the control plane endpoint is used. The default IP address is the private IP address for clusters with private control-plane endpoints and the public IP address otherwise. Only specify this option when `cluster` is a [private GKE cluster](https://cloud.google.com/kubernetes-engine/docs/concepts/private-cluster-concept).
+    
+The `run` block supports:
+    
+* `location` -
+  (Required)
+  Required. The location where the Cloud Run Service should be located. Format is `projects/{project}/locations/{location}`.
     
 ## Attributes Reference
 

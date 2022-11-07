@@ -183,6 +183,13 @@ func ClouddeployTargetExecutionConfigsSchema() *schema.Resource {
 				Description: "Optional. Cloud Storage location in which to store execution outputs. This can either be a bucket (\"gs://my-bucket\") or a path within a bucket (\"gs://my-bucket/my-dir\"). If unspecified, a default bucket located in the same region will be used.",
 			},
 
+			"execution_timeout": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. Execution timeout for a Cloud Build Execution. This must be between 10m and 24h in seconds format. If unspecified, a default timeout of 1h is used.",
+			},
+
 			"service_account": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -535,10 +542,11 @@ func expandClouddeployTargetExecutionConfigs(o interface{}) *clouddeploy.TargetE
 
 	obj := o.(map[string]interface{})
 	return &clouddeploy.TargetExecutionConfigs{
-		Usages:          expandClouddeployTargetExecutionConfigsUsagesArray(obj["usages"]),
-		ArtifactStorage: dcl.StringOrNil(obj["artifact_storage"].(string)),
-		ServiceAccount:  dcl.StringOrNil(obj["service_account"].(string)),
-		WorkerPool:      dcl.String(obj["worker_pool"].(string)),
+		Usages:           expandClouddeployTargetExecutionConfigsUsagesArray(obj["usages"]),
+		ArtifactStorage:  dcl.StringOrNil(obj["artifact_storage"].(string)),
+		ExecutionTimeout: dcl.StringOrNil(obj["execution_timeout"].(string)),
+		ServiceAccount:   dcl.StringOrNil(obj["service_account"].(string)),
+		WorkerPool:       dcl.String(obj["worker_pool"].(string)),
 	}
 }
 
@@ -561,10 +569,11 @@ func flattenClouddeployTargetExecutionConfigs(obj *clouddeploy.TargetExecutionCo
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"usages":           flattenClouddeployTargetExecutionConfigsUsagesArray(obj.Usages),
-		"artifact_storage": obj.ArtifactStorage,
-		"service_account":  obj.ServiceAccount,
-		"worker_pool":      obj.WorkerPool,
+		"usages":            flattenClouddeployTargetExecutionConfigsUsagesArray(obj.Usages),
+		"artifact_storage":  obj.ArtifactStorage,
+		"execution_timeout": obj.ExecutionTimeout,
+		"service_account":   obj.ServiceAccount,
+		"worker_pool":       obj.WorkerPool,
 	}
 
 	return transformed
