@@ -302,7 +302,7 @@ resolution and up to nine fractional digits.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
-				Description: `Maintenance policy for an instance.`,
+				Description: `Persistence configuration for an instance.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

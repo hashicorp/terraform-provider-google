@@ -328,7 +328,7 @@ The following arguments are supported:
 
 * `persistence_config` -
   (Optional)
-  Maintenance policy for an instance.
+  Persistence configuration for an instance.
   Structure is [documented below](#nested_persistence_config).
 
 * `maintenance_policy` -
