@@ -1,0 +1,3 @@
+```release-note:none
+Fix typo in `identity_platform_config_basic` example.
+```
