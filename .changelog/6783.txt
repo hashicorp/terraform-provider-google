@@ -1,0 +1,3 @@
+```release-note:none
+bigtable: updated Bigtable go client version from 1.16 to 1.17.
+```
