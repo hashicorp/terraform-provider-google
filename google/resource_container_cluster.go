@@ -6,6 +6,7 @@ import (
 	"log"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -389,6 +390,12 @@ func resourceContainerCluster() *schema.Resource {
 										Description:  `The default image type used by NAP once a new node pool is being created.`,
 										ValidateFunc: validation.StringInSlice([]string{"COS_CONTAINERD", "COS", "UBUNTU_CONTAINERD", "UBUNTU"}, false),
 									},
+									"min_cpu_platform": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										DiffSuppressFunc: emptyOrDefaultStringSuppress("automatic"),
+										Description:      `Minimum CPU platform to be used by this instance. The instance may be scheduled on the specified or newer CPU platform. Applicable values are the friendly names of CPU platforms, such as Intel Haswell.`,
+									},
 									"boot_disk_kms_key": {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -420,6 +427,91 @@ func resourceContainerCluster() *schema.Resource {
 													AtLeastOneOf: []string{
 														"cluster_autoscaling.0.auto_provisioning_defaults.0.shielded_instance_config.0.enable_secure_boot",
 														"cluster_autoscaling.0.auto_provisioning_defaults.0.shielded_instance_config.0.enable_integrity_monitoring",
+													},
+												},
+											},
+										},
+									},
+									"upgrade_settings": {
+										Type:             schema.TypeList,
+										Optional:         true,
+										Description:      `Specifies the upgrade settings for NAP created node pools`,
+										Computed:         true,
+										DiffSuppressFunc: UpgradeSettingsDiffSuppress,
+										MaxItems:         1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_surge": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Computed:    true,
+													Description: `The maximum number of nodes that can be created beyond the current size of the node pool during the upgrade process.`,
+												},
+												"max_unavailable": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Computed:    true,
+													Description: `The maximum number of nodes that can be simultaneously unavailable during the upgrade process.`,
+												},
+												"strategy": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Computed:     true,
+													Description:  `Update strategy of the node pool.`,
+													ValidateFunc: validation.StringInSlice([]string{"NODE_POOL_UPDATE_STRATEGY_UNSPECIFIED", "BLUE_GREEN", "SURGE"}, false),
+												},
+												"blue_green_settings": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													MaxItems:    1,
+													Description: `Settings for blue-green upgrade strategy.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"node_pool_soak_duration": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Time needed after draining entire blue pool. After this period, blue pool will be cleaned up.
+
+																A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
+															},
+															"standard_rollout_policy": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																MaxItems:    1,
+																Description: `Standard policy for the blue-green upgrade.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"batch_percentage": {
+																			Type:         schema.TypeFloat,
+																			Optional:     true,
+																			ValidateFunc: validation.FloatBetween(0.0, 1.0),
+																			ExactlyOneOf: []string{
+																				"cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.blue_green_settings.0.standard_rollout_policy.0.batch_percentage",
+																				"cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.blue_green_settings.0.standard_rollout_policy.0.batch_node_count",
+																			},
+																			Description: `Percentage of the bool pool nodes to drain in a batch. The range of this field should be (0.0, 1.0].`,
+																		},
+																		"batch_node_count": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			ExactlyOneOf: []string{
+																				"cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.blue_green_settings.0.standard_rollout_policy.0.batch_percentage",
+																				"cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.blue_green_settings.0.standard_rollout_policy.0.batch_node_count",
+																			},
+																			Description: `Number of blue nodes to drain in a batch.`,
+																		},
+																		"batch_soak_duration": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Default:  "0s",
+																			Description: `Soak time after each batch gets drained.
+
+																			A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
+																		},
+																	},
+																},
+															},
+														},
 													},
 												},
 											},
@@ -3202,12 +3294,13 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	config := l[0].(map[string]interface{})
 
 	npd := &container.AutoprovisioningNodePoolDefaults{
-		OauthScopes:    convertStringArr(config["oauth_scopes"].([]interface{})),
-		ServiceAccount: config["service_account"].(string),
-		DiskSizeGb:     int64(config["disk_size"].(int)),
-		DiskType:       config["disk_type"].(string),
-		ImageType:      config["image_type"].(string),
-		BootDiskKmsKey: config["boot_disk_kms_key"].(string),
+		OauthScopes:     convertStringArr(config["oauth_scopes"].([]interface{})),
+		ServiceAccount:  config["service_account"].(string),
+		DiskSizeGb:      int64(config["disk_size"].(int)),
+		DiskType:        config["disk_type"].(string),
+		ImageType:       config["image_type"].(string),
+		BootDiskKmsKey:  config["boot_disk_kms_key"].(string),
+		UpgradeSettings: expandUpgradeSettings(config["upgrade_settings"]),
 	}
 
 	if v, ok := config["shielded_instance_config"]; ok && len(v.([]interface{})) > 0 {
@@ -3218,7 +3311,62 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 		}
 	}
 
+	cpu := config["min_cpu_platform"].(string)
+	// the only way to unset the field is to pass "automatic" as its value
+	if cpu == "" {
+		cpu = "automatic"
+	}
+	npd.MinCpuPlatform = cpu
+
 	return npd
+}
+
+func expandUpgradeSettings(configured interface{}) *container.UpgradeSettings {
+	l, ok := configured.([]interface{})
+	if !ok || l == nil || len(l) == 0 || l[0] == nil {
+		return &container.UpgradeSettings{}
+	}
+	config := l[0].(map[string]interface{})
+
+	upgradeSettings := &container.UpgradeSettings{
+		MaxSurge:          int64(config["max_surge"].(int)),
+		MaxUnavailable:    int64(config["max_unavailable"].(int)),
+		Strategy:          config["strategy"].(string),
+		BlueGreenSettings: expandBlueGreenSettings(config["blue_green_settings"]),
+	}
+
+	return upgradeSettings
+}
+
+func expandBlueGreenSettings(configured interface{}) *container.BlueGreenSettings {
+	l, ok := configured.([]interface{})
+	if !ok || l == nil || len(l) == 0 || l[0] == nil {
+		return &container.BlueGreenSettings{}
+	}
+	config := l[0].(map[string]interface{})
+
+	blueGreenSettings := &container.BlueGreenSettings{
+		NodePoolSoakDuration:  config["node_pool_soak_duration"].(string),
+		StandardRolloutPolicy: expandStandardRolloutPolicy(config["standard_rollout_policy"]),
+	}
+
+	return blueGreenSettings
+}
+
+func expandStandardRolloutPolicy(configured interface{}) *container.StandardRolloutPolicy {
+	l, ok := configured.([]interface{})
+	if !ok || l == nil || len(l) == 0 || l[0] == nil {
+		return &container.StandardRolloutPolicy{}
+	}
+
+	config := l[0].(map[string]interface{})
+	standardRolloutPolicy := &container.StandardRolloutPolicy{
+		BatchPercentage:   config["batch_percentage"].(float64),
+		BatchNodeCount:    int64(config["batch_node_count"].(int)),
+		BatchSoakDuration: config["batch_soak_duration"].(string),
+	}
+
+	return standardRolloutPolicy
 }
 
 func expandAuthenticatorGroupsConfig(configured interface{}) *container.AuthenticatorGroupsConfig {
@@ -3981,8 +4129,48 @@ func flattenAutoProvisioningDefaults(a *container.AutoprovisioningNodePoolDefaul
 	r["disk_size"] = a.DiskSizeGb
 	r["disk_type"] = a.DiskType
 	r["image_type"] = a.ImageType
+	r["min_cpu_platform"] = a.MinCpuPlatform
 	r["boot_disk_kms_key"] = a.BootDiskKmsKey
 	r["shielded_instance_config"] = flattenShieldedInstanceConfig(a.ShieldedInstanceConfig)
+	r["upgrade_settings"] = flattenUpgradeSettings(a.UpgradeSettings)
+
+	return []map[string]interface{}{r}
+}
+
+func flattenUpgradeSettings(a *container.UpgradeSettings) []map[string]interface{} {
+	if a == nil {
+		return nil
+	}
+	r := make(map[string]interface{})
+	r["max_surge"] = a.MaxSurge
+	r["max_unavailable"] = a.MaxUnavailable
+	r["strategy"] = a.Strategy
+	r["blue_green_settings"] = flattenBlueGreenSettings(a.BlueGreenSettings)
+
+	return []map[string]interface{}{r}
+}
+
+func flattenBlueGreenSettings(a *container.BlueGreenSettings) []map[string]interface{} {
+	if a == nil {
+		return nil
+	}
+
+	r := make(map[string]interface{})
+	r["node_pool_soak_duration"] = a.NodePoolSoakDuration
+	r["standard_rollout_policy"] = flattenStandardRolloutPolicy(a.StandardRolloutPolicy)
+
+	return []map[string]interface{}{r}
+}
+
+func flattenStandardRolloutPolicy(a *container.StandardRolloutPolicy) []map[string]interface{} {
+	if a == nil {
+		return nil
+	}
+
+	r := make(map[string]interface{})
+	r["batch_percentage"] = a.BatchPercentage
+	r["batch_node_count"] = a.BatchNodeCount
+	r["batch_soak_duration"] = a.BatchSoakDuration
 
 	return []map[string]interface{}{r}
 }
@@ -4302,6 +4490,34 @@ func BinaryAuthorizationDiffSuppress(k, old, new string, r *schema.ResourceData)
 		if !o.(bool) && !r.HasChange("binary_authorization.0.evaluation_mode") {
 			return true
 		}
+	}
+
+	return false
+}
+
+func UpgradeSettingsDiffSuppress(k, old, new string, r *schema.ResourceData) bool {
+	// the number of digits after decimal point may differ for soak_duration in config. ("3.5s" - "3.500s")
+	// suppress the difference if both floats are equal.
+	// max_surge and max_unavailable should not be _ideally_ specified with the strategy set to BLUE_GREEN,
+	// but in case it is specified, suppress it.
+
+	nodePoolSoakDuration := "cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.blue_green_settings.0.node_pool_soak_duration"
+
+	o, n := r.GetChange("cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.strategy")
+
+	if o == "BLUE_GREEN" && n == "BLUE_GREEN" {
+		if k == nodePoolSoakDuration {
+			fs1, fs2 := r.GetChange(nodePoolSoakDuration)
+
+			f1, _ := strconv.ParseFloat(strings.Trim(fs1.(string), "s"), 32)
+			f2, _ := strconv.ParseFloat(strings.Trim(fs2.(string), "s"), 32)
+
+			return f1 == f2
+		}
+
+		return k == "cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.max_surge" ||
+			k == "cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.max_unavailable"
+
 	}
 
 	return false
