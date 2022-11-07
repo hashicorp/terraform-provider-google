@@ -207,6 +207,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/triggers/{{name}}`
 
+* `conditions` -
+  Output only. The reason(s) why a trigger is in FAILED state.
+  
 * `create_time` -
   Output only. The creation time.
   

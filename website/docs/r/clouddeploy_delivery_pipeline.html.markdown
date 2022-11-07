@@ -61,6 +61,44 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
 
 
 ```
+## Example Usage - verify_delivery_pipeline
+tests creating and updating a delivery pipeline with deployment verification strategy
+```hcl
+resource "google_clouddeploy_delivery_pipeline" "primary" {
+  location = "us-west1"
+  name     = "pipeline"
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  description = "basic description"
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+
+  project = "my-project-name"
+
+  serial_pipeline {
+    stages {
+      profiles  = ["example-profile-one", "example-profile-two"]
+      target_id = "example-target-one"
+    }
+
+    stages {
+      profiles  = []
+      target_id = "example-target-two"
+    }
+  }
+  provider = google-beta
+}
+
+```
 
 ## Argument Reference
 
@@ -116,9 +154,25 @@ The `stages` block supports:
   (Optional)
   Skaffold profiles to use when rendering the manifest for this stage's `Target`.
     
+* `strategy` -
+  (Optional)
+  (Beta only) Optional. The strategy to use for a `Rollout` to this stage.
+    
 * `target_id` -
   (Optional)
   The target_id to which this stage points. This field refers exclusively to the last segment of a target name. For example, this field would just be `my-target` (rather than `projects/project/locations/location/targets/my-target`). The location of the `Target` is inferred to be the same as the location of the `DeliveryPipeline` that contains this `Stage`.
+    
+The `strategy` block supports:
+    
+* `standard` -
+  (Optional)
+  Standard deployment strategy executes a single deploy and allows verifying the deployment.
+    
+The `standard` block supports:
+    
+* `verify` -
+  (Optional)
+  Whether to verify a deployment.
     
 ## Attributes Reference
 
