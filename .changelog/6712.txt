@@ -1,0 +1,3 @@
+```release-note:bug
+cloudids: fix `endpoint_forwarding_rule` and `endpoint_ip` attributes for `google_cloud_ids_endpoint`
+```
