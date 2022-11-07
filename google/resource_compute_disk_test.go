@@ -247,6 +247,37 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "debian-11-arm64",
 			ExpectDiffSuppress: false,
 		},
+		// amd images
+		"matching image ubuntu amd64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2210-kinetic-amd64-v20221022",
+			New:                "ubuntu-2210-amd64",
+			ExpectDiffSuppress: true,
+		},
+		"matching image ubuntu-minimal amd64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2210-kinetic-amd64-v20221022",
+			New:                "ubuntu-minimal-2210-amd64",
+			ExpectDiffSuppress: true,
+		},
+		"different architecture image ubuntu amd64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2210-kinetic-amd64-v20221022",
+			New:                "ubuntu-2210",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image ubuntu-minimal amd64 self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2210-kinetic-amd64-v20221022",
+			New:                "ubuntu-minimal-2210",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image ubuntu amd64 family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2210-kinetic-v20221022",
+			New:                "ubuntu-2210-amd64",
+			ExpectDiffSuppress: false,
+		},
+		"different architecture image ubuntu-minimal amd64 family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2210-kinetic-v20221022",
+			New:                "ubuntu-minimal-2210-amd64",
+			ExpectDiffSuppress: false,
+		},
 	}
 
 	for tn, tc := range cases {

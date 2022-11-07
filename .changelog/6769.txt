@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed perma-diff on `google_compute_disk` for new amd64 images
+```
