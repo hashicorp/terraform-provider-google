@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added fields `rows_limit`, `rows_limit_percent`, and `sample_method` to `big_query_options` in `google_data_loss_prevention_job_trigger` 
+```
