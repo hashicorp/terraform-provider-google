@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_network_firewall_policy`
+```
+```release-note:new-resource
+`google_compute_region_network_firewall_policy`
+```
