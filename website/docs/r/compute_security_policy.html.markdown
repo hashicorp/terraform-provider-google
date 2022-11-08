@@ -111,6 +111,8 @@ The following arguments are supported:
 * `match` - (Required) A match condition that incoming traffic is evaluated against.
     If it evaluates to true, the corresponding `action` is enforced. Structure is [documented below](#nested_match).
 
+* `preconfigured_waf_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Preconfigured WAF configuration to be applied for the rule. If the rule does not evaluate preconfigured WAF rules, i.e., if evaluatePreconfiguredWaf() is not used, this field will have no effect. Structure is [documented below](#nested_preconfigured_waf_config).
+
 * `description` - (Optional) An optional description of this rule. Max size is 64.
 
 * `preview` - (Optional) When set to true, the `action` specified above is not enforced.
@@ -146,6 +148,37 @@ The following arguments are supported:
 
 * `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
     The application context of the containing message determines which well-known feature set of CEL is supported.
+
+<a name="nested_preconfigured_waf_config"></a>The `preconfigured_waf_config` block supports:
+
+* `exclusion` - (Optional) An exclusion to apply during preconfigured WAF evaluation. Structure is [documented below](#nested_exclusion).
+
+<a name="nested_exclusion"></a>The `exclusion` block supports:
+
+* `request_header` - (Optional) Request header whose value will be excluded from inspection during preconfigured WAF evaluation. Structure is [documented below](#nested_field_params).
+
+* `request_cookie` - (Optional) Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation. Structure is [documented below](#nested_field_params).
+
+* `request_uri` - (Optional) Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation. Note that the parameter can be in the query string or in the POST body. Structure is [documented below](#nested_field_params).
+
+* `request_query_param` - (Optional) Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded. Structure is [documented below](#nested_field_params).
+
+* `target_rule_set` - (Required) Target WAF rule set to apply the preconfigured WAF exclusion.
+
+* `target_rule_ids` - (Optional) A list of target rule IDs under the WAF rule set to apply the preconfigured WAF exclusion. If omitted, it refers to all the rule IDs under the WAF rule set.
+
+<a name="nested_field_params"></a>The `request_header`, `request_cookie`, `request_uri` and `request_query_param` blocks support:
+
+* `operator` - (Required) You can specify an exact match or a partial match by using a field operator and a field value.
+
+  * EQUALS: The operator matches if the field value equals the specified value.
+  * STARTS_WITH: The operator matches if the field value starts with the specified value.
+  * ENDS_WITH: The operator matches if the field value ends with the specified value.
+  * CONTAINS: The operator matches if the field value contains the specified value.
+  * EQUALS_ANY: The operator matches if the field value is any value.
+
+* `value` - (Optional) A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+    The field value must be given if the field `operator` is not "EQUALS_ANY", and cannot be given if the field `operator` is "EQUALS_ANY".
 
 <a name="nested_rate_limit_options"></a>The `rate_limit_options` block supports:
 
