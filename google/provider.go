@@ -917,9 +917,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 245
+// Generated resources: 246
 // Generated IAM resources: 150
-// Total generated resources: 395
+// Total generated resources: 396
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1210,6 +1210,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_identity_platform_oauth_idp_config":                    resourceIdentityPlatformOauthIdpConfig(),
 			"google_identity_platform_tenant_oauth_idp_config":             resourceIdentityPlatformTenantOauthIdpConfig(),
 			"google_identity_platform_tenant":                              resourceIdentityPlatformTenant(),
+			"google_identity_platform_project_default_config":              resourceIdentityPlatformProjectDefaultConfig(),
 			"google_kms_key_ring":                                          resourceKMSKeyRing(),
 			"google_kms_crypto_key":                                        resourceKMSCryptoKey(),
 			"google_kms_crypto_key_version":                                resourceKMSCryptoKeyVersion(),
