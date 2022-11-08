@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `preconfigured_waf_config` block to `google_compute_security_policy` resource (beta)
+```
