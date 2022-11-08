@@ -286,6 +286,37 @@ are supported. Predefined roles that have equivalent basic roles
 are swapped by the API to their basic counterparts. See
 [official docs](https://cloud.google.com/bigquery/docs/access-control).`,
 			},
+			"routine": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A routine from a different dataset to grant access to. Queries
+executed against that routine will have read access to tables in
+this dataset. The role field is not required when this field is
+set. If that routine is updated by any user, access to the routine
+needs to be granted again via an update operation.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dataset_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the dataset containing this table.`,
+						},
+						"project_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the project containing this table.`,
+						},
+						"routine_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The ID of the routine. The ID must contain only letters (a-z,
+A-Z), numbers (0-9), or underscores (_). The maximum length
+is 256 characters.`,
+						},
+					},
+				},
+			},
 			"special_group": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -733,6 +764,7 @@ func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config 
 			"user_by_email":  flattenBigQueryDatasetAccessUserByEmail(original["userByEmail"], d, config),
 			"view":           flattenBigQueryDatasetAccessView(original["view"], d, config),
 			"dataset":        flattenBigQueryDatasetAccessDataset(original["dataset"], d, config),
+			"routine":        flattenBigQueryDatasetAccessRoutine(original["routine"], d, config),
 		})
 	}
 	return transformed
@@ -825,6 +857,35 @@ func flattenBigQueryDatasetAccessDatasetDatasetProjectId(v interface{}, d *schem
 }
 
 func flattenBigQueryDatasetAccessDatasetTargetTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetAccessRoutine(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dataset_id"] =
+		flattenBigQueryDatasetAccessRoutineDatasetId(original["datasetId"], d, config)
+	transformed["project_id"] =
+		flattenBigQueryDatasetAccessRoutineProjectId(original["projectId"], d, config)
+	transformed["routine_id"] =
+		flattenBigQueryDatasetAccessRoutineRoutineId(original["routineId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryDatasetAccessRoutineDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetAccessRoutineProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetAccessRoutineRoutineId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1020,6 +1081,13 @@ func expandBigQueryDatasetAccess(v interface{}, d TerraformResourceData, config 
 			transformed["dataset"] = transformedDataset
 		}
 
+		transformedRoutine, err := expandBigQueryDatasetAccessRoutine(original["routine"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRoutine); val.IsValid() && !isEmptyValue(val) {
+			transformed["routine"] = transformedRoutine
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1151,6 +1219,51 @@ func expandBigQueryDatasetAccessDatasetDatasetProjectId(v interface{}, d Terrafo
 }
 
 func expandBigQueryDatasetAccessDatasetTargetTypes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetAccessRoutine(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDatasetId, err := expandBigQueryDatasetAccessRoutineDatasetId(original["dataset_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+		transformed["datasetId"] = transformedDatasetId
+	}
+
+	transformedProjectId, err := expandBigQueryDatasetAccessRoutineProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	transformedRoutineId, err := expandBigQueryDatasetAccessRoutineRoutineId(original["routine_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoutineId); val.IsValid() && !isEmptyValue(val) {
+		transformed["routineId"] = transformedRoutineId
+	}
+
+	return transformed, nil
+}
+
+func expandBigQueryDatasetAccessRoutineDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetAccessRoutineProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetAccessRoutineRoutineId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

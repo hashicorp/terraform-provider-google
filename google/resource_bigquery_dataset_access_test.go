@@ -100,6 +100,42 @@ func TestAccBigQueryDatasetAccess_authorizedDataset(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDatasetAccess_authorizedRoutine(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"public_dataset":  fmt.Sprintf("tf_test_public_dataset_%s", randString(t, 10)),
+		"public_routine":  fmt.Sprintf("tf_test_public_routine_%s", randString(t, 10)),
+		"private_dataset": fmt.Sprintf("tf_test_private_dataset_%s", randString(t, 10)),
+	}
+
+	expected := map[string]interface{}{
+		"routine": map[string]interface{}{
+			"projectId": getTestProjectFromEnv(),
+			"datasetId": context["public_dataset"],
+			"routineId": context["public_routine"],
+		},
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetAccess_authorizedRoutine(context),
+				Check:  testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.private", expected),
+			},
+			{
+				// Destroy step instead of CheckDestroy so we can check the access is removed without deleting the dataset
+				Config: testAccBigQueryDatasetAccess_destroy(context["private_dataset"].(string), "private"),
+				Check:  testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.private", expected),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDatasetAccess_multiple(t *testing.T) {
 	// Multiple fine-grained resources
 	skipIfVcr(t)
@@ -356,6 +392,47 @@ resource "google_bigquery_dataset" "public" {
   dataset_id = "%s"
 }
 `, datasetID, datasetID2)
+}
+
+func testAccBigQueryDatasetAccess_authorizedRoutine(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_dataset" "public" {
+  dataset_id  = "%{public_dataset}"
+  description = "This dataset is public"
+}
+
+resource "google_bigquery_routine" "public" {
+  dataset_id      = google_bigquery_dataset.public.dataset_id
+  routine_id      = "%{public_routine}"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  definition_body = <<-EOS
+    SELECT 1 + value AS value
+  EOS
+  arguments {
+    name          = "value"
+    argument_kind = "FIXED_TYPE"
+    data_type     = jsonencode({ "typeKind" = "INT64" })
+  }
+  return_table_type = jsonencode({ "columns" = [
+    { "name" = "value", "type" = { "typeKind" = "INT64" } },
+  ] })
+}
+
+resource "google_bigquery_dataset" "private" {
+  dataset_id  = "%{private_dataset}"
+  description = "This dataset is private"
+}
+
+resource "google_bigquery_dataset_access" "authorized_routine" {
+  dataset_id = google_bigquery_dataset.private.dataset_id
+  routine {
+    project_id = google_bigquery_routine.public.project
+    dataset_id = google_bigquery_routine.public.dataset_id
+    routine_id = google_bigquery_routine.public.routine_id
+  }
+}
+`, context)
 }
 
 func testAccBigQueryDatasetAccess_multiple(datasetID string) string {
