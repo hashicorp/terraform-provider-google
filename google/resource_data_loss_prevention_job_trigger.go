@@ -225,6 +225,28 @@ Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLU
 														},
 													},
 												},
+												"rows_limit": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Max number of rows to scan. If the table has more rows than this value, the rest of the rows are omitted. 
+If not set, or if set to 0, all rows will be scanned. Only one of rowsLimit and rowsLimitPercent can be 
+specified. Cannot be used in conjunction with TimespanConfig.`,
+												},
+												"rows_limit_percent": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Max percentage of rows to scan. The rest are omitted. The number of rows scanned is rounded down. 
+Must be between 0 and 100, inclusively. Both 0 and 100 means no limit. Defaults to 0. Only one of 
+rowsLimit and rowsLimitPercent can be specified. Cannot be used in conjunction with TimespanConfig.`,
+												},
+												"sample_method": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validateEnum([]string{"TOP", "RANDOM_START", ""}),
+													Description: `How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either 
+rowsLimit or rowsLimitPercent. If not specified, rows are scanned in the order BigQuery reads them. Default value: "TOP" Possible values: ["TOP", "RANDOM_START"]`,
+													Default: "TOP",
+												},
 											},
 										},
 									},
@@ -1086,6 +1108,12 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptions(v
 	transformed := make(map[string]interface{})
 	transformed["table_reference"] =
 		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTableReference(original["tableReference"], d, config)
+	transformed["rows_limit"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimit(original["rowsLimit"], d, config)
+	transformed["rows_limit_percent"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimitPercent(original["rowsLimitPercent"], d, config)
+	transformed["sample_method"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(original["sampleMethod"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTableReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1114,6 +1142,44 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTa
 }
 
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTableReferenceTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimitPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1671,6 +1737,27 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptions(v 
 		transformed["tableReference"] = transformedTableReference
 	}
 
+	transformedRowsLimit, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimit(original["rows_limit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRowsLimit); val.IsValid() && !isEmptyValue(val) {
+		transformed["rowsLimit"] = transformedRowsLimit
+	}
+
+	transformedRowsLimitPercent, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimitPercent(original["rows_limit_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRowsLimitPercent); val.IsValid() && !isEmptyValue(val) {
+		transformed["rowsLimitPercent"] = transformedRowsLimitPercent
+	}
+
+	transformedSampleMethod, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(original["sample_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSampleMethod); val.IsValid() && !isEmptyValue(val) {
+		transformed["sampleMethod"] = transformedSampleMethod
+	}
+
 	return transformed, nil
 }
 
@@ -1716,6 +1803,18 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTab
 }
 
 func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTableReferenceTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimitPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
