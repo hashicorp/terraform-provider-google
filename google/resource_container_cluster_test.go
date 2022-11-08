@@ -5324,7 +5324,7 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   logging_config {
-	  enable_components = [ "SYSTEM_COMPONENTS", "WORKLOADS" ]
+	  enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS" ]
   }
   monitoring_config {
 	  enable_components = [ "SYSTEM_COMPONENTS" ]

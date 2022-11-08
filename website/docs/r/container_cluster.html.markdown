@@ -552,7 +552,7 @@ as "Intel Haswell" or "Intel Sandy Bridge".
 <a name="nested_logging_config"></a>The `logging_config` block supports:
 
 *  `enable_components` - (Required) The GKE components exposing logs. Supported values include:
-`SYSTEM_COMPONENTS` and `WORKLOADS`.
+`SYSTEM_COMPONENTS`, `APISERVER`, `CONTROLLER_MANAGER`, `SCHEDULER`, and `WORKLOADS`.
 
 <a name="nested_monitoring_config"></a>The `monitoring_config` block supports:
 
@@ -883,11 +883,11 @@ linux_node_config {
 
 <a name="nested_gpu_sharing_config"></a>The `gpu_sharing_config` block supports:
 
-* `gpu_sharing_strategy` (Required) - The type of GPU sharing strategy to enable on the GPU node. 
+* `gpu_sharing_strategy` (Required) - The type of GPU sharing strategy to enable on the GPU node.
     Accepted values are:
-    * `"TIME_SHARING"`: Allow multiple containers to have [time-shared](https://cloud.google.com/kubernetes-engine/docs/concepts/timesharing-gpus) access to a single GPU device. 
+    * `"TIME_SHARING"`: Allow multiple containers to have [time-shared](https://cloud.google.com/kubernetes-engine/docs/concepts/timesharing-gpus) access to a single GPU device.
 
-* `max_shared_clients_per_gpu` (Required) - The maximum number of containers that can share a GPU. 
+* `max_shared_clients_per_gpu` (Required) - The maximum number of containers that can share a GPU.
 
 <a name="nested_workload_identity_config"></a> The `workload_identity_config` block supports:
 
