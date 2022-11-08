@@ -242,6 +242,10 @@ func accessToIamMember(access map[string]interface{}) (string, error) {
 		// dataset does not map to an IAM member, use access instead
 		return "", fmt.Errorf("Failed to convert BigQuery Dataset access to IAM member. To use views with a dataset, please use dataset_access")
 	}
+	if _, ok := access["routine"]; ok {
+		// dataset does not map to an IAM member, use access instead
+		return "", fmt.Errorf("Failed to convert BigQuery Dataset access to IAM member. To use views with a dataset, please use dataset_access")
+	}
 	if member, ok := access["userByEmail"]; ok {
 		// service accounts have "gservice" in their email. This is best guess due to lost information
 		if strings.Contains(member.(string), "gserviceaccount") {

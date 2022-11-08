@@ -161,6 +161,49 @@ resource "google_service_account" "bqowner" {
   account_id = "bqowner"
 }
 ```
+## Example Usage - Bigquery Dataset Authorized Routine
+
+
+```hcl
+resource "google_bigquery_dataset" "public" {
+  dataset_id  = "public_dataset"
+  description = "This dataset is public"
+}
+
+resource "google_bigquery_routine" "public" {
+  dataset_id      = google_bigquery_dataset.public.dataset_id
+  routine_id      = "public_routine"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  definition_body = <<-EOS
+    SELECT 1 + value AS value
+  EOS
+  arguments {
+    name          = "value"
+    argument_kind = "FIXED_TYPE"
+    data_type     = jsonencode({ "typeKind" = "INT64" })
+  }
+  return_table_type = jsonencode({ "columns" = [
+    { "name" = "value", "type" = { "typeKind" = "INT64" } },
+  ] })
+}
+
+resource "google_bigquery_dataset" "private" {
+  dataset_id  = "private_dataset"
+  description = "This dataset is private"
+  access {
+    role          = "OWNER"
+    user_by_email = "emailAddress:my@service-account.com"
+  }
+  access {
+    routine {
+      project_id = google_bigquery_routine.public.project
+      dataset_id = google_bigquery_routine.public.dataset_id
+      routine_id = google_bigquery_routine.public.routine_id
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -309,6 +352,15 @@ destroying the resource will fail if tables are present.
   Grants all resources of particular types in a particular dataset read access to the current dataset.
   Structure is [documented below](#nested_dataset).
 
+* `routine` -
+  (Optional)
+  A routine from a different dataset to grant access to. Queries
+  executed against that routine will have read access to tables in
+  this dataset. The role field is not required when this field is
+  set. If that routine is updated by any user, access to the routine
+  needs to be granted again via an update operation.
+  Structure is [documented below](#nested_routine).
+
 
 <a name="nested_view"></a>The `view` block supports:
 
@@ -348,6 +400,22 @@ destroying the resource will fail if tables are present.
 * `project_id` -
   (Required)
   The ID of the project containing this table.
+
+<a name="nested_routine"></a>The `routine` block supports:
+
+* `dataset_id` -
+  (Required)
+  The ID of the dataset containing this table.
+
+* `project_id` -
+  (Required)
+  The ID of the project containing this table.
+
+* `routine_id` -
+  (Required)
+  The ID of the routine. The ID must contain only letters (a-z,
+  A-Z), numbers (0-9), or underscores (_). The maximum length
+  is 256 characters.
 
 <a name="nested_default_encryption_configuration"></a>The `default_encryption_configuration` block supports:
 
