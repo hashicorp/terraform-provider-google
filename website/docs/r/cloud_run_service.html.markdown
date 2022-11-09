@@ -618,6 +618,11 @@ The following arguments are supported:
   HttpGet specifies the http request to perform.
   Structure is [documented below](#nested_http_get).
 
+* `grpc` -
+  (Optional)
+  GRPC specifies an action involving a GRPC port.
+  Structure is [documented below](#nested_grpc).
+
 
 <a name="nested_tcp_socket"></a>The `tcp_socket` block supports:
 
@@ -646,6 +651,18 @@ The following arguments are supported:
 * `value` -
   (Optional)
   The header field value.
+
+<a name="nested_grpc"></a>The `grpc` block supports:
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+
+* `service` -
+  (Optional)
+  The name of the service to place in the gRPC HealthCheckRequest
+  (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+  If this is not specified, the default behavior is defined by gRPC.
 
 <a name="nested_liveness_probe"></a>The `liveness_probe` block supports:
 
@@ -676,6 +693,11 @@ The following arguments are supported:
   HttpGet specifies the http request to perform.
   Structure is [documented below](#nested_http_get).
 
+* `grpc` -
+  (Optional)
+  GRPC specifies an action involving a GRPC port.
+  Structure is [documented below](#nested_grpc).
+
 
 <a name="nested_http_get"></a>The `http_get` block supports:
 
@@ -698,6 +720,18 @@ The following arguments are supported:
 * `value` -
   (Optional)
   The header field value.
+
+<a name="nested_grpc"></a>The `grpc` block supports:
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+
+* `service` -
+  (Optional)
+  The name of the service to place in the gRPC HealthCheckRequest
+  (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+  If this is not specified, the default behavior is defined by gRPC.
 
 <a name="nested_volumes"></a>The `volumes` block supports:
 
