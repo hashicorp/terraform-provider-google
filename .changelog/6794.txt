@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Adding management attribute to the google_container_cluster resource
+```
