@@ -96,6 +96,20 @@ func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool 
 	return false
 }
 
+// Has enable_l4_ilb_subsetting been enabled before?
+func isBeenEnabled(_ context.Context, old, new, _ interface{}) bool {
+	if old == nil || new == nil {
+		return false
+	}
+
+	// if subsetting is enabled, but is not now
+	if old.(bool) && !new.(bool) {
+		return true
+	}
+
+	return false
+}
+
 func resourceContainerCluster() *schema.Resource {
 	return &schema.Resource{
 		UseJSONNumber: true,
@@ -106,6 +120,7 @@ func resourceContainerCluster() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceNodeConfigEmptyGuestAccelerator,
+			customdiff.ForceNewIfChange("enable_l4_ilb_subsetting", isBeenEnabled),
 			containerClusterAutopilotCustomizeDiff,
 			containerClusterNodeVersionRemoveDefaultCustomizeDiff,
 			containerClusterNetworkPolicyEmptyCustomizeDiff,
@@ -1384,6 +1399,12 @@ func resourceContainerCluster() *schema.Resource {
 				Description:   `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
+			"enable_l4_ilb_subsetting": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether L4ILB Subsetting is enabled for this cluster.`,
+				Default:     false,
+			},
 			"private_ipv6_google_access": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1591,6 +1612,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			DefaultSnatStatus:         expandDefaultSnatStatus(d.Get("default_snat_status")),
 			DatapathProvider:          d.Get("datapath_provider").(string),
 			PrivateIpv6GoogleAccess:   d.Get("private_ipv6_google_access").(string),
+			EnableL4ilbSubsetting:     d.Get("enable_l4_ilb_subsetting").(bool),
 			DnsConfig:                 expandDnsConfig(d.Get("dns_config")),
 		},
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
@@ -1960,6 +1982,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("notification_config", flattenNotificationConfig(cluster.NotificationConfig)); err != nil {
 		return err
 	}
+	if err := d.Set("enable_l4_ilb_subsetting", cluster.NetworkConfig.EnableL4ilbSubsetting); err != nil {
+		return fmt.Errorf("Error setting enable_l4_ilb_subsetting: %s", err)
+	}
 	if err := d.Set("cost_management_config", flattenManagementConfig(cluster.CostManagementConfig)); err != nil {
 		return fmt.Errorf("Error setting cost_management_config: %s", err)
 	}
@@ -2313,6 +2338,43 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Private IPv6 Google Access has been updated", d.Id())
+	}
+
+	if d.HasChange("enable_l4_ilb_subsetting") {
+		// This field can be changed from false to true but not from false to true. CustomizeDiff handles that check.
+		enabled := d.Get("enable_l4_ilb_subsetting").(bool)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredL4ilbSubsettingConfig: &container.ILBSubsettingConfig{
+					Enabled:         enabled,
+					ForceSendFields: []string{"Enabled"},
+				},
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating enable_l4_ilb_subsetting")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating L4", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating enable_intranode_visibility")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s L4 ILB Subsetting has been updated to %v", d.Id(), enabled)
 	}
 
 	if d.HasChange("cost_management_config") {
