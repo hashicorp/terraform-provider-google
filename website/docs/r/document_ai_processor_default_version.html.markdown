@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Essential Contacts"
+subcategory: "Document AI"
 page_title: "Google: google_document_ai_processor_default_version"
 description: |-
   The default version for the processor.

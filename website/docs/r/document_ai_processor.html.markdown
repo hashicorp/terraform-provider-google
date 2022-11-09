@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Essential Contacts"
+subcategory: "Document AI"
 page_title: "Google: google_document_ai_processor"
 description: |-
   The first-class citizen for Document AI.
