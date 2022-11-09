@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added field `strategy` to `google_container_node_pool`
+```
+```release-note:enhancement
+container: added field `blue_green_settings` to `google_container_node_pool`
+```

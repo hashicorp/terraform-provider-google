@@ -74,6 +74,53 @@ func resourceContainerNodePool() *schema.Resource {
 	}
 }
 
+var schemaBlueGreenSettings = &schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"standard_rollout_policy": {
+				Type:        schema.TypeList,
+				Required:    true,
+				MaxItems:    1,
+				Description: `Standard rollout policy is the default policy for blue-green.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"batch_percentage": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							Computed:     true,
+							Description:  `Percentage of the blue pool nodes to drain in a batch.`,
+							ValidateFunc: validation.FloatBetween(0.0, 1.0),
+						},
+						"batch_node_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: `Number of blue nodes to drain in a batch.`,
+						},
+						"batch_soak_duration": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `Soak time after each batch gets drained.`,
+						},
+					},
+				},
+			},
+			"node_pool_soak_duration": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Time needed after draining entire blue pool. After this period, blue pool will be cleaned up.`,
+			},
+		},
+	},
+	Description: `Settings for BlueGreen node pool upgrade.`,
+}
+
 var schemaNodePool = map[string]*schema.Schema{
 	"autoscaling": {
 		Type:        schema.TypeList,
@@ -146,17 +193,29 @@ var schemaNodePool = map[string]*schema.Schema{
 			Schema: map[string]*schema.Schema{
 				"max_surge": {
 					Type:         schema.TypeInt,
-					Required:     true,
+					Optional:     true,
+					Computed:     true,
 					ValidateFunc: validation.IntAtLeast(0),
 					Description:  `The number of additional nodes that can be added to the node pool during an upgrade. Increasing max_surge raises the number of nodes that can be upgraded simultaneously. Can be set to 0 or greater.`,
 				},
 
 				"max_unavailable": {
 					Type:         schema.TypeInt,
-					Required:     true,
+					Optional:     true,
+					Computed:     true,
 					ValidateFunc: validation.IntAtLeast(0),
 					Description:  `The number of nodes that can be simultaneously unavailable during an upgrade. Increasing max_unavailable raises the number of nodes that can be upgraded in parallel. Can be set to 0 or greater.`,
 				},
+
+				"strategy": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					Default:      "SURGE",
+					ValidateFunc: validation.StringInSlice([]string{"SURGE", "BLUE_GREEN"}, false),
+					Description:  `Update strategy for the given nodepool.`,
+				},
+
+				"blue_green_settings": schemaBlueGreenSettings,
 			},
 		},
 	},
@@ -749,16 +808,101 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		upgradeSettingsConfig := v.([]interface{})[0].(map[string]interface{})
 		np.UpgradeSettings = &container.UpgradeSettings{}
 
-		if v, ok := upgradeSettingsConfig["max_surge"]; ok {
-			np.UpgradeSettings.MaxSurge = int64(v.(int))
+		if v, ok := upgradeSettingsConfig["strategy"]; ok {
+			np.UpgradeSettings.Strategy = v.(string)
 		}
 
-		if v, ok := upgradeSettingsConfig["max_unavailable"]; ok {
-			np.UpgradeSettings.MaxUnavailable = int64(v.(int))
+		if d.HasChange(prefix + "upgrade_settings.0.max_surge") {
+			if np.UpgradeSettings.Strategy != "SURGE" {
+				return nil, fmt.Errorf("Surge upgrade settings may not be changed when surge strategy is not enabled")
+			}
+			if v, ok := upgradeSettingsConfig["max_surge"]; ok {
+				np.UpgradeSettings.MaxSurge = int64(v.(int))
+			}
+		}
+
+		if d.HasChange(prefix + "upgrade_settings.0.max_unavailable") {
+			if np.UpgradeSettings.Strategy != "SURGE" {
+				return nil, fmt.Errorf("Surge upgrade settings may not be changed when surge strategy is not enabled")
+			}
+			if v, ok := upgradeSettingsConfig["max_unavailable"]; ok {
+				np.UpgradeSettings.MaxUnavailable = int64(v.(int))
+			}
+		}
+
+		if v, ok := upgradeSettingsConfig["blue_green_settings"]; ok && len(v.([]interface{})) > 0 {
+			blueGreenSettingsConfig := v.([]interface{})[0].(map[string]interface{})
+			np.UpgradeSettings.BlueGreenSettings = &container.BlueGreenSettings{}
+
+			if np.UpgradeSettings.Strategy != "BLUE_GREEN" {
+				return nil, fmt.Errorf("Blue-green upgrade settings may not be changed when blue-green strategy is not enabled")
+			}
+
+			if v, ok := blueGreenSettingsConfig["node_pool_soak_duration"]; ok {
+				np.UpgradeSettings.BlueGreenSettings.NodePoolSoakDuration = v.(string)
+			}
+
+			if v, ok := blueGreenSettingsConfig["standard_rollout_policy"]; ok && len(v.([]interface{})) > 0 {
+				standardRolloutPolicyConfig := v.([]interface{})[0].(map[string]interface{})
+				standardRolloutPolicy := &container.StandardRolloutPolicy{}
+
+				if v, ok := standardRolloutPolicyConfig["batch_soak_duration"]; ok {
+					standardRolloutPolicy.BatchSoakDuration = v.(string)
+				}
+				if v, ok := standardRolloutPolicyConfig["batch_node_count"]; ok {
+					standardRolloutPolicy.BatchNodeCount = int64(v.(int))
+				}
+				if v, ok := standardRolloutPolicyConfig["batch_percentage"]; ok {
+					standardRolloutPolicy.BatchPercentage = v.(float64)
+				}
+
+				np.UpgradeSettings.BlueGreenSettings.StandardRolloutPolicy = standardRolloutPolicy
+			}
 		}
 	}
 
 	return np, nil
+}
+
+func flattenNodePoolStandardRolloutPolicy(rp *container.StandardRolloutPolicy) []map[string]interface{} {
+	if rp == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"batch_node_count":    rp.BatchNodeCount,
+			"batch_percentage":    rp.BatchPercentage,
+			"batch_soak_duration": rp.BatchSoakDuration,
+		},
+	}
+}
+
+func flattenNodePoolBlueGreenSettings(bg *container.BlueGreenSettings) []map[string]interface{} {
+	if bg == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"node_pool_soak_duration": bg.NodePoolSoakDuration,
+			"standard_rollout_policy": flattenNodePoolStandardRolloutPolicy(bg.StandardRolloutPolicy),
+		},
+	}
+}
+
+func flattenNodePoolUpgradeSettings(us *container.UpgradeSettings) []map[string]interface{} {
+	if us == nil {
+		return nil
+	}
+
+	upgradeSettings := make(map[string]interface{})
+
+	upgradeSettings["blue_green_settings"] = flattenNodePoolBlueGreenSettings(us.BlueGreenSettings)
+	upgradeSettings["max_surge"] = us.MaxSurge
+	upgradeSettings["max_unavailable"] = us.MaxUnavailable
+
+	upgradeSettings["strategy"] = us.Strategy
+	return []map[string]interface{}{upgradeSettings}
 }
 
 func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodePool, prefix string) (map[string]interface{}, error) {
@@ -835,12 +979,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 	}
 
 	if np.UpgradeSettings != nil {
-		nodePool["upgrade_settings"] = []map[string]interface{}{
-			{
-				"max_surge":       np.UpgradeSettings.MaxSurge,
-				"max_unavailable": np.UpgradeSettings.MaxUnavailable,
-			},
-		}
+		nodePool["upgrade_settings"] = flattenNodePoolUpgradeSettings(np.UpgradeSettings)
 	} else {
 		delete(nodePool, "upgrade_settings")
 	}
@@ -1165,8 +1304,49 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		upgradeSettings := &container.UpgradeSettings{}
 		if v, ok := d.GetOk(prefix + "upgrade_settings"); ok {
 			upgradeSettingsConfig := v.([]interface{})[0].(map[string]interface{})
-			upgradeSettings.MaxSurge = int64(upgradeSettingsConfig["max_surge"].(int))
-			upgradeSettings.MaxUnavailable = int64(upgradeSettingsConfig["max_unavailable"].(int))
+			upgradeSettings.Strategy = upgradeSettingsConfig["strategy"].(string)
+
+			if d.HasChange(prefix + "upgrade_settings.0.max_surge") {
+				if upgradeSettings.Strategy != "SURGE" {
+					return fmt.Errorf("Surge upgrade settings may not be changed when surge strategy is not enabled")
+				}
+				if v, ok := upgradeSettingsConfig["max_surge"]; ok {
+					upgradeSettings.MaxSurge = int64(v.(int))
+				}
+			}
+
+			if d.HasChange(prefix + "upgrade_settings.0.max_unavailable") {
+				if upgradeSettings.Strategy != "SURGE" {
+					return fmt.Errorf("Surge upgrade settings may not be changed when surge strategy is not enabled")
+				}
+				if v, ok := upgradeSettingsConfig["max_unavailable"]; ok {
+					upgradeSettings.MaxUnavailable = int64(v.(int))
+				}
+			}
+
+			if d.HasChange(prefix + "upgrade_settings.0.blue_green_settings") {
+				if upgradeSettings.Strategy != "BLUE_GREEN" {
+					return fmt.Errorf("Blue-green upgrade settings may not be changed when blue-green strategy is not enabled")
+				}
+
+				blueGreenSettings := &container.BlueGreenSettings{}
+				blueGreenSettingsConfig := upgradeSettingsConfig["blue_green_settings"].([]interface{})[0].(map[string]interface{})
+				blueGreenSettings.NodePoolSoakDuration = blueGreenSettingsConfig["node_pool_soak_duration"].(string)
+
+				if v, ok := blueGreenSettingsConfig["standard_rollout_policy"]; ok && len(v.([]interface{})) > 0 {
+					standardRolloutPolicy := &container.StandardRolloutPolicy{}
+					standardRolloutPolicyConfig := v.([]interface{})[0].(map[string]interface{})
+					standardRolloutPolicy.BatchSoakDuration = standardRolloutPolicyConfig["batch_soak_duration"].(string)
+					if v, ok := standardRolloutPolicyConfig["batch_node_count"]; ok {
+						standardRolloutPolicy.BatchNodeCount = int64(v.(int))
+					}
+					if v, ok := standardRolloutPolicyConfig["batch_percentage"]; ok {
+						standardRolloutPolicy.BatchPercentage = v.(float64)
+					}
+					blueGreenSettings.StandardRolloutPolicy = standardRolloutPolicy
+				}
+				upgradeSettings.BlueGreenSettings = blueGreenSettings
+			}
 		}
 		req := &container.UpdateNodePoolRequest{
 			UpgradeSettings: upgradeSettings,
