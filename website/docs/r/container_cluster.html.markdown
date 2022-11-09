@@ -519,6 +519,16 @@ as "Intel Haswell" or "Intel Sandy Bridge".
 
 * `shielded_instance_config` - (Optional) Shielded Instance options. Structure is [documented below](#nested_shielded_instance_config).
 
+* `management` - (Optional) NodeManagement configuration for this NodePool. Structure is [documented below](#nested_management).
+
+<a name="nested_management"></a>The `management` block supports:
+
+* `auto_upgrade` - (Optional) Specifies whether node auto-upgrade is enabled for the node pool. If enabled, node auto-upgrade helps keep the nodes in your node pool up to date with the latest release version of Kubernetes.
+
+* `auto_repair` - (Optional) Specifies whether the node auto-repair is enabled for the node pool. If enabled, the nodes in this node pool will be monitored and, if they fail health checks too many times, an automatic repair action will be triggered.
+
+This block also contains several computed attributes, documented below.
+
 * `upgrade_settings` - (Optional) Specifies the upgrade settings for NAP created node pools. Structure is [documented below](#nested_upgrade_settings).
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
@@ -1157,6 +1167,8 @@ exported:
   cluster, in [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
   notation (e.g. `1.2.3.4/29`). Service addresses are typically put in the last
   `/16` from the container CIDR.
+
+* `cluster_autoscaling.0.auto_provisioning_defaults.0.management.0.upgrade_options` - Specifies the [Auto Upgrade knobs](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/NodeManagement#AutoUpgradeOptions) for the node pool.
 
 ## Timeouts
 

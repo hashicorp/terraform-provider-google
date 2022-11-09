@@ -2226,6 +2226,38 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsShieldedInstance(t *tes
 	})
 }
 
+func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaultsManagement(clusterName, false, false),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning_management",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaultsManagement(clusterName, true, true),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning_management",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(t *testing.T) {
 	t.Parallel()
 
@@ -3765,6 +3797,37 @@ resource "google_container_cluster" "with_net_ref_by_name" {
   network = google_compute_network.container_network.name
 }
 `, network, cluster, cluster)
+}
+
+func testAccContainerCluster_autoprovisioningDefaultsManagement(clusterName string, autoUpgrade, autoRepair bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_autoprovisioning_management" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  cluster_autoscaling {
+    enabled = true
+
+	resource_limits {
+	  resource_type = "cpu"
+	  maximum       = 2
+	}
+
+	resource_limits {
+	  resource_type = "memory"
+	  maximum       = 2048
+	}
+
+    auto_provisioning_defaults {
+      management {
+        auto_upgrade    = %t
+        auto_repair     = %t
+      }
+    }
+  }
+}
+`, clusterName, autoUpgrade, autoRepair)
 }
 
 func testAccContainerCluster_backendRef(cluster string) string {
