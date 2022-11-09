@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -91,6 +92,11 @@ pipelines at low cost. Possible values: ["BASIC", "ENTERPRISE", "DEVELOPER"]`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of the instance.`,
+			},
+			"enable_rbac": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Option to enable granular role-based access control.`,
 			},
 			"enable_stackdriver_logging": {
 				Type:        schema.TypeBool,
@@ -254,6 +260,12 @@ func resourceDataFusionInstanceCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("enable_stackdriver_monitoring"); !isEmptyValue(reflect.ValueOf(enableStackdriverMonitoringProp)) && (ok || !reflect.DeepEqual(v, enableStackdriverMonitoringProp)) {
 		obj["enableStackdriverMonitoring"] = enableStackdriverMonitoringProp
 	}
+	enableRbacProp, err := expandDataFusionInstanceEnableRbac(d.Get("enable_rbac"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_rbac"); !isEmptyValue(reflect.ValueOf(enableRbacProp)) && (ok || !reflect.DeepEqual(v, enableRbacProp)) {
+		obj["enableRbac"] = enableRbacProp
+	}
 	labelsProp, err := expandDataFusionInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
@@ -414,6 +426,9 @@ func resourceDataFusionInstanceRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("enable_stackdriver_monitoring", flattenDataFusionInstanceEnableStackdriverMonitoring(res["enableStackdriverMonitoring"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("enable_rbac", flattenDataFusionInstanceEnableRbac(res["enableRbac"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("labels", flattenDataFusionInstanceLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -488,6 +503,12 @@ func resourceDataFusionInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("enable_stackdriver_monitoring"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableStackdriverMonitoringProp)) {
 		obj["enableStackdriverMonitoring"] = enableStackdriverMonitoringProp
 	}
+	enableRbacProp, err := expandDataFusionInstanceEnableRbac(d.Get("enable_rbac"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_rbac"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableRbacProp)) {
+		obj["enableRbac"] = enableRbacProp
+	}
 	labelsProp, err := expandDataFusionInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
@@ -501,6 +522,27 @@ func resourceDataFusionInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("enable_stackdriver_logging") {
+		updateMask = append(updateMask, "enableStackdriverLogging")
+	}
+
+	if d.HasChange("enable_stackdriver_monitoring") {
+		updateMask = append(updateMask, "enableStackdriverMonitoring")
+	}
+
+	if d.HasChange("enable_rbac") {
+		updateMask = append(updateMask, "enableRbac")
+	}
+
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
@@ -615,6 +657,10 @@ func flattenDataFusionInstanceEnableStackdriverMonitoring(v interface{}, d *sche
 	return v
 }
 
+func flattenDataFusionInstanceEnableRbac(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenDataFusionInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -720,6 +766,10 @@ func expandDataFusionInstanceEnableStackdriverLogging(v interface{}, d Terraform
 }
 
 func expandDataFusionInstanceEnableStackdriverMonitoring(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataFusionInstanceEnableRbac(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
