@@ -157,8 +157,7 @@ cluster.
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
-* `upgrade_settings` (Optional) Specify node upgrade settings to change how many nodes GKE attempts to
-    upgrade at once. The number of nodes upgraded simultaneously is the sum of `max_surge` and `max_unavailable`.
+* `upgrade_settings` (Optional) Specify node upgrade settings to change how GKE upgrades nodes.
     The maximum number of nodes upgraded simultaneously is limited to 20. Structure is [documented below](#nested_upgrade_settings).
 
 * `version` - (Optional) The Kubernetes version for the nodes in this pool. Note that if this field
@@ -201,15 +200,30 @@ cluster.
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 
-* `max_surge` - (Required) The number of additional nodes that can be added to the node pool during
+* `max_surge` - (Optional) The number of additional nodes that can be added to the node pool during
     an upgrade. Increasing `max_surge` raises the number of nodes that can be upgraded simultaneously.
     Can be set to 0 or greater.
 
-* `max_unavailable` - (Required) The number of nodes that can be simultaneously unavailable during
+* `max_unavailable` - (Optional) The number of nodes that can be simultaneously unavailable during
     an upgrade. Increasing `max_unavailable` raises the number of nodes that can be upgraded in
     parallel. Can be set to 0 or greater.
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
+
+* `strategy` - (Default `SURGE`) The upgrade stragey to be used for upgrading the nodes.
+
+* `blue_green_settings` - (Optional) The settings to adjust [blue green upgrades](https://cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies#blue-green-upgrade-strategy).
+    Structure is [documented below](#nested_blue_green_settings)
+
+<a name="nested_blue_green_settings"></a>The `blue_green_settings` block supports:
+
+* `standard_rollout_policy` - (Required) Specifies the standard policy settings for blue-green upgrades.
+    * `batch_percentage` - (Optional) Percentage of the blue pool nodes to drain in a batch.
+    * `batch_node_count` - (Optional) Number of blue nodes to drain in a batch.
+    * `batch_soak_duration` - (Optionial) Soak time after each batch gets drained.
+
+* `node_pool_soak_duration` - (Optional) Time needed after draining the entire blue pool.
+    After this period, the blue pool will be cleaned up.
 
 <a name="nested_placement_policy"></a>The `placement_policy` block supports:
 
