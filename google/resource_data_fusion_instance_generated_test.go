@@ -179,6 +179,46 @@ data "google_project" "project" {}
 `, context)
 }
 
+func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataFusionInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataFusionInstance_dataFusionInstanceEnterpriseExample(context),
+			},
+			{
+				ResourceName:            "google_data_fusion_instance.enterprise_instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccDataFusionInstance_dataFusionInstanceEnterpriseExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_fusion_instance" "enterprise_instance" {
+  name = "tf-test-my-instance%{random_suffix}"
+  region = "us-central1"
+  type = "ENTERPRISE"
+  enable_rbac = true
+  # Mark for testing to avoid service networking connection usage that is not cleaned up
+  options = {
+    prober_test_run = "true"
+  }
+}
+`, context)
+}
+
 func testAccCheckDataFusionInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

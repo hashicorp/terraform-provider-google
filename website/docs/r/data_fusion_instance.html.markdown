@@ -125,6 +125,26 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
 
 data "google_project" "project" {}
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=data_fusion_instance_enterprise&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Data Fusion Instance Enterprise
+
+
+```hcl
+resource "google_data_fusion_instance" "enterprise_instance" {
+  name = "my-instance"
+  region = "us-central1"
+  type = "ENTERPRISE"
+  enable_rbac = true
+  # Mark for testing to avoid service networking connection usage that is not cleaned up
+  options = {
+    prober_test_run = "true"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -164,6 +184,10 @@ The following arguments are supported:
 * `enable_stackdriver_monitoring` -
   (Optional)
   Option to enable Stackdriver Monitoring.
+
+* `enable_rbac` -
+  (Optional)
+  Option to enable granular role-based access control.
 
 * `labels` -
   (Optional)
