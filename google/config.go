@@ -177,6 +177,7 @@ type Config struct {
 	ApigeeBasePath               string
 	AppEngineBasePath            string
 	ArtifactRegistryBasePath     string
+	BeyondcorpBasePath           string
 	BigQueryBasePath             string
 	BigqueryAnalyticsHubBasePath string
 	BigqueryConnectionBasePath   string
@@ -274,6 +275,7 @@ const ActiveDirectoryBasePathKey = "ActiveDirectory"
 const ApigeeBasePathKey = "Apigee"
 const AppEngineBasePathKey = "AppEngine"
 const ArtifactRegistryBasePathKey = "ArtifactRegistry"
+const BeyondcorpBasePathKey = "Beyondcorp"
 const BigQueryBasePathKey = "BigQuery"
 const BigqueryAnalyticsHubBasePathKey = "BigqueryAnalyticsHub"
 const BigqueryConnectionBasePathKey = "BigqueryConnection"
@@ -365,6 +367,7 @@ var DefaultBasePaths = map[string]string{
 	ApigeeBasePathKey:               "https://apigee.googleapis.com/v1/",
 	AppEngineBasePathKey:            "https://appengine.googleapis.com/v1/",
 	ArtifactRegistryBasePathKey:     "https://artifactregistry.googleapis.com/v1/",
+	BeyondcorpBasePathKey:           "https://beyondcorp.googleapis.com/v1/",
 	BigQueryBasePathKey:             "https://bigquery.googleapis.com/bigquery/v2/",
 	BigqueryAnalyticsHubBasePathKey: "https://analyticshub.googleapis.com/v1/",
 	BigqueryConnectionBasePathKey:   "https://bigqueryconnection.googleapis.com/v1/",
@@ -1218,6 +1221,7 @@ func ConfigureBasePaths(c *Config) {
 	c.ApigeeBasePath = DefaultBasePaths[ApigeeBasePathKey]
 	c.AppEngineBasePath = DefaultBasePaths[AppEngineBasePathKey]
 	c.ArtifactRegistryBasePath = DefaultBasePaths[ArtifactRegistryBasePathKey]
+	c.BeyondcorpBasePath = DefaultBasePaths[BeyondcorpBasePathKey]
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
 	c.BigqueryAnalyticsHubBasePath = DefaultBasePaths[BigqueryAnalyticsHubBasePathKey]
 	c.BigqueryConnectionBasePath = DefaultBasePaths[BigqueryConnectionBasePathKey]
