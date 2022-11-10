@@ -72,6 +72,44 @@ resource "google_gke_hub_feature" "feature" {
 }
 ```
 
+## Example Usage - Serivce Mesh
+
+```hcl
+resource "google_container_cluster" "cluster" {
+  name               = "my-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  provider = google-beta
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "my-membership"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+  provider = google-beta
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+
+  provider = google-beta
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  mesh {
+    management = "MANAGEMENT_AUTOMATIC"
+  }
+  provider = google-beta
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -81,6 +119,10 @@ The following arguments are supported:
 * `configmanagement` -
   (Optional)
   Config Management-specific spec. Structure is [documented below](#nested_configmanagement).
+
+* `mesh` -
+  (Optional)
+  Service mesh specific spec. Structure is [documented below](#nested_mesh).
   
 * `feature` -
   (Optional)
@@ -223,6 +265,11 @@ The following arguments are supported:
   (Optional)
   Specifies the backends Policy Controller should export metrics to. For example, to specify metrics should be exported to Cloud Monitoring and Prometheus, specify backends: [\"cloudmonitoring\", \"prometheus\"]. Default: [\"cloudmonitoring\", \"prometheus\"]    
 
+<a name="nested_mesh"></a>The `mesh` block supports:
+
+* `management` -
+  (Optional)
+  Whether to automatically manage Service Mesh. Can either be `MANAGEMENT_AUTOMATIC` or `MANAGEMENT_MANUAL`.
 
 ## Attributes Reference
 
