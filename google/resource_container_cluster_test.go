@@ -1834,7 +1834,6 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
-	includeMinCpuPlatform := true
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1858,24 +1857,6 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				Config:             testAccContainerCluster_autoprovisioningDefaults(clusterName, true),
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-			},
-			{
-				Config: testAccContainerCluster_autoprovisioningDefaultsMinCpuPlatform(clusterName, includeMinCpuPlatform),
-			},
-			{
-				ResourceName:            "google_container_cluster.with_autoprovisioning",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
-			},
-			{
-				Config: testAccContainerCluster_autoprovisioningDefaultsMinCpuPlatform(clusterName, !includeMinCpuPlatform),
-			},
-			{
-				ResourceName:            "google_container_cluster.with_autoprovisioning",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 		},
 	})
@@ -2292,36 +2273,6 @@ func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version"},
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(clusterName, 2, 1, "SURGE"),
-			},
-			{
-				ResourceName:      "google_container_cluster.with_autoprovisioning_upgrade_settings",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(clusterName, 2, 1, "BLUE_GREEN"),
-			},
-			{
-				ResourceName:      "google_container_cluster.with_autoprovisioning_upgrade_settings",
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
@@ -4137,89 +4088,6 @@ resource "google_container_cluster" "with_autoprovisioning" {
   }
 }`
 	return config
-}
-
-func testAccContainerCluster_autoprovisioningDefaultsMinCpuPlatform(cluster string, includeMinCpuPlatform bool) string {
-	minCpuPlatformCfg := ""
-	if includeMinCpuPlatform {
-		minCpuPlatformCfg = `min_cpu_platform = "Intel Haswell"`
-	}
-
-	return fmt.Sprintf(`
-data "google_container_engine_versions" "central1a" {
-  location = "us-central1-a"
-}
-
-resource "google_container_cluster" "with_autoprovisioning" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-
-  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
-
-  cluster_autoscaling {
-    enabled = true
-
-    resource_limits {
-      resource_type = "cpu"
-      maximum       = 2
-    }
-    resource_limits {
-      resource_type = "memory"
-      maximum       = 2048
-    }
-
-    auto_provisioning_defaults {
-      %s
-    }
-  }
-}`, cluster, minCpuPlatformCfg)
-}
-
-func testAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(clusterName string, maxSurge, maxUnavailable int, strategy string) string {
-	blueGreenSettings := ""
-	if strategy == "BLUE_GREEN" {
-		blueGreenSettings = `
-		blue_green_settings {
-			node_pool_soak_duration = "3.500s"
-			standard_rollout_policy {
-			  batch_percentage    = 0.5
-			  batch_soak_duration = "3.500s"
-			}
-		  }
-		`
-	}
-
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_autoprovisioning_upgrade_settings" {
-  name               = "%s"
-  location           = "us-central1-f"
-  initial_node_count = 1
-
-  cluster_autoscaling {
-    enabled = true
-
-	resource_limits {
-	  resource_type = "cpu"
-	  maximum       = 2
-	}
-
-	resource_limits {
-	  resource_type = "memory"
-	  maximum       = 2048
-	}
-
-    auto_provisioning_defaults {
-      upgrade_settings {
-        max_surge       = %d
-        max_unavailable = %d
-        strategy        = "%s"
-		%s
-      }
-    }
-  }
-}
-`, clusterName, maxSurge, maxUnavailable, strategy, blueGreenSettings)
 }
 
 func testAccContainerCluster_autoprovisioningDefaultsDiskSizeGb(cluster string, includeDiskSizeGb bool) string {
