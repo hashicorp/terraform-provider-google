@@ -1,0 +1,3 @@
+```release-note:note
+workload_identity_pool: added note about IAM permission requirements
+```
