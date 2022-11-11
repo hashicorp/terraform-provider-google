@@ -187,7 +187,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							ForceNew:    true,
 							Optional:    true,
-							Description: `The timezone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.`,
+							Description: `The time_zone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.`,
 						},
 						"availability_type": {
 							Type:         schema.TypeString,
