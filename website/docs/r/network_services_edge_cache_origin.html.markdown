@@ -86,6 +86,40 @@ resource "google_network_services_edge_cache_origin" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_services_edge_cache_origin_v4auth&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Edge Cache Origin V4auth
+
+
+```hcl
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "secret-name"
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  secret_data = "secret-data"
+}
+
+resource "google_network_services_edge_cache_origin" "default" {
+  name           = "my-origin"
+  origin_address = "gs://media-edge-default"
+  description    = "The default bucket for V4 authentication"
+  aws_v4_authentication {
+    access_key_id             = "ACCESSKEYID"
+    secret_access_key_version = google_secret_manager_secret_version.secret-version-basic.id
+    origin_region             = "auto"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -168,6 +202,11 @@ The following arguments are supported:
   The connection and HTTP timeout configuration for this origin.
   Structure is [documented below](#nested_timeout).
 
+* `aws_v4_authentication` -
+  (Optional)
+  Enable AWS Signature Version 4 origin authentication.
+  Structure is [documented below](#nested_aws_v4_authentication).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -200,6 +239,21 @@ The following arguments are supported:
   Defaults to 15 seconds.  The timeout must be a value between 1s and 30s.
   The readTimeout is capped by the responseTimeout.  All reads of the HTTP connection/stream must be completed by the deadline set by the responseTimeout.
   If the response headers have already been written to the connection, the response will be truncated and logged.
+
+<a name="nested_aws_v4_authentication"></a>The `aws_v4_authentication` block supports:
+
+* `access_key_id` -
+  (Required)
+  The access key ID your origin uses to identify the key.
+
+* `secret_access_key_version` -
+  (Required)
+  The Secret Manager secret version of the secret access key used by your origin.
+  This is the resource name of the secret version in the format `projects/*/secrets/*/versions/*` where the `*` values are replaced by the project, secret, and version you require.
+
+* `origin_region` -
+  (Required)
+  The name of the AWS region that your origin is in.
 
 ## Attributes Reference
 

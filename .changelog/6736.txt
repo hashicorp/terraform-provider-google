@@ -1,0 +1,3 @@
+```release-note:enhancement
+network_services: Added `aws_v4_authentication ` field to `google_network_services_edge_cache_origin ` to support S3-compatible Origins
+```
