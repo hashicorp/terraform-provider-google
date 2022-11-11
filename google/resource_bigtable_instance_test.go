@@ -172,7 +172,8 @@ func TestAccBigtableInstance_kms(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
-	kms := BootstrapKMSKeyInLocation(t, "us-central1")
+	kms1 := BootstrapKMSKeyInLocation(t, "us-central1")
+	kms2 := BootstrapKMSKeyInLocation(t, "us-east1")
 	pid := getTestProjectFromEnv()
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
@@ -182,13 +183,19 @@ func TestAccBigtableInstance_kms(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigtableInstance_kms(pid, instanceName, kms.CryptoKey.Name, 3),
+				Config: testAccBigtableInstance_kms(pid, instanceName, kms1.CryptoKey.Name, 3),
 			},
 			{
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+			// TODO(kevinsi4508): Verify that the instance can be recreated due to `kms_key_name` change.
+			{
+				Config:             testAccBigtableInstance_kms(pid, instanceName, kms2.CryptoKey.Name, 3),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

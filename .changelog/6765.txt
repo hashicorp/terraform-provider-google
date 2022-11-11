@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: update checking ForceNew logic for `kms_key_name`
+```
