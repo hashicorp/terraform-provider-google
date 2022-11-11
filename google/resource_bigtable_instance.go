@@ -81,7 +81,6 @@ func resourceBigtableInstance() *schema.Resource {
 						"kms_key_name": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 							Description: `Describes the Cloud KMS encryption key that will be used to protect the destination Bigtable cluster. The requirements for this key are: 1) The Cloud Bigtable service account associated with the project that contains this cluster must be granted the cloudkms.cryptoKeyEncrypterDecrypter role on the CMEK key. 2) Only regional keys can be used and the region of the CMEK key must match the region of the cluster. 3) All clusters within an instance must use the same CMEK key. Values are of the form projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}`,
 						},
@@ -557,6 +556,14 @@ func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *sch
 		oST, nST := diff.GetChange(fmt.Sprintf("cluster.%d.storage_type", i))
 		if oST != nST {
 			err := diff.ForceNew(fmt.Sprintf("cluster.%d.storage_type", i))
+			if err != nil {
+				return fmt.Errorf("Error setting cluster diff: %s", err)
+			}
+		}
+
+		oKey, nKey := diff.GetChange(fmt.Sprintf("cluster.%d.kms_key_name", i))
+		if oKey != nKey {
+			err := diff.ForceNew(fmt.Sprintf("cluster.%d.kms_key_name", i))
 			if err != nil {
 				return fmt.Errorf("Error setting cluster diff: %s", err)
 			}
