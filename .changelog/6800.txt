@@ -1,0 +1,3 @@
+```release-note:none
+sql: updated the doc of `google_sql_database_instance` for the field from `timezone` to `time_zone` 
+```
