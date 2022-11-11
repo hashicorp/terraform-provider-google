@@ -1,0 +1,6 @@
+```release-note:new-resource
+google_eventarc_channel
+```
+```release-note:enhancement
+google_eventarc_trigger: Added field `channel` to `google_eventarc_trigger`
+```

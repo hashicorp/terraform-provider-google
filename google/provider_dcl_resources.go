@@ -42,6 +42,7 @@ var dclResources = map[string]*schema.Resource{
 	"google_dataplex_lake":                                      resourceDataplexLake(),
 	"google_dataplex_zone":                                      resourceDataplexZone(),
 	"google_dataproc_workflow_template":                         resourceDataprocWorkflowTemplate(),
+	"google_eventarc_channel":                                   resourceEventarcChannel(),
 	"google_eventarc_trigger":                                   resourceEventarcTrigger(),
 	"google_firebaserules_release":                              resourceFirebaserulesRelease(),
 	"google_firebaserules_ruleset":                              resourceFirebaserulesRuleset(),

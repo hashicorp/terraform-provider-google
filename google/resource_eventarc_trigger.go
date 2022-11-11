@@ -75,6 +75,14 @@ func resourceEventarcTrigger() *schema.Resource {
 				Description: "Required. The resource name of the trigger. Must be unique within the location on the project.",
 			},
 
+			"channel": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "Optional. The name of the channel associated with the trigger in `projects/{project}/locations/{location}/channels/{channel}` format. You must provide a channel to receive events from Eventarc SaaS partners.",
+			},
+
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -312,6 +320,7 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 		Location:         dcl.String(d.Get("location").(string)),
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
+		Channel:          dcl.String(d.Get("channel").(string)),
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
@@ -367,6 +376,7 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 		Location:         dcl.String(d.Get("location").(string)),
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
+		Channel:          dcl.String(d.Get("channel").(string)),
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
@@ -406,6 +416,9 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
+	}
+	if err = d.Set("channel", res.Channel); err != nil {
+		return fmt.Errorf("error setting channel in state: %s", err)
 	}
 	if err = d.Set("labels", res.Labels); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
@@ -449,6 +462,7 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 		Location:         dcl.String(d.Get("location").(string)),
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
+		Channel:          dcl.String(d.Get("channel").(string)),
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
@@ -499,6 +513,7 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 		Location:         dcl.String(d.Get("location").(string)),
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
+		Channel:          dcl.String(d.Get("channel").(string)),
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
