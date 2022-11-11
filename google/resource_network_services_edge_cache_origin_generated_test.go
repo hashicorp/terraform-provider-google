@@ -125,6 +125,60 @@ resource "google_network_services_edge_cache_origin" "default" {
 `, context)
 }
 
+func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authExample(context),
+			},
+			{
+				ResourceName:            "google_network_services_edge_cache_origin.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "timeout"},
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-name%{random_suffix}"
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  secret_data = "secret-data"
+}
+
+resource "google_network_services_edge_cache_origin" "default" {
+  name           = "tf-test-my-origin%{random_suffix}"
+  origin_address = "gs://media-edge-default"
+  description    = "The default bucket for V4 authentication"
+  aws_v4_authentication {
+    access_key_id             = "ACCESSKEYID"
+    secret_access_key_version = google_secret_manager_secret_version.secret-version-basic.id
+    origin_region             = "auto"
+  }
+}
+`, context)
+}
+
 func testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

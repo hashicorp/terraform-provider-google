@@ -61,6 +61,33 @@ This address will be used as the origin for cache requests - e.g. FQDN: media-ba
 When providing an FQDN (hostname), it must be publicly resolvable (e.g. via Google public DNS) and IP addresses must be publicly routable.  It must not contain a protocol (e.g., https://) and it must not contain any slashes.
 If a Cloud Storage bucket is provided, it must be in the canonical "gs://bucketname" format. Other forms, such as "storage.googleapis.com", will be rejected.`,
 			},
+			"aws_v4_authentication": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Enable AWS Signature Version 4 origin authentication.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"access_key_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The access key ID your origin uses to identify the key.`,
+						},
+						"origin_region": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the AWS region that your origin is in.`,
+						},
+						"secret_access_key_version": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The Secret Manager secret version of the secret access key used by your origin.
+
+This is the resource name of the secret version in the format 'projects/*/secrets/*/versions/*' where the '*' values are replaced by the project, secret, and version you require.`,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -271,6 +298,12 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
 		obj["timeout"] = timeoutProp
 	}
+	awsV4AuthenticationProp, err := expandNetworkServicesEdgeCacheOriginAwsV4Authentication(d.Get("aws_v4_authentication"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("aws_v4_authentication"); !isEmptyValue(reflect.ValueOf(awsV4AuthenticationProp)) && (ok || !reflect.DeepEqual(v, awsV4AuthenticationProp)) {
+		obj["awsV4Authentication"] = awsV4AuthenticationProp
+	}
 
 	url, err := replaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins?edgeCacheOriginId={{name}}")
 	if err != nil {
@@ -379,6 +412,9 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 	if err := d.Set("timeout", flattenNetworkServicesEdgeCacheOriginTimeout(res["timeout"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
 	}
+	if err := d.Set("aws_v4_authentication", flattenNetworkServicesEdgeCacheOriginAwsV4Authentication(res["awsV4Authentication"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
 
 	return nil
 }
@@ -453,6 +489,12 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
 		obj["timeout"] = timeoutProp
 	}
+	awsV4AuthenticationProp, err := expandNetworkServicesEdgeCacheOriginAwsV4Authentication(d.Get("aws_v4_authentication"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("aws_v4_authentication"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, awsV4AuthenticationProp)) {
+		obj["awsV4Authentication"] = awsV4AuthenticationProp
+	}
 
 	url, err := replaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
 	if err != nil {
@@ -496,6 +538,10 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("timeout") {
 		updateMask = append(updateMask, "timeout")
+	}
+
+	if d.HasChange("aws_v4_authentication") {
+		updateMask = append(updateMask, "awsV4Authentication")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -675,6 +721,35 @@ func flattenNetworkServicesEdgeCacheOriginTimeout(v interface{}, d *schema.Resou
 	return []interface{}{out}
 }
 
+func flattenNetworkServicesEdgeCacheOriginAwsV4Authentication(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["access_key_id"] =
+		flattenNetworkServicesEdgeCacheOriginAwsV4AuthenticationAccessKeyId(original["accessKeyId"], d, config)
+	transformed["secret_access_key_version"] =
+		flattenNetworkServicesEdgeCacheOriginAwsV4AuthenticationSecretAccessKeyVersion(original["secretAccessKeyVersion"], d, config)
+	transformed["origin_region"] =
+		flattenNetworkServicesEdgeCacheOriginAwsV4AuthenticationOriginRegion(original["originRegion"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheOriginAwsV4AuthenticationAccessKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheOriginAwsV4AuthenticationSecretAccessKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheOriginAwsV4AuthenticationOriginRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandNetworkServicesEdgeCacheOriginDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -767,5 +842,50 @@ func expandNetworkServicesEdgeCacheOriginTimeoutResponseTimeout(v interface{}, d
 }
 
 func expandNetworkServicesEdgeCacheOriginTimeoutReadTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginAwsV4Authentication(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAccessKeyId, err := expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationAccessKeyId(original["access_key_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessKeyId); val.IsValid() && !isEmptyValue(val) {
+		transformed["accessKeyId"] = transformedAccessKeyId
+	}
+
+	transformedSecretAccessKeyVersion, err := expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationSecretAccessKeyVersion(original["secret_access_key_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretAccessKeyVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["secretAccessKeyVersion"] = transformedSecretAccessKeyVersion
+	}
+
+	transformedOriginRegion, err := expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationOriginRegion(original["origin_region"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOriginRegion); val.IsValid() && !isEmptyValue(val) {
+		transformed["originRegion"] = transformedOriginRegion
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationAccessKeyId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationSecretAccessKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationOriginRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
