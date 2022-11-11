@@ -1,0 +1,3 @@
+```release-note:bug
+dialogflowcx: fixed a deployment issue for `google_dialogflow_cx_version` and `google_dialogflow_cx_environment` when they are deployed to a non-global location
+```
