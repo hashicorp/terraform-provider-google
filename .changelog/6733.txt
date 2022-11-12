@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a bug where `cluster_autoscaling.auto_provisioning_defaults.service_account` can not be set when `enable_autopilot = true` for `google_container_cluster`
+```
