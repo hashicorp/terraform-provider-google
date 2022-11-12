@@ -1,0 +1,3 @@
+```release-note:bug
+cloudbuild: fixed the failure when BITBUCKET is provided for `repo_type` on `google_cloudbuild_trigger`
+```
