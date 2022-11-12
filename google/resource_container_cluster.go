@@ -67,6 +67,13 @@ var (
 	forceNewClusterNodeConfigFields = []string{
 		"workload_metadata_config",
 	}
+
+	suppressDiffForAutopilot = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+		if v, _ := d.Get("enable_autopilot").(bool); v {
+			return true
+		}
+		return false
+	})
 )
 
 // This uses the node pool nodeConfig schema but sets
@@ -326,21 +333,24 @@ func resourceContainerCluster() *schema.Resource {
 				MaxItems: 1,
 				// This field is Optional + Computed because we automatically set the
 				// enabled value to false if the block is not returned in API responses.
-				Optional:      true,
-				Computed:      true,
-				Description:   `Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to automatically adjust the size of the cluster and create/delete node pools based on the current needs of the cluster's workload. See the guide to using Node Auto-Provisioning for more details.`,
-				ConflictsWith: []string{"enable_autopilot"},
+				Optional:    true,
+				Computed:    true,
+				Description: `Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to automatically adjust the size of the cluster and create/delete node pools based on the current needs of the cluster's workload. See the guide to using Node Auto-Provisioning for more details.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:        schema.TypeBool,
-							Required:    true,
-							Description: `Whether node auto-provisioning is enabled. Resource limits for cpu and memory must be defined to enable node auto-provisioning.`,
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"enable_autopilot"},
+							Description:   `Whether node auto-provisioning is enabled. Resource limits for cpu and memory must be defined to enable node auto-provisioning.`,
 						},
 						"resource_limits": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `Global constraints for machine resources in the cluster. Configuring the cpu and memory types is required if node auto-provisioning is enabled. These limits will apply to node pool autoscaling in addition to node auto-provisioning.`,
+							Type:             schema.TypeList,
+							Optional:         true,
+							ConflictsWith:    []string{"enable_autopilot"},
+							DiffSuppressFunc: suppressDiffForAutopilot,
+							Description:      `Global constraints for machine resources in the cluster. Configuring the cpu and memory types is required if node auto-provisioning is enabled. These limits will apply to node pool autoscaling in addition to node auto-provisioning.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_type": {
@@ -384,25 +394,28 @@ func resourceContainerCluster() *schema.Resource {
 										Description: `The Google Cloud Platform Service Account to be used by the node VMs.`,
 									},
 									"disk_size": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Default:      100,
-										Description:  `Size of the disk attached to each node, specified in GB. The smallest allowed disk size is 10GB.`,
-										ValidateFunc: validation.IntAtLeast(10),
+										Type:             schema.TypeInt,
+										Optional:         true,
+										Default:          100,
+										Description:      `Size of the disk attached to each node, specified in GB. The smallest allowed disk size is 10GB.`,
+										DiffSuppressFunc: suppressDiffForAutopilot,
+										ValidateFunc:     validation.IntAtLeast(10),
 									},
 									"disk_type": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Default:      "pd-standard",
-										Description:  `Type of the disk attached to each node.`,
-										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced"}, false),
+										Type:             schema.TypeString,
+										Optional:         true,
+										Default:          "pd-standard",
+										Description:      `Type of the disk attached to each node.`,
+										DiffSuppressFunc: suppressDiffForAutopilot,
+										ValidateFunc:     validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced"}, false),
 									},
 									"image_type": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Default:      "COS_CONTAINERD",
-										Description:  `The default image type used by NAP once a new node pool is being created.`,
-										ValidateFunc: validation.StringInSlice([]string{"COS_CONTAINERD", "COS", "UBUNTU_CONTAINERD", "UBUNTU"}, false),
+										Type:             schema.TypeString,
+										Optional:         true,
+										Default:          "COS_CONTAINERD",
+										Description:      `The default image type used by NAP once a new node pool is being created.`,
+										DiffSuppressFunc: suppressDiffForAutopilot,
+										ValidateFunc:     validation.StringInSlice([]string{"COS_CONTAINERD", "COS", "UBUNTU_CONTAINERD", "UBUNTU"}, false),
 									},
 									"boot_disk_kms_key": {
 										Type:        schema.TypeString,
@@ -3257,8 +3270,12 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 
 func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *container.ClusterAutoscaling {
 	l, ok := configured.([]interface{})
+	enableAutopilot := false
+	if v, ok := d.GetOk("enable_autopilot"); ok && v == true {
+		enableAutopilot = true
+	}
 	if !ok || l == nil || len(l) == 0 || l[0] == nil {
-		if v, ok := d.GetOk("enable_autopilot"); ok && v == true {
+		if enableAutopilot {
 			return nil
 		}
 		return &container.ClusterAutoscaling{

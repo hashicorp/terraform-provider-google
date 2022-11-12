@@ -470,15 +470,16 @@ addons_config {
 
 <a name="nested_cluster_autoscaling"></a>The `cluster_autoscaling` block supports:
 
-* `enabled` - (Required) Whether node auto-provisioning is enabled. Resource
-limits for `cpu` and `memory` must be defined to enable node auto-provisioning.
+* `enabled` - (Optional) Whether node auto-provisioning is enabled. Must be supplied for GKE Standard clusters, `true` is implied
+for autopilot clusters. Resource limits for `cpu` and `memory` must be defined to enable node auto-provisioning for GKE Standard.
 
 * `resource_limits` - (Optional) Global constraints for machine resources in the
 cluster. Configuring the `cpu` and `memory` types is required if node
 auto-provisioning is enabled. These limits will apply to node pool autoscaling
 in addition to node auto-provisioning. Structure is [documented below](#nested_resource_limits).
 
-* `auto_provisioning_defaults` - (Optional) Contains defaults for a node pool created by NAP.
+* `auto_provisioning_defaults` - (Optional) Contains defaults for a node pool created by NAP. A subset of fields also apply to
+GKE Autopilot clusters.
 Structure is [documented below](#nested_auto_provisioning_defaults).
 
 * `autoscaling_profile` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Configuration
@@ -503,11 +504,11 @@ Minimum CPU platform to be used for NAP created node pools. The instance may be 
 specified or newer CPU platform. Applicable values are the friendly names of CPU platforms, such
 as "Intel Haswell" or "Intel Sandy Bridge".
 
-* `oauth_scopes` - (Optional) Scopes that are used by NAP when creating node pools. Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs.
+* `oauth_scopes` - (Optional) Scopes that are used by NAP and GKE Autopilot when creating node pools. Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs.
 
 -> `monitoring.write` is always enabled regardless of user input.  `monitoring` and `logging.write` may also be enabled depending on the values for `monitoring_service` and `logging_service`.
 
-* `service_account` - (Optional) The Google Cloud Platform Service Account to be used by the node VMs.
+* `service_account` - (Optional) The Google Cloud Platform Service Account to be used by the node VMs created by GKE Autopilot or NAP.
 
 * `boot_disk_kms_key` - (Optional) The Customer Managed Encryption Key used to encrypt the boot disk attached to each node in the node pool. This should be of the form projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME]. For more information about protecting resources with Cloud KMS Keys please see: https://cloud.google.com/compute/docs/disks/customer-managed-encryption
 
