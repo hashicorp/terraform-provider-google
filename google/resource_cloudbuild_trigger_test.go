@@ -209,6 +209,27 @@ func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
 	})
 }
 
+func TestAccCloudBuildTrigger_basic_bitbucket(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_basic_bitbucket(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCloudBuildTrigger_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
@@ -261,6 +282,25 @@ resource "google_cloudbuild_trigger" "build_trigger" {
         path = "v1"
       }
     }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_basic_bitbucket(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger on bitbucket"
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "some-repo"
+  }
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://bitbucket.org/myorg/myrepo"
+    revision  = "refs/heads/develop"
+    repo_type = "BITBUCKET_SERVER"
   }
 }
 `, name)
