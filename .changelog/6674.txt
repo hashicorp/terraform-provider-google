@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: added `default_route_action.weighted_backend_services` field to `google_compute_region_url_map` resource
+```
+```release-note:enhancement
+compute: added `default_route_action.retry_policy` field to `google_compute_region_url_map` resource
+```
+```release-note:enhancement
+compute: added `default_route_action.request_mirror_policy` field to `google_compute_region_url_map` resource
+```
