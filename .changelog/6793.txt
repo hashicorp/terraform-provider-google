@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: Fixed permadiff on consumer_accept_list for `google_apigee_instance`
+```
