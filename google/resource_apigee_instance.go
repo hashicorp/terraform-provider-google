@@ -24,6 +24,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// Supress diffs when the lists of project have the same number of entries to handle the case that
+// API does not return what the user originally provided. Instead, API does some transformation.
+// For example, user provides a list of project number, but API returns a list of project Id.
+func projectListDiffSuppress(_, _, _ string, d *schema.ResourceData) bool {
+	return projectListDiffSuppressFunc(d)
+}
+
+func projectListDiffSuppressFunc(d TerraformResourceDataChange) bool {
+	kLength := "consumer_accept_list.#"
+	oldLength, newLength := d.GetChange(kLength)
+
+	oldInt, ok := oldLength.(int)
+	if !ok {
+		return false
+	}
+
+	newInt, ok := newLength.(int)
+	if !ok {
+		return false
+	}
+	log.Printf("[DEBUG] - suppressing diff with oldInt %d, newInt %d", oldInt, newInt)
+
+	return oldInt == newInt
+}
+
 func resourceApigeeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeInstanceCreate,
@@ -60,10 +85,11 @@ func resourceApigeeInstance() *schema.Resource {
 in the format 'organizations/{{org_name}}'.`,
 			},
 			"consumer_accept_list": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: projectListDiffSuppress,
 				Description: `Optional. Customer accept list represents the list of projects (id/number) on customer
 side that can privately connect to the service attachment. It is an optional field
 which the customers can provide during the instance creation. By default, the customer
