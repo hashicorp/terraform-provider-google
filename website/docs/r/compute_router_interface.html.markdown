@@ -52,6 +52,10 @@ or both.
   be created. Only one of `vpn_tunnel` and `interconnect_attachment` can be
   specified.
 
+* `redundant_interface` - (Optional) The name of the interface that is redundant to
+  this interface. Changing this forces a new interface to
+  be created.
+
 * `project` - (Optional) The ID of the project in which this interface's router belongs. If it
     is not provided, the provider project is used. Changing this forces a new interface to be created.
 

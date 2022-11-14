@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added optional `redundant_interface` argument to `google_compute_router_interface` resource
+```

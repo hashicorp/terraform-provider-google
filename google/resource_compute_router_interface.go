@@ -80,6 +80,13 @@ func resourceComputeRouterInterface() *schema.Resource {
 				ForceNew:    true,
 				Description: `The region this interface's router sits in. If not specified, the project region will be used. Changing this forces a new interface to be created.`,
 			},
+
+			"redundant_interface": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The name of the interface that is redundant to this interface.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -123,6 +130,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	ifaces := router.Interfaces
+
 	for _, iface := range ifaces {
 		if iface.Name == ifaceName {
 			d.SetId("")
@@ -131,6 +139,10 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	iface := &compute.RouterInterface{Name: ifaceName}
+
+	if riVal, ok := d.GetOk("redundant_interface"); ok {
+		iface.RedundantInterface = riVal.(string)
+	}
 
 	if ipVal, ok := d.GetOk("ip_range"); ok {
 		iface.IpRange = ipVal.(string)
@@ -224,6 +236,9 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 			}
 			if err := d.Set("project", project); err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
+			}
+			if err := d.Set("redundant_interface", iface.RedundantInterface); err != nil {
+				return fmt.Errorf("Error setting redundant interface: %s", err)
 			}
 			return nil
 		}
