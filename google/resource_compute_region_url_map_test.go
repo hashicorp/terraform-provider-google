@@ -201,6 +201,32 @@ func TestAccComputeRegionUrlMap_defaultUrlRedirectWithinPathMatcher(t *testing.T
 	})
 }
 
+// Set all fields nested within `defaultRouteAction`, test import, then test updating all fields
+func TestAccComputeRegionUrlMap_defaultRouteAction_full_update(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionUrlMap_defaultRouteAction_full(randomSuffix),
+			},
+			{
+				ResourceName:      "google_compute_region_url_map.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionUrlMap_defaultRouteAction_full_update(randomSuffix),
+			},
+		},
+	})
+}
+
 func testAccComputeRegionUrlMap_basic1(randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
@@ -903,4 +929,235 @@ resource "google_compute_region_url_map" "foobar" {
   }
 }
 `, randomSuffix)
+}
+
+func testAccComputeRegionUrlMap_defaultRouteAction_full(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_url_map" "foobar" {
+  region = "us-central1"
+
+  name        = "regionurlmap%s"
+  description = "a description"
+
+  default_route_action {
+
+    retry_policy {
+      num_retries = 3
+      per_try_timeout {
+        seconds = 0
+        nanos = 500
+      }
+    }
+
+    request_mirror_policy {
+      backend_service = google_compute_region_backend_service.login.id
+    }
+
+    weighted_backend_services {
+      backend_service = google_compute_region_backend_service.login.id
+      weight = 200
+      header_action {
+        request_headers_to_add {
+          header_name = "foo-request-2"
+          header_value = "bar"
+          replace = true
+        }
+        request_headers_to_add {
+          header_name = "foo-request-1"
+          header_value = "bar"
+          replace = true
+        }
+        request_headers_to_remove = [
+          "fizz",
+          "buzz"
+        ]
+        response_headers_to_add {
+          header_name = "foo-response-2"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_add {
+          header_name = "foo-response-1"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_remove = [
+          "fizz",
+          "buzz"
+        ]
+      }
+    }
+    weighted_backend_services {
+      backend_service = google_compute_region_backend_service.home.id
+      weight = 100
+      header_action {
+        request_headers_to_add {
+          header_name = "foo-request-2"
+          header_value = "bar"
+          replace = true
+        }
+        request_headers_to_add {
+          header_name = "foo-request-1"
+          header_value = "bar"
+          replace = true
+        }
+        request_headers_to_remove = [
+          "fizz",
+          "buzz"
+        ]
+        response_headers_to_add {
+          header_name = "foo-response-2"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_add {
+          header_name = "foo-response-1"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_remove = [
+          "fizz",
+          "buzz"
+        ]
+      }
+    }
+  }
+}
+
+resource "google_compute_region_backend_service" "login" {
+  region = "us-central1"
+
+  name        = "login%s"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec = 10
+}
+
+resource "google_compute_region_backend_service" "home" {
+  region = "us-central1"
+
+  name        = "home%s"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec = 10
+}
+`, randomSuffix, randomSuffix, randomSuffix)
+}
+
+func testAccComputeRegionUrlMap_defaultRouteAction_full_update(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_url_map" "foobar" {
+  region = "us-central1"
+
+  name        = "regionurlmap%s"
+  description = "a description"
+
+  default_route_action {
+
+    # update all fields in retry_policy block
+    retry_policy {
+      num_retries = 4
+      per_try_timeout {
+        seconds = 1
+        nanos = 0
+      }
+    }
+
+    # update backend_service field from 'login' to 'home'
+    request_mirror_policy {
+      backend_service = google_compute_region_backend_service.home.id 
+    }
+
+    # Change various fields - marked with comments
+    weighted_backend_services {
+      backend_service = google_compute_region_backend_service.login.id
+      weight = 150 # updated
+      header_action {
+        request_headers_to_add {
+          header_name = "fizz-request-2" # updated
+          header_value = "buzz" # updated
+          replace = true
+        }
+        request_headers_to_add {
+          header_name = "foo-request-1"
+          header_value = "bar"
+          replace = false # updated
+        }
+        request_headers_to_remove = [
+          "fizz" # updated to remove element
+        ]
+        response_headers_to_add {
+          header_name = "foo-response-2"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_add {
+          header_name = "foo-response-1"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_remove = [
+          "fizz",
+          "buzz",
+          "quack" # updated to add element
+        ]
+      }
+    }
+    weighted_backend_services {
+      backend_service = google_compute_region_backend_service.home.id
+      weight = 300 # updated
+      header_action {
+        request_headers_to_add {
+          header_name = "foo-request-2"
+          header_value = "bar"
+          replace = true
+        }
+        # updated to remove a 'request_headers_to_add' block
+        request_headers_to_remove = [
+          "fizz",
+          "buzz"
+        ]
+        response_headers_to_add {
+          header_name = "foo-response-2"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_add {
+          header_name = "foo-response-1"
+          header_value = "bar"
+          replace = true
+        }
+        # updated to add 'response_headers_to_add' block below
+        response_headers_to_add {
+          header_name = "foo-response-3"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_remove = [
+          "fizz",
+          "buzz"
+        ]
+      }
+    }
+  }
+}
+
+resource "google_compute_region_backend_service" "login" {
+  region = "us-central1"
+
+  name        = "login%s"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec = 10
+}
+
+resource "google_compute_region_backend_service" "home" {
+  region = "us-central1"
+
+  name        = "home%s"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec = 10
+}
+`, randomSuffix, randomSuffix, randomSuffix)
 }

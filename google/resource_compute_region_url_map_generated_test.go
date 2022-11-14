@@ -121,6 +121,165 @@ resource "google_compute_region_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_region_url_map" "regionurlmap" {
+  region = "us-central1"
+
+  name        = "regionurlmap%{random_suffix}"
+  description = "a description"
+
+  default_route_action {
+    retry_policy {
+      retry_conditions = [
+        "5xx",
+        "gateway-error",
+      ]
+      num_retries = 3
+      per_try_timeout {
+        seconds = 0
+        nanos = 500
+      }
+    }
+    request_mirror_policy {
+      backend_service = google_compute_region_backend_service.home.id
+    }
+    weighted_backend_services {
+      backend_service = google_compute_region_backend_service.login.id
+      weight = 200
+      header_action {
+        request_headers_to_add {
+          header_name = "foo-request-1"
+          header_value = "bar"
+          replace = true
+        }
+        request_headers_to_remove = ["fizz"]
+        response_headers_to_add {
+          header_name = "foo-response-1"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_remove = ["buzz"]
+      }
+    }
+    weighted_backend_services {
+      backend_service = google_compute_region_backend_service.home.id
+      weight = 100
+      header_action {
+        request_headers_to_add {
+          header_name = "foo-request-1"
+          header_value = "bar"
+          replace = true
+        }
+        request_headers_to_add {
+          header_name = "foo-request-2"
+          header_value = "bar"
+          replace = true
+        }
+        request_headers_to_remove = ["fizz"]
+        response_headers_to_add {
+          header_name = "foo-response-2"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_add {
+          header_name = "foo-response-1"
+          header_value = "bar"
+          replace = true
+        }
+        response_headers_to_remove = ["buzz"]
+      }
+    }
+  }
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_region_backend_service.home.id
+
+    path_rule {
+      paths   = ["/home"]
+      service = google_compute_region_backend_service.home.id
+    }
+
+    path_rule {
+      paths   = ["/login"]
+      service = google_compute_region_backend_service.login.id
+    }
+  }
+
+  test {
+    service = google_compute_region_backend_service.home.id
+    host    = "hi.com"
+    path    = "/home"
+  }
+}
+
+resource "google_compute_region_backend_service" "login" {
+  region = "us-central1"
+
+  name        = "login%{random_suffix}"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec = 10
+
+  health_checks = [google_compute_region_health_check.default.id]
+}
+
+resource "google_compute_region_backend_service" "home" {
+  region = "us-central1"
+
+  name        = "home%{random_suffix}"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec = 10
+
+  health_checks = [google_compute_region_health_check.default.id]
+}
+
+resource "google_compute_region_health_check" "default" {
+  region = "us-central1"
+
+  name               = "tf-test-health-check%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
+}
+`, context)
+}
+
 func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 	t.Parallel()
 
