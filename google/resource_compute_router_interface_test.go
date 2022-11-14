@@ -36,6 +36,29 @@ func TestAccComputeRouterInterface_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouterInterface_redundant(t *testing.T) {
+	t.Parallel()
+
+	routerName := fmt.Sprintf("tf-test-router-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterInterfaceRedundant(routerName),
+				Check: testAccCheckComputeRouterInterfaceExists(
+					t, "google_compute_router_interface.foobar_int2"),
+			},
+			{
+				ResourceName:      "google_compute_router_interface.foobar_int2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRouterInterface_withTunnel(t *testing.T) {
 	t.Parallel()
 
@@ -247,6 +270,45 @@ resource "google_compute_router_interface" "foobar" {
   ip_range = "169.254.3.1/30"
 }
 `, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterInterfaceRedundant(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name = "%s-net"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_interface" "foobar_int1" {
+  name     = "%s-int1"
+  router   = google_compute_router.foobar.name
+  region   = google_compute_router.foobar.region
+  ip_range = "169.254.3.1/30"
+}
+
+resource "google_compute_router_interface" "foobar_int2" {
+  name                = "%s-int2"
+  router              = google_compute_router.foobar.name
+  region              = google_compute_router.foobar.region
+  ip_range            = "169.254.4.1/30"
+  redundant_interface = google_compute_router_interface.foobar_int1.name
+}
+`, routerName, routerName, routerName, routerName, routerName)
 }
 
 func testAccComputeRouterInterfaceKeepRouter(routerName string) string {
