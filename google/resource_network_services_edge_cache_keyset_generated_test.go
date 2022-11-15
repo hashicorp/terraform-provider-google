@@ -66,6 +66,61 @@ resource "google_network_services_edge_cache_keyset" "default" {
 `, context)
 }
 
+func TestAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetDualTokenExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkServicesEdgeCacheKeysetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetDualTokenExample(context),
+			},
+			{
+				ResourceName:            "google_network_services_edge_cache_keyset.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name"},
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetDualTokenExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-name%{random_suffix}"
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  secret_data = "secret-data"
+}
+
+resource "google_network_services_edge_cache_keyset" "default" {
+  name        = "default%{random_suffix}"
+  description = "The default keyset"
+  public_key {
+    id      = "my-public-key"
+    managed = true
+  }
+  validation_shared_keys {
+    secret_version = google_secret_manager_secret_version.secret-version-basic.id
+  }
+}
+`, context)
+}
+
 func testAccCheckNetworkServicesEdgeCacheKeysetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

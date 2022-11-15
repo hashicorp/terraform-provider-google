@@ -373,6 +373,90 @@ Only one of origin or urlRedirect can be set.`,
 																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
+																		"add_signatures": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `Enable signature generation or propagation on this route.
+
+This field may only be specified when signedRequestMode is set to REQUIRE_TOKENS.`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"actions": {
+																						Type:        schema.TypeList,
+																						Required:    true,
+																						Description: `The actions to take to add signatures to responses. Possible values: ["GENERATE_COOKIE", "GENERATE_TOKEN_HLS_COOKIELESS", "PROPAGATE_TOKEN_HLS_COOKIELESS"]`,
+																						MaxItems:    1,
+																						Elem: &schema.Schema{
+																							Type:         schema.TypeString,
+																							ValidateFunc: validateEnum([]string{"GENERATE_COOKIE", "GENERATE_TOKEN_HLS_COOKIELESS", "PROPAGATE_TOKEN_HLS_COOKIELESS"}),
+																						},
+																					},
+																					"copied_parameters": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `The parameters to copy from the verified token to the generated token.
+
+Only the following parameters may be copied:
+
+  * 'PathGlobs'
+  * 'paths'
+  * 'acl'
+  * 'URLPrefix'
+  * 'IPRanges'
+  * 'SessionID'
+  * 'id'
+  * 'Data'
+  * 'data'
+  * 'payload'
+  * 'Headers'
+
+You may specify up to 6 parameters to copy.  A given parameter is be copied only if the parameter exists in the verified token.  Parameter names are matched exactly as specified.  The order of the parameters does not matter.  Duplicates are not allowed.
+
+This field may only be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																					"keyset": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The keyset to use for signature generation.
+
+The following are both valid paths to an EdgeCacheKeyset resource:
+
+  * 'projects/project/locations/global/edgeCacheKeysets/yourKeyset'
+  * 'yourKeyset'
+
+This must be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.  This field may not be specified otherwise.`,
+																					},
+																					"token_query_parameter": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The query parameter in which to put the generated token.
+
+If not specified, defaults to 'edge-cache-token'.
+
+If specified, the name must be 1-64 characters long and match the regular expression '[a-zA-Z]([a-zA-Z0-9_-])*' which means the first character must be a letter, and all following characters must be a dash, underscore, letter or digit.
+
+This field may only be set when the GENERATE_TOKEN_HLS_COOKIELESS or PROPAGATE_TOKEN_HLS_COOKIELESS actions are specified.`,
+																					},
+																					"token_ttl": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The duration the token is valid starting from the moment the token is first generated.
+
+Defaults to '86400s' (1 day).
+
+The TTL must be >= 0 and <= 604,800 seconds (1 week).
+
+This field may only be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.
+
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+																					},
+																				},
+																			},
+																		},
 																		"cache_key_policy": {
 																			Type:        schema.TypeList,
 																			Optional:    true,
@@ -555,16 +639,63 @@ Note that when specifying an explicit negativeCachingPolicy, you should take car
 																			Optional:    true,
 																			Description: `The EdgeCacheKeyset containing the set of public keys used to validate signed requests at the edge.`,
 																		},
+																		"signed_request_maximum_expiration_ttl": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `Limit how far into the future the expiration time of a signed request may be.
+
+When set, a signed request is rejected if its expiration time is later than now + signedRequestMaximumExpirationTtl, where now is the time at which the signed request is first handled by the CDN.
+
+- The TTL must be > 0.
+- Fractions of a second are not allowed.
+
+By default, signedRequestMaximumExpirationTtl is not set and the expiration time of a signed request may be arbitrarily far into future.`,
+																		},
 																		"signed_request_mode": {
 																			Type:         schema.TypeString,
 																			Computed:     true,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"DISABLED", "REQUIRE_SIGNATURES", ""}),
+																			ValidateFunc: validateEnum([]string{"DISABLED", "REQUIRE_SIGNATURES", "REQUIRE_TOKENS", ""}),
 																			Description: `Whether to enforce signed requests. The default value is DISABLED, which means all content is public, and does not authorize access.
 
 You must also set a signedRequestKeyset to enable signed requests.
 
-When set to REQUIRE_SIGNATURES, all matching requests will have their signature validated. Requests that were not signed with the corresponding private key, or that are otherwise invalid (expired, do not match the signature, IP address, or header) will be rejected with a HTTP 403 and (if enabled) logged. Possible values: ["DISABLED", "REQUIRE_SIGNATURES"]`,
+When set to REQUIRE_SIGNATURES, all matching requests will have their signature validated. Requests that were not signed with the corresponding private key, or that are otherwise invalid (expired, do not match the signature, IP address, or header) will be rejected with a HTTP 403 and (if enabled) logged. Possible values: ["DISABLED", "REQUIRE_SIGNATURES", "REQUIRE_TOKENS"]`,
+																		},
+																		"signed_token_options": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `Additional options for signed tokens.
+
+signedTokenOptions may only be specified when signedRequestMode is REQUIRE_TOKENS.`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"allowed_signature_algorithms": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `The allowed signature algorithms to use.
+
+Defaults to using only ED25519.
+
+You may specify up to 3 signature algorithms to use. Possible values: ["ED25519", "HMAC_SHA_256", "HMAC_SHA1"]`,
+																						MaxItems: 3,
+																						Elem: &schema.Schema{
+																							Type:         schema.TypeString,
+																							ValidateFunc: validateEnum([]string{"ED25519", "HMAC_SHA_256", "HMAC_SHA1"}),
+																						},
+																					},
+																					"token_query_parameter": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The query parameter in which to find the token.
+
+The name must be 1-64 characters long and match the regular expression '[a-zA-Z]([a-zA-Z0-9_-])*' which means the first character must be a letter, and all following characters must be a dash, underscore, letter or digit.
+
+Defaults to 'edge-cache-token'.`,
+																					},
+																				},
+																			},
 																		},
 																	},
 																},
@@ -1704,6 +1835,12 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActio
 		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMode(original["signedRequestMode"], d, config)
 	transformed["signed_request_keyset"] =
 		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestKeyset(original["signedRequestKeyset"], d, config)
+	transformed["signed_token_options"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptions(original["signedTokenOptions"], d, config)
+	transformed["add_signatures"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignatures(original["addSignatures"], d, config)
+	transformed["signed_request_maximum_expiration_ttl"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMaximumExpirationTtl(original["signedRequestMaximumExpirationTtl"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1788,6 +1925,74 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActio
 }
 
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestKeyset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["token_query_parameter"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsTokenQueryParameter(original["tokenQueryParameter"], d, config)
+	transformed["allowed_signature_algorithms"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsAllowedSignatureAlgorithms(original["allowedSignatureAlgorithms"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsTokenQueryParameter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsAllowedSignatureAlgorithms(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["actions"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesActions(original["actions"], d, config)
+	transformed["keyset"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesKeyset(original["keyset"], d, config)
+	transformed["token_ttl"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenTtl(original["tokenTtl"], d, config)
+	transformed["token_query_parameter"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenQueryParameter(original["tokenQueryParameter"], d, config)
+	transformed["copied_parameters"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesCopiedParameters(original["copiedParameters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesActions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesKeyset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenQueryParameter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesCopiedParameters(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMaximumExpirationTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2671,6 +2876,27 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 		transformed["signedRequestKeyset"] = transformedSignedRequestKeyset
 	}
 
+	transformedSignedTokenOptions, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptions(original["signed_token_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSignedTokenOptions); val.IsValid() && !isEmptyValue(val) {
+		transformed["signedTokenOptions"] = transformedSignedTokenOptions
+	}
+
+	transformedAddSignatures, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignatures(original["add_signatures"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAddSignatures); val.IsValid() && !isEmptyValue(val) {
+		transformed["addSignatures"] = transformedAddSignatures
+	}
+
+	transformedSignedRequestMaximumExpirationTtl, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMaximumExpirationTtl(original["signed_request_maximum_expiration_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSignedRequestMaximumExpirationTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["signedRequestMaximumExpirationTtl"] = transformedSignedRequestMaximumExpirationTtl
+	}
+
 	return transformed, nil
 }
 
@@ -2799,6 +3025,111 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 }
 
 func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestKeyset(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTokenQueryParameter, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsTokenQueryParameter(original["token_query_parameter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTokenQueryParameter); val.IsValid() && !isEmptyValue(val) {
+		transformed["tokenQueryParameter"] = transformedTokenQueryParameter
+	}
+
+	transformedAllowedSignatureAlgorithms, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsAllowedSignatureAlgorithms(original["allowed_signature_algorithms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedSignatureAlgorithms); val.IsValid() && !isEmptyValue(val) {
+		transformed["allowedSignatureAlgorithms"] = transformedAllowedSignatureAlgorithms
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsTokenQueryParameter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsAllowedSignatureAlgorithms(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignatures(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedActions, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesActions(original["actions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedActions); val.IsValid() && !isEmptyValue(val) {
+		transformed["actions"] = transformedActions
+	}
+
+	transformedKeyset, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesKeyset(original["keyset"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeyset); val.IsValid() && !isEmptyValue(val) {
+		transformed["keyset"] = transformedKeyset
+	}
+
+	transformedTokenTtl, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenTtl(original["token_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTokenTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["tokenTtl"] = transformedTokenTtl
+	}
+
+	transformedTokenQueryParameter, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenQueryParameter(original["token_query_parameter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTokenQueryParameter); val.IsValid() && !isEmptyValue(val) {
+		transformed["tokenQueryParameter"] = transformedTokenQueryParameter
+	}
+
+	transformedCopiedParameters, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesCopiedParameters(original["copied_parameters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCopiedParameters); val.IsValid() && !isEmptyValue(val) {
+		transformed["copiedParameters"] = transformedCopiedParameters
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesActions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesKeyset(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenQueryParameter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesCopiedParameters(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMaximumExpirationTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

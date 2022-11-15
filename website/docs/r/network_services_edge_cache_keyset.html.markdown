@@ -50,19 +50,46 @@ resource "google_network_services_edge_cache_keyset" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_services_edge_cache_keyset_dual_token&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Edge Cache Keyset Dual Token
+
+
+```hcl
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "secret-name"
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  secret_data = "secret-data"
+}
+
+resource "google_network_services_edge_cache_keyset" "default" {
+  name        = "default"
+  description = "The default keyset"
+  public_key {
+    id      = "my-public-key"
+    managed = true
+  }
+  validation_shared_keys {
+    secret_version = google_secret_manager_secret_version.secret-version-basic.id
+  }
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `public_key` -
-  (Required)
-  An ordered list of Ed25519 public keys to use for validating signed requests.
-  You must specify at least one (1) key, and may have up to three (3) keys.
-  Ed25519 public keys are not secret, and only allow Google to validate a request was signed by your corresponding private key.
-  You should ensure that the private key is kept secret, and that only authorized users can add public keys to a keyset.
-  Structure is [documented below](#nested_public_key).
 
 * `name` -
   (Required)
@@ -70,20 +97,6 @@ The following arguments are supported:
   The name must be 1-64 characters long, and match the regular expression [a-zA-Z][a-zA-Z0-9_-]* which means the first character must be a letter,
   and all following characters must be a dash, underscore, letter or digit.
 
-
-<a name="nested_public_key"></a>The `public_key` block supports:
-
-* `id` -
-  (Required)
-  The ID of the public key. The ID must be 1-63 characters long, and comply with RFC1035.
-  The name must be 1-64 characters long, and match the regular expression [a-zA-Z][a-zA-Z0-9_-]*
-  which means the first character must be a letter, and all following characters must be a dash, underscore, letter or digit.
-
-* `value` -
-  (Required)
-  The base64-encoded value of the Ed25519 public key. The base64 encoding can be padded (44 bytes) or unpadded (43 bytes).
-  Representations or encodings of the public key other than this will be rejected with an error.
-  **Note**: This property is sensitive and will not be displayed in the plan.
 
 - - -
 
@@ -96,9 +109,56 @@ The following arguments are supported:
   (Optional)
   Set of label tags associated with the EdgeCache resource.
 
+* `public_key` -
+  (Optional)
+  An ordered list of Ed25519 public keys to use for validating signed requests.
+  You must specify `public_keys` or `validation_shared_keys` (or both). The keys in `public_keys` are checked first.
+  You may specify no more than one Google-managed public key.
+  If you specify `public_keys`, you must specify at least one (1) key and may specify up to three (3) keys.
+  Ed25519 public keys are not secret, and only allow Google to validate a request was signed by your corresponding private key.
+  Ensure that the private key is kept secret, and that only authorized users can add public keys to a keyset.
+  Structure is [documented below](#nested_public_key).
+
+* `validation_shared_keys` -
+  (Optional)
+  An ordered list of shared keys to use for validating signed requests.
+  Shared keys are secret.  Ensure that only authorized users can add `validation_shared_keys` to a keyset.
+  You can rotate keys by appending (pushing) a new key to the list of `validation_shared_keys` and removing any superseded keys.
+  You must specify `public_keys` or `validation_shared_keys` (or both). The keys in `public_keys` are checked first.
+  Structure is [documented below](#nested_validation_shared_keys).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_public_key"></a>The `public_key` block supports:
+
+* `id` -
+  (Required)
+  The ID of the public key. The ID must be 1-63 characters long, and comply with RFC1035.
+  The name must be 1-64 characters long, and match the regular expression [a-zA-Z][a-zA-Z0-9_-]*
+  which means the first character must be a letter, and all following characters must be a dash, underscore, letter or digit.
+
+* `value` -
+  (Optional)
+  The base64-encoded value of the Ed25519 public key. The base64 encoding can be padded (44 bytes) or unpadded (43 bytes).
+  Representations or encodings of the public key other than this will be rejected with an error.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `managed` -
+  (Optional)
+  Set to true to have the CDN automatically manage this public key value.
+
+<a name="nested_validation_shared_keys"></a>The `validation_shared_keys` block supports:
+
+* `secret_version` -
+  (Required)
+  The name of the secret version in Secret Manager.
+  The resource name of the secret version must be in the format `projects/*/secrets/*/versions/*` where the `*` values are replaced by the secrets themselves.
+  The secrets must be at least 16 bytes large.  The recommended secret size depends on the signature algorithm you are using.
+  * If you are using HMAC-SHA1, we suggest 20-byte secrets.
+  * If you are using HMAC-SHA256, we suggest 32-byte secrets.
+  See RFC 2104, Section 3 for more details on these recommendations.
 
 ## Attributes Reference
 
