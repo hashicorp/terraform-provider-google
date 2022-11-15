@@ -117,7 +117,7 @@ In addition to the arguments listed above, the following computed attributes are
   projects/projectId/webApps/appId
 
 * `app_id` -
-  Immutable. The globally unique, Firebase-assigned identifier of the App.
+  The globally unique, Firebase-assigned identifier of the App.
   This identifier should be treated as an opaque token, as the data format is not specified.
 
 * `app_urls` -

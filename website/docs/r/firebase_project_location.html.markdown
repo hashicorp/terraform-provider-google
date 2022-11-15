@@ -21,10 +21,8 @@ description: |-
 # google\_firebase\_project\_location
 
 Sets the default Google Cloud Platform (GCP) resource location for the specified FirebaseProject.
-
 This method creates an App Engine application with a default Cloud Storage bucket, located in the specified
 locationId. This location must be one of the available GCP resource locations.
-
 After the default GCP resource location is finalized, or if it was already set, it cannot be changed.
 The default GCP resource location for the specified FirebaseProject might already be set because either the
 GCP Project already has an App Engine application or defaultLocation.finalize was previously called with a
