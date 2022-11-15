@@ -421,7 +421,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `threads_per_core` (Optional) he number of threads per physical core. To disable [simultaneous multithreading (SMT)](https://cloud.google.com/compute/docs/instances/disabling-smt) set this to 1.
 
-* `visible_core_count` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The number of physical cores to expose to an instance. [visible cores info (VC)](https://cloud.google.com/compute/docs/instances/customize-visible-cores).
+* `visible_core_count` (Optional) The number of physical cores to expose to an instance. [visible cores info (VC)](https://cloud.google.com/compute/docs/instances/customize-visible-cores).
 
 <a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
 

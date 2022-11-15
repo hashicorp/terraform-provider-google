@@ -726,6 +726,12 @@ func resourceComputeInstance() *schema.Resource {
 							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core"},
 							Description:  `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
 						},
+						"visible_core_count": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core", "advanced_machine_features.0.visible_core_count"},
+							Description:  `The number of physical cores to expose to an instance. Multiply by the number of threads per core to compute the total number of virtual CPUs to expose to the instance. If unset, the number of cores is inferred from the instance\'s nominal CPU count and the underlying platform\'s SMT width.`,
+						},
 					},
 				},
 			},
