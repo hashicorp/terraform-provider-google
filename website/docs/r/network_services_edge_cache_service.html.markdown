@@ -280,6 +280,131 @@ resource "google_network_services_edge_cache_service" "instance" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_services_edge_cache_service_dual_token&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Edge Cache Service Dual Token
+
+
+```hcl
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "secret-name"
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  secret_data = "secret-data"
+}
+
+resource "google_network_services_edge_cache_keyset" "keyset" {
+  name        = "keyset-name"
+  description = "The default keyset"
+  public_key {
+    id      = "my-public-key"
+    managed = true
+  }
+  validation_shared_keys {
+    secret_version = google_secret_manager_secret_version.secret-version-basic.id
+  }
+}
+
+resource "google_network_services_edge_cache_origin" "instance" {
+  name                 = "my-origin"
+  origin_address       = "gs://media-edge-default"
+  description          = "The default bucket for media edge test"
+}
+
+resource "google_network_services_edge_cache_service" "instance" {
+  name                 = "my-service"
+  description          = "some description"
+  routing {
+    host_rule {
+      description = "host rule description"
+      hosts = ["sslcert.tf-test.club"]
+      path_matcher = "routes"
+    }
+    path_matcher {
+      name = "routes"
+      route_rule {
+        description = "a route rule to match against master playlist"
+        priority = 1
+        match_rule {
+          path_template_match = "/master.m3u8"
+	}	
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+	    signed_request_mode = "REQUIRE_TOKENS"
+	    signed_request_keyset = google_network_services_edge_cache_keyset.keyset.id
+	    signed_token_options {
+	      token_query_parameter = "edge-cache-token"
+	    }
+	    signed_request_maximum_expiration_ttl = "600s"
+	    add_signatures {
+	      actions = ["GENERATE_COOKIE"]
+	      keyset = google_network_services_edge_cache_keyset.keyset.id
+	      copied_parameters = ["PathGlobs", "SessionID"]
+	    }
+          }
+        }
+      }
+      route_rule {
+        description = "a route rule to match against all playlists"
+        priority = 2
+        match_rule {
+          path_template_match = "/*.m3u8"
+        }
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+	    signed_request_mode = "REQUIRE_TOKENS"
+	    signed_request_keyset = google_network_services_edge_cache_keyset.keyset.id
+	    signed_token_options {
+	      token_query_parameter = "hdnts"
+	      allowed_signature_algorithms = ["ED25519", "HMAC_SHA_256", "HMAC_SHA1"]
+	    }
+	    add_signatures {
+	      actions = ["GENERATE_TOKEN_HLS_COOKIELESS"]
+	      keyset = google_network_services_edge_cache_keyset.keyset.id
+	      token_ttl = "1200s"
+	      token_query_parameter = "hdntl"
+	      copied_parameters = ["URLPrefix"]
+	    }
+          }
+        }
+      }
+      route_rule {
+        description = "a route rule to match against"
+        priority = 3
+        match_rule {
+          path_template_match = "/**.m3u8"
+        }
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+	    signed_request_mode = "REQUIRE_TOKENS"
+	    signed_request_keyset = google_network_services_edge_cache_keyset.keyset.id
+	    signed_token_options {
+	      token_query_parameter = "hdntl"
+	    }
+	    add_signatures {
+	      actions = ["PROPAGATE_TOKEN_HLS_COOKIELESS"]
+	      token_query_parameter = "hdntl"
+	    }
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -620,11 +745,31 @@ The following arguments are supported:
   Whether to enforce signed requests. The default value is DISABLED, which means all content is public, and does not authorize access.
   You must also set a signedRequestKeyset to enable signed requests.
   When set to REQUIRE_SIGNATURES, all matching requests will have their signature validated. Requests that were not signed with the corresponding private key, or that are otherwise invalid (expired, do not match the signature, IP address, or header) will be rejected with a HTTP 403 and (if enabled) logged.
-  Possible values are `DISABLED` and `REQUIRE_SIGNATURES`.
+  Possible values are `DISABLED`, `REQUIRE_SIGNATURES`, and `REQUIRE_TOKENS`.
 
 * `signed_request_keyset` -
   (Optional)
   The EdgeCacheKeyset containing the set of public keys used to validate signed requests at the edge.
+
+* `signed_token_options` -
+  (Optional)
+  Additional options for signed tokens.
+  signedTokenOptions may only be specified when signedRequestMode is REQUIRE_TOKENS.
+  Structure is [documented below](#nested_signed_token_options).
+
+* `add_signatures` -
+  (Optional)
+  Enable signature generation or propagation on this route.
+  This field may only be specified when signedRequestMode is set to REQUIRE_TOKENS.
+  Structure is [documented below](#nested_add_signatures).
+
+* `signed_request_maximum_expiration_ttl` -
+  (Optional)
+  Limit how far into the future the expiration time of a signed request may be.
+  When set, a signed request is rejected if its expiration time is later than now + signedRequestMaximumExpirationTtl, where now is the time at which the signed request is first handled by the CDN.
+  - The TTL must be > 0.
+  - Fractions of a second are not allowed.
+  By default, signedRequestMaximumExpirationTtl is not set and the expiration time of a signed request may be arbitrarily far into future.
 
 
 <a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
@@ -674,6 +819,69 @@ The following arguments are supported:
     - cannot start with "Edge-Cache-" (case insensitive)
     Note that specifying several cookies, and/or cookies that have a large range of values (e.g., per-user) will dramatically impact the cache hit rate, and may result in a higher eviction rate and reduced performance.
     You may specify up to three cookie names.
+
+<a name="nested_signed_token_options"></a>The `signed_token_options` block supports:
+
+* `token_query_parameter` -
+  (Optional)
+  The query parameter in which to find the token.
+  The name must be 1-64 characters long and match the regular expression `[a-zA-Z]([a-zA-Z0-9_-])*` which means the first character must be a letter, and all following characters must be a dash, underscore, letter or digit.
+  Defaults to `edge-cache-token`.
+
+* `allowed_signature_algorithms` -
+  (Optional)
+  The allowed signature algorithms to use.
+  Defaults to using only ED25519.
+  You may specify up to 3 signature algorithms to use.
+  Each value may be one of `ED25519`, `HMAC_SHA_256`, and `HMAC_SHA1`.
+
+<a name="nested_add_signatures"></a>The `add_signatures` block supports:
+
+* `actions` -
+  (Required)
+  The actions to take to add signatures to responses.
+  Each value may be one of `GENERATE_COOKIE`, `GENERATE_TOKEN_HLS_COOKIELESS`, and `PROPAGATE_TOKEN_HLS_COOKIELESS`.
+
+* `keyset` -
+  (Optional)
+  The keyset to use for signature generation.
+  The following are both valid paths to an EdgeCacheKeyset resource:
+    * `projects/project/locations/global/edgeCacheKeysets/yourKeyset`
+    * `yourKeyset`
+  This must be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.  This field may not be specified otherwise.
+
+* `token_ttl` -
+  (Optional)
+  The duration the token is valid starting from the moment the token is first generated.
+  Defaults to `86400s` (1 day).
+  The TTL must be >= 0 and <= 604,800 seconds (1 week).
+  This field may only be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `token_query_parameter` -
+  (Optional)
+  The query parameter in which to put the generated token.
+  If not specified, defaults to `edge-cache-token`.
+  If specified, the name must be 1-64 characters long and match the regular expression `[a-zA-Z]([a-zA-Z0-9_-])*` which means the first character must be a letter, and all following characters must be a dash, underscore, letter or digit.
+  This field may only be set when the GENERATE_TOKEN_HLS_COOKIELESS or PROPAGATE_TOKEN_HLS_COOKIELESS actions are specified.
+
+* `copied_parameters` -
+  (Optional)
+  The parameters to copy from the verified token to the generated token.
+  Only the following parameters may be copied:
+    * `PathGlobs`
+    * `paths`
+    * `acl`
+    * `URLPrefix`
+    * `IPRanges`
+    * `SessionID`
+    * `id`
+    * `Data`
+    * `data`
+    * `payload`
+    * `Headers`
+  You may specify up to 6 parameters to copy.  A given parameter is be copied only if the parameter exists in the verified token.  Parameter names are matched exactly as specified.  The order of the parameters does not matter.  Duplicates are not allowed.
+  This field may only be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.
 
 <a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 

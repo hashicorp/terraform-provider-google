@@ -50,14 +50,27 @@ func resourceNetworkServicesEdgeCacheKeyset() *schema.Resource {
 The name must be 1-64 characters long, and match the regular expression [a-zA-Z][a-zA-Z0-9_-]* which means the first character must be a letter,
 and all following characters must be a dash, underscore, letter or digit.`,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A human-readable description of the resource.`,
+			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Set of label tags associated with the EdgeCache resource.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"public_key": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				Description: `An ordered list of Ed25519 public keys to use for validating signed requests.
-You must specify at least one (1) key, and may have up to three (3) keys.
+You must specify 'public_keys' or 'validation_shared_keys' (or both). The keys in 'public_keys' are checked first.
+You may specify no more than one Google-managed public key.
+If you specify 'public_keys', you must specify at least one (1) key and may specify up to three (3) keys.
 
 Ed25519 public keys are not secret, and only allow Google to validate a request was signed by your corresponding private key.
-You should ensure that the private key is kept secret, and that only authorized users can add public keys to a keyset.`,
+Ensure that the private key is kept secret, and that only authorized users can add public keys to a keyset.`,
 				MinItems: 1,
 				MaxItems: 3,
 				Elem: &schema.Resource{
@@ -69,26 +82,47 @@ You should ensure that the private key is kept secret, and that only authorized 
 The name must be 1-64 characters long, and match the regular expression [a-zA-Z][a-zA-Z0-9_-]*
 which means the first character must be a letter, and all following characters must be a dash, underscore, letter or digit.`,
 						},
+						"managed": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Set to true to have the CDN automatically manage this public key value.`,
+						},
 						"value": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 							Description: `The base64-encoded value of the Ed25519 public key. The base64 encoding can be padded (44 bytes) or unpadded (43 bytes).
 Representations or encodings of the public key other than this will be rejected with an error.`,
 							Sensitive: true,
 						},
 					},
 				},
+				AtLeastOneOf: []string{"public_key", "validation_shared_keys"},
 			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `A human-readable description of the resource.`,
-			},
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Set of label tags associated with the EdgeCache resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+			"validation_shared_keys": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `An ordered list of shared keys to use for validating signed requests.
+Shared keys are secret.  Ensure that only authorized users can add 'validation_shared_keys' to a keyset.
+You can rotate keys by appending (pushing) a new key to the list of 'validation_shared_keys' and removing any superseded keys.
+You must specify 'public_keys' or 'validation_shared_keys' (or both). The keys in 'public_keys' are checked first.`,
+				MinItems: 1,
+				MaxItems: 3,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_version": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The name of the secret version in Secret Manager.
+
+The resource name of the secret version must be in the format 'projects/*/secrets/*/versions/*' where the '*' values are replaced by the secrets themselves.
+The secrets must be at least 16 bytes large.  The recommended secret size depends on the signature algorithm you are using.
+* If you are using HMAC-SHA1, we suggest 20-byte secrets.
+* If you are using HMAC-SHA256, we suggest 32-byte secrets.
+See RFC 2104, Section 3 for more details on these recommendations.`,
+						},
+					},
+				},
+				AtLeastOneOf: []string{"public_key", "validation_shared_keys"},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -126,6 +160,12 @@ func resourceNetworkServicesEdgeCacheKeysetCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("public_key"); !isEmptyValue(reflect.ValueOf(publicKeysProp)) && (ok || !reflect.DeepEqual(v, publicKeysProp)) {
 		obj["publicKeys"] = publicKeysProp
+	}
+	validationSharedKeysProp, err := expandNetworkServicesEdgeCacheKeysetValidationSharedKeys(d.Get("validation_shared_keys"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("validation_shared_keys"); !isEmptyValue(reflect.ValueOf(validationSharedKeysProp)) && (ok || !reflect.DeepEqual(v, validationSharedKeysProp)) {
+		obj["validationSharedKeys"] = validationSharedKeysProp
 	}
 
 	url, err := replaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheKeysets?edgeCacheKeysetId={{name}}")
@@ -217,6 +257,9 @@ func resourceNetworkServicesEdgeCacheKeysetRead(d *schema.ResourceData, meta int
 	if err := d.Set("public_key", flattenNetworkServicesEdgeCacheKeysetPublicKey(res["publicKeys"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheKeyset: %s", err)
 	}
+	if err := d.Set("validation_shared_keys", flattenNetworkServicesEdgeCacheKeysetValidationSharedKeys(res["validationSharedKeys"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheKeyset: %s", err)
+	}
 
 	return nil
 }
@@ -255,6 +298,12 @@ func resourceNetworkServicesEdgeCacheKeysetUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("public_key"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, publicKeysProp)) {
 		obj["publicKeys"] = publicKeysProp
 	}
+	validationSharedKeysProp, err := expandNetworkServicesEdgeCacheKeysetValidationSharedKeys(d.Get("validation_shared_keys"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("validation_shared_keys"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, validationSharedKeysProp)) {
+		obj["validationSharedKeys"] = validationSharedKeysProp
+	}
 
 	url, err := replaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheKeysets/{{name}}")
 	if err != nil {
@@ -274,6 +323,10 @@ func resourceNetworkServicesEdgeCacheKeysetUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("public_key") {
 		updateMask = append(updateMask, "publicKeys")
+	}
+
+	if d.HasChange("validation_shared_keys") {
+		updateMask = append(updateMask, "validationSharedKeys")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -392,8 +445,9 @@ func flattenNetworkServicesEdgeCacheKeysetPublicKey(v interface{}, d *schema.Res
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"id":    flattenNetworkServicesEdgeCacheKeysetPublicKeyId(original["id"], d, config),
-			"value": flattenNetworkServicesEdgeCacheKeysetPublicKeyValue(original["value"], d, config),
+			"id":      flattenNetworkServicesEdgeCacheKeysetPublicKeyId(original["id"], d, config),
+			"value":   flattenNetworkServicesEdgeCacheKeysetPublicKeyValue(original["value"], d, config),
+			"managed": flattenNetworkServicesEdgeCacheKeysetPublicKeyManaged(original["managed"], d, config),
 		})
 	}
 	return transformed
@@ -403,6 +457,32 @@ func flattenNetworkServicesEdgeCacheKeysetPublicKeyId(v interface{}, d *schema.R
 }
 
 func flattenNetworkServicesEdgeCacheKeysetPublicKeyValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheKeysetPublicKeyManaged(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheKeysetValidationSharedKeys(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"secret_version": flattenNetworkServicesEdgeCacheKeysetValidationSharedKeysSecretVersion(original["secretVersion"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkServicesEdgeCacheKeysetValidationSharedKeysSecretVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -445,6 +525,13 @@ func expandNetworkServicesEdgeCacheKeysetPublicKey(v interface{}, d TerraformRes
 			transformed["value"] = transformedValue
 		}
 
+		transformedManaged, err := expandNetworkServicesEdgeCacheKeysetPublicKeyManaged(original["managed"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedManaged); val.IsValid() && !isEmptyValue(val) {
+			transformed["managed"] = transformedManaged
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -455,5 +542,35 @@ func expandNetworkServicesEdgeCacheKeysetPublicKeyId(v interface{}, d TerraformR
 }
 
 func expandNetworkServicesEdgeCacheKeysetPublicKeyValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheKeysetPublicKeyManaged(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheKeysetValidationSharedKeys(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSecretVersion, err := expandNetworkServicesEdgeCacheKeysetValidationSharedKeysSecretVersion(original["secret_version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSecretVersion); val.IsValid() && !isEmptyValue(val) {
+			transformed["secretVersion"] = transformedSecretVersion
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkServicesEdgeCacheKeysetValidationSharedKeysSecretVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
