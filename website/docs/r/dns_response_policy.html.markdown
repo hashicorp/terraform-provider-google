@@ -51,6 +51,56 @@ resource "google_compute_network" "network-2" {
   auto_create_subnetworks = false
 }
 
+resource "google_compute_subnetwork" "subnetwork-1" {
+  provider = google-beta
+
+  name                     = google_compute_network.network-1.name
+  network                  = google_compute_network.network-1.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+resource "google_container_cluster" "cluster-1" {
+  provider = google-beta
+
+  name               = "cluster-1"
+  location           = "us-central1-c"
+  initial_node_count = 1
+
+  networking_mode = "VPC_NATIVE"
+  default_snat_status {
+    disabled = true
+  }
+  network    = google_compute_network.network-1.name
+  subnetwork = google_compute_subnetwork.subnetwork-1.name
+
+  private_cluster_config {
+    enable_private_endpoint = true
+    enable_private_nodes    = true
+    master_ipv4_cidr_block  = "10.42.0.0/28"
+    master_global_access_config {
+      enabled = true
+	}
+  }
+  master_authorized_networks_config {
+  }
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.subnetwork-1.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.subnetwork-1.secondary_ip_range[1].range_name
+  }
+}
+
 resource "google_dns_response_policy" "example-response-policy" {
   provider = google-beta
   
@@ -61,6 +111,9 @@ resource "google_dns_response_policy" "example-response-policy" {
   }
   networks {
     network_url = google_compute_network.network-2.id
+  }
+  gke_clusters {
+	  gke_cluster_name = google_container_cluster.cluster-1.id
   }
 }
 ```
@@ -87,6 +140,11 @@ The following arguments are supported:
   The list of network names specifying networks to which this policy is applied.
   Structure is [documented below](#nested_networks).
 
+* `gke_clusters` -
+  (Optional)
+  The list of Google Kubernetes Engine clusters that can see this zone.
+  Structure is [documented below](#nested_gke_clusters).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -98,6 +156,14 @@ The following arguments are supported:
   The fully qualified URL of the VPC network to bind to.
   This should be formatted like
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
+
+<a name="nested_gke_clusters"></a>The `gke_clusters` block supports:
+
+* `gke_cluster_name` -
+  (Required)
+  The resource name of the cluster to bind this ManagedZone to.  
+  This should be specified in the format like  
+  `projects/*/locations/*/clusters/*`
 
 ## Attributes Reference
 

@@ -253,6 +253,105 @@ resource "google_compute_network" "network-2" {
 `, context)
 }
 
+func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZonePrivateGkeExample(context),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private-zone-gke",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZonePrivateGkeExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_dns_managed_zone" "private-zone-gke" {
+  name        = "tf-test-private-zone%{random_suffix}"
+  dns_name    = "private.example.com."
+  description = "Example private DNS zone"
+  labels = {
+    foo = "bar"
+  }
+
+  visibility = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network-1.id
+    }
+    gke_clusters {
+      gke_cluster_name = google_container_cluster.cluster-1.id
+    }
+  }
+}
+
+resource "google_compute_network" "network-1" {
+  name                    = "tf-test-network-1%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork-1" {
+  name                     = google_compute_network.network-1.name
+  network                  = google_compute_network.network-1.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+resource "google_container_cluster" "cluster-1" {
+  name               = "tf-test-cluster-1%{random_suffix}"
+  location           = "us-central1-c"
+  initial_node_count = 1
+
+  networking_mode = "VPC_NATIVE"
+  default_snat_status {
+    disabled = true
+  }
+  network    = google_compute_network.network-1.name
+  subnetwork = google_compute_subnetwork.subnetwork-1.name
+
+  private_cluster_config {
+    enable_private_endpoint = true
+    enable_private_nodes    = true
+    master_ipv4_cidr_block  = "10.42.0.0/28"
+    master_global_access_config {
+      enabled = true
+	}
+  }
+  master_authorized_networks_config {
+  }
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.subnetwork-1.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.subnetwork-1.secondary_ip_range[1].range_name
+  }
+}
+`, context)
+}
+
 func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 	t.Parallel()
 
