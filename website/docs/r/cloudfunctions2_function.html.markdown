@@ -780,7 +780,7 @@ The following arguments are supported:
 <a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `trigger` -
-  The resource name of the Eventarc trigger.
+  Output only. The resource name of the Eventarc trigger.
 
 * `trigger_region` -
   (Optional)
