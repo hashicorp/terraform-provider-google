@@ -243,7 +243,7 @@ region. If not provided, defaults to the same region as the function.`,
 						"trigger": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The resource name of the Eventarc trigger.`,
+							Description: `Output only. The resource name of the Eventarc trigger.`,
 						},
 					},
 				},

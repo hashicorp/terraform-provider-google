@@ -1,0 +1,3 @@
+```release-note:none
+cloudfunctions2: updated the doc to mark `trigger` with Update only on `google_cloudfunctions2_function`
+```
