@@ -13,33 +13,46 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Firebase"
-page_title: "Google: google_firebase_android_app"
+page_title: "Google: google_firebase_apple_app"
 description: |-
-  A Google Cloud Firebase Android application instance
+  A Google Cloud Firebase Apple application instance
 ---
 
-# google\_firebase\_android\_app
+# google\_firebase\_apple\_app
 
-A Google Cloud Firebase Android application instance
+A Google Cloud Firebase Apple application instance
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
-To get more information about AndroidApp, see:
+To get more information about AppleApp, see:
 
-* [API documentation](https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects.androidApps)
+* [API documentation](https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects.iosApps)
 * How-to Guides
-    * [Official Documentation](https://firebase.google.com/docs/android/setup)
+    * [Official Documentation](https://firebase.google.com/docs/ios/setup)
 
-## Example Usage - Firebase Android App Basic
+## Example Usage - Firebase Apple App Basic
 
 
 ```hcl
-resource "google_firebase_android_app" "basic" {
+resource "google_firebase_apple_app" "default" {
   provider = google-beta
   project = "my-project-name"
   display_name = "Display Name Basic"
-  package_name = ""
+  bundle_id = "apple.app.12345"
+}
+```
+## Example Usage - Firebase Apple App Full
+
+
+```hcl
+resource "google_firebase_apple_app" "full" {
+  provider = google-beta
+  project = "my-project-name"
+  display_name = "Display Name Full"
+  bundle_id = "apple.app.12345"
+  app_store_id = "12345"
+  team_id = "9987654321"
 }
 ```
 
@@ -56,16 +69,23 @@ The following arguments are supported:
 - - -
 
 
-* `package_name` -
+* `bundle_id` -
   (Optional)
-  Immutable. The canonical package name of the Android app as would appear in the Google Play
-  Developer Console.
+  The canonical bundle ID of the Apple app as it would appear in the Apple AppStore.
+
+* `app_store_id` -
+  (Optional)
+  The automatically generated Apple ID assigned to the Apple app by Apple in the Apple App Store.
+
+* `team_id` -
+  (Optional)
+  The Apple Developer Team ID associated with the App in the App Store.
 
 * `deletion_policy` -
   (Optional)
-  (Optional) Set to `ABANDON` to allow the AndroidApp to be untracked from terraform state
-  rather than deleted upon `terraform destroy`. This is useful because the AndroidApp may be
-  serving traffic. Set to `DELETE` to delete the AndroidApp. Default to `DELETE`.
+  (Optional) Set to `ABANDON` to allow the AppleApp to be untracked from terraform state
+  rather than deleted upon `terraform destroy`. This is useful because the AppleApp may be
+  serving traffic. Set to `DELETE` to delete the AppleApp. Default to `DELETE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -79,7 +99,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The fully qualified resource name of the App, for example:
-  projects/projectId/androidApps/appId
+  projects/projectId/iosApps/appId
 
 * `app_id` -
   The globally unique, Firebase-assigned identifier of the App.
@@ -98,13 +118,13 @@ This resource provides the following
 ## Import
 
 
-AndroidApp can be imported using any of these accepted formats:
+AppleApp can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_firebase_android_app.default projects/{{project}}/androidApps/{{appId}}
-$ terraform import google_firebase_android_app.default {{project}}/{{appId}}
-$ terraform import google_firebase_android_app.default androidApps/{{appId}}
-$ terraform import google_firebase_android_app.default {{appId}}
+$ terraform import google_firebase_apple_app.default projects/{{project}}/iosApps/{{appId}}
+$ terraform import google_firebase_apple_app.default {{project}}/{{appId}}
+$ terraform import google_firebase_apple_app.default iosApps/{{appId}}
+$ terraform import google_firebase_apple_app.default {{appId}}
 ```
 
 ## User Project Overrides
