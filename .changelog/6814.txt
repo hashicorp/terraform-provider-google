@@ -1,0 +1,6 @@
+```release-note:enhancement
+dns: added `gke_clusters` field to `google_dns_managed_zone` resource
+```
+```release-note:enhancement
+dns: added `gke_clusters` field to `google_dns_response_policy` resource
+```
