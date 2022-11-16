@@ -152,6 +152,45 @@ func TestAccContainerNodePool_noName(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withLoggingVariantUpdates(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	nodePool := fmt.Sprintf("tf-test-nodepool-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withLoggingVariant(cluster, nodePool, "DEFAULT"),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_logging_variant",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withLoggingVariant(cluster, nodePool, "MAX_THROUGHPUT"),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_logging_variant",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withLoggingVariant(cluster, nodePool, "DEFAULT"),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_logging_variant",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	t.Parallel()
 
@@ -953,6 +992,26 @@ resource "google_container_node_pool" "np" {
   initial_node_count = 2
 }
 `, cluster, np)
+}
+
+func testAccContainerNodePool_withLoggingVariant(cluster, np, loggingVariant string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_logging_variant" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+
+resource "google_container_node_pool" "with_logging_variant" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.with_logging_variant.name
+  initial_node_count = 1
+  node_config {
+    logging_variant = "%s"
+  }
+}
+`, cluster, np, loggingVariant)
 }
 
 func testAccContainerNodePool_basicWithClusterId(cluster, np string) string {

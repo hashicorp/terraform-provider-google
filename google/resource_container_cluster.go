@@ -89,6 +89,33 @@ func clusterSchemaNodeConfig() *schema.Schema {
 	return nodeConfigSch
 }
 
+// Defines default nodel pool settings for the entire cluster. These settings are
+// overridden if specified on the specific NodePool object.
+func clusterSchemaNodePoolDefaults() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		Description: `The default nodel pool settings for the entire cluster.`,
+		MaxItems:    1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"node_config_defaults": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Description: `Subset of NodeConfig message that has defaults.`,
+					MaxItems:    1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"logging_variant": schemaLoggingVariant(),
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
 	// This diff gets applied in the cloud console if you specify
 	// "FREQ=DAILY" in your config and add a maintenance exclusion.
@@ -959,6 +986,8 @@ func resourceContainerCluster() *schema.Resource {
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
+			"node_pool_defaults": clusterSchemaNodePoolDefaults(),
+
 			"node_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1613,6 +1642,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.NodeConfig = expandNodeConfig([]interface{}{})
 	}
 
+	if v, ok := d.GetOk("node_pool_defaults"); ok {
+		cluster.NodePoolDefaults = expandNodePoolDefaults(v)
+	}
+
 	if v, ok := d.GetOk("node_config"); ok {
 		cluster.NodeConfig = expandNodeConfig(v)
 	}
@@ -2005,6 +2038,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("monitoring_config", flattenMonitoringConfig(cluster.MonitoringConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("node_pool_defaults", flattenNodePoolDefaults(cluster.NodePoolDefaults)); err != nil {
 		return err
 	}
 
@@ -2909,6 +2946,29 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s resource usage export config has been updated", d.Id())
 	}
 
+	if d.HasChange("node_pool_defaults") && d.HasChange("node_pool_defaults.0.node_config_defaults.0.logging_variant") {
+		if v, ok := d.GetOk("node_pool_defaults.0.node_config_defaults.0.logging_variant"); ok {
+			loggingVariant := v.(string)
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredNodePoolLoggingConfig: &container.NodePoolLoggingConfig{
+						VariantConfig: &container.LoggingVariantConfig{
+							Variant: loggingVariant,
+						},
+					},
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE cluster desired node pool logging configuration defaults.")
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s node pool logging configuration defaults have been updated", d.Id())
+		}
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -3747,6 +3807,32 @@ func expandContainerClusterAuthenticatorGroupsConfig(configured interface{}) *co
 	return &container.AuthenticatorGroupsConfig{
 		SecurityGroup: config["security_group"].(string),
 	}
+}
+
+func expandNodePoolDefaults(configured interface{}) *container.NodePoolDefaults {
+	l, ok := configured.([]interface{})
+	if !ok || l == nil || len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	nodePoolDefaults := &container.NodePoolDefaults{}
+	config := l[0].(map[string]interface{})
+	if v, ok := config["node_config_defaults"]; ok && len(v.([]interface{})) > 0 {
+		nodePoolDefaults.NodeConfigDefaults = expandNodeConfigDefaults(v)
+	}
+	return nodePoolDefaults
+}
+
+func flattenNodePoolDefaults(c *container.NodePoolDefaults) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	result := make(map[string]interface{})
+	if c.NodeConfigDefaults != nil {
+		result["node_config_defaults"] = flattenNodeConfigDefaults(c.NodeConfigDefaults)
+	}
+
+	return []map[string]interface{}{result}
 }
 
 func flattenNotificationConfig(c *container.NotificationConfig) []map[string]interface{} {
