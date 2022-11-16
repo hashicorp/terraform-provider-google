@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed a crash when `log_bucket` is updated with empty body on `google_storage_bucket`
+```

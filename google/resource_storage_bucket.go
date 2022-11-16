@@ -963,7 +963,7 @@ func expandBucketDataLocations(configured interface{}) []string {
 
 func expandBucketLogging(configured interface{}) *storage.BucketLogging {
 	loggings := configured.([]interface{})
-	if len(loggings) == 0 {
+	if len(loggings) == 0 || loggings[0] == nil {
 		return nil
 	}
 
