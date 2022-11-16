@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_cloud_asset_resources_search_all` (beta)
+```
