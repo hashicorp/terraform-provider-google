@@ -1,4 +1,9 @@
-## 4.43.0 (Unreleased)
+## 4.43.1 (Unreleased)
+
+BUG FIXES:
+* provider: fixed a crash during provider authentication for certain environments ([#13056](https://github.com/hashicorp/terraform-provider-google/pull/13056))
+
+## 4.43.0 (November 7, 2022)
 
 FEATURES:
 * **New Resource:** `google_kms_crypto_key_version` ([#12926](https://github.com/hashicorp/terraform-provider-google/pull/12926))
