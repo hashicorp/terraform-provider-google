@@ -519,6 +519,9 @@ func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)
 	}
+	if res["email"] == nil {
+		return "", fmt.Errorf("error retrieving email from userinfo. email was nil in the response.")
+	}
 	return res["email"].(string), nil
 }
 
