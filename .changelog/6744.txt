@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: Added `node_pool_defaults.node_config_defaults.logging_variant`, `node_pool.node_config.logging_variant`, and `node_config.logging_variant` to `google_container_cluster`.
+```
+```release-note:enhancement
+container: Added `node_config.logging_variant` to `google_container_node_pool`.
+```

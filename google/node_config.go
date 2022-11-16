@@ -16,6 +16,16 @@ var defaultOauthScopes = []string{
 	"https://www.googleapis.com/auth/trace.append",
 }
 
+func schemaLoggingVariant() *schema.Schema {
+	return &schema.Schema{
+		Type:         schema.TypeString,
+		Optional:     true,
+		Description:  `Type of logging agent that is used as the default value for node pools in the cluster. Valid values include DEFAULT and MAX_THROUGHPUT.`,
+		Default:      "DEFAULT",
+		ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "MAX_THROUGHPUT"}, false),
+	}
+}
+
 func schemaGcfsConfig(forceNew bool) *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
@@ -147,6 +157,8 @@ func schemaNodeConfig() *schema.Schema {
 					ValidateFunc: validation.IntAtLeast(0),
 					Description:  `The number of local SSD disks to be attached to the node.`,
 				},
+
+				"logging_variant": schemaLoggingVariant(),
 
 				"gcfs_config": schemaGcfsConfig(true),
 
@@ -369,6 +381,24 @@ func schemaNodeConfig() *schema.Schema {
 	}
 }
 
+func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefaults {
+	configs := configured.([]interface{})
+	if len(configs) == 0 || configs[0] == nil {
+		return nil
+	}
+	config := configs[0].(map[string]interface{})
+
+	nodeConfigDefaults := &container.NodeConfigDefaults{}
+	if variant, ok := config["logging_variant"]; ok {
+		nodeConfigDefaults.LoggingConfig = &container.NodePoolLoggingConfig{
+			VariantConfig: &container.LoggingVariantConfig{
+				Variant: variant.(string),
+			},
+		}
+	}
+	return nodeConfigDefaults
+}
+
 func expandNodeConfig(v interface{}) *container.NodeConfig {
 	nodeConfigs := v.([]interface{})
 	nc := &container.NodeConfig{
@@ -422,6 +452,14 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 
 	if v, ok := nodeConfig["local_ssd_count"]; ok {
 		nc.LocalSsdCount = int64(v.(int))
+	}
+
+	if v, ok := nodeConfig["logging_variant"]; ok {
+		nc.LoggingConfig = &container.NodePoolLoggingConfig{
+			VariantConfig: &container.LoggingVariantConfig{
+				Variant: v.(string),
+			},
+		}
 	}
 
 	if v, ok := nodeConfig["gcfs_config"]; ok && len(v.([]interface{})) > 0 {
@@ -565,6 +603,20 @@ func expandWorkloadMetadataConfig(v interface{}) *container.WorkloadMetadataConf
 	return wmc
 }
 
+func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+
+	if c == nil {
+		return result
+	}
+
+	result = append(result, map[string]interface{}{})
+
+	result[0]["logging_variant"] = flattenLoggingVariant(c.LoggingConfig)
+
+	return result
+}
+
 func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	config := make([]map[string]interface{}, 0, 1)
 
@@ -578,6 +630,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"disk_type":                c.DiskType,
 		"guest_accelerator":        flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":          c.LocalSsdCount,
+		"logging_variant":          flattenLoggingVariant(c.LoggingConfig),
 		"gcfs_config":              flattenGcfsConfig(c.GcfsConfig),
 		"gvnic":                    flattenGvnic(c.Gvnic),
 		"reservation_affinity":     flattenGKEReservationAffinity(c.ReservationAffinity),
@@ -633,6 +686,14 @@ func flattenShieldedInstanceConfig(c *container.ShieldedInstanceConfig) []map[st
 		})
 	}
 	return result
+}
+
+func flattenLoggingVariant(c *container.NodePoolLoggingConfig) string {
+	variant := "DEFAULT"
+	if c != nil && c.VariantConfig != nil && c.VariantConfig.Variant != "" {
+		variant = c.VariantConfig.Variant
+	}
+	return variant
 }
 
 func flattenGcfsConfig(c *container.GcfsConfig) []map[string]interface{} {

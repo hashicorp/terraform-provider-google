@@ -1050,6 +1050,45 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 	if d.HasChange(prefix + "node_config") {
 
+		if d.HasChange(prefix + "node_config.0.logging_variant") {
+			if v, ok := d.GetOk(prefix + "node_config.0.logging_variant"); ok {
+				loggingVariant := v.(string)
+				req := &container.UpdateNodePoolRequest{
+					Name: name,
+					LoggingConfig: &container.NodePoolLoggingConfig{
+						VariantConfig: &container.LoggingVariantConfig{
+							Variant: loggingVariant,
+						},
+					},
+				}
+
+				updateF := func() error {
+					clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+					if config.UserProjectOverride {
+						clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+					}
+					op, err := clusterNodePoolsUpdateCall.Do()
+					if err != nil {
+						return err
+					}
+
+					// Wait until it's updated
+					return containerOperationWait(config, op,
+						nodePoolInfo.project,
+						nodePoolInfo.location,
+						"updating GKE node pool logging_variant", userAgent,
+						timeout)
+				}
+
+				// Call update serially.
+				if err := lockedCall(lockKey, updateF); err != nil {
+					return err
+				}
+
+				log.Printf("[INFO] Updated logging_variant for node pool %s", name)
+			}
+		}
+
 		if d.HasChange(prefix + "node_config.0.tags") {
 			req := &container.UpdateNodePoolRequest{
 				Name: name,
