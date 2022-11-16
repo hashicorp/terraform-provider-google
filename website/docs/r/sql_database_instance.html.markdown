@@ -238,6 +238,8 @@ The `settings` block supports:
 
 * `collation` - (Optional) The name of server instance collation.
 
+* `connector_enforcement` - (Optional) Specifies if connections must use Cloud SQL connectors.
+
 * `disk_autoresize` - (Optional) Enables auto-resizing of the storage size. Defaults to `true`.
 
 * `disk_autoresize_limit` - (Optional) The maximum size to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.
