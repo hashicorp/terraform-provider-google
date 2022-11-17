@@ -251,6 +251,7 @@ func resourceStorageBucket() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"main_page_suffix": {
@@ -258,12 +259,18 @@ func resourceStorageBucket() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.not_found_page", "website.0.main_page_suffix"},
 							Description:  `Behaves as the bucket's directory index where missing objects are treated as potential directories.`,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								return old != "" && new == ""
+							},
 						},
 						"not_found_page": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.main_page_suffix", "website.0.not_found_page"},
 							Description:  `The custom object to return when a requested resource is not found.`,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								return old != "" && new == ""
+							},
 						},
 					},
 				},

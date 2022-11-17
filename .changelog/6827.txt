@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed permdiff when `website`, `website.main_page_suffix`, `website.not_found_page` are removed on `google_storage_bucket`
+```
