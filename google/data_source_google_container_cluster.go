@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -35,7 +37,17 @@ func datasourceContainerClusterRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	d.SetId(containerClusterFullName(project, location, clusterName))
+	id := containerClusterFullName(project, location, clusterName)
 
-	return resourceContainerClusterRead(d, meta)
+	d.SetId(id)
+
+	if err := resourceContainerClusterRead(d, meta); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

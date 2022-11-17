@@ -1,0 +1,3 @@
+```release-note:bug
+container: throw exception if the data source `google_container_cluster` does not exist
+```
