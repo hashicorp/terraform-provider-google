@@ -606,8 +606,8 @@ resource "google_compute_url_map" "foobar" {
 
     default_route_action {
       url_rewrite {
-        host_rewrite = "my-new-host"
-        path_prefix_rewrite = "my-new-path"
+        host_rewrite = "dev.example.com"
+        path_prefix_rewrite = "/v1/api/"
       }
     }
   }
@@ -654,8 +654,8 @@ resource "google_compute_url_map" "foobar" {
 
     default_route_action {
       url_rewrite {
-        host_rewrite = "a-different-host"
-        path_prefix_rewrite = "a-different-path"
+        host_rewrite = "stage.example.com" # updated
+        path_prefix_rewrite = "/v2/api/" # updated
       }
     }
   }
@@ -683,8 +683,8 @@ resource "google_compute_url_map" "foobar" {
 
   default_route_action {
     url_rewrite {
-      host_rewrite = "my-new-host"
-      path_prefix_rewrite = "my-new-path"
+      host_rewrite = "dev.example.com"
+      path_prefix_rewrite = "/v1/api/"
     }
   }
 }
@@ -711,8 +711,8 @@ resource "google_compute_url_map" "foobar" {
 
   default_route_action {
     url_rewrite {
-      host_rewrite = "a-different-host"
-      path_prefix_rewrite = "a-different-path"
+      host_rewrite = "stage.example.com" # updated
+      path_prefix_rewrite = "/v2/api/" # updated
     }
   }
 }
@@ -1054,8 +1054,8 @@ resource "google_compute_url_map" "foobar" {
           nanos = 750000000
         }
         url_rewrite {
-          host_rewrite = "A replacement header"
-          path_prefix_rewrite = "A replacement path"
+          host_rewrite = "dev.example.com"
+          path_prefix_rewrite = "/v1/api/"
         }
         weighted_backend_services {
           backend_service = "${google_compute_backend_service.home.self_link}"
@@ -1173,8 +1173,8 @@ resource "google_compute_url_map" "foobar" {
           nanos = 760000000
         }
         url_rewrite {
-          host_rewrite = "A replacement header updated"
-          path_prefix_rewrite = "A replacement path updated"
+          host_rewrite = "stage.example.com" # updated
+          path_prefix_rewrite = "/v2/api/" # updated
         }
         weighted_backend_services {
           backend_service = "${google_compute_backend_service.home.self_link}"
@@ -1288,8 +1288,8 @@ resource "google_compute_url_map" "foobar" {
         nanos = 750000000
       }
       url_rewrite {
-        host_rewrite = "A replacement header"
-        path_prefix_rewrite = "A replacement path"
+        host_rewrite = "dev.example.com"
+        path_prefix_rewrite = "/v1/api/"
       }
       weighted_backend_services {
         backend_service = google_compute_backend_service.home.self_link
@@ -1403,8 +1403,8 @@ resource "google_compute_url_map" "foobar" {
         nanos = 760000000
       }
       url_rewrite {
-        host_rewrite = "A replacement header updated"
-        path_prefix_rewrite = "A replacement path updated"
+        host_rewrite = "stage.example.com" # updated
+        path_prefix_rewrite = "/v2/api/" # updated
       }
       weighted_backend_services {
         backend_service = google_compute_backend_service.home.self_link
@@ -1508,8 +1508,8 @@ resource "google_compute_url_map" "foobar" {
       nanos = 750000000
     }
     url_rewrite {
-      host_rewrite = "A replacement header"
-      path_prefix_rewrite = "A replacement path"
+      host_rewrite = "dev.example.com"
+      path_prefix_rewrite = "/v1/api/"
     }
     weighted_backend_services {
       backend_service = google_compute_backend_service.home.self_link
@@ -1613,8 +1613,8 @@ resource "google_compute_url_map" "foobar" {
       nanos = 760000000
     }
     url_rewrite {
-      host_rewrite = "A replacement header updated"
-      path_prefix_rewrite = "A replacement path updated"
+      host_rewrite = "stage.example.com" # updated
+      path_prefix_rewrite = "/v2/api/" # updated
     }
     weighted_backend_services {
       backend_service = google_compute_backend_service.home2.self_link

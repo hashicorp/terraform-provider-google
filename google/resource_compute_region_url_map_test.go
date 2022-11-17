@@ -551,8 +551,8 @@ resource "google_compute_region_url_map" "foobar" {
           nanos = 750000000
         }
         url_rewrite {
-          host_rewrite = "A replacement header"
-          path_prefix_rewrite = "A replacement path"
+          host_rewrite = "dev.example.com"
+          path_prefix_rewrite = "/v1/api/"
         }
         weighted_backend_services {
           backend_service = google_compute_region_backend_service.home.self_link
@@ -657,8 +657,8 @@ resource "google_compute_region_url_map" "foobar" {
           nanos = 760000000
         }
         url_rewrite {
-          host_rewrite = "A replacement header again"
-          path_prefix_rewrite = "A replacement path again"
+          host_rewrite = "stage.example.com" # updated
+          path_prefix_rewrite = "/v2/api/" # updated
         }
         weighted_backend_services {
           backend_service = google_compute_region_backend_service.home.self_link
@@ -949,8 +949,28 @@ resource "google_compute_region_url_map" "foobar" {
       }
     }
 
+    timeout {
+      seconds = 3
+      nanos = 0
+    }
+
+    url_rewrite {
+      host_rewrite = "dev.example.com"
+      path_prefix_rewrite = "/v1/api/"
+    }
+
     request_mirror_policy {
       backend_service = google_compute_region_backend_service.login.id
+    }
+
+    cors_policy {
+      allow_origins = [ "https://www.example.com" ]
+      allow_methods = [ "GET" ]
+      allow_headers = [ "Content-Type" ]
+      expose_headers = [ "Authorization" ]
+      max_age = 600
+      allow_credentials = true
+      disabled = false
     }
 
     weighted_backend_services {
@@ -1063,9 +1083,32 @@ resource "google_compute_region_url_map" "foobar" {
       }
     }
 
+    # update to be <1 second
+    timeout {
+      seconds = 0
+      nanos = 10000000 # 0.01 seconds
+    }
+
+    # update both values
+    url_rewrite {
+      host_rewrite = "stage.example.com"
+      path_prefix_rewrite = "/v2/api/"
+    }
+
     # update backend_service field from 'login' to 'home'
     request_mirror_policy {
       backend_service = google_compute_region_backend_service.home.id 
+    }
+
+    # update policy and disable it
+    cors_policy {
+      allow_origins = [ "https://xylophone.example.com", "https://www.example.com" ]
+      allow_methods = [ "PUT", "GET" ]
+      allow_headers = [ "Content-Type" ]
+      expose_headers = [ "Authorization" ]
+      max_age = 600
+      allow_credentials = true
+      disabled = true
     }
 
     # Change various fields - marked with comments

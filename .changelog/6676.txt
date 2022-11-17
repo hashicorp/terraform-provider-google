@@ -1,0 +1,12 @@
+```release-note:enhancement
+compute: added `default_route_action.url_rewrite` field to `google_compute_region_url_map` resource
+```
+```release-note:enhancement
+compute: added `default_route_action.cors_policy` field to `google_compute_region_url_map` resource
+```
+```release-note:enhancement
+compute: added `default_route_action.fault_injection_policy` field to `google_compute_region_url_map` resource
+```
+```release-note:enhancement
+compute: added `default_route_action.timeout` field to `google_compute_region_url_map` resource
+```
