@@ -215,6 +215,46 @@ resource "google_compute_region_url_map" "regionurlmap" {
         response_headers_to_remove = ["buzz"]
       }
     }
+    url_rewrite {
+      host_rewrite = "dev.example.com"
+      path_prefix_rewrite = "/v1/api/"
+    }
+  
+    cors_policy {
+      disabled = false
+      allow_credentials = true
+      allow_headers = [
+        "foobar"
+      ]
+      allow_methods = [
+        "GET",
+        "POST",
+      ]
+      allow_origins = [
+        "example.com"
+      ]
+      expose_headers = [
+        "foobar"
+      ]
+      max_age = 60
+    }
+    fault_injection_policy {
+      delay {
+        fixed_delay {
+          seconds = 0
+          nanos = 500
+        }
+        percentage = 0.5
+      }
+      abort {
+        http_status = 500
+        percentage = 0.5
+      }
+    }
+    timeout {
+      seconds = 0
+      nanos = 500
+    }
   }
 
   host_rule {
@@ -361,8 +401,8 @@ resource "google_compute_region_url_map" "regionurlmap" {
           nanos = 750000000
         }
         url_rewrite {
-          host_rewrite = "A replacement header"
-          path_prefix_rewrite = "A replacement path"
+          host_rewrite = "dev.example.com"
+          path_prefix_rewrite = "/v1/api/"
         }
         weighted_backend_services {
           backend_service = google_compute_region_backend_service.home.id
@@ -467,8 +507,8 @@ resource "google_compute_region_url_map" "regionurlmap" {
           nanos = 750000000
         }
         url_rewrite {
-          host_rewrite = "A replacement header"
-          path_prefix_rewrite = "A replacement path"
+          host_rewrite = "dev.example.com"
+          path_prefix_rewrite = "/v1/api/"
         }
         weighted_backend_services {
           backend_service = google_compute_region_backend_service.home.id
