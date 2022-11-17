@@ -1017,7 +1017,25 @@ func TestAccStorageBucket_website(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
+				Config: testAccStorageBucket_websiteOneAttributeUpdate(bucketSuffix),
+			},
+			{
+				ResourceName:            "google_storage_bucket.website",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
 				Config: testAccStorageBucket_website(bucketSuffix),
+			},
+			{
+				ResourceName:            "google_storage_bucket.website",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testAccStorageBucket_websiteRemoved(bucketSuffix),
 			},
 			{
 				ResourceName:            "google_storage_bucket.website",
@@ -1939,6 +1957,17 @@ resource "google_storage_bucket" "website" {
 `, bucketName)
 }
 
+func testAccStorageBucket_websiteRemoved(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "website" {
+  name          = "%s.gcp.tfacc.hashicorptest.com"
+  location      = "US"
+  storage_class = "STANDARD"
+  force_destroy = true
+}
+`, bucketName)
+}
+
 func testAccStorageBucket_websiteOneAttribute(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "website" {
@@ -1949,6 +1978,21 @@ resource "google_storage_bucket" "website" {
 
   website {
     main_page_suffix = "index.html"
+  }
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_websiteOneAttributeUpdate(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "website" {
+  name          = "%s.gcp.tfacc.hashicorptest.com"
+  location      = "US"
+  storage_class = "STANDARD"
+  force_destroy = true
+
+  website {
+    main_page_suffix = "default.html"
   }
 }
 `, bucketName)
