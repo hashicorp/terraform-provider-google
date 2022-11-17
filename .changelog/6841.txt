@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a failure in updating `most_disruptive_allowed_action` on `google_compute_per_instance_config` and `google_compute_region_per_instance_config`
+```

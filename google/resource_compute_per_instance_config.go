@@ -400,7 +400,7 @@ func resourceComputePerInstanceConfigUpdate(d *schema.ResourceData, meta interfa
 	if isEmptyValue(reflect.ValueOf(mostDisruptiveAction)) {
 		mostDisruptiveAction = "REPLACE"
 	}
-	obj["mostDisruptiveActionAllowed"] = mostDisruptiveAction
+	obj["mostDisruptiveAllowedAction"] = mostDisruptiveAction
 
 	url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/applyUpdatesToInstances")
 	if err != nil {
