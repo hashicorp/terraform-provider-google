@@ -37,6 +37,39 @@ func TestAccBigtableGCPolicy_basic(t *testing.T) {
 	})
 }
 
+func TestAccBigtableGCPolicy_abandoned(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableGCPolicyToBeAbandoned(instanceName, tableName, familyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableGCPolicyExists(
+						t, "google_bigtable_gc_policy.policy", false),
+				),
+			},
+			// Verify that the remote infrastructure GC policy still exists after it is removed in the config.
+			{
+				Config: testAccBigtableGCPolicyNoPolicy(instanceName, tableName, familyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableRemoteGCPolicyExists(
+						t, "google_bigtable_table.table"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccBigtableGCPolicy_swapOffDeprecated(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
 	skipIfVcr(t)
@@ -522,6 +555,46 @@ func testAccBigtableGCPolicyExists(t *testing.T, n string, compareGcRules bool) 
 	}
 }
 
+func testAccBigtableRemoteGCPolicyExists(t *testing.T, table_name_space string) resource.TestCheckFunc {
+	var ctx = context.Background()
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[table_name_space]
+		if !ok {
+			return fmt.Errorf("Table not found: %s", table_name_space)
+		}
+
+		config := googleProviderConfig(t)
+		c, err := config.BigTableClientFactory(config.userAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
+		if err != nil {
+			return fmt.Errorf("Error starting admin client. %s", err)
+		}
+
+		defer c.Close()
+
+		table, err := c.TableInfo(ctx, rs.Primary.Attributes["name"])
+		if err != nil {
+			return fmt.Errorf("Error retrieving table. Could not find %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
+		}
+
+		// We expect a single local column family in the table.
+		family, ok := rs.Primary.Attributes["column_family.0.family"]
+		if !ok {
+			return fmt.Errorf("Error retrieving the local family")
+		}
+
+		for _, familyInfo := range table.FamilyInfos {
+			if familyInfo.Name == family {
+				if familyInfo.GCPolicy == "" {
+					return fmt.Errorf("The remote GC policy is missing in family %s", family)
+				}
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Error retrieving GC policy. Could not find the column family")
+	}
+}
+
 func testAccBigtableCanWriteData(t *testing.T, n string, numberOfRows int) resource.TestCheckFunc {
 	var ctx = context.Background()
 	return func(s *terraform.State) error {
@@ -666,6 +739,68 @@ resource "google_bigtable_gc_policy" "policy" {
   }
 }
 `, instanceName, instanceName, tableName, family, family)
+}
+
+func testAccBigtableGCPolicyToBeAbandoned(instanceName, tableName, family string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+
+  cluster {
+    cluster_id = "%s"
+    zone       = "us-central1-b"
+  }
+
+  instance_type = "DEVELOPMENT"
+  deletion_protection = false
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%s"
+  instance_name = google_bigtable_instance.instance.id
+
+  column_family {
+    family = "%s"
+  }
+}
+
+resource "google_bigtable_gc_policy" "policy" {
+  instance_name = google_bigtable_instance.instance.id
+  table         = google_bigtable_table.table.name
+  column_family = "%s"
+
+  max_age {
+    duration = "72h"
+  }
+
+  deletion_policy = "ABANDON"
+}
+`, instanceName, instanceName, tableName, family, family)
+}
+
+func testAccBigtableGCPolicyNoPolicy(instanceName, tableName, family string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+
+  cluster {
+    cluster_id = "%s"
+    zone       = "us-central1-b"
+  }
+
+  instance_type = "DEVELOPMENT"
+  deletion_protection = false
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%s"
+  instance_name = google_bigtable_instance.instance.id
+
+  column_family {
+    family = "%s"
+  }
+}
+`, instanceName, instanceName, tableName, family)
 }
 
 func testAccBigtableGCPolicyUnion(instanceName, tableName, family string) string {

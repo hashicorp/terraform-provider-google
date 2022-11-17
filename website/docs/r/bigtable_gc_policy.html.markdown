@@ -45,6 +45,7 @@ resource "google_bigtable_gc_policy" "policy" {
   instance_name = google_bigtable_instance.instance.name
   table         = google_bigtable_table.table.name
   column_family = "name"
+  deletion_policy = "ABANDON"
 
   max_age {
     duration = "168h"
@@ -59,6 +60,7 @@ resource "google_bigtable_gc_policy" "policy" {
   instance_name = google_bigtable_instance.instance.name
   table         = google_bigtable_table.table.name
   column_family = "name"
+  deletion_policy = "ABANDON"
 
   mode = "UNION"
 
@@ -101,6 +103,7 @@ resource "google_bigtable_gc_policy" "policy" {
   instance_name = google_bigtable_instance.instance.id
   table         = google_bigtable_table.table.name
   column_family = "cf1"
+  deletion_policy = "ABANDON"
 
   gc_rules = <<EOF
 {
@@ -150,6 +153,11 @@ The following arguments are supported:
 * `max_version` - (Optional) GC policy that applies to all versions of a cell except for the most recent.
 
 * `gc_rules` - (Optional) Serialized JSON object to represent a more complex GC policy. Conflicts with `mode`, `max_age` and `max_version`. Conflicts with `mode`, `max_age` and `max_version`.
+
+* `deletion_policy` - (Optional) The deletion policy for the GC policy.
+    Setting ABANDON allows the resource to be abandoned rather than deleted. This is useful for GC policy as it cannot be deleted in a replicated instance.
+
+    Possible values are: `ABANDON`.
 
 -----
 
