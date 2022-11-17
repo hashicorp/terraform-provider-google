@@ -925,9 +925,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 246
+// Generated resources: 247
 // Generated IAM resources: 150
-// Total generated resources: 396
+// Total generated resources: 397
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1313,6 +1313,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_tags_tag_value_iam_policy":                             ResourceIamPolicy(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
 			"google_tags_tag_binding":                                      resourceTagsTagBinding(),
 			"google_tpu_node":                                              resourceTPUNode(),
+			"google_vertex_ai_tensorboard":                                 resourceVertexAITensorboard(),
 			"google_vertex_ai_dataset":                                     resourceVertexAIDataset(),
 			"google_vertex_ai_endpoint":                                    resourceVertexAIEndpoint(),
 			"google_vertex_ai_featurestore":                                resourceVertexAIFeaturestore(),
