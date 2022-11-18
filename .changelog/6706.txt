@@ -1,0 +1,3 @@
+```release-note:none
+storagetransfer: fixed the doc to show `start_time_of_day.seconds` required on `google_storage_transfer_job`
+```
