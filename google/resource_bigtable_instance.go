@@ -465,7 +465,8 @@ func getBigtableZone(z string, config *Config) (string, error) {
 func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	oldCount, newCount := diff.GetChange("cluster.#")
 
-	// simulate Required:true, MinItems:1 for "cluster"
+	// Simulate Required:true, MinItems:1 for "cluster". This doesn't work
+	// when the whole `cluster` field is removed on update.
 	if newCount.(int) < 1 {
 		return fmt.Errorf("config is invalid: Too few cluster blocks: Should have at least 1 \"cluster\" block")
 	}
@@ -531,10 +532,10 @@ func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *sch
 		return fmt.Errorf("Error setting cluster diff: %s", err)
 	}
 
-	// Clusters can't have their zone / storage_type updated, ForceNew if it's
-	// changed. This will show a diff with the old state on the left side and
-	// the unmodified new state on the right and the ForceNew attributed to the
-	// _old state index_ even if the diff appears to have moved.
+	// Clusters can't have their zone, storage_type or kms_key_name updated,
+	// ForceNew if it's changed. This will show a diff with the old state on
+	// the left side and the unmodified new state on the right and the ForceNew
+	// attributed to the _old state index_ even if the diff appears to have moved.
 	// This depends on the clusters having been reordered already by the prior
 	// SetNew call.
 	// We've implemented it here because it doesn't return an error in the
@@ -545,6 +546,7 @@ func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *sch
 			continue
 		}
 
+		// ForceNew only if the old and the new clusters have the matching cluster ID.
 		oZone, nZone := diff.GetChange(fmt.Sprintf("cluster.%d.zone", i))
 		if oZone != nZone {
 			err := diff.ForceNew(fmt.Sprintf("cluster.%d.zone", i))
