@@ -86,6 +86,46 @@ func TestAccLoggingBucketConfigProject_basic(t *testing.T) {
 	})
 }
 
+func TestAccLoggingBucketConfigProject_cmekSettings(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":    "tf-test-" + randString(t, 10),
+		"org_id":          getTestOrgFromEnv(t),
+		"billing_account": getTestBillingAccountFromEnv(t),
+	}
+
+	bucketId := fmt.Sprintf("tf-test-bucket-%s", randString(t, 10))
+	keyRingName := fmt.Sprintf("tf-test-key-ring-%s", randString(t, 10))
+	cryptoKeyName := fmt.Sprintf("tf-test-crypto-key-%s", randString(t, 10))
+	cryptoKeyNameUpdate := fmt.Sprintf("tf-test-crypto-key-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBucketConfigProject_cmekSettings(context, bucketId, keyRingName, cryptoKeyName, cryptoKeyNameUpdate),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+			{
+				Config: testAccLoggingBucketConfigProject_cmekSettingsUpdate(context, bucketId, keyRingName, cryptoKeyName, cryptoKeyNameUpdate),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+		},
+	})
+}
+
 func TestAccLoggingBucketConfigBillingAccount_basic(t *testing.T) {
 	t.Parallel()
 
@@ -188,6 +228,96 @@ resource "google_logging_project_bucket_config" "basic" {
 	bucket_id = "_Default"
 }
 `, context), retention, retention)
+}
+
+func testAccLoggingBucketConfigProject_preCmekSettings(context map[string]interface{}, keyRingName, cryptoKeyName, cryptoKeyNameUpdate string) string {
+	return fmt.Sprintf(Nprintf(`
+resource "google_project" "default" {
+	project_id      = "%{project_name}"
+	name            = "%{project_name}"
+	org_id          = "%{org_id}"
+	billing_account = "%{billing_account}"
+}
+
+data "google_logging_project_cmek_settings" "cmek_settings" {
+	project = google_project.default.name
+}
+
+resource "google_kms_key_ring" "keyring" {
+	name     = "%s"
+	location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "key1" {
+	name            = "%s"
+	key_ring        = google_kms_key_ring.keyring.id
+	rotation_period = "100000s"
+}
+
+resource "google_kms_crypto_key" "key2" {
+	name            = "%s"
+	key_ring        = google_kms_key_ring.keyring.id
+	rotation_period = "100000s"
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key_binding1" {
+	crypto_key_id = google_kms_crypto_key.key1.id
+	role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+	
+	members = [
+		"serviceAccount:${data.google_logging_project_cmek_settings.cmek_settings.service_account_id}",
+	]
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key_binding2" {
+	crypto_key_id = google_kms_crypto_key.key2.id
+	role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+	
+	members = [
+		"serviceAccount:${data.google_logging_project_cmek_settings.cmek_settings.service_account_id}",
+	]
+}
+`, context), keyRingName, cryptoKeyName, cryptoKeyNameUpdate)
+}
+
+func testAccLoggingBucketConfigProject_cmekSettings(context map[string]interface{}, bucketId, keyRingName, cryptoKeyName, cryptoKeyNameUpdate string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_logging_project_bucket_config" "basic" {
+	project        = google_project.default.name
+	location       = "us-central1"
+	retention_days = 30
+	description    = "retention test 30 days"
+	bucket_id      = "%s"
+
+	cmek_settings {
+		kms_key_name = google_kms_crypto_key.key1.id
+	}
+
+	depends_on   = [google_kms_crypto_key_iam_binding.crypto_key_binding1]
+}
+`, testAccLoggingBucketConfigProject_preCmekSettings(context, keyRingName, cryptoKeyName, cryptoKeyNameUpdate), bucketId)
+}
+
+func testAccLoggingBucketConfigProject_cmekSettingsUpdate(context map[string]interface{}, bucketId, keyRingName, cryptoKeyName, cryptoKeyNameUpdate string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_logging_project_bucket_config" "basic" {
+	project        = google_project.default.name
+	location       = "us-central1"
+	retention_days = 30
+	description    = "retention test 30 days"
+	bucket_id      = "%s"
+
+	cmek_settings {
+		kms_key_name = google_kms_crypto_key.key2.id
+	}
+
+	depends_on   = [google_kms_crypto_key_iam_binding.crypto_key_binding2]
+}
+`, testAccLoggingBucketConfigProject_preCmekSettings(context, keyRingName, cryptoKeyName, cryptoKeyNameUpdate), bucketId)
 }
 
 func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {

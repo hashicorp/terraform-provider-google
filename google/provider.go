@@ -874,6 +874,7 @@ func Provider() *schema.Provider {
 			"google_folder":                                       dataSourceGoogleFolder(),
 			"google_folders":                                      dataSourceGoogleFolders(),
 			"google_folder_organization_policy":                   dataSourceGoogleFolderOrganizationPolicy(),
+			"google_logging_project_cmek_settings":                dataSourceGoogleLoggingProjectCmekSettings(),
 			"google_monitoring_notification_channel":              dataSourceMonitoringNotificationChannel(),
 			"google_monitoring_cluster_istio_service":             dataSourceMonitoringServiceClusterIstio(),
 			"google_monitoring_istio_canonical_service":           dataSourceMonitoringIstioCanonicalService(),

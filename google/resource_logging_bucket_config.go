@@ -44,6 +44,48 @@ var loggingBucketConfigSchema = map[string]*schema.Schema{
 		Computed:    true,
 		Description: `The bucket's lifecycle such as active or deleted.`,
 	},
+	"cmek_settings": {
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Optional:    true,
+		Description: `The CMEK settings of the log bucket. If present, new log entries written to this log bucket are encrypted using the CMEK key provided in this configuration. If a log bucket has CMEK settings, the CMEK settings cannot be disabled later by updating the log bucket. Changing the KMS key is allowed.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"name": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The resource name of the CMEK settings.`,
+				},
+				"kms_key_name": {
+					Type:     schema.TypeString,
+					Required: true,
+					Description: `The resource name for the configured Cloud KMS key.
+KMS key name format:
+"projects/[PROJECT_ID]/locations/[LOCATION]/keyRings/[KEYRING]/cryptoKeys/[KEY]"
+To enable CMEK for the bucket, set this field to a valid kmsKeyName for which the associated service account has the required cloudkms.cryptoKeyEncrypterDecrypter roles assigned for the key.
+The Cloud KMS key used by the bucket can be updated by changing the kmsKeyName to a new valid key name. Encryption operations that are in progress will be completed with the key that was in use when they started. Decryption operations will be completed using the key that was used at the time of encryption unless access to that key has been revoked.
+See [Enabling CMEK for Logging Buckets](https://cloud.google.com/logging/docs/routing/managed-encryption-storage) for more information.`,
+				},
+				"kms_key_version_name": {
+					Type:     schema.TypeString,
+					Computed: true,
+					Description: `The CryptoKeyVersion resource name for the configured Cloud KMS key.
+KMS key name format:
+"projects/[PROJECT_ID]/locations/[LOCATION]/keyRings/[KEYRING]/cryptoKeys/[KEY]/cryptoKeyVersions/[VERSION]"
+For example:
+"projects/my-project/locations/us-central1/keyRings/my-ring/cryptoKeys/my-key/cryptoKeyVersions/1"
+This is a read-only field used to convey the specific configured CryptoKeyVersion of kms_key that has been configured. It will be populated in cases where the CMEK settings are bound to a single key version.`,
+				},
+				"service_account_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+					Description: `The service account associated with a project for which CMEK will apply.
+Before enabling CMEK for a logging bucket, you must first assign the cloudkms.cryptoKeyEncrypterDecrypter role to the service account associated with the project for which CMEK will apply. Use [v2.getCmekSettings](https://cloud.google.com/logging/docs/reference/v2/rest/v2/TopLevel/getCmekSettings#google.logging.v2.ConfigServiceV2.GetCmekSettings) to obtain the service account ID.
+See [Enabling CMEK for Logging Buckets](https://cloud.google.com/logging/docs/routing/managed-encryption-storage) for more information.`,
+				},
+			},
+		},
+	},
 }
 
 type loggingBucketConfigIDFunc func(d *schema.ResourceData, config *Config) (string, error)
@@ -154,6 +196,7 @@ func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{},
 	obj["description"] = d.Get("description")
 	obj["retentionDays"] = d.Get("retention_days")
 	obj["locked"] = d.Get("locked")
+	obj["cmekSettings"] = expandCmekSettings(d.Get("cmek_settings"))
 
 	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/locations/{{location}}/buckets?bucketId={{bucket_id}}")
 	if err != nil {
@@ -221,6 +264,10 @@ func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error setting retention_days: %s", err)
 	}
 
+	if err := d.Set("cmek_settings", flattenCmekSettings(res["cmekSettings"])); err != nil {
+		return fmt.Errorf("Error setting cmek_settings: %s", err)
+	}
+
 	return nil
 }
 
@@ -240,6 +287,7 @@ func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{})
 
 	obj["retentionDays"] = d.Get("retention_days")
 	obj["description"] = d.Get("description")
+	obj["cmekSettings"] = expandCmekSettings(d.Get("cmek_settings"))
 
 	updateMask := []string{}
 	if d.HasChange("retention_days") {
@@ -247,6 +295,9 @@ func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{})
 	}
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+	if d.HasChange("cmek_settings") {
+		updateMask = append(updateMask, "cmekSettings")
 	}
 	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
@@ -283,4 +334,42 @@ func resourceLoggingBucketConfigDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error deleting Logging Bucket Config %q: %s", d.Id(), err)
 	}
 	return nil
+}
+
+func expandCmekSettings(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	original := l[0].(map[string]interface{})
+
+	transformed := map[string]interface{}{
+		"name":              original["name"],
+		"kmsKeyName":        original["kms_key_name"],
+		"kmsKeyVersionName": original["kms_key_version_name"],
+		"serviceAccountId":  original["service_account_id"],
+	}
+	return transformed
+}
+
+func flattenCmekSettings(cmekSettings interface{}) []map[string]interface{} {
+	if cmekSettings == nil {
+		return nil
+	}
+
+	cmekSettingsData := cmekSettings.(map[string]interface{})
+
+	data := map[string]interface{}{
+		"name":                 cmekSettingsData["name"],
+		"kms_key_name":         cmekSettingsData["kmsKeyName"],
+		"kms_key_version_name": cmekSettingsData["kmsKeyVersionName"],
+		"service_account_id":   cmekSettingsData["serviceAccountId"],
+	}
+
+	return []map[string]interface{}{data}
 }
