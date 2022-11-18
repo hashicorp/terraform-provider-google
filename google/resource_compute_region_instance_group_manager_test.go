@@ -462,9 +462,10 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
-  target_pools       = [google_compute_target_pool.igm-basic.self_link]
-  base_instance_name = "tf-test-igm-basic"
-  target_size        = 2
+  target_pools                   = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name             = "tf-test-igm-basic"
+  target_size                    = 2
+  list_managed_instances_results = "PAGINATED"
 }
 
 resource "google_compute_region_instance_group_manager" "igm-no-tp" {
@@ -476,9 +477,9 @@ resource "google_compute_region_instance_group_manager" "igm-no-tp" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
-  base_instance_name = "tf-test-igm-no-tp"
-  region             = "us-central1"
-  target_size        = 2
+  base_instance_name             = "tf-test-igm-no-tp"
+  region                         = "us-central1"
+  target_size                    = 2
 }
 `, template, target, igm1, igm2)
 }
@@ -657,9 +658,10 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
     google_compute_target_pool.igm-update.self_link,
     google_compute_target_pool.igm-update2.self_link,
   ]
-  base_instance_name = "tf-test-igm-update"
-  region             = "us-central1"
-  target_size        = 3
+  base_instance_name             = "tf-test-igm-update"
+  region                         = "us-central1"
+  target_size                    = 3
+  list_managed_instances_results = "PAGINATED"
   named_port {
     name = "customhttp"
     port = 8080
@@ -744,9 +746,10 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
     name              = "primary"
   }
 
-  base_instance_name = "tf-test-igm-update"
-  region             = "us-central1"
-  target_size        = 3
+  base_instance_name             = "tf-test-igm-update"
+  region                         = "us-central1"
+  target_size                    = 3
+  list_managed_instances_results = "PAGINATED"
   named_port {
     name = "customhttp"
     port = 8080

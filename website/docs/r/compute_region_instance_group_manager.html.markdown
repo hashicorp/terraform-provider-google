@@ -45,7 +45,7 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   version {
     instance_template = google_compute_instance_template.appserver.id
   }
-  
+
   all_instances_config {
     metadata = {
       metadata_key = "metadata_value"
@@ -129,6 +129,13 @@ The following arguments are supported:
 * `target_size` - (Optional) The target number of running instances for this managed
     instance group. This value should always be explicitly set unless this resource is attached to
      an autoscaler, in which case it should never be set. Defaults to `0`.
+
+* `list_managed_instances_results` - (Optional) Pagination behavior of the `listManagedInstances` API
+    method for this managed instance group. Valid values are: `PAGELESS`, `PAGINATED`.
+    If `PAGELESS` (default), Pagination is disabled for the group's `listManagedInstances` API method.
+    `maxResults` and `pageToken` query parameters are ignored and all instances are returned in a single
+    response. If `PAGINATED`, pagination is enabled, `maxResults` and `pageToken` query parameters are
+    respected.
 
 * `target_pools` - (Optional) The full URL of all target pools to which new
     instances in the group are added. Updating the target pools attribute does
