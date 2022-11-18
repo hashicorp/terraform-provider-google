@@ -53,7 +53,6 @@ resource "google_eventarc_google_channel_config" "primary" {
   name     = "channel"
   project  = "${data.google_project.test_project.project_id}"
   crypto_key_name =  "${data.google_kms_crypto_key.key1.id}"
-  third_party_provider = "projects/${data.google_project.test_project.project_id}/locations/us-west1/providers/datadog"
   depends_on = [google_kms_crypto_key_iam_binding.key1_binding]
 }
 ```
