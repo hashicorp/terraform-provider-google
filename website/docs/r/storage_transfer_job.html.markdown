@@ -246,7 +246,7 @@ The `azure_credentials` block supports:
 
 * `minutes` - (Required) Minutes of hour of day. Must be from 0 to 59.
 
-* `seconds` - (Optional) Seconds of minutes of the time. Must normally be from 0 to 59.
+* `seconds` - (Required) Seconds of minutes of the time. Must normally be from 0 to 59.
 
 * `nanos` - (Required) Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
