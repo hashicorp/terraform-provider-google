@@ -166,6 +166,14 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Description: `The target number of running instances for this managed instance group. This value should always be explicitly set unless this resource is attached to an autoscaler, in which case it should never be set. Defaults to 0.`,
 			},
 
+			"list_managed_instances_results": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "PAGELESS",
+				ValidateFunc: validation.StringInSlice([]string{"PAGELESS", "PAGINATED"}, false),
+				Description:  `Pagination behavior of the listManagedInstances API method for this managed instance group. Valid values are: "PAGELESS", "PAGINATED". If PAGELESS (default), Pagination is disabled for the group's listManagedInstances API method. maxResults and pageToken query parameters are ignored and all instances are returned in a single response. If PAGINATED, pagination is enabled, maxResults and pageToken query parameters are respected.`,
+			},
+
 			// If true, the resource will report ready only after no instances are being created.
 			// This will not block future reads if instances are being recreated, and it respects
 			// the "createNoRetry" parameter that's available for this resource.
@@ -409,17 +417,18 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	}
 
 	manager := &compute.InstanceGroupManager{
-		Name:                d.Get("name").(string),
-		Description:         d.Get("description").(string),
-		BaseInstanceName:    d.Get("base_instance_name").(string),
-		TargetSize:          int64(d.Get("target_size").(int)),
-		NamedPorts:          getNamedPortsBeta(d.Get("named_port").(*schema.Set).List()),
-		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
-		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
-		Versions:            expandVersions(d.Get("version").([]interface{})),
-		UpdatePolicy:        expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
-		DistributionPolicy:  expandDistributionPolicy(d),
-		StatefulPolicy:      expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List()),
+		Name:                        d.Get("name").(string),
+		Description:                 d.Get("description").(string),
+		BaseInstanceName:            d.Get("base_instance_name").(string),
+		TargetSize:                  int64(d.Get("target_size").(int)),
+		ListManagedInstancesResults: d.Get("list_managed_instances_results").(string),
+		NamedPorts:                  getNamedPortsBeta(d.Get("named_port").(*schema.Set).List()),
+		TargetPools:                 convertStringSet(d.Get("target_pools").(*schema.Set)),
+		AutoHealingPolicies:         expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
+		Versions:                    expandVersions(d.Get("version").([]interface{})),
+		UpdatePolicy:                expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
+		DistributionPolicy:          expandDistributionPolicy(d),
+		StatefulPolicy:              expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List()),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
 	}
@@ -561,6 +570,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err := d.Set("target_size", manager.TargetSize); err != nil {
 		return fmt.Errorf("Error setting target_size: %s", err)
 	}
+	if err := d.Set("list_managed_instances_results", manager.ListManagedInstancesResults); err != nil {
+		return fmt.Errorf("Error setting list_managed_instances_results: %s", err)
+	}
 	if err := d.Set("target_pools", mapStringArr(manager.TargetPools, ConvertSelfLinkToV1)); err != nil {
 		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
 	}
@@ -656,6 +668,11 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("stateful_disk") {
 		updatedManager.StatefulPolicy = expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List())
+		change = true
+	}
+
+	if d.HasChange("list_managed_instances_results") {
+		updatedManager.ListManagedInstancesResults = d.Get("list_managed_instances_results").(string)
 		change = true
 	}
 
