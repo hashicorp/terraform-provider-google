@@ -1,4 +1,7 @@
-## 4.44.0 (Unreleased)
+## 4.43.1 (Unreleased)
+
+BUG FIXES:
+* provider: fixed a crash during provider authentication for certain environments ([#13056](https://github.com/hashicorp/terraform-provider-google/pull/13056))
 
 ## 4.43.0 (November 7, 2022)
 
