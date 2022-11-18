@@ -1,0 +1,6 @@
+```release-note:new-datasource
+`google_logging_project_cmek_settings`
+```
+```release-note:enhancement
+logging: added `cmek_settings` field to `google_logging_project_bucket_config` resource
+```
