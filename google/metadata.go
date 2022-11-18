@@ -142,8 +142,11 @@ func resourceInstanceMetadata(d TerraformResourceData) (*compute.Metadata, error
 	m := &compute.Metadata{}
 	mdMap := d.Get("metadata").(map[string]interface{})
 	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
-		if _, ok := mdMap["startup-script"]; ok {
-			return nil, errors.New("Cannot provide both metadata_startup_script and metadata.startup-script.")
+		if w, ok := mdMap["startup-script"]; ok {
+			// metadata.startup-script could be from metadata_startup_script in the first place
+			if v != w {
+				return nil, errors.New("Cannot provide both metadata_startup_script and metadata.startup-script.")
+			}
 		}
 		mdMap["startup-script"] = v
 	}
