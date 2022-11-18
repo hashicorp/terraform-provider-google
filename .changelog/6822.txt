@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed the error when `metadata` and `machine_type` are updated while `metadata_startup_script` was already provided on `google_compute_instance`
+```
