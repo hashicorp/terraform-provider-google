@@ -82,7 +82,8 @@ The following arguments are supported:
 * `name` - (Required) The name (also called Instance Id in the Cloud Console) of the Cloud Bigtable instance.
 
 * `cluster` - (Required) A block of cluster configuration options. This can be specified at least once, and up 
-to as many as possible within 8 cloud regions. See [structure below](#nested_cluster).
+to as many as possible within 8 cloud regions. Removing the field entirely from the config will cause the provider
+to default to the backend value. See [structure below](#nested_cluster).
 
 -----
 
