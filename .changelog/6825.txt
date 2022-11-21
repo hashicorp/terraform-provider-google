@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `include_http_headers` field to the `cdn_policy` field of `google_compute_backend_service` resource
+```

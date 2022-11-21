@@ -85,6 +85,29 @@ resource "google_compute_http_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_cache_include_http_headers&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Cache Include Http Headers
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "USE_ORIGIN_HEADERS"
+    cache_key_policy {
+      include_host = true
+      include_protocol = true
+      include_query_string = true
+      include_http_headers = ["X-My-Header-Field"]
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_cache_include_named_cookies&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -753,6 +776,11 @@ The following arguments are supported:
   query_string_whitelist or query_string_blacklist, not both.
   '&' and '=' will be percent encoded and not treated as
   delimiters.
+
+* `include_http_headers` -
+  (Optional)
+  Allows HTTP request headers (by name) to be used in the
+  cache key.
 
 * `include_named_cookies` -
   (Optional)
