@@ -88,7 +88,7 @@ are marked [Attributes as Blocks](/docs/configuration/attr-as-blocks.html):
 ## Attributes Reference
 
 All exported attributes from `google_compute_instance` are exported here.
-See https://www.terraform.io/docs/providers/google/r/compute_instance.html#attributes-reference
+See https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_instance#attributes-reference
 for details.
 
 ## Import

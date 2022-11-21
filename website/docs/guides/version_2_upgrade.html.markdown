@@ -359,7 +359,7 @@ resource "google_storage_bucket_object" "archive" {
 ```
 
 See the documentation at
-[`google_cloudfunctions_function`](https://www.terraform.io/docs/providers/google/r/cloudfunctions_function.html)
+[`google_cloudfunctions_function`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloudfunctions_function)
 for more details.
 
 ## Resource: `google_compute_backend_service`
@@ -697,7 +697,7 @@ Use `terraform destroy`, or remove the resource from your config instead.
 ### `app_engine` has been removed
 
 Use the
-[`google_app_engine_application` resource](https://www.terraform.io/docs/providers/google/r/app_engine_application.html) instead.
+[`google_app_engine_application` resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/app_engine_application) instead.
 
 To avoid errors trying to recreate the resource, import it into your state first by running:
 
@@ -732,7 +732,7 @@ This resource is very dangerous. Consider using `google_project_iam_binding` or
 ### `policy_data` has been removed
 
 Use one of the other
-[service account IAM resources](https://www.terraform.io/docs/providers/google/r/google_service_account_iam.html) instead.
+[service account IAM resources](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_service_account_iam) instead.
 
 ## Resource: `google_sql_database_instance`
 

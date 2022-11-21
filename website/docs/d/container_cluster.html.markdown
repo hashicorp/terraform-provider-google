@@ -57,4 +57,4 @@ in favour of `location`.
 
 ## Attributes Reference
 
-See [google_container_cluster](https://www.terraform.io/docs/providers/google/r/container_cluster.html) resource for details of the available attributes.
+See [google_container_cluster](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster) resource for details of the available attributes.

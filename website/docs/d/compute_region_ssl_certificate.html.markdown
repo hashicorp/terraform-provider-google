@@ -45,4 +45,4 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-See [google_compute_region_ssl_certificate](https://www.terraform.io/docs/providers/google/r/compute_region_ssl_certificate.html) resource for details of the available attributes.
+See [google_compute_region_ssl_certificate](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_ssl_certificate) resource for details of the available attributes.

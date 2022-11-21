@@ -23,7 +23,7 @@ description: |-
 Adds existing resource policies to a disk. You can only add one policy
 which will be applied to this disk for scheduling snapshot creation.
 
-~> **Note:** This resource does not support regional disks (`google_compute_region_disk`). For regional disks, please refer to [`google_compute_region_disk_resource_policy_attachment`](https://www.terraform.io/docs/providers/google/r/compute_region_disk_resource_policy_attachment.html)
+~> **Note:** This resource does not support regional disks (`google_compute_region_disk`). For regional disks, please refer to [`google_compute_region_disk_resource_policy_attachment`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_disk_resource_policy_attachment)
 
 
 
@@ -124,4 +124,4 @@ $ terraform import google_compute_disk_resource_policy_attachment.default {{disk
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#user_project_override).
