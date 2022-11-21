@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fix `googe_sql_database_instance` to include `backup_configuration` in initial create request
+```

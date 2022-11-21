@@ -471,7 +471,12 @@ func TestAccSqlDatabaseInstance_replica(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_replica, databaseID, databaseID, databaseID),
+					testGoogleSqlDatabaseInstance_replica, databaseID, databaseID, databaseID, "true"),
+				ExpectError: regexp.MustCompile("Error, failed to create instance tf-lw-\\d+-2: googleapi: Error 400: Invalid request: Invalid flag for instance role: Backups cannot be enabled for read replica instance.., invalid"),
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_replica, databaseID, databaseID, databaseID, "false"),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance_master",
@@ -1985,9 +1990,10 @@ resource "google_sql_database_instance" "replica1" {
 
   settings {
     tier = "db-n1-standard-1"
-		backup_configuration {
+    backup_configuration {
+      enabled = false
       binary_log_enabled = true
-		}
+    }
   }
 
   master_instance_name = google_sql_database_instance.instance_master.name
@@ -2010,6 +2016,9 @@ resource "google_sql_database_instance" "replica2" {
 
   settings {
     tier = "db-n1-standard-1"
+    backup_configuration {
+      enabled = %s
+    }
   }
 
   master_instance_name = google_sql_database_instance.instance_master.name

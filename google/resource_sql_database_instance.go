@@ -930,12 +930,12 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	var patchData *sqladmin.DatabaseInstance
 
 	// BinaryLogging can be enabled on replica instances but only after creation.
-	if instance.MasterInstanceName != "" && instance.Settings != nil && instance.Settings.BackupConfiguration != nil {
-		bc := instance.Settings.BackupConfiguration
-		instance.Settings.BackupConfiguration = nil
-		if bc.BinaryLogEnabled {
-			patchData = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{BackupConfiguration: bc}}
-		}
+	if instance.MasterInstanceName != "" && instance.Settings != nil && instance.Settings.BackupConfiguration != nil && instance.Settings.BackupConfiguration.BinaryLogEnabled {
+		settingsCopy := expandSqlDatabaseInstanceSettings(s.([]interface{}))
+		bc := settingsCopy.BackupConfiguration
+		patchData = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{BackupConfiguration: bc}}
+
+		instance.Settings.BackupConfiguration.BinaryLogEnabled = false
 	}
 
 	var op *sqladmin.Operation
