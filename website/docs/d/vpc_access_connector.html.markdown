@@ -46,4 +46,4 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-See [google_vpc_access_connector](https://www.terraform.io/docs/providers/google/r/vpc_access_connector.html) resource for details of the available attributes.
+See [google_vpc_access_connector](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vpc_access_connector) resource for details of the available attributes.

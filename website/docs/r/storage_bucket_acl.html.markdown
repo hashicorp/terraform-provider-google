@@ -12,7 +12,7 @@ Authoritatively manages a bucket's ACLs in Google cloud storage service (GCS). F
 and
 [API](https://cloud.google.com/storage/docs/json_api/v1/bucketAccessControls).
 
-Bucket ACLs can be managed non authoritatively using the [`storage_bucket_access_control`](https://www.terraform.io/docs/providers/google/r/storage_bucket_access_control.html) resource. Do not use these two resources in conjunction to manage the same bucket.
+Bucket ACLs can be managed non authoritatively using the [`storage_bucket_access_control`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_access_control) resource. Do not use these two resources in conjunction to manage the same bucket.
 
 Permissions can be granted either by ACLs or Cloud IAM policies. In general, permissions granted by Cloud IAM policies do not appear in ACLs, and permissions granted by ACLs do not appear in Cloud IAM policies. The only exception is for ACLs applied directly on a bucket and certain bucket-level Cloud IAM policies, as described in [Cloud IAM relation to ACLs](https://cloud.google.com/storage/docs/access-control/iam#acls).
 

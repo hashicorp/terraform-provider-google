@@ -35,4 +35,4 @@ The following arguments are supported:
     is not provided, the provider project is used.
 
 ## Attributes Reference
-See [google_iam_workload_identity_pool](https://www.terraform.io/docs/providers/google/r/iam_workload_identity_pool.html) resource for details of all the available attributes.
+See [google_iam_workload_identity_pool](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/iam_workload_identity_pool) resource for details of all the available attributes.

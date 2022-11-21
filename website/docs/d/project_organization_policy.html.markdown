@@ -35,5 +35,5 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-See [google_project_organization_policy](https://www.terraform.io/docs/providers/google/r/google_project_organization_policy.html) resource for details of the available attributes.
+See [google_project_organization_policy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_organization_policy) resource for details of the available attributes.
 

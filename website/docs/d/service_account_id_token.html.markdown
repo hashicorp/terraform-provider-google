@@ -13,7 +13,7 @@ For more information see
 [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
 
 ## Example Usage - ServiceAccount JSON credential file.
-  `google_service_account_id_token` will use the configured [provider credentials](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#credentials-1)
+  `google_service_account_id_token` will use the configured [provider credentials](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#credentials-1)
 
   ```hcl
   data "google_service_account_id_token" "oidc" {
@@ -26,7 +26,7 @@ For more information see
   ```
 
 ## Example Usage - Service Account Impersonation.
-  `google_service_account_access_token` will use background impersonated credentials provided by [google_service_account_access_token](https://www.terraform.io/docs/providers/google/d/service_account_access_token.html).
+  `google_service_account_access_token` will use background impersonated credentials provided by [google_service_account_access_token](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/service_account_access_token).
 
   Note: to use the following, you must grant `target_service_account` the
   `roles/iam.serviceAccountTokenCreator` role on itself.

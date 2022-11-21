@@ -156,7 +156,7 @@ The following arguments are supported:
   ~>**NOTE** This value does not support updating the
   resource policy, as resource policies can not be updated more than
   one at a time. Use
-  [`google_compute_disk_resource_policy_attachment`](https://www.terraform.io/docs/providers/google/r/compute_disk_resource_policy_attachment.html)
+  [`google_compute_disk_resource_policy_attachment`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_disk_resource_policy_attachment)
   to allow for updating the resource policy attached to the disk.
 
 * `multi_writer` -
@@ -353,4 +353,4 @@ $ terraform import google_compute_disk.default {{name}}
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#user_project_override).
