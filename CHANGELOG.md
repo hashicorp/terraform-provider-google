@@ -1,4 +1,9 @@
 ## 4.45.0 (Unreleased)
+## 4.44.1 (November 22, 2022)
+
+BUG FIXES:
+* compute: fixed a crash with `google_compute_instance_template` on a newly released field when `advanced_machine_features` was set ([#13108](https://github.com/hashicorp/terraform-provider-google/pull/13108))
+
 ## 4.44.0 (November 21, 2022)
 
 FEATURES:
