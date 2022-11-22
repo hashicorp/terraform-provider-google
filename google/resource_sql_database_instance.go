@@ -159,6 +159,30 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 								},
 							},
 						},
+						"deny_maintenance_period": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"end_date": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `End date before which maintenance will not take place. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01`,
+									},
+									"start_date": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Start date after which maintenance will not take place. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01`,
+									},
+									"time": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Time in UTC when the "deny maintenance period" starts on start_date and ends on end_date. The time is in format: HH:mm:SS, i.e., 00:00:00`,
+									},
+								},
+							},
+						},
 						"sql_server_audit_config": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1066,6 +1090,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}) *sqladmin.Setti
 		ForceSendFields:          []string{"StorageAutoResize"},
 		ActivationPolicy:         _settings["activation_policy"].(string),
 		ActiveDirectoryConfig:    expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
+		DenyMaintenancePeriods:   expandDenyMaintenancePeriod(_settings["deny_maintenance_period"].([]interface{})),
 		SqlServerAuditConfig:     expandSqlServerAuditConfig(_settings["sql_server_audit_config"].([]interface{})),
 		TimeZone:                 _settings["time_zone"].(string),
 		AvailabilityType:         _settings["availability_type"].(string),
@@ -1243,6 +1268,25 @@ func expandActiveDirectoryConfig(configured interface{}) *sqladmin.SqlActiveDire
 	return &sqladmin.SqlActiveDirectoryConfig{
 		Domain: config["domain"].(string),
 	}
+}
+
+func expandDenyMaintenancePeriod(configured []interface{}) []*sqladmin.DenyMaintenancePeriod {
+	denyMaintenancePeriod := make([]*sqladmin.DenyMaintenancePeriod, 0, len(configured))
+
+	for _, _flag := range configured {
+		if _flag == nil {
+			continue
+		}
+		_entry := _flag.(map[string]interface{})
+
+		denyMaintenancePeriod = append(denyMaintenancePeriod, &sqladmin.DenyMaintenancePeriod{
+			EndDate:   _entry["end_date"].(string),
+			StartDate: _entry["start_date"].(string),
+			Time:      _entry["time"].(string),
+		})
+	}
+	return denyMaintenancePeriod
+
 }
 
 func expandSqlServerAuditConfig(configured interface{}) *sqladmin.SqlServerAuditConfig {
@@ -1597,6 +1641,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["active_directory_config"] = flattenActiveDirectoryConfig(settings.ActiveDirectoryConfig)
 	}
 
+	if settings.DenyMaintenancePeriods != nil {
+		data["deny_maintenance_period"] = flattenDenyMaintenancePeriod(settings.DenyMaintenancePeriods)
+	}
+
 	if settings.SqlServerAuditConfig != nil {
 		data["sql_server_audit_config"] = flattenSqlServerAuditConfig(settings.SqlServerAuditConfig)
 	}
@@ -1674,6 +1722,22 @@ func flattenActiveDirectoryConfig(sqlActiveDirectoryConfig *sqladmin.SqlActiveDi
 			"domain": sqlActiveDirectoryConfig.Domain,
 		},
 	}
+}
+
+func flattenDenyMaintenancePeriod(denyMaintenancePeriod []*sqladmin.DenyMaintenancePeriod) []map[string]interface{} {
+	flags := make([]map[string]interface{}, 0, len(denyMaintenancePeriod))
+
+	for _, flag := range denyMaintenancePeriod {
+		data := map[string]interface{}{
+			"end_date":   flag.EndDate,
+			"start_date": flag.StartDate,
+			"time":       flag.Time,
+		}
+
+		flags = append(flags, data)
+	}
+
+	return flags
 }
 
 func flattenSqlServerAuditConfig(sqlServerAuditConfig *sqladmin.SqlServerAuditConfig) []map[string]interface{} {

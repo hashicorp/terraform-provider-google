@@ -1,0 +1,3 @@
+```release-note:enhancement
+ sql: added 'deny_maintenance_period' field for 'google_sql_database_instance' within which 'end_date', 'start_date' and 'time' fields are present.
+```
