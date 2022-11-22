@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a crash with `google_compute_instance_template` on a newly released field when `advanced_machine_features` was set
+```
