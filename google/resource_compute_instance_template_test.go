@@ -2507,6 +2507,7 @@ resource "google_compute_instance_template" "foobar" {
   advanced_machine_features {
 	threads_per_core = 1
 	enable_nested_virtualization = true
+	visible_core_count = 1
   }
 
   scheduling {
