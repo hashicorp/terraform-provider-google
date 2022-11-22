@@ -34,9 +34,7 @@ The following arguments are supported:
 * `router` - (Required) The name of the router this interface will be attached to.
     Changing this forces a new interface to be created.
 
-In addition to the above required fields, a router interface must have specified
-either `ip_range` or exactly one of `vpn_tunnel` or `interconnect_attachment`,
-or both.
+In addition to the above required fields, a router interface must have specified either `ip_range` or exactly one of `vpn_tunnel`, `interconnect_attachment` or `subnetwork`, or both.
 
 - - -
 
@@ -45,23 +43,29 @@ or both.
 
 * `vpn_tunnel` - (Optional) The name or resource link to the VPN tunnel this
     interface will be linked to. Changing this forces a new interface to be created. Only
-    one of `vpn_tunnel` and `interconnect_attachment` can be specified.
+    one of `vpn_tunnel`, `interconnect_attachment` or `subnetwork` can be specified.
 
 * `interconnect_attachment` - (Optional) The name or resource link to the
-  VLAN interconnect for this interface. Changing this forces a new interface to
-  be created. Only one of `vpn_tunnel` and `interconnect_attachment` can be
-  specified.
+    VLAN interconnect for this interface. Changing this forces a new interface to
+    be created. Only one of `vpn_tunnel`, `interconnect_attachment` or `subnetwork` can be specified.
 
 * `redundant_interface` - (Optional) The name of the interface that is redundant to
-  this interface. Changing this forces a new interface to
-  be created.
+    this interface. Changing this forces a new interface to be created.
 
-* `project` - (Optional) The ID of the project in which this interface's router belongs. If it
-    is not provided, the provider project is used. Changing this forces a new interface to be created.
+* `project` - (Optional) The ID of the project in which this interface's router belongs. 
+    If it is not provided, the provider project is used. Changing this forces a new interface to be created.
 
-* `region` - (Optional) The region this interface's router sits in. If not specified,
-    the project region will be used. Changing this forces a new interface to be
-    created.
+* `subnetwork` - (Optional) The URI of the subnetwork resource that this interface
+    belongs to, which must be in the same region as the Cloud Router. When you establish a BGP session to a VM instance using this interface, the VM instance must belong to the same subnetwork as the subnetwork specified here. Changing this forces a new interface to be created. Only one of `vpn_tunnel`, `interconnect_attachment` or `subnetwork` can be specified.
+
+* `private_ip_address` - (Optional) The regional private internal IP address that is used
+    to establish BGP sessions to a VM instance acting as a third-party Router Appliance. Changing this forces a new interface to be created.
+
+* `project` - (Optional) The ID of the project in which this interface's routerbelongs.
+    If it is not provided, the provider project is used. Changing this forces a new interface to be created.
+
+* `region` - (Optional) The region this interface's router sits in.
+    If not specified, the project region will be used. Changing this forces a new interface to be created.
 
 ## Attributes Reference
 

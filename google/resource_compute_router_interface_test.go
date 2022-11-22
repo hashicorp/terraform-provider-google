@@ -82,6 +82,29 @@ func TestAccComputeRouterInterface_withTunnel(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouterInterface_withPrivateIpAddress(t *testing.T) {
+	t.Parallel()
+
+	routerName := fmt.Sprintf("tf-test-router-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterInterfaceWithPrivateIpAddress(routerName),
+				Check: testAccCheckComputeRouterInterfaceExists(
+					t, "google_compute_router_interface.foobar"),
+			},
+			{
+				ResourceName:      "google_compute_router_interface.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeRouterInterfaceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -434,4 +457,43 @@ resource "google_compute_router_interface" "foobar" {
   vpn_tunnel = google_compute_vpn_tunnel.foobar.name
 }
 `, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterInterfaceWithPrivateIpAddress(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name = "tf-test-%s"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "tf-test-router-interface-subnetwork-%s"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+  name  			 = "%s-addr"
+  region 			 = google_compute_subnetwork.foobar.region
+  subnetwork   = google_compute_subnetwork.foobar.id
+  address_type = "INTERNAL"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_interface" "foobar" {
+  name               = "%s"
+  router             = google_compute_router.foobar.name
+  region             = google_compute_router.foobar.region
+  subnetwork         = google_compute_subnetwork.foobar.self_link
+  private_ip_address = google_compute_address.foobar.address
+}
+`, routerName, routerName, routerName, routerName, routerName)
 }

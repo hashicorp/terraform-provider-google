@@ -42,28 +42,44 @@ func resourceComputeRouterInterface() *schema.Resource {
 			},
 			"vpn_tunnel": {
 				Type:             schema.TypeString,
-				ConflictsWith:    []string{"interconnect_attachment"},
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
-				Description:      `The name or resource link to the VPN tunnel this interface will be linked to. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
+				AtLeastOneOf:     []string{"ip_range", "interconnect_attachment", "subnetwork", "vpn_tunnel"},
+				ConflictsWith:    []string{"interconnect_attachment", "subnetwork"},
+				Description:      `The name or resource link to the VPN tunnel this interface will be linked to. Changing this forces a new interface to be created. Only one of vpn_tunnel, interconnect_attachment or subnetwork can be specified.`,
 			},
 			"interconnect_attachment": {
 				Type:             schema.TypeString,
-				ConflictsWith:    []string{"vpn_tunnel"},
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
-				Description:      `The name or resource link to the VLAN interconnect for this interface. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
+				AtLeastOneOf:     []string{"ip_range", "interconnect_attachment", "subnetwork", "vpn_tunnel"},
+				ConflictsWith:    []string{"subnetwork", "vpn_tunnel"},
+				Description:      `The name or resource link to the VLAN interconnect for this interface. Changing this forces a new interface to be created. Only one of interconnect_attachment, subnetwork or vpn_tunnel can be specified.`,
 			},
 			"ip_range": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				AtLeastOneOf: []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
-				Description:  `IP address and range of the interface. The IP range must be in the RFC3927 link-local IP space. Changing this forces a new interface to be created.`,
+				Computed:     true,
+				AtLeastOneOf: []string{"ip_range", "interconnect_attachment", "subnetwork", "vpn_tunnel"},
+				Description:  `The IP address and range of the interface. The IP range must be in the RFC3927 link-local IP space. Changing this forces a new interface to be created.`,
+			},
+			"private_ip_address": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The regional private internal IP address that is used to establish BGP sessions to a VM instance acting as a third-party Router Appliance. Changing this forces a new interface to be created.`,
+			},
+			"subnetwork": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				AtLeastOneOf:     []string{"ip_range", "interconnect_attachment", "subnetwork", "vpn_tunnel"},
+				ConflictsWith:    []string{"interconnect_attachment", "vpn_tunnel"},
+				Description:      `The URI of the subnetwork resource that this interface belongs to, which must be in the same region as the Cloud Router. Changing this forces a new interface to be created. Only one of subnetwork, interconnect_attachment or vpn_tunnel can be specified.`,
 			},
 			"project": {
 				Type:        schema.TypeString,
@@ -72,7 +88,6 @@ func resourceComputeRouterInterface() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the project in which this interface's router belongs. If it is not provided, the provider project is used. Changing this forces a new interface to be created.`,
 			},
-
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -85,7 +100,7 @@ func resourceComputeRouterInterface() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The name of the interface that is redundant to this interface.`,
+				Description: `The name of the interface that is redundant to this interface. Changing this forces a new interface to be created.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -144,8 +159,12 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		iface.RedundantInterface = riVal.(string)
 	}
 
-	if ipVal, ok := d.GetOk("ip_range"); ok {
-		iface.IpRange = ipVal.(string)
+	if ipRangeVal, ok := d.GetOk("ip_range"); ok {
+		iface.IpRange = ipRangeVal.(string)
+	}
+
+	if privateIpVal, ok := d.GetOk("private_ip_address"); ok {
+		iface.PrivateIpAddress = privateIpVal.(string)
 	}
 
 	if vpnVal, ok := d.GetOk("vpn_tunnel"); ok {
@@ -162,6 +181,10 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 			return err
 		}
 		iface.LinkedInterconnectAttachment = interconnectAttachment
+	}
+
+	if subVal, ok := d.GetOk("subnetwork"); ok {
+		iface.Subnetwork = subVal.(string)
 	}
 
 	log.Printf("[INFO] Adding interface %s", ifaceName)
@@ -230,6 +253,12 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 			}
 			if err := d.Set("ip_range", iface.IpRange); err != nil {
 				return fmt.Errorf("Error setting ip_range: %s", err)
+			}
+			if err := d.Set("private_ip_address", iface.PrivateIpAddress); err != nil {
+				return fmt.Errorf("Error setting private_ip_address: %s", err)
+			}
+			if err := d.Set("subnetwork", iface.Subnetwork); err != nil {
+				return fmt.Errorf("Error setting subnetwork: %s", err)
 			}
 			if err := d.Set("region", region); err != nil {
 				return fmt.Errorf("Error setting region: %s", err)
