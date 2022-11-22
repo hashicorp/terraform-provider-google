@@ -52,6 +52,33 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection  = "true"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=sql_database_deletion_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Sql Database Deletion Policy
+
+
+```hcl
+resource "google_sql_database" "database_deletion_policy" {
+  name     = "my-database"
+  instance = google_sql_database_instance.instance.name
+  deletion_policy = "ABANDON"
+}
+
+# See versions at https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance#database_version
+resource "google_sql_database_instance" "instance" {
+  name             = "my-database-instance"
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  settings {
+    tier = "db-g1-small"
+  }
+
+  deletion_protection  = "true"
+}
+```
 
 ## Argument Reference
 
@@ -90,6 +117,11 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) The deletion policy for the database. Setting ABANDON allows the resource 
+to be abandoned rather than deleted. This is useful for Postgres, where databases cannot be 
+deleted from the API if there are users other than cloudsqlsuperuser with access. Possible 
+values are: "ABANDON".
 
 
 ## Attributes Reference
