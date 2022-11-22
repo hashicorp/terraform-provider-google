@@ -3804,9 +3804,16 @@ func expandContainerClusterAuthenticatorGroupsConfig(configured interface{}) *co
 	}
 
 	config := l[0].(map[string]interface{})
-	return &container.AuthenticatorGroupsConfig{
-		SecurityGroup: config["security_group"].(string),
+	result := &container.AuthenticatorGroupsConfig{}
+	if securityGroup, ok := config["security_group"]; ok {
+		if securityGroup == nil || securityGroup.(string) == "" {
+			result.Enabled = false
+		} else {
+			result.Enabled = true
+			result.SecurityGroup = securityGroup.(string)
+		}
 	}
+	return result
 }
 
 func expandNodePoolDefaults(configured interface{}) *container.NodePoolDefaults {
