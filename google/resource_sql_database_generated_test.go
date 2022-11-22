@@ -69,6 +69,53 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
+func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSQLDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSQLDatabase_sqlDatabaseDeletionPolicyExample(context),
+			},
+			{
+				ResourceName:      "google_sql_database.database_deletion_policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccSQLDatabase_sqlDatabaseDeletionPolicyExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database" "database_deletion_policy" {
+  name     = "tf-test-my-database%{random_suffix}"
+  instance = google_sql_database_instance.instance.name
+  deletion_policy = "ABANDON"
+}
+
+# See versions at https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance#database_version
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-my-database-instance%{random_suffix}"
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  settings {
+    tier = "db-g1-small"
+  }
+
+  deletion_protection  = "%{deletion_protection}"
+}
+`, context)
+}
+
 func testAccCheckSQLDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

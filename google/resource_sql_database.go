@@ -76,6 +76,15 @@ and Postgres' [Collation Support](https://www.postgresql.org/docs/9.6/static/col
 for more details and supported values. Postgres databases only support
 a value of 'en_US.UTF8' at creation time.`,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "ABANDON",
+				Description: `The deletion policy for the database. Setting ABANDON allows the resource 
+to be abandoned rather than deleted. This is useful for Postgres, where databases cannot be 
+deleted from the API if there are users other than cloudsqlsuperuser with access. Possible 
+values are: "ABANDON".`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -207,6 +216,12 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(transformSQLDatabaseReadError(err), d, fmt.Sprintf("SQLDatabase %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "ABANDON"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
@@ -337,6 +352,11 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var obj map[string]interface{}
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "ABANDON" {
+		// Allows for database to be abandoned without deletion to avoid deletion failing
+		// for Postgres databases in some circumstances due to existing SQL users
+		return nil
+	}
 	log.Printf("[DEBUG] Deleting Database %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -379,6 +399,11 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "ABANDON"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
