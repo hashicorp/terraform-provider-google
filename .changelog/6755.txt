@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed unable to update `authenticator_groups_config` on `google_container_cluster`
+```
