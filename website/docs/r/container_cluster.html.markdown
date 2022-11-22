@@ -750,6 +750,9 @@ gvnic {
 * `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node. The kubernetes.io/ and k8s.io/ prefixes are
     reserved by Kubernetes Core components and cannot be specified.
 
+* `resource_labels` - (Optional) The GCP labels (key/value pairs) to be applied to each node. Refer [here](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-managing-labels)
+    for how these labels are applied to clusters, node pools and nodes.
+
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
 

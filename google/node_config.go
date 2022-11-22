@@ -149,6 +149,13 @@ func schemaNodeConfig() *schema.Schema {
 					Description: `The map of Kubernetes labels (key/value pairs) to be applied to each node. These will added in addition to any default label(s) that Kubernetes may apply to the node.`,
 				},
 
+				"resource_labels": {
+					Type:        schema.TypeMap,
+					Optional:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
+					Description: `The GCE resource labels (a map of key/value pairs) to be applied to the node pool.`,
+				},
+
 				"local_ssd_count": {
 					Type:         schema.TypeInt,
 					Optional:     true,
@@ -525,6 +532,14 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.Labels = m
 	}
 
+	if v, ok := nodeConfig["resource_labels"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		nc.ResourceLabels = m
+	}
+
 	if v, ok := nodeConfig["tags"]; ok {
 		tagsList := v.([]interface{})
 		tags := []string{}
@@ -638,6 +653,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"metadata":                 c.Metadata,
 		"image_type":               c.ImageType,
 		"labels":                   c.Labels,
+		"resource_labels":          c.ResourceLabels,
 		"tags":                     c.Tags,
 		"preemptible":              c.Preemptible,
 		"spot":                     c.Spot,
