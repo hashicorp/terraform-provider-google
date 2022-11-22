@@ -1143,6 +1143,44 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			log.Printf("[INFO] Updated tags for node pool %s", name)
 		}
 
+		if d.HasChange(prefix + "node_config.0.resource_labels") {
+			req := &container.UpdateNodePoolRequest{
+				Name: name,
+			}
+
+			if v, ok := d.GetOk(prefix + "node_config.0.resource_labels"); ok {
+				resourceLabels := v.(map[string]interface{})
+				req.ResourceLabels = &container.ResourceLabels{
+					Labels: convertStringMap(resourceLabels),
+				}
+			}
+
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool resource labels", userAgent,
+					timeout)
+			}
+
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated resource labels for node pool %s", name)
+		}
+
 		if d.HasChange(prefix + "node_config.0.image_type") {
 			req := &container.UpdateClusterRequest{
 				Update: &container.ClusterUpdate{

@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `resource_labels` field to `node_config` resource
+```
