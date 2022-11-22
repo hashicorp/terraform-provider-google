@@ -1239,6 +1239,30 @@ func TestAccSqlDatabaseInstance_ActiveDirectory(t *testing.T) {
 	})
 }
 
+func TestAccSQLDatabaseInstance_DenyMaintenancePeriod(t *testing.T) {
+	t.Parallel()
+	databaseName := "tf-test-" + randString(t, 10)
+	endDate := "2022-12-5"
+	startDate := "2022-10-5"
+	time := "00:00:00"
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_DenyMaintenancePeriodConfig(databaseName, endDate, startDate, time),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 	// Service Networking
 	skipIfVcr(t)
@@ -1492,6 +1516,25 @@ resource "google_sql_database_instance" "instance-with-ad" {
     }
   }
 }`, networkName, addressRangeName, databaseName, rootPassword, adDomainName)
+}
+
+func testGoogleSqlDatabaseInstance_DenyMaintenancePeriodConfig(databaseName, endDate, startDate, time string) string {
+	return fmt.Sprintf(`
+
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-4-26624"
+    deny_maintenance_period {
+      end_date     	= "%s"
+      start_date	= "%s"
+      time 		= "%s"
+    }
+  }
+}`, databaseName, endDate, startDate, time)
 }
 
 func testGoogleSqlDatabaseInstance_SqlServerAuditConfig(networkName, addressName, databaseName, rootPassword, bucketName, uploadInterval, retentionInterval string) string {
