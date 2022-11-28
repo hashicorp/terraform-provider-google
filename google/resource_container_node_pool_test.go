@@ -333,6 +333,129 @@ func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withNetworkConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+	network := fmt.Sprintf("tf-test-net-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withNetworkConfig(cluster, np, network),
+			},
+			{
+				ResourceName:            "google_container_node_pool.with_manual_pod_cidr",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network_config.0.create_pod_range"},
+			},
+			{
+				ResourceName:            "google_container_node_pool.with_auto_pod_cidr",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network_config.0.create_pod_range"},
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withEnablePrivateNodesToggle(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+	network := fmt.Sprintf("tf-test-net-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withEnablePrivateNodesToggle(cluster, np, network, "true"),
+			},
+			{
+				ResourceName:            "google_container_node_pool.with_enable_private_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerNodePool_withEnablePrivateNodesToggle(cluster, np, network, "false"),
+			},
+			{
+				ResourceName:            "google_container_node_pool.with_enable_private_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_withEnablePrivateNodesToggle(cluster, np, network, flag string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = google_compute_network.container_network.name
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = "1.23"
+  initial_node_count = 1
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+}
+
+resource "google_container_node_pool" "with_enable_private_nodes" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  node_count = 1
+  network_config {
+    create_pod_range = false
+    enable_private_nodes = %s
+    pod_range = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+  }
+  node_config {
+	oauth_scopes = [
+	  "https://www.googleapis.com/auth/cloud-platform",
+	]
+  }
+}
+`, network, cluster, np, flag)
+}
+
 func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 	t.Parallel()
 
@@ -1654,6 +1777,95 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
   }
 }
 `, projectID, cluster, np)
+}
+
+func testAccContainerNodePool_withNetworkConfig(cluster, np, network string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = google_compute_network.container_network.name
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+
+  secondary_ip_range {
+    range_name    = "another-pod"
+    ip_cidr_range = "10.1.32.0/22"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # The auto nodepool creates a secondary range which diffs this resource.
+      secondary_ip_range,
+    ]
+  }
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+  release_channel {
+	channel = "RAPID"
+  }
+}
+
+resource "google_container_node_pool" "with_manual_pod_cidr" {
+  name               = "%s-manual"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  node_count = 1
+  network_config {
+    create_pod_range = false
+    pod_range = google_compute_subnetwork.container_subnetwork.secondary_ip_range[2].range_name
+  }
+  node_config {
+	oauth_scopes = [
+	  "https://www.googleapis.com/auth/cloud-platform",
+	]
+  }
+}
+
+resource "google_container_node_pool" "with_auto_pod_cidr" {
+  name               = "%s-auto"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  node_count = 1
+  network_config {
+	create_pod_range    = true
+    pod_range           = "auto-pod-range"
+	pod_ipv4_cidr_block = "10.2.0.0/20"
+  }
+  node_config {
+	oauth_scopes = [
+	  "https://www.googleapis.com/auth/cloud-platform",
+	]
+  }
+}
+
+`, network, cluster, np, np)
 }
 
 func makeUpgradeSettings(maxSurge int, maxUnavailable int, strategy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string) string {

@@ -148,8 +148,9 @@ cluster.
 * `node_config` - (Optional) Parameters used in creating the node pool. See
     [google_container_cluster](container_cluster.html#nested_node_config) for schema.
 
-* `network_config` - (Optional) The network configuration of the pool. See
-    [google_container_cluster](container_cluster.html) for schema.
+* `network_config` - (Optional) The network configuration of the pool. Such as
+    configuration for [Adding Pod IP address ranges](https://cloud.google.com/kubernetes-engine/docs/how-to/multi-pod-cidr)) to the node pool. Or enabling private nodes. Structure is
+    [documented below](#nested_network_config)
 
 * `node_count` - (Optional) The number of nodes per instance group. This field can be used to
     update the number of nodes per instance group but should not be used alongside `autoscaling`.
@@ -197,6 +198,16 @@ cluster.
 * `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
 
 * `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
+
+<a name="nested_network_config"></a>The `network_config` block supports:
+
+* `create_pod_range` - (Optional) Whether to create a new range for pod IPs in this node pool. Defaults are provided for `pod_range` and `pod_ipv4_cidr_block` if they are not specified.
+
+* `enable_private_nodes` - (Optional) Whether nodes have internal IP addresses only.
+
+* `pod_ipv4_cidr_block` - (Optional) The IP address range for pod IPs in this node pool. Only applicable if createPodRange is true. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) to pick a specific range to use.
+
+* `pod_range` - (Optional) The ID of the secondary range for pod IPs. If `create_pod_range` is true, this ID is used for the new range. If `create_pod_range` is false, uses an existing secondary range with this ID.
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 
