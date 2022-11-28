@@ -1,0 +1,12 @@
+```release-note:enhancement
+container: added field `gcp_public_cidrs_access_enabled` and `private_endpoint_subnetwork` to `google_container_cluster`
+```
+```release-note:enhancement
+container: added update support for `enable_private_endpoint` and `enable_private_nodes` in `google_container_cluster`
+```
+```release-note:enhancement
+container: promoted `network_config` in `google_container_node_pool` to GA.
+```
+```release-note:enhancement
+container: added field `enable_private_nodes` in `network_config` to `google_container_node_pool`
+```

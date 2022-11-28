@@ -299,6 +299,44 @@ var schemaNodePool = map[string]*schema.Schema{
 		Computed:    true,
 		Description: `The Kubernetes version for the nodes in this pool. Note that if this field and auto_upgrade are both specified, they will fight each other for what the node version should be, so setting both is highly discouraged. While a fuzzy version can be specified, it's recommended that you specify explicit versions as Terraform will see spurious diffs when fuzzy versions are used. See the google_container_engine_versions data source's version_prefix field to approximate fuzzy versions in a Terraform-compatible way.`,
 	},
+
+	"network_config": {
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		MaxItems:    1,
+		Description: `Networking configuration for this NodePool. If specified, it overrides the cluster-level defaults.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"create_pod_range": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					ForceNew:    true,
+					Description: `Whether to create a new range for pod IPs in this node pool. Defaults are provided for pod_range and pod_ipv4_cidr_block if they are not specified.`,
+				},
+				"enable_private_nodes": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Computed:    true,
+					Description: `Whether nodes have internal IP addresses only.`,
+				},
+				"pod_range": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					ForceNew:    true,
+					Description: `The ID of the secondary range for pod IPs. If create_pod_range is true, this ID is used for the new range. If create_pod_range is false, uses an existing secondary range with this ID.`,
+				},
+				"pod_ipv4_cidr_block": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					ForceNew:     true,
+					Computed:     true,
+					ValidateFunc: validateIpCidrRange,
+					Description:  `The IP address range for pod IPs in this node pool. Only applicable if create_pod_range is true. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) to pick a specific range to use.`,
+				},
+			},
+		},
+	},
 }
 
 type NodePoolInformation struct {
@@ -770,6 +808,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
 		Locations:        locations,
 		Version:          d.Get(prefix + "version").(string),
+		NetworkConfig:    expandNodeNetworkConfig(d.Get(prefix + "network_config")),
 	}
 
 	if v, ok := d.GetOk(prefix + "autoscaling"); ok {
@@ -949,6 +988,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 		"instance_group_urls":         igmUrls,
 		"managed_instance_group_urls": managedIgmUrls,
 		"version":                     np.Version,
+		"network_config":              flattenNodeNetworkConfig(np.NetworkConfig, d, prefix),
 	}
 
 	if np.Autoscaling != nil {
@@ -985,6 +1025,50 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 	}
 
 	return nodePool, nil
+}
+
+func flattenNodeNetworkConfig(c *container.NodeNetworkConfig, d *schema.ResourceData, prefix string) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"create_pod_range":     d.Get(prefix + "network_config.0.create_pod_range"), // API doesn't return this value so we set the old one. Field is ForceNew + Required
+			"pod_ipv4_cidr_block":  c.PodIpv4CidrBlock,
+			"pod_range":            c.PodRange,
+			"enable_private_nodes": c.EnablePrivateNodes,
+		})
+	}
+	return result
+}
+
+func expandNodeNetworkConfig(v interface{}) *container.NodeNetworkConfig {
+	networkNodeConfigs := v.([]interface{})
+
+	nnc := &container.NodeNetworkConfig{}
+
+	if len(networkNodeConfigs) == 0 {
+		return nnc
+	}
+
+	networkNodeConfig := networkNodeConfigs[0].(map[string]interface{})
+
+	if v, ok := networkNodeConfig["create_pod_range"]; ok {
+		nnc.CreatePodRange = v.(bool)
+	}
+
+	if v, ok := networkNodeConfig["pod_range"]; ok {
+		nnc.PodRange = v.(string)
+	}
+
+	if v, ok := networkNodeConfig["pod_ipv4_cidr_block"]; ok {
+		nnc.PodIpv4CidrBlock = v.(string)
+	}
+
+	if v, ok := networkNodeConfig["enable_private_nodes"]; ok {
+		nnc.EnablePrivateNodes = v.(bool)
+		nnc.ForceSendFields = []string{"EnablePrivateNodes"}
+	}
+
+	return nnc
 }
 
 func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *NodePoolInformation, prefix string, timeout time.Duration) error {
@@ -1449,6 +1533,40 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		log.Printf("[INFO] Updated upgrade settings in Node Pool %s", name)
+	}
+
+	if d.HasChange(prefix + "network_config") {
+		if d.HasChange(prefix + "network_config.0.enable_private_nodes") {
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId:        name,
+				NodeNetworkConfig: expandNodeNetworkConfig(d.Get(prefix + "network_config")),
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool workload_metadata_config", userAgent,
+					timeout)
+			}
+
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated workload_metadata_config for node pool %s", name)
+		}
 	}
 
 	return nil

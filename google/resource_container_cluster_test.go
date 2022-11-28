@@ -662,6 +662,81 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withGcpPublicCidrsAccessEnabledToggle(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withoutGcpPublicCidrsAccessEnabled(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_gcp_public_cidrs_access_enabled",
+						"master_authorized_networks_config.#", "0"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_gcp_public_cidrs_access_enabled",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withGcpPublicCidrsAccessEnabled(clusterName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_gcp_public_cidrs_access_enabled",
+						"master_authorized_networks_config.0.gcp_public_cidrs_access_enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_gcp_public_cidrs_access_enabled",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withGcpPublicCidrsAccessEnabled(clusterName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_gcp_public_cidrs_access_enabled",
+						"master_authorized_networks_config.0.gcp_public_cidrs_access_enabled", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withGcpPublicCidrsAccessEnabled(clusterName string, flag string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_gcp_public_cidrs_access_enabled" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = "1.23"
+  initial_node_count = 1
+
+  master_authorized_networks_config {
+    gcp_public_cidrs_access_enabled = %s
+  }
+}
+`, clusterName, flag)
+}
+
+func testAccContainerCluster_withoutGcpPublicCidrsAccessEnabled(clusterName string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_gcp_public_cidrs_access_enabled" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = "1.23"
+  initial_node_count = 1
+}
+`, clusterName)
+}
+
 func TestAccContainerCluster_regional(t *testing.T) {
 	t.Parallel()
 
@@ -3469,6 +3544,154 @@ resource "google_container_cluster" "regional" {
   name               = "%s"
   location           = "us-central1"
   initial_node_count = 1
+}
+`, clusterName)
+}
+
+func TestAccContainerCluster_withPrivateEndpointSubnetwork(t *testing.T) {
+	t.Parallel()
+
+	r := randString(t, 10)
+
+	subnet1Name := fmt.Sprintf("tf-test-container-subnetwork1-%s", r)
+	subnet1Cidr := "10.0.36.0/24"
+
+	subnet2Name := fmt.Sprintf("tf-test-container-subnetwork2-%s", r)
+	subnet2Cidr := "10.9.26.0/24"
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	containerNetName := fmt.Sprintf("tf-test-container-net-%s", r)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withPrivateEndpointSubnetwork(containerNetName, clusterName, subnet1Name, subnet1Cidr, subnet2Name, subnet2Cidr),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_private_endpoint_subnetwork",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withPrivateEndpointSubnetwork(containerNetName, clusterName, s1Name, s1Cidr, s2Name, s2Cidr string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork1" {
+  name                     = "%s"
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "%s"
+  region                   = "us-central1"
+  private_ip_google_access = true
+}
+
+resource "google_compute_subnetwork" "container_subnetwork2" {
+  name                     = "%s"
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "%s"
+  region                   = "us-central1"
+  private_ip_google_access = true
+}
+
+resource "google_container_cluster" "with_private_endpoint_subnetwork" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = "1.23"
+  initial_node_count = 1
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork1.name
+
+  private_cluster_config {
+    private_endpoint_subnetwork = google_compute_subnetwork.container_subnetwork2.name
+  }
+}
+`, containerNetName, s1Name, s1Cidr, s2Name, s2Cidr, clusterName)
+}
+
+func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withoutEnablePrivateEndpoint(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_enable_private_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withEnablePrivateEndpoint(clusterName, "true"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_enable_private_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withEnablePrivateEndpoint(clusterName, "false"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_enable_private_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withEnablePrivateEndpoint(clusterName string, flag string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_enable_private_endpoint" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = "1.23"
+  initial_node_count = 1
+
+  master_authorized_networks_config {
+    gcp_public_cidrs_access_enabled = false
+  }
+
+  private_cluster_config {
+    enable_private_endpoint = %s
+  }
+}
+`, clusterName, flag)
+}
+
+func testAccContainerCluster_withoutEnablePrivateEndpoint(clusterName string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_enable_private_endpoint" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = "1.23"
+  initial_node_count = 1
+
+  master_authorized_networks_config {
+    gcp_public_cidrs_access_enabled = false
+  }
 }
 `, clusterName)
 }

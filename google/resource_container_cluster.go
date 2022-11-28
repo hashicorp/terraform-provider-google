@@ -22,16 +22,22 @@ import (
 var (
 	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", ProjectRegex))
 
-	networkConfig = &schema.Resource{
+	masterAuthorizedNetworksConfig = &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"cidr_blocks": {
 				Type: schema.TypeSet,
-				// Despite being the only entry in a nested block, this should be kept
-				// Optional. Expressing the parent with no entries and omitting the
+				// This should be kept Optional. Expressing the
+				// parent with no entries and omitting the
 				// parent entirely are semantically different.
 				Optional:    true,
 				Elem:        cidrBlockConfig,
 				Description: `External networks that can access the Kubernetes cluster master through HTTPS.`,
+			},
+			"gcp_public_cidrs_access_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Whether master is accessbile via Google Compute Engine Public IP addresses.`,
 			},
 		},
 	}
@@ -62,6 +68,14 @@ var (
 		"addons_config.0.gcp_filestore_csi_driver_config",
 		"addons_config.0.dns_cache_config",
 		"addons_config.0.gce_persistent_disk_csi_driver_config",
+	}
+
+	privateClusterConfigKeys = []string{
+		"private_cluster_config.0.enable_private_endpoint",
+		"private_cluster_config.0.enable_private_nodes",
+		"private_cluster_config.0.master_ipv4_cidr_block",
+		"private_cluster_config.0.private_endpoint_subnetwork",
+		"private_cluster_config.0.master_global_access_config",
 	}
 
 	forceNewClusterNodeConfigFields = []string{
@@ -918,8 +932,9 @@ func resourceContainerCluster() *schema.Resource {
 			"master_authorized_networks_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
-				Elem:        networkConfig,
+				Elem:        masterAuthorizedNetworksConfig,
 				Description: `The desired configuration options for master authorized networks. Omit the nested cidr_blocks attribute to disallow external access (except the cluster node IPs, which GKE automatically whitelists).`,
 			},
 
@@ -1114,10 +1129,15 @@ func resourceContainerCluster() *schema.Resource {
 				Description:      `Configuration for private clusters, clusters with private nodes.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						// enable_private_endpoint is orthogonal to private_endpoint_subnetwork.
+						// User can create a private_cluster_config block without including
+						// either one of those two fields. Both fields are optional.
+						// At the same time, we use 'AtLeastOneOf' to prevent an empty block
+						// like 'private_cluster_config{}'
 						"enable_private_endpoint": {
 							Type:             schema.TypeBool,
-							Required:         true,
-							ForceNew:         true,
+							Optional:         true,
+							AtLeastOneOf:     privateClusterConfigKeys,
 							DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
 							Description:      `When true, the cluster's private endpoint is used as the cluster endpoint and access through the public endpoint is disabled. When false, either endpoint can be used. This field only applies to private clusters, when enable_private_nodes is true.`,
 						},
@@ -1125,6 +1145,7 @@ func resourceContainerCluster() *schema.Resource {
 							Type:             schema.TypeBool,
 							Optional:         true,
 							ForceNew:         true,
+							AtLeastOneOf:     privateClusterConfigKeys,
 							DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
 							Description:      `Enables the private cluster feature, creating a private endpoint on the cluster. In a private cluster, nodes only have RFC 1918 private addresses and communicate with the master's private endpoint via private networking.`,
 						},
@@ -1133,6 +1154,7 @@ func resourceContainerCluster() *schema.Resource {
 							Computed:     true,
 							Optional:     true,
 							ForceNew:     true,
+							AtLeastOneOf: privateClusterConfigKeys,
 							ValidateFunc: orEmpty(validation.IsCIDRNetwork(28, 28)),
 							Description:  `The IP range in CIDR notation to use for the hosted master network. This range will be used for assigning private IP addresses to the cluster master(s) and the ILB VIP. This range must not overlap with any other ranges in use within the cluster's network, and it must be a /28 subnet. See Private Cluster Limitations for more details. This field only applies to private clusters, when enable_private_nodes is true.`,
 						},
@@ -1146,17 +1168,26 @@ func resourceContainerCluster() *schema.Resource {
 							Computed:    true,
 							Description: `The internal IP address of this cluster's master endpoint.`,
 						},
+						"private_endpoint_subnetwork": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							AtLeastOneOf:     privateClusterConfigKeys,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `Subnetwork in cluster's network where master's endpoint will be provisioned.`,
+						},
 						"public_endpoint": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The external IP address of this cluster's master endpoint.`,
 						},
 						"master_global_access_config": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Computed:    true,
-							Description: "Controls cluster master global access settings.",
+							Type:         schema.TypeList,
+							MaxItems:     1,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: privateClusterConfigKeys,
+							Description:  "Controls cluster master global access settings.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -1535,7 +1566,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		Name:                           clusterName,
 		InitialNodeCount:               int64(d.Get("initial_node_count").(int)),
 		MaintenancePolicy:              expandMaintenancePolicy(d, meta),
-		MasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(d.Get("master_authorized_networks_config")),
+		MasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(d.Get("master_authorized_networks_config"), d),
 		InitialClusterVersion:          d.Get("min_master_version").(string),
 		ClusterIpv4Cidr:                d.Get("cluster_ipv4_cidr").(string),
 		Description:                    d.Get("description").(string),
@@ -2098,7 +2129,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		c := d.Get("master_authorized_networks_config")
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c),
+				DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c, d),
 			},
 		}
 
@@ -2160,6 +2191,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's binary authorization has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("private_cluster_config.0.enable_private_endpoint") {
+		enabled := d.Get("private_cluster_config.0.enable_private_endpoint").(bool)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredEnablePrivateEndpoint: enabled,
+				ForceSendFields:              []string{"DesiredEnablePrivateEndpoint"},
+			},
+		}
+
+		updateF := updateFunc(req, "updating enable private endpoint")
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's enable private endpoint has been updated to %v", d.Id(), enabled)
 	}
 
 	if d.HasChange("binary_authorization") {
@@ -3537,7 +3586,7 @@ func expandMasterAuth(configured interface{}) *container.MasterAuth {
 	return result
 }
 
-func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.MasterAuthorizedNetworksConfig {
+func expandMasterAuthorizedNetworksConfig(configured interface{}, d *schema.ResourceData) *container.MasterAuthorizedNetworksConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 {
 		return &container.MasterAuthorizedNetworksConfig{
@@ -3558,6 +3607,10 @@ func expandMasterAuthorizedNetworksConfig(configured interface{}) *container.Mas
 					DisplayName: cidrBlock["display_name"].(string),
 				})
 			}
+		}
+		if v, ok := d.GetOkExists("master_authorized_networks_config.0.gcp_public_cidrs_access_enabled"); ok {
+			result.GcpPublicCidrsAccessEnabled = v.(bool)
+			result.ForceSendFields = []string{"GcpPublicCidrsAccessEnabled"}
 		}
 	}
 	return result
@@ -3586,11 +3639,12 @@ func expandPrivateClusterConfig(configured interface{}) *container.PrivateCluste
 	}
 	config := l[0].(map[string]interface{})
 	return &container.PrivateClusterConfig{
-		EnablePrivateEndpoint:    config["enable_private_endpoint"].(bool),
-		EnablePrivateNodes:       config["enable_private_nodes"].(bool),
-		MasterIpv4CidrBlock:      config["master_ipv4_cidr_block"].(string),
-		MasterGlobalAccessConfig: expandPrivateClusterConfigMasterGlobalAccessConfig(config["master_global_access_config"]),
-		ForceSendFields:          []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock", "MasterGlobalAccessConfig"},
+		EnablePrivateEndpoint:     config["enable_private_endpoint"].(bool),
+		EnablePrivateNodes:        config["enable_private_nodes"].(bool),
+		MasterIpv4CidrBlock:       config["master_ipv4_cidr_block"].(string),
+		MasterGlobalAccessConfig:  expandPrivateClusterConfigMasterGlobalAccessConfig(config["master_global_access_config"]),
+		PrivateEndpointSubnetwork: config["private_endpoint_subnetwork"].(string),
+		ForceSendFields:           []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock", "MasterGlobalAccessConfig"},
 	}
 }
 
@@ -4020,6 +4074,7 @@ func flattenPrivateClusterConfig(c *container.PrivateClusterConfig) []map[string
 			"master_global_access_config": flattenPrivateClusterConfigMasterGlobalAccessConfig(c.MasterGlobalAccessConfig),
 			"peering_name":                c.PeeringName,
 			"private_endpoint":            c.PrivateEndpoint,
+			"private_endpoint_subnetwork": c.PrivateEndpointSubnetwork,
 			"public_endpoint":             c.PublicEndpoint,
 		},
 	}
@@ -4263,16 +4318,15 @@ func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworks
 		return nil
 	}
 	result := make(map[string]interface{})
-	if c.Enabled {
-		cidrBlocks := make([]interface{}, 0, len(c.CidrBlocks))
-		for _, v := range c.CidrBlocks {
-			cidrBlocks = append(cidrBlocks, map[string]interface{}{
-				"cidr_block":   v.CidrBlock,
-				"display_name": v.DisplayName,
-			})
-		}
-		result["cidr_blocks"] = schema.NewSet(schema.HashResource(cidrBlockConfig), cidrBlocks)
+	cidrBlocks := make([]interface{}, 0, len(c.CidrBlocks))
+	for _, v := range c.CidrBlocks {
+		cidrBlocks = append(cidrBlocks, map[string]interface{}{
+			"cidr_block":   v.CidrBlock,
+			"display_name": v.DisplayName,
+		})
 	}
+	result["cidr_blocks"] = schema.NewSet(schema.HashResource(cidrBlockConfig), cidrBlocks)
+	result["gcp_public_cidrs_access_enabled"] = c.GcpPublicCidrsAccessEnabled
 	return []map[string]interface{}{result}
 }
 
@@ -4491,12 +4545,15 @@ func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.
 	o, n = d.GetChange("private_cluster_config.0.enable_private_nodes")
 	suppressNodes := !o.(bool) && !n.(bool)
 
+	// Do not suppress diffs when private_endpoint_subnetwork is configured
+	_, hasSubnet := d.GetOk("private_cluster_config.0.private_endpoint_subnetwork")
+
 	if k == "private_cluster_config.0.enable_private_endpoint" {
-		return suppressEndpoint
+		return suppressEndpoint && !hasSubnet
 	} else if k == "private_cluster_config.0.enable_private_nodes" {
-		return suppressNodes
+		return suppressNodes && !hasSubnet
 	} else if k == "private_cluster_config.#" {
-		return suppressEndpoint && suppressNodes
+		return suppressEndpoint && suppressNodes && !hasSubnet
 	}
 	return false
 }
