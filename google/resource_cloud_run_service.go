@@ -307,7 +307,7 @@ https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
 																Type:        schema.TypeString,
 																Computed:    true,
 																Optional:    true,
-																Description: `If specified, used to specify which protocol to use. Allowed values are "http1" and "h2c".`,
+																Description: `If specified, used to specify which protocol to use. Allowed values are "http1" (HTTP/1) and "h2c" (HTTP/2 end-to-end)`,
 															},
 															"protocol": {
 																Type:        schema.TypeString,
