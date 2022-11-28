@@ -103,7 +103,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ForceNew:      true,
-				Description:   `If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
+				Description:   `NOTE: 'gc_rules' is more flexible, and should be preferred over this field for new resources. This field may be deprecated in the future. If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
 				ValidateFunc:  validation.StringInSlice([]string{GCPolicyModeIntersection, GCPolicyModeUnion}, false),
 				ConflictsWith: []string{"gc_rules"},
 			},
@@ -112,7 +112,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `GC policy that applies to all cells older than the given age.`,
+				Description: `NOTE: 'gc_rules' is more flexible, and should be preferred over this field for new resources. This field may be deprecated in the future. GC policy that applies to all cells older than the given age.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -143,7 +143,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `GC policy that applies to all versions of a cell except for the most recent.`,
+				Description: `NOTE: 'gc_rules' is more flexible, and should be preferred over this field for new resources. This field may be deprecated in the future. GC policy that applies to all versions of a cell except for the most recent.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"number": {
