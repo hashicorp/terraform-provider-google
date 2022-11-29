@@ -547,7 +547,7 @@ The following arguments are supported:
 
 * `name` -
   (Optional)
-  If specified, used to specify which protocol to use. Allowed values are "http1" and "h2c".
+  If specified, used to specify which protocol to use. Allowed values are "http1" (HTTP/1) and "h2c" (HTTP/2 end-to-end)
 
 * `protocol` -
   (Optional)
