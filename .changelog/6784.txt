@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquerydatatransfer: recreate `google_bigquery_data_transfer_config` for Cloud Storage transfers when immutable params `data_path_template` and `destination_table_name_template` are changed
+```

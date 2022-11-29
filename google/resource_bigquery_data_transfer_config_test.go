@@ -10,6 +10,144 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForceNew(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		before   map[string]interface{}
+		after    map[string]interface{}
+		forcenew bool
+	}{
+		"changing_data_path_template": {
+			before: map[string]interface{}{
+				"data_source_id": "google_cloud_storage",
+				"params": map[string]interface{}{
+					"data_path_template":              "gs://bq-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "google_cloud_storage",
+				"params": map[string]interface{}{
+					"data_path_template":              "gs://bq-bucket-temp-new/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "APPEND",
+				},
+			},
+			forcenew: true,
+		},
+		"changing_destination_table_name_template": {
+			before: map[string]interface{}{
+				"data_source_id": "google_cloud_storage",
+				"params": map[string]interface{}{
+					"data_path_template":              "gs://bq-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "google_cloud_storage",
+				"params": map[string]interface{}{
+					"data_path_template":              "gs://bq-bucket-temp/*.json",
+					"destination_table_name_template": "table-new",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "APPEND",
+				},
+			},
+			forcenew: true,
+		},
+		"changing_non_force_new_fields": {
+			before: map[string]interface{}{
+				"data_source_id": "google_cloud_storage",
+				"params": map[string]interface{}{
+					"data_path_template":              "gs://bq-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "google_cloud_storage",
+				"params": map[string]interface{}{
+					"data_path_template":              "gs://bq-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 1000,
+					"write_disposition":               "APPEND",
+				},
+			},
+			forcenew: false,
+		},
+		"changing_destination_table_name_template_for_different_data_source_id": {
+			before: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"destination_table_name_template": "table-old",
+					"query":                           "SELECT 1 AS a",
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"destination_table_name_template": "table-new",
+					"query":                           "SELECT 1 AS a",
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			forcenew: false,
+		},
+		"changing_data_path_template_for_different_data_source_id": {
+			before: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"data_path_template": "gs://bq-bucket/*.json",
+					"query":              "SELECT 1 AS a",
+					"write_disposition":  "WRITE_APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"data_path_template": "gs://bq-bucket-new/*.json",
+					"query":              "SELECT 1 AS a",
+					"write_disposition":  "WRITE_APPEND",
+				},
+			},
+			forcenew: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		d := &ResourceDiffMock{
+			Before: map[string]interface{}{
+				"params":         tc.before["params"],
+				"data_source_id": tc.before["data_source_id"],
+			},
+			After: map[string]interface{}{
+				"params":         tc.after["params"],
+				"data_source_id": tc.after["data_source_id"],
+			},
+		}
+		err := paramsCustomizeDiffFunc(d)
+		if err != nil {
+			t.Errorf("failed, expected no error but received - %s for the condition %s", err, tn)
+		}
+		if d.IsForceNew != tc.forcenew {
+			t.Errorf("ForceNew not setup correctly for the condition-'%s', expected:%v; actual:%v", tn, tc.forcenew, d.IsForceNew)
+		}
+	}
+}
+
 // The service account TF uses needs the permission granted in the configs
 // but it will get deleted by parallel tests, so they need to be run serially.
 func TestAccBigqueryDataTransferConfig(t *testing.T) {
@@ -19,6 +157,7 @@ func TestAccBigqueryDataTransferConfig(t *testing.T) {
 		"service_account": testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account,
 		"no_destintation": testAccBigqueryDataTransferConfig_scheduledQuery_no_destination,
 		"booleanParam":    testAccBigqueryDataTransferConfig_copy_booleanParam,
+		"update_params":   testAccBigqueryDataTransferConfig_force_new_update_params,
 	}
 
 	for name, tc := range testCases {
@@ -160,6 +299,45 @@ func testAccBigqueryDataTransferConfig_copy_booleanParam(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.copy_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryDataTransferConfig_force_new_update_params(t *testing.T) {
+	random_suffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_update_params_force_new(random_suffix, "old", "old"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.update_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_update_params_force_new(random_suffix, "new", "old"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.update_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_update_params_force_new(random_suffix, "new", "new"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.update_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
@@ -368,4 +546,30 @@ resource "google_bigquery_data_transfer_config" "copy_config" {
   }
 }
 `, random_suffix, random_suffix, random_suffix)
+}
+
+func testAccBigqueryDataTransferConfig_update_params_force_new(random_suffix, path, table string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id       = "tf_test_%s"
+  friendly_name    = "foo"
+  description      = "bar"
+  location         = "US"
+}
+
+resource "google_bigquery_data_transfer_config" "update_config" {
+  display_name           = "tf-test-%s"
+  data_source_id         = "google_cloud_storage"
+  destination_dataset_id = google_bigquery_dataset.dataset.dataset_id
+  location               = google_bigquery_dataset.dataset.location
+
+  params = {
+    data_path_template              = "gs://bq-bucket-%s-%s/*.json"
+    destination_table_name_template = "the-table-%s-%s"
+    file_format                     = "JSON"
+    max_bad_records                 = 0
+    write_disposition               = "APPEND"
+  }
+}
+`, random_suffix, random_suffix, random_suffix, path, random_suffix, table)
 }
