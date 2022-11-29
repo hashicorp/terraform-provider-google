@@ -1,0 +1,4 @@
+```release-note:bug
+dataflow: Fixed permadiff on additional_experiments for `google_dataflow_job`
+
+```

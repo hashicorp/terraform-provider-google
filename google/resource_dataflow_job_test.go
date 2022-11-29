@@ -339,7 +339,7 @@ func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 				ResourceName:            "google_dataflow_job.with_additional_experiments",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state", "additional_experiments"},
 			},
 		},
 	})
@@ -455,7 +455,6 @@ func testAccCheckDataflowJobRegionDestroyProducer(t *testing.T) func(s *terrafor
 			if rs.Type != "google_dataflow_job" {
 				continue
 			}
-
 			config := googleProviderConfig(t)
 			job, err := config.NewDataflowClient(config.userAgent).Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 			if job != nil {
