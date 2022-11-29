@@ -1,0 +1,15 @@
+```release-note:enhancement
+datafusion: add `zone`, `display_name`, `crypto_key_config`, `event_publish_config`, and `enable_rbac` args to `google_data_fusion_instance`
+```
+```release-note:enhancement
+datafusion: add `api_endpoint` and `p4_service_account ` attributes to `google_data_fusion_instance`
+```
+```release-note:new-resource
+google_data_fusion_instance_iam_member
+```
+```release-note:new-resource
+google_data_fusion_instance_iam_binding
+```
+```release-note:new-resource
+google_data_fusion_instance_iam_policy
+```

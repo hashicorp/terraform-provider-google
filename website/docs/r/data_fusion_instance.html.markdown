@@ -39,9 +39,9 @@ To get more information about Instance, see:
 
 ```hcl
 resource "google_data_fusion_instance" "basic_instance" {
-  name = "my-instance"
+  name   = "my-instance"
   region = "us-central1"
-  type = "BASIC"
+  type   = "BASIC"
   # Mark for testing to avoid service networking connection usage that is not cleaned up
   options = {
     prober_test_run = "true"
@@ -58,22 +58,26 @@ resource "google_data_fusion_instance" "basic_instance" {
 
 ```hcl
 resource "google_data_fusion_instance" "extended_instance" {
-  name = "my-instance"
-  description = "My Data Fusion instance"
-  region = "us-central1"
-  type = "BASIC"
-  enable_stackdriver_logging = true
+  name                          = "my-instance"
+  description                   = "My Data Fusion instance"
+  display_name                  = "My Data Fusion instance"
+  region                        = "us-central1"
+  type                          = "BASIC"
+  enable_stackdriver_logging    = true
   enable_stackdriver_monitoring = true
+  private_instance              = true
+  version                       = "6.6.0"
+  dataproc_service_account      = data.google_app_engine_default_service_account.default.email
+
   labels = {
     example_key = "example_value"
   }
-  private_instance = true
+
   network_config {
-    network = "default"
-    ip_allocation = "10.89.48.0/22"
+    network       = "default"
+    ip_allocation = "${google_compute_global_address.private_ip_alloc.address}/${google_compute_global_address.private_ip_alloc.prefix_length}"
   }
-  version = "6.3.0"
-  dataproc_service_account = data.google_app_engine_default_service_account.default.email
+
   # Mark for testing to avoid service networking connection usage that is not cleaned up
   options = {
     prober_test_run = "true"
@@ -81,6 +85,18 @@ resource "google_data_fusion_instance" "extended_instance" {
 }
 
 data "google_app_engine_default_service_account" "default" {
+}
+
+resource "google_compute_network" "network" {
+  name = "datafusion-full-network"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          = "datafusion-ip-alloc"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 22
+  network       = google_compute_network.network.id
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -92,7 +108,7 @@ data "google_app_engine_default_service_account" "default" {
 
 
 ```hcl
-resource "google_data_fusion_instance" "basic_cmek" {
+resource "google_data_fusion_instance" "cmek" {
   name   = "my-instance"
   region = "us-central1"
   type   = "BASIC"
@@ -143,6 +159,47 @@ resource "google_data_fusion_instance" "enterprise_instance" {
   options = {
     prober_test_run = "true"
   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=data_fusion_instance_event&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Data Fusion Instance Event
+
+
+```hcl
+resource "google_data_fusion_instance" "event" {
+  name    = "my-instance"
+  region  = "us-central1"
+  type    = "BASIC"
+  version = "6.7.0"
+
+  event_publish_config {
+    enabled = true
+    topic   = google_pubsub_topic.event.id
+  }
+}
+
+resource "google_pubsub_topic" "event" {
+  name = "my-instance"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=data_fusion_instance_zone&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Data Fusion Instance Zone
+
+
+```hcl
+resource "google_data_fusion_instance" "zone" {
+  name   = "my-instance"
+  region = "us-central1"
+  zone   = "us-central1-a"
+  type   = "DEVELOPER"
 }
 ```
 
@@ -217,10 +274,23 @@ The following arguments are supported:
   Network configuration options. These are required when a private Data Fusion instance is to be created.
   Structure is [documented below](#nested_network_config).
 
+* `zone` -
+  (Optional)
+  Name of the zone in which the Data Fusion instance will be created. Only DEVELOPER instances use this field.
+
+* `display_name` -
+  (Optional)
+  Display name for an instance.
+
 * `crypto_key_config` -
   (Optional)
   The crypto key configuration. This field is used by the Customer-Managed Encryption Keys (CMEK) feature.
   Structure is [documented below](#nested_crypto_key_config).
+
+* `event_publish_config` -
+  (Optional)
+  Option to enable and pass metadata for event publishing.
+  Structure is [documented below](#nested_event_publish_config).
 
 * `region` -
   (Optional)
@@ -248,6 +318,16 @@ The following arguments are supported:
 * `key_reference` -
   (Required)
   The name of the key which is used to encrypt/decrypt customer data. For key in Cloud KMS, the key should be in the format of projects/*/locations/*/keyRings/*/cryptoKeys/*.
+
+<a name="nested_event_publish_config"></a>The `event_publish_config` block supports:
+
+* `enabled` -
+  (Required)
+  Option to enable Event Publishing.
+
+* `topic` -
+  (Required)
+  The resource name of the Pub/Sub topic. Format: projects/{projectId}/topics/{topic_id}
 
 ## Attributes Reference
 
@@ -286,13 +366,19 @@ In addition to the arguments listed above, the following computed attributes are
 * `gcs_bucket` -
   Cloud Storage bucket generated by Data Fusion in the customer project.
 
+* `api_endpoint` -
+  Endpoint on which the REST APIs is accessible.
+
+* `p4_service_account` -
+  P4 service account for the customer project.
+
 
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 60 minutes.
+- `create` - Default is 90 minutes.
 - `update` - Default is 25 minutes.
 - `delete` - Default is 50 minutes.
 
