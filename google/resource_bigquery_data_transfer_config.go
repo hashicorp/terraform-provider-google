@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -36,6 +37,40 @@ func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 		}
 	}
 	return nil
+}
+
+// This customizeDiff is to use ForceNew for params fields data_path_template and
+// destination_table_name_template only if the value of "data_source_id" is "google_cloud_storage".
+func paramsCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	old, new := diff.GetChange("params")
+	dsId := diff.Get("data_source_id").(string)
+	oldParams := old.(map[string]interface{})
+	newParams := new.(map[string]interface{})
+	var err error
+
+	if dsId == "google_cloud_storage" {
+		if oldParams["data_path_template"] != nil && newParams["data_path_template"] != nil && oldParams["data_path_template"].(string) != newParams["data_path_template"].(string) {
+			err = diff.ForceNew("params")
+			if err != nil {
+				return fmt.Errorf("ForceNew failed for params, old - %v and new - %v", oldParams, newParams)
+			}
+			return nil
+		}
+
+		if oldParams["destination_table_name_template"] != nil && newParams["destination_table_name_template"] != nil && oldParams["destination_table_name_template"].(string) != newParams["destination_table_name_template"].(string) {
+			err = diff.ForceNew("params")
+			if err != nil {
+				return fmt.Errorf("ForceNew failed for params, old - %v and new - %v", oldParams, newParams)
+			}
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func paramsCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	return paramsCustomizeDiffFunc(diff)
 }
 
 func resourceBigqueryDataTransferConfig() *schema.Resource {
@@ -55,7 +90,7 @@ func resourceBigqueryDataTransferConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		CustomizeDiff: sensitiveParamCustomizeDiff,
+		CustomizeDiff: customdiff.All(sensitiveParamCustomizeDiff, paramsCustomizeDiff),
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {
