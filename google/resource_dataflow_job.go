@@ -365,9 +365,6 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("service_account_email", optionsMap["serviceAccountEmail"]); err != nil {
 		return fmt.Errorf("Error setting service_account_email: %s", err)
 	}
-	if err := d.Set("additional_experiments", optionsMap["experiments"]); err != nil {
-		return fmt.Errorf("Error setting additional_experiments: %s", err)
-	}
 
 	if ok := shouldStopDataflowJobDeleteQuery(job.CurrentState, d.Get("skip_wait_on_job_termination").(bool)); ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
