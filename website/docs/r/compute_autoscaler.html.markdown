@@ -119,6 +119,7 @@ data "google_compute_image" "debian_9" {
 provider "google-beta" {
   region = "us-central1"
   zone   = "us-central1-a"
+  
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">

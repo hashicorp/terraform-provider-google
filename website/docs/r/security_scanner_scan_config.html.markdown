@@ -54,11 +54,6 @@ resource "google_security_scanner_scan_config" "scan-config" {
   starting_urls    = ["http://${google_compute_address.scanner_static_ip.address}"]
   target_platforms = ["COMPUTE"]
 }
-
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
-}
 ```
 
 ## Argument Reference
