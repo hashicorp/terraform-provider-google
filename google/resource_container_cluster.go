@@ -807,6 +807,22 @@ func resourceContainerCluster() *schema.Resource {
 								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER"}, false),
 							},
 						},
+						"managed_prometheus": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
+							Description: `Configuration for Google Cloud Managed Services for Prometheus.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether or not the managed collection is enabled.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -3848,6 +3864,12 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 			EnableComponents: convertStringArr(enable_components),
 		}
 	}
+	if v, ok := config["managed_prometheus"]; ok && len(v.([]interface{})) > 0 {
+		managed_prometheus := v.([]interface{})[0].(map[string]interface{})
+		mc.ManagedPrometheusConfig = &container.ManagedPrometheusConfig{
+			Enabled: managed_prometheus["enabled"].(bool),
+		}
+	}
 	return mc
 }
 
@@ -4430,7 +4452,18 @@ func flattenMonitoringConfig(c *container.MonitoringConfig) []map[string]interfa
 	if c.ComponentConfig != nil {
 		result["enable_components"] = c.ComponentConfig.EnableComponents
 	}
+	if c.ManagedPrometheusConfig != nil {
+		result["managed_prometheus"] = flattenManagedPrometheusConfig(c.ManagedPrometheusConfig)
+	}
 	return []map[string]interface{}{result}
+}
+
+func flattenManagedPrometheusConfig(c *container.ManagedPrometheusConfig) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"enabled": c != nil && c.Enabled,
+		},
+	}
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
