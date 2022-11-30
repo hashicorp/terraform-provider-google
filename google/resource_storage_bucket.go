@@ -141,7 +141,7 @@ func resourceStorageBucket() *schema.Resource {
 									"type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: `The type of the action of this Lifecycle Rule. Supported values include: Delete and SetStorageClass.`,
+										Description: `The type of the action of this Lifecycle Rule. Supported values include: Delete, SetStorageClass and AbortIncompleteMultipartUpload.`,
 									},
 									"storage_class": {
 										Type:        schema.TypeString,
