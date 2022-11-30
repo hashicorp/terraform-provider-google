@@ -46,6 +46,10 @@ resource "google_alloydb_instance" "default" {
   instance_id   = "alloydb-instance"
   instance_type = "PRIMARY"
 
+  machine_config {
+    cpu_count = 2
+  }
+
   depends_on = [google_service_networking_connection.vpc_connection]
 }
 
@@ -190,9 +194,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

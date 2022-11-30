@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: made `machine_config.cpu_count` updatable on `google_alloydb_instance`
+```
