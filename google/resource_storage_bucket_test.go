@@ -1624,6 +1624,14 @@ resource "google_storage_bucket" "bucket" {
       age            = 2
     }
   }
+  lifecycle_rule {
+    action {
+      type = "AbortIncompleteMultipartUpload"
+    }
+    condition {
+      age = 1
+    }
+  }
 }
 `, bucketName)
 }

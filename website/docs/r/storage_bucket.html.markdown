@@ -58,6 +58,15 @@ resource "google_storage_bucket" "auto-expire" {
       type = "Delete"
     }
   }
+
+  lifecycle_rule {
+    condition {
+      age = 1
+    }
+    action {
+      type = "AbortIncompleteMultipartUpload"
+    }
+  }
 }
 ```
 
@@ -126,7 +135,7 @@ The following arguments are supported:
 
 <a name="nested_action"></a>The `action` block supports:
 
-* `type` - The type of the action of this Lifecycle Rule. Supported values include: `Delete` and `SetStorageClass`.
+* `type` - The type of the action of this Lifecycle Rule. Supported values include: `Delete`, `SetStorageClass` and `AbortIncompleteMultipartUpload`.
 
 * `storage_class` - (Required if action type is `SetStorageClass`) The target [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects affected by this Lifecycle Rule. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
