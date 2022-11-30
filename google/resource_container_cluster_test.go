@@ -5133,6 +5133,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 func testAccContainerCluster_withResourceUsageExportConfig(clusterName, datasetId, enableMetering string) string {
 	return fmt.Sprintf(`
 provider "google" {
+  alias                 = "user-project-override"
   user_project_override = true
 }
 resource "google_bigquery_dataset" "default" {
@@ -5142,6 +5143,7 @@ resource "google_bigquery_dataset" "default" {
 }
 
 resource "google_container_cluster" "with_resource_usage_export_config" {
+  provider           = google.user-project-override
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1

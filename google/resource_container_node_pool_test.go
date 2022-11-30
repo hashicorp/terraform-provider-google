@@ -1100,15 +1100,18 @@ func testAccCheckContainerNodePoolDestroyProducer(t *testing.T) func(s *terrafor
 func testAccContainerNodePool_basic(cluster, np string) string {
 	return fmt.Sprintf(`
 provider "google" {
+  alias                 = "user-project-override"
   user_project_override = true
 }
 resource "google_container_cluster" "cluster" {
+  provider           = google.user-project-override
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 3
 }
 
 resource "google_container_node_pool" "np" {
+  provider           = google.user-project-override
   name               = "%s"
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
@@ -1140,15 +1143,18 @@ resource "google_container_node_pool" "with_logging_variant" {
 func testAccContainerNodePool_basicWithClusterId(cluster, np string) string {
 	return fmt.Sprintf(`
 provider "google" {
+  alias                 = "user-project-override"
   user_project_override = true
 }
 resource "google_container_cluster" "cluster" {
+  provider           = google.user-project-override
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 3
 }
 
 resource "google_container_node_pool" "np" {
+  provider           = google.user-project-override
   name               = "%s"
   cluster            = google_container_cluster.cluster.id
   initial_node_count = 2
@@ -1391,9 +1397,11 @@ resource "google_container_node_pool" "np" {
 func testAccContainerNodePool_basicTotalSize(cluster, np string) string {
 	return fmt.Sprintf(`
 provider "google" {
+  alias                 = "user-project-override"
   user_project_override = true
 }
 resource "google_container_cluster" "cluster" {
+  provider           = google.user-project-override
   name               = "%s"
   location           = "us-central1"
   initial_node_count = 3
@@ -1401,6 +1409,7 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "np" {
+  provider           = google.user-project-override
   name               = "%s"
   location           = "us-central1"
   cluster            = google_container_cluster.cluster.name

@@ -184,6 +184,7 @@ resource "google_compute_route" "route1" {
 provider "google-beta" {
   region = "us-central1"
   zone   = "us-central1-a"
+  
 }
 ```
 

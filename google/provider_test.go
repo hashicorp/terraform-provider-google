@@ -637,11 +637,13 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 func testAccProviderBasePath_setBasePath(endpoint, name string) string {
 	return fmt.Sprintf(`
 provider "google" {
+  alias                   = "compute_custom_endpoint"
   compute_custom_endpoint = "%s"
 }
 
 resource "google_compute_address" "default" {
-	name = "address-test-%s"
+  provider = google.compute_custom_endpoint
+  name     = "address-test-%s"
 }`, endpoint, name)
 }
 
