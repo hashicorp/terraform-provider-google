@@ -301,13 +301,13 @@ https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
 															"container_port": {
 																Type:        schema.TypeInt,
 																Optional:    true,
-																Description: `Port number the container listens on. This must be a valid port number, 0 < x < 65536.`,
+																Description: `Port number the container listens on. This must be a valid port number (between 1 and 65535). Defaults to "8080".`,
 															},
 															"name": {
 																Type:        schema.TypeString,
 																Computed:    true,
 																Optional:    true,
-																Description: `If specified, used to specify which protocol to use. Allowed values are "http1" (HTTP/1) and "h2c" (HTTP/2 end-to-end)`,
+																Description: `If specified, used to specify which protocol to use. Allowed values are "http1" (HTTP/1) and "h2c" (HTTP/2 end-to-end). Defaults to "http1".`,
 															},
 															"protocol": {
 																Type:        schema.TypeString,
