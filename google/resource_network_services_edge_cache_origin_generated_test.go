@@ -85,10 +85,9 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvance
 
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(context map[string]interface{}) string {
 	return Nprintf(`
-
 resource "google_network_services_edge_cache_origin" "fallback" {
   name                 = "tf-test-my-fallback%{random_suffix}"
-  origin_address       = "gs://media-edge-fallback"
+  origin_address       = "fallback.example.com"
   description          = "The default bucket for media edge test"
   max_attempts         = 3
   protocol = "HTTP"
@@ -105,6 +104,27 @@ resource "google_network_services_edge_cache_origin" "fallback" {
     max_attempts_timeout = "20s"
     response_timeout = "60s"
     read_timeout = "5s"
+  }
+  origin_override_action {
+    url_rewrite {
+      host_rewrite = "example.com"
+    }
+    header_action {
+      request_headers_to_add {
+        header_name = "x-header"
+	header_value = "value"
+	replace = true
+      }
+    }
+  }
+  origin_redirect {
+    redirect_conditions = [
+      "MOVED_PERMANENTLY",
+      "FOUND",
+      "SEE_OTHER",
+      "TEMPORARY_REDIRECT",
+      "PERMANENT_REDIRECT",
+    ]
   }
 }
 
