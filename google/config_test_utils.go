@@ -42,6 +42,7 @@ func configureTestBasePaths(c *Config, url string) {
 	c.CloudIdsBasePath = url
 	c.CloudIotBasePath = url
 	c.CloudRunBasePath = url
+	c.CloudRunV2BasePath = url
 	c.CloudSchedulerBasePath = url
 	c.CloudTasksBasePath = url
 	c.ComputeBasePath = url
