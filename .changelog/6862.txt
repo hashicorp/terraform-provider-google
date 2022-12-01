@@ -1,0 +1,3 @@
+```release-note:bug
+datastream: fixed `google_datastream_private_connection` ignoring failures during creation
+```
