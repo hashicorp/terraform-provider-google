@@ -113,6 +113,23 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   The resource's name.
 
+* `state` -
+  State of the PrivateConnection.
+
+* `error` -
+  The PrivateConnection error in case of failure.
+  Structure is [documented below](#nested_error).
+
+
+<a name="nested_error"></a>The `error` block contains:
+
+* `message` -
+  (Optional)
+  A message containing more information about the error that occurred.
+
+* `details` -
+  (Optional)
+  A list of messages that carry the error details.
 
 ## Timeouts
 

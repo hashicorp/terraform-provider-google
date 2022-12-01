@@ -15,13 +15,47 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+func extractError(d *schema.ResourceData) error {
+	// Casts are not safe since the logic that populate it is type deterministic.
+	error := d.Get("error").([]interface{})[0].(map[string]interface{})
+	message := error["message"].(string)
+	details := error["details"].(map[string]interface{})
+	detailsJSON, _ := json.Marshal(details)
+	return fmt.Errorf("Failed to create PrivateConnection. %s details = %s", message, string(detailsJSON))
+}
+
+// waitForPrivateConnectionReady waits for a private connection state to become
+// CREATED, if the state is FAILED propegate the error to the user.
+func waitForPrivateConnectionReady(d *schema.ResourceData, config *Config, timeout time.Duration) error {
+	return resource.Retry(timeout, func() *resource.RetryError {
+		if err := resourceDatastreamPrivateConnectionRead(d, config); err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		name := d.Get("name").(string)
+		state := d.Get("state").(string)
+		if state == "CREATING" {
+			return resource.RetryableError(fmt.Errorf("PrivateConnection %q has state %q.", name, state))
+		} else if state == "CREATED" {
+			log.Printf("[DEBUG] PrivateConnection %q has state %q.", name, state)
+			return nil
+		} else if state == "FAILED" {
+			return resource.NonRetryableError(extractError(d))
+		} else {
+			return resource.NonRetryableError(fmt.Errorf("PrivateConnection %q has state %q.", name, state))
+		}
+	})
+}
 
 func resourceDatastreamPrivateConnection() *schema.Resource {
 	return &schema.Resource{
@@ -89,10 +123,35 @@ Format: projects/{project}/global/{networks}/{name}`,
 				Description: `Labels.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"error": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The PrivateConnection error in case of failure.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"details": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Description: `A list of messages that carry the error details.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"message": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A message containing more information about the error that occurred.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource's name.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State of the PrivateConnection.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -187,6 +246,10 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	if err := waitForPrivateConnectionReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
+		return fmt.Errorf("Error waiting for PrivateConnection %q to be CREATED. %q", d.Get("name").(string), err)
+	}
+
 	log.Printf("[DEBUG] Finished creating PrivateConnection %q: %#v", d.Id(), res)
 
 	return resourceDatastreamPrivateConnectionRead(d, meta)
@@ -233,6 +296,12 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 	if err := d.Set("display_name", flattenDatastreamPrivateConnectionDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateConnection: %s", err)
+	}
+	if err := d.Set("state", flattenDatastreamPrivateConnectionState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateConnection: %s", err)
+	}
+	if err := d.Set("error", flattenDatastreamPrivateConnectionError(res["error"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 	if err := d.Set("vpc_peering_config", flattenDatastreamPrivateConnectionVPCPeeringConfig(res["vpcPeeringConfig"], d, config)); err != nil {
@@ -304,6 +373,10 @@ func resourceDatastreamPrivateConnectionImport(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	if err := waitForPrivateConnectionReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
+		return nil, fmt.Errorf("Error waiting for PrivateConnection %q to be CREATED during importing: %q", d.Get("name").(string), err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -316,6 +389,33 @@ func flattenDatastreamPrivateConnectionLabels(v interface{}, d *schema.ResourceD
 }
 
 func flattenDatastreamPrivateConnectionDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamPrivateConnectionState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamPrivateConnectionError(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["message"] =
+		flattenDatastreamPrivateConnectionErrorMessage(original["message"], d, config)
+	transformed["details"] =
+		flattenDatastreamPrivateConnectionErrorDetails(original["details"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamPrivateConnectionErrorMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamPrivateConnectionErrorDetails(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
