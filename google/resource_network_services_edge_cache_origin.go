@@ -126,6 +126,105 @@ If no origin returns a valid response, an HTTP 502 will be returned to the clien
 
 Defaults to 1. Must be a value greater than 0 and less than 4.`,
 			},
+			"origin_override_action": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The override actions, including url rewrites and header
+additions, for requests that use this origin.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"header_action": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The header actions, including adding and removing
+headers, for request handled by this origin.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"request_headers_to_add": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Describes a header to add.
+
+You may add a maximum of 5 request headers.`,
+										MinItems: 1,
+										MaxItems: 5,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"header_name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The name of the header to add.`,
+												},
+												"header_value": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The value of the header to add.`,
+												},
+												"replace": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `Whether to replace all existing headers with the same name.
+
+By default, added header values are appended
+to the response or request headers with the
+same field names. The added values are
+separated by commas.
+
+To overwrite existing values, set 'replace' to 'true'.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"url_rewrite": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The URL rewrite configuration for request that are
+handled by this origin.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host_rewrite": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Prior to forwarding the request to the selected
+origin, the request's host header is replaced with
+contents of the hostRewrite.
+
+This value must be between 1 and 255 characters.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"origin_redirect": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Follow redirects from this origin.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"redirect_conditions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The set of redirect response codes that the CDN
+follows. Values of
+[RedirectConditions](https://cloud.google.com/media-cdn/docs/reference/rest/v1/projects.locations.edgeCacheOrigins#redirectconditions)
+are accepted.`,
+							MaxItems: 5,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"port": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -304,6 +403,18 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("aws_v4_authentication"); !isEmptyValue(reflect.ValueOf(awsV4AuthenticationProp)) && (ok || !reflect.DeepEqual(v, awsV4AuthenticationProp)) {
 		obj["awsV4Authentication"] = awsV4AuthenticationProp
 	}
+	originOverrideActionProp, err := expandNetworkServicesEdgeCacheOriginOriginOverrideAction(d.Get("origin_override_action"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("origin_override_action"); !isEmptyValue(reflect.ValueOf(originOverrideActionProp)) && (ok || !reflect.DeepEqual(v, originOverrideActionProp)) {
+		obj["originOverrideAction"] = originOverrideActionProp
+	}
+	originRedirectProp, err := expandNetworkServicesEdgeCacheOriginOriginRedirect(d.Get("origin_redirect"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("origin_redirect"); !isEmptyValue(reflect.ValueOf(originRedirectProp)) && (ok || !reflect.DeepEqual(v, originRedirectProp)) {
+		obj["originRedirect"] = originRedirectProp
+	}
 
 	url, err := replaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins?edgeCacheOriginId={{name}}")
 	if err != nil {
@@ -415,6 +526,12 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 	if err := d.Set("aws_v4_authentication", flattenNetworkServicesEdgeCacheOriginAwsV4Authentication(res["awsV4Authentication"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
 	}
+	if err := d.Set("origin_override_action", flattenNetworkServicesEdgeCacheOriginOriginOverrideAction(res["originOverrideAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err := d.Set("origin_redirect", flattenNetworkServicesEdgeCacheOriginOriginRedirect(res["originRedirect"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
 
 	return nil
 }
@@ -495,6 +612,18 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("aws_v4_authentication"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, awsV4AuthenticationProp)) {
 		obj["awsV4Authentication"] = awsV4AuthenticationProp
 	}
+	originOverrideActionProp, err := expandNetworkServicesEdgeCacheOriginOriginOverrideAction(d.Get("origin_override_action"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("origin_override_action"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, originOverrideActionProp)) {
+		obj["originOverrideAction"] = originOverrideActionProp
+	}
+	originRedirectProp, err := expandNetworkServicesEdgeCacheOriginOriginRedirect(d.Get("origin_redirect"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("origin_redirect"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, originRedirectProp)) {
+		obj["originRedirect"] = originRedirectProp
+	}
 
 	url, err := replaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
 	if err != nil {
@@ -542,6 +671,14 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("aws_v4_authentication") {
 		updateMask = append(updateMask, "awsV4Authentication")
+	}
+
+	if d.HasChange("origin_override_action") {
+		updateMask = append(updateMask, "originOverrideAction")
+	}
+
+	if d.HasChange("origin_redirect") {
+		updateMask = append(updateMask, "originRedirect")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -750,6 +887,100 @@ func flattenNetworkServicesEdgeCacheOriginAwsV4AuthenticationOriginRegion(v inte
 	return v
 }
 
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["url_rewrite"] =
+		flattenNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewrite(original["urlRewrite"], d, config)
+	transformed["header_action"] =
+		flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderAction(original["headerAction"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["host_rewrite"] =
+		flattenNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewriteHostRewrite(original["hostRewrite"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["request_headers_to_add"] =
+		flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"header_name":  flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddReplace(original["replace"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheOriginOriginRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["redirect_conditions"] =
+		flattenNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(original["redirectConditions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandNetworkServicesEdgeCacheOriginDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -887,5 +1118,144 @@ func expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationSecretAccessKeyVersi
 }
 
 func expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationOriginRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUrlRewrite, err := expandNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewrite(original["url_rewrite"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUrlRewrite); val.IsValid() && !isEmptyValue(val) {
+		transformed["urlRewrite"] = transformedUrlRewrite
+	}
+
+	transformedHeaderAction, err := expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderAction(original["header_action"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHeaderAction); val.IsValid() && !isEmptyValue(val) {
+		transformed["headerAction"] = transformedHeaderAction
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHostRewrite, err := expandNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewriteHostRewrite(original["host_rewrite"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHostRewrite); val.IsValid() && !isEmptyValue(val) {
+		transformed["hostRewrite"] = transformedHostRewrite
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRequestHeadersToAdd, err := expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAdd(original["request_headers_to_add"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestHeadersToAdd); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestHeadersToAdd"] = transformedRequestHeadersToAdd
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHeaderName, err := expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderName(original["header_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+			transformed["headerName"] = transformedHeaderName
+		}
+
+		transformedHeaderValue, err := expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderValue(original["header_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderValue); val.IsValid() && !isEmptyValue(val) {
+			transformed["headerValue"] = transformedHeaderValue
+		}
+
+		transformedReplace, err := expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddReplace(original["replace"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedReplace); val.IsValid() && !isEmptyValue(val) {
+			transformed["replace"] = transformedReplace
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRedirectConditions, err := expandNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(original["redirect_conditions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRedirectConditions); val.IsValid() && !isEmptyValue(val) {
+		transformed["redirectConditions"] = transformedRedirectConditions
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

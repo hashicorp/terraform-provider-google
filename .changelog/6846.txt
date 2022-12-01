@@ -1,0 +1,3 @@
+```release-note:enhancement
+`network_services`: added `origin_override_action` and `origin_redirect` to `google_network_services_edge_cache_origin` 
+```
