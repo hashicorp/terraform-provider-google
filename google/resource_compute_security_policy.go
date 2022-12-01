@@ -292,6 +292,35 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 							},
 							Description: `Parameters defining the redirect action. Cannot be specified for any other actions.`,
 						},
+						"header_action": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Additional actions that are performed on headers.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"request_headers_to_adds": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `The list of request headers to add or overwrite if they're already present.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"header_name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The name of the header to set.`,
+												},
+												"header_value": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value to set the named header to.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 				Description: `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
@@ -384,6 +413,21 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 					},
 				},
 			},
+			"recaptcha_options_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `reCAPTCHA configuration options to be applied for the security policy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"redirect_site_key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `A field to supply a reCAPTCHA site key to be used for all the rules using the redirect action with the type of GOOGLE_RECAPTCHA under the security policy. The specified site key needs to be created from the reCAPTCHA API. The user is responsible for the validity of the specified site key. If not specified, a Google-managed site key is used.`,
+						},
+					},
+				},
+			},
 		},
 
 		UseJSONNumber: true,
@@ -441,6 +485,10 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] SecurityPolicy insert request: %#v", securityPolicy)
+
+	if v, ok := d.GetOk("recaptcha_options_config"); ok {
+		securityPolicy.RecaptchaOptionsConfig = expandSecurityPolicyRecaptchaOptionsConfig(v.([]interface{}), d)
+	}
 
 	client := config.NewComputeClient(userAgent)
 
@@ -514,6 +562,10 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting adaptive_protection_config: %s", err)
 	}
 
+	if err := d.Set("recaptcha_options_config", flattenSecurityPolicyRecaptchaOptionConfig(securityPolicy.RecaptchaOptionsConfig)); err != nil {
+		return fmt.Errorf("Error setting recaptcha_options_config: %s", err)
+	}
+
 	return nil
 }
 
@@ -553,6 +605,11 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("adaptive_protection_config") {
 		securityPolicy.AdaptiveProtectionConfig = expandSecurityPolicyAdaptiveProtectionConfig(d.Get("adaptive_protection_config").([]interface{}))
 		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdaptiveProtectionConfig", "adaptiveProtectionConfig.layer7DdosDefenseConfig.enable", "adaptiveProtectionConfig.layer7DdosDefenseConfig.ruleVisibility")
+	}
+
+	if d.HasChange("recaptcha_options_config") {
+		securityPolicy.RecaptchaOptionsConfig = expandSecurityPolicyRecaptchaOptionsConfig(d.Get("recaptcha_options_config").([]interface{}), d)
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "RecaptchaOptionsConfig")
 	}
 
 	if len(securityPolicy.ForceSendFields) > 0 {
@@ -685,6 +742,7 @@ func expandSecurityPolicyRule(raw interface{}) *compute.SecurityPolicyRule {
 		Match:            expandSecurityPolicyMatch(data["match"].([]interface{})),
 		RateLimitOptions: expandSecurityPolicyRuleRateLimitOptions(data["rate_limit_options"].([]interface{})),
 		RedirectOptions:  expandSecurityPolicyRuleRedirectOptions(data["redirect_options"].([]interface{})),
+		HeaderAction:     expandSecurityPolicyRuleHeaderAction(data["header_action"].([]interface{})),
 		ForceSendFields:  []string{"Description", "Preview"},
 	}
 }
@@ -739,8 +797,8 @@ func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule) []map[strin
 			"match":              flattenMatch(rule.Match),
 			"rate_limit_options": flattenSecurityPolicyRuleRateLimitOptions(rule.RateLimitOptions),
 			"redirect_options":   flattenSecurityPolicyRedirectOptions(rule.RedirectOptions),
+			"header_action":      flattenSecurityPolicyRuleHeaderAction(rule.HeaderAction),
 		}
-
 		rulesSchema = append(rulesSchema, data)
 	}
 	return rulesSchema
@@ -973,6 +1031,99 @@ func flattenSecurityPolicyRedirectOptions(conf *compute.SecurityPolicyRuleRedire
 	}
 
 	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyRecaptchaOptionsConfig(configured []interface{}, d *schema.ResourceData) *compute.SecurityPolicyRecaptchaOptionsConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+
+	return &compute.SecurityPolicyRecaptchaOptionsConfig{
+		RedirectSiteKey: data["redirect_site_key"].(string),
+		ForceSendFields: []string{"RedirectSiteKey"},
+	}
+}
+
+func flattenSecurityPolicyRecaptchaOptionConfig(conf *compute.SecurityPolicyRecaptchaOptionsConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"redirect_site_key": conf.RedirectSiteKey,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandSecurityPolicyRuleHeaderAction(configured []interface{}) *compute.SecurityPolicyRuleHttpHeaderAction {
+	if len(configured) == 0 || configured[0] == nil {
+		// If header action is unset, return an empty object; this ensures the header action can be cleared
+		return &compute.SecurityPolicyRuleHttpHeaderAction{}
+	}
+
+	data := configured[0].(map[string]interface{})
+
+	return &compute.SecurityPolicyRuleHttpHeaderAction{
+		RequestHeadersToAdds: expandSecurityPolicyRequestHeadersToAdds(data["request_headers_to_adds"].([]interface{})),
+	}
+}
+
+func expandSecurityPolicyRequestHeadersToAdds(configured []interface{}) []*compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption {
+	transformed := make([]*compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption, 0, len(configured))
+
+	for _, raw := range configured {
+		transformed = append(transformed, expandSecurityPolicyRequestHeader(raw))
+	}
+
+	return transformed
+}
+
+func expandSecurityPolicyRequestHeader(configured interface{}) *compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption {
+	data := configured.(map[string]interface{})
+
+	return &compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption{
+		HeaderName:  data["header_name"].(string),
+		HeaderValue: data["header_value"].(string),
+	}
+}
+
+func flattenSecurityPolicyRuleHeaderAction(conf *compute.SecurityPolicyRuleHttpHeaderAction) []map[string]interface{} {
+	if conf == nil || conf.RequestHeadersToAdds == nil {
+		return nil
+	}
+
+	transformed := map[string]interface{}{
+		"request_headers_to_adds": flattenSecurityPolicyRequestHeadersToAdds(conf.RequestHeadersToAdds),
+	}
+
+	return []map[string]interface{}{transformed}
+}
+
+func flattenSecurityPolicyRequestHeadersToAdds(conf []*compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption) []map[string]interface{} {
+	if conf == nil || len(conf) == 0 {
+		return nil
+	}
+
+	transformed := make([]map[string]interface{}, 0, len(conf))
+	for _, raw := range conf {
+		transformed = append(transformed, flattenSecurityPolicyRequestHeader(raw))
+	}
+
+	return transformed
+}
+
+func flattenSecurityPolicyRequestHeader(conf *compute.SecurityPolicyRuleHttpHeaderActionHttpHeaderOption) map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"header_name":  conf.HeaderName,
+		"header_value": conf.HeaderValue,
+	}
 }
 
 func resourceSecurityPolicyStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
