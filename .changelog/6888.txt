@@ -1,0 +1,3 @@
+```release-note:bug
+kms: fixed issues with deleting crypto key versions in states other than ENABLED
+```

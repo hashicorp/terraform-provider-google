@@ -221,7 +221,7 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, userAgent string, confi
 
 	for _, version := range versionsResponse.CryptoKeyVersions {
 		// skip the versions that have been destroyed earlier
-		if version.State == "ENABLED" {
+		if version.State != "DESTROYED" && version.State != "DESTROY_SCHEDULED" {
 			request := &cloudkms.DestroyCryptoKeyVersionRequest{}
 			destroyCall := versionsClient.Destroy(version.Name, request)
 			if config.UserProjectOverride {
