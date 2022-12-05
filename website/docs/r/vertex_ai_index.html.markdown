@@ -149,7 +149,7 @@ The following arguments are supported:
 
 * `region` -
   (Optional)
-  The region of the Metadata Store. eg us-central1
+  The region of the index. eg us-central1
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -186,7 +186,7 @@ then existing content of the Index will be replaced by the data from the content
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The region of the Metadata Store. eg us-central1`,
+				Description: `The region of the index. eg us-central1`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
