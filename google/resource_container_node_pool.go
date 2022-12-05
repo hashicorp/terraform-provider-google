@@ -364,9 +364,19 @@ func (nodePoolInformation *NodePoolInformation) parent() string {
 	)
 }
 
-func (nodePoolInformation *NodePoolInformation) lockKey() string {
+func (nodePoolInformation *NodePoolInformation) clusterLockKey() string {
 	return containerClusterMutexKey(nodePoolInformation.project,
 		nodePoolInformation.location, nodePoolInformation.cluster)
+}
+
+func (nodePoolInformation *NodePoolInformation) nodePoolLockKey(nodePoolName string) string {
+	return fmt.Sprintf(
+		"projects/%s/locations/%s/clusters/%s/nodePools/%s",
+		nodePoolInformation.project,
+		nodePoolInformation.location,
+		nodePoolInformation.cluster,
+		nodePoolName,
+	)
 }
 
 func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePoolInformation, error) {
@@ -416,8 +426,15 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	mutexKV.Lock(nodePoolInfo.lockKey())
-	defer mutexKV.Unlock(nodePoolInfo.lockKey())
+	// Acquire read-lock on cluster.
+	clusterLockKey := nodePoolInfo.clusterLockKey()
+	mutexKV.RLock(clusterLockKey)
+	defer mutexKV.RUnlock(clusterLockKey)
+
+	// Acquire write-lock on nodepool.
+	npLockKey := nodePoolInfo.nodePoolLockKey(nodePool.Name)
+	mutexKV.Lock(npLockKey)
+	defer mutexKV.Unlock(npLockKey)
 
 	req := &container.CreateNodePoolRequest{
 		NodePool: nodePool,
@@ -498,12 +515,6 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
 	if err = resourceContainerNodePoolRead(d, meta); err != nil {
-		return err
-	}
-
-	//Check cluster is in running state
-	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
 		return err
 	}
 
@@ -591,12 +602,6 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	name := getNodePoolName(d.Id())
 
-	//Check cluster is in running state
-	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return err
-	}
-
 	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
@@ -635,16 +640,6 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	name := getNodePoolName(d.Id())
 
-	//Check cluster is in running state
-	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
-			log.Printf("[INFO] GKE cluster %s doesn't exist, skipping node pool %s deletion", nodePoolInfo.cluster, d.Id())
-			return nil
-		}
-		return err
-	}
-
 	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		// If the node pool doesn't get created and then we try to delete it, we get an error,
@@ -657,8 +652,15 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	mutexKV.Lock(nodePoolInfo.lockKey())
-	defer mutexKV.Unlock(nodePoolInfo.lockKey())
+	// Acquire read-lock on cluster.
+	clusterLockKey := nodePoolInfo.clusterLockKey()
+	mutexKV.RLock(clusterLockKey)
+	defer mutexKV.RUnlock(clusterLockKey)
+
+	// Acquire write-lock on nodepool.
+	npLockKey := nodePoolInfo.nodePoolLockKey(name)
+	mutexKV.Lock(npLockKey)
+	defer mutexKV.Unlock(npLockKey)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	startTime := time.Now()
@@ -1075,12 +1077,18 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 	config := meta.(*Config)
 	name := d.Get(prefix + "name").(string)
 
-	lockKey := nodePoolInfo.lockKey()
-
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	// Acquire read-lock on cluster.
+	clusterLockKey := nodePoolInfo.clusterLockKey()
+	mutexKV.RLock(clusterLockKey)
+	defer mutexKV.RUnlock(clusterLockKey)
+
+	// Nodepool write-lock will be acquired when update function is called.
+	npLockKey := nodePoolInfo.nodePoolLockKey(name)
 
 	if d.HasChange(prefix + "autoscaling") {
 		update := &container.ClusterUpdate{
@@ -1124,11 +1132,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				timeout)
 		}
 
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
 		}
-
 		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
 	}
 
@@ -1164,8 +1170,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 						timeout)
 				}
 
-				// Call update serially.
-				if err := lockedCall(lockKey, updateF); err != nil {
+				if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 					return err
 				}
 
@@ -1219,11 +1224,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					timeout)
 			}
 
-			// Call update serially.
-			if err := lockedCall(lockKey, updateF); err != nil {
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
-
 			log.Printf("[INFO] Updated tags for node pool %s", name)
 		}
 
@@ -1258,7 +1261,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			// Call update serially.
-			if err := lockedCall(lockKey, updateF); err != nil {
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
 
@@ -1290,11 +1293,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					timeout)
 			}
 
-			// Call update serially.
-			if err := lockedCall(lockKey, updateF); err != nil {
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
-
 			log.Printf("[INFO] Updated image type in Node Pool %s", d.Id())
 		}
 
@@ -1326,11 +1327,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					timeout)
 			}
 
-			// Call update serially.
-			if err := lockedCall(lockKey, updateF); err != nil {
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
-
 			log.Printf("[INFO] Updated workload_metadata_config for node pool %s", name)
 		}
 
@@ -1358,12 +1357,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				nodePoolInfo.location, "updating GKE node pool size", userAgent,
 				timeout)
 		}
-
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
 		}
-
 		log.Printf("[INFO] GKE node pool %s size has been updated to %d", name, newSize)
 	}
 
@@ -1396,11 +1392,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				nodePoolInfo.location, "updating GKE node pool management", userAgent, timeout)
 		}
 
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
 		}
-
 		log.Printf("[INFO] Updated management in Node Pool %s", name)
 	}
 
@@ -1425,12 +1419,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool version", userAgent, timeout)
 		}
-
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
 		}
-
 		log.Printf("[INFO] Updated version in Node Pool %s", name)
 	}
 
@@ -1453,11 +1444,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			return containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool node locations", userAgent, timeout)
 		}
 
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
 		}
-
 		log.Printf("[INFO] Updated node locations in Node Pool %s", name)
 	}
 
@@ -1534,12 +1523,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			// Wait until it's updated
 			return containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool upgrade settings", userAgent, timeout)
 		}
-
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
 		}
-
 		log.Printf("[INFO] Updated upgrade settings in Node Pool %s", name)
 	}
 
@@ -1568,8 +1554,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					timeout)
 			}
 
-			// Call update serially.
-			if err := lockedCall(lockKey, updateF); err != nil {
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
 

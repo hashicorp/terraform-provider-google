@@ -973,6 +973,48 @@ func TestAccContainerNodePool_shieldedInstanceConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_concurrent(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np1 := fmt.Sprintf("tf-test-nodepool-%s", randString(t, 10))
+	np2 := fmt.Sprintf("tf-test-nodepool-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_concurrentCreate(cluster, np1, np2),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_container_node_pool.np2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_concurrentUpdate(cluster, np1, np2),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_container_node_pool.np2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_gcfsConfig(t *testing.T) {
 	t.Parallel()
 
@@ -2211,4 +2253,54 @@ resource "google_container_node_pool" "np" {
   }
 }
 `, cluster, np)
+}
+
+func testAccContainerNodePool_concurrentCreate(cluster, np1, np2 string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+}
+
+resource "google_container_node_pool" "np1" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+}
+
+resource "google_container_node_pool" "np2" {
+	name               = "%s"
+	location           = "us-central1-a"
+	cluster            = google_container_cluster.cluster.name
+	initial_node_count = 2
+  }
+`, cluster, np1, np2)
+}
+
+func testAccContainerNodePool_concurrentUpdate(cluster, np1, np2 string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+}
+
+resource "google_container_node_pool" "np1" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+  version 		     = "1.23.13-gke.900"
+}
+
+resource "google_container_node_pool" "np2" {
+	name               = "%s"
+	location           = "us-central1-a"
+	cluster            = google_container_cluster.cluster.name
+	initial_node_count = 2
+	version 		   = "1.23.13-gke.900"
+  }
+`, cluster, np1, np2)
 }
