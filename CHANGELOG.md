@@ -34,8 +34,8 @@ BUG FIXES:
 * compute: fixed a crash with `google_compute_instance_template` on a newly released field when `advanced_machine_features` was set ([#13108](https://github.com/hashicorp/terraform-provider-google/pull/13108))
 * compute: fixed a failure in updating `most_disruptive_allowed_action` on `google_compute_per_instance_config` and `google_compute_region_per_instance_config` ([#13067](https://github.com/hashicorp/terraform-provider-google/pull/13067))
 * compute: fixed the error when `metadata` and `machine_type` are updated while `metadata_startup_script` was already provided on `google_compute_instance` ([#13077](https://github.com/hashicorp/terraform-provider-google/pull/13077))
-* container: fixed unable to update `authenticator_groups_config` on `google_container_cluster` ([#13111](https://github.com/hashicorp/terraform-provider-google/pull/13111))
-* container: fixed scenario were exception wasn't thrown when the data source `google_container_cluster` didn't exist ([#13070](https://github.com/hashicorp/terraform-provider-google/pull/13070))
+* container: fixed the inability to update `authenticator_groups_config` on `google_container_cluster` ([#13111](https://github.com/hashicorp/terraform-provider-google/pull/13111))
+* container: fixed the data source `google_container_cluster` to return an error if it does not exist ([#13070](https://github.com/hashicorp/terraform-provider-google/pull/13070))
 * sql: fixed `googe_sql_database_instance` to include `backup_configuration` in initial create request ([#13092](https://github.com/hashicorp/terraform-provider-google/pull/13092))
 * storage: fixed permdiff when `website`, `website.main_page_suffix`, `website.not_found_page` are removed on `google_storage_bucket` ([#13069](https://github.com/hashicorp/terraform-provider-google/pull/13069))
 
