@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed GKE permadiff/thrashing when `update_settings. max_surge` or `update_settings. max_unavailable` values are updating on `google_container_node_pool`
+```

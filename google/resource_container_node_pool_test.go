@@ -476,6 +476,14 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, 2, 1, "SURGE", "", 0, 0.0, ""),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_upgrade_settings",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, 1, 1, "SURGE", "", 0, 0.0, ""),
 			},
 			{
