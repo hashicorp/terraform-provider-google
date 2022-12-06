@@ -23,6 +23,11 @@ description: |-
 A managed metastore service that serves metadata queries.
 
 
+To get more information about Service, see:
+
+* [API documentation](https://cloud.google.com/dataproc-metastore/docs/reference/rest/v1/projects.locations.services)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/dataproc-metastore/docs/overview)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dataproc_metastore_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -80,6 +85,38 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us-central1"
 }
 ```
+## Example Usage - Dataproc Metastore Service Private Service Connect
+
+
+```hcl
+resource "google_compute_network" "net" {
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name                     = "my-subnetwork"
+  region                   = "us-central1"
+  network                  = google_compute_network.net.id
+  ip_cidr_range            = "10.0.0.0/22"
+  private_ip_google_access = true
+}
+
+resource "google_dataproc_metastore_service" "default" {
+  service_id = "metastore-srv"
+  location   = "us-central1"
+
+  hive_metastore_config {
+    version = "3.1.2"
+  }
+
+  network_config {
+    consumers {
+      subnetwork = google_compute_subnetwork.subnet.id
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -131,6 +168,11 @@ The following arguments are supported:
   (Optional)
   Configuration information specific to running Hive metastore software as the metastore service.
   Structure is [documented below](#nested_hive_metastore_config).
+
+* `network_config` -
+  (Optional)
+  The configuration specifying the network settings for the Dataproc Metastore service.
+  Structure is [documented below](#nested_network_config).
 
 * `database_type` -
   (Optional)
@@ -243,6 +285,26 @@ The following arguments are supported:
   (Optional)
   A mapping of Hive metastore configuration key-value pairs to apply to the auxiliary Hive metastore (configured in hive-site.xml) in addition to the primary version's overrides.
   If keys are present in both the auxiliary version's overrides and the primary version's overrides, the value from the auxiliary version's overrides takes precedence.
+
+<a name="nested_network_config"></a>The `network_config` block supports:
+
+* `consumers` -
+  (Required)
+  The consumer-side network configuration for the Dataproc Metastore instance.
+  Structure is [documented below](#nested_consumers).
+
+
+<a name="nested_consumers"></a>The `consumers` block supports:
+
+* `endpoint_uri` -
+  The URI of the endpoint used to access the metastore service.
+
+* `subnetwork` -
+  (Required)
+  The subnetwork of the customer project from which an IP address is reserved and used as the Dataproc Metastore service's endpoint.
+  It is accessible to hosts in the subnet and to all hosts in a subnet in the same region and same network.
+  There must be at least one IP address available in the subnet's primary range. The subnet is specified in the following form:
+  `projects/{projectNumber}/regions/{region_id}/subnetworks/{subnetwork_id}
 
 <a name="nested_metadata_integration"></a>The `metadata_integration` block supports:
 
