@@ -105,8 +105,6 @@ resource "google_privateca_certificate_authority" "root-ca" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority-root"
   location = "us-central1"
-  deletion_protection = false
-  ignore_active_certificates_on_deletion = true
   config {
     subject_config {
       subject {
@@ -137,6 +135,11 @@ resource "google_privateca_certificate_authority" "root-ca" {
   key_spec {
     algorithm = "RSA_PKCS1_4096_SHA256"
   }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
 }
 
 resource "google_privateca_certificate_authority" "default" {
