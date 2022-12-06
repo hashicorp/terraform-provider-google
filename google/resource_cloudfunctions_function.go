@@ -824,6 +824,9 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("https_trigger_security_level") {
+		if function.HttpsTrigger == nil {
+			function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
+		}
 		function.HttpsTrigger.SecurityLevel = d.Get("https_trigger_security_level").(string)
 		updateMaskArr = append(updateMaskArr, "httpsTrigger", "httpsTrigger.securityLevel")
 	}
