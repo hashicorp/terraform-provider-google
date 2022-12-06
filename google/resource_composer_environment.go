@@ -1740,7 +1740,7 @@ func expandComposerEnvironmentConfigNodeConfig(v interface{}, d *schema.Resource
 
 func expandComposerEnvironmentIPAllocationPolicy(v interface{}, d *schema.ResourceData, config *Config) (*composer.IPAllocationPolicy, error) {
 	l := v.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil, nil
 	}
 	raw := l[0]
