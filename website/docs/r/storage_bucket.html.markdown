@@ -101,6 +101,8 @@ The following arguments are supported:
 
 * `storage_class` - (Optional, Default: 'STANDARD') The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
+* `autoclass` - (Optional) The bucket's [Autoclass](https://cloud.google.com/storage/docs/autoclass) configuration.  Structure is [documented below](#nested_autoclass).
+
 * `lifecycle_rule` - (Optional) The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is [documented below](#nested_lifecycle_rule).
 
 * `versioning` - (Optional) The bucket's [Versioning](https://cloud.google.com/storage/docs/object-versioning) configuration.  Structure is [documented below](#nested_versioning).
@@ -162,6 +164,10 @@ The following arguments are supported:
 * `days_since_noncurrent_time` - (Optional) Relevant only for versioned objects. Number of days elapsed since the noncurrent timestamp of an object.
 
 * `noncurrent_time_before` - (Optional) Relevant only for versioned objects. The date in RFC 3339 (e.g. `2017-06-13`) when the object became nonconcurrent.
+
+<a name="nested_autoclass"></a>The `autoclass` block supports:
+
+* `enabled` - (Required) While set to `true`, autoclass automatically transitions objects in your bucket to appropriate storage classes based on each object's access pattern.
 
 <a name="nested_versioning"></a>The `versioning` block supports:
 
