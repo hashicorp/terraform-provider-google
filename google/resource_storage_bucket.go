@@ -247,6 +247,24 @@ func resourceStorageBucket() *schema.Resource {
 				Description: `The bucket's Versioning configuration.`,
 			},
 
+			"autoclass": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `While set to true, autoclass automatically transitions objects in your bucket to appropriate storage classes based on each object's access pattern.`,
+						},
+					},
+				},
+				Description: `The bucket's autoclass configuration.`,
+			},
+
 			"website": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -475,6 +493,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		sb.Versioning = expandBucketVersioning(v)
 	}
 
+	if v, ok := d.GetOk("autoclass"); ok {
+		sb.Autoclass = expandBucketAutoclass(v)
+	}
+
 	if v, ok := d.GetOk("website"); ok {
 		sb.Website = expandBucketWebsite(v.([]interface{}))
 	}
@@ -596,6 +618,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("versioning") {
 		if v, ok := d.GetOk("versioning"); ok {
 			sb.Versioning = expandBucketVersioning(v)
+		}
+	}
+
+	if d.HasChange("autoclass") {
+		if v, ok := d.GetOk("autoclass"); ok {
+			sb.Autoclass = expandBucketAutoclass(v)
 		}
 	}
 
@@ -1047,6 +1075,22 @@ func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
 	return bucketVersioning
 }
 
+func expandBucketAutoclass(configured interface{}) *storage.BucketAutoclass {
+	autoclassList := configured.([]interface{})
+	if len(autoclassList) == 0 {
+		return nil
+	}
+
+	autoclass := autoclassList[0].(map[string]interface{})
+
+	bucketAutoclass := &storage.BucketAutoclass{}
+
+	bucketAutoclass.Enabled = autoclass["enabled"].(bool)
+	bucketAutoclass.ForceSendFields = append(bucketAutoclass.ForceSendFields, "Enabled")
+
+	return bucketAutoclass
+}
+
 func flattenBucketVersioning(bucketVersioning *storage.BucketVersioning) []map[string]interface{} {
 	versionings := make([]map[string]interface{}, 0, 1)
 
@@ -1059,6 +1103,20 @@ func flattenBucketVersioning(bucketVersioning *storage.BucketVersioning) []map[s
 	}
 	versionings = append(versionings, versioning)
 	return versionings
+}
+
+func flattenBucketAutoclass(bucketAutoclass *storage.BucketAutoclass) []map[string]interface{} {
+	autoclassList := make([]map[string]interface{}, 0, 1)
+
+	if bucketAutoclass == nil {
+		return autoclassList
+	}
+
+	autoclass := map[string]interface{}{
+		"enabled": bucketAutoclass.Enabled,
+	}
+	autoclassList = append(autoclassList, autoclass)
+	return autoclassList
 }
 
 func flattenBucketLifecycle(lifecycle *storage.BucketLifecycle) []map[string]interface{} {
@@ -1498,6 +1556,9 @@ func setStorageBucket(d *schema.ResourceData, config *Config, res *storage.Bucke
 	}
 	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
 		return fmt.Errorf("Error setting versioning: %s", err)
+	}
+	if err := d.Set("autoclass", flattenBucketAutoclass(res.Autoclass)); err != nil {
+		return fmt.Errorf("Error setting autoclass: %s", err)
 	}
 	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
 		return fmt.Errorf("Error setting lifecycle_rule: %s", err)

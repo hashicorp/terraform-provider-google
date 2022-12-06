@@ -53,6 +53,33 @@ func TestAccStorageBucket_basic(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_basicWithAutoclass(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_basicWithAutoclass(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "force_destroy", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_requesterPays(t *testing.T) {
 	t.Parallel()
 
@@ -1325,6 +1352,18 @@ func testAccStorageBucket_basic(bucketName string) string {
 resource "google_storage_bucket" "bucket" {
   name     = "%s"
   location = "US"
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_basicWithAutoclass(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  autoclass  {
+    enabled  = true
+  }
 }
 `, bucketName)
 }
