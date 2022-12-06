@@ -1,0 +1,3 @@
+```release-note:bug
+cloud composer: fixed a crash when updating `ip_allocation_policy` of `google_composer_environment`
+```
