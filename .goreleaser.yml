@@ -29,7 +29,7 @@ builds:
       - goarch: arm64
         goos: windows
     ldflags:
-      - -s -w -X version.ProviderVersion={{.Version}}
+      - -s -w -X github.com/hashicorp/terraform-provider-google/version.ProviderVersion={{.Version}}
     mod_timestamp: '{{ .CommitTimestamp }}'
 checksum:
   extra_files:
