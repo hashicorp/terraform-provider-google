@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -16,6 +17,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	member := "user:evanbrown@google.com"
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -30,7 +32,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			// Apply an IAM policy from a data source. The application
 			// merges policies, so we validate the expected state.
 			{
-				Config: testAccProjectAssociatePolicyBasic(pid, pname, org),
+				Config: testAccProjectAssociatePolicyBasic(pid, pname, org, member),
 			},
 			{
 				ResourceName: "google_project_iam_policy.acceptance",
@@ -156,6 +158,28 @@ func TestAccProjectIamPolicy_withCondition(t *testing.T) {
 	})
 }
 
+// Test that an IAM policy with invalid members returns errors.
+func TestAccProjectIamPolicy_invalidMembers(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProjectAssociatePolicyBasic(pid, pname, org, "admin@hashicorptest.com"),
+				ExpectError: regexp.MustCompile("invalid value for bindings\\.1\\.members\\.0 \\(IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding\\)"),
+			},
+			{
+				Config: testAccProjectAssociatePolicyBasic(pid, pname, org, "user:admin@hashicorptest.com"),
+			},
+		},
+	})
+}
+
 func getStatePrimaryResource(s *terraform.State, res, expectedID string) (*terraform.InstanceState, error) {
 	// Get the project resource
 	resource, ok := s.RootModule().Resources[res]
@@ -228,7 +252,7 @@ func testAccProjectExistingPolicy(t *testing.T, pid string) resource.TestCheckFu
 	}
 }
 
-func testAccProjectAssociatePolicyBasic(pid, name, org string) string {
+func testAccProjectAssociatePolicyBasic(pid, name, org, member string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -245,7 +269,7 @@ data "google_iam_policy" "admin" {
   binding {
     role = "roles/storage.objectViewer"
     members = [
-      "user:evanbrown@google.com",
+      "%s",
     ]
   }
   binding {
@@ -256,7 +280,7 @@ data "google_iam_policy" "admin" {
     ]
   }
 }
-`, pid, name, org)
+`, pid, name, org, member)
 }
 
 func testAccProjectAssociatePolicyAuditConfigBasic(pid, name, org string) string {

@@ -9,7 +9,6 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -19,6 +18,26 @@ func iamMemberCaseDiffSuppress(k, old, new string, d *schema.ResourceData) bool 
 		return old == new
 	}
 	return caseDiffSuppress(k, old, new, d)
+}
+
+func validateIAMMember(i interface{}, k string) ([]string, []error) {
+	v, ok := i.(string)
+	if !ok {
+		return nil, []error{fmt.Errorf("expected type of %s to be string", k)}
+	}
+
+	if matched, err := regexp.MatchString("^deleted", v); err != nil {
+		return nil, []error{fmt.Errorf("error validating %s: %v", k, err)}
+	} else if matched {
+		return nil, []error{fmt.Errorf("invalid value for %s (Terraform does not support IAM members for deleted principals)", k)}
+	}
+
+	if matched, err := regexp.MatchString("(.+:.+|allUsers|allAuthenticatedUsers)", v); err != nil {
+		return nil, []error{fmt.Errorf("error validating %s: %v", k, err)}
+	} else if !matched {
+		return nil, []error{fmt.Errorf("invalid value for %s (IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding)", k)}
+	}
+	return nil, nil
 }
 
 var IamMemberBaseSchema = map[string]*schema.Schema{
@@ -32,7 +51,7 @@ var IamMemberBaseSchema = map[string]*schema.Schema{
 		Required:         true,
 		ForceNew:         true,
 		DiffSuppressFunc: iamMemberCaseDiffSuppress,
-		ValidateFunc:     validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM members for deleted principals"),
+		ValidateFunc:     validateIAMMember,
 	},
 	"condition": {
 		Type:     schema.TypeList,

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -162,6 +163,28 @@ func TestAccProjectIamMember_withCondition(t *testing.T) {
 				ImportStateId:     fmt.Sprintf("%s %s %s %s", pid, role, member, conditionTitle),
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccProjectIamMember_invalidMembers(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	role := "roles/compute.instanceAdmin"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProjectAssociateMemberBasic(pid, pname, org, role, "admin@hashicorptest.com"),
+				ExpectError: regexp.MustCompile("invalid value for member \\(IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding\\)"),
+			},
+			{
+				Config: testAccProjectAssociateMemberBasic(pid, pname, org, role, "user:admin@hashicorptest.com"),
 			},
 		},
 	})

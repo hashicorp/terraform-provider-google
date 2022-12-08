@@ -179,9 +179,15 @@ func unmarshalIamPolicy(policyData string) (*cloudresourcemanager.Policy, error)
 }
 
 func validateIamPolicy(i interface{}, k string) (s []string, es []error) {
-	_, err := unmarshalIamPolicy(i.(string))
-	if err != nil {
+	if policy, err := unmarshalIamPolicy(i.(string)); err != nil {
 		es = append(es, err)
+	} else {
+		for i, binding := range policy.Bindings {
+			for j, member := range binding.Members {
+				_, memberErrors := validateIAMMember(member, fmt.Sprintf("bindings.%d.members.%d", i, j))
+				es = append(es, memberErrors...)
+			}
+		}
 	}
 	return
 }

@@ -38,6 +38,10 @@ func TestAccStorageBucketIamPolicy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				// Test IAM Policy with member 'allUsers'
+				Config: testAccStorageBucketIamPolicy_allUsers(bucket),
+			},
 		},
 	})
 }
@@ -117,4 +121,28 @@ resource "google_storage_bucket_iam_policy" "bucket-binding" {
   policy_data = data.google_iam_policy.foo-policy.policy_data
 }
 `, bucket, account, serviceAcct)
+}
+
+func testAccStorageBucketIamPolicy_allUsers(bucket string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+}
+
+data "google_iam_policy" "foo-policy" {
+  binding {
+    role = "roles/storage.objectViewer"
+    members = [
+      "allUsers",
+      "allAuthenticatedUsers",
+    ]
+  }
+}
+
+resource "google_storage_bucket_iam_policy" "bucket-binding" {
+  bucket      = google_storage_bucket.bucket.name
+  policy_data = data.google_iam_policy.foo-policy.policy_data
+}
+`, bucket)
 }
