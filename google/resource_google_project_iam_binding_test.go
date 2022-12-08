@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -23,6 +24,7 @@ func TestAccProjectIamBinding_basic(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/compute.instanceAdmin"
+	member := "user:admin@hashicorptest.com"
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -36,7 +38,7 @@ func TestAccProjectIamBinding_basic(t *testing.T) {
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateBindingBasic(pid, pname, org, role),
+				Config: testAccProjectAssociateBindingBasic(pid, pname, org, role, member),
 			},
 			projectIamBindingImportStep("google_project_iam_binding.acceptance", pid, role),
 		},
@@ -51,6 +53,7 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
+	member := "user:admin@hashicorptest.com"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -65,7 +68,7 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateBindingBasic(pid, pname, org, role),
+				Config: testAccProjectAssociateBindingBasic(pid, pname, org, role, member),
 			},
 			// Apply another IAM binding
 			{
@@ -116,6 +119,7 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/compute.instanceAdmin"
+	member := "user:admin@hashicorptest.com"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -130,7 +134,7 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateBindingBasic(pid, pname, org, role),
+				Config: testAccProjectAssociateBindingBasic(pid, pname, org, role, member),
 			},
 			projectIamBindingImportStep("google_project_iam_binding.acceptance", pid, role),
 
@@ -248,7 +252,29 @@ func TestAccProjectIamBinding_withCondition(t *testing.T) {
 	})
 }
 
-func testAccProjectAssociateBindingBasic(pid, name, org, role string) string {
+// Test that an IAM binding with invalid members returns an error.
+func TestAccProjectIamBinding_invalidMembers(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	role := "roles/compute.instanceAdmin"
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProjectAssociateBindingBasic(pid, pname, org, role, "admin@hashicorptest.com"),
+				ExpectError: regexp.MustCompile("invalid value for members\\.0 \\(IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding\\)"),
+			},
+			{
+				Config: testAccProjectAssociateBindingBasic(pid, pname, org, role, "user:admin@hashicorptest.com"),
+			},
+		},
+	})
+}
+
+func testAccProjectAssociateBindingBasic(pid, name, org, role, member string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -258,10 +284,10 @@ resource "google_project" "acceptance" {
 
 resource "google_project_iam_binding" "acceptance" {
   project = google_project.acceptance.project_id
-  members = ["user:admin@hashicorptest.com"]
+  members = ["%s"]
   role    = "%s"
 }
-`, pid, name, org, role)
+`, pid, name, org, member, role)
 }
 
 func testAccProjectAssociateBindingMultiple(pid, name, org, role, role2 string) string {
