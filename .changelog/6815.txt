@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added `auto_provisioning_defaults.cluster_autoscaling.upgrade_settings` in `google_container_cluster`
+```
+```release-note:enhancement
+container: promoted `min_cpu_platform` in `google_container_cluster` to GA
+```

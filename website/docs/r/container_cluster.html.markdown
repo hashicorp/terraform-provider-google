@@ -527,6 +527,32 @@ as "Intel Haswell" or "Intel Sandy Bridge".
 
 This block also contains several computed attributes, documented below.
 
+* `upgrade_settings` - (Optional) Specifies the upgrade settings for NAP created node pools. Structure is [documented below](#nested_upgrade_settings).
+
+<a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
+
+* `strategy` - (Optional) Strategy used for node pool update. Strategy can only be one of BLUE_GREEN or SURGE. The default is value is SURGE.
+
+* `max_surge` - (Optional) The maximum number of nodes that can be created beyond the current size of the node pool during the upgrade process. To be used when strategy is set to SURGE. Default is 0.
+
+* `max_unavailable` - (Optional) The maximum number of nodes that can be simultaneously unavailable during the upgrade process. To be used when strategy is set to SURGE. Default is 0.
+
+* `blue_green_settings` - (Optional) Settings for blue-green upgrade strategy. To be specified when strategy is set to BLUE_GREEN. Structure is [documented below](#nested_blue_green_settings).
+
+<a name="nested_blue_green_settings"></a>The `blue_green_settings` block supports:
+
+* `node_pool_soak_duration` - (Optional) Time needed after draining entire blue pool. After this period, blue pool will be cleaned up. A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
+* `standard_rollout_policy`: (Optional) Standard policy for the blue-green upgrade. To be specified when strategy is set to BLUE_GREEN. Structure is [documented below](#nested_standard_rollout_policy).
+
+<a name="nested_standard_rollout_policy"></a>The `standard_rollout_policy` block supports:
+
+* `batch_percentage`: (Optional) Percentage of the bool pool nodes to drain in a batch. The range of this field should be (0.0, 1.0). Only one of the batch_percentage or batch_node_count can be specified.
+
+* `batch_node_count` - (Optional) Number of blue nodes to drain in a batch. Only one of the batch_percentage or batch_node_count can be specified.
+
+* `batch_soak_duration` - (Optional) Soak time after each batch gets drained. A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`.
+
 <a name="nested_authenticator_groups_config"></a>The `authenticator_groups_config` block supports:
 
 * `security_group` - (Required) The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format `gke-security-groups@yourdomain.com`.
