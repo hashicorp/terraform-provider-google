@@ -331,6 +331,37 @@ func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
 	})
 }
 
+func TestAccComputeSubnetwork_ipv6(t *testing.T) {
+	t.Parallel()
+
+	cnName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_ipv4(cnName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.subnetwork",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSubnetwork_ipv6(cnName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.subnetwork",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -725,6 +756,40 @@ resource "google_compute_subnetwork" "network-with-flow-logs" {
     flow_sampling        = 0.8
     metadata             = "INCLUDE_ALL_METADATA"
   }
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_ipv4(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.self_link
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_ipv6(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name             = "%s"
+  ip_cidr_range    = "10.0.0.0/16"
+  region           = "us-central1"
+  network          = google_compute_network.custom-test.self_link
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
 }
 `, cnName, subnetworkName)
 }
