@@ -166,6 +166,11 @@ The following arguments are supported:
   File share capacity in GiB. This must be at least 1024 GiB
   for the standard tier, or 2560 GiB for the premium tier.
 
+* `source_backup` -
+  The resource name of the backup, in the format
+  projects/{projectId}/locations/{locationId}/backups/{backupId},
+  that this file share has been restored from.
+
 * `nfs_export_options` -
   (Optional)
   Nfs Export Options. There is a limit of 10 export options per file share.

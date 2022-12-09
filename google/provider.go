@@ -934,9 +934,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 250
+// Generated resources: 251
 // Generated IAM resources: 156
-// Total generated resources: 406
+// Total generated resources: 407
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1177,6 +1177,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_essential_contacts_contact":                            resourceEssentialContactsContact(),
 			"google_filestore_instance":                                    resourceFilestoreInstance(),
 			"google_filestore_snapshot":                                    resourceFilestoreSnapshot(),
+			"google_filestore_backup":                                      resourceFilestoreBackup(),
 			"google_firestore_index":                                       resourceFirestoreIndex(),
 			"google_firestore_document":                                    resourceFirestoreDocument(),
 			"google_game_services_realm":                                   resourceGameServicesRealm(),

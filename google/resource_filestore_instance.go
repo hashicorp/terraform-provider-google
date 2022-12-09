@@ -123,6 +123,13 @@ for not allowing root access. The default is NO_ROOT_SQUASH. Default value: "NO_
 								},
 							},
 						},
+						"source_backup": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The resource name of the backup, in the format
+projects/{projectId}/locations/{locationId}/backups/{backupId},
+that this file share has been restored from.`,
+						},
 					},
 				},
 			},
@@ -612,6 +619,7 @@ func flattenFilestoreInstanceFileShares(v interface{}, d *schema.ResourceData, c
 		transformed = append(transformed, map[string]interface{}{
 			"name":               flattenFilestoreInstanceFileSharesName(original["name"], d, config),
 			"capacity_gb":        flattenFilestoreInstanceFileSharesCapacityGb(original["capacityGb"], d, config),
+			"source_backup":      flattenFilestoreInstanceFileSharesSourceBackup(original["sourceBackup"], d, config),
 			"nfs_export_options": flattenFilestoreInstanceFileSharesNfsExportOptions(original["nfsExportOptions"], d, config),
 		})
 	}
@@ -636,6 +644,10 @@ func flattenFilestoreInstanceFileSharesCapacityGb(v interface{}, d *schema.Resou
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenFilestoreInstanceFileSharesSourceBackup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -803,6 +815,13 @@ func expandFilestoreInstanceFileShares(v interface{}, d TerraformResourceData, c
 			transformed["capacityGb"] = transformedCapacityGb
 		}
 
+		transformedSourceBackup, err := expandFilestoreInstanceFileSharesSourceBackup(original["source_backup"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSourceBackup); val.IsValid() && !isEmptyValue(val) {
+			transformed["sourceBackup"] = transformedSourceBackup
+		}
+
 		transformedNfsExportOptions, err := expandFilestoreInstanceFileSharesNfsExportOptions(original["nfs_export_options"], d, config)
 		if err != nil {
 			return nil, err
@@ -820,6 +839,10 @@ func expandFilestoreInstanceFileSharesName(v interface{}, d TerraformResourceDat
 }
 
 func expandFilestoreInstanceFileSharesCapacityGb(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFilestoreInstanceFileSharesSourceBackup(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
