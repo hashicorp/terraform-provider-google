@@ -166,6 +166,53 @@ resource "google_logging_metric" "logging_metric" {
 `, context)
 }
 
+func TestAccLoggingMetric_loggingMetricLoggingBucketExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingMetric_loggingMetricLoggingBucketExample(context),
+			},
+			{
+				ResourceName:      "google_logging_metric.logging_metric",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccLoggingMetric_loggingMetricLoggingBucketExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_logging_project_bucket_config" "logging_metric" {
+    location  = "global"
+    project   = "%{project}"
+    bucket_id = "_Default"
+}
+
+resource "google_logging_metric" "logging_metric" {
+  name        = "tf-test-my-(custom)/metric%{random_suffix}"
+  filter      = "resource.type=gae_app AND severity>=ERROR"
+  bucket_name = google_logging_project_bucket_config.logging_metric.id
+
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+    unit        = "1"
+  }
+}
+`, context)
+}
+
 func testAccCheckLoggingMetricDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
