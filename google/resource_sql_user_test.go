@@ -13,7 +13,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("i-%d", randInt(t))
+	instance := fmt.Sprintf("tf-test-%d", randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -50,7 +50,7 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("i-%d", randInt(t))
+	instance := fmt.Sprintf("tf-test-%d", randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -75,7 +75,7 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 func TestAccSqlUser_postgres(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("i-%d", randInt(t))
+	instance := fmt.Sprintf("tf-test-%d", randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -108,7 +108,7 @@ func TestAccSqlUser_postgres(t *testing.T) {
 func TestAccSqlUser_postgresIAM(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("i-%d", randInt(t))
+	instance := fmt.Sprintf("tf-test-%d", randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -134,7 +134,7 @@ func TestAccSqlUser_postgresIAM(t *testing.T) {
 func TestAccSqlUser_postgresAbandon(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("i-%d", randInt(t))
+	instance := fmt.Sprintf("tf-test-%d", randInt(t))
 	userName := "admin"
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

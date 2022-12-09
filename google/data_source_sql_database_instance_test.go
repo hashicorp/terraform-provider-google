@@ -1,8 +1,9 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceSqlDatabaseInstance_basic(t *testing.T) {
@@ -36,7 +37,7 @@ func TestAccDataSourceSqlDatabaseInstance_basic(t *testing.T) {
 func testAccDataSourceSqlDatabaseInstance_basic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_database_instance" "main" {
-  name             = "main-instance-%{random_suffix}"
+  name             = "tf-test-instance-%{random_suffix}"
   database_version = "POSTGRES_11"
   region           = "us-central1"
 
