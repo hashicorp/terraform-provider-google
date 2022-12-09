@@ -118,6 +118,28 @@ resource "google_logging_metric" "logging_metric" {
   }
 }
 ```
+## Example Usage - Logging Metric Logging Bucket
+
+
+```hcl
+resource "google_logging_project_bucket_config" "logging_metric" {
+    location  = "global"
+    project   = "my-project-name"
+    bucket_id = "_Default"
+}
+
+resource "google_logging_metric" "logging_metric" {
+  name        = "my-(custom)/metric"
+  filter      = "resource.type=gae_app AND severity>=ERROR"
+  bucket_name = google_logging_project_bucket_config.logging_metric.id
+
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+    unit        = "1"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -203,6 +225,11 @@ The following arguments are supported:
   (Optional)
   A description of this metric, which is used in documentation. The maximum length of the
   description is 8000 characters.
+
+* `bucket_name` -
+  (Optional)
+  The resource name of the Log Bucket that owns the Log Metric. Only Log Buckets in projects
+  are supported. The bucket has to be in the same project as the metric.
 
 * `label_extractors` -
   (Optional)
