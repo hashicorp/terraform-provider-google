@@ -25,6 +25,50 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+//Use it to delete TagTemplate Field
+func deleteTagTemplateField(d *schema.ResourceData, config *Config, name, billingProject, userAgent string) error {
+
+	url_delete, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name+"?force={{force_delete}}")
+	if err != nil {
+		return err
+	}
+	var obj map[string]interface{}
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url_delete, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return fmt.Errorf("Error deleting TagTemplate Field %v: %s", name, err)
+	}
+
+	log.Printf("[DEBUG] Finished deleting TagTemplate Field %q: %#v", name, res)
+	return nil
+}
+
+//Use it to create TagTemplate Field
+func createTagTemplateField(d *schema.ResourceData, config *Config, body map[string]interface{}, name, billingProject, userAgent string) error {
+
+	url_create, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields")
+	if err != nil {
+		return err
+	}
+
+	url_create, err = addQueryParams(url_create, map[string]string{"tagTemplateFieldId": name})
+	if err != nil {
+		return err
+	}
+
+	res_create, err := sendRequestWithTimeout(config, "POST", billingProject, url_create, userAgent, body, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("Error creating TagTemplate Field: %s", err)
+	}
+
+	if err != nil {
+		return fmt.Errorf("Error creating TagTemplate Field %v: %s", name, err)
+	} else {
+		log.Printf("[DEBUG] Finished creating TagTemplate Field %v: %#v", name, res_create)
+	}
+
+	return nil
+}
+
 func resourceDataCatalogTagTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataCatalogTagTemplateCreate,
@@ -46,14 +90,12 @@ func resourceDataCatalogTagTemplate() *schema.Resource {
 			"fields": {
 				Type:        schema.TypeSet,
 				Required:    true,
-				ForceNew:    true,
-				Description: `Set of tag template field IDs and the settings for the field. This set is an exhaustive list of the allowed fields. This set must contain at least one field and at most 500 fields.`,
+				Description: `Set of tag template field IDs and the settings for the field. This set is an exhaustive list of the allowed fields. This set must contain at least one field and at most 500 fields. The change of field_id will be resulting in re-creating of field. The change of primitive_type will be resulting in re-creating of field, however if the field is a required, you cannot update it.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"field_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"type": {
 							Type:        schema.TypeList,
@@ -86,6 +128,7 @@ Can have up to 500 allowed values.`,
 									},
 									"primitive_type": {
 										Type:         schema.TypeString,
+										Computed:     true,
 										Optional:     true,
 										ValidateFunc: validateEnum([]string{"DOUBLE", "STRING", "BOOL", "TIMESTAMP", ""}),
 										Description: `Represents primitive types - string, bool etc.
@@ -96,21 +139,25 @@ Can have up to 500 allowed values.`,
 						},
 						"description": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `A description for this field.`,
 						},
 						"display_name": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The display name for this field.`,
 						},
 						"is_required": {
 							Type:        schema.TypeBool,
+							Computed:    true,
 							Optional:    true,
 							Description: `Whether this is a required field. Defaults to false.`,
 						},
 						"order": {
 							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
 							Description: `The order of this field with respect to other fields in this tag template.
 A higher value indicates a more important field. The value can be negative.
@@ -314,6 +361,12 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	fieldsProp, err := expandDataCatalogTagTemplateFields(d.Get("fields"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fields"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fieldsProp)) {
+		obj["fields"] = fieldsProp
+	}
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
@@ -326,6 +379,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
 	}
+
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
 	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
@@ -333,19 +387,145 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
+	if len(updateMask) > 0 {
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return fmt.Errorf("Error updating TagTemplate %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating TagTemplate %q: %#v", d.Id(), res)
+		}
+
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	// since fields have a separate endpoint,
+	// we need to handle it manually
 
-	if err != nil {
-		return fmt.Errorf("Error updating TagTemplate %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating TagTemplate %q: %#v", d.Id(), res)
+	type FieldChange struct {
+		Old, New map[string]interface{}
 	}
 
+	o, n := d.GetChange("fields")
+	vals := make(map[string]*FieldChange)
+
+	// this will create a dictionary with the value
+	// of field_id as the key that will contain the
+	// maps of old and new values
+	for _, raw := range o.(*schema.Set).List() {
+		obj := raw.(map[string]interface{})
+		k := obj["field_id"].(string)
+		vals[k] = &FieldChange{Old: obj}
+	}
+
+	for _, raw := range n.(*schema.Set).List() {
+		obj := raw.(map[string]interface{})
+		k := obj["field_id"].(string)
+		if _, ok := vals[k]; !ok {
+			// if key is not present in the vals,
+			// then create an empty object to hold the new value
+			vals[k] = &FieldChange{}
+		}
+		vals[k].New = obj
+	}
+
+	// fields schema to create schema.set below
+	dataCatalogTagTemplateFieldsSchema := &schema.Resource{
+		Schema: resourceDataCatalogTagTemplate().Schema["fields"].Elem.(*schema.Resource).Schema,
+	}
+
+	for name, change := range vals {
+		// A few different situations to deal with in here:
+		// - change.Old is nil: create a new role
+		// - change.New is nil: remove an existing role
+		// - both are set: test if New is different than Old and update if so
+
+		changeOldSet := schema.NewSet(schema.HashResource(dataCatalogTagTemplateFieldsSchema), []interface{}{})
+		changeOldSet.Add(change.Old)
+		var changeOldProp map[string]interface{}
+		if len(change.Old) != 0 {
+			changeOldProp, _ = expandDataCatalogTagTemplateFields(changeOldSet, nil, nil)
+			changeOldProp = changeOldProp[name].(map[string]interface{})
+		}
+
+		changeNewSet := schema.NewSet(schema.HashResource(dataCatalogTagTemplateFieldsSchema), []interface{}{})
+		changeNewSet.Add(change.New)
+		var changeNewProp map[string]interface{}
+		if len(change.New) != 0 {
+			changeNewProp, _ = expandDataCatalogTagTemplateFields(changeNewSet, nil, nil)
+			changeNewProp = changeNewProp[name].(map[string]interface{})
+		}
+
+		// if old state is empty, then we have a new field to create
+		if len(change.Old) == 0 {
+			err := createTagTemplateField(d, config, changeNewProp, name, billingProject, userAgent)
+			if err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		// if new state is empty, then we need to delete the current field
+		if len(change.New) == 0 {
+			err := deleteTagTemplateField(d, config, name, billingProject, userAgent)
+			if err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		// if we have old and new values, but are not equal, update with the new state
+		if !reflect.DeepEqual(changeOldProp, changeNewProp) {
+			url1, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name)
+			if err != nil {
+				return err
+			}
+
+			oldType := changeOldProp["type"].(map[string]interface{})
+			newType := changeNewProp["type"].(map[string]interface{})
+
+			if oldType["primitiveType"] != newType["primitiveType"] {
+				// As primitiveType can't be changed, it is considered as ForceNew which triggers the deletion of old field and recreation of a new field
+				// Before that, we need to check that is_required is True for the newType or not, as we don't have support to add new required field in the existing TagTemplate,
+				// So in such cases, we can simply return the error
+
+				// Reason for checking the isRequired in changeNewProp -
+				// Because this changeNewProp check should be ignored when the user wants to update the primitive type and make it optional rather than keeping it required.
+				if changeNewProp["isRequired"] != nil && changeNewProp["isRequired"].(bool) {
+					return fmt.Errorf("Updating the primitive type for a required field on an existing tag template is not supported as TagTemplateField %q is required", name)
+				}
+
+				// delete changeOldProp
+				err_delete := deleteTagTemplateField(d, config, name, billingProject, userAgent)
+				if err_delete != nil {
+					return err_delete
+				}
+
+				// recreate changeNewProp
+				err_create := createTagTemplateField(d, config, changeNewProp, name, billingProject, userAgent)
+				if err_create != nil {
+					return err_create
+				}
+
+				log.Printf("[DEBUG] Finished updating TagTemplate Field %q", name)
+				return resourceDataCatalogTagTemplateRead(d, meta)
+			}
+
+			res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url1, userAgent, changeNewProp, d.Timeout(schema.TimeoutDelete))
+			if err != nil {
+				return fmt.Errorf("Error updating TagTemplate Field %v: %s", name, err)
+			}
+
+			log.Printf("[DEBUG] Finished updating TagTemplate Field %q: %#v", name, res)
+		}
+	}
 	return resourceDataCatalogTagTemplateRead(d, meta)
 }
 
