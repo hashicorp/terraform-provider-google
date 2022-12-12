@@ -79,11 +79,11 @@ a value of 'en_US.UTF8' at creation time.`,
 			"deletion_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "ABANDON",
+				Default:  "DELETE",
 				Description: `The deletion policy for the database. Setting ABANDON allows the resource 
 to be abandoned rather than deleted. This is useful for Postgres, where databases cannot be 
 deleted from the API if there are users other than cloudsqlsuperuser with access. Possible 
-values are: "ABANDON".`,
+values are: "ABANDON", "DELETE". Defaults to "DELETE".`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -218,7 +218,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "ABANDON"); err != nil {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
 			return fmt.Errorf("Error setting deletion_policy: %s", err)
 		}
 	}
@@ -401,7 +401,7 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	if err := d.Set("deletion_policy", "ABANDON"); err != nil {
+	if err := d.Set("deletion_policy", "DELETE"); err != nil {
 		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
 	}
 
