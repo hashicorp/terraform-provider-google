@@ -86,9 +86,10 @@ func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
 				Config: testAccSQLDatabase_sqlDatabaseDeletionPolicyExample(context),
 			},
 			{
-				ResourceName:      "google_sql_database.database_deletion_policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_sql_database.database_deletion_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy"},
 			},
 		},
 	})
