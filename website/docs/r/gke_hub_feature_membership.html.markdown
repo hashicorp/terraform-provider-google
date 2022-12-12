@@ -72,7 +72,7 @@ resource "google_gke_hub_feature" "feature" {
 }
 ```
 
-## Example Usage - Serivce Mesh
+## Example Usage - Service Mesh
 
 ```hcl
 resource "google_container_cluster" "cluster" {
