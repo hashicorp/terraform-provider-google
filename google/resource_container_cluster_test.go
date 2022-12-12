@@ -3166,6 +3166,9 @@ resource "google_container_cluster" "primary" {
     gce_persistent_disk_csi_driver_config {
       enabled = false
     }
+	gke_backup_agent_config {
+	  enabled = false
+	}
   }
 }
 `, projectID, clusterName)
@@ -3212,6 +3215,9 @@ resource "google_container_cluster" "primary" {
     gce_persistent_disk_csi_driver_config {
       enabled = true
     }
+	gke_backup_agent_config {
+	  enabled = true
+	}
   }
 }
 `, projectID, clusterName)

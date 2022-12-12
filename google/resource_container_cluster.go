@@ -68,6 +68,7 @@ var (
 		"addons_config.0.gcp_filestore_csi_driver_config",
 		"addons_config.0.dns_cache_config",
 		"addons_config.0.gce_persistent_disk_csi_driver_config",
+		"addons_config.0.gke_backup_agent_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -357,6 +358,22 @@ func resourceContainerCluster() *schema.Resource {
 							AtLeastOneOf: addonsConfigKeys,
 							MaxItems:     1,
 							Description:  `Whether this cluster should enable the Google Compute Engine Persistent Disk Container Storage Interface (CSI) Driver. Defaults to enabled; set disabled = true to disable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"gke_backup_agent_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the Backup for GKE Agent addon. It is disabled by default. Set enabled = true to enable.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -3357,6 +3374,13 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 			ForceSendFields: []string{"Enabled"},
 		}
 	}
+	if v, ok := config["gke_backup_agent_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.GkeBackupAgentConfig = &container.GkeBackupAgentConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
 
 	return ac
 }
@@ -4202,6 +4226,13 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		result["gce_persistent_disk_csi_driver_config"] = []map[string]interface{}{
 			{
 				"enabled": c.GcePersistentDiskCsiDriverConfig.Enabled,
+			},
+		}
+	}
+	if c.GkeBackupAgentConfig != nil {
+		result["gke_backup_agent_config"] = []map[string]interface{}{
+			{
+				"enabled": c.GkeBackupAgentConfig.Enabled,
 			},
 		}
 	}

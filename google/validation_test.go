@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func TestvalidateGCEName(t *testing.T) {
+func TestValidateGCEName(t *testing.T) {
 	x := []StringValidationTestCase{
 		// No errors
 		{TestName: "basic", Value: "foobar"},

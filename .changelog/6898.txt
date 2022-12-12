@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: promoted `gke_backup_agent_config` in `google_container_cluster` to GA
+```
