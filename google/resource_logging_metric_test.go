@@ -173,12 +173,6 @@ func testAccLoggingMetric_loggingBucketBase(suffix string, filter string) string
 resource "google_logging_metric" "logging_metric" {
   name        = "my-custom-metric-%s"
   filter      = "%s"
-
-  metric_descriptor {
-    metric_kind = "DELTA"
-    unit        = "1"
-    value_type  = "INT64"
-  }
 }
 `, suffix, filter)
 }
@@ -195,12 +189,6 @@ resource "google_logging_metric" "logging_metric" {
   name        = "my-custom-metric-%s"
   bucket_name = google_logging_project_bucket_config.logging_bucket.id
   filter      = "%s"
-
-  metric_descriptor {
-    metric_kind = "DELTA"
-    unit        = "1"
-    value_type  = "INT64"
-  }
 }
 `, project_id, suffix, filter)
 }
