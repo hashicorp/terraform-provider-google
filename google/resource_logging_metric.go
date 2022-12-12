@@ -47,57 +47,6 @@ func resourceLoggingMetric() *schema.Resource {
 				Description: `An advanced logs filter (https://cloud.google.com/logging/docs/view/advanced-filters) which
 is used to match log entries.`,
 			},
-			"metric_descriptor": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `The metric descriptor associated with the logs-based metric.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"metric_kind": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validateEnum([]string{"DELTA", "GAUGE", "CUMULATIVE"}),
-							Description: `Whether the metric records instantaneous values, changes to a value, etc.
-Some combinations of metricKind and valueType might not be supported.
-For counter metrics, set this to DELTA. Possible values: ["DELTA", "GAUGE", "CUMULATIVE"]`,
-						},
-						"value_type": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validateEnum([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}),
-							Description: `Whether the measurement is an integer, a floating-point number, etc.
-Some combinations of metricKind and valueType might not be supported.
-For counter metrics, set this to INT64. Possible values: ["BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"]`,
-						},
-						"display_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `A concise name for the metric, which can be displayed in user interfaces. Use sentence case 
-without an ending period, for example "Request count". This field is optional but it is 
-recommended to be set for any metrics associated with user-visible concepts, such as Quota.`,
-						},
-						"labels": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Description: `The set of labels that can be used to describe a specific instance of this metric type. For
-example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
-for the HTTP response code, response_code, so you can look at latencies for successful responses
-or just for responses that failed.`,
-							Elem: loggingMetricMetricDescriptorLabelsSchema(),
-							// Default schema.HashSchema is used.
-						},
-						"unit": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `The unit in which the metric value is reported. It is only applicable if the valueType is
-'INT64', 'DOUBLE', or 'DISTRIBUTION'. The supported units are a subset of
-[The Unified Code for Units of Measure](http://unitsofmeasure.org/ucum.html) standard`,
-							Default: "1",
-						},
-					},
-				},
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -217,6 +166,61 @@ entry field and assign as the label value. Each label key specified in the Label
 have an associated extractor expression in this map. The syntax of the extractor expression is
 the same as for the valueExtractor field.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"metric_descriptor": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `The optional metric descriptor associated with the logs-based metric.
+If unspecified, it uses a default metric descriptor with a DELTA metric kind,
+INT64 value type, with no labels and a unit of "1". Such a metric counts the
+number of log entries matching the filter expression.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"metric_kind": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validateEnum([]string{"DELTA", "GAUGE", "CUMULATIVE"}),
+							Description: `Whether the metric records instantaneous values, changes to a value, etc.
+Some combinations of metricKind and valueType might not be supported.
+For counter metrics, set this to DELTA. Possible values: ["DELTA", "GAUGE", "CUMULATIVE"]`,
+						},
+						"value_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validateEnum([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}),
+							Description: `Whether the measurement is an integer, a floating-point number, etc.
+Some combinations of metricKind and valueType might not be supported.
+For counter metrics, set this to INT64. Possible values: ["BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"]`,
+						},
+						"display_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `A concise name for the metric, which can be displayed in user interfaces. Use sentence case 
+without an ending period, for example "Request count". This field is optional but it is 
+recommended to be set for any metrics associated with user-visible concepts, such as Quota.`,
+						},
+						"labels": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `The set of labels that can be used to describe a specific instance of this metric type. For
+example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
+for the HTTP response code, response_code, so you can look at latencies for successful responses
+or just for responses that failed.`,
+							Elem: loggingMetricMetricDescriptorLabelsSchema(),
+							// Default schema.HashSchema is used.
+						},
+						"unit": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The unit in which the metric value is reported. It is only applicable if the valueType is
+'INT64', 'DOUBLE', or 'DISTRIBUTION'. The supported units are a subset of
+[The Unified Code for Units of Measure](http://unitsofmeasure.org/ucum.html) standard`,
+							Default: "1",
+						},
+					},
+				},
 			},
 			"value_extractor": {
 				Type:     schema.TypeString,

@@ -203,12 +203,6 @@ resource "google_logging_metric" "logging_metric" {
   name        = "tf-test-my-(custom)/metric%{random_suffix}"
   filter      = "resource.type=gae_app AND severity>=ERROR"
   bucket_name = google_logging_project_bucket_config.logging_metric.id
-
-  metric_descriptor {
-    metric_kind = "DELTA"
-    value_type  = "INT64"
-    unit        = "1"
-  }
 }
 `, context)
 }
