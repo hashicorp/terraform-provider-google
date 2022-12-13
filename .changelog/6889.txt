@@ -1,0 +1,12 @@
+```release-note:enhancement
+dataproc: added support for `reservation_affinity` in `google_dataproc_cluster`
+```
+```release-note:enhancement
+dataproc: added support for `node_group_affinity` in `google_dataproc_cluster`
+```
+```release-note:enhancement
+dataproc: added support for `dataproc_metric_config` in `google_dataproc_cluster`
+```
+```release-note:enhancement
+dataproc: added support for `SPOT` option for `preemptibility` in `google_dataproc_cluster`
+```
