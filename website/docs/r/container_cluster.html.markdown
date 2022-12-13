@@ -580,7 +580,7 @@ This block also contains several computed attributes, documented below.
 
 In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
 
-* `daily_maintenance_window` - Time window specified for daily maintenance operations.
+* `daily_maintenance_window` - Specify the start_time of a four hour time window for daily maintenance operations.
     Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”,
     where HH : \[00-23\] and MM : \[00-59\] GMT. For example:
 
