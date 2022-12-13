@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/bigtable"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceBigtableTable() *schema.Resource {
@@ -76,6 +77,15 @@ func resourceBigtableTable() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
+
+			"deletion_protection": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"PROTECTED", "UNPROTECTED"}, false),
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				Description:  `A field to make the table protected against data loss i.e. when set to PROTECTED, deleting the table, the column families in the table, and the instance containing the table would be prohibited. If not provided, currently deletion protection will be set to UNPROTECTED as it is the API default value.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -108,6 +118,15 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	tableId := d.Get("name").(string)
 	tblConf := bigtable.TableConf{TableID: tableId}
+
+	// Check if deletion protection is given
+	// If not given, currently tblConf.DeletionProtection will be set to false in the API
+	deletionProtection := d.Get("deletion_protection")
+	if deletionProtection == "PROTECTED" {
+		tblConf.DeletionProtection = bigtable.Protected
+	} else if deletionProtection == "UNPROTECTED" {
+		tblConf.DeletionProtection = bigtable.Unprotected
+	}
 
 	// Set the split keys if given.
 	if v, ok := d.GetOk("split_keys"); ok {
@@ -188,6 +207,18 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error setting column_family: %s", err)
 	}
 
+	deletionProtection := table.DeletionProtection
+	if deletionProtection == bigtable.Protected {
+		if err := d.Set("deletion_protection", "PROTECTED"); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	} else if deletionProtection == bigtable.Unprotected {
+		if err := d.Set("deletion_protection", "UNPROTECTED"); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	} else {
+		return fmt.Errorf("Error setting deletion_protection, it should be either PROTECTED or UNPROTECTED")
+	}
 	return nil
 }
 
@@ -236,6 +267,19 @@ func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error
 			log.Printf("[DEBUG] removing column family %q", v)
 			if err := c.DeleteColumnFamily(ctx, name, v.(string)); err != nil {
 				return fmt.Errorf("Error deleting column family %q: %s", v, err)
+			}
+		}
+	}
+
+	if d.HasChange("deletion_protection") {
+		deletionProtection := d.Get("deletion_protection")
+		if deletionProtection == "PROTECTED" {
+			if err := c.UpdateTableWithDeletionProtection(ctx, name, bigtable.Protected); err != nil {
+				return fmt.Errorf("Error updating deletion protection in table %v: %s", name, err)
+			}
+		} else if deletionProtection == "UNPROTECTED" {
+			if err := c.UpdateTableWithDeletionProtection(ctx, name, bigtable.Unprotected); err != nil {
+				return fmt.Errorf("Error updating deletion protection in table %v: %s", name, err)
 			}
 		}
 	}
