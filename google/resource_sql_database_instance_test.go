@@ -1,11 +1,8 @@
 package google
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
 
@@ -28,13 +25,6 @@ var ignoredReplicaConfigurationFields = []string{
 	"replica_configuration.0.username",
 	"replica_configuration.0.verify_server_certificate",
 	"deletion_protection",
-}
-
-func init() {
-	resource.AddTestSweepers("gcp_sql_db_instance", &resource.Sweeper{
-		Name: "gcp_sql_db_instance",
-		F:    testSweepDatabases,
-	})
 }
 
 func TestMaintenanceVersionDiffSuppress(t *testing.T) {
@@ -68,122 +58,6 @@ func TestMaintenanceVersionDiffSuppress(t *testing.T) {
 			}
 		})
 	}
-}
-
-func testSweepDatabases(region string) error {
-	config, err := sharedConfigForRegion(region)
-	if err != nil {
-		return fmt.Errorf("error getting shared config for region: %s", err)
-	}
-
-	err = config.LoadAndValidate(context.Background())
-	if err != nil {
-		log.Fatalf("error loading: %s", err)
-	}
-
-	found, err := config.NewSqlAdminClient(config.userAgent).Instances.List(config.Project).Do()
-	if err != nil {
-		log.Printf("error listing databases: %s", err)
-		return nil
-	}
-
-	if len(found.Items) == 0 {
-		log.Printf("No databases found")
-		return nil
-	}
-
-	running := map[string]struct{}{}
-
-	for _, d := range found.Items {
-		var testDbInstance bool
-		for _, testName := range []string{"tf-lw-", "sqldatabasetest"} {
-			// only destroy instances we know to fit our test naming pattern
-			if strings.HasPrefix(d.Name, testName) {
-				testDbInstance = true
-			}
-		}
-
-		if !testDbInstance {
-			continue
-		}
-		if d.State != "RUNNABLE" {
-			continue
-		}
-		running[d.Name] = struct{}{}
-	}
-
-	for _, d := range found.Items {
-		// don't delete replicas, we'll take care of that
-		// when deleting the database they replicate
-		if d.ReplicaConfiguration != nil {
-			continue
-		}
-		log.Printf("Destroying SQL Instance (%s)", d.Name)
-
-		// replicas need to be stopped and destroyed before destroying a master
-		// instance. The ordering slice tracks replica databases for a given master
-		// and we call destroy on them before destroying the master
-		var ordering []string
-		for _, replicaName := range d.ReplicaNames {
-			// don't try to stop replicas that aren't running
-			if _, ok := running[replicaName]; !ok {
-				ordering = append(ordering, replicaName)
-				continue
-			}
-
-			// need to stop replication before being able to destroy a database
-			op, err := config.NewSqlAdminClient(config.userAgent).Instances.StopReplica(config.Project, replicaName).Do()
-
-			if err != nil {
-				log.Printf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
-				return nil
-			}
-
-			err = sqlAdminOperationWaitTime(config, op, config.Project, "Stop Replica", config.userAgent, 10*time.Minute)
-			if err != nil {
-				if strings.Contains(err.Error(), "does not exist") {
-					log.Printf("Replication operation not found")
-				} else {
-					log.Printf("Error waiting for sqlAdmin operation: %s", err)
-					return nil
-				}
-			}
-
-			ordering = append(ordering, replicaName)
-		}
-
-		// ordering has a list of replicas (or none), now add the primary to the end
-		ordering = append(ordering, d.Name)
-
-		for _, db := range ordering {
-			// destroy instances, replicas first
-			op, err := config.NewSqlAdminClient(config.userAgent).Instances.Delete(config.Project, db).Do()
-
-			if err != nil {
-				if strings.Contains(err.Error(), "409") {
-					// the GCP api can return a 409 error after the delete operation
-					// reaches a successful end
-					log.Printf("Operation not found, got 409 response")
-					continue
-				}
-
-				log.Printf("Error, failed to delete instance %s: %s", db, err)
-				return nil
-			}
-
-			err = sqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.userAgent, 10*time.Minute)
-			if err != nil {
-				if strings.Contains(err.Error(), "does not exist") {
-					log.Printf("SQL instance not found")
-					continue
-				}
-				log.Printf("Error, failed to delete instance %s: %s", db, err)
-				return nil
-			}
-		}
-	}
-
-	return nil
 }
 
 func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
@@ -472,7 +346,7 @@ func TestAccSqlDatabaseInstance_replica(t *testing.T) {
 			{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabaseInstance_replica, databaseID, databaseID, databaseID, "true"),
-				ExpectError: regexp.MustCompile("Error, failed to create instance tf-lw-\\d+-2: googleapi: Error 400: Invalid request: Invalid flag for instance role: Backups cannot be enabled for read replica instance.., invalid"),
+				ExpectError: regexp.MustCompile("Error, failed to create instance tf-test-\\d+-2: googleapi: Error 400: Invalid request: Invalid flag for instance role: Backups cannot be enabled for read replica instance.., invalid"),
 			},
 			{
 				Config: fmt.Sprintf(
@@ -2009,7 +1883,7 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_replica = `
 resource "google_sql_database_instance" "instance_master" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   database_version    = "MYSQL_5_7"
   region              = "us-central1"
   deletion_protection = false
@@ -2026,7 +1900,7 @@ resource "google_sql_database_instance" "instance_master" {
 }
 
 resource "google_sql_database_instance" "replica1" {
-  name                = "tf-lw-%d-1"
+  name                = "tf-test-%d-1"
   database_version    = "MYSQL_5_7"
   region              = "us-central1"
   deletion_protection = false
@@ -2052,7 +1926,7 @@ resource "google_sql_database_instance" "replica1" {
 }
 
 resource "google_sql_database_instance" "replica2" {
-  name                = "tf-lw-%d-2"
+  name                = "tf-test-%d-2"
   database_version    = "MYSQL_5_7"
   region              = "us-central1"
   deletion_protection = false
@@ -2079,7 +1953,7 @@ resource "google_sql_database_instance" "replica2" {
 
 var testGoogleSqlDatabaseInstance_slave = `
 resource "google_sql_database_instance" "instance_master" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   region              = "us-central1"
   database_version    = "MYSQL_5_7"
   deletion_protection = false
@@ -2095,7 +1969,7 @@ resource "google_sql_database_instance" "instance_master" {
 }
 
 resource "google_sql_database_instance" "instance_slave" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   region              = "us-central1"
   database_version    = "MYSQL_5_7"
   deletion_protection = false
@@ -2110,7 +1984,7 @@ resource "google_sql_database_instance" "instance_slave" {
 
 var testGoogleSqlDatabaseInstance_highAvailability = `
 resource "google_sql_database_instance" "instance" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   region              = "us-central1"
   database_version    = "POSTGRES_9_6"
   deletion_protection = false
@@ -2130,7 +2004,7 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_diskspecs = `
 resource "google_sql_database_instance" "instance" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   region              = "us-central1"
   database_version    = "MYSQL_5_7"
   deletion_protection = false
@@ -2147,7 +2021,7 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_maintenance = `
 resource "google_sql_database_instance" "instance" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   region              = "us-central1"
   database_version    = "MYSQL_5_7"
   deletion_protection = false
@@ -2166,7 +2040,7 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_authNets_step1 = `
 resource "google_sql_database_instance" "instance" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   region              = "us-central1"
   database_version    = "MYSQL_5_7"
   deletion_protection = false
@@ -2186,7 +2060,7 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_authNets_step2 = `
 resource "google_sql_database_instance" "instance" {
-  name                = "tf-lw-%d"
+  name                = "tf-test-%d"
   region              = "us-central1"
   database_version    = "MYSQL_5_7"
   deletion_protection = false
