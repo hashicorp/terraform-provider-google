@@ -1604,6 +1604,22 @@ func resourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"gateway_api_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Configuration for GKE Gateway API controller.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"channel": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"CHANNEL_DISABLED", "CHANNEL_STANDARD"}, false),
+							Description:  `The Gateway API release channel to use for Gateway API.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -1722,6 +1738,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			PrivateIpv6GoogleAccess:   d.Get("private_ipv6_google_access").(string),
 			EnableL4ilbSubsetting:     d.Get("enable_l4_ilb_subsetting").(bool),
 			DnsConfig:                 expandDnsConfig(d.Get("dns_config")),
+			GatewayApiConfig:          expandGatewayApiConfig(d.Get("gateway_api_config")),
 		},
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
@@ -2189,6 +2206,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	if err := d.Set("dns_config", flattenDnsConfig(cluster.NetworkConfig.DnsConfig)); err != nil {
+		return err
+	}
+	if err := d.Set("gateway_api_config", flattenGatewayApiConfig(cluster.NetworkConfig.GatewayApiConfig)); err != nil {
 		return err
 	}
 	if err := d.Set("logging_config", flattenContainerClusterLoggingConfig(cluster.LoggingConfig)); err != nil {
@@ -3122,6 +3142,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s resource usage export config has been updated", d.Id())
 	}
 
+	if d.HasChange("gateway_api_config") {
+		if gac, ok := d.GetOk("gateway_api_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredGatewayApiConfig: expandGatewayApiConfig(gac),
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE Gateway API")
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s Gateway API has been updated", d.Id())
+		}
+	}
+
 	if d.HasChange("node_pool_defaults") && d.HasChange("node_pool_defaults.0.node_config_defaults.0.logging_variant") {
 		if v, ok := d.GetOk("node_pool_defaults.0.node_config_defaults.0.logging_variant"); ok {
 			loggingVariant := v.(string)
@@ -4005,6 +4043,18 @@ func expandDnsConfig(configured interface{}) *container.DNSConfig {
 	}
 }
 
+func expandGatewayApiConfig(configured interface{}) *container.GatewayAPIConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &container.GatewayAPIConfig{
+		Channel: config["channel"].(string),
+	}
+}
+
 func expandContainerClusterLoggingConfig(configured interface{}) *container.LoggingConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 {
@@ -4648,6 +4698,17 @@ func flattenDnsConfig(c *container.DNSConfig) []map[string]interface{} {
 			"cluster_dns":        c.ClusterDns,
 			"cluster_dns_scope":  c.ClusterDnsScope,
 			"cluster_dns_domain": c.ClusterDnsDomain,
+		},
+	}
+}
+
+func flattenGatewayApiConfig(c *container.GatewayAPIConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"channel": c.Channel,
 		},
 	}
 }
