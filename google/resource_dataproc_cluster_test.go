@@ -365,6 +365,77 @@ func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withReservationAffinity(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withReservationAffinity(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.reservation_affinity.0.consume_reservation_type", "SPECIFIC_RESERVATION"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.reservation_affinity.0.key", "compute.googleapis.com/reservation-name"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.reservation_affinity.0.values.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withDataprocMetricConfig(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withDataprocMetricConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.dataproc_metric_config.0.metrics.#", "2"),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.dataproc_metric_config.0.metrics.0.metric_source", "HDFS"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.dataproc_metric_config.0.metrics.0.metric_overrides.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withNodeGroupAffinity(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withNodeGroupAffinity(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.node_group_affinity.0.node_group_uri", "https://www.googleapis.com/compute/v1/projects/ci-test-project-188019/zones/us-central1-f/nodeGroups/test-nodegroup"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 	t.Parallel()
 
@@ -444,6 +515,27 @@ func TestAccDataprocCluster_nonPreemptibleSecondary(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.non_preemptible_secondary", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.non_preemptible_secondary", "cluster_config.0.preemptible_worker_config.0.preemptibility", "NON_PREEMPTIBLE"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_spotSecondary(t *testing.T) {
+	t.Parallel()
+
+	rnd := randString(t, 10)
+	var cluster dataproc.Cluster
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_spotSecondary(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.spot_secondary", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_secondary", "cluster_config.0.preemptible_worker_config.0.preemptibility", "SPOT"),
 				),
 			},
 		},
@@ -1318,6 +1410,112 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
+func testAccDataprocCluster_withReservationAffinity(rnd string) string {
+	return fmt.Sprintf(`
+
+resource "google_compute_reservation" "reservation" {
+  name = "default"
+  zone = "us-central1-f"
+
+  specific_reservation {
+    count = 10
+    instance_properties {
+      machine_type = "n1-standard-2"
+    }
+  }
+  specific_reservation_required = true
+}
+
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+
+    master_config {
+      machine_type  = "n1-standard-2"
+    }
+
+    worker_config {
+      machine_type  = "n1-standard-2"
+    }
+
+    gce_cluster_config {
+      zone = "us-central1-f"
+      reservation_affinity {      
+        consume_reservation_type = "SPECIFIC_RESERVATION"
+        key = "compute.googleapis.com/reservation-name"
+        values = [google_compute_reservation.reservation.name]
+      }
+    }
+  }
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withDataprocMetricConfig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    dataproc_metric_config {
+      metrics {
+        metric_source = "HDFS"
+        metric_overrides = ["yarn:ResourceManager:QueueMetrics:AppsCompleted"]
+      }
+
+      metrics {
+        metric_source = "SPARK"
+        metric_overrides = ["spark:driver:DAGScheduler:job.allJobs"]
+      }
+    }
+  }
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withNodeGroupAffinity(rnd string) string {
+	return fmt.Sprintf(`
+
+resource "google_compute_node_template" "nodetmpl" {
+  name   = "test-nodetmpl"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "n1-node-96-624"
+
+  cpu_overcommit_type = "ENABLED"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "test-nodegroup"
+  zone = "us-central1-f"
+
+  size          = 3
+  node_template = google_compute_node_template.nodetmpl.self_link
+}
+
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    gce_cluster_config {
+      zone = "us-central1-f"
+      node_group_affinity {
+        node_group_uri = google_compute_node_group.nodes.name
+      }
+    }
+  }
+}
+`, rnd)
+}
+
 func testAccDataprocCluster_singleNodeCluster(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "single_node_cluster" {
@@ -1493,6 +1691,41 @@ resource "google_dataproc_cluster" "non_preemptible_secondary" {
 		boot_disk_size_gb = 35
 	  }
 	}
+  }
+}
+	`, rnd)
+}
+
+func testAccDataprocCluster_spotSecondary(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "spot_secondary" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    master_config {
+      num_instances = "1"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    worker_config {
+      num_instances = "2"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    preemptible_worker_config {
+      num_instances = "1"
+      preemptibility = "SPOT"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
   }
 }
 	`, rnd)
