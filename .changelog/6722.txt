@@ -1,0 +1,4 @@
+```release-note:enhancement
+bigtable: supported table deletion protection in terraform
+
+```
