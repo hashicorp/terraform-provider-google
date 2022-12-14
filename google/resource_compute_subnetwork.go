@@ -181,6 +181,7 @@ Can only be specified if VPC flow logs for this subnetwork is enabled and "metad
 			},
 			"private_ip_google_access": {
 				Type:     schema.TypeBool,
+				Computed: true,
 				Optional: true,
 				Description: `When enabled, VMs in this subnetwork without external IP addresses can
 access Google APIs and services by using Private Google Access.`,
