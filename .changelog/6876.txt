@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_firebase_apple_app`
+```

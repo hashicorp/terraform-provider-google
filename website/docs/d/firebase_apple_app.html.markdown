@@ -1,13 +1,13 @@
 ---
 subcategory: "Firebase"
-page_title: "Google: google_firebase_android_app"
+page_title: "Google: google_firebase_apple_app"
 description: |-
-  A Google Cloud Firebase Android application instance
+  A Google Cloud Firebase Apple application instance
 ---
 
-# google\_firebase\_android\_app
+# google\_firebase\_apple\_app
 
-A Google Cloud Firebase Android application instance
+A Google Cloud Firebase Apple application instance
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -20,7 +20,7 @@ The following arguments are supported:
 
 * `app_id` -
   (Required)
-  The app_id of name of the Firebase androidApp.
+  The app_id of name of the Firebase iosApp.
 
 
 - - -
@@ -38,7 +38,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The fully qualified resource name of the App, for example:
-  projects/projectId/androidApps/appId
+  projects/projectId/iosApps/appId
 
 * `app_id` -
   Immutable. The globally unique, Firebase-assigned identifier of the App.
@@ -47,5 +47,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `display_name` -
   The user-assigned display name of the App.
 
-* `package_name` -
-  The canonical package name of the Android app as would appear in the Google Play Developer Console.
+* `bundle_id` -
+  The canonical bundle ID of the Apple app as it would appear in the Apple AppStore.
+
+* `app_store_id` -
+  The automatically generated Apple ID assigned to the Apple app by Apple in the Apple App Store.
+
+* `team_id` -
+  The Apple Developer Team ID associated with the App in the App Store.
