@@ -513,7 +513,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	enableDynamicPortAllocationProp, err := expandNestedComputeRouterNatEnableDynamicPortAllocation(d.Get("enable_dynamic_port_allocation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_dynamic_port_allocation"); !isEmptyValue(reflect.ValueOf(enableDynamicPortAllocationProp)) && (ok || !reflect.DeepEqual(v, enableDynamicPortAllocationProp)) {
+	} else if v, ok := d.GetOkExists("enable_dynamic_port_allocation"); ok || !reflect.DeepEqual(v, enableDynamicPortAllocationProp) {
 		obj["enableDynamicPortAllocation"] = enableDynamicPortAllocationProp
 	}
 	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
@@ -776,7 +776,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	enableDynamicPortAllocationProp, err := expandNestedComputeRouterNatEnableDynamicPortAllocation(d.Get("enable_dynamic_port_allocation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_dynamic_port_allocation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableDynamicPortAllocationProp)) {
+	} else if v, ok := d.GetOkExists("enable_dynamic_port_allocation"); ok || !reflect.DeepEqual(v, enableDynamicPortAllocationProp) {
 		obj["enableDynamicPortAllocation"] = enableDynamicPortAllocationProp
 	}
 	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
