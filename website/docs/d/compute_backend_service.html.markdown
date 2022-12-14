@@ -61,3 +61,5 @@ In addition to the arguments listed above, the following attributes are exported
 * `backend` - The set of backends that serve this Backend Service.
 
 * `health_checks` - The set of HTTP/HTTPS health checks used by the Backend Service.
+
+* `generated_id` - The unique identifier for the resource. This identifier is defined by the server.

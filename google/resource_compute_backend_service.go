@@ -937,6 +937,11 @@ failed request. Default is 30 seconds. Valid range is [1, 86400].`,
 				Description: `Fingerprint of this resource. A hash of the contents stored in this
 object. This field is used in optimistic locking.`,
 			},
+			"generated_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier for the resource. This identifier is defined by the server.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1412,6 +1417,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	if err := d.Set("health_checks", flattenComputeBackendServiceHealthChecks(res["healthChecks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
+	if err := d.Set("generated_id", flattenComputeBackendServiceGeneratedId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	if err := d.Set("iap", flattenComputeBackendServiceIap(res["iap"], d, config)); err != nil {
@@ -2409,6 +2417,23 @@ func flattenComputeBackendServiceHealthChecks(v interface{}, d *schema.ResourceD
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
+func flattenComputeBackendServiceGeneratedId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeBackendServiceIap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
