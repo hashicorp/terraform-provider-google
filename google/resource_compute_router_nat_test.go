@@ -179,6 +179,14 @@ func TestAccComputeRouterNat_withPortAllocationMethods(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccComputeRouterNatWithAllocationMethod(routerName, false, true),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeRouterNatWithAllocationMethod(routerName, true, false),
 			},
 			{
