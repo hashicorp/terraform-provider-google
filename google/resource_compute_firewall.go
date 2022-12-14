@@ -213,8 +213,7 @@ must be expressed in CIDR format. Only IPv4 is supported.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:           schema.HashString,
-				ConflictsWith: []string{"source_ranges", "source_tags"},
+				Set: schema.HashString,
 			},
 			"direction": {
 				Type:         schema.TypeString,
@@ -282,8 +281,7 @@ apply. Only IPv4 is supported. For INGRESS traffic, one of 'source_ranges',
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:           schema.HashString,
-				ConflictsWith: []string{"destination_ranges"},
+				Set: schema.HashString,
 			},
 			"source_service_accounts": {
 				Type:     schema.TypeSet,
@@ -324,7 +322,7 @@ one of 'source_ranges', 'source_tags' or 'source_service_accounts' is required.`
 					Type: schema.TypeString,
 				},
 				Set:           schema.HashString,
-				ConflictsWith: []string{"source_service_accounts", "destination_ranges", "target_service_accounts"},
+				ConflictsWith: []string{"source_service_accounts", "target_service_accounts"},
 			},
 			"target_service_accounts": {
 				Type:     schema.TypeSet,
