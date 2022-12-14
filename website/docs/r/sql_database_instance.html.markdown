@@ -353,7 +353,7 @@ when an Instance can automatically restart to apply updates. The maintenance win
 * `update_track` - (Optional) Receive updates earlier (`canary`) or later
 (`stable`)
 
-The optional `settings.insights_config` subblock for instances declares [Query Insights](https://cloud.google.com/sql/docs/postgres/insights-overview) configuration. It contains:
+The optional `settings.insights_config` subblock for instances declares Query Insights([MySQL](https://cloud.google.com/sql/docs/mysql/using-query-insights), [PostgreSQL](https://cloud.google.com/sql/docs/postgres/using-query-insights)) configuration. It contains:
 
 * `query_insights_enabled` - True if Query Insights feature is enabled.
 
@@ -493,7 +493,7 @@ performing filtering in a Terraform config.
 ## Timeouts
 
 `google_sql_database_instance` provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 30 minutes.
 - `update` - Default is 30 minutes.
