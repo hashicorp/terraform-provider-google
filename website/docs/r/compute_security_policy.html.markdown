@@ -259,14 +259,19 @@ The following arguments are supported:
 
 <a name="nested_rate_limit_options"></a>The `rate_limit_options` block supports:
 
+* `conform_action` - (Required) Action to take for requests that are under the configured rate limit threshold. Valid option is "allow" only.
+
+* `exceed_action` - (Required) When a request is denied, returns the HTTP response code specified.
+    Valid options are "deny()" where valid values for status are 403, 404, 429, and 502.
+
+* `rate_limit_threshold` - (Required) Threshold at which to begin ratelimiting. Structure is [documented below](#nested_threshold).
+
 * `ban_duration_sec` - (Optional) Can only be specified if the `action` for the rule is "rate_based_ban".
     If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.
 
 * `ban_threshold` - (Optional) Can only be specified if the `action` for the rule is "rate_based_ban".
     If specified, the key will be banned for the configured 'ban_duration_sec' when the number of requests that exceed the 'rate_limit_threshold' also
     exceed this 'ban_threshold'. Structure is [documented below](#nested_threshold).
-
-* `conform_action` - (Optional) Action to take for requests that are under the configured rate limit threshold. Valid option is "allow" only.
 
 * `enforce_on_key` - (Optional) Determines the key to enforce the rate_limit_threshold on. If not specified, defaults to "ALL".
 
@@ -278,18 +283,13 @@ The following arguments are supported:
 
 * `enforce_on_key_name` - (Optional) Rate limit key name applicable only for the following key types: HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value. HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
 
-* `exceed_action` - (Optional) When a request is denied, returns the HTTP response code specified.
-    Valid options are "deny()" where valid values for status are 403, 404, 429, and 502.
-  
 * `exceed_redirect_options` - (Optional) Parameters defining the redirect action that is used as the exceed action. Cannot be specified if the exceed action is not redirect. Structure is [documented below](#nested_exceed_redirect_options).
-
-* `rate_limit_threshold` - (Optional) Threshold at which to begin ratelimiting. Structure is [documented below](#nested_threshold).
 
 <a name="nested_threshold"></a>The `{ban/rate_limit}_threshold` block supports:
 
-* `count` - (Optional) Number of HTTP(S) requests for calculating the threshold.
+* `count` - (Required) Number of HTTP(S) requests for calculating the threshold.
 
-* `interval_sec` - (Optional) Interval over which the threshold is computed.
+* `interval_sec` - (Required) Interval over which the threshold is computed.
 
 * <a  name="nested_exceed_redirect_options"></a>The `exceed_redirect_options` block supports:
 
