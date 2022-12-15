@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added support for `image_encryption_key` to `google_compute_image`
+```
+```release-note:enhancement
+compute: added support for `source_snapshot`, `source_snapshot_encyption_key`, and `source_image_encryption_key` to `google_compute_instance_template`
+```
