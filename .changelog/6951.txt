@@ -1,0 +1,3 @@
+```release-note:none
+kms: updated the doc for `google_kms_key_ring_iam` by replacing primitive roles
+```
