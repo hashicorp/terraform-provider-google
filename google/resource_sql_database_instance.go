@@ -83,6 +83,12 @@ var (
 		"settings.0.insights_config.0.record_client_address",
 		"settings.0.insights_config.0.query_plans_per_minute",
 	}
+
+	sqlServerAuditConfigurationKeys = []string{
+		"settings.0.sql_server_audit_config.0.bucket",
+		"settings.0.sql_server_audit_config.0.retention_interval",
+		"settings.0.sql_server_audit_config.0.upload_interval",
+	}
 )
 
 func resourceSqlDatabaseInstance() *schema.Resource {
@@ -190,19 +196,22 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"bucket": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `The name of the destination bucket (e.g., gs://mybucket).`,
+										Type:         schema.TypeString,
+										Optional:     true,
+										AtLeastOneOf: sqlServerAuditConfigurationKeys,
+										Description:  `The name of the destination bucket (e.g., gs://mybucket).`,
 									},
 									"retention_interval": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `How long to keep generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"..`,
+										Type:         schema.TypeString,
+										Optional:     true,
+										AtLeastOneOf: sqlServerAuditConfigurationKeys,
+										Description:  `How long to keep generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"..`,
 									},
 									"upload_interval": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `How often to upload generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+										Type:         schema.TypeString,
+										Optional:     true,
+										AtLeastOneOf: sqlServerAuditConfigurationKeys,
+										Description:  `How often to upload generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
 									},
 								},
 							},
