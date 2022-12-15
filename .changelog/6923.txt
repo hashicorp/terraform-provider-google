@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: made `settings.sql_server_audit_config.bucket` field in `google_sql_database_instance` to be optional.
+```
