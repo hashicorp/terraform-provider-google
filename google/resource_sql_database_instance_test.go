@@ -314,6 +314,46 @@ func TestAccSqlDatabaseInstance_maintenanceVersion(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_settings_deletionProtectionEnabled(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_settings_deletionProtectionEnabled, databaseName, "true"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_settings_deletionProtectionEnabled, databaseName, "true"),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile(fmt.Sprintf("Error, failed to delete instance %s: googleapi: Error 400: The instance is protected. Please disable the deletion protection and try again. To disable deletion protection, update the instance settings with deletionProtectionEnabled set to false.", databaseName)),
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_settings_deletionProtectionEnabled, databaseName, "false"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_settings_checkServiceNetworking(t *testing.T) {
 	t.Parallel()
 
@@ -1848,6 +1888,7 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `
+
 var testGoogleSqlDatabaseInstance_maintenanceVersionWithOldVersion = `
 resource "google_sql_database_instance" "instance" {
   name                = "%s"
@@ -1857,6 +1898,19 @@ resource "google_sql_database_instance" "instance" {
   maintenance_version = "MYSQL_5_7_37.R20210508.01_03"
   settings {
     tier = "db-f1-micro"
+  }
+}
+`
+
+var testGoogleSqlDatabaseInstance_settings_deletionProtectionEnabled = `
+resource "google_sql_database_instance" "instance" {
+  name                        = "%s"
+  region                      = "us-central1"
+  database_version            = "MYSQL_5_7"
+  deletion_protection         = false
+  settings {
+	deletion_protection_enabled = %s
+    tier                        = "db-f1-micro"
   }
 }
 `

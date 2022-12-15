@@ -210,6 +210,8 @@ includes an up-to-date reference of supported versions.
 
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` command that deletes the instance will fail. Defaults to `true`.
+    
+  ~> **NOTE:** This flag only protects instances from deletion within Terraform. To protect your instances from accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform), use the API flag `settings.deletion_protection_enabled`.
 
 * `restore_backup_context` - (optional) The context needed to restore the database to a backup run. This field will
     cause Terraform to trigger the database to restore from the backup run indicated. The configuration is detailed below.
@@ -239,6 +241,8 @@ The `settings` block supports:
 * `collation` - (Optional) The name of server instance collation.
 
 * `connector_enforcement` - (Optional) Specifies if connections must use Cloud SQL connectors.
+
+* `deletion_protection_enabled` - (Optional) Enables protection of an instance from accidental deletion protection across all surfaces (API, gcloud, Cloud Console and Terraform). Defaults to `false`.
 
 * `disk_autoresize` - (Optional) Enables auto-resizing of the storage size. Defaults to `true`.
 

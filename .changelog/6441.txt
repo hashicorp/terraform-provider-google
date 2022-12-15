@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql_database_instance: added [new deletion protection](https://cloud.google.com/sql/docs/mysql/deletion-protection) feature `deletion_protection_enabled` to guard against deletion from all surfaces.
+```
