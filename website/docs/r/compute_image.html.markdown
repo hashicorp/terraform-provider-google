@@ -129,6 +129,14 @@ The following arguments are supported:
   Applicable only for bootable images.
   Structure is [documented below](#nested_guest_os_features).
 
+* `image_encryption_key` -
+  (Optional)
+  Encrypts the image using a customer-supplied encryption key.
+  After you encrypt an image with a customer-supplied key, you must
+  provide the same key if you use the image later (e.g. to create a
+  disk from the image)
+  Structure is [documented below](#nested_image_encryption_key).
+
 * `labels` -
   (Optional)
   Labels to apply to this Image.
@@ -177,6 +185,19 @@ The following arguments are supported:
   (Required)
   The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
   Possible values are `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, `WINDOWS`, and `GVNIC`.
+
+<a name="nested_image_encryption_key"></a>The `image_encryption_key` block supports:
+
+* `kms_key_self_link` -
+  (Optional)
+  The self link of the encryption key that is stored in Google Cloud
+  KMS.
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account being used for the encryption request for the
+  given KMS key. If absent, the Compute Engine default service
+  account is used.
 
 <a name="nested_raw_disk"></a>The `raw_disk` block supports:
 

@@ -211,6 +211,30 @@ func TestAccComputeImage_resolveImage(t *testing.T) {
 	})
 }
 
+func TestAccComputeImage_imageEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
+	kmsKeyName := GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
+	kmsRingName := GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_imageEncryptionKey(kmsRingName, kmsKeyName, randString(t, 10)),
+			},
+			{
+				ResourceName:      "google_compute_image.image",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -449,4 +473,43 @@ resource "google_compute_image" "foobar" {
   source_snapshot = google_compute_snapshot.foobar.self_link
 }
 `, diskName, snapshotName, imageName)
+}
+
+func testAccComputeImage_imageEncryptionKey(kmsRingName, kmsKeyName, suffix string) string {
+	return fmt.Sprintf(`
+data "google_kms_key_ring" "ring" {
+  name     = "%s"
+  location = "us-central1"
+}
+
+data "google_kms_crypto_key" "key" {
+  name     = "%s"
+  key_ring = data.google_kms_key_ring.ring.id
+}
+
+resource "google_service_account" "test" {
+  account_id   = "tf-test-sa-%s"
+  display_name = "KMS Ops Account"
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = data.google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${google_service_account.test.email}"
+}
+
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_image" "image" {
+  name         = "tf-test-image-%s"
+  source_image = data.google_compute_image.debian.self_link
+  image_encryption_key {
+    kms_key_self_link       = data.google_kms_crypto_key.key.id
+    kms_key_service_account = google_service_account.test.email
+  }
+}
+`, kmsRingName, kmsKeyName, suffix, suffix)
 }

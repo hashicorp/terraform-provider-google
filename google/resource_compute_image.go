@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -86,6 +87,37 @@ RFC1035.`,
 Applicable only for bootable images.`,
 				Elem: computeImageGuestOsFeaturesSchema(),
 				// Default schema.HashSchema is used.
+			},
+			"image_encryption_key": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Encrypts the image using a customer-supplied encryption key.
+
+After you encrypt an image with a customer-supplied key, you must
+provide the same key if you use the image later (e.g. to create a
+disk from the image)`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_self_link": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							Description: `The self link of the encryption key that is stored in Google Cloud
+KMS.`,
+						},
+						"kms_key_service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The service account being used for the encryption request for the
+given KMS key. If absent, the Compute Engine default service
+account is used.`,
+						},
+					},
+				},
 			},
 			"labels": {
 				Type:        schema.TypeMap,
@@ -256,6 +288,12 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("guest_os_features"); !isEmptyValue(reflect.ValueOf(guestOsFeaturesProp)) && (ok || !reflect.DeepEqual(v, guestOsFeaturesProp)) {
 		obj["guestOsFeatures"] = guestOsFeaturesProp
 	}
+	imageEncryptionKeyProp, err := expandComputeImageImageEncryptionKey(d.Get("image_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("image_encryption_key"); !isEmptyValue(reflect.ValueOf(imageEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, imageEncryptionKeyProp)) {
+		obj["imageEncryptionKey"] = imageEncryptionKeyProp
+	}
 	labelsProp, err := expandComputeImageLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
@@ -401,6 +439,9 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("guest_os_features", flattenComputeImageGuestOsFeatures(res["guestOsFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err := d.Set("image_encryption_key", flattenComputeImageImageEncryptionKey(res["imageEncryptionKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("labels", flattenComputeImageLabels(res["labels"], d, config)); err != nil {
@@ -627,6 +668,33 @@ func flattenComputeImageGuestOsFeaturesType(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenComputeImageImageEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_self_link"] =
+		flattenComputeImageImageEncryptionKeyKmsKeySelfLink(original["kmsKeyName"], d, config)
+	transformed["kms_key_service_account"] =
+		flattenComputeImageImageEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeImageImageEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	vStr := v.(string)
+	return strings.Split(vStr, "/cryptoKeyVersions/")[0]
+}
+
+func flattenComputeImageImageEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeImageLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -703,6 +771,40 @@ func expandComputeImageGuestOsFeatures(v interface{}, d TerraformResourceData, c
 }
 
 func expandComputeImageGuestOsFeaturesType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageImageEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeySelfLink, err := expandComputeImageImageEncryptionKeyKmsKeySelfLink(original["kms_key_self_link"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeySelfLink); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeySelfLink
+	}
+
+	transformedKmsKeyServiceAccount, err := expandComputeImageImageEncryptionKeyKmsKeyServiceAccount(original["kms_key_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyServiceAccount); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
+	}
+
+	return transformed, nil
+}
+
+func expandComputeImageImageEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageImageEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -160,6 +160,74 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							ForceNew:    true,
 							Description: `The image from which to initialize this disk. This can be one of: the image's self_link, projects/{project}/global/images/{image}, projects/{project}/global/images/family/{family}, global/images/{image}, global/images/family/{family}, family/{family}, {project}/{family}, {project}/{image}, {family}, or {image}. ~> Note: Either source or source_image is required when creating a new instance except for when creating a local SSD.`,
 						},
+						"source_image_encryption_key": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `The customer-supplied encryption key of the source
+image. Required if the source image is protected by a
+customer-supplied encryption key.
+
+Instance templates do not store customer-supplied
+encryption keys, so you cannot create disks for
+instances in a managed instance group if the source
+images are encrypted with your own keys.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"kms_key_service_account": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `The service account being used for the encryption
+request for the given KMS key. If absent, the Compute
+Engine default service account is used.`,
+									},
+									"kms_key_self_link": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The self link of the encryption key that is stored in
+Google Cloud KMS.`,
+									},
+								},
+							},
+						},
+						"source_snapshot": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The source snapshot to create this disk. When creating
+a new instance, one of initializeParams.sourceSnapshot,
+initializeParams.sourceImage, or disks.source is
+required except for local SSD.`,
+						},
+						"source_snapshot_encryption_key": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The customer-supplied encryption key of the source snapshot.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"kms_key_service_account": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `The service account being used for the encryption
+request for the given KMS key. If absent, the Compute
+Engine default service account is used.`,
+									},
+									"kms_key_self_link": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The self link of the encryption key that is stored in
+Google Cloud KMS.`,
+									},
+								},
+							},
+						},
 
 						"interface": {
 							Type:        schema.TypeString,
@@ -886,7 +954,7 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
-			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "source_image", "labels"}
+			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "source_image", "source_snapshot", "labels"}
 			for _, conflict := range conflicts {
 				if _, ok := d.GetOk(prefix + "." + conflict); ok {
 					return nil, fmt.Errorf("Cannot use `source` with any of the fields in %s", conflicts)
@@ -906,6 +974,8 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 				disk.InitializeParams.DiskType = v.(string)
 			}
 
+			disk.InitializeParams.Labels = expandStringMap(d, prefix+".labels")
+
 			if v, ok := d.GetOk(prefix + ".source_image"); ok {
 				imageName := v.(string)
 				imageUrl, err := resolveImage(config, project, imageName, userAgent)
@@ -917,7 +987,29 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*compute.AttachedDisk
 				disk.InitializeParams.SourceImage = imageUrl
 			}
 
-			disk.InitializeParams.Labels = expandStringMap(d, prefix+".labels")
+			if _, ok := d.GetOk(prefix + ".source_image_encryption_key"); ok {
+				disk.InitializeParams.SourceImageEncryptionKey = &compute.CustomerEncryptionKey{}
+				if v, ok := d.GetOk(prefix + ".source_image_encryption_key.0.kms_key_self_link"); ok {
+					disk.InitializeParams.SourceImageEncryptionKey.KmsKeyName = v.(string)
+				}
+				if v, ok := d.GetOk(prefix + ".source_image_encryption_key.0.kms_key_service_account"); ok {
+					disk.InitializeParams.SourceImageEncryptionKey.KmsKeyServiceAccount = v.(string)
+				}
+			}
+
+			if v, ok := d.GetOk(prefix + ".source_snapshot"); ok {
+				disk.InitializeParams.SourceSnapshot = v.(string)
+			}
+
+			if _, ok := d.GetOk(prefix + ".source_snapshot_encryption_key"); ok {
+				disk.InitializeParams.SourceSnapshotEncryptionKey = &compute.CustomerEncryptionKey{}
+				if v, ok := d.GetOk(prefix + ".source_snapshot_encryption_key.0.kms_key_self_link"); ok {
+					disk.InitializeParams.SourceSnapshotEncryptionKey.KmsKeyName = v.(string)
+				}
+				if v, ok := d.GetOk(prefix + ".source_snapshot_encryption_key.0.kms_key_service_account"); ok {
+					disk.InitializeParams.SourceSnapshotEncryptionKey.KmsKeyServiceAccount = v.(string)
+				}
+			}
 
 			if _, ok := d.GetOk(prefix + ".resource_policies"); ok {
 				// instance template only supports a resource name here (not uri)
@@ -1100,8 +1192,14 @@ func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
 	return dc
 }
 
-func flattenDisk(disk *compute.AttachedDisk, defaultProject string) (map[string]interface{}, error) {
+func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultProject string) (map[string]interface{}, error) {
 	diskMap := make(map[string]interface{})
+
+	// These values are not returned by the API, so we copy them from the config.
+	diskMap["source_image_encryption_key"] = configDisk["source_image_encryption_key"]
+	diskMap["source_snapshot"] = configDisk["source_snapshot"]
+	diskMap["source_snapshot_encryption_key"] = configDisk["source_snapshot_encryption_key"]
+
 	if disk.InitializeParams != nil {
 		if disk.InitializeParams.SourceImage != "" {
 			path, err := resolveImageRefToRelativeURI(defaultProject, disk.InitializeParams.SourceImage)
@@ -1266,11 +1364,12 @@ func flattenDisks(disks []*compute.AttachedDisk, d *schema.ResourceData, default
 	apiDisks := make([]map[string]interface{}, len(disks))
 
 	for i, disk := range disks {
-		d, err := flattenDisk(disk, defaultProject)
+		configDisk := d.Get(fmt.Sprintf("disk.%d", i)).(map[string]any)
+		apiDisk, err := flattenDisk(disk, configDisk, defaultProject)
 		if err != nil {
 			return nil, err
 		}
-		apiDisks[i] = d
+		apiDisks[i] = apiDisk
 	}
 
 	return reorderDisks(d.Get("disk").([]interface{}), apiDisks), nil

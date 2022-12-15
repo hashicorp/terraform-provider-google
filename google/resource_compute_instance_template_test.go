@@ -1108,6 +1108,66 @@ func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
+	kmsKeyName := GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
+	kmsRingName := GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(kmsRingName, kmsKeyName, randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.template", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk.0.source_snapshot", "disk.0.source_snapshot_encryption_key"},
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
+	kmsKeyName := GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
+	kmsRingName := GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_sourceImageEncryptionKey(kmsRingName, kmsKeyName, randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.template", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk.0.source_image_encryption_key"},
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -2828,4 +2888,130 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, suffix)
+}
+
+func testAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(kmsRingName, kmsKeyName, suffix string) string {
+	return fmt.Sprintf(`
+data "google_kms_key_ring" "ring" {
+  name     = "%s"
+  location = "us-central1"
+}
+
+data "google_kms_crypto_key" "key" {
+  name     = "%s"
+  key_ring = data.google_kms_key_ring.ring.id
+}
+
+resource "google_service_account" "test" {
+  account_id   = "test-sa-%s"
+  display_name = "KMS Ops Account"
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = data.google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${google_service_account.test.email}"
+}
+
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "debian-disk"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "snapshot" {
+  name        = "my-snapshot"
+  source_disk = google_compute_disk.persistent.id
+  zone        = "us-central1-a"
+  snapshot_encryption_key {
+    kms_key_self_link       = data.google_kms_crypto_key.key.id
+    kms_key_service_account = google_service_account.test.email
+  }
+}
+
+resource "google_compute_instance_template" "template" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+
+  disk {
+    source_snapshot = google_compute_snapshot.snapshot.self_link
+    source_snapshot_encryption_key {
+      kms_key_self_link       = data.google_kms_crypto_key.key.id
+      kms_key_service_account = google_service_account.test.email
+    }
+    auto_delete = true
+    boot        = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, kmsRingName, kmsKeyName, suffix, suffix)
+}
+
+func testAccComputeInstanceTemplate_sourceImageEncryptionKey(kmsRingName, kmsKeyName, suffix string) string {
+	return fmt.Sprintf(`
+data "google_kms_key_ring" "ring" {
+  name     = "%s"
+  location = "us-central1"
+}
+
+data "google_kms_crypto_key" "key" {
+  name     = "%s"
+  key_ring = data.google_kms_key_ring.ring.id
+}
+
+resource "google_service_account" "test" {
+  account_id   = "tf-test-sa-%s"
+  display_name = "KMS Ops Account"
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = data.google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${google_service_account.test.email}"
+}
+
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_image" "image" {
+  name         = "debian-image"
+  source_image = data.google_compute_image.debian.self_link
+  image_encryption_key {
+    kms_key_self_link       = data.google_kms_crypto_key.key.id
+    kms_key_service_account = google_service_account.test.email
+  }
+}
+
+
+resource "google_compute_instance_template" "template" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+
+  disk {
+    source_image = google_compute_image.image.self_link
+    source_image_encryption_key {
+      kms_key_self_link       = data.google_kms_crypto_key.key.id
+      kms_key_service_account = google_service_account.test.email
+    }
+    auto_delete = true
+    boot        = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, kmsRingName, kmsKeyName, suffix, suffix)
 }
