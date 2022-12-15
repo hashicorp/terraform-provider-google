@@ -76,7 +76,7 @@ resource "google_kms_key_ring_iam_policy" "key_ring" {
 ```hcl
 resource "google_kms_key_ring_iam_binding" "key_ring" {
   key_ring_id = "your-key-ring-id"
-  role        = "roles/editor"
+  role        = "roles/cloudkms.admin"
 
   members = [
     "user:jane@example.com",
@@ -89,7 +89,7 @@ With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_
 ```hcl
 resource "google_kms_key_ring_iam_binding" "key_ring" {
   key_ring_id = "your-key-ring-id"
-  role        = "roles/editor"
+  role        = "roles/cloudkms.admin"
 
   members = [
     "user:jane@example.com",
@@ -108,7 +108,7 @@ resource "google_kms_key_ring_iam_binding" "key_ring" {
 ```hcl
 resource "google_kms_key_ring_iam_member" "key_ring" {
   key_ring_id = "your-key-ring-id"
-  role        = "roles/editor"
+  role        = "roles/cloudkms.admin"
   member      = "user:jane@example.com"
 }
 ```
@@ -118,7 +118,7 @@ With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_
 ```hcl
 resource "google_kms_key_ring_iam_member" "key_ring" {
   key_ring_id = "your-key-ring-id"
-  role        = "roles/editor"
+  role        = "roles/cloudkms.admin"
   member      = "user:jane@example.com"
 
   condition {
@@ -189,7 +189,7 @@ $ terraform import google_kms_key_ring_iam_member.key_ring_iam "your-project-id/
 IAM binding imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `key_ring_id` and role, e.g.
 
 ```
-$ terraform import google_kms_key_ring_iam_binding.key_ring_iam "your-project-id/location-name/key-ring-name roles/viewer"
+$ terraform import google_kms_key_ring_iam_binding.key_ring_iam "your-project-id/location-name/key-ring-name roles/cloudkms.admin"
 ```
 
 IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `key_ring_id`, e.g.
