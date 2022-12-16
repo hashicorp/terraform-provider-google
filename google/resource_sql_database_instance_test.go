@@ -192,6 +192,74 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 	})
 }
 
+// This test requires an arbitrary error to occur during the SQL instance creation. Currently, we
+// are relying on an error that occurs when settings are used on a MySQL clone. Note that this is
+// somewhat brittle, and the test could begin failing if that error no longer behaves the same way.
+// If this test begins failing, we will want to be sure that the root user is removed as early as
+// possible, and we should attempt to find any other scenarios where the root user could otherwise
+// be left on the instance.
+func TestAccSqlDatabaseInstance_deleteDefaultUserBeforeSubsequentApiCalls(t *testing.T) {
+	// Service Networking
+	skipIfVcr(t)
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+	addressName := "tf-test-" + randString(t, 10)
+	networkName := "tf-bootstrap-net-sql-instance-private-clone"
+	// networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-clone")
+
+	// 1. Create an instance.
+	// 2. Add a root@'%' user.
+	// 3. Create a clone with settings and assert it fails after the instance creation API call.
+	// 4. Check root user was deleted.
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_withPrivateNetwork_withoutAllocatedIpRange(databaseName, networkName, addressName),
+			},
+			{
+				PreConfig: func() {
+					// Add a root user
+					config := googleProviderConfig(t)
+					user := sqladmin.User{
+						Name:     "root",
+						Host:     "%",
+						Password: randString(t, 26),
+					}
+					op, err := config.NewSqlAdminClient(config.userAgent).Users.Insert(config.Project, databaseName, &user).Do()
+					if err != nil {
+						t.Errorf("Error while inserting root@%% user: %s", err)
+						return
+					}
+					err = sqlAdminOperationWaitTime(config, op, config.Project, "Waiting for user to insert", config.userAgent, 10*time.Minute)
+					if err != nil {
+						t.Errorf("Error while waiting for user insert operation to complete: %s", err.Error())
+					}
+				},
+				Config:      testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone_withSettings(databaseName, networkName, addressName),
+				ExpectError: regexp.MustCompile("Error, failed to update instance settings"),
+			},
+			{
+				// This PreConfig does a check on the previous step. It is needed because the
+				// previous step expects an error, so it cannot perform a check of its own.
+				PreConfig: func() {
+					var s *terraform.State
+					err := testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t, databaseName+"-clone1")(s)
+					if err != nil {
+						t.Errorf("Failed to verify that root user was removed: %s", err)
+					}
+				},
+				Config:             testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone_withSettings(databaseName, networkName, addressName),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 	t.Parallel()
 
@@ -1834,6 +1902,67 @@ resource "google_sql_database_instance" "clone1" {
     allocated_ip_range   = google_compute_global_address.foobar.name
   }
 
+}
+`, networkName, addressRangeName, databaseName, databaseName)
+}
+
+func testAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone_withSettings(databaseName, networkName, addressRangeName string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_compute_global_address" "foobar" {
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.servicenet.self_link
+}
+
+resource "google_service_networking_connection" "foobar" {
+  network                 = data.google_compute_network.servicenet.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.foobar.name]
+}
+
+resource "google_sql_database_instance" "instance" {
+  depends_on = [google_service_networking_connection.foobar]
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      start_time         = "00:00"
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "clone1" {
+  name                = "%s-clone1"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+
+  clone {
+    source_instance_name = google_sql_database_instance.instance.name
+    allocated_ip_range   = google_compute_global_address.foobar.name
+  }
+
+  settings {
+    tier = "db-f1-micro"
+    backup_configuration {
+      enabled = false
+    }
+  }
 }
 `, networkName, addressRangeName, databaseName, databaseName)
 }

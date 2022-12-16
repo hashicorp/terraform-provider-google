@@ -1003,6 +1003,36 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	// If a default root user was created with a wildcard ('%') hostname, delete it. Note it
+	// appears to only be created for certain types of databases, like MySQL.
+	// Users in a replica instance are inherited from the master instance and should be left alone.
+	// This deletion is done immediately after the instance is created, in order to minimize the
+	// risk of it being left on the instance, which would present a security concern.
+	if sqlDatabaseIsMaster(d) {
+		var users *sqladmin.UsersListResponse
+		err = retryTimeDuration(func() error {
+			users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance.Name).Do()
+			return err
+		}, d.Timeout(schema.TimeoutRead), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
+		}
+		for _, u := range users.Items {
+			if u.Name == "root" && u.Host == "%" {
+				err = retry(func() error {
+					op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
+					if err == nil {
+						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", userAgent, d.Timeout(schema.TimeoutCreate))
+					}
+					return err
+				})
+				if err != nil {
+					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
+				}
+			}
+		}
+	}
+
 	// patch any fields that need to be sent postcreation
 	if patchData != nil {
 		err = retryTimeDuration(func() (rerr error) {
@@ -1050,33 +1080,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		err = resourceSqlDatabaseInstanceRead(d, meta)
 		if err != nil {
 			return err
-		}
-	}
-
-	// If a default root user was created with a wildcard ('%') hostname, delete it.
-	// Users in a replica instance are inherited from the master instance and should be left alone.
-	if sqlDatabaseIsMaster(d) {
-		var users *sqladmin.UsersListResponse
-		err = retryTimeDuration(func() error {
-			users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance.Name).Do()
-			return err
-		}, d.Timeout(schema.TimeoutRead), isSqlOperationInProgressError)
-		if err != nil {
-			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
-		}
-		for _, u := range users.Items {
-			if u.Name == "root" && u.Host == "%" {
-				err = retry(func() error {
-					op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
-					if err == nil {
-						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", userAgent, d.Timeout(schema.TimeoutCreate))
-					}
-					return err
-				})
-				if err != nil {
-					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
-				}
-			}
 		}
 	}
 
