@@ -1,8 +1,5 @@
 ## 4.47.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Bigtable: table deletion protection support ([#13232](https://github.com/hashicorp/terraform-provider-google/pull/13232))
-* Fix user-agent bug due to goreleaser ldflags not overriding value in release process ([#13197](https://github.com/hashicorp/terraform-provider-google/pull/13197))
 NOTES:
 * sql: fixed an issue where `google_sql_database` was abandoned by default as of version `4.45.0`. Users who have upgraded to `4.45.0` or `4.46.0` will see a diff when running their next `terraform apply` after upgrading this version, indicating the `deletion_policy` field's value has changed from `"ABANDON"` to `"DELETE"`. This will create a no-op call against the API, but can otherwise be safely applied. ([#13226](https://github.com/hashicorp/terraform-provider-google/pull/13226))
 
@@ -11,7 +8,8 @@ FEATURES:
 * **New Resource:** `google_filestore_backup` ([#13209](https://github.com/hashicorp/terraform-provider-google/pull/13209))
 
 IMPROVEMENTS:
-* compute: Made subnetwork ipv6_access_type field updatable ([#13211](https://github.com/hashicorp/terraform-provider-google/pull/13211))
+* bigtable: added `deletion_protection` field to `google_bigtable_table` ([#13232](https://github.com/hashicorp/terraform-provider-google/pull/13232))
+* compute: made `google_compute_subnetwork.ipv6_access_type` field updatable in-place ([#13211](https://github.com/hashicorp/terraform-provider-google/pull/13211))
 * container: added `auto_provisioning_defaults.cluster_autoscaling.upgrade_settings` in `google_container_cluster` ([#13199](https://github.com/hashicorp/terraform-provider-google/pull/13199))
 * container: added `gateway_api_config` block to `google_container_cluster` resource for supporting the gke gateway api controller ([#13233](https://github.com/hashicorp/terraform-provider-google/pull/13233))
 * container: promoted `gke_backup_agent_config` in `google_container_cluster` to GA ([#13223](https://github.com/hashicorp/terraform-provider-google/pull/13223))
@@ -22,11 +20,11 @@ IMPROVEMENTS:
 * dataproc: added support for `node_group_affinity` in `google_dataproc_cluster` ([#13231](https://github.com/hashicorp/terraform-provider-google/pull/13231))
 * dataproc: added support for `reservation_affinity` in `google_dataproc_cluster` ([#13231](https://github.com/hashicorp/terraform-provider-google/pull/13231))
 * iam: Added plan-time validation for IAM members ([#13203](https://github.com/hashicorp/terraform-provider-google/pull/13203))
-* logging: added `bucket_name` argument to `google_logging_metric` ([#13210](https://github.com/hashicorp/terraform-provider-google/pull/13210))
-* logging: made `metric_descriptor` argument optional for `google_logging_metric` ([#13225](https://github.com/hashicorp/terraform-provider-google/pull/13225))
+* logging: added `bucket_name` field to `google_logging_metric` ([#13210](https://github.com/hashicorp/terraform-provider-google/pull/13210))
+* logging: made `metric_descriptor` field optional for `google_logging_metric` ([#13225](https://github.com/hashicorp/terraform-provider-google/pull/13225))
 
 BUG FIXES:
-* cloud composer: fixed a crash when updating `ip_allocation_policy` of `google_composer_environment` ([#13188](https://github.com/hashicorp/terraform-provider-google/pull/13188))
+* composer: fixed a crash when updating `ip_allocation_policy` of `google_composer_environment` ([#13188](https://github.com/hashicorp/terraform-provider-google/pull/13188))
 * sql: fixed an issue where `google_sql_database` was abandoned by default as of version `4.45.0`. Users who have upgraded to `4.45.0` or `4.46.0` will see a diff when running their next `terraform apply` after upgrading this version, indicating the `deletion_policy` field's value has changed from `"ABANDON"` to `"DELETE"`. This will create a no-op call against the API, but can otherwise be safely applied. ([#13226](https://github.com/hashicorp/terraform-provider-google/pull/13226))
 
 ## 4.46.0 (December 12, 2022)
