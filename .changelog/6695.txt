@@ -1,0 +1,4 @@
+```release-note:enhancement
+Add Stateful IP fields to instance group manager
+
+```
