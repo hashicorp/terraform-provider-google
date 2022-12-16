@@ -373,6 +373,7 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 
 	template := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 	igm := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	network := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -380,7 +381,7 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRegionInstanceGroupManager_stateful(template, igm),
+				Config: testAccRegionInstanceGroupManager_stateful(template, network, igm),
 			},
 			{
 				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
@@ -389,7 +390,7 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
-				Config: testAccRegionInstanceGroupManager_statefulUpdate(template, igm),
+				Config: testAccRegionInstanceGroupManager_statefulUpdate(template, network, igm),
 			},
 			{
 				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
@@ -1315,13 +1316,15 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
 `, igm)
 }
 
-func testAccRegionInstanceGroupManager_stateful(template, igm string) string {
+func testAccRegionInstanceGroupManager_stateful(network, template, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-11"
   project = "debian-cloud"
 }
-
+resource "google_compute_network" "igm-basic" {
+  name = "%s"
+}
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
   machine_type   = "e2-medium"
@@ -1340,6 +1343,9 @@ resource "google_compute_instance_template" "igm-basic" {
   }
   network_interface {
     network = "default"
+  }
+  network_interface {
+    network = google_compute_network.igm-basic.self_link
   }
 }
 
@@ -1366,17 +1372,19 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     device_name = "stateful-disk"
     delete_rule = "NEVER"
   }
-}
-`, template, igm)
+  }
+`, network, template, igm)
 }
 
-func testAccRegionInstanceGroupManager_statefulUpdate(template, igm string) string {
+func testAccRegionInstanceGroupManager_statefulUpdate(network, template, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-11"
   project = "debian-cloud"
 }
-
+resource "google_compute_network" "igm-basic" {
+  name = "%s"
+}
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
   machine_type   = "e2-medium"
@@ -1395,6 +1403,9 @@ resource "google_compute_instance_template" "igm-basic" {
   }
   network_interface {
     network = "default"
+  }
+  network_interface {
+    network = google_compute_network.igm-basic.self_link
   }
 }
 
@@ -1426,6 +1437,6 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     device_name = "stateful-disk2"
     delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
   }
-}
-`, template, igm)
+  }
+`, network, template, igm)
 }
