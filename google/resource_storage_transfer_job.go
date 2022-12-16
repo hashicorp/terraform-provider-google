@@ -181,7 +181,6 @@ func resourceStorageTransferJob() *schema.Resource {
 						"schedule_start_date": {
 							Type:        schema.TypeList,
 							Required:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							Elem:        dateObjectSchema(),
 							Description: `The first day the recurring transfer is scheduled to run. If schedule_start_date is in the past, the transfer will run for the first time on the following day.`,
@@ -189,7 +188,6 @@ func resourceStorageTransferJob() *schema.Resource {
 						"schedule_end_date": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							Elem:        dateObjectSchema(),
 							Description: `The last day the recurring transfer will be run. If schedule_end_date is the same as schedule_start_date, the transfer will be executed only once.`,
@@ -197,7 +195,6 @@ func resourceStorageTransferJob() *schema.Resource {
 						"start_time_of_day": {
 							Type:             schema.TypeList,
 							Optional:         true,
-							ForceNew:         true,
 							MaxItems:         1,
 							Elem:             timeObjectSchema(),
 							DiffSuppressFunc: diffSuppressEmptyStartTimeOfDay,
@@ -334,28 +331,24 @@ func timeObjectSchema() *schema.Resource {
 			"hours": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 24),
 				Description:  `Hours of day in 24 hour format. Should be from 0 to 23.`,
 			},
 			"minutes": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 59),
 				Description:  `Minutes of hour of day. Must be from 0 to 59.`,
 			},
 			"seconds": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 60),
 				Description:  `Seconds of minutes of the time. Must normally be from 0 to 59.`,
 			},
 			"nanos": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 999999999),
 				Description:  `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
 			},
@@ -369,7 +362,6 @@ func dateObjectSchema() *schema.Resource {
 			"year": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 9999),
 				Description:  `Year of date. Must be from 1 to 9999.`,
 			},
@@ -377,7 +369,6 @@ func dateObjectSchema() *schema.Resource {
 			"month": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(1, 12),
 				Description:  `Month of year. Must be from 1 to 12.`,
 			},
@@ -385,7 +376,6 @@ func dateObjectSchema() *schema.Resource {
 			"day": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 31),
 				Description:  `Day of month. Must be from 1 to 31 and valid for the year and month.`,
 			},
@@ -638,29 +628,29 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 	fieldMask := []string{}
 
 	if d.HasChange("description") {
+		fieldMask = append(fieldMask, "description")
 		if v, ok := d.GetOk("description"); ok {
-			fieldMask = append(fieldMask, "description")
 			transferJob.Description = v.(string)
 		}
 	}
 
 	if d.HasChange("status") {
+		fieldMask = append(fieldMask, "status")
 		if v, ok := d.GetOk("status"); ok {
-			fieldMask = append(fieldMask, "status")
 			transferJob.Status = v.(string)
 		}
 	}
 
 	if d.HasChange("schedule") {
+		fieldMask = append(fieldMask, "schedule")
 		if v, ok := d.GetOk("schedule"); ok {
-			fieldMask = append(fieldMask, "schedule")
 			transferJob.Schedule = expandTransferSchedules(v.([]interface{}))
 		}
 	}
 
 	if d.HasChange("transfer_spec") {
+		fieldMask = append(fieldMask, "transfer_spec")
 		if v, ok := d.GetOk("transfer_spec"); ok {
-			fieldMask = append(fieldMask, "transfer_spec")
 			transferJob.TransferSpec = expandTransferSpecs(v.([]interface{}))
 		}
 	}
@@ -672,6 +662,10 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 		} else {
 			transferJob.NotificationConfig = nil
 		}
+	}
+
+	if len(fieldMask) == 0 {
+		return nil
 	}
 
 	updateRequest := &storagetransfer.UpdateTransferJobRequest{
