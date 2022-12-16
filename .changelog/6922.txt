@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed `sql_database_instance` leaking root users
+```
