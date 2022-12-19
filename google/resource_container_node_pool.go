@@ -160,6 +160,7 @@ var schemaNodePool = map[string]*schema.Schema{
 				"location_policy": {
 					Type:         schema.TypeString,
 					Optional:     true,
+					Computed:     true,
 					ValidateFunc: validation.StringInSlice([]string{"BALANCED", "ANY"}, false),
 					Description:  `Location policy specifies the algorithm used when scaling-up the node pool. "BALANCED" - Is a best effort policy that aims to balance the sizes of available zones. "ANY" - Instructs the cluster autoscaler to prioritize utilization of unused reservations, and reduces preemption risk for Spot VMs.`,
 				},
