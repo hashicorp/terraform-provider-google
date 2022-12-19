@@ -1,0 +1,15 @@
+```release-note:enhancement
+dlp: Added field `deidentify_config.record_transformations.field_transformations.fields` to `google_data_loss_prevention_deidentify_template`
+```
+```release-note:enhancement
+dlp: Added field `deidentify_config.record_transformations.field_transformations.condition` to `google_data_loss_prevention_deidentify_template`
+```
+```release-note:enhancement
+dlp: Added field `deidentify_config.record_transformations.field_transformations.primitive_transformation.replace_config` to `google_data_loss_prevention_deidentify_template`
+```
+```release-note:enhancement
+dlp: Added field `deidentify_config.record_transformations.field_transformations.primitive_transformation.redact_config` to `google_data_loss_prevention_deidentify_template`
+```
+```release-note:enhancement
+dlp: Added field `deidentify_config.record_transformations.field_transformations.primitive_transformation.character_mask_config` to `google_data_loss_prevention_deidentify_template`
+```

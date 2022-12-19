@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateUpdate(t *testing.T) {
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformationsUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -20,7 +20,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateUpdate(t *
 		CheckDestroy: testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateStart(context),
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformationsStart(context),
 			},
 			{
 				ResourceName:      "google_data_loss_prevention_deidentify_template.basic",
@@ -28,7 +28,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateUpdate(t *
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateUpdate(context),
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformationsUpdate(context),
 			},
 			{
 				ResourceName:      "google_data_loss_prevention_deidentify_template.basic",
@@ -39,7 +39,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateUpdate(t *
 	})
 }
 
-func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateStart(context map[string]interface{}) string {
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformationsStart(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "basic" {
   parent = "organizations/%{organization}"
@@ -245,7 +245,7 @@ resource "google_kms_key_ring" "key_ring" {
 `, context)
 }
 
-func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateUpdate(context map[string]interface{}) string {
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformationsUpdate(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "basic" {
   parent = "organizations/%{organization}"
@@ -398,6 +398,199 @@ resource "google_kms_crypto_key" "my_key" {
 resource "google_kms_key_ring" "key_ring" {
   name     = "tf-test-example-keyr%{random_suffix}"
   location = "global"
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTransformationsUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"organization":  getTestOrgFromEnv(t),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTransformations_start(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTransformations_update(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTransformations_start(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    record_transformations {
+      field_transformations {
+        fields {
+          name = "details.pii.email"
+        }
+        condition {
+          expressions {
+            conditions {
+              conditions {
+                field {
+                  name = "details.pii.country_code"
+                }
+                operator = "EQUAL_TO"
+                value {
+                  string_value = "US"
+                }
+              }
+              conditions {
+                field {
+                  name = "details.pii.date_of_birth"
+                }
+                operator = "GREATER_THAN_OR_EQUALS"
+                value {
+                  date_value {
+                    year = 2001
+                    month = 6
+                    day = 29
+                  }
+                }
+              }
+            }
+          }
+        }
+        primitive_transformation {
+          replace_config {
+            new_value {
+              string_value = "born.after.shrek@example.com"
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-redacted-field"
+        }
+        primitive_transformation {
+          redact_config {}
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-char-masked-field"
+        }
+        primitive_transformation {
+          character_mask_config {
+            masking_character = "x"
+            number_to_mask = 8
+            characters_to_ignore {
+              characters_to_skip = "-"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTransformations_update(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    record_transformations {
+      field_transformations {
+        fields {
+          name = "details.pii.email"
+        }
+        condition {
+          expressions {
+            conditions {
+              # update to remove condition checking the details.pii.country_code field
+              # update to add a new condition
+              conditions {
+                field {
+                  name = "details.pii.gender"
+                }
+                operator = "EQUAL_TO"
+                value {
+                  string_value = "M"
+                }
+              }
+              conditions {
+                field {
+                  name = "details.pii.date_of_birth"
+                }
+                operator = "GREATER_THAN_OR_EQUALS"
+                value {
+                  # update date values
+                  date_value {
+                    year = 2004
+                    month = 7
+                    day = 2
+                  }
+                }
+              }
+            }
+          }
+        }
+        primitive_transformation {
+          # update values inside replace_config
+          replace_config {
+            new_value {
+              string_value = "dude.born.after.shrek2@example.com"
+            }
+          }
+        }
+      }
+
+      # update to remove field_transformations block using redact_config
+
+      field_transformations {
+        fields {
+          name = "unconditionally-char-masked-field"
+        }
+        primitive_transformation {
+          character_mask_config {
+            masking_character = "x"
+            number_to_mask = 8
+            # update to delete old characters_to_ignore block and add new ones
+            characters_to_ignore {
+              common_characters_to_ignore = "PUNCTUATION"
+            }
+            characters_to_ignore {
+              common_characters_to_ignore = "ALPHA_UPPER_CASE"
+            }
+            characters_to_ignore {
+              common_characters_to_ignore = "ALPHA_LOWER_CASE"
+            }
+          }
+        }
+      }
+    }
+  }
 }
 `, context)
 }

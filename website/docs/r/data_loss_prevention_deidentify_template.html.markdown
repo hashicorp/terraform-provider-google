@@ -153,9 +153,14 @@ The following arguments are supported:
 <a name="nested_deidentify_config"></a>The `deidentify_config` block supports:
 
 * `info_type_transformations` -
-  (Required)
-  Specifies free-text based transformations to be applied to the dataset.
+  (Optional)
+  Treat the dataset as free-form text and apply the same free text transformation everywhere
   Structure is [documented below](#nested_info_type_transformations).
+
+* `record_transformations` -
+  (Optional)
+  Treat the dataset as structured. Transformations can be applied to specific locations within structured datasets, such as transforming a column within a table.
+  Structure is [documented below](#nested_record_transformations).
 
 
 <a name="nested_info_type_transformations"></a>The `info_type_transformations` block supports:
@@ -177,6 +182,7 @@ The following arguments are supported:
 * `primitive_transformation` -
   (Required)
   Primitive transformation to apply to the infoType.
+  The `primitive_transformation` block must only contain one argument, corresponding to the type of transformation.
   Structure is [documented below](#nested_primitive_transformation).
 
 
@@ -220,6 +226,7 @@ The following arguments are supported:
 * `new_value` -
   (Required)
   Replace each input value with a given value.
+  The `new_value` block must only contain one argument. For example when replacing the contents of a string-type field, only `string_value` should be set.
   Structure is [documented below](#nested_new_value).
 
 
@@ -509,6 +516,306 @@ The following arguments are supported:
 * `name` -
   (Optional)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern `[A-Za-z0-9$-_]{1,64}`.
+
+<a name="nested_record_transformations"></a>The `record_transformations` block supports:
+
+* `field_transformations` -
+  (Optional)
+  Transform the record by applying various field transformations.
+  Structure is [documented below](#nested_field_transformations).
+
+
+<a name="nested_field_transformations"></a>The `field_transformations` block supports:
+
+* `fields` -
+  (Required)
+  Input field(s) to apply the transformation to. When you have columns that reference their position within a list, omit the index from the FieldId.
+  FieldId name matching ignores the index. For example, instead of "contact.nums[0].type", use "contact.nums.type".
+  Structure is [documented below](#nested_fields).
+
+* `condition` -
+  (Optional)
+  Only apply the transformation if the condition evaluates to true for the given RecordCondition. The conditions are allowed to reference fields that are not used in the actual transformation.
+  Example Use Cases:
+  - Apply a different bucket transformation to an age column if the zip code column for the same record is within a specific range.
+  - Redact a field if the date of birth field is greater than 85.
+  Structure is [documented below](#nested_condition).
+
+* `primitive_transformation` -
+  (Required)
+  Apply the transformation to the entire field.
+  The `primitive_transformation` block must only contain one argument, corresponding to the type of transformation.
+  Structure is [documented below](#nested_primitive_transformation).
+
+
+<a name="nested_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Name describing the field.
+
+<a name="nested_condition"></a>The `condition` block supports:
+
+* `expressions` -
+  (Optional)
+  An expression.
+  Structure is [documented below](#nested_expressions).
+
+
+<a name="nested_expressions"></a>The `expressions` block supports:
+
+* `logical_operator` -
+  (Optional)
+  The operator to apply to the result of conditions. Default and currently only supported value is AND
+  Default value is `AND`.
+  Possible values are `AND`.
+
+* `conditions` -
+  (Optional)
+  Conditions to apply to the expression.
+  Structure is [documented below](#nested_conditions).
+
+
+<a name="nested_conditions"></a>The `conditions` block supports:
+
+* `conditions` -
+  (Optional)
+  A collection of conditions.
+  Structure is [documented below](#nested_conditions).
+
+
+<a name="nested_conditions"></a>The `conditions` block supports:
+
+* `field` -
+  (Required)
+  Field within the record this condition is evaluated against.
+  Structure is [documented below](#nested_field).
+
+* `operator` -
+  (Required)
+  Operator used to compare the field or infoType to the value.
+  Possible values are `EQUAL_TO`, `NOT_EQUAL_TO`, `GREATER_THAN`, `LESS_THAN`, `GREATER_THAN_OR_EQUALS`, `LESS_THAN_OR_EQUALS`, and `EXISTS`.
+
+* `value` -
+  (Optional)
+  Value to compare against.
+  The `value` block must only contain one argument. For example when a condition is evaluated against a string-type field, only `string_value` should be set.
+  This argument is mandatory, except for conditions using the `EXISTS` operator.
+  Structure is [documented below](#nested_value).
+
+
+<a name="nested_field"></a>The `field` block supports:
+
+* `name` -
+  (Optional)
+  Name describing the field.
+
+<a name="nested_value"></a>The `value` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+* `string_value` -
+  (Optional)
+  A string value.
+
+* `boolean_value` -
+  (Optional)
+  A boolean value.
+
+* `timestamp_value` -
+  (Optional)
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `time_value` -
+  (Optional)
+  Represents a time of day.
+  Structure is [documented below](#nested_time_value).
+
+* `date_value` -
+  (Optional)
+  Represents a whole or partial calendar date.
+  Structure is [documented below](#nested_date_value).
+
+* `day_of_week_value` -
+  (Optional)
+  Represents a day of the week.
+  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+
+
+<a name="nested_time_value"></a>The `time_value` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_date_value"></a>The `date_value` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
+
+<a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
+
+* `replace_config` -
+  (Optional)
+  Replace with a specified value.
+  Structure is [documented below](#nested_replace_config).
+
+* `redact_config` -
+  (Optional)
+  Redact a given value. For example, if used with an InfoTypeTransformation transforming PHONE_NUMBER, and input 'My phone number is 206-555-0123', the output would be 'My phone number is '.
+
+* `character_mask_config` -
+  (Optional)
+  Partially mask a string by replacing a given number of characters with a fixed character. Masking can start from the beginning or end of the string. This can be used on data of any type (numbers, longs, and so on) and when de-identifying structured data we'll attempt to preserve the original data's type. (This allows you to take a long like 123 and modify it to a string like **3).
+  Structure is [documented below](#nested_character_mask_config).
+
+
+<a name="nested_replace_config"></a>The `replace_config` block supports:
+
+* `new_value` -
+  (Required)
+  Replace each input value with a given value.
+  The `new_value` block must only contain one argument. For example when replacing the contents of a string-type field, only `string_value` should be set.
+  Structure is [documented below](#nested_new_value).
+
+
+<a name="nested_new_value"></a>The `new_value` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+* `string_value` -
+  (Optional)
+  A string value.
+
+* `boolean_value` -
+  (Optional)
+  A boolean value.
+
+* `timestamp_value` -
+  (Optional)
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `time_value` -
+  (Optional)
+  Represents a time of day.
+  Structure is [documented below](#nested_time_value).
+
+* `date_value` -
+  (Optional)
+  Represents a whole or partial calendar date.
+  Structure is [documented below](#nested_date_value).
+
+* `day_of_week_value` -
+  (Optional)
+  Represents a day of the week.
+  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+
+
+<a name="nested_time_value"></a>The `time_value` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_date_value"></a>The `date_value` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
+
+<a name="nested_character_mask_config"></a>The `character_mask_config` block supports:
+
+* `masking_character` -
+  (Optional)
+  Character to use to mask the sensitive values—for example, * for an alphabetic string such as a name, or 0 for a numeric string
+  such as ZIP code or credit card number. This string must have a length of 1. If not supplied, this value defaults to * for
+  strings, and 0 for digits.
+
+* `number_to_mask` -
+  (Optional)
+  Number of characters to mask. If not set, all matching chars will be masked. Skipped characters do not count towards this tally.
+  If number_to_mask is negative, this denotes inverse masking. Cloud DLP masks all but a number of characters. For example, suppose you have the following values:
+  - `masking_character` is *
+  - `number_to_mask` is -4
+  - `reverse_order` is false
+  - `characters_to_ignore` includes -
+  - Input string is 1234-5678-9012-3456
+  The resulting de-identified string is ****-****-****-3456. Cloud DLP masks all but the last four characters. If reverseOrder is true, all but the first four characters are masked as 1234-****-****-****.
+
+* `reverse_order` -
+  (Optional)
+  Mask characters in reverse order. For example, if masking_character is 0, number_to_mask is 14, and reverse_order is `false`, then the
+  input string `1234-5678-9012-3456` is masked as `00000000000000-3456`.
+
+* `characters_to_ignore` -
+  (Optional)
+  Characters to skip when doing de-identification of a value. These will be left alone and skipped.
+  Structure is [documented below](#nested_characters_to_ignore).
+
+
+<a name="nested_characters_to_ignore"></a>The `characters_to_ignore` block supports:
+
+* `characters_to_skip` -
+  (Optional)
+  Characters to not transform when masking.
+
+* `common_characters_to_ignore` -
+  (Optional)
+  Common characters to not transform when masking. Useful to avoid removing punctuation.
+  Possible values are `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, and `WHITESPACE`.
 
 - - -
 
