@@ -56,20 +56,12 @@ var (
 		"cluster_config.0.gce_cluster_config.0.internal_ip_only",
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config",
 		"cluster_config.0.gce_cluster_config.0.metadata",
-		"cluster_config.0.gce_cluster_config.0.reservation_affinity",
-		"cluster_config.0.gce_cluster_config.0.node_group_affinity",
 	}
 
 	schieldedInstanceConfigKeys = []string{
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_secure_boot",
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_vtpm",
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_integrity_monitoring",
-	}
-
-	reservationAffinityKeys = []string{
-		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.consume_reservation_type",
-		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.key",
-		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.values",
 	}
 
 	preemptibleWorkerDiskConfigKeys = []string{
@@ -82,15 +74,6 @@ var (
 		"cluster_config.0.software_config.0.image_version",
 		"cluster_config.0.software_config.0.override_properties",
 		"cluster_config.0.software_config.0.optional_components",
-	}
-
-	dataprocMetricConfigKeys = []string{
-		"cluster_config.0.dataproc_metric_config.0.metrics",
-	}
-
-	metricKeys = []string{
-		"cluster_config.0.dataproc_metric_config.0.metrics.0.metric_source",
-		"cluster_config.0.dataproc_metric_config.0.metrics.0.metric_overrides",
 	}
 
 	clusterConfigKeys = []string{
@@ -108,7 +91,6 @@ var (
 		"cluster_config.0.metastore_config",
 		"cluster_config.0.lifecycle_config",
 		"cluster_config.0.endpoint_config",
-		"cluster_config.0.dataproc_metric_config",
 	}
 )
 
@@ -645,62 +627,6 @@ func resourceDataprocCluster() *schema.Resource {
 											},
 										},
 									},
-
-									"reservation_affinity": {
-										Type:         schema.TypeList,
-										Optional:     true,
-										AtLeastOneOf: gceClusterConfigKeys,
-										Computed:     true,
-										MaxItems:     1,
-										Description:  `Reservation Affinity for consuming Zonal reservation.`,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"consume_reservation_type": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													AtLeastOneOf: reservationAffinityKeys,
-													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice([]string{"NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"}, false),
-													Description:  `Type of reservation to consume.`,
-												},
-												"key": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													AtLeastOneOf: reservationAffinityKeys,
-													ForceNew:     true,
-													Description:  `Corresponds to the label key of reservation resource.`,
-												},
-												"values": {
-													Type:         schema.TypeSet,
-													Elem:         &schema.Schema{Type: schema.TypeString},
-													Optional:     true,
-													AtLeastOneOf: reservationAffinityKeys,
-													ForceNew:     true,
-													Description:  `Corresponds to the label values of reservation resource.`,
-												},
-											},
-										},
-									},
-
-									"node_group_affinity": {
-										Type:         schema.TypeList,
-										Optional:     true,
-										AtLeastOneOf: gceClusterConfigKeys,
-										Computed:     true,
-										MaxItems:     1,
-										Description:  `Node Group Affinity for sole-tenant clusters.`,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"node_group_uri": {
-													Type:             schema.TypeString,
-													ForceNew:         true,
-													Required:         true,
-													Description:      `The URI of a sole-tenant that the cluster will be created on.`,
-													DiffSuppressFunc: compareSelfLinkOrResourceName,
-												},
-											},
-										},
-									},
 								},
 							},
 						},
@@ -743,7 +669,7 @@ func resourceDataprocCluster() *schema.Resource {
 											"cluster_config.0.preemptible_worker_config.0.disk_config",
 										},
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"PREEMPTIBILITY_UNSPECIFIED", "NON_PREEMPTIBLE", "PREEMPTIBLE", "SPOT"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"PREEMPTIBILITY_UNSPECIFIED", "NON_PREEMPTIBLE", "PREEMPTIBLE"}, false),
 										Default:      "PREEMPTIBLE",
 									},
 
@@ -1096,50 +1022,11 @@ by Dataproc`,
 								},
 							},
 						},
-						"dataproc_metric_config": {
-							Type:         schema.TypeList,
-							Optional:     true,
-							MaxItems:     1,
-							Description:  `The config for Dataproc metrics.`,
-							AtLeastOneOf: clusterConfigKeys,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"metrics": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Description: `Metrics sources to enable.`,
-										Elem:        metricsSchema(),
-									},
-								},
-							},
-						},
 					},
 				},
 			},
 		},
 		UseJSONNumber: true,
-	}
-}
-
-// We need to pull metrics' schema out so we can use it to make a set hash func
-func metricsSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"metric_source": {
-				Type:         schema.TypeString,
-				ForceNew:     true,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MONITORING_AGENT_DEFAULTS", "HDFS", "SPARK", "YARN", "SPARK_HISTORY_SERVER", "HIVESERVER2"}, false),
-				Description:  `A source for the collection of Dataproc OSS metrics (see [available OSS metrics] (https://cloud.google.com//dataproc/docs/guides/monitoring#available_oss_metrics)).`,
-			},
-			"metric_overrides": {
-				Type:        schema.TypeSet,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Specify one or more [available OSS metrics] (https://cloud.google.com/dataproc/docs/guides/monitoring#available_oss_metrics) to collect.`,
-			},
-		},
 	}
 }
 
@@ -1593,10 +1480,6 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 		conf.EndpointConfig = expandEndpointConfig(cfg)
 	}
 
-	if cfg, ok := configOptions(d, "cluster_config.0.dataproc_metric_config"); ok {
-		conf.DataprocMetricConfig = expandDataprocMetricConfig(cfg)
-	}
-
 	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
 		log.Println("[INFO] got master_config")
 		conf.MasterConfig = expandInstanceGroupConfig(cfg)
@@ -1673,26 +1556,6 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 		}
 		if v, ok := cfgSic["enable_vtpm"]; ok {
 			conf.ShieldedInstanceConfig.EnableVtpm = v.(bool)
-		}
-	}
-	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.reservation_affinity"); ok {
-		cfgRa := v.([]interface{})[0].(map[string]interface{})
-		conf.ReservationAffinity = &dataproc.ReservationAffinity{}
-		if v, ok := cfgRa["consume_reservation_type"]; ok {
-			conf.ReservationAffinity.ConsumeReservationType = v.(string)
-		}
-		if v, ok := cfgRa["key"]; ok {
-			conf.ReservationAffinity.Key = v.(string)
-		}
-		if v, ok := cfgRa["values"]; ok {
-			conf.ReservationAffinity.Values = convertStringSet(v.(*schema.Set))
-		}
-	}
-	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.node_group_affinity"); ok {
-		cfgNga := v.([]interface{})[0].(map[string]interface{})
-		conf.NodeGroupAffinity = &dataproc.NodeGroupAffinity{}
-		if v, ok := cfgNga["node_group_uri"]; ok {
-			conf.NodeGroupAffinity.NodeGroupUri = v.(string)
 		}
 	}
 	return conf, nil
@@ -1812,23 +1675,6 @@ func expandEndpointConfig(cfg map[string]interface{}) *dataproc.EndpointConfig {
 	if v, ok := cfg["enable_http_port_access"]; ok {
 		conf.EnableHttpPortAccess = v.(bool)
 	}
-	return conf
-}
-
-func expandDataprocMetricConfig(cfg map[string]interface{}) *dataproc.DataprocMetricConfig {
-	conf := &dataproc.DataprocMetricConfig{}
-	metricsConfigs := cfg["metrics"].([]interface{})
-	metricsSet := make([]*dataproc.Metric, 0, len(metricsConfigs))
-
-	for _, raw := range metricsConfigs {
-		data := raw.(map[string]interface{})
-		metric := dataproc.Metric{
-			MetricSource:    data["metric_source"].(string),
-			MetricOverrides: convertStringSet(data["metric_overrides"].(*schema.Set)),
-		}
-		metricsSet = append(metricsSet, &metric)
-	}
-	conf.Metrics = metricsSet
 	return conf
 }
 
@@ -2241,7 +2087,6 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"metastore_config":          flattenMetastoreConfig(d, cfg.MetastoreConfig),
 		"lifecycle_config":          flattenLifecycleConfig(d, cfg.LifecycleConfig),
 		"endpoint_config":           flattenEndpointConfig(d, cfg.EndpointConfig),
-		"dataproc_metric_config":    flattenDataprocMetricConfig(d, cfg.DataprocMetricConfig),
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -2348,26 +2193,6 @@ func flattenEndpointConfig(d *schema.ResourceData, ec *dataproc.EndpointConfig) 
 	return []map[string]interface{}{data}
 }
 
-func flattenDataprocMetricConfig(d *schema.ResourceData, dmc *dataproc.DataprocMetricConfig) []map[string]interface{} {
-	if dmc == nil {
-		return nil
-	}
-
-	data := map[string]interface{}{}
-	metricsTypeSet := schema.NewSet(schema.HashResource(metricsSchema()), []interface{}{})
-	for _, metric := range dmc.Metrics {
-		data := map[string]interface{}{
-			"metric_source":    metric.MetricSource,
-			"metric_overrides": metric.MetricOverrides,
-		}
-
-		metricsTypeSet.Add(data)
-	}
-	data["metrics"] = metricsTypeSet
-
-	return []map[string]interface{}{data}
-}
-
 func flattenMetastoreConfig(d *schema.ResourceData, ec *dataproc.MetastoreConfig) []map[string]interface{} {
 	if ec == nil {
 		return nil
@@ -2440,22 +2265,6 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 				"enable_integrity_monitoring": gcc.ShieldedInstanceConfig.EnableIntegrityMonitoring,
 				"enable_secure_boot":          gcc.ShieldedInstanceConfig.EnableSecureBoot,
 				"enable_vtpm":                 gcc.ShieldedInstanceConfig.EnableVtpm,
-			},
-		}
-	}
-	if gcc.ReservationAffinity != nil {
-		gceConfig["reservation_affinity"] = []map[string]interface{}{
-			{
-				"consume_reservation_type": gcc.ReservationAffinity.ConsumeReservationType,
-				"key":                      gcc.ReservationAffinity.Key,
-				"values":                   gcc.ReservationAffinity.Values,
-			},
-		}
-	}
-	if gcc.NodeGroupAffinity != nil {
-		gceConfig["node_group_affinity"] = []map[string]interface{}{
-			{
-				"node_group_uri": gcc.NodeGroupAffinity.NodeGroupUri,
 			},
 		}
 	}
