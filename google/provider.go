@@ -840,6 +840,7 @@ func Provider() *schema.Provider {
 			"google_compute_image":                                dataSourceGoogleComputeImage(),
 			"google_compute_instance":                             dataSourceGoogleComputeInstance(),
 			"google_compute_instance_group":                       dataSourceGoogleComputeInstanceGroup(),
+			"google_compute_instance_group_manager":               dataSourceGoogleComputeInstanceGroupManager(),
 			"google_compute_instance_serial_port":                 dataSourceGoogleComputeInstanceSerialPort(),
 			"google_compute_instance_template":                    dataSourceGoogleComputeInstanceTemplate(),
 			"google_compute_lb_ip_ranges":                         dataSourceGoogleComputeLbIpRanges(),
