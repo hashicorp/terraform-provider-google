@@ -1,0 +1,3 @@
+```release-note:none
+bigquerydatatransfer: updated a role in an example of `google_bigquery_data_transfer_config`
+```
