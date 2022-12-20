@@ -380,7 +380,7 @@ data "google_project" "project" {}
 resource "google_project_iam_member" "permissions" {
   project = data.google_project.project.project_id
 
-  role   = "roles/iam.serviceAccountShortTermTokenMinter"
+  role   = "roles/iam.serviceAccountTokenCreator"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
 
@@ -470,7 +470,7 @@ data "google_project" "project" {}
 
 resource "google_project_iam_member" "permissions" {
   project = data.google_project.project.project_id
-  role   = "roles/iam.serviceAccountShortTermTokenMinter"
+  role   = "roles/iam.serviceAccountTokenCreator"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
 
@@ -509,7 +509,7 @@ data "google_project" "project" {}
 
 resource "google_project_iam_member" "permissions" {
   project = data.google_project.project.project_id
-  role   = "roles/iam.serviceAccountShortTermTokenMinter"
+  role   = "roles/iam.serviceAccountTokenCreator"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
 
