@@ -25,8 +25,6 @@ A configuration for an external identity provider.
 federation for your billing/quota project. The account team notifies you when the project is
 granted access.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about WorkforcePoolProvider, see:
 
@@ -39,16 +37,12 @@ To get more information about WorkforcePoolProvider, see:
 
 ```hcl
 resource "google_iam_workforce_pool" "pool" {
-  provider = google-beta
-
   workforce_pool_id = "example-pool"
   parent            = "organizations/123456789"
   location          = "global"
 }
 
 resource "google_iam_workforce_pool_provider" "example" {
-  provider = google-beta
-
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
   provider_id        = "example-prvdr"
@@ -65,16 +59,12 @@ resource "google_iam_workforce_pool_provider" "example" {
 
 ```hcl
 resource "google_iam_workforce_pool" "pool" {
-  provider = google-beta
-
   workforce_pool_id = "example-pool"
   parent            = "organizations/123456789"
   location          = "global"
 }
 
 resource "google_iam_workforce_pool_provider" "example" {
-  provider = google-beta
-
   workforce_pool_id   = google_iam_workforce_pool.pool.workforce_pool_id
   location            = google_iam_workforce_pool.pool.location
   provider_id         = "example-prvdr"
@@ -95,16 +85,12 @@ resource "google_iam_workforce_pool_provider" "example" {
 
 ```hcl
 resource "google_iam_workforce_pool" "pool" {
-  provider = google-beta
-
   workforce_pool_id = "example-pool"
   parent            = "organizations/123456789"
   location          = "global"
 }
 
 resource "google_iam_workforce_pool_provider" "example" {
-  provider = google-beta
-
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
   provider_id        = "example-prvdr"
@@ -122,16 +108,12 @@ resource "google_iam_workforce_pool_provider" "example" {
 
 ```hcl
 resource "google_iam_workforce_pool" "pool" {
-  provider = google-beta
-
   workforce_pool_id = "example-pool"
   parent            = "organizations/123456789"
   location          = "global"
 }
 
 resource "google_iam_workforce_pool_provider" "example" {
-  provider = google-beta
-
   workforce_pool_id   = google_iam_workforce_pool.pool.workforce_pool_id
   location            = google_iam_workforce_pool.pool.location
   provider_id         = "example-prvdr"

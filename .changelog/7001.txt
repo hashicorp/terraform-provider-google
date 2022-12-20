@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_iam_workforce_pool` (ga only)
+```
+```release-note:new-resource
+`google_iam_workforce_pool_provider` (ga only)
+```

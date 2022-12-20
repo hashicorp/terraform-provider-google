@@ -66,6 +66,7 @@ func configureTestBasePaths(c *Config, url string) {
 	c.GKEHubBasePath = url
 	c.HealthcareBasePath = url
 	c.IAMBetaBasePath = url
+	c.IAMWorkforcePoolBasePath = url
 	c.IapBasePath = url
 	c.IdentityPlatformBasePath = url
 	c.KMSBasePath = url
