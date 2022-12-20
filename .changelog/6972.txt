@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`data_source_google_pubsub_subscription`
+```

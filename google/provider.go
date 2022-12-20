@@ -895,6 +895,7 @@ func Provider() *schema.Provider {
 			"google_project":                                      dataSourceGoogleProject(),
 			"google_projects":                                     dataSourceGoogleProjects(),
 			"google_project_organization_policy":                  dataSourceGoogleProjectOrganizationPolicy(),
+			"google_pubsub_subscription":                          dataSourceGooglePubsubSubscription(),
 			"google_pubsub_topic":                                 dataSourceGooglePubsubTopic(),
 			"google_secret_manager_secret":                        dataSourceSecretManagerSecret(),
 			"google_secret_manager_secret_version":                dataSourceSecretManagerSecretVersion(),
