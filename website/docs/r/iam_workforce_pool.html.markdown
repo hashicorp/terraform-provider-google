@@ -26,8 +26,6 @@ Note: Ask your Google Cloud account team to request access to workforce identity
 federation for your billing/quota project. The account team notifies you when the project is
 granted access.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about WorkforcePool, see:
 
@@ -40,8 +38,6 @@ To get more information about WorkforcePool, see:
 
 ```hcl
 resource "google_iam_workforce_pool" "example" {
-  provider = google-beta
-
   workforce_pool_id = "example-pool"
   parent            = "organizations/123456789"
   location          = "global"
@@ -52,8 +48,6 @@ resource "google_iam_workforce_pool" "example" {
 
 ```hcl
 resource "google_iam_workforce_pool" "example" {
-  provider = google-beta
-
   workforce_pool_id = "example-pool"
   parent            = "organizations/123456789"
   location          = "global"
