@@ -70,20 +70,11 @@ func resourceIdentityPlatformConfigCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	obj := make(map[string]interface{})
-	autodeleteAnonymousUsersProp, err := expandIdentityPlatformConfigAutodeleteAnonymousUsers(d.Get("autodelete_anonymous_users"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("autodelete_anonymous_users"); !isEmptyValue(reflect.ValueOf(autodeleteAnonymousUsersProp)) && (ok || !reflect.DeepEqual(v, autodeleteAnonymousUsersProp)) {
-		obj["autodeleteAnonymousUsers"] = autodeleteAnonymousUsersProp
-	}
-
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/identityPlatform:initializeAuth")
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new Config: %#v", obj)
 	billingProject := ""
 
 	project, err := getProject(d, config)
@@ -97,7 +88,7 @@ func resourceIdentityPlatformConfigCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, nil, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Config: %s", err)
 	}
@@ -111,6 +102,11 @@ func resourceIdentityPlatformConfigCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Update the resource after initializing auth to set fields.
+	if err := resourceIdentityPlatformConfigUpdate(d, meta); err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Finished creating Config %q: %#v", d.Id(), res)
 

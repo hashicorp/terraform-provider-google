@@ -44,10 +44,13 @@ resource "google_project" "default" {
   name       = "tf-test%{random_suffix}"
   org_id     = "123456789"
   billing_account =  "000000-0000000-0000000-000000"
+  labels = {
+    firebase = "enabled"
+  }
 }
 
 resource "google_project_service" "identitytoolkit" {
-  project = google_project.project.project_id
+  project = google_project.default.project_id
   service = "identitytoolkit.googleapis.com"
 }
 
