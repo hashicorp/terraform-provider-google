@@ -524,6 +524,11 @@ The following arguments are supported:
   Transform the record by applying various field transformations.
   Structure is [documented below](#nested_field_transformations).
 
+* `record_suppressions` -
+  (Optional)
+  Configuration defining which records get suppressed entirely. Records that match any suppression rule are omitted from the output.
+  Structure is [documented below](#nested_record_suppressions).
+
 
 <a name="nested_field_transformations"></a>The `field_transformations` block supports:
 
@@ -816,6 +821,138 @@ The following arguments are supported:
   (Optional)
   Common characters to not transform when masking. Useful to avoid removing punctuation.
   Possible values are `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, and `WHITESPACE`.
+
+<a name="nested_record_suppressions"></a>The `record_suppressions` block supports:
+
+* `condition` -
+  (Optional)
+  A condition that when it evaluates to true will result in the record being evaluated to be suppressed from the transformed content.
+  Structure is [documented below](#nested_condition).
+
+
+<a name="nested_condition"></a>The `condition` block supports:
+
+* `expressions` -
+  (Optional)
+  An expression, consisting of an operator and conditions.
+  Structure is [documented below](#nested_expressions).
+
+
+<a name="nested_expressions"></a>The `expressions` block supports:
+
+* `logical_operator` -
+  (Optional)
+  The operator to apply to the result of conditions. Default and currently only supported value is AND.
+  Default value is `AND`.
+  Possible values are `AND`.
+
+* `conditions` -
+  (Optional)
+  Conditions to apply to the expression.
+  Structure is [documented below](#nested_conditions).
+
+
+<a name="nested_conditions"></a>The `conditions` block supports:
+
+* `conditions` -
+  (Optional)
+  A collection of conditions.
+  Structure is [documented below](#nested_conditions).
+
+
+<a name="nested_conditions"></a>The `conditions` block supports:
+
+* `field` -
+  (Required)
+  Field within the record this condition is evaluated against.
+  Structure is [documented below](#nested_field).
+
+* `operator` -
+  (Required)
+  Operator used to compare the field or infoType to the value.
+  Possible values are `EQUAL_TO`, `NOT_EQUAL_TO`, `GREATER_THAN`, `LESS_THAN`, `GREATER_THAN_OR_EQUALS`, `LESS_THAN_OR_EQUALS`, and `EXISTS`.
+
+* `value` -
+  (Optional)
+  Value to compare against. [Mandatory, except for EXISTS tests.]
+  Structure is [documented below](#nested_value).
+
+
+<a name="nested_field"></a>The `field` block supports:
+
+* `name` -
+  (Optional)
+  Name describing the field.
+
+<a name="nested_value"></a>The `value` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+* `string_value` -
+  (Optional)
+  A string value.
+
+* `boolean_value` -
+  (Optional)
+  A boolean value.
+
+* `timestamp_value` -
+  (Optional)
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `time_value` -
+  (Optional)
+  Represents a time of day.
+  Structure is [documented below](#nested_time_value).
+
+* `date_value` -
+  (Optional)
+  Represents a whole or partial calendar date.
+  Structure is [documented below](#nested_date_value).
+
+* `day_of_week_value` -
+  (Optional)
+  Represents a day of the week.
+  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+
+
+<a name="nested_time_value"></a>The `time_value` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_date_value"></a>The `date_value` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
 - - -
 

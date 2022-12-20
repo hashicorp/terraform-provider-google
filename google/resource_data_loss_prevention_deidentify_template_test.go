@@ -444,6 +444,42 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 
   deidentify_config {
     record_transformations {
+      record_suppressions {
+        condition {
+          expressions {
+            logical_operator = "AND"
+            conditions {
+              conditions {
+                field {
+                  name = "field3"
+                }
+                operator = "EQUAL_TO"
+                value {
+                  string_value = "FOO-BAR"
+                }
+              }
+              conditions {
+                field {
+                  name = "field2"
+                }
+                operator = "EQUAL_TO"
+                value {
+                  string_value = "foobar"
+                }
+              }
+              conditions {
+                field {
+                  name = "field1"
+                }
+                operator = "EQUAL_TO"
+                value {
+                  string_value = "fizzbuzz"
+                }
+              }
+            }
+          }
+        }
+      }
       field_transformations {
         fields {
           name = "details.pii.email"
@@ -521,6 +557,36 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 
   deidentify_config {
     record_transformations {
+      record_suppressions {
+        condition {
+          expressions {
+            logical_operator = "AND"
+            conditions {
+              conditions {
+                field {
+                  name = "field3"
+                }
+                operator = "EQUAL_TO"
+                value {
+                  string_value = "FOO-BAR-updated"
+                }
+              }
+
+              # update includes deleting condition affecting field2
+
+              conditions {
+                field {
+                  name = "field1"
+                }
+                operator = "EQUAL_TO"
+                value {
+                  string_value = "fizzbuzz-updated"
+                }
+              }
+            }
+          }
+        }
+      }
       field_transformations {
         fields {
           name = "details.pii.email"
