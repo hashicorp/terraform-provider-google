@@ -1,0 +1,3 @@
+```release-note:bug
+identityplatform: fixed issues with `identity_platform_config` creation
+```
