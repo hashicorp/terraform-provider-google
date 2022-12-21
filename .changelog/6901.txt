@@ -1,0 +1,3 @@
+```release-note:enhancement
+anthos-fleet-management: added feature `configmanagement:config_sync:oci` to resource `google_gke_hub_feature_membership`.
+```
