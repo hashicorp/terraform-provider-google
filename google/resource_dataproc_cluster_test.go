@@ -707,8 +707,8 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
-					// We only provide one, but GCP adds three, so expect 4.
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "4"),
+					// We only provide one, but GCP adds three and we added goog-dataproc-autozone internally, so expect 5.
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "5"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.key1", "value1"),
 				),
 			},
