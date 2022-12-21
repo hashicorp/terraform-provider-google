@@ -22,9 +22,6 @@ description: |-
 
 Represents a collection of external workforces. Provides namespaces for
 federated users that can be referenced in IAM policies.
-Note: Ask your Google Cloud account team to request access to workforce identity
-federation for your billing/quota project. The account team notifies you when the project is
-granted access.
 
 
 To get more information about WorkforcePool, see:
@@ -32,6 +29,9 @@ To get more information about WorkforcePool, see:
 * [API documentation](https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools)
 * How-to Guides
     * [Manage pools](https://cloud.google.com/iam/docs/manage-workforce-identity-pools-providers#manage_pools)
+
+~> **Note:** Ask your Google Cloud account team to request access to workforce identity federation for
+your billing/quota project. The account team notifies you when the project is granted access.
 
 ## Example Usage - Iam Workforce Pool Basic
 
@@ -119,7 +119,7 @@ In addition to the arguments listed above, the following computed attributes are
    * ACTIVE: The pool is active, and may be used in Google Cloud policies.
    * DELETED: The pool is soft-deleted. Soft-deleted pools are permanently deleted
      after approximately 30 days. You can restore a soft-deleted pool using
-     [UndeleteWorkforcePool][WorkforcePools.UndeleteWorkforcePool].
+     [workforcePools.undelete](https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete#google.iam.admin.v1.WorkforcePools.UndeleteWorkforcePool).
      You cannot reuse the ID of a soft-deleted pool until it is permanently deleted.
      While a pool is deleted, you cannot use it to exchange tokens, or use
      existing tokens to access resources. If the pool is undeleted, existing

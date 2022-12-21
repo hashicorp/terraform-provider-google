@@ -32,13 +32,13 @@ func validateWorkforcePoolProviderId(v interface{}, k string) (ws []string, erro
 
 	if strings.HasPrefix(value, "gcp-") {
 		errors = append(errors, fmt.Errorf(
-			"%q \"%q\" can not start with \"gcp-\". "+
+			"%q (%q) can not start with \"gcp-\". "+
 				"The prefix `gcp-` is reserved for use by Google, and may not be specified.", k, value))
 	}
 
 	if !regexp.MustCompile(workforcePoolProviderIdRegexp).MatchString(value) {
 		errors = append(errors, fmt.Errorf(
-			"Workforce Pool Provider Id \"%q\" must be 4-32 characters, and may contain the characters [a-z0-9-].", value))
+			"%q (%q) must be 4-32 characters, and may contain the characters [a-z0-9-].", k, value))
 	}
 
 	return
