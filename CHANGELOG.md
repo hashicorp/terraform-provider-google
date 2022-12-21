@@ -1,4 +1,64 @@
-## 4.47.0 (Unreleased)
+## 4.48.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_pubsub_subscription` ([#13296](https://github.com/hashicorp/terraform-provider-google/pull/13296))
+* **New Data Source:** `google_beyondcorp_app_connector` ([#13305](https://github.com/hashicorp/terraform-provider-google/pull/13305))
+* **New Data Source:** `google_beyondcorp_app_gateway` ([#13305](https://github.com/hashicorp/terraform-provider-google/pull/13305))
+* **New Data Source:** `google_compute_instance_group_manager` ([#13297](https://github.com/hashicorp/terraform-provider-google/pull/13297))
+* **New Data Source:** `google_firebase_apple_app` ([#13239](https://github.com/hashicorp/terraform-provider-google/pull/13239))
+* **New Resource:** `google_dns_managed_zone_iam_binding` ([#13304](https://github.com/hashicorp/terraform-provider-google/pull/13304))
+* **New Resource:** `google_dns_managed_zone_iam_member` ([#13304](https://github.com/hashicorp/terraform-provider-google/pull/13304))
+* **New Resource:** `google_dns_managed_zone_iam_policy` ([#13304](https://github.com/hashicorp/terraform-provider-google/pull/13304))
+* **New Resource:** `google_iam_workforce_pool_provider` (ga only) ([#13299](https://github.com/hashicorp/terraform-provider-google/pull/13299))
+* **New Resource:** `google_iam_workforce_pool` (ga only) ([#13299](https://github.com/hashicorp/terraform-provider-google/pull/13299))
+
+IMPROVEMENTS:
+* compute: Added support for Local IP Ranges in `google_compute_firewall` ([#13240](https://github.com/hashicorp/terraform-provider-google/pull/13240))
+* compute: Added `stateful_internal_ip` field to `google_compute_instance_group_manager` and `googlecompute_region_instance_group_manager` ([#13260](https://github.com/hashicorp/terraform-provider-google/pull/13260))
+* compute: added support for `generated_id` field in `google_compute_backend_service` to get the value of `id` defined by the server ([#13242](https://github.com/hashicorp/terraform-provider-google/pull/13242))
+* compute: added support for `image_encryption_key` to `google_compute_image` ([#13253](https://github.com/hashicorp/terraform-provider-google/pull/13253))
+* compute: added support for `source_snapshot`, `source_snapshot_encyption_key`, and `source_image_encryption_key` to `google_compute_instance_template` ([#13253](https://github.com/hashicorp/terraform-provider-google/pull/13253))
+* container: added `gateway_api_config` block to `google_container_cluster` resource for supporting the gke gateway api controller ([#13233](https://github.com/hashicorp/terraform-provider-google/pull/13233))
+* container: supported in-place update for `labels` in `google_container_node_pool` ([#13284](https://github.com/hashicorp/terraform-provider-google/pull/13284))
+* dlp: Added field `deidentify_config.record_transformations.field_transformations.condition` to `google_data_loss_prevention_deidentify_template` ([#13282](https://github.com/hashicorp/terraform-provider-google/pull/13282))
+* dlp: Added field `deidentify_config.record_transformations.field_transformations.fields` to `google_data_loss_prevention_deidentify_template` ([#13282](https://github.com/hashicorp/terraform-provider-google/pull/13282))
+* dlp: Added field `deidentify_config.record_transformations.field_transformations.primitive_transformation.character_mask_config` to `google_data_loss_prevention_deidentify_template` ([#13282](https://github.com/hashicorp/terraform-provider-google/pull/13282))
+* dlp: Added field `deidentify_config.record_transformations.field_transformations.primitive_transformation.redact_config` to `google_data_loss_prevention_deidentify_template` ([#13282](https://github.com/hashicorp/terraform-provider-google/pull/13282))
+* dlp: Added field `deidentify_config.record_transformations.field_transformations.primitive_transformation.replace_config` to `google_data_loss_prevention_deidentify_template` ([#13282](https://github.com/hashicorp/terraform-provider-google/pull/13282))
+* dlp: Added field `deidentify_config.record_transformations.record_suppressions` to `google_data_loss_prevention_deidentify_template` ([#13300](https://github.com/hashicorp/terraform-provider-google/pull/13300))
+* sql: made `settings.sql_server_audit_config.bucket` field in `google_sql_database_instance` to be optional. ([#13252](https://github.com/hashicorp/terraform-provider-google/pull/13252))
+* sql: added [new deletion protection](https://cloud.google.com/sql/docs/mysql/deletion-protection) feature `deletion_protection_enabled` to guard against deletion from all surfaces. ([#13249](https://github.com/hashicorp/terraform-provider-google/pull/13249))
+* storagetransfer: made storage_transfer_job schedule field mutable ([#13262](https://github.com/hashicorp/terraform-provider-google/pull/13262))
+
+BUG FIXES:
+* compute: fixed `google_compute_router_nat` so that `enable_dynamic_port_allocation` can be set to false ([#13243](https://github.com/hashicorp/terraform-provider-google/pull/13243))
+* identityplatform: fixed issues with `identity_platform_config` creation ([#13301](https://github.com/hashicorp/terraform-provider-google/pull/13301))
+* sql: fixed `sql_database_instance` leaking root users ([#13258](https://github.com/hashicorp/terraform-provider-google/pull/13258))
+
+## 4.47.0 (December 21, 2022)
+
+NOTES:
+* sql: fixed an issue where `google_sql_database` was abandoned by default as of version `4.45.0`. Users who have upgraded to `4.45.0` or `4.46.0` will see a diff when running their next `terraform apply` after upgrading this version, indicating the `deletion_policy` field's value has changed from `"ABANDON"` to `"DELETE"`. This will create a no-op call against the API, but can otherwise be safely applied. ([#13226](https://github.com/hashicorp/terraform-provider-google/pull/13226))
+
+FEATURES:
+* **New Resource:** `google_alloydb_backup` ([#13202](https://github.com/hashicorp/terraform-provider-google/pull/13202))
+* **New Resource:** `google_filestore_backup` ([#13209](https://github.com/hashicorp/terraform-provider-google/pull/13209))
+
+IMPROVEMENTS:
+* bigtable: added `deletion_protection` field to `google_bigtable_table` ([#13232](https://github.com/hashicorp/terraform-provider-google/pull/13232))
+* compute: made `google_compute_subnetwork.ipv6_access_type` field updatable in-place ([#13211](https://github.com/hashicorp/terraform-provider-google/pull/13211))
+* container: added `auto_provisioning_defaults.cluster_autoscaling.upgrade_settings` in `google_container_cluster` ([#13199](https://github.com/hashicorp/terraform-provider-google/pull/13199))
+* container: added `gateway_api_config` block to `google_container_cluster` resource for supporting the gke gateway api controller ([#13233](https://github.com/hashicorp/terraform-provider-google/pull/13233))
+* container: promoted `gke_backup_agent_config` in `google_container_cluster` to GA ([#13223](https://github.com/hashicorp/terraform-provider-google/pull/13223))
+* container: promoted `min_cpu_platform` in `google_container_cluster` to GA ([#13199](https://github.com/hashicorp/terraform-provider-google/pull/13199))
+* datacatalog: added update support for `fields` in `google_data_catalog_tag_template` ([#13216](https://github.com/hashicorp/terraform-provider-google/pull/13216))
+* iam: Added plan-time validation for IAM members ([#13203](https://github.com/hashicorp/terraform-provider-google/pull/13203))
+* logging: added `bucket_name` field to `google_logging_metric` ([#13210](https://github.com/hashicorp/terraform-provider-google/pull/13210))
+* logging: made `metric_descriptor` field optional for `google_logging_metric` ([#13225](https://github.com/hashicorp/terraform-provider-google/pull/13225))
+
+BUG FIXES:
+* composer: fixed a crash when updating `ip_allocation_policy` of `google_composer_environment` ([#13188](https://github.com/hashicorp/terraform-provider-google/pull/13188))
+* sql: fixed an issue where `google_sql_database` was abandoned by default as of version `4.45.0`. Users who have upgraded to `4.45.0` or `4.46.0` will see a diff when running their next `terraform apply` after upgrading this version, indicating the `deletion_policy` field's value has changed from `"ABANDON"` to `"DELETE"`. This will create a no-op call against the API, but can otherwise be safely applied. ([#13226](https://github.com/hashicorp/terraform-provider-google/pull/13226))
 
 ## 4.46.0 (December 12, 2022)
 
