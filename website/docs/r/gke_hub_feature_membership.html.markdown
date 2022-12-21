@@ -7,7 +7,7 @@ description: |-
 
 # google\_gkehub\_feature\_membership
 
-Contains information about a GKEHub Feature Memberships. Feature Memberships configure GKEHub Features that apply to specific memberships rather than the project as a whole. This currently only supports the Config Management feature. The google_gke_hub is the Fleet API.
+Contains information about a GKEHub Feature Memberships. Feature Memberships configure GKEHub Features that apply to specific memberships rather than the project as a whole. The google_gke_hub is the Fleet API.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -52,6 +52,55 @@ resource "google_gke_hub_feature_membership" "feature_member" {
     config_sync {
       git {
         sync_repo = "https://github.com/hashicorp/terraform"
+      }
+    }
+  }
+  provider = google-beta
+}
+```
+## Example Usage - Config Management with OCI
+
+```hcl
+resource "google_container_cluster" "cluster" {
+  name               = "my-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  provider = google-beta
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "my-membership"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+  provider = google-beta
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+
+  labels = {
+    foo = "bar"
+  }
+  provider = google-beta
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  configmanagement {
+    version = "1.12.0"
+    config_sync {
+      oci {
+        sync_repo = "us-central1-docker.pkg.dev/sample-project/config-repo/config-sync-gke:latest"
+        policy_dir = "config-connector"
+        sync_wait_secs = "20"
+        secret_type = "gcpserviceaccount"
+        gcp_service_account_email = "sa@project-id.iam.gserviceaccount.com"
       }
     }
   }
@@ -175,6 +224,11 @@ The following arguments are supported:
 * `git` -
   (Optional) Structure is [documented below](#nested_git).
 
+* `oci` -
+  (Optional) Supported from ACM versions 1.12.0 onwards. Structure is [documented below](#nested_oci).
+  
+  Use either `git` or `oci` config option.
+
 * `prevent_drift` -
   (Optional)
   Supported from ACM versions 1.10.0 onwards. Set to true to enable the Config Sync admission webhook to prevent drifts. If set to "false", disables the Config Sync admission webhook and does not prevent drifts.
@@ -216,6 +270,28 @@ The following arguments are supported:
 * `sync_wait_secs` -
   (Optional)
   Period in seconds between consecutive syncs. Default: 15.
+
+<a name="nested_oci"></a>The `oci` block supports:
+    
+* `gcp_service_account_email` -
+  (Optional)
+  The GCP Service Account Email used for auth when secret_type is gcpserviceaccount.
+    
+* `policy_dir` -
+  (Optional)
+  The absolute path of the directory that contains the local resources. Default: the root directory of the image.
+    
+* `secret_type` -
+  (Optional)
+  Type of secret configured for access to the OCI Image. Must be one of gcenode, gcpserviceaccount or none.
+    
+* `sync_repo` -
+  (Optional)
+  The OCI image repository URL for the package to sync from. e.g. LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY_NAME/PACKAGE_NAME.
+    
+* `sync_wait_secs` -
+  (Optional)
+  Period in seconds(int64 format) between consecutive syncs. Default: 15.
     
 <a name="nested_hierarchy_controller"></a>The `hierarchy_controller` block supports:
     
