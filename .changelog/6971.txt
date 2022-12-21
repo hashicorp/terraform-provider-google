@@ -1,0 +1,6 @@
+```release-note:new-datasource
+`google_beyondcorp_app_connector`
+```
+```release-note:new-datasource
+`google_beyondcorp_app_gateway`
+```
