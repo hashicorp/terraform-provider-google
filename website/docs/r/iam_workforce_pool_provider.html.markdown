@@ -21,9 +21,6 @@ description: |-
 # google\_iam\_workforce\_pool\_provider
 
 A configuration for an external identity provider.
-~> **Note:** Ask your Google Cloud account team to request access to workforce identity
-federation for your billing/quota project. The account team notifies you when the project is
-granted access.
 
 
 To get more information about WorkforcePoolProvider, see:
@@ -31,6 +28,9 @@ To get more information about WorkforcePoolProvider, see:
 * [API documentation](https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers)
 * How-to Guides
     * [Configure a provider within the workforce pool](https://cloud.google.com/iam/docs/manage-workforce-identity-pools-providers#configure_a_provider_within_the_workforce_pool)
+
+~> **Note:** Ask your Google Cloud account team to request access to workforce identity federation for your
+billing/quota project. The account team notifies you when the project is granted access.
 
 ## Example Usage - Iam Workforce Pool Provider Saml Basic
 

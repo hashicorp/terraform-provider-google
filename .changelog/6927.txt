@@ -1,0 +1,3 @@
+```release-note:none
+Fixed some issues in Terraform documentations and error messages.
+```

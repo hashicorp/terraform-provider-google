@@ -38,9 +38,9 @@ func validateWorkforcePoolId(v interface{}, k string) (ws []string, errors []err
 
 	if !regexp.MustCompile(workforcePoolIdRegexp).MatchString(value) {
 		errors = append(errors, fmt.Errorf(
-			"Workforce Pool Id \"%q\" must contain only lowercase letters [a-z], digits [0-9], and hyphens "+
+			"%q (%q) must contain only lowercase letters [a-z], digits [0-9], and hyphens "+
 				"[-]. The WorkforcePool ID must be between 6 and 63 characters, begin "+
-				"with a letter, and cannot have a trailing hyphen.", k))
+				"with a letter, and cannot have a trailing hyphen.", k, value))
 	}
 
 	return
@@ -125,7 +125,7 @@ Format: 'locations/{location}/workforcePools/{workforcePoolId}'`,
  * ACTIVE: The pool is active, and may be used in Google Cloud policies.
  * DELETED: The pool is soft-deleted. Soft-deleted pools are permanently deleted
    after approximately 30 days. You can restore a soft-deleted pool using
-   [UndeleteWorkforcePool][WorkforcePools.UndeleteWorkforcePool].
+   [workforcePools.undelete](https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete#google.iam.admin.v1.WorkforcePools.UndeleteWorkforcePool).
    You cannot reuse the ID of a soft-deleted pool until it is permanently deleted.
    While a pool is deleted, you cannot use it to exchange tokens, or use
    existing tokens to access resources. If the pool is undeleted, existing
