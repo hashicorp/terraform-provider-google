@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Google BeyondCorp"
+subcategory: "BeyondCorp"
 page_title: "Google: google_beyondcorp_app_gateway"
 description: |-
   A BeyondCorp AppGateway resource represents a BeyondCorp protected AppGateway to a remote application.

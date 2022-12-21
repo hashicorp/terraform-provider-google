@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Google BeyondCorp"
+subcategory: "BeyondCorp"
 page_title: "Google: google_beyondcorp_app_connector"
 description: |-
   A BeyondCorp AppConnector resource represents an application facing component deployed proximal to 
