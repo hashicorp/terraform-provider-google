@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a permadiff on `labels` of `google_bigquery_dataset` when it is referenced in `google_dataplex_asset`
+```
