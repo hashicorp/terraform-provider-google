@@ -253,7 +253,7 @@ resource "google_compute_instance_template" "instance_template" {
 
   // boot disk
   disk {
-    source_image = google_compute_image.my_image.self_link
+    source_image = data.google_compute_image.my_image.self_link
   }
 }
 ```
