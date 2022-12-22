@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_cloudbuild_trigger`
+```
