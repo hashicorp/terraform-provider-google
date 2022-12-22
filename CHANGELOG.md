@@ -10,7 +10,7 @@ FEATURES:
 * **New Resource:** `google_dns_managed_zone_iam_member` ([#13304](https://github.com/hashicorp/terraform-provider-google/pull/13304))
 * **New Resource:** `google_dns_managed_zone_iam_policy` ([#13304](https://github.com/hashicorp/terraform-provider-google/pull/13304))
 * **New Resource:** `google_iam_workforce_pool_provider` (ga only) ([#13299](https://github.com/hashicorp/terraform-provider-google/pull/13299))
-* **New Resource:** `google_iam_workforce_pool` (ga only) ([#13299](https://github.com/hashicorp/terraform-provider-google/pull/13299))
+* **New Resource:** `google_iam_workforce_pool` ([#13299](https://github.com/hashicorp/terraform-provider-google/pull/13299))
 
 IMPROVEMENTS:
 * compute: Added support for Local IP Ranges in `google_compute_firewall` ([#13240](https://github.com/hashicorp/terraform-provider-google/pull/13240))
@@ -28,7 +28,7 @@ IMPROVEMENTS:
 * dlp: Added field `deidentify_config.record_transformations.record_suppressions` to `google_data_loss_prevention_deidentify_template` ([#13300](https://github.com/hashicorp/terraform-provider-google/pull/13300))
 * sql: made `settings.sql_server_audit_config.bucket` field in `google_sql_database_instance` to be optional. ([#13252](https://github.com/hashicorp/terraform-provider-google/pull/13252))
 * sql: added [new deletion protection](https://cloud.google.com/sql/docs/mysql/deletion-protection) feature `deletion_protection_enabled` to guard against deletion from all surfaces. ([#13249](https://github.com/hashicorp/terraform-provider-google/pull/13249))
-* storagetransfer: made storage_transfer_job schedule field mutable ([#13262](https://github.com/hashicorp/terraform-provider-google/pull/13262))
+* storagetransfer: made `storage_transfer_job` `schedule` field mutable ([#13262](https://github.com/hashicorp/terraform-provider-google/pull/13262))
 
 BUG FIXES:
 * compute: fixed `google_compute_router_nat` so that `enable_dynamic_port_allocation` can be set to false ([#13243](https://github.com/hashicorp/terraform-provider-google/pull/13243))
