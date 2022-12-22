@@ -1,0 +1,3 @@
+```release-note:bug
+fix `cloud_identity_group_membership` to properly handle 403 responses when membership does not exist
+```

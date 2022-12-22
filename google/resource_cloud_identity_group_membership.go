@@ -228,7 +228,7 @@ func resourceCloudIdentityGroupMembershipRead(d *schema.ResourceData, meta inter
 
 	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("CloudIdentityGroupMembership %q", d.Id()))
+		return handleNotFoundError(transformCloudIdentityGroupMembershipReadError(err), d, fmt.Sprintf("CloudIdentityGroupMembership %q", d.Id()))
 	}
 
 	if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
