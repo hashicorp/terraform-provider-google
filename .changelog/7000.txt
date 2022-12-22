@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added support for `SPOT` option for `preemptibility` in `google_dataproc_cluster`
+```

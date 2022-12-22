@@ -604,6 +604,7 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
   * PREEMPTIBILITY_UNSPECIFIED
   * NON_PREEMPTIBLE
   * PREEMPTIBLE
+  * SPOT
 
 * `disk_config` (Optional) Disk Config
 
