@@ -1,0 +1,3 @@
+```release-note:none
+docs: fixed compute_instance_template code example to include missing data element.
+```
