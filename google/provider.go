@@ -822,6 +822,7 @@ func Provider() *schema.Provider {
 			"google_active_folder":                                dataSourceGoogleActiveFolder(),
 			"google_artifact_registry_repository":                 dataSourceArtifactRegistryRepository(),
 			"google_app_engine_default_service_account":           dataSourceGoogleAppEngineDefaultServiceAccount(),
+			"google_beyondcorp_app_connection":                    dataSourceGoogleBeyondcorpAppConnection(),
 			"google_beyondcorp_app_connector":                     dataSourceGoogleBeyondcorpAppConnector(),
 			"google_beyondcorp_app_gateway":                       dataSourceGoogleBeyondcorpAppGateway(),
 			"google_billing_account":                              dataSourceGoogleBillingAccount(),

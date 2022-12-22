@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_beyondcorp_app_connection`
+```
