@@ -155,6 +155,7 @@ expiration time indicated by this property.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
+				Computed: true,
 				Optional: true,
 				Description: `The labels associated with this dataset. You can use these to
 organize and group your datasets`,
