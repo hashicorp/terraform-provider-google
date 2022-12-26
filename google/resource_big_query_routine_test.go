@@ -64,7 +64,7 @@ resource "google_bigquery_routine" "sproc" {
   dataset_id = google_bigquery_dataset.test.dataset_id
   routine_id     = "%s"
   routine_type = "SCALAR_FUNCTION"
-  language = "JAVASCRIPT"
+  language = "JS"
   definition_body = "CREATE FUNCTION multiplyInputs return x*y;"
   arguments {
     name = "x"
