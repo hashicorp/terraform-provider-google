@@ -75,42 +75,64 @@ resource "google_compute_security_policy" "policy" {
 }
 ```
 
-## Example Usage - With header actions
+## Example Usage - With preconfigured WAF rules and exceptions
 
 ```hcl
-resource "google_compute_security_policy" "policy" {
-	name = "my-policy"
+resource "google_compute_security_policy" "this" {
+  name = "my-waf-policy"
 
   rule {
-    action   = "allow"
-    priority = "2147483647"
-    match {
-      versioned_expr = "SRC_IPS_V1"
-      config {
-        src_ip_ranges = ["*"]
-      }
-    }
-    description = "default rule"
-  }
+    action      = "deny(403)"
+    priority    = "1001"
+    description = "Cross-site scripting"
+    preview     = true
 
-  rule {
-    action   = "allow"
-    priority = "1000"
     match {
       expr {
-        expression = "request.path.matches(\"/login.html\") && token.recaptcha_session.score < 0.2"
+        // one can do the exclusions here in-line, or in the preconfigured_waf_config block as below
+        expression = "evaluatePreconfiguredWaf('xss-v33-stable',{'sensitivity': 1, 'opt_out_rule_ids'['owasp-crs-v030301-id941340-xss']})"
       }
     }
 
-    header_action {
-      request_headers_to_adds {
-        header_name  = "reCAPTCHA-Warning"
-        header_value = "high"
+    preconfigured_waf_config {
+      exclusion {
+        request_header {
+          operator = "STARTS_WITH"
+          value    = "X-Prefix"
+        }
+
+        request_cookie {
+          operator = "EQUALS_ANY" // value omitted when operator == EQUALS_ANY
+        }
+
+        request_uri {
+          operator = "STARTS_WITH"
+          value    = "/admin"
+        }
+
+        request_query_param {
+          operator = "EQUALS"
+          value    = "description"
+        }
+
+        request_query_param {
+          operator = "EQUALS"
+          value    = "notes"
+        }
+
+        target_rule_set = "xss-v33-stable"
       }
 
-      request_headers_to_adds {
-        header_name  = "X-Resource"
-        header_value = "test"
+      exclusion {
+        request_query_param {
+          operator = "EQUALS"
+          value    = "title"
+        }
+
+        target_rule_set = "xss-v33-stable"
+        target_rule_ids = [ // optional list(string) to specifiy list of ids to target
+          "owasp-crs-v030301-id941350-xss",
+        ]
       }
     }
   }
@@ -236,13 +258,13 @@ The following arguments are supported:
 
 * `request_cookie` - (Optional) Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation. Structure is [documented below](#nested_field_params).
 
-* `request_uri` - (Optional) Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation. Note that the parameter can be in the query string or in the POST body. Structure is [documented below](#nested_field_params).
+* `request_uri` - (Optional) Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded. Structure is [documented below](#nested_field_params).
 
-* `request_query_param` - (Optional) Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded. Structure is [documented below](#nested_field_params).
+* `request_query_param` - (Optional) Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation. Note that the parameter can be in the query string or in the POST body. Structure is [documented below](#nested_field_params).
 
 * `target_rule_set` - (Required) Target WAF rule set to apply the preconfigured WAF exclusion.
 
-* `target_rule_ids` - (Optional) A list of target rule IDs under the WAF rule set to apply the preconfigured WAF exclusion. If omitted, it refers to all the rule IDs under the WAF rule set.
+* `target_rule_ids` - (Optional) A list of target rule IDs under the WAF rule set to apply the preconfigured WAF exclusion. If omitted, it refers to all the rule IDs under the WAF rule set. To further explore these Core Rule Set configuration definitions, see the [github CRS site](https://github.com/coreruleset/coreruleset/tree/v3.3/master/rules).
 
 <a name="nested_field_params"></a>The `request_header`, `request_cookie`, `request_uri` and `request_query_param` blocks support:
 
