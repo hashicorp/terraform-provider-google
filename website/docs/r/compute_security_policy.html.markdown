@@ -75,6 +75,48 @@ resource "google_compute_security_policy" "policy" {
 }
 ```
 
+## Example Usage - With header actions
+
+```hcl
+resource "google_compute_security_policy" "policy" {
+	name = "my-policy"
+
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+
+  rule {
+    action   = "allow"
+    priority = "1000"
+    match {
+      expr {
+        expression = "request.path.matches(\"/login.html\") && token.recaptcha_session.score < 0.2"
+      }
+    }
+
+    header_action {
+      request_headers_to_adds {
+        header_name  = "reCAPTCHA-Warning"
+        header_value = "high"
+      }
+
+      request_headers_to_adds {
+        header_name  = "X-Resource"
+        header_value = "test"
+      }
+    }
+  }
+}
+```
+
 ## Example Usage - With preconfigured WAF rules and exceptions
 
 ```hcl
