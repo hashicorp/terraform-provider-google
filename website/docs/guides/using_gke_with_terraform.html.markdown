@@ -147,8 +147,8 @@ resource "google_container_cluster" "my_vpc_native_cluster" {
   subnetwork = google_compute_subnetwork.custom.id
 
   ip_allocation_policy {
-    cluster_secondary_range_name  = "services-range"
-    services_secondary_range_name = google_compute_subnetwork.custom.secondary_ip_range.1.range_name
+    cluster_secondary_range_name  = "pod-ranges"
+    services_secondary_range_name = google_compute_subnetwork.custom.secondary_ip_range.0.range_name
   }
 
   # other settings...
