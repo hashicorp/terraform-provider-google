@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: fixed the `google_project` datasource silently returning empty results when the project was not found or not in the ACTIVE state. Now, an error will be surfaced instead.
+```
