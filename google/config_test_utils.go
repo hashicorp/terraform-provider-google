@@ -63,6 +63,7 @@ func configureTestBasePaths(c *Config, url string) {
 	c.FilestoreBasePath = url
 	c.FirestoreBasePath = url
 	c.GameServicesBasePath = url
+	c.GKEBackupBasePath = url
 	c.GKEHubBasePath = url
 	c.HealthcareBasePath = url
 	c.IAMBetaBasePath = url

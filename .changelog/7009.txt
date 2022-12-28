@@ -1,0 +1,4 @@
+```release-note:new-resource
+promoted `google_gke_backup_backup_plan` to ga (ga only)
+
+```
