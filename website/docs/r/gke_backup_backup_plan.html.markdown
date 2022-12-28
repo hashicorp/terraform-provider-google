@@ -22,8 +22,6 @@ description: |-
 
 Represents a Backup Plan instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about BackupPlan, see:
 
@@ -36,7 +34,6 @@ To get more information about BackupPlan, see:
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  provider = google-beta
   name               = "basic-cluster"
   location           = "us-central1"
   initial_node_count = 1
@@ -51,7 +48,6 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
-  provider = google-beta
   name = "basic-plan"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
@@ -72,7 +68,6 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  provider = google-beta
   name               = "autopilot-cluster"
   location           = "us-central1"
   enable_autopilot = true
@@ -89,7 +84,6 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "autopilot" {
-  provider = google-beta
   name = "autopilot-plan"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
@@ -105,7 +99,6 @@ resource "google_gke_backup_backup_plan" "autopilot" {
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  provider = google-beta
   name               = "cmek-cluster"
   location           = "us-central1"
   initial_node_count = 1
@@ -120,7 +113,6 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "cmek" {
-  provider = google-beta
   name = "cmek-plan"
   cluster = google_container_cluster.primary.id
   location = "us-central1"
@@ -137,13 +129,11 @@ resource "google_gke_backup_backup_plan" "cmek" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  provider = google-beta
   name     = "backup-key"
   key_ring = google_kms_key_ring.key_ring.id
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  provider = google-beta
   name     = "backup-key"
   location = "us-central1"
 }
@@ -153,7 +143,6 @@ resource "google_kms_key_ring" "key_ring" {
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  provider = google-beta
   name               = "full-cluster"
   location           = "us-central1"
   initial_node_count = 1
@@ -168,7 +157,6 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_backup_backup_plan" "full" {
-  provider = google-beta
   name = "full-plan"
   cluster = google_container_cluster.primary.id
   location = "us-central1"

@@ -216,6 +216,7 @@ type Config struct {
 	FilestoreBasePath            string
 	FirestoreBasePath            string
 	GameServicesBasePath         string
+	GKEBackupBasePath            string
 	GKEHubBasePath               string
 	HealthcareBasePath           string
 	IAMBetaBasePath              string
@@ -316,6 +317,7 @@ const EssentialContactsBasePathKey = "EssentialContacts"
 const FilestoreBasePathKey = "Filestore"
 const FirestoreBasePathKey = "Firestore"
 const GameServicesBasePathKey = "GameServices"
+const GKEBackupBasePathKey = "GKEBackup"
 const GKEHubBasePathKey = "GKEHub"
 const HealthcareBasePathKey = "Healthcare"
 const IAMBetaBasePathKey = "IAMBeta"
@@ -410,6 +412,7 @@ var DefaultBasePaths = map[string]string{
 	FilestoreBasePathKey:            "https://file.googleapis.com/v1/",
 	FirestoreBasePathKey:            "https://firestore.googleapis.com/v1/",
 	GameServicesBasePathKey:         "https://gameservices.googleapis.com/v1/",
+	GKEBackupBasePathKey:            "https://gkebackup.googleapis.com/v1/",
 	GKEHubBasePathKey:               "https://gkehub.googleapis.com/v1/",
 	HealthcareBasePathKey:           "https://healthcare.googleapis.com/v1/",
 	IAMBetaBasePathKey:              "https://iam.googleapis.com/v1/",
@@ -1266,6 +1269,7 @@ func ConfigureBasePaths(c *Config) {
 	c.FilestoreBasePath = DefaultBasePaths[FilestoreBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GameServicesBasePath = DefaultBasePaths[GameServicesBasePathKey]
+	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
 	c.GKEHubBasePath = DefaultBasePaths[GKEHubBasePathKey]
 	c.HealthcareBasePath = DefaultBasePaths[HealthcareBasePathKey]
 	c.IAMBetaBasePath = DefaultBasePaths[IAMBetaBasePathKey]
