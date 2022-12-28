@@ -33,5 +33,15 @@ func datasourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error
 		d.SetId(fmt.Sprintf("projects/%s", project))
 	}
 
-	return resourceGoogleProjectRead(d, meta)
+	id := d.Id()
+
+	if err := resourceGoogleProjectRead(d, meta); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found or not in ACTIVE state", id)
+	}
+
+	return nil
 }
