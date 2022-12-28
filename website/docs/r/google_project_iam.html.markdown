@@ -153,7 +153,7 @@ resource "google_project_iam_audit_config" "project" {
 
 The following arguments are supported:
 
-* `member/members` - (Required except for google\_project\_iam\_audit\_config) Identities that will be granted the privilege in `role`.
+* `member/members` - (Required except for google\_project\_iam\_audit\_config) Identities that will be granted the privilege in `role`. google\_project\_iam\_binding expects `members` field while google\_project\_iam\_member expects `member` field.
   Each entry can have one of the following values:
   * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
