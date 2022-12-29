@@ -234,6 +234,11 @@ By default this may be all types, but may change over time as detectors are upda
 										Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
 at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
 									},
+									"version": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Version of the information type to use. By default, the version is set to stable`,
+									},
 								},
 							},
 						},
@@ -955,12 +960,17 @@ func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypes(v interface{
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name": flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesName(original["name"], d, config),
+			"name":    flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesName(original["name"], d, config),
+			"version": flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(original["version"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1622,12 +1632,23 @@ func expandDataLossPreventionInspectTemplateInspectConfigInfoTypes(v interface{}
 			transformed["name"] = transformedName
 		}
 
+		transformedVersion, err := expandDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
