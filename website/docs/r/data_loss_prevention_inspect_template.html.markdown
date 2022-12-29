@@ -327,6 +327,10 @@ The following arguments are supported:
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
+* `version` -
+  (Optional)
+  Version of the information type to use. By default, the version is set to stable
+
 <a name="nested_rule_set"></a>The `rule_set` block supports:
 
 * `info_types` -
