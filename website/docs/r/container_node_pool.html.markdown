@@ -168,7 +168,7 @@ cluster.
     when fuzzy versions are used. See the `google_container_engine_versions` data source's
     `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
 
-* `placement_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Specifies a custom placement policy for the
+* `placement_policy` - (Optional) Specifies a custom placement policy for the
   nodes.
 
 <a name="nested_autoscaling"></a>The `autoscaling` block supports (either total or per zone limits are required):
