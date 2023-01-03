@@ -215,13 +215,26 @@ func resourceGoogleFolderDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 	displayName := d.Get("display_name").(string)
 
+	var op *resourceManagerV3.Operation
 	err = retryTimeDuration(func() error {
-		_, reqErr := config.NewResourceManagerV3Client(userAgent).Folders.Delete(d.Id()).Do()
+		var reqErr error
+		op, reqErr = config.NewResourceManagerV3Client(userAgent).Folders.Delete(d.Id()).Do()
 		return reqErr
 	}, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error deleting folder '%s': %s", displayName, err)
 	}
+
+	opAsMap, err := ConvertToMap(op)
+	if err != nil {
+		return err
+	}
+
+	err = resourceManagerOperationWaitTime(config, opAsMap, "deleting folder", userAgent, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return fmt.Errorf("Error deleting folder '%s': %s", displayName, err)
+	}
+
 	return nil
 }
 
