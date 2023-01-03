@@ -26,52 +26,56 @@ The Compute NetworkFirewallPolicyRule resource
 ## Example Usage - regional
 ```hcl
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
-  name = "policy"
-  project = "my-project-name"
+  name        = "policy"
   description = "Sample regional network firewall policy"
-  region = "us-west1"
+  project     = "my-project-name"
+  region      = "us-west1"
 }
 
 resource "google_compute_region_network_firewall_policy_rule" "primary" {
- firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
- action = "allow"
- direction = "INGRESS"
- priority = 1000
- rule_name = "test-rule"
- description = "This is a simple rule description"
-match {
- src_secure_tags {
- name = "tagValues/${google_tags_tag_value.basic_value.name}"
- }
- src_ip_ranges = ["10.100.0.1/32"]
-layer4_configs {
-ip_protocol = "all"
- }
- }
- target_service_accounts = ["emailAddress:my@service-account.com"]
- region = "us-west1"
- enable_logging = true
- disabled = false
+  action                  = "allow"
+  description             = "This is a simple rule description"
+  direction               = "INGRESS"
+  disabled                = false
+  enable_logging          = true
+  firewall_policy         = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority                = 1000
+  region                  = "us-west1"
+  rule_name               = "test-rule"
+  target_service_accounts = ["emailAddress:my@service-account.com"]
+
+  match {
+    src_ip_ranges = ["10.100.0.1/32"]
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+
+    src_secure_tags {
+      name = "tagValues/${google_tags_tag_value.basic_value.name}"
+    }
+  }
 }
 
 resource "google_compute_network" "basic_network" {
   name = "network"
 }
+
 resource "google_tags_tag_key" "basic_key" {
-  parent = "organizations/123456789"
-  short_name = "tagkey"
-  purpose = "GCE_FIREWALL"
-  purpose_data = {
-  network= "my-project-name/${google_compute_network.basic_network.name}"
-  }
   description = "For keyname resources."
+  parent      = "organizations/123456789"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tagkey"
+
+  purpose_data = {
+    network = "my-project-name/${google_compute_network.basic_network.name}"
+  }
 }
 
-
 resource "google_tags_tag_value" "basic_value" {
-    parent = "tagKeys/${google_tags_tag_key.basic_key.name}"
-    short_name = "tagvalue"
-    description = "For valuename resources."
+  description = "For valuename resources."
+  parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
+  short_name  = "tagvalue"
 }
 
 ```
