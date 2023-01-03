@@ -200,6 +200,7 @@ type Config struct {
 	CloudTasksBasePath           string
 	ComputeBasePath              string
 	ContainerAnalysisBasePath    string
+	ContainerAttachedBasePath    string
 	DataCatalogBasePath          string
 	DataFusionBasePath           string
 	DataLossPreventionBasePath   string
@@ -301,6 +302,7 @@ const CloudSchedulerBasePathKey = "CloudScheduler"
 const CloudTasksBasePathKey = "CloudTasks"
 const ComputeBasePathKey = "Compute"
 const ContainerAnalysisBasePathKey = "ContainerAnalysis"
+const ContainerAttachedBasePathKey = "ContainerAttached"
 const DataCatalogBasePathKey = "DataCatalog"
 const DataFusionBasePathKey = "DataFusion"
 const DataLossPreventionBasePathKey = "DataLossPrevention"
@@ -396,6 +398,7 @@ var DefaultBasePaths = map[string]string{
 	CloudTasksBasePathKey:           "https://cloudtasks.googleapis.com/v2/",
 	ComputeBasePathKey:              "https://compute.googleapis.com/compute/v1/",
 	ContainerAnalysisBasePathKey:    "https://containeranalysis.googleapis.com/v1/",
+	ContainerAttachedBasePathKey:    "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 	DataCatalogBasePathKey:          "https://datacatalog.googleapis.com/v1/",
 	DataFusionBasePathKey:           "https://datafusion.googleapis.com/v1/",
 	DataLossPreventionBasePathKey:   "https://dlp.googleapis.com/v2/",
@@ -1253,6 +1256,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudTasksBasePath = DefaultBasePaths[CloudTasksBasePathKey]
 	c.ComputeBasePath = DefaultBasePaths[ComputeBasePathKey]
 	c.ContainerAnalysisBasePath = DefaultBasePaths[ContainerAnalysisBasePathKey]
+	c.ContainerAttachedBasePath = DefaultBasePaths[ContainerAttachedBasePathKey]
 	c.DataCatalogBasePath = DefaultBasePaths[DataCatalogBasePathKey]
 	c.DataFusionBasePath = DefaultBasePaths[DataFusionBasePathKey]
 	c.DataLossPreventionBasePath = DefaultBasePaths[DataLossPreventionBasePathKey]
