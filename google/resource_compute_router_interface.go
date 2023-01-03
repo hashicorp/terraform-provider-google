@@ -99,6 +99,7 @@ func resourceComputeRouterInterface() *schema.Resource {
 			"redundant_interface": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 				Description: `The name of the interface that is redundant to this interface. Changing this forces a new interface to be created.`,
 			},
@@ -323,6 +324,11 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 			ifaceFound = true
 			continue
 		} else {
+			// If this is a redundant interface,
+			// remove its reference from other interfaces as well
+			if iface.RedundantInterface == ifaceName {
+				iface.RedundantInterface = ""
+			}
 			newIfaces = append(newIfaces, iface)
 		}
 	}
