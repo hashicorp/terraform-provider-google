@@ -1,0 +1,3 @@
+```release-note:bug
+cloudplatform: handled async operation for `google_folder` deletion
+```
