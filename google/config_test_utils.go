@@ -47,6 +47,7 @@ func configureTestBasePaths(c *Config, url string) {
 	c.CloudTasksBasePath = url
 	c.ComputeBasePath = url
 	c.ContainerAnalysisBasePath = url
+	c.ContainerAttachedBasePath = url
 	c.DataCatalogBasePath = url
 	c.DataFusionBasePath = url
 	c.DataLossPreventionBasePath = url
