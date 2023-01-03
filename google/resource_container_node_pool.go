@@ -168,6 +168,23 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
+	"placement_policy": {
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `Specifies the node placement policy`,
+		ForceNew:    true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"type": {
+					Type:        schema.TypeString,
+					Required:    true,
+					Description: `Type defines the type of placement policy`,
+				},
+			},
+		},
+	},
+
 	"max_pods_per_node": {
 		Type:        schema.TypeInt,
 		Optional:    true,
@@ -827,6 +844,13 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "placement_policy"); ok {
+		placement_policy := v.([]interface{})[0].(map[string]interface{})
+		np.PlacementPolicy = &container.PlacementPolicy{
+			Type: placement_policy["type"].(string),
+		}
+	}
+
 	if v, ok := d.GetOk(prefix + "max_pods_per_node"); ok {
 		np.MaxPodsConstraint = &container.MaxPodsConstraint{
 			MaxPodsPerNode: int64(v.(int)),
@@ -1007,6 +1031,14 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 			}
 		} else {
 			nodePool["autoscaling"] = []map[string]interface{}{}
+		}
+	}
+
+	if np.PlacementPolicy != nil {
+		nodePool["placement_policy"] = []map[string]interface{}{
+			{
+				"type": np.PlacementPolicy.Type,
+			},
 		}
 	}
 
