@@ -212,6 +212,15 @@ Only IPv4 is supported.`,
 				Description: `Region where the router and BgpPeer reside.
 If it is not provided, the provider region is used.`,
 			},
+			"router_appliance_instance": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The URI of the VM instance that is used as third-party router appliances
+such as Next Gen Firewalls, Virtual Routers, or Router Appliances.
+The VM instance must be located in zones contained in the same region as
+this Cloud Router. The VM instance is the peer side of the BGP session.`,
+			},
 			"management_type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -310,6 +319,12 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("enable"); ok || !reflect.DeepEqual(v, enableProp) {
 		obj["enable"] = enableProp
+	}
+	routerApplianceInstanceProp, err := expandNestedComputeRouterBgpPeerRouterApplianceInstance(d.Get("router_appliance_instance"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("router_appliance_instance"); !isEmptyValue(reflect.ValueOf(routerApplianceInstanceProp)) && (ok || !reflect.DeepEqual(v, routerApplianceInstanceProp)) {
+		obj["routerApplianceInstance"] = routerApplianceInstanceProp
 	}
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
@@ -452,6 +467,9 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("enable", flattenNestedComputeRouterBgpPeerEnable(res["enable"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
+	if err := d.Set("router_appliance_instance", flattenNestedComputeRouterBgpPeerRouterApplianceInstance(res["routerApplianceInstance"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
 
 	return nil
 }
@@ -525,6 +543,12 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("enable"); ok || !reflect.DeepEqual(v, enableProp) {
 		obj["enable"] = enableProp
+	}
+	routerApplianceInstanceProp, err := expandNestedComputeRouterBgpPeerRouterApplianceInstance(d.Get("router_appliance_instance"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("router_appliance_instance"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routerApplianceInstanceProp)) {
+		obj["routerApplianceInstance"] = routerApplianceInstanceProp
 	}
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
@@ -827,6 +851,13 @@ func flattenNestedComputeRouterBgpPeerEnable(v interface{}, d *schema.ResourceDa
 	return b
 }
 
+func flattenNestedComputeRouterBgpPeerRouterApplianceInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
 func expandNestedComputeRouterBgpPeerName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -958,6 +989,14 @@ func expandNestedComputeRouterBgpPeerEnable(v interface{}, d TerraformResourceDa
 	}
 
 	return strings.ToUpper(strconv.FormatBool(v.(bool))), nil
+}
+
+func expandNestedComputeRouterBgpPeerRouterApplianceInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseZonalFieldValue("instances", v.(string), "project", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for router_appliance_instance: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
 
 func flattenNestedComputeRouterBgpPeer(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
