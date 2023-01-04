@@ -3420,6 +3420,13 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 			ForceSendFields: []string{"Enabled"},
 		}
 	}
+	if v, ok := config["config_connector_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.ConfigConnectorConfig = &container.ConfigConnectorConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
 
 	return ac
 }
@@ -4284,6 +4291,13 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		result["gke_backup_agent_config"] = []map[string]interface{}{
 			{
 				"enabled": c.GkeBackupAgentConfig.Enabled,
+			},
+		}
+	}
+	if c.ConfigConnectorConfig != nil {
+		result["config_connector_config"] = []map[string]interface{}{
+			{
+				"enabled": c.ConfigConnectorConfig.Enabled,
 			},
 		}
 	}
