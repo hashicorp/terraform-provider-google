@@ -166,6 +166,9 @@ resource "google_datastream_connection_profile" "default" {
 		port     = 8022
 		password = "swordfish"
 	}
+	labels = {
+		key = "value"
+	}
 }
 `, context)
 }

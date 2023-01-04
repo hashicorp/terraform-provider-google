@@ -57,7 +57,7 @@ func resourceDatastreamConnectionProfile() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The name of the location this repository is located in.`,
+				Description: `The name of the location this connection profile is located in.`,
 			},
 			"bigquery_profile": {
 				Type:        schema.TypeList,
