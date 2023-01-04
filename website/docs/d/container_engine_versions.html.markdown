@@ -31,8 +31,12 @@ resource "google_container_cluster" "foo" {
   initial_node_count = 1
 }
 
-output "stable_channel_version" {
+output "stable_channel_default_version" {
   value = data.google_container_engine_versions.central1b.release_channel_default_version["STABLE"]
+}
+
+output "stable_channel_latest_version" {
+  value = data.google_container_engine_versions.central1b.release_channel_latest_version["STABLE"]
 }
 ```
 
@@ -65,3 +69,4 @@ The following attributes are exported:
 * `latest_node_version` - The latest version available in the given zone for use with node instances.
 * `default_cluster_version` - Version of Kubernetes the service deploys by default.
 * `release_channel_default_version` - A map from a release channel name to the channel's default version.
+* `release_channel_latest_version` - A map from a release channel name to the channel's latest version.

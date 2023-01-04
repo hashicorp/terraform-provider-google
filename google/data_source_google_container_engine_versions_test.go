@@ -111,6 +111,16 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 			return errors.New("Didn't get a default cluster version.")
 		}
 
+		_, ok = rs.Primary.Attributes["release_channel_default_version.STABLE"]
+		if !ok {
+			return errors.New("failed to read default STABLE version")
+		}
+
+		_, ok = rs.Primary.Attributes["release_channel_latest_version.STABLE"]
+		if !ok {
+			return errors.New("failed to read latest STABLE version")
+		}
+
 		return nil
 	}
 }
