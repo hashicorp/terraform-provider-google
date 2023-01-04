@@ -412,7 +412,7 @@ subnetwork in which the cluster's instances are launched.
 * `kalm_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Configuration for the KALM addon, which manages the lifecycle of k8s. It is disabled by default; Set `enabled = true` to enable.
 
-*  `config_connector_config` -  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
+*  `config_connector_config` -  (Optional).
     The status of the ConfigConnector addon. It is disabled by default; Set `enabled = true` to enable.
 
 
