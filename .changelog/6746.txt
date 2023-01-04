@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Added `release_channel_latest_version` in `google_container_engine_versions` datasource
+```
