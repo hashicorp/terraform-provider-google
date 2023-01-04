@@ -2359,6 +2359,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's enable private endpoint has been updated to %v", d.Id(), enabled)
 	}
 
+	if d.HasChange("private_cluster_config") && d.HasChange("private_cluster_config.0.master_global_access_config") {
+		config := d.Get("private_cluster_config.0.master_global_access_config")
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredPrivateClusterConfig: &container.PrivateClusterConfig{
+					MasterGlobalAccessConfig: expandPrivateClusterConfigMasterGlobalAccessConfig(config),
+					ForceSendFields:          []string{"MasterGlobalAccessConfig"},
+				},
+			},
+		}
+
+		updateF := updateFunc(req, "updating master global access config")
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's master global access config has been updated to %v", d.Id(), config)
+	}
+
 	if d.HasChange("binary_authorization") {
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{

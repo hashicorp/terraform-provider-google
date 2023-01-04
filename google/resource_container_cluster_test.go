@@ -812,7 +812,7 @@ func TestAccContainerCluster_regionalWithNodeLocations(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withPrivateClusterConfig(t *testing.T) {
+func TestAccContainerCluster_withPrivateClusterConfigBasic(t *testing.T) {
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -824,7 +824,15 @@ func TestAccContainerCluster_withPrivateClusterConfig(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withPrivateClusterConfig(containerNetName, clusterName),
+				Config: testAccContainerCluster_withPrivateClusterConfig(containerNetName, clusterName, false),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_private_cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withPrivateClusterConfig(containerNetName, clusterName, true),
 			},
 			{
 				ResourceName:      "google_container_cluster.with_private_cluster",
@@ -5484,7 +5492,7 @@ resource "google_container_cluster" "with_private_cluster" {
 `, containerNetName, clusterName, location, autopilotEnabled)
 }
 
-func testAccContainerCluster_withPrivateClusterConfig(containerNetName string, clusterName string) string {
+func testAccContainerCluster_withPrivateClusterConfig(containerNetName string, clusterName string, masterGlobalAccessEnabled bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
   name                    = "%s"
@@ -5526,7 +5534,7 @@ resource "google_container_cluster" "with_private_cluster" {
     enable_private_nodes    = true
     master_ipv4_cidr_block  = "10.42.0.0/28"
     master_global_access_config {
-      enabled = true
+      enabled = %t
 	}
   }
   master_authorized_networks_config {
@@ -5536,7 +5544,7 @@ resource "google_container_cluster" "with_private_cluster" {
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
 }
-`, containerNetName, clusterName)
+`, containerNetName, clusterName, masterGlobalAccessEnabled)
 }
 
 func testAccContainerCluster_withShieldedNodes(clusterName string, enabled bool) string {
