@@ -45,7 +45,7 @@ func resourcePrivateCaCACustomDiff(_ context.Context, diff *schema.ResourceDiff,
 	return nil
 }
 
-func isNewResource(diff *schema.ResourceDiff) bool {
+func isNewResource(diff TerraformResourceDiff) bool {
 	name := diff.Get("name")
 	return name.(string) == ""
 }

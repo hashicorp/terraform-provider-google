@@ -117,6 +117,9 @@ resource "google_datastream_connection_profile" "default" {
 		port     = 8022
 		password = "swordfish"
 	}
+	labels = {
+		key = "value"
+	}
 }
 ```
 ## Example Usage - Datastream Connection Profile Postgres
@@ -203,7 +206,7 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  The name of the location this repository is located in.
+  The name of the location this connection profile is located in.
 
 
 - - -

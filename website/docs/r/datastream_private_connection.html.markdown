@@ -79,7 +79,7 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  The name of the location this repository is located in.
+  The name of the location this private connection is located in.
 
 
 <a name="nested_vpc_peering_config"></a>The `vpc_peering_config` block supports:
