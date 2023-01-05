@@ -107,7 +107,7 @@ which type this is. Default value: "MANAGED" Possible values: ["MANAGED"]`,
 			"expire_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Expire time of the certificate.`,
+				Description: `Expire time of the certificate in RFC3339 text format.`,
 			},
 			"subject_alternative_names": {
 				Type:        schema.TypeList,

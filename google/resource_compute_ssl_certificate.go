@@ -90,6 +90,11 @@ These are in the same namespace as the managed SSL certificates.`,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
 			},
+			"expire_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Expire time of the certificate in RFC3339 text format.`,
+			},
 			"name_prefix": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -245,6 +250,9 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("description", flattenComputeSslCertificateDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslCertificate: %s", err)
 	}
+	if err := d.Set("expire_time", flattenComputeSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
 	if err := d.Set("certificate_id", flattenComputeSslCertificateCertificateId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslCertificate: %s", err)
 	}
@@ -332,6 +340,10 @@ func flattenComputeSslCertificateCreationTimestamp(v interface{}, d *schema.Reso
 }
 
 func flattenComputeSslCertificateDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSslCertificateExpireTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

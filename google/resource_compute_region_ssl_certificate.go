@@ -99,6 +99,11 @@ If it is not provided, the provider region is used.`,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
 			},
+			"expire_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Expire time of the certificate in RFC3339 text format.`,
+			},
 			"name_prefix": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -260,6 +265,9 @@ func resourceComputeRegionSslCertificateRead(d *schema.ResourceData, meta interf
 	if err := d.Set("description", flattenComputeRegionSslCertificateDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
 	}
+	if err := d.Set("expire_time", flattenComputeRegionSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
+	}
 	if err := d.Set("certificate_id", flattenComputeRegionSslCertificateCertificateId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionSslCertificate: %s", err)
 	}
@@ -351,6 +359,10 @@ func flattenComputeRegionSslCertificateCreationTimestamp(v interface{}, d *schem
 }
 
 func flattenComputeRegionSslCertificateDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionSslCertificateExpireTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
