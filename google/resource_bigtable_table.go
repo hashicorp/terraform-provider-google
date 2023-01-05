@@ -36,7 +36,7 @@ func resourceBigtableTable() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The name of the table.`,
+				Description: `The name of the table. Must be 1-50 characters and must only contain hyphens, underscores, periods, letters and numbers.`,
 			},
 
 			"column_family": {

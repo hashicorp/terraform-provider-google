@@ -43,6 +43,14 @@ resource "google_bigtable_table" "table" {
   lifecycle {
     prevent_destroy = true
   }
+
+  column_family {
+    family = "family-first"
+  }
+
+  column_family {
+    family = "family-second"
+  }
 }
 ```
 
@@ -50,7 +58,7 @@ resource "google_bigtable_table" "table" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the table.
+* `name` - (Required) The name of the table. Must be 1-50 characters and must only contain hyphens, underscores, periods, letters and numbers.
 
 * `instance_name` - (Required) The name of the Bigtable instance.
 
@@ -62,6 +70,8 @@ to delete/recreate the entire `google_bigtable_table` resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) A field to make the table protected against data loss i.e. when set to PROTECTED, deleting the table, the column families in the table, and the instance containing the table would be prohibited. If not provided, deletion protection will be set to UNPROTECTED.
 
 -----
 
