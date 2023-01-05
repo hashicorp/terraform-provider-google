@@ -56,12 +56,19 @@ var (
 		"cluster_config.0.gce_cluster_config.0.internal_ip_only",
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config",
 		"cluster_config.0.gce_cluster_config.0.metadata",
+		"cluster_config.0.gce_cluster_config.0.reservation_affinity",
 	}
 
 	schieldedInstanceConfigKeys = []string{
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_secure_boot",
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_vtpm",
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_integrity_monitoring",
+	}
+
+	reservationAffinityKeys = []string{
+		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.consume_reservation_type",
+		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.key",
+		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.values",
 	}
 
 	preemptibleWorkerDiskConfigKeys = []string{
@@ -623,6 +630,42 @@ func resourceDataprocCluster() *schema.Resource {
 													AtLeastOneOf: schieldedInstanceConfigKeys,
 													ForceNew:     true,
 													Description:  `Defines whether instances have integrity monitoring enabled.`,
+												},
+											},
+										},
+									},
+
+									"reservation_affinity": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										Computed:     true,
+										MaxItems:     1,
+										Description:  `Reservation Affinity for consuming Zonal reservation.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"consume_reservation_type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													AtLeastOneOf: reservationAffinityKeys,
+													ForceNew:     true,
+													ValidateFunc: validation.StringInSlice([]string{"NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"}, false),
+													Description:  `Type of reservation to consume.`,
+												},
+												"key": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													AtLeastOneOf: reservationAffinityKeys,
+													ForceNew:     true,
+													Description:  `Corresponds to the label key of reservation resource.`,
+												},
+												"values": {
+													Type:         schema.TypeSet,
+													Elem:         &schema.Schema{Type: schema.TypeString},
+													Optional:     true,
+													AtLeastOneOf: reservationAffinityKeys,
+													ForceNew:     true,
+													Description:  `Corresponds to the label values of reservation resource.`,
 												},
 											},
 										},
@@ -1558,6 +1601,19 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 			conf.ShieldedInstanceConfig.EnableVtpm = v.(bool)
 		}
 	}
+	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.reservation_affinity"); ok {
+		cfgRa := v.([]interface{})[0].(map[string]interface{})
+		conf.ReservationAffinity = &dataproc.ReservationAffinity{}
+		if v, ok := cfgRa["consume_reservation_type"]; ok {
+			conf.ReservationAffinity.ConsumeReservationType = v.(string)
+		}
+		if v, ok := cfgRa["key"]; ok {
+			conf.ReservationAffinity.Key = v.(string)
+		}
+		if v, ok := cfgRa["values"]; ok {
+			conf.ReservationAffinity.Values = convertStringSet(v.(*schema.Set))
+		}
+	}
 	return conf, nil
 }
 
@@ -2265,6 +2321,15 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 				"enable_integrity_monitoring": gcc.ShieldedInstanceConfig.EnableIntegrityMonitoring,
 				"enable_secure_boot":          gcc.ShieldedInstanceConfig.EnableSecureBoot,
 				"enable_vtpm":                 gcc.ShieldedInstanceConfig.EnableVtpm,
+			},
+		}
+	}
+	if gcc.ReservationAffinity != nil {
+		gceConfig["reservation_affinity"] = []map[string]interface{}{
+			{
+				"consume_reservation_type": gcc.ReservationAffinity.ConsumeReservationType,
+				"key":                      gcc.ReservationAffinity.Key,
+				"values":                   gcc.ReservationAffinity.Values,
 			},
 		}
 	}

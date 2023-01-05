@@ -365,6 +365,30 @@ func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withReservationAffinity(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withReservationAffinity(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.reservation_affinity.0.consume_reservation_type", "SPECIFIC_RESERVATION"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.reservation_affinity.0.key", "compute.googleapis.com/reservation-name"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.reservation_affinity.0.values.#", "1"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 	t.Parallel()
 
@@ -1337,6 +1361,49 @@ resource "google_dataproc_cluster" "basic" {
   }
 }
 `, rnd)
+}
+
+func testAccDataprocCluster_withReservationAffinity(rnd string) string {
+	return fmt.Sprintf(`
+
+resource "google_compute_reservation" "reservation" {
+  name = "tf-test-dproc-reservation-%s"
+  zone = "us-central1-f"
+
+  specific_reservation {
+    count = 10
+    instance_properties {
+      machine_type = "n1-standard-2"
+    }
+  }
+  specific_reservation_required = true
+}
+
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+
+    master_config {
+      machine_type  = "n1-standard-2"
+    }
+
+    worker_config {
+      machine_type  = "n1-standard-2"
+    }
+
+    gce_cluster_config {
+      zone = "us-central1-f"
+      reservation_affinity {
+        consume_reservation_type = "SPECIFIC_RESERVATION"
+        key = "compute.googleapis.com/reservation-name"
+        values = [google_compute_reservation.reservation.name]
+      }
+    }
+  }
+}
+`, rnd, rnd)
 }
 
 func testAccDataprocCluster_singleNodeCluster(rnd string) string {
