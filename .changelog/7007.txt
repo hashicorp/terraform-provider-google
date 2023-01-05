@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added field `expire_time` to resource `google_compute_ssl_certificate`
+```
+```release-note:enhancement
+compute: added field `expire_time` to resource `google_compute_region_ssl_certificate`
+```

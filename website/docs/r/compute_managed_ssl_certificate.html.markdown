@@ -256,7 +256,7 @@ In addition to the arguments listed above, the following computed attributes are
   Domains associated with the certificate via Subject Alternative Name.
 
 * `expire_time` -
-  Expire time of the certificate.
+  Expire time of the certificate in RFC3339 text format.
 * `self_link` - The URI of the created resource.
 
 

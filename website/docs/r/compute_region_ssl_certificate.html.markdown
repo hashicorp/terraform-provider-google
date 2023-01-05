@@ -226,6 +226,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 
+* `expire_time` -
+  Expire time of the certificate in RFC3339 text format.
+
 * `certificate_id` -
   The unique identifier for the resource.
 * `self_link` - The URI of the created resource.
