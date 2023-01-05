@@ -380,12 +380,13 @@ The following arguments are supported:
 * `max_issuer_path_length` -
   (Optional)
   Refers to the "path length constraint" in Basic Constraints extension. For a CA certificate, this value describes the depth of
-  subordinate CA certificates that are allowed. If this value is less than 0, the request will fail.
+  subordinate CA certificates that are allowed. If this value is less than 0, the request will fail. Setting the value to 0
+  requires setting `zero_max_issuer_path_length = true`.
 
 * `zero_max_issuer_path_length` -
   (Optional)
   When true, the "path length constraint" in Basic Constraints extension will be set to 0.
-  if both `max_issuer_path_length` and `zero_max_issuer_path_length` are unset,
+  If both `max_issuer_path_length` and `zero_max_issuer_path_length` are unset,
   the max path length will be omitted from the CA certificate.
 
 <a name="nested_key_usage"></a>The `key_usage` block supports:
