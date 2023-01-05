@@ -10,7 +10,10 @@ import (
 
 // List of prefixes used for test resource names
 var testResourcePrefixes = []string{
+	// tf-test and tf_test are automatically prepended to resource ids in terraform.yaml that
+	// include a "-" or "_" respectively, and they are the preferred prefix for our test resources to use
 	"tf-test",
+	"tf_test",
 	"tfgen",
 	"gke-us-central1-tf",  // composer-created disks which are abandoned by design (https://cloud.google.com/composer/pricing)
 	"gcs-bucket-tf-test-", // https://github.com/hashicorp/terraform-provider-google/issues/8909
