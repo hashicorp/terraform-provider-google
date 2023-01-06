@@ -32,7 +32,7 @@ IMPROVEMENTS:
 * dataproc: added support for `SPOT` option for `preemptibility` in `google_dataproc_cluster` ([#13335](https://github.com/hashicorp/terraform-provider-google/pull/13335))
 * dlp: added field `deidentify_config.record_transformations.field_transformations` to `google_data_loss_prevention_deidentify_template` ([#13282](https://github.com/hashicorp/terraform-provider-google/pull/13282))
 * dlp: added field `deidentify_config.record_transformations.record_suppressions` to `google_data_loss_prevention_deidentify_template` ([#13300](https://github.com/hashicorp/terraform-provider-google/pull/13300))
-* dlp: added `version` field to `data_loss_prevention_inspect_template` resource ([#13366](https://github.com/hashicorp/terraform-provider-google/pull/13366))
+* dlp: added `version` field to `google_data_loss_prevention_inspect_template` resource ([#13366](https://github.com/hashicorp/terraform-provider-google/pull/13366))
 * osconfig: added support for `skip_await_rollout` in `google_os_config_os_policy_assignment` ([#13340](https://github.com/hashicorp/terraform-provider-google/pull/13340))
 * sql: added [new deletion protection](https://cloud.google.com/sql/docs/mysql/deletion-protection) feature `deletion_protection_enabled` in `google_sql_database_instance` to guard against deletion from all surfaces ([#13249](https://github.com/hashicorp/terraform-provider-google/pull/13249))
 * sql: made `settings.sql_server_audit_config.bucket` field in `google_sql_database_instance` to be optional. ([#13252](https://github.com/hashicorp/terraform-provider-google/pull/13252))
@@ -41,8 +41,8 @@ IMPROVEMENTS:
 BUG FIXES:
 * bigquery: fixed a permadiff on `labels` of `google_bigquery_dataset` when it is referenced in `google_dataplex_asset` ([#13333](https://github.com/hashicorp/terraform-provider-google/pull/13333))
 * compute: fixed an issue where `enable_dynamic_port_allocation` was not able to set to `false` in `google_compute_router_nat` ([#13243](https://github.com/hashicorp/terraform-provider-google/pull/13243))
-* cloudidentity: fixed an issue where where plan would fail when `cloud_identity_group_membership` had been removed outside terraform ([#13331](https://github.com/hashicorp/terraform-provider-google/pull/13331))
-* identityplatform: fixed issues with `identity_platform_config` creation ([#13301](https://github.com/hashicorp/terraform-provider-google/pull/13301))
+* cloudidentity: fixed an issue where where plan would fail when `google_cloud_identity_group_membership` had been removed outside terraform ([#13331](https://github.com/hashicorp/terraform-provider-google/pull/13331))
+* identityplatform: fixed issues with `google_identity_platform_config` creation ([#13301](https://github.com/hashicorp/terraform-provider-google/pull/13301))
 * resourcemanager: fixed the `google_project` datasource silently returning empty results when the project was not found or not in the ACTIVE state. Now, an error will be surfaced instead. ([#13358](https://github.com/hashicorp/terraform-provider-google/pull/13358))
 * sql: fixed `sql_database_instance` leaking root users ([#13258](https://github.com/hashicorp/terraform-provider-google/pull/13258))
 
