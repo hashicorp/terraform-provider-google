@@ -883,6 +883,10 @@ The `workloads_config` block supports:
   (Optional)
   Configuration for resources used by Airflow schedulers.
 
+* `triggerer` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration for resources used by Airflow triggerer.
+
 * `web_server` -
   (Optional)
   Configuration for resources used by Airflow web server.
@@ -908,6 +912,20 @@ The `scheduler` block supports:
 * `count` -
   (Optional)
   The number of schedulers.
+
+The `triggerer` block supports:
+
+* `cpu` -
+  (Required)
+  The number of CPUs for a single Airflow triggerer.
+
+* `memory_gb` -
+  (Required)
+  The amount of memory (GB) for a single Airflow triggerer.
+
+* `count` -
+  (Required)
+  The number of Airflow triggerers.
 
 The `web_server` block supports:
 
