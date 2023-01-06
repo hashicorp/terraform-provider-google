@@ -674,6 +674,12 @@ is set to true. Defaults to ZONAL.`,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
+			"instance_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The type of the instance. The valid values are:- 'SQL_INSTANCE_TYPE_UNSPECIFIED', 'CLOUD_SQL_INSTANCE', 'ON_PREMISES_INSTANCE' and 'READ_REPLICA_INSTANCE'.`,
+			},
+
 			"replica_configuration": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -947,6 +953,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if _, ok := d.GetOk("maintenance_version"); ok {
 		instance.MaintenanceVersion = d.Get("maintenance_version").(string)
+	}
+
+	if _, ok := d.GetOk("instance_type"); ok {
+		instance.InstanceType = d.Get("instance_type").(string)
 	}
 
 	instance.RootPassword = d.Get("root_password").(string)
@@ -1394,7 +1404,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("service_account_email_address", instance.ServiceAccountEmailAddress); err != nil {
 		return fmt.Errorf("Error setting service_account_email_address: %s", err)
 	}
-
+	if err := d.Set("instance_type", instance.InstanceType); err != nil {
+		return fmt.Errorf("Error setting instance_type: %s", err)
+	}
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
@@ -1535,6 +1547,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	if v, ok := d.GetOk("master_instance_name"); ok {
 		mutexKV.Lock(instanceMutexKey(project, v.(string)))
 		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+	}
+
+	if _, ok := d.GetOk("instance_type"); ok {
+		instance.InstanceType = d.Get("instance_type").(string)
 	}
 
 	err = retryTimeDuration(func() (rerr error) {

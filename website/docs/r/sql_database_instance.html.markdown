@@ -481,6 +481,8 @@ a workaround for an [issue fixed in Terraform 0.12](https://github.com/hashicorp
 but also provides a convenient way to access an IP of a specific type without
 performing filtering in a Terraform config.
 
+* `instance_type` - The type of the instance. The supported values are `SQL_INSTANCE_TYPE_UNSPECIFIED`, `CLOUD_SQL_INSTANCE`, `ON_PREMISES_INSTANCE` and `READ_REPLICA_INSTANCE`.
+
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
 

@@ -72,6 +72,9 @@ func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlDatabaseInstance_basic2,
+				Check: resource.ComposeTestCheckFunc(
+					checkInstanceTypeIsPresent("google_sql_database_instance.instance"),
+				),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1397,6 +1400,38 @@ func TestAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_updateReadReplicaWithBinaryLogEnabled(t *testing.T) {
+	t.Parallel()
+
+	instance := "tf-test-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_readReplica(instance),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_updateReadReplica(instance),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func testAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_database_instance" "mysql_pvp_instance_name" {
@@ -2666,4 +2701,161 @@ data "google_sql_backup_run" "backup" {
 	most_recent = true
 }
 `, context)
+}
+
+func checkInstanceTypeIsPresent(resourceName string) func(*terraform.State) error {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+		rsAttr := rs.Primary.Attributes
+		_, ok = rsAttr["instance_type"]
+		if !ok {
+			return fmt.Errorf("Instance type is not computed for %s", resourceName)
+		}
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstance_readReplica(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "master" {
+  region           = "asia-northeast1"
+  name             = "%s-master"
+  database_version = "MYSQL_5_7"
+  deletion_protection  = false
+  settings {
+    availability_type = "ZONAL"
+    disk_autoresize   = true
+    disk_size         = 10
+    disk_type         = "PD_SSD"
+    tier              = "db-f1-micro"
+
+    activation_policy = "ALWAYS"
+    pricing_plan      = "PER_USE"
+
+    backup_configuration {
+      binary_log_enabled = true
+      enabled            = true
+      location           = "asia"
+      start_time         = "18:00"
+    }
+
+    database_flags {
+      name  = "character_set_server"
+      value = "utf8mb4"
+    }
+  }
+}
+
+
+resource "google_sql_database_instance" "replica" {
+  depends_on           = [google_sql_database_instance.master]
+  name                 = "%s-replica"
+  master_instance_name = google_sql_database_instance.master.name
+  region               = "asia-northeast1"
+  database_version     = "MYSQL_5_7"
+  deletion_protection  = false
+  replica_configuration {
+    failover_target = false
+  }
+  settings {
+    tier              = "db-f1-micro"
+    availability_type = "ZONAL"
+    pricing_plan      = "PER_USE"
+    disk_autoresize   = true
+    disk_size         = 10
+
+    backup_configuration {
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "slave_parallel_workers"
+      value = "3"
+    }
+
+    database_flags {
+      name  = "slave_parallel_type"
+      value = "LOGICAL_CLOCK"
+    }
+
+    database_flags {
+      name  = "slave_pending_jobs_size_max"
+      value = "536870912" # 512MB
+    }
+  }
+}`, instance, instance)
+}
+
+func testGoogleSqlDatabaseInstance_updateReadReplica(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "master" {
+  region           = "asia-northeast1"
+  name             = "%s-master"
+  database_version = "MYSQL_5_7"
+  deletion_protection  = false
+  settings {
+    availability_type = "ZONAL"
+    disk_autoresize   = true
+    disk_size         = 10
+    disk_type         = "PD_SSD"
+    tier              = "db-f1-micro"
+
+    activation_policy = "ALWAYS"
+    pricing_plan      = "PER_USE"
+
+    backup_configuration {
+      binary_log_enabled = true
+      enabled            = true
+      location           = "asia"
+      start_time         = "18:00"
+    }
+
+    database_flags {
+      name  = "character_set_server"
+      value = "utf8mb4"
+    }
+  }
+}
+
+
+resource "google_sql_database_instance" "replica" {
+  depends_on           = [google_sql_database_instance.master]
+  name                 = "%s-replica"
+  master_instance_name = google_sql_database_instance.master.name
+  region               = "asia-northeast1"
+  database_version     = "MYSQL_5_7"
+  deletion_protection  = false
+  replica_configuration {
+    failover_target = false
+  }
+  settings {
+    tier              = "db-f1-micro"
+    availability_type = "ZONAL"
+    pricing_plan      = "PER_USE"
+    disk_autoresize   = true
+    disk_size         = 10
+
+    backup_configuration {
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "slave_parallel_workers"
+      value = "2"
+    }
+
+    database_flags {
+      name  = "slave_parallel_type"
+      value = "LOGICAL_CLOCK"
+    }
+
+    database_flags {
+      name  = "slave_pending_jobs_size_max"
+      value = "536870912" # 512MB
+    }
+  }
+}`, instance, instance)
 }
