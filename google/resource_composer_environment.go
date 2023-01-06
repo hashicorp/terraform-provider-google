@@ -61,6 +61,12 @@ var (
 		"config.0.master_authorized_networks_config",
 	}
 
+	workloadsConfigKeys = []string{
+		"config.0.workloads_config.0.scheduler",
+		"config.0.workloads_config.0.web_server",
+		"config.0.workloads_config.0.worker",
+	}
+
 	composerPrivateEnvironmentConfig = []string{
 		"config.0.private_environment_config.0.enable_private_endpoint",
 		"config.0.private_environment_config.0.master_ipv4_cidr_block",
@@ -549,11 +555,12 @@ func resourceComposerEnvironment() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"scheduler": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										ForceNew:    false,
-										Description: `Configuration for resources used by Airflow schedulers.`,
-										MaxItems:    1,
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: workloadsConfigKeys,
+										ForceNew:     false,
+										Description:  `Configuration for resources used by Airflow schedulers.`,
+										MaxItems:     1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"cpu": {
@@ -588,11 +595,12 @@ func resourceComposerEnvironment() *schema.Resource {
 										},
 									},
 									"web_server": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										ForceNew:    false,
-										Description: `Configuration for resources used by Airflow web server.`,
-										MaxItems:    1,
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: workloadsConfigKeys,
+										ForceNew:     false,
+										Description:  `Configuration for resources used by Airflow web server.`,
+										MaxItems:     1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"cpu": {
@@ -620,11 +628,12 @@ func resourceComposerEnvironment() *schema.Resource {
 										},
 									},
 									"worker": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										ForceNew:    false,
-										Description: `Configuration for resources used by Airflow workers.`,
-										MaxItems:    1,
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: workloadsConfigKeys,
+										ForceNew:     false,
+										Description:  `Configuration for resources used by Airflow workers.`,
+										MaxItems:     1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"cpu": {

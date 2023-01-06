@@ -1366,6 +1366,72 @@ resource "google_compute_subnetwork" "test" {
 `, envName, network, subnetwork)
 }
 
+func testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-east1"
+
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      ip_allocation_policy {
+        cluster_ipv4_cidr_block = "10.0.0.0/16"
+      }
+    }
+
+    software_config {
+      image_version = "composer-2-airflow-2"
+    }
+
+    workloads_config {
+      scheduler {
+        cpu          = 1.25
+        memory_gb    = 2.5
+        storage_gb   = 5.4
+        count        = 2
+      }
+      web_server {
+        cpu          = 1.75
+        memory_gb    = 3.0
+        storage_gb   = 4.4
+      }
+      worker {
+        cpu          = 0.5
+        memory_gb    = 2.0
+        storage_gb   = 3.4
+        min_count    = 2
+        max_count    = 5
+      }
+    }
+    environment_size = "ENVIRONMENT_SIZE_MEDIUM"
+    private_environment_config {
+      enable_private_endpoint                 = true
+      cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
+      master_ipv4_cidr_block                   = "172.16.194.0/23"
+      cloud_sql_ipv4_cidr_block               = "10.3.224.0/20"
+    }
+  }
+
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-east1"
+   network       = google_compute_network.test.self_link
+  private_ip_google_access = true
+}
+
+`, envName, network, subnetwork)
+}
+
 func testAccComposerEnvironment_composerV2(envName, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
@@ -1404,7 +1470,7 @@ resource "google_composer_environment" "test" {
           min_count   = 2
           max_count   = 5
         }
-      }
+				      }
       environment_size = "ENVIRONMENT_SIZE_MEDIUM"
       private_environment_config {
         enable_private_endpoint                 = true
@@ -1651,7 +1717,7 @@ resource "google_composer_environment" "test" {
           min_count   = 3
           max_count   = 6
         }
-      }
+				      }
       environment_size = "ENVIRONMENT_SIZE_LARGE"
       private_environment_config {
         enable_private_endpoint                 = true
