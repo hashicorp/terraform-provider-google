@@ -57,6 +57,7 @@ var (
 		"cluster_config.0.gce_cluster_config.0.shielded_instance_config",
 		"cluster_config.0.gce_cluster_config.0.metadata",
 		"cluster_config.0.gce_cluster_config.0.reservation_affinity",
+		"cluster_config.0.gce_cluster_config.0.node_group_affinity",
 	}
 
 	schieldedInstanceConfigKeys = []string{
@@ -666,6 +667,26 @@ func resourceDataprocCluster() *schema.Resource {
 													AtLeastOneOf: reservationAffinityKeys,
 													ForceNew:     true,
 													Description:  `Corresponds to the label values of reservation resource.`,
+												},
+											},
+										},
+									},
+
+									"node_group_affinity": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										Computed:     true,
+										MaxItems:     1,
+										Description:  `Node Group Affinity for sole-tenant clusters.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"node_group_uri": {
+													Type:             schema.TypeString,
+													ForceNew:         true,
+													Required:         true,
+													Description:      `The URI of a sole-tenant that the cluster will be created on.`,
+													DiffSuppressFunc: compareSelfLinkOrResourceName,
 												},
 											},
 										},
@@ -1614,6 +1635,13 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 			conf.ReservationAffinity.Values = convertStringSet(v.(*schema.Set))
 		}
 	}
+	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.node_group_affinity"); ok {
+		cfgNga := v.([]interface{})[0].(map[string]interface{})
+		conf.NodeGroupAffinity = &dataproc.NodeGroupAffinity{}
+		if v, ok := cfgNga["node_group_uri"]; ok {
+			conf.NodeGroupAffinity.NodeGroupUri = v.(string)
+		}
+	}
 	return conf, nil
 }
 
@@ -2330,6 +2358,13 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 				"consume_reservation_type": gcc.ReservationAffinity.ConsumeReservationType,
 				"key":                      gcc.ReservationAffinity.Key,
 				"values":                   gcc.ReservationAffinity.Values,
+			},
+		}
+	}
+	if gcc.NodeGroupAffinity != nil {
+		gceConfig["node_group_affinity"] = []map[string]interface{}{
+			{
+				"node_group_uri": gcc.NodeGroupAffinity.NodeGroupUri,
 			},
 		}
 	}
