@@ -134,6 +134,8 @@ func TestDatastreamStreamCustomDiff(t *testing.T) {
 }
 
 func TestAccDatastreamStream_update(t *testing.T) {
+	// this test uses the random provider
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
