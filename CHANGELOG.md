@@ -6,7 +6,6 @@ FEATURES:
 * **New Data Source:** `google_beyondcorp_app_gateway` ([#13305](https://github.com/hashicorp/terraform-provider-google/pull/13305))
 * **New Data Source:** `google_cloudbuild_trigger` ([#13329](https://github.com/hashicorp/terraform-provider-google/pull/13329))
 * **New Data Source:** `google_compute_instance_group_manager` ([#13297](https://github.com/hashicorp/terraform-provider-google/pull/13297))
-* **New Data Source:** `google_firebase_apple_app_config` (beta) ([#13365](https://github.com/hashicorp/terraform-provider-google/pull/13365))
 * **New Data Source:** `google_firebase_apple_app` ([#13239](https://github.com/hashicorp/terraform-provider-google/pull/13239))
 * **New Data Source:** `google_pubsub_subscription` ([#13296](https://github.com/hashicorp/terraform-provider-google/pull/13296))
 * **New Data Source:** `google_sql_database` ([#13376](https://github.com/hashicorp/terraform-provider-google/pull/13376))
@@ -20,7 +19,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * cloudfunctions2: added `available_cpu` and `max_instance_request_concurrency` to support concurrency in `google_cloudfunctions2_function` resource ([#13315](https://github.com/hashicorp/terraform-provider-google/pull/13315))
-* gkehub: added support for `configmanagement.config_sync.oci` field to `google_gke_hub_feature_membership` resource ([#13320](https://github.com/hashicorp/terraform-provider-google/pull/13320))
 * compute: added support for local IP ranges in `google_compute_firewall` ([#13240](https://github.com/hashicorp/terraform-provider-google/pull/13240))
 * compute: added `router_appliance_instance` field to `google_compute_router_bgp_peer` ([#13373](https://github.com/hashicorp/terraform-provider-google/pull/13373))
 * compute: added support for `generated_id` field in `google_compute_backend_service` to get the value of `id` defined by the server ([#13242](https://github.com/hashicorp/terraform-provider-google/pull/13242))
@@ -40,8 +38,9 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * bigquery: fixed a permadiff on `labels` of `google_bigquery_dataset` when it is referenced in `google_dataplex_asset` ([#13333](https://github.com/hashicorp/terraform-provider-google/pull/13333))
+* compute: fixed a permadiff on `private_ip_google_access` of `google_compute_subnetwork` ([#13244](https://github.com/hashicorp/terraform-provider-google/pull/13244))
 * compute: fixed an issue where `enable_dynamic_port_allocation` was not able to set to `false` in `google_compute_router_nat` ([#13243](https://github.com/hashicorp/terraform-provider-google/pull/13243))
-* cloudidentity: fixed an issue where where plan would fail when `google_cloud_identity_group_membership` had been removed outside terraform ([#13331](https://github.com/hashicorp/terraform-provider-google/pull/13331))
+* container: fixed a permadiff on `location_policy` of `google_container_cluster` and `google_container_node_pool` ([#13283](https://github.com/hashicorp/terraform-provider-google/pull/13283))
 * identityplatform: fixed issues with `google_identity_platform_config` creation ([#13301](https://github.com/hashicorp/terraform-provider-google/pull/13301))
 * resourcemanager: fixed the `google_project` datasource silently returning empty results when the project was not found or not in the ACTIVE state. Now, an error will be surfaced instead. ([#13358](https://github.com/hashicorp/terraform-provider-google/pull/13358))
 * sql: fixed `sql_database_instance` leaking root users ([#13258](https://github.com/hashicorp/terraform-provider-google/pull/13258))
