@@ -24,6 +24,7 @@ import (
 )
 
 func TestAccDatastreamStream_datastreamStreamBasicExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -183,6 +184,7 @@ resource "google_datastream_stream" "default" {
 }
 
 func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
