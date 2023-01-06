@@ -1,7 +1,5 @@
 ## 4.48.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-
 FEATURES:
 * **New Data Source:** `google_beyondcorp_app_connection` ([#13336](https://github.com/hashicorp/terraform-provider-google/pull/13336))
 * **New Data Source:** `google_beyondcorp_app_connector` ([#13305](https://github.com/hashicorp/terraform-provider-google/pull/13305))
