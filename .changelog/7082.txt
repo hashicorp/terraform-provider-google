@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added support for `node_group_affinity.` in `google_dataproc_cluster`
+```

@@ -389,6 +389,28 @@ func TestAccDataprocCluster_withReservationAffinity(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withNodeGroupAffinity(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withNodeGroupAffinity(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					resource.TestMatchResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.node_group_affinity.0.node_group_uri", regexp.MustCompile("test-nodegroup")),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 	t.Parallel()
 
@@ -1404,6 +1426,46 @@ resource "google_dataproc_cluster" "basic" {
   }
 }
 `, rnd, rnd)
+}
+
+func testAccDataprocCluster_withNodeGroupAffinity(rnd string) string {
+	return fmt.Sprintf(`
+
+resource "google_compute_node_template" "nodetmpl" {
+  name   = "test-nodetmpl-%s"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "n1-node-96-624"
+
+  cpu_overcommit_type = "ENABLED"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "test-nodegroup-%s"
+  zone = "us-central1-f"
+
+  size          = 3
+  node_template = google_compute_node_template.nodetmpl.self_link
+}
+
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    gce_cluster_config {
+      zone = "us-central1-f"
+      node_group_affinity {
+        node_group_uri = google_compute_node_group.nodes.name
+      }
+    }
+  }
+}
+`, rnd, rnd, rnd)
 }
 
 func testAccDataprocCluster_singleNodeCluster(rnd string) string {
