@@ -239,6 +239,23 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance))
+
+	if v, ok := d.GetOk("host"); ok {
+		if v.(string) != "" {
+			var fetchedInstance *sqladmin.DatabaseInstance
+			err = retryTimeDuration(func() (rerr error) {
+				fetchedInstance, rerr = config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
+				return rerr
+			}, d.Timeout(schema.TimeoutRead), isSqlOperationInProgressError)
+			if err != nil {
+				return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("instance").(string)))
+			}
+			if !strings.Contains(fetchedInstance.DatabaseVersion, "MYSQL") {
+				return fmt.Errorf("Error: Host field is only supported for MySQL instances: %s", fetchedInstance.DatabaseVersion)
+			}
+		}
+	}
+
 	var op *sqladmin.Operation
 	insertFunc := func() error {
 		op, err = config.NewSqlAdminClient(userAgent).Users.Insert(project, instance,
