@@ -1,0 +1,3 @@
+```release-note:bug
+google_sql_user: added validation for host field.
+```
