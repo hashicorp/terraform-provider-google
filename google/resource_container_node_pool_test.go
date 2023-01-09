@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -326,6 +327,98 @@ func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_workload_metadata_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100us", true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.cpu_cfs_quota", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_kubelet_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.cpu_cfs_quota", "false"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_kubelet_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
+	t.Parallel()
+	// Unit test, no interactions
+	skipIfVcr(t)
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", true),
+				ExpectError: regexp.MustCompile(`.*to be one of \[static none \].*`),
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withLinuxNodeConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, 10000, 12800, "1000 20000 100000", 1),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_linux_node_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Perform an update.
+			{
+				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, 10000, 12800, "1000 20000 200000", 1),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_linux_node_config",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -1892,6 +1985,84 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
   }
 }
 `, projectID, cluster, np)
+}
+
+func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period string, quota bool) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+}
+
+# cpu_manager_policy & cpu_cfs_quota_period cannot be blank if cpu_cfs_quota is set to true
+# cpu_manager_policy & cpu_cfs_quota_period must not set if cpu_cfs_quota is set to false
+resource "google_container_node_pool" "with_kubelet_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type = "COS_CONTAINERD"
+    kubelet_config {
+      cpu_manager_policy   = %q
+      cpu_cfs_quota        = %v
+      cpu_cfs_quota_period = %q
+    }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+`, cluster, np, policy, quota, period)
+}
+
+func testAccContainerNodePool_withLinuxNodeConfig(cluster, np string, maxBacklog, soMaxConn int, tcpMem string, twReuse int) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+}
+
+resource "google_container_node_pool" "with_linux_node_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type = "COS_CONTAINERD"
+    linux_node_config {
+      sysctls = {
+        "net.core.netdev_max_backlog" = "%d"
+        "net.core.rmem_max"           = 10000
+        "net.core.wmem_default"       = 10000
+        "net.core.wmem_max"           = 20000
+        "net.core.optmem_max"         = 10000
+        "net.core.somaxconn"          = %d
+        "net.ipv4.tcp_rmem"           = "%s"
+        "net.ipv4.tcp_wmem"           = "%s"
+        "net.ipv4.tcp_tw_reuse"       = %d
+      }
+    }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+`, cluster, np, maxBacklog, soMaxConn, tcpMem, tcpMem, twReuse)
 }
 
 func testAccContainerNodePool_withNetworkConfig(cluster, np, network string) string {

@@ -843,7 +843,7 @@ recommended. Structure is [documented below](#nested_taint).
 * `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
     Structure is [documented below](#nested_workload_metadata_config).
 
-* `kubelet_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `kubelet_config` - (Optional)
 Kubelet configuration, currently supported attributes can be found [here](https://cloud.google.com/sdk/gcloud/reference/beta/container/node-pools/create#--system-config-from-file).
 Structure is [documented below](#nested_kubelet_config).
 
@@ -855,7 +855,7 @@ kubelet_config {
 }
 ```
 
-* `linux_node_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `linux_node_config` - (Optional)
 Linux node configuration, currently supported attributes can be found [here](https://cloud.google.com/sdk/gcloud/reference/beta/container/node-pools/create#--system-config-from-file).
 Note that validations happen all server side. All attributes are optional.
 Structure is [documented below](#nested_linux_node_config).

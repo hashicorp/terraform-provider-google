@@ -1404,6 +1404,73 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			log.Printf("[INFO] Updated workload_metadata_config for node pool %s", name)
 		}
 
+		if d.HasChange(prefix + "node_config.0.kubelet_config") {
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId: name,
+				KubeletConfig: expandKubeletConfig(
+					d.Get(prefix + "node_config.0.kubelet_config")),
+			}
+			if req.KubeletConfig == nil {
+				req.ForceSendFields = []string{"KubeletConfig"}
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool kubelet_config", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated kubelet_config for node pool %s", name)
+		}
+		if d.HasChange(prefix + "node_config.0.linux_node_config") {
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId: name,
+				LinuxNodeConfig: expandLinuxNodeConfig(
+					d.Get(prefix + "node_config.0.linux_node_config")),
+			}
+			if req.LinuxNodeConfig == nil {
+				req.ForceSendFields = []string{"LinuxNodeConfig"}
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool linux_node_config", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated linux_node_config for node pool %s", name)
+		}
+
 	}
 
 	if d.HasChange(prefix + "node_count") {
