@@ -376,6 +376,51 @@ func schemaNodeConfig() *schema.Schema {
 					ForceNew:    true,
 					Description: `The Customer Managed Encryption Key used to encrypt the boot disk attached to each node in the node pool.`,
 				},
+				// Note that AtLeastOneOf can't be set because this schema is reused by
+				// two different resources.
+				"kubelet_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `Node kubelet configs.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"cpu_manager_policy": {
+								Type:         schema.TypeString,
+								Required:     true,
+								ValidateFunc: validation.StringInSlice([]string{"static", "none", ""}, false),
+								Description:  `Control the CPU management policy on the node.`,
+							},
+							"cpu_cfs_quota": {
+								Type:        schema.TypeBool,
+								Optional:    true,
+								Description: `Enable CPU CFS quota enforcement for containers that specify CPU limits.`,
+							},
+							"cpu_cfs_quota_period": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Description: `Set the CPU CFS quota period value 'cpu.cfs_period_us'.`,
+							},
+						},
+					},
+				},
+
+				"linux_node_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `Parameters that can be configured on Linux nodes.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"sysctls": {
+								Type:        schema.TypeMap,
+								Required:    true,
+								Elem:        &schema.Schema{Type: schema.TypeString},
+								Description: `The Linux kernel parameters to be applied to the nodes and all pods running on the nodes.`,
+							},
+						},
+					},
+				},
 				"node_group": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -591,6 +636,14 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.BootDiskKmsKey = v.(string)
 	}
 
+	if v, ok := nodeConfig["kubelet_config"]; ok {
+		nc.KubeletConfig = expandKubeletConfig(v)
+	}
+
+	if v, ok := nodeConfig["linux_node_config"]; ok {
+		nc.LinuxNodeConfig = expandLinuxNodeConfig(v)
+	}
+
 	if v, ok := nodeConfig["node_group"]; ok {
 		nc.NodeGroup = v.(string)
 	}
@@ -615,6 +668,51 @@ func expandWorkloadMetadataConfig(v interface{}) *container.WorkloadMetadataConf
 	}
 
 	return wmc
+}
+
+func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	cfg := ls[0].(map[string]interface{})
+	kConfig := &container.NodeKubeletConfig{}
+	if cpuManagerPolicy, ok := cfg["cpu_manager_policy"]; ok {
+		kConfig.CpuManagerPolicy = cpuManagerPolicy.(string)
+	}
+	if cpuCfsQuota, ok := cfg["cpu_cfs_quota"]; ok {
+		kConfig.CpuCfsQuota = cpuCfsQuota.(bool)
+		kConfig.ForceSendFields = append(kConfig.ForceSendFields, "CpuCfsQuota")
+	}
+	if cpuCfsQuotaPeriod, ok := cfg["cpu_cfs_quota_period"]; ok {
+		kConfig.CpuCfsQuotaPeriod = cpuCfsQuotaPeriod.(string)
+	}
+	return kConfig
+}
+
+func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	cfg := ls[0].(map[string]interface{})
+	sysCfgRaw, ok := cfg["sysctls"]
+	if !ok {
+		return nil
+	}
+	m := make(map[string]string)
+	for k, v := range sysCfgRaw.(map[string]interface{}) {
+		m[k] = v.(string)
+	}
+	return &container.LinuxNodeConfig{
+		Sysctls: m,
+	}
 }
 
 func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]interface{} {
@@ -661,6 +759,8 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"taint":                    flattenTaints(c.Taints),
 		"workload_metadata_config": flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
 		"boot_disk_kms_key":        c.BootDiskKmsKey,
+		"kubelet_config":           flattenKubeletConfig(c.KubeletConfig),
+		"linux_node_config":        flattenLinuxNodeConfig(c.LinuxNodeConfig),
 		"node_group":               c.NodeGroup,
 	})
 
@@ -760,6 +860,28 @@ func flattenWorkloadMetadataConfig(c *container.WorkloadMetadataConfig) []map[st
 	if c != nil {
 		result = append(result, map[string]interface{}{
 			"mode": c.Mode,
+		})
+	}
+	return result
+}
+
+func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"cpu_cfs_quota":        c.CpuCfsQuota,
+			"cpu_cfs_quota_period": c.CpuCfsQuotaPeriod,
+			"cpu_manager_policy":   c.CpuManagerPolicy,
+		})
+	}
+	return result
+}
+
+func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"sysctls": c.Sysctls,
 		})
 	}
 	return result
