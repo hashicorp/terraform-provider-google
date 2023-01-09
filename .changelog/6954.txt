@@ -1,0 +1,3 @@
+```release-note:bug
+cloudplatform: fixed the error with header `X-Goog-User-Project` on `google_client_openid_userinfo`
+```

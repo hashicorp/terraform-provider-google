@@ -514,9 +514,17 @@ func multiEnvSearch(ks []string) string {
 }
 
 func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
+	// When environment variables UserProjectOverride and BillingProject are set for the provider, the header X-Goog-User-Project is set for the API requests.
+	// But it causes an error when calling GetCurrentUserEmail. It makes sense to not set header X-Goog-User-Project by setting UserProjectOverride
+	// to false when calling GetCurrentUserEmail, because it does not create a bill.
+	origUserProjectOverride := config.UserProjectOverride
+	config.UserProjectOverride = false
+
 	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
 	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
 	res, err := sendRequest(config, "GET", "", "https://openidconnect.googleapis.com/v1/userinfo", userAgent, nil)
+	config.UserProjectOverride = origUserProjectOverride
+
 	if err != nil {
 		return "", fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)
 	}

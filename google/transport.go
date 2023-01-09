@@ -48,7 +48,9 @@ func sendRequestWithTimeout(config *Config, method, project, rawurl, userAgent s
 	reqHeaders.Set("User-Agent", userAgent)
 	reqHeaders.Set("Content-Type", "application/json")
 
-	if config.UserProjectOverride && project != "" {
+	if !config.UserProjectOverride {
+		reqHeaders.Set("X-Goog-User-Project", "")
+	} else if config.UserProjectOverride && project != "" {
 		// Pass the project into this fn instead of parsing it from the URL because
 		// both project names and URLs can have colons in them.
 		reqHeaders.Set("X-Goog-User-Project", project)
