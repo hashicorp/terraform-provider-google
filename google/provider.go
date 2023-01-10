@@ -939,6 +939,7 @@ func Provider() *schema.Provider {
 			"google_sql_backup_run":                               dataSourceSqlBackupRun(),
 			"google_sql_database":                                 dataSourceSqlDatabase(),
 			"google_sql_database_instance":                        dataSourceSqlDatabaseInstance(),
+			"google_sql_database_instances":                       dataSourceSqlDatabaseInstances(),
 			"google_service_networking_peered_dns_domain":         dataSourceGoogleServiceNetworkingPeeredDNSDomain(),
 			"google_storage_bucket":                               dataSourceGoogleStorageBucket(),
 			"google_storage_bucket_object":                        dataSourceGoogleStorageBucketObject(),
