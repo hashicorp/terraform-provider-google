@@ -1,0 +1,6 @@
+```release-note:new-datasource
+google_container_attached_versions
+```
+```release-note:new-datasource
+google_container_attached_install_manifest
+```
