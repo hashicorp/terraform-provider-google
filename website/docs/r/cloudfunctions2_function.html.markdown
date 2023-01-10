@@ -86,7 +86,7 @@ locals {
 }
 
 resource "google_service_account" "account" {
-  account_id = "sa"
+  account_id = "gcf-sa"
   display_name = "Test Service Account"
 }
 
@@ -107,7 +107,7 @@ resource "google_storage_bucket_object" "object" {
 }
  
 resource "google_cloudfunctions2_function" "function" {
-  name = "function"
+  name = "gcf-function"
   location = "us-central1"
   description = "a new function"
  
@@ -185,7 +185,7 @@ resource "google_project_iam_member" "gcs-pubsub-publishing" {
 }
 
 resource "google_service_account" "account" {
-  account_id   = "sa"
+  account_id   = "gcf-sa"
   display_name = "Test Service Account - used for both the cloud function and eventarc trigger in the test"
 }
 
@@ -216,7 +216,7 @@ resource "google_cloudfunctions2_function" "function" {
     google_project_iam_member.event-receiving,
     google_project_iam_member.artifactregistry-reader,
   ]
-  name = "function"
+  name = "gcf-function"
   location = "us-central1"
   description = "a new function"
  

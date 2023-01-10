@@ -50,7 +50,7 @@ func TestAccComputeGlobalAddress_internal(t *testing.T) {
 func testAccComputeGlobalAddress_ipv6(addressName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "foobar" {
-  name        = "address-test-%s"
+  name        = "tf-test-address-%s"
   description = "Created for Terraform acceptance testing"
   ip_version  = "IPV6"
 }
@@ -60,11 +60,11 @@ resource "google_compute_global_address" "foobar" {
 func testAccComputeGlobalAddress_internal(networkName, addressName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name = "address-test-%s"
+  name = "tf-test-address-%s"
 }
 
 resource "google_compute_global_address" "foobar" {
-  name          = "address-test-%s"
+  name          = "tf-test-address-%s"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 24
