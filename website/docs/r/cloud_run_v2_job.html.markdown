@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Run"
+subcategory: "Cloud Run (2nd gen)"
 page_title: "Google: google_cloud_run_v2_job"
 description: |-
   A Cloud Run Job resource that references a container image which is run to completion.

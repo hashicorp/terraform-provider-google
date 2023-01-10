@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Run"
+subcategory: "Cloud Run (2nd gen)"
 page_title: "Google: google_cloud_run_v2_service"
 description: |-
   Service acts as a top-level container that manages a set of configurations and revision templates which implement a network service.
