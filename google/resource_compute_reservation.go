@@ -504,6 +504,18 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
+		if d.HasChange("share_settings") {
+			url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+			if err != nil {
+				return err
+			}
+			urlUpdateMask := obj["urlUpdateMask"]
+			if urlUpdateMask != nil {
+				url = url + urlUpdateMask.(string)
+				delete(obj, "urlUpdateMask")
+			}
+		}
+
 		// err == nil indicates that the billing_project value was found
 		if bp, err := getBillingProject(d, config); err == nil {
 			billingProject = bp

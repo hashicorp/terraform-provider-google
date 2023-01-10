@@ -1,0 +1,3 @@
+```release-note:bug
+spanner: fixed crash when `google_spanner_database.ddl` item was nil
+```

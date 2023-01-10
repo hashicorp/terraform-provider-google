@@ -339,7 +339,9 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 
 		if ddlOk {
 			for i := 0; i < len(ddlStatements); i++ {
-				updateDdls = append(updateDdls, ddlStatements[i].(string))
+				if ddlStatements[i] != nil {
+					updateDdls = append(updateDdls, ddlStatements[i].(string))
+				}
 			}
 		}
 
@@ -352,30 +354,33 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 			updateDdls = append(updateDdls, retentionDdl)
 		}
 
-		log.Printf("[DEBUG] Applying extra DDL statements to the new Database: %#v", updateDdls)
+		// Skip API call if there are no new ddl entries (due to ignoring nil values)
+		if len(updateDdls) > 0 {
+			log.Printf("[DEBUG] Applying extra DDL statements to the new Database: %#v", updateDdls)
 
-		obj["statements"] = updateDdls
+			obj["statements"] = updateDdls
 
-		url, err = replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
-		if err != nil {
-			return err
-		}
+			url, err = replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
+			if err != nil {
+				return err
+			}
 
-		res, err = sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error executing DDL statements on Database: %s", err)
-		}
+			res, err = sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return fmt.Errorf("Error executing DDL statements on Database: %s", err)
+			}
 
-		// Use the resource in the operation response to populate
-		// identity fields and d.Id() before read
-		var opRes map[string]interface{}
-		err = spannerOperationWaitTimeWithResponse(
-			config, res, &opRes, project, "Creating Database", userAgent,
-			d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			// The resource didn't actually create
-			d.SetId("")
-			return fmt.Errorf("Error waiting to run DDL against newly-created Database: %s", err)
+			// Use the resource in the operation response to populate
+			// identity fields and d.Id() before read
+			var opRes map[string]interface{}
+			err = spannerOperationWaitTimeWithResponse(
+				config, res, &opRes, project, "Creating Database", userAgent,
+				d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				// The resource didn't actually create
+				d.SetId("")
+				return fmt.Errorf("Error waiting to run DDL against newly-created Database: %s", err)
+			}
 		}
 	}
 
@@ -499,6 +504,12 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 		url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
 		if err != nil {
 			return err
+		}
+
+		if len(obj["statements"].([]string)) == 0 {
+			// Return early to avoid making an API call that errors,
+			// due to containing no DDL SQL statements
+			return resourceSpannerDatabaseRead(d, meta)
 		}
 
 		// err == nil indicates that the billing_project value was found
@@ -717,7 +728,9 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 
 	//Only new ddl statments to be add to update call
 	for i := len(oldDdls); i < len(newDdls); i++ {
-		updateDdls = append(updateDdls, newDdls[i].(string))
+		if newDdls[i] != nil {
+			updateDdls = append(updateDdls, newDdls[i].(string))
+		}
 	}
 
 	//Add statement to update version_retention_period property, if needed
