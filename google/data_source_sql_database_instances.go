@@ -138,6 +138,7 @@ func flattenDatasourceGoogleDatabaseInstancesList(fetchedInstances []*sqladmin.D
 		instance["connection_name"] = rawInstance.ConnectionName
 		instance["maintenance_version"] = rawInstance.MaintenanceVersion
 		instance["available_maintenance_versions"] = rawInstance.AvailableMaintenanceVersions
+		instance["instance_type"] = rawInstance.InstanceType
 		instance["service_account_email_address"] = rawInstance.ServiceAccountEmailAddress
 		instance["settings"] = flattenSettings(rawInstance.Settings)
 
