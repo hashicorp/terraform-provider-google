@@ -191,6 +191,11 @@ The following arguments are supported:
   The setting that defines how metastore metadata should be integrated with external services and systems.
   Structure is [documented below](#nested_metadata_integration).
 
+* `telemetry_config` -
+  (Optional)
+  The configuration specifying telemetry settings for the Dataproc Metastore service. If unspecified defaults to JSON.
+  Structure is [documented below](#nested_telemetry_config).
+
 * `location` -
   (Optional)
   The location where the metastore service should reside.
@@ -319,6 +324,14 @@ The following arguments are supported:
 * `enabled` -
   (Required)
   Defines whether the metastore metadata should be synced to Data Catalog. The default value is to disable syncing metastore metadata to Data Catalog.
+
+<a name="nested_telemetry_config"></a>The `telemetry_config` block supports:
+
+* `log_format` -
+  (Optional)
+  The output format of the Dataproc Metastore service's logs.
+  Default value is `JSON`.
+  Possible values are `LEGACY` and `JSON`.
 
 ## Attributes Reference
 
