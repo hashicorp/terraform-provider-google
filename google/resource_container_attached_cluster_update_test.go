@@ -54,6 +54,11 @@ func testAccContainerAttachedCluster_containerAttachedCluster_full(context map[s
 data "google_project" "project" {
 }
 
+data "google_container_attached_versions" "versions" {
+	location       = "us-west1"
+	project        = data.google_project.project.project_id
+}
+
 resource "google_container_attached_cluster" "primary" {
   name     = "update%{random_suffix}"
   project = data.google_project.project.project_id
@@ -70,7 +75,7 @@ resource "google_container_attached_cluster" "primary" {
       issuer_url = "https://oidc.issuer.url"
       jwks = base64encode("{\"keys\":[{\"use\":\"sig\",\"kty\":\"RSA\",\"kid\":\"testid\",\"alg\":\"RS256\",\"n\":\"somedata\",\"e\":\"AQAB\"}]}")
   }
-  platform_version = "1.24.0-gke.1"
+  platform_version = data.google_container_attached_versions.versions.valid_versions[0]
   fleet {
       project = "projects/${data.google_project.project.number}"
   }
@@ -93,6 +98,11 @@ func testAccContainerAttachedCluster_containerAttachedCluster_update(context map
 data "google_project" "project" {
 }
 
+data "google_container_attached_versions" "versions" {
+	location       = "us-west1"
+	project        = data.google_project.project.project_id
+}
+
 resource "google_container_attached_cluster" "primary" {
   name     = "update%{random_suffix}"
   project = data.google_project.project.project_id
@@ -110,7 +120,7 @@ resource "google_container_attached_cluster" "primary" {
       issuer_url = "https://oidc.issuer.url"
       jwks = base64encode("{\"keys\":[{\"use\":\"sig\",\"kty\":\"RSA\",\"kid\":\"testid\",\"alg\":\"RS256\",\"n\":\"somedata\",\"e\":\"AQAB\"}]}")
   }
-  platform_version = "1.24.0-gke.1"
+  platform_version = data.google_container_attached_versions.versions.valid_versions[0]
   fleet {
     project = "projects/${data.google_project.project.number}"
   }
@@ -131,6 +141,11 @@ func testAccContainerAttachedCluster_containerAttachedCluster_destroy(context ma
 data "google_project" "project" {
 }
 
+data "google_container_attached_versions" "versions" {
+	location       = "us-west1"
+	project        = data.google_project.project.project_id
+}
+
 resource "google_container_attached_cluster" "primary" {
   name     = "update%{random_suffix}"
   project = data.google_project.project.project_id
@@ -148,7 +163,7 @@ resource "google_container_attached_cluster" "primary" {
       issuer_url = "https://oidc.issuer.url"
       jwks = base64encode("{\"keys\":[{\"use\":\"sig\",\"kty\":\"RSA\",\"kid\":\"testid\",\"alg\":\"RS256\",\"n\":\"somedata\",\"e\":\"AQAB\"}]}")
   }
-  platform_version = "1.24.0-gke.1"
+  platform_version = data.google_container_attached_versions.versions.valid_versions[0]
   fleet {
     project = "projects/${data.google_project.project.number}"
   }

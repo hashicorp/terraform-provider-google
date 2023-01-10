@@ -42,6 +42,11 @@ To get more information about Cluster, see:
 data "google_project" "project" {
 }
 
+data "google_container_attached_versions" "versions" {
+	location       = "us-west1"
+	project        = data.google_project.project.project_id
+}
+
 resource "google_container_attached_cluster" "primary" {
   name     = "basic"
   location = "us-west1"
@@ -51,7 +56,7 @@ resource "google_container_attached_cluster" "primary" {
   oidc_config {
       issuer_url = "https://oidc.issuer.url"
   }
-  platform_version = "1.24.0-gke.1"
+  platform_version = data.google_container_attached_versions.versions.valid_versions[0]
   fleet {
     project = "projects/${data.google_project.project.number}"
   }
@@ -67,6 +72,11 @@ resource "google_container_attached_cluster" "primary" {
 
 ```hcl
 data "google_project" "project" {
+}
+
+data "google_container_attached_versions" "versions" {
+	location       = "us-west1"
+	project        = data.google_project.project.project_id
 }
 
 resource "google_container_attached_cluster" "primary" {
@@ -85,7 +95,7 @@ resource "google_container_attached_cluster" "primary" {
       issuer_url = "https://oidc.issuer.url"
       jwks = base64encode("{\"keys\":[{\"use\":\"sig\",\"kty\":\"RSA\",\"kid\":\"testid\",\"alg\":\"RS256\",\"n\":\"somedata\",\"e\":\"AQAB\"}]}")
   }
-  platform_version = "1.24.0-gke.1"
+  platform_version = data.google_container_attached_versions.versions.valid_versions[0]
   fleet {
     project = "projects/${data.google_project.project.number}"
   }
