@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,6 +28,7 @@ func resourceCloudIdsEndpoint() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudIdsEndpointCreate,
 		Read:   resourceCloudIdsEndpointRead,
+		Update: resourceCloudIdsEndpointUpdate,
 		Delete: resourceCloudIdsEndpointDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -35,6 +37,7 @@ func resourceCloudIdsEndpoint() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -69,6 +72,14 @@ func resourceCloudIdsEndpoint() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of the endpoint.`,
+			},
+			"threat_exceptions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for threat IDs excluded from generating alerts. Limit: 99 IDs.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -132,6 +143,12 @@ func resourceCloudIdsEndpointCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("severity"); !isEmptyValue(reflect.ValueOf(severityProp)) && (ok || !reflect.DeepEqual(v, severityProp)) {
 		obj["severity"] = severityProp
+	}
+	threatExceptionsProp, err := expandCloudIdsEndpointThreatExceptions(d.Get("threat_exceptions"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("threat_exceptions"); !isEmptyValue(reflect.ValueOf(threatExceptionsProp)) && (ok || !reflect.DeepEqual(v, threatExceptionsProp)) {
+		obj["threatExceptions"] = threatExceptionsProp
 	}
 
 	url, err := replaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints?endpointId={{name}}")
@@ -252,8 +269,76 @@ func resourceCloudIdsEndpointRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("severity", flattenCloudIdsEndpointSeverity(res["severity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
+	if err := d.Set("threat_exceptions", flattenCloudIdsEndpointThreatExceptions(res["threatExceptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
 
 	return nil
+}
+
+func resourceCloudIdsEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Endpoint: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	threatExceptionsProp, err := expandCloudIdsEndpointThreatExceptions(d.Get("threat_exceptions"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("threat_exceptions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, threatExceptionsProp)) {
+		obj["threatExceptions"] = threatExceptionsProp
+	}
+
+	url, err := replaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Endpoint %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("threat_exceptions") {
+		updateMask = append(updateMask, "threatExceptions")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return fmt.Errorf("Error updating Endpoint %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Endpoint %q: %#v", d.Id(), res)
+	}
+
+	err = cloudIdsOperationWaitTime(
+		config, res, project, "Updating Endpoint", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
+	return resourceCloudIdsEndpointRead(d, meta)
 }
 
 func resourceCloudIdsEndpointDelete(d *schema.ResourceData, meta interface{}) error {
@@ -322,10 +407,8 @@ func resourceCloudIdsEndpointImport(d *schema.ResourceData, meta interface{}) ([
 }
 
 func flattenCloudIdsEndpointName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return NameFromSelfLinkStateFunc(v)
+	parts := strings.Split(d.Get("name").(string), "/")
+	return parts[len(parts)-1]
 }
 
 func flattenCloudIdsEndpointCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -356,6 +439,10 @@ func flattenCloudIdsEndpointSeverity(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenCloudIdsEndpointThreatExceptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandCloudIdsEndpointName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 }
@@ -369,5 +456,9 @@ func expandCloudIdsEndpointDescription(v interface{}, d TerraformResourceData, c
 }
 
 func expandCloudIdsEndpointSeverity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudIdsEndpointThreatExceptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
