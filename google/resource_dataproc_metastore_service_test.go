@@ -10,7 +10,7 @@ import (
 func TestAccDataprocMetastoreService_updateAndImport(t *testing.T) {
 	t.Parallel()
 
-	name := "tf-metastore-" + randString(t, 10)
+	name := "tf-test-metastore-" + randString(t, 10)
 	tier := [2]string{"DEVELOPER", "ENTERPRISE"}
 
 	vcrTest(t, resource.TestCase{

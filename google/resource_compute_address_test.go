@@ -60,7 +60,7 @@ func TestAccComputeAddress_internal(t *testing.T) {
 func testAccComputeAddress_internal(i string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "internal" {
-  name         = "address-test-internal-%s"
+  name         = "tf-test-address-internal-%s"
   address_type = "INTERNAL"
   region       = "us-east1"
 }
@@ -77,7 +77,7 @@ resource "google_compute_subnetwork" "foo" {
 }
 
 resource "google_compute_address" "internal_with_subnet" {
-  name         = "address-test-internal-with-subnet-%s"
+  name         = "tf-test-address-internal-with-subnet-%s"
   subnetwork   = google_compute_subnetwork.foo.self_link
   address_type = "INTERNAL"
   region       = "us-east1"
@@ -86,7 +86,7 @@ resource "google_compute_address" "internal_with_subnet" {
 // We can't test the address alone, because we don't know what IP range the
 // default subnetwork uses.
 resource "google_compute_address" "internal_with_subnet_and_address" {
-  name         = "address-test-internal-with-subnet-and-address-%s"
+  name         = "tf-test-address-internal-with-subnet-and-address-%s"
   subnetwork   = google_compute_subnetwork.foo.self_link
   address_type = "INTERNAL"
   address      = "10.0.42.42"
@@ -104,7 +104,7 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 func testAccComputeAddress_networkTier(i string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "foobar" {
-  name         = "address-test-%s"
+  name         = "tf-test-address-%s"
   network_tier = "STANDARD"
 }
 `, i)

@@ -907,25 +907,27 @@ func TestAccDataprocCluster_withMetastoreConfig(t *testing.T) {
 	t.Parallel()
 
 	pid := getTestProjectFromEnv()
-	msName_basic := fmt.Sprintf("projects/%s/locations/us-central1/services/metastore-srv", pid)
-	msName_update := fmt.Sprintf("projects/%s/locations/us-central1/services/metastore-srv-update", pid)
+	basicServiceId := "tf-test-metastore-srv-" + randString(t, 10)
+	updateServiceId := "tf-test-metastore-srv-update-" + randString(t, 10)
+	msName_basic := fmt.Sprintf("projects/%s/locations/us-central1/services/%s", pid, basicServiceId)
+	msName_update := fmt.Sprintf("projects/%s/locations/us-central1/services/%s", pid, updateServiceId)
 
 	var cluster dataproc.Cluster
-	rnd := randString(t, 10)
+	clusterName := "tf-test-" + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withMetastoreConfig(rnd),
+				Config: testAccDataprocCluster_withMetastoreConfig(clusterName, basicServiceId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_metastore_config", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_metastore_config", "cluster_config.0.metastore_config.0.dataproc_metastore_service", msName_basic),
 				),
 			},
 			{
-				Config: testAccDataprocCluster_withMetastoreConfig_update(rnd),
+				Config: testAccDataprocCluster_withMetastoreConfig_update(clusterName, updateServiceId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_metastore_config", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_metastore_config", "cluster_config.0.metastore_config.0.dataproc_metastore_service", msName_update),
@@ -2112,10 +2114,10 @@ resource "google_dataproc_autoscaling_policy" "asp" {
 `, rnd, rnd)
 }
 
-func testAccDataprocCluster_withMetastoreConfig(rnd string) string {
+func testAccDataprocCluster_withMetastoreConfig(clusterName, serviceId string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_metastore_config" {
-	name                  = "tf-test-%s"
+	name                  = "%s"
 	region                = "us-central1"
 
 	cluster_config {
@@ -2126,7 +2128,7 @@ resource "google_dataproc_cluster" "with_metastore_config" {
 }
 
 resource "google_dataproc_metastore_service" "ms" {
-	service_id = "metastore-srv"
+	service_id = "%s"
 	location   = "us-central1"
 	port       = 9080
 	tier       = "DEVELOPER"
@@ -2140,13 +2142,13 @@ resource "google_dataproc_metastore_service" "ms" {
 		version = "3.1.2"
 	}
 }
-`, rnd)
+`, clusterName, serviceId)
 }
 
-func testAccDataprocCluster_withMetastoreConfig_update(rnd string) string {
+func testAccDataprocCluster_withMetastoreConfig_update(clusterName, serviceId string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_metastore_config" {
-	name                  = "tf-test-%s"
+	name                  = "%s"
 	region                = "us-central1"
 
 	cluster_config {
@@ -2157,7 +2159,7 @@ resource "google_dataproc_cluster" "with_metastore_config" {
 }
 
 resource "google_dataproc_metastore_service" "ms" {
-	service_id = "metastore-srv-update"
+	service_id = "%s"
 	location   = "us-central1"
 	port       = 9080
 	tier       = "DEVELOPER"
@@ -2171,5 +2173,5 @@ resource "google_dataproc_metastore_service" "ms" {
 		version = "3.1.2"
 	}
 }
-`, rnd)
+`, clusterName, serviceId)
 }

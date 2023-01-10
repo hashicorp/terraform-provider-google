@@ -643,7 +643,7 @@ provider "google" {
 
 resource "google_compute_address" "default" {
   provider = google.compute_custom_endpoint
-  name     = "address-test-%s"
+  name     = "tf-test-address-%s"
 }`, endpoint, name)
 }
 
@@ -656,7 +656,7 @@ terraform {
 }
 
 resource "google_compute_address" "default" {
-	name = "address-test-%s"
+	name = "tf-test-address-%s"
 }`, key, name)
 }
 
