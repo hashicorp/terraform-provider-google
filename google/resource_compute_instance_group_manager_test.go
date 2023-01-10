@@ -392,6 +392,15 @@ func TestAccInstanceGroupManager_stateful(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"status"},
 			},
+			{
+				Config: testAccInstanceGroupManager_statefulRemoved(network, template, target, igm),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
 		},
 	})
 }
@@ -1492,6 +1501,79 @@ resource "google_compute_http_health_check" "zero" {
   timeout_sec        = 1
 }
 `, network, template, target, igm, hck)
+}
+
+func testAccInstanceGroupManager_statefulRemoved(network, template, target, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "igm-basic" {
+  name = "%s"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "my-stateful-disk"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "non-stateful"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "my-stateful-disk2"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  network_interface {
+    network = google_compute_network.igm-basic.self_link
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "tf-test-igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
+  stateful_disk {
+    device_name = "my-stateful-disk"
+    delete_rule = "NEVER"
+  }
+}
+`, network, template, target, igm)
 }
 
 func testAccInstanceGroupManager_waitForStatus(template, target, igm, perInstanceConfig string) string {

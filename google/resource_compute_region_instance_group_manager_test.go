@@ -398,6 +398,15 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"status"},
 			},
+			{
+				Config: testAccRegionInstanceGroupManager_statefulRemoved(template, network, igm),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
 		},
 	})
 }
@@ -1438,5 +1447,70 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
   }
   }
+`, network, template, igm)
+}
+
+func testAccRegionInstanceGroupManager_statefulRemoved(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+resource "google_compute_network" "igm-basic" {
+  name = "%s"
+}
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "stateful-disk"
+  }
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "stateful-disk2"
+  }
+  network_interface {
+    network = "default"
+  }
+  network_interface {
+    network = google_compute_network.igm-basic.self_link
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-igm-basic"
+  region                    = "us-central1"
+  target_size               = 2
+
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+  stateful_disk {
+    device_name = "stateful-disk"
+    delete_rule = "NEVER"
+  }
+  stateful_disk {
+    device_name = "stateful-disk2"
+    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
+  }
+}
 `, network, template, igm)
 }
