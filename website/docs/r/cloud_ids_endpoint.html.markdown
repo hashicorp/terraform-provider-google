@@ -86,6 +86,10 @@ The following arguments are supported:
   (Optional)
   An optional description of the endpoint.
 
+* `threat_exceptions` -
+  (Optional)
+  Configuration for threat IDs excluded from generating alerts. Limit: 99 IDs.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -115,6 +119,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

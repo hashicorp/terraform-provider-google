@@ -1,0 +1,4 @@
+```release-note:enhancement
+cloudids: added `threat_exception` field to `google_cloud_ids_endpoint ` resource.
+
+```
