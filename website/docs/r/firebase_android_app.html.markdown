@@ -40,6 +40,8 @@ resource "google_firebase_android_app" "basic" {
   project = "my-project-name"
   display_name = "Display Name Basic"
   package_name = ""
+  sha1_hashes = ["2145bdf698b8715039bd0e83f2069bed435ac21c"]
+  sha256_hashes = ["2145bdf698b8715039bd0e83f2069bed435ac21ca1b2c3d4e5f6123456789abc"]
 }
 ```
 
@@ -50,7 +52,7 @@ The following arguments are supported:
 
 * `display_name` -
   (Required)
-  The user-assigned display name of the App.
+  The user-assigned display name of the AndroidApp.
 
 
 - - -
@@ -60,6 +62,14 @@ The following arguments are supported:
   (Optional)
   Immutable. The canonical package name of the Android app as would appear in the Google Play
   Developer Console.
+
+* `sha1_hashes` -
+  (Optional)
+  The SHA1 certificate hashes for the AndroidApp.
+
+* `sha256_hashes` -
+  (Optional)
+  The SHA256 certificate hashes for the AndroidApp.
 
 * `deletion_policy` -
   (Optional)
@@ -78,12 +88,16 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
-  The fully qualified resource name of the App, for example:
+  The fully qualified resource name of the AndroidApp, for example:
   projects/projectId/androidApps/appId
 
 * `app_id` -
-  The globally unique, Firebase-assigned identifier of the App.
+  The globally unique, Firebase-assigned identifier of the AndroidApp.
   This identifier should be treated as an opaque token, as the data format is not specified.
+
+* `etag` -
+  This checksum is computed by the server based on the value of other fields, and it may be sent
+  with update requests to ensure the client has an up-to-date value before proceeding.
 
 
 ## Timeouts

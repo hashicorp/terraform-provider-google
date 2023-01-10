@@ -1,0 +1,6 @@
+```release-note:enhancement
+android_app: Added general fields `sha1_hashes`, `sha256_hashes` and `etag` to `google_firebase_android_app`.
+```
+```release-note:bug
+android_app: Modify the `package_name` field suffix to always start with a letter in `google_firebase_android_app`.
+```
