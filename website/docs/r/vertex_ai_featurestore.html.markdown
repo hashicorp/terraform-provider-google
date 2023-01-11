@@ -48,6 +48,28 @@ resource "google_vertex_ai_featurestore" "featurestore" {
   force_destroy = true
 }
 ```
+## Example Usage - Vertex Ai Featurestore Scaling
+
+
+```hcl
+resource "google_vertex_ai_featurestore" "featurestore" {
+  name     = "terraform"
+  labels = {
+    foo = "bar"
+  }
+  region   = "us-central1"
+  online_serving_config {
+    scaling {
+      min_node_count = 2
+      max_node_count = 10
+    }
+  }
+  encryption_spec {
+    kms_key_name = "kms-name"
+  }
+  force_destroy = true
+}
+```
 
 ## Argument Reference
 
@@ -88,8 +110,24 @@ The following arguments are supported:
 <a name="nested_online_serving_config"></a>The `online_serving_config` block supports:
 
 * `fixed_node_count` -
-  (Required)
+  (Optional)
   The number of nodes for each cluster. The number of nodes will not scale automatically but can be scaled manually by providing different values when updating.
+
+* `scaling` -
+  (Optional)
+  Online serving scaling configuration. Only one of fixedNodeCount and scaling can be set. Setting one will reset the other.
+  Structure is [documented below](#nested_scaling).
+
+
+<a name="nested_scaling"></a>The `scaling` block supports:
+
+* `min_node_count` -
+  (Required)
+  The minimum number of nodes to scale down to. Must be greater than or equal to 1.
+
+* `max_node_count` -
+  (Required)
+  The maximum number of nodes to scale up to. Must be greater than minNodeCount, and less than or equal to 10 times of 'minNodeCount'.
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
 

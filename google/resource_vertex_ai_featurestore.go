@@ -77,9 +77,31 @@ func resourceVertexAIFeaturestore() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"fixed_node_count": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: `The number of nodes for each cluster. The number of nodes will not scale automatically but can be scaled manually by providing different values when updating.`,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Description:  `The number of nodes for each cluster. The number of nodes will not scale automatically but can be scaled manually by providing different values when updating.`,
+							ExactlyOneOf: []string{"online_serving_config.0.fixed_node_count", "online_serving_config.0.scaling"},
+						},
+						"scaling": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Online serving scaling configuration. Only one of fixedNodeCount and scaling can be set. Setting one will reset the other.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_node_count": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `The maximum number of nodes to scale up to. Must be greater than minNodeCount, and less than or equal to 10 times of 'minNodeCount'.`,
+									},
+									"min_node_count": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `The minimum number of nodes to scale down to. Must be greater than or equal to 1.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"online_serving_config.0.fixed_node_count", "online_serving_config.0.scaling"},
 						},
 					},
 				},
@@ -451,9 +473,60 @@ func flattenVertexAIFeaturestoreOnlineServingConfig(v interface{}, d *schema.Res
 	transformed := make(map[string]interface{})
 	transformed["fixed_node_count"] =
 		flattenVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(original["fixedNodeCount"], d, config)
+	transformed["scaling"] =
+		flattenVertexAIFeaturestoreOnlineServingConfigScaling(original["scaling"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min_node_count"] =
+		flattenVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(original["minNodeCount"], d, config)
+	transformed["max_node_count"] =
+		flattenVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(original["maxNodeCount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := stringToFixed64(strVal); err == nil {
@@ -514,10 +587,51 @@ func expandVertexAIFeaturestoreOnlineServingConfig(v interface{}, d TerraformRes
 		transformed["fixedNodeCount"] = transformedFixedNodeCount
 	}
 
+	transformedScaling, err := expandVertexAIFeaturestoreOnlineServingConfigScaling(original["scaling"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScaling); val.IsValid() && !isEmptyValue(val) {
+		transformed["scaling"] = transformedScaling
+	}
+
 	return transformed, nil
 }
 
 func expandVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinNodeCount, err := expandVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(original["min_node_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinNodeCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["minNodeCount"] = transformedMinNodeCount
+	}
+
+	transformedMaxNodeCount, err := expandVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(original["max_node_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxNodeCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxNodeCount"] = transformedMaxNodeCount
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
