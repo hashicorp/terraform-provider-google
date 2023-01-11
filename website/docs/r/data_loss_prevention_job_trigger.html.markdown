@@ -406,6 +406,12 @@ The following arguments are supported:
   Default value is `TOP`.
   Possible values are `TOP` and `RANDOM_START`.
 
+* `identifying_fields` -
+  (Optional)
+  Specifies the BigQuery fields that will be returned with findings.
+  If not specified, no identifying fields will be returned for findings.
+  Structure is [documented below](#nested_identifying_fields).
+
 
 <a name="nested_table_reference"></a>The `table_reference` block supports:
 
@@ -420,6 +426,12 @@ The following arguments are supported:
 * `table_id` -
   (Required)
   The name of the table.
+
+<a name="nested_identifying_fields"></a>The `identifying_fields` block supports:
+
+* `name` -
+  (Required)
+  Name of a BigQuery field to be returned with the findings.
 
 <a name="nested_actions"></a>The `actions` block supports:
 

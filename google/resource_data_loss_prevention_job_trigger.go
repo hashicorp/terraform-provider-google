@@ -225,6 +225,21 @@ Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLU
 														},
 													},
 												},
+												"identifying_fields": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Specifies the BigQuery fields that will be returned with findings.
+If not specified, no identifying fields will be returned for findings.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Name of a BigQuery field to be returned with the findings.`,
+															},
+														},
+													},
+												},
 												"rows_limit": {
 													Type:     schema.TypeInt,
 													Optional: true,
@@ -1114,6 +1129,8 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptions(v
 		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRowsLimitPercent(original["rowsLimitPercent"], d, config)
 	transformed["sample_method"] =
 		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(original["sampleMethod"], d, config)
+	transformed["identifying_fields"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFields(original["identifyingFields"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTableReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1180,6 +1197,28 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRo
 }
 
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFieldsName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFieldsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1758,6 +1797,13 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptions(v 
 		transformed["sampleMethod"] = transformedSampleMethod
 	}
 
+	transformedIdentifyingFields, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFields(original["identifying_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentifyingFields); val.IsValid() && !isEmptyValue(val) {
+		transformed["identifyingFields"] = transformedIdentifyingFields
+	}
+
 	return transformed, nil
 }
 
@@ -1815,6 +1861,32 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsRow
 }
 
 func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFieldsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
