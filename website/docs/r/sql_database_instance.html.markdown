@@ -235,7 +235,7 @@ The `settings` block supports:
   instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For all instances, ensure that
   `settings.backup_configuration.enabled` is set to `true`.
   For MySQL instances, ensure that `settings.backup_configuration.binary_log_enabled` is set to `true`.
-  For Postgres instances, ensure that `settings.backup_configuration.point_in_time_recovery_enabled`
+  For Postgres and SQL Server instances, ensure that `settings.backup_configuration.point_in_time_recovery_enabled`
   is set to `true`. Defaults to `ZONAL`.
 
 * `collation` - (Optional) The name of server instance collation.
@@ -294,7 +294,7 @@ The optional `settings.backup_configuration` subblock supports:
 
 * `start_time` - (Optional) `HH:MM` format time indicating when backup
     configuration starts.
-* `point_in_time_recovery_enabled` - (Optional) True if Point-in-time recovery is enabled. Will restart database if enabled after instance creation. Valid only for PostgreSQL instances.
+* `point_in_time_recovery_enabled` - (Optional) True if Point-in-time recovery is enabled. Will restart database if enabled after instance creation. Valid only for PostgreSQL and SQL Server instances.
 
 * `location` - (Optional) The region where the backup will be stored
 

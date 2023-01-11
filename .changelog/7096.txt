@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: Updated the ability to set `point_in_time_recovery_enabled` flag for `SQLSERVER` instance, since the API supports it now.
+```

@@ -891,8 +891,8 @@ func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta
 func pitrPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	pitr := diff.Get("settings.0.backup_configuration.0.point_in_time_recovery_enabled").(bool)
 	dbVersion := diff.Get("database_version").(string)
-	if pitr && !strings.Contains(dbVersion, "POSTGRES") {
-		return fmt.Errorf("point_in_time_recovery_enabled is only available for Postgres. You may want to consider using binary_log_enabled instead.")
+	if pitr && (!strings.Contains(dbVersion, "POSTGRES") && !strings.Contains(dbVersion, "SQLSERVER")) {
+		return fmt.Errorf("point_in_time_recovery_enabled is only available for Postgres and SQL Server. You may want to consider using binary_log_enabled instead.")
 	}
 	return nil
 }
