@@ -1085,22 +1085,54 @@ func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, true),
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, true, "POSTGRES_9_6"),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
 			},
 			{
-				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false),
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false, "POSTGRES_9_6"),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabledForSqlServer(t *testing.T) {
+	t.Parallel()
+
+	masterID := randInt(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, true, "SQLSERVER_2017_STANDARD"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false, "SQLSERVER_2017_STANDARD"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
 			},
 		},
 	})
@@ -2547,15 +2579,16 @@ resource "google_sql_database_instance" "replica" {
 }
 `
 
-func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, pointInTimeRecoveryEnabled bool) string {
+func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, pointInTimeRecoveryEnabled bool, dbVersion string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
   name                = "tf-test-%d"
   region              = "us-central1"
-  database_version    = "POSTGRES_9_6"
+  database_version    = "%s"
   deletion_protection = false
+  root_password		  = "rand-pwd-%d"
   settings {
-    tier = "db-f1-micro"
+    tier = "db-custom-2-13312"
     backup_configuration {
       enabled                        = true
       start_time                     = "00:00"
@@ -2563,7 +2596,7 @@ resource "google_sql_database_instance" "instance" {
     }
   }
 }
-`, masterID, pointInTimeRecoveryEnabled)
+`, masterID, dbVersion, masterID, pointInTimeRecoveryEnabled)
 }
 
 func testGoogleSqlDatabaseInstance_BackupRetention(masterID int) string {
