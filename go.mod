@@ -3,7 +3,7 @@ go 1.18
 
 require (
 	cloud.google.com/go/bigtable v1.17.0
-	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.30.0
+	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.31.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/client9/misspell v0.3.4
 	github.com/davecgh/go-spew v1.1.1

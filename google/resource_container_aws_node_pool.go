@@ -195,6 +195,14 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 				Description: "The name of the AWS IAM role assigned to nodes in the pool.",
 			},
 
+			"autoscaling_metrics_collection": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration related to CloudWatch metrics collection on the Auto Scaling group of the node pool. When unspecified, metrics collection is disabled.",
+				MaxItems:    1,
+				Elem:        ContainerAwsNodePoolConfigAutoscalingMetricsCollectionSchema(),
+			},
+
 			"instance_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -246,7 +254,6 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 			"tags": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. Key/value metadata to assign to each underlying AWS resource. Specify at most 50 pairs containing alphanumerics, spaces, and symbols (.+-=_:@/). Keys can be up to 127 Unicode characters. Values can be up to 255 Unicode characters.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -269,6 +276,25 @@ func ContainerAwsNodePoolConfigConfigEncryptionSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The ARN of the AWS KMS key used to encrypt node pool configuration.",
+			},
+		},
+	}
+}
+
+func ContainerAwsNodePoolConfigAutoscalingMetricsCollectionSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"granularity": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The frequency at which EC2 Auto Scaling sends aggregated data to AWS CloudWatch. The only valid value is \"1Minute\".",
+			},
+
+			"metrics": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The metrics to enable. For a list of valid metrics, see https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_EnableMetricsCollection.html. If you specify granularity and don't specify any metrics, all metrics are enabled.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -683,16 +709,17 @@ func expandContainerAwsNodePoolConfig(o interface{}) *containeraws.NodePoolConfi
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &containeraws.NodePoolConfig{
-		ConfigEncryption:   expandContainerAwsNodePoolConfigConfigEncryption(obj["config_encryption"]),
-		IamInstanceProfile: dcl.String(obj["iam_instance_profile"].(string)),
-		InstanceType:       dcl.StringOrNil(obj["instance_type"].(string)),
-		Labels:             checkStringMap(obj["labels"]),
-		ProxyConfig:        expandContainerAwsNodePoolConfigProxyConfig(obj["proxy_config"]),
-		RootVolume:         expandContainerAwsNodePoolConfigRootVolume(obj["root_volume"]),
-		SecurityGroupIds:   expandStringArray(obj["security_group_ids"]),
-		SshConfig:          expandContainerAwsNodePoolConfigSshConfig(obj["ssh_config"]),
-		Tags:               checkStringMap(obj["tags"]),
-		Taints:             expandContainerAwsNodePoolConfigTaintsArray(obj["taints"]),
+		ConfigEncryption:             expandContainerAwsNodePoolConfigConfigEncryption(obj["config_encryption"]),
+		IamInstanceProfile:           dcl.String(obj["iam_instance_profile"].(string)),
+		AutoscalingMetricsCollection: expandContainerAwsNodePoolConfigAutoscalingMetricsCollection(obj["autoscaling_metrics_collection"]),
+		InstanceType:                 dcl.StringOrNil(obj["instance_type"].(string)),
+		Labels:                       checkStringMap(obj["labels"]),
+		ProxyConfig:                  expandContainerAwsNodePoolConfigProxyConfig(obj["proxy_config"]),
+		RootVolume:                   expandContainerAwsNodePoolConfigRootVolume(obj["root_volume"]),
+		SecurityGroupIds:             expandStringArray(obj["security_group_ids"]),
+		SshConfig:                    expandContainerAwsNodePoolConfigSshConfig(obj["ssh_config"]),
+		Tags:                         checkStringMap(obj["tags"]),
+		Taints:                       expandContainerAwsNodePoolConfigTaintsArray(obj["taints"]),
 	}
 }
 
@@ -701,16 +728,17 @@ func flattenContainerAwsNodePoolConfig(obj *containeraws.NodePoolConfig) interfa
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"config_encryption":    flattenContainerAwsNodePoolConfigConfigEncryption(obj.ConfigEncryption),
-		"iam_instance_profile": obj.IamInstanceProfile,
-		"instance_type":        obj.InstanceType,
-		"labels":               obj.Labels,
-		"proxy_config":         flattenContainerAwsNodePoolConfigProxyConfig(obj.ProxyConfig),
-		"root_volume":          flattenContainerAwsNodePoolConfigRootVolume(obj.RootVolume),
-		"security_group_ids":   obj.SecurityGroupIds,
-		"ssh_config":           flattenContainerAwsNodePoolConfigSshConfig(obj.SshConfig),
-		"tags":                 obj.Tags,
-		"taints":               flattenContainerAwsNodePoolConfigTaintsArray(obj.Taints),
+		"config_encryption":              flattenContainerAwsNodePoolConfigConfigEncryption(obj.ConfigEncryption),
+		"iam_instance_profile":           obj.IamInstanceProfile,
+		"autoscaling_metrics_collection": flattenContainerAwsNodePoolConfigAutoscalingMetricsCollection(obj.AutoscalingMetricsCollection),
+		"instance_type":                  obj.InstanceType,
+		"labels":                         obj.Labels,
+		"proxy_config":                   flattenContainerAwsNodePoolConfigProxyConfig(obj.ProxyConfig),
+		"root_volume":                    flattenContainerAwsNodePoolConfigRootVolume(obj.RootVolume),
+		"security_group_ids":             obj.SecurityGroupIds,
+		"ssh_config":                     flattenContainerAwsNodePoolConfigSshConfig(obj.SshConfig),
+		"tags":                           obj.Tags,
+		"taints":                         flattenContainerAwsNodePoolConfigTaintsArray(obj.Taints),
 	}
 
 	return []interface{}{transformed}
@@ -737,6 +765,34 @@ func flattenContainerAwsNodePoolConfigConfigEncryption(obj *containeraws.NodePoo
 	}
 	transformed := map[string]interface{}{
 		"kms_key_arn": obj.KmsKeyArn,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandContainerAwsNodePoolConfigAutoscalingMetricsCollection(o interface{}) *containeraws.NodePoolConfigAutoscalingMetricsCollection {
+	if o == nil {
+		return containeraws.EmptyNodePoolConfigAutoscalingMetricsCollection
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return containeraws.EmptyNodePoolConfigAutoscalingMetricsCollection
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &containeraws.NodePoolConfigAutoscalingMetricsCollection{
+		Granularity: dcl.String(obj["granularity"].(string)),
+		Metrics:     expandStringArray(obj["metrics"]),
+	}
+}
+
+func flattenContainerAwsNodePoolConfigAutoscalingMetricsCollection(obj *containeraws.NodePoolConfigAutoscalingMetricsCollection) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"granularity": obj.Granularity,
+		"metrics":     obj.Metrics,
 	}
 
 	return []interface{}{transformed}
