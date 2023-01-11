@@ -514,7 +514,7 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("aws") {
-		updateMask = append(updateMask, "aws")
+		updateMask = append(updateMask, "aws.access_role.iam_role_id")
 	}
 
 	if d.HasChange("azure") {
