@@ -70,6 +70,56 @@ resource "google_vertex_ai_featurestore" "featurestore" {
 `, context)
 }
 
+func TestAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":          getTestOrgFromEnv(t),
+		"billing_account": getTestBillingAccountFromEnv(t),
+		"kms_key_name":    BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"random_suffix":   randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVertexAIFeaturestoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_featurestore.featurestore",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "etag", "region", "force_destroy"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_vertex_ai_featurestore" "featurestore" {
+  name     = "terraform%{random_suffix}"
+  labels = {
+    foo = "bar"
+  }
+  region   = "us-central1"
+  online_serving_config {
+    scaling {
+      min_node_count = 2
+      max_node_count = 10
+    }
+  }
+  encryption_spec {
+    kms_key_name = "%{kms_key_name}"
+  }
+  force_destroy = true
+}
+`, context)
+}
+
 func testAccCheckVertexAIFeaturestoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
