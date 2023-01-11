@@ -232,6 +232,10 @@ The `autoscaling` block supports:
     
 The `config` block supports:
     
+* `autoscaling_metrics_collection` -
+  (Optional)
+  Optional. Configuration related to CloudWatch metrics collection on the Auto Scaling group of the node pool. When unspecified, metrics collection is disabled.
+    
 * `config_encryption` -
   (Required)
   The ARN of the AWS KMS key used to encrypt node pool configuration.
@@ -304,6 +308,16 @@ The `max_pods_constraint` block supports:
   
 
 
+The `autoscaling_metrics_collection` block supports:
+    
+* `granularity` -
+  (Required)
+  The frequency at which EC2 Auto Scaling sends aggregated data to AWS CloudWatch. The only valid value is "1Minute".
+    
+* `metrics` -
+  (Optional)
+  The metrics to enable. For a list of valid metrics, see https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_EnableMetricsCollection.html. If you specify granularity and don't specify any metrics, all metrics are enabled.
+    
 The `instance_placement` block supports:
     
 * `tenancy` -

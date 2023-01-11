@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added update support for `google_container_aws_node_pool` `tags` field
+```
+```release-note:enhancement
+container: added `google_container_aws_node_pool` `autoscaling_metrics_collection` field
+```
