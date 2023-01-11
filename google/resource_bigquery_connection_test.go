@@ -138,3 +138,73 @@ resource "google_bigquery_connection" "connection" {
 }
 `, context)
 }
+
+func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
+		CheckDestroy: testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionAws(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionAwsUpdate(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionAws(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_connection" "connection" {
+   connection_id = "tf-test-my-connection%{random_suffix}"
+   location      = "aws-us-east-1"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   aws {
+      access_role {
+         iam_role_id =  "arn:aws:iam::999999999999:role/omnirole%{random_suffix}"
+      }
+   }
+}
+`, context)
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionAwsUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_connection" "connection" {
+   connection_id = "tf-test-my-connection%{random_suffix}"
+   location      = "aws-us-east-1"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   aws {
+      access_role {
+         iam_role_id =  "arn:aws:iam::999999999999:role/omnirole%{random_suffix}update"
+      }
+   }
+}
+`, context)
+}
