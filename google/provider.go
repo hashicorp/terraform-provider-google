@@ -891,6 +891,7 @@ func Provider() *schema.Provider {
 			"google_container_azure_versions":                     dataSourceGoogleContainerAzureVersions(),
 			"google_container_aws_versions":                       dataSourceGoogleContainerAwsVersions(),
 			"google_container_attached_versions":                  dataSourceGoogleContainerAttachedVersions(),
+			"google_container_attached_install_manifest":          dataSourceGoogleContainerAttachedInstallManifest(),
 			"google_container_cluster":                            dataSourceGoogleContainerCluster(),
 			"google_container_engine_versions":                    dataSourceGoogleContainerEngineVersions(),
 			"google_container_registry_image":                     dataSourceGoogleContainerImage(),
