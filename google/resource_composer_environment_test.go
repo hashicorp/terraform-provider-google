@@ -1945,22 +1945,27 @@ func testSweepComposerResources(region string) error {
 		log.Fatalf("error loading: %s", err)
 	}
 
-	// Environments need to be cleaned up because the service is flaky.
-	if err := testSweepComposerEnvironments(config); err != nil {
-		log.Printf("[WARNING] unable to clean up all environments: %s", err)
-	}
+	// us-central is passed as the region for our sweepers, but there are also
+	// many tests that use the us-east1 region
+	regions := []string{"us-central1", "us-east1"}
+	for _, r := range regions {
+		// Environments need to be cleaned up because the service is flaky.
+		if err := testSweepComposerEnvironments(config, r); err != nil {
+			log.Printf("[WARNING] unable to clean up all environments: %s", err)
+		}
 
-	// Buckets need to be cleaned up because they just don't get deleted on purpose.
-	if err := testSweepComposerEnvironmentBuckets(config); err != nil {
-		log.Printf("[WARNING] unable to clean up all environment storage buckets: %s", err)
+		// Buckets need to be cleaned up because they just don't get deleted on purpose.
+		if err := testSweepComposerEnvironmentBuckets(config, r); err != nil {
+			log.Printf("[WARNING] unable to clean up all environment storage buckets: %s", err)
+		}
 	}
 
 	return nil
 }
 
-func testSweepComposerEnvironments(config *Config) error {
+func testSweepComposerEnvironments(config *Config, region string) error {
 	found, err := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.List(
-		fmt.Sprintf("projects/%s/locations/%s", config.Project, config.Region)).Do()
+		fmt.Sprintf("projects/%s/locations/%s", config.Project, region)).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets for composer environment: %s", err)
 	}
@@ -2011,7 +2016,7 @@ func testSweepComposerEnvironments(config *Config) error {
 	return allErrors
 }
 
-func testSweepComposerEnvironmentBuckets(config *Config) error {
+func testSweepComposerEnvironmentBuckets(config *Config, region string) error {
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
 	artifactBucket, err := config.NewStorageClient(config.userAgent).Buckets.Get(artifactsBName).Do()
 	if err != nil {
@@ -2024,7 +2029,7 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 		return err
 	}
 
-	found, err := config.NewStorageClient(config.userAgent).Buckets.List(config.Project).Prefix(config.Region).Do()
+	found, err := config.NewStorageClient(config.userAgent).Buckets.List(config.Project).Prefix(region).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets created when testing composer environment: %s", err)
 	}
