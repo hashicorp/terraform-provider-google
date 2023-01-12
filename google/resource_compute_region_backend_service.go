@@ -379,7 +379,7 @@ Defaults to 3.`,
 				Optional: true,
 				Description: `Time for which instance will be drained (not accept new
 connections, but still work to finish started).`,
-				Default: 0,
+				Default: 300,
 			},
 
 			"consistent_hash": {
