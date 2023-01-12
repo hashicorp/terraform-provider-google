@@ -104,9 +104,10 @@ resource "google_billing_budget" "budget" {
   display_name = "Example Billing Budget"
 
   budget_filter {
-    projects = ["projects/${data.google_project.project.number}"]
-    credit_types_treatment = "EXCLUDE_ALL_CREDITS"
-    services = ["services/24E6-581D-38E5"] # Bigquery
+    projects               = ["projects/${data.google_project.project.number}"]
+    credit_types_treatment = "INCLUDE_SPECIFIED_CREDITS"
+    services               = ["services/24E6-581D-38E5"] # Bigquery
+    credit_types           = ["PROMOTION", "FREE_TIER"]
   }
 
   amount {
@@ -338,6 +339,7 @@ The following arguments are supported:
   Optional. If creditTypesTreatment is INCLUDE_SPECIFIED_CREDITS,
   this is a list of credit types to be subtracted from gross cost to determine the spend for threshold calculations. See a list of acceptable credit type values.
   If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be empty.
+  **Note:** If the field has a value in the config and needs to be removed, the field has to be an emtpy array in the config.
 
 * `subaccounts` -
   (Optional)
@@ -347,6 +349,7 @@ The following arguments are supported:
   the parent account, usage from the parent account will be included.
   If the field is omitted, the report will include usage from the parent
   account and all subaccounts, if they exist.
+  **Note:** If the field has a value in the config and needs to be removed, the field has to be an emtpy array in the config.
 
 * `labels` -
   (Optional)

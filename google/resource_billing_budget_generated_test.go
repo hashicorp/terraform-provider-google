@@ -168,9 +168,10 @@ resource "google_billing_budget" "budget" {
   display_name = "Example Billing Budget%{random_suffix}"
 
   budget_filter {
-    projects = ["projects/${data.google_project.project.number}"]
-    credit_types_treatment = "EXCLUDE_ALL_CREDITS"
-    services = ["services/24E6-581D-38E5"] # Bigquery
+    projects               = ["projects/${data.google_project.project.number}"]
+    credit_types_treatment = "INCLUDE_SPECIFIED_CREDITS"
+    services               = ["services/24E6-581D-38E5"] # Bigquery
+    credit_types           = ["PROMOTION", "FREE_TIER"]
   }
 
   amount {
