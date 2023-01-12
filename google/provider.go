@@ -881,6 +881,7 @@ func Provider() *schema.Provider {
 			"google_compute_region_ssl_certificate":               dataSourceGoogleRegionComputeSslCertificate(),
 			"google_compute_resource_policy":                      dataSourceGoogleComputeResourcePolicy(),
 			"google_compute_router":                               dataSourceGoogleComputeRouter(),
+			"google_compute_router_nat":                           dataSourceGoogleComputeRouterNat(),
 			"google_compute_router_status":                        dataSourceGoogleComputeRouterStatus(),
 			"google_compute_snapshot":                             dataSourceGoogleComputeSnapshot(),
 			"google_compute_ssl_certificate":                      dataSourceGoogleComputeSslCertificate(),
