@@ -389,6 +389,31 @@ func TestAccDataprocCluster_withReservationAffinity(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withDataprocMetricConfig(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withDataprocMetricConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.dataproc_metric_config.0.metrics.#", "2"),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.dataproc_metric_config.0.metrics.0.metric_source", "HDFS"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.dataproc_metric_config.0.metrics.0.metric_overrides.#", "1"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withNodeGroupAffinity(t *testing.T) {
 	t.Parallel()
 
@@ -1428,6 +1453,29 @@ resource "google_dataproc_cluster" "basic" {
   }
 }
 `, rnd, rnd)
+}
+
+func testAccDataprocCluster_withDataprocMetricConfig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    dataproc_metric_config {
+      metrics {
+        metric_source = "HDFS"
+        metric_overrides = ["yarn:ResourceManager:QueueMetrics:AppsCompleted"]
+      }
+
+      metrics {
+        metric_source = "SPARK"
+        metric_overrides = ["spark:driver:DAGScheduler:job.allJobs"]
+      }
+    }
+  }
+}
+`, rnd)
 }
 
 func testAccDataprocCluster_withNodeGroupAffinity(rnd string) string {
