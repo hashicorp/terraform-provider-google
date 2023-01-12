@@ -49,9 +49,15 @@ func sendRequestWithTimeout(config *Config, method, project, rawurl, userAgent s
 	reqHeaders.Set("Content-Type", "application/json")
 
 	if config.UserProjectOverride && project != "" {
-		// Pass the project into this fn instead of parsing it from the URL because
-		// both project names and URLs can have colons in them.
-		reqHeaders.Set("X-Goog-User-Project", project)
+		// When project is "NO_BILLING_PROJECT_OVERRIDE" in the function GetCurrentUserEmail,
+		// set the header X-Goog-User-Project to be empty string.
+		if project == "NO_BILLING_PROJECT_OVERRIDE" {
+			reqHeaders.Set("X-Goog-User-Project", "")
+		} else {
+			// Pass the project into this fn instead of parsing it from the URL because
+			// both project names and URLs can have colons in them.
+			reqHeaders.Set("X-Goog-User-Project", project)
+		}
 	}
 
 	if timeout == 0 {
