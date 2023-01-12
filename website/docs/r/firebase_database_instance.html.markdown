@@ -31,31 +31,31 @@ To get more information about Instance, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/products/realtime-database)
 
-## Example Usage - Firebase Database Instance
+## Example Usage - Firebase Database Instance Basic
 
 
 ```hcl
 resource "google_firebase_database_instance" "basic" {
   provider = google-beta
   project  = "my-project-name"
-  region   = "us-west1"
+  region   = "us-central1"
   instance_id = "active-db"
 }
 ```
-## Example Usage - Firebase Database Instance Disabled
+## Example Usage - Firebase Database Instance Full
 
 
 ```hcl
 resource "google_firebase_database_instance" "full" {
   provider = google-beta
   project  = "my-project-name"
-  region   = "us-west1"
+  region   = "europe-west1"
   instance_id = "disabled-db"
   type     = "USER_DATABASE"
   desired_state   = "DISABLED"
 }
 ```
-## Example Usage - Firebase Database Instance Default
+## Example Usage - Firebase Database Instance Default Database
 
 
 ```hcl
@@ -83,9 +83,10 @@ resource "google_project_service" "firebase_database" {
 resource "google_firebase_database_instance" "default" {
   provider = google-beta
   project  = google_firebase_project.default.project
-  region   = "us-west1"
+  region   = "us-central1"
   instance_id = "rtdb-project-default-rtdb"
   type     = "DEFAULT_DATABASE"
+  depends_on = [google_project_service.firebase_database]
 }
 ```
 
@@ -97,6 +98,7 @@ The following arguments are supported:
 * `region` -
   (Required)
   A reference to the region where the Firebase Realtime database resides.
+  Check all [available regions](https://firebase.google.com/docs/projects/locations#rtdb-locations)
 
 * `instance_id` -
   (Required)
