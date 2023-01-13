@@ -573,6 +573,12 @@ responses.`,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"edge_security_policy": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The resource URL for the edge security policy associated with this backend service.`,
+			},
 			"enable_cdn": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1223,6 +1229,12 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("security_policy"); !isEmptyValue(reflect.ValueOf(securityPolicyProp)) && (ok || !reflect.DeepEqual(v, securityPolicyProp)) {
 		obj["securityPolicy"] = securityPolicyProp
 	}
+	edgeSecurityPolicyProp, err := expandComputeBackendServiceEdgeSecurityPolicy(d.Get("edge_security_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edge_security_policy"); !isEmptyValue(reflect.ValueOf(edgeSecurityPolicyProp)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
+		obj["edgeSecurityPolicy"] = edgeSecurityPolicyProp
+	}
 	securitySettingsProp, err := expandComputeBackendServiceSecuritySettings(d.Get("security_settings"), d, config)
 	if err != nil {
 		return err
@@ -1309,6 +1321,25 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
 		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
+		if waitErr != nil {
+			return waitErr
+		}
+	}
+	// edge security_policy isn't set by Create / Update
+	if o, n := d.GetChange("edge_security_policy"); o.(string) != n.(string) {
+		pol, err := ParseSecurityPolicyFieldValue(n.(string), d, config)
+		if err != nil {
+			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
+		}
+
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		op, err := config.NewComputeClient(userAgent).BackendServices.SetEdgeSecurityPolicy(project, obj["name"].(string), spr).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error setting Backend Service edge security policy: {{err}}", err)
+		}
+		// This uses the create timeout for simplicity, though technically this code appears in both create and update
+		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Edge Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -1444,6 +1475,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	if err := d.Set("security_policy", flattenComputeBackendServiceSecurityPolicy(res["securityPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
+	if err := d.Set("edge_security_policy", flattenComputeBackendServiceEdgeSecurityPolicy(res["edgeSecurityPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	if err := d.Set("security_settings", flattenComputeBackendServiceSecuritySettings(res["securitySettings"], d, config)); err != nil {
@@ -1607,6 +1641,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("security_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityPolicyProp)) {
 		obj["securityPolicy"] = securityPolicyProp
 	}
+	edgeSecurityPolicyProp, err := expandComputeBackendServiceEdgeSecurityPolicy(d.Get("edge_security_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edge_security_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
+		obj["edgeSecurityPolicy"] = edgeSecurityPolicyProp
+	}
 	securitySettingsProp, err := expandComputeBackendServiceSecuritySettings(d.Get("security_settings"), d, config)
 	if err != nil {
 		return err
@@ -1680,6 +1720,25 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
 		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
+		if waitErr != nil {
+			return waitErr
+		}
+	}
+	// edge security_policy isn't set by Create / Update
+	if o, n := d.GetChange("edge_security_policy"); o.(string) != n.(string) {
+		pol, err := ParseSecurityPolicyFieldValue(n.(string), d, config)
+		if err != nil {
+			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
+		}
+
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		op, err := config.NewComputeClient(userAgent).BackendServices.SetEdgeSecurityPolicy(project, obj["name"].(string), spr).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error setting Backend Service edge security policy: {{err}}", err)
+		}
+		// This uses the create timeout for simplicity, though technically this code appears in both create and update
+		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Edge Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -2773,6 +2832,10 @@ func flattenComputeBackendServiceSecurityPolicy(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenComputeBackendServiceEdgeSecurityPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeBackendServiceSecuritySettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -3704,6 +3767,10 @@ func expandComputeBackendServiceProtocol(v interface{}, d TerraformResourceData,
 }
 
 func expandComputeBackendServiceSecurityPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceEdgeSecurityPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
