@@ -1082,7 +1082,6 @@ func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -1096,7 +1095,6 @@ func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 					testAccCheckComputeInstanceTemplateAutomaticRestart(&instanceTemplate, false),
 					testAccCheckComputeInstanceTemplatePreemptible(&instanceTemplate, true),
 					testAccCheckComputeInstanceTemplateProvisioningModel(&instanceTemplate, "SPOT"),
-					testAccCheckComputeInstanceTemplateInstanceTerminationAction(&instanceTemplate, "STOP"),
 				),
 			},
 			{
@@ -2877,6 +2875,48 @@ resource "google_compute_instance_template" "foobar" {
     automatic_restart = false
     provisioning_model = "SPOT"
     instance_termination_action = "STOP"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix)
+}
+
+func testAccComputeInstanceTemplate_spot_maxRunDuration(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = true
+    automatic_restart = false
+    provisioning_model = "SPOT"
+    instance_termination_action = "DELETE"
+
   }
 
   metadata = {

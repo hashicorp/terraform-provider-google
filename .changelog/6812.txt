@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `max_run_duration` field to `google_compute_instance` and `google_compute_instance_template` resource (beta)
+```
