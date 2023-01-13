@@ -52,6 +52,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
 			"value_type": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Type of Feature value. Immutable. https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes.features#ValueType`,
 			},
 			"description": {
@@ -243,12 +244,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	valueTypeProp, err := expandVertexAIFeaturestoreEntitytypeFeatureValueType(d.Get("value_type"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("value_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, valueTypeProp)) {
-		obj["valueType"] = valueTypeProp
-	}
 
 	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
 	if err != nil {
@@ -264,10 +259,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
-	}
-
-	if d.HasChange("value_type") {
-		updateMask = append(updateMask, "valueType")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it

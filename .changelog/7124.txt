@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: fixed updating value_type in google_vertex_ai_featurestore_entitytype_feature
+```
