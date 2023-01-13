@@ -972,8 +972,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 258
-// Generated IAM resources: 159
-// Total generated resources: 417
+// Generated IAM resources: 165
+// Total generated resources: 423
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1081,7 +1081,13 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloud_run_service_iam_member":                          ResourceIamMember(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
 			"google_cloud_run_service_iam_policy":                          ResourceIamPolicy(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
 			"google_cloud_run_v2_job":                                      resourceCloudRunV2Job(),
+			"google_cloud_run_v2_job_iam_binding":                          ResourceIamBinding(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer, CloudRunV2JobIdParseFunc),
+			"google_cloud_run_v2_job_iam_member":                           ResourceIamMember(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer, CloudRunV2JobIdParseFunc),
+			"google_cloud_run_v2_job_iam_policy":                           ResourceIamPolicy(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer, CloudRunV2JobIdParseFunc),
 			"google_cloud_run_v2_service":                                  resourceCloudRunV2Service(),
+			"google_cloud_run_v2_service_iam_binding":                      ResourceIamBinding(CloudRunV2ServiceIamSchema, CloudRunV2ServiceIamUpdaterProducer, CloudRunV2ServiceIdParseFunc),
+			"google_cloud_run_v2_service_iam_member":                       ResourceIamMember(CloudRunV2ServiceIamSchema, CloudRunV2ServiceIamUpdaterProducer, CloudRunV2ServiceIdParseFunc),
+			"google_cloud_run_v2_service_iam_policy":                       ResourceIamPolicy(CloudRunV2ServiceIamSchema, CloudRunV2ServiceIamUpdaterProducer, CloudRunV2ServiceIdParseFunc),
 			"google_cloud_scheduler_job":                                   resourceCloudSchedulerJob(),
 			"google_cloud_tasks_queue":                                     resourceCloudTasksQueue(),
 			"google_cloud_tasks_queue_iam_binding":                         ResourceIamBinding(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
