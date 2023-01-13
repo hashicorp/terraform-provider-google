@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: add support for 'edge_security_policy' field to 'google_compute_backend_service' resource.
+```

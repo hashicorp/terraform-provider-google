@@ -459,6 +459,10 @@ The following arguments are supported:
   (Optional)
   The security policy associated with this backend service.
 
+* `edge_security_policy` -
+  (Optional)
+  The resource URL for the edge security policy associated with this backend service.
+
 * `security_settings` -
   (Optional)
   The security settings that apply to this backend service. This field is applicable to either
