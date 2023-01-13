@@ -838,6 +838,27 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Update(t *testing
 	})
 }
 
+func TestAccBigQueryExternalDataTable_parquet(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.gz.parquet", randString(t, 10))
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromGCSParquet(datasetID, tableID, bucketName, objectName),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryExternalDataTable_CSV(t *testing.T) {
 	t.Parallel()
 
@@ -2039,6 +2060,41 @@ resource "google_bigquery_table" "test" {
   }
 }
 `, datasetID, bucketName, objectName, content, tableID, format, quoteChar)
+}
+
+func testAccBigQueryTableFromGCSParquet(datasetID, tableID, bucketName, objectName string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_object" "test" {
+  name    = "%s"
+  source = "./test-fixtures/bigquerytable/test.parquet.gzip"
+  bucket = google_storage_bucket.test.name
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  external_data_configuration {
+    autodetect    = false
+    source_format = "PARQUET"
+	reference_file_schema_uri = "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.test.name}"
+
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/*",
+    ]
+  }
+}
+`, datasetID, bucketName, objectName, tableID)
 }
 
 func testAccBigQueryTableFromGCSWithSchemaWithConnectionId(datasetID, tableID, connectionID, projectID, bucketName, objectName, content, schema string) string {
