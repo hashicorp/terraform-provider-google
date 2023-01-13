@@ -501,7 +501,7 @@ performing filtering in a Terraform config.
 `google_sql_database_instance` provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 30 minutes.
+- `create` - Default is 40 minutes.
 - `update` - Default is 30 minutes.
 - `delete` - Default is 30 minutes.
 
