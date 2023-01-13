@@ -631,6 +631,11 @@ func resourceBigQueryTable() *schema.Resource {
 							Optional:    true,
 							Description: `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connectionId can have the form "{{project}}.{{location}}.{{connection_id}}" or "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".`,
 						},
+						"reference_file_schema_uri": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `When creating an external table, the user can provide a reference file with the table schema. This is enabled for the following formats: AVRO, PARQUET, ORC.`,
+						},
 					},
 				},
 			},
@@ -1362,6 +1367,9 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	if v, ok := raw["connection_id"]; ok {
 		edc.ConnectionId = v.(string)
 	}
+	if v, ok := raw["reference_file_schema_uri"]; ok {
+		edc.ReferenceFileSchemaUri = v.(string)
+	}
 
 	return edc, nil
 
@@ -1406,6 +1414,10 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.ConnectionId != "" {
 		result["connection_id"] = edc.ConnectionId
+	}
+
+	if edc.ReferenceFileSchemaUri != "" {
+		result["reference_file_schema_uri"] = edc.ReferenceFileSchemaUri
 	}
 
 	return []map[string]interface{}{result}, nil
