@@ -159,10 +159,13 @@ Note that case (1) is expected when an 'InfoTypeTransformation' is applied to bo
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"kms_wrapped": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Kms wrapped key`,
-																						MaxItems:    1,
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `KMS wrapped key.
+Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).`,
+																						MaxItems: 1,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
 																								"crypto_key_name": {
@@ -183,7 +186,7 @@ A base64-encoded string.`,
 																					"transient": {
 																						Type:        schema.TypeList,
 																						Optional:    true,
-																						Description: `Transient crypto key`,
+																						Description: `Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.`,
 																						MaxItems:    1,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
@@ -198,7 +201,7 @@ A base64-encoded string.`,
 																					"unwrapped": {
 																						Type:        schema.TypeList,
 																						Optional:    true,
-																						Description: `Unwrapped crypto key`,
+																						Description: `Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.`,
 																						MaxItems:    1,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
@@ -239,6 +242,11 @@ Therefore, choose your custom info type name carefully after considering what yo
 																						Type:        schema.TypeString,
 																						Optional:    true,
 																						Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional version name for this InfoType.`,
 																					},
 																				},
 																			},
@@ -298,10 +306,13 @@ The tweak is constructed as a sequence of bytes in big endian byte order such th
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"kms_wrapped": {
-																						Type:        schema.TypeList,
-																						Optional:    true,
-																						Description: `Kms wrapped key`,
-																						MaxItems:    1,
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `KMS wrapped key.
+Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).`,
+																						MaxItems: 1,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
 																								"crypto_key_name": {
@@ -322,7 +333,7 @@ A base64-encoded string.`,
 																					"transient": {
 																						Type:        schema.TypeList,
 																						Optional:    true,
-																						Description: `Transient crypto key`,
+																						Description: `Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.`,
 																						MaxItems:    1,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
@@ -337,7 +348,7 @@ A base64-encoded string.`,
 																					"unwrapped": {
 																						Type:        schema.TypeList,
 																						Optional:    true,
-																						Description: `Unwrapped crypto key`,
+																						Description: `Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.`,
 																						MaxItems:    1,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
@@ -383,6 +394,11 @@ In order for inspection to work properly, the name of this infoType must not occ
 																						Type:        schema.TypeString,
 																						Optional:    true,
 																						Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional version name for this InfoType.`,
 																					},
 																				},
 																			},
@@ -565,6 +581,320 @@ The 'primitive_transformation' block must only contain one argument, correspondi
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"bucketing_config": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Generalization function that buckets values based on ranges. The ranges and replacement values are dynamically provided by the user for custom behavior, such as 1-30 -> LOW 31-65 -> MEDIUM 66-100 -> HIGH
+This can be used on data of type: number, long, string, timestamp.
+If the provided value type differs from the type of data being transformed, we will first attempt converting the type of the data to be transformed to match the type of the bound before comparing.
+See https://cloud.google.com/dlp/docs/concepts-bucketing to learn more.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"buckets": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `Set of buckets. Ranges must be non-overlapping.
+Bucket is represented as a range, along with replacement values.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"replacement_value": {
+																						Type:     schema.TypeList,
+																						Required: true,
+																						Description: `Replacement value for this bucket.
+The 'replacement_value' block must only contain one argument.`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"boolean_value": {
+																									Type:        schema.TypeBool,
+																									Optional:    true,
+																									Description: `A boolean value.`,
+																								},
+																								"date_value": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Represents a whole or partial calendar date.`,
+																									MaxItems:    1,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"day": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.`,
+																											},
+																											"month": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.`,
+																											},
+																											"year": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.`,
+																											},
+																										},
+																									},
+																								},
+																								"day_of_week_value": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																									Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+																								},
+																								"float_value": {
+																									Type:        schema.TypeFloat,
+																									Optional:    true,
+																									Description: `A float value.`,
+																								},
+																								"integer_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `An integer value (int64 format)`,
+																								},
+																								"string_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `A string value.`,
+																								},
+																								"time_value": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Represents a time of day.`,
+																									MaxItems:    1,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"hours": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+																											},
+																											"minutes": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Minutes of hour of day. Must be from 0 to 59.`,
+																											},
+																											"nanos": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+																											},
+																											"seconds": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
+																											},
+																										},
+																									},
+																								},
+																								"timestamp_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+																								},
+																							},
+																						},
+																					},
+																					"max": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `Upper bound of the range, exclusive; type must match min.
+The 'max' block must only contain one argument. See the 'bucketing_config' block description for more information about choosing a data type.`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"boolean_value": {
+																									Type:        schema.TypeBool,
+																									Optional:    true,
+																									Description: `A boolean value.`,
+																								},
+																								"date_value": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Represents a whole or partial calendar date.`,
+																									MaxItems:    1,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"day": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.`,
+																											},
+																											"month": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.`,
+																											},
+																											"year": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.`,
+																											},
+																										},
+																									},
+																								},
+																								"day_of_week_value": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																									Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+																								},
+																								"float_value": {
+																									Type:        schema.TypeFloat,
+																									Optional:    true,
+																									Description: `A float value.`,
+																								},
+																								"integer_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `An integer value (int64 format)`,
+																								},
+																								"string_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `A string value.`,
+																								},
+																								"time_value": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Represents a time of day.`,
+																									MaxItems:    1,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"hours": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+																											},
+																											"minutes": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Minutes of hour of day. Must be from 0 to 59.`,
+																											},
+																											"nanos": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+																											},
+																											"seconds": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
+																											},
+																										},
+																									},
+																								},
+																								"timestamp_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+																								},
+																							},
+																						},
+																					},
+																					"min": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `Lower bound of the range, inclusive. Type should be the same as max if used.
+The 'min' block must only contain one argument. See the 'bucketing_config' block description for more information about choosing a data type.`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"boolean_value": {
+																									Type:        schema.TypeBool,
+																									Optional:    true,
+																									Description: `A boolean value.`,
+																								},
+																								"date_value": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Represents a whole or partial calendar date.`,
+																									MaxItems:    1,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"day": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.`,
+																											},
+																											"month": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.`,
+																											},
+																											"year": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.`,
+																											},
+																										},
+																									},
+																								},
+																								"day_of_week_value": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																									Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+																								},
+																								"float_value": {
+																									Type:        schema.TypeFloat,
+																									Optional:    true,
+																									Description: `A float value.`,
+																								},
+																								"integer_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `An integer value (int64 format)`,
+																								},
+																								"string_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `A string value.`,
+																								},
+																								"time_value": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Represents a time of day.`,
+																									MaxItems:    1,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"hours": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+																											},
+																											"minutes": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Minutes of hour of day. Must be from 0 to 59.`,
+																											},
+																											"nanos": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+																											},
+																											"seconds": {
+																												Type:        schema.TypeInt,
+																												Optional:    true,
+																												Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
+																											},
+																										},
+																									},
+																								},
+																								"timestamp_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
 															"character_mask_config": {
 																Type:        schema.TypeList,
 																Optional:    true,
@@ -617,6 +947,698 @@ The resulting de-identified string is ****-****-****-3456. Cloud DLP masks all b
 																			Optional: true,
 																			Description: `Mask characters in reverse order. For example, if masking_character is 0, number_to_mask is 14, and reverse_order is 'false', then the
 input string '1234-5678-9012-3456' is masked as '00000000000000-3456'.`,
+																		},
+																	},
+																},
+															},
+															"crypto_deterministic_config": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Pseudonymization method that generates deterministic encryption for the given input. Outputs a base64 encoded representation of the encrypted output. Uses AES-SIV based on the RFC [https://tools.ietf.org/html/rfc5297](https://tools.ietf.org/html/rfc5297).`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"context": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `A context may be used for higher security and maintaining referential integrity such that the same identifier in two different contexts will be given a distinct surrogate. The context is appended to plaintext value being encrypted. On decryption the provided context is validated against the value used during encryption. If a context was provided during encryption, same context must be provided during decryption as well.
+
+If the context is not set, plaintext would be used as is for encryption. If the context is set but:
+
+1. there is no record present when transforming a given value or
+2. the field is not present when transforming a given value,
+
+plaintext would be used as is for encryption.
+
+Note that case (1) is expected when an InfoTypeTransformation is applied to both structured and unstructured ContentItems.`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Name describing the field.`,
+																					},
+																				},
+																			},
+																		},
+																		"crypto_key": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The key used by the encryption function. For deterministic encryption using AES-SIV, the provided key is internally expanded to 64 bytes prior to use.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"kms_wrapped": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `KMS wrapped key.
+Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"crypto_key_name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
+																								},
+																								"wrapped_key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `The wrapped data crypto key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																					"transient": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
+																								},
+																							},
+																						},
+																					},
+																					"unwrapped": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `A 128/192/256 bit key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"surrogate_info_type": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `The custom info type to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom info type followed by the number of characters comprising the surrogate. The following scheme defines the format: {info type name}({surrogate character count}):{surrogate}
+
+For example, if the name of custom info type is 'MY\_TOKEN\_INFO\_TYPE' and the surrogate is 'abc', the full replacement value will be: 'MY\_TOKEN\_INFO\_TYPE(3):abc'
+
+This annotation identifies the surrogate when inspecting content using the custom info type 'Surrogate'. This facilitates reversal of the surrogate when it occurs in free text.
+
+Note: For record transformations where the entire cell in a table is being transformed, surrogates are not mandatory. Surrogates are used to denote the location of the token and are necessary for re-identification in free form text.
+
+In order for inspection to work properly, the name of this info type must not occur naturally anywhere in your data; otherwise, inspection may either
+
+*   reverse a surrogate that does not correspond to an actual identifier
+*   be unable to parse the surrogate and result in an error
+
+Therefore, choose your custom info type name carefully after considering what your data looks like. One way to select a name that has a high chance of yielding reliable detection is to include one or more unicode characters that are highly improbable to exist in your data. For example, assuming your data is entered from a regular ASCII keyboard, the symbol with the hex code point 29DD might be used like so: ⧝MY\_TOKEN\_TYPE.`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional version name for this InfoType.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"crypto_hash_config": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Pseudonymization method that generates surrogates via cryptographic hashing. Uses SHA-256. The key size must be either 32 or 64 bytes.
+Outputs a base64 encoded representation of the hashed output (for example, L7k0BHmF1ha5U3NfGykjro4xWi1MPVQPjhMAZbSV9mM=).
+Currently, only string and integer values can be hashed.
+See https://cloud.google.com/dlp/docs/pseudonymization to learn more.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"crypto_key": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The key used by the encryption function.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"kms_wrapped": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `KMS wrapped key.
+Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"crypto_key_name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
+																								},
+																								"wrapped_key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `The wrapped data crypto key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																					"transient": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
+																								},
+																							},
+																						},
+																					},
+																					"unwrapped": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `A 128/192/256 bit key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"crypto_replace_ffx_fpe_config": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Replaces an identifier with a surrogate using Format Preserving Encryption (FPE) with the FFX mode of operation; however when used in the 'content.reidentify' API method, it serves the opposite function by reversing the surrogate back into the original identifier. The identifier must be encoded as ASCII. For a given crypto key and context, the same identifier will be replaced with the same surrogate. Identifiers must be at least two characters long. In the case that the identifier is the empty string, it will be skipped. See [https://cloud.google.com/dlp/docs/pseudonymization](https://cloud.google.com/dlp/docs/pseudonymization) to learn more.
+
+Note: We recommend using CryptoDeterministicConfig for all use cases which do not require preserving the input alphabet space and size, plus warrant referential integrity.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"common_alphabet": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validateEnum([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}),
+																			Description:  `Common alphabets. Possible values: ["FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC"]`,
+																		},
+																		"context": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `The 'tweak', a context may be used for higher security since the same identifier in two different contexts won't be given the same surrogate. If the context is not set, a default tweak will be used.
+
+If the context is set but:
+
+1.  there is no record present when transforming a given value or
+2.  the field is not present when transforming a given value,
+
+a default tweak will be used.
+
+Note that case (1) is expected when an 'InfoTypeTransformation' is applied to both structured and non-structured 'ContentItem's. Currently, the referenced field may be of value type integer or string.
+
+The tweak is constructed as a sequence of bytes in big endian byte order such that:
+
+*   a 64 bit integer is encoded followed by a single byte of value 1
+*   a string is encoded in UTF-8 format followed by a single byte of value 2`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Name describing the field.`,
+																					},
+																				},
+																			},
+																		},
+																		"crypto_key": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The key used by the encryption algorithm.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"kms_wrapped": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `KMS wrapped key.
+Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"crypto_key_name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
+																								},
+																								"wrapped_key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `The wrapped data crypto key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																					"transient": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
+																								},
+																							},
+																						},
+																					},
+																					"unwrapped": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `A 128/192/256 bit key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"custom_alphabet": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `This is supported by mapping these to the alphanumeric characters that the FFX mode natively supports. This happens before/after encryption/decryption. Each character listed must appear only once. Number of characters must be in the range \[2, 95\]. This must be encoded as ASCII. The order of characters does not matter. The full list of allowed characters is:
+
+''0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ~'!@#$%^&*()_-+={[}]|:;"'<,>.?/''`,
+																		},
+																		"radix": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `The native way to select the alphabet. Must be in the range \[2, 95\].`,
+																		},
+																		"surrogate_info_type": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `The custom infoType to annotate the surrogate with. This annotation will be applied to the surrogate by prefixing it with the name of the custom infoType followed by the number of characters comprising the surrogate. The following scheme defines the format: info\_type\_name(surrogate\_character\_count):surrogate
+
+For example, if the name of custom infoType is 'MY\_TOKEN\_INFO\_TYPE' and the surrogate is 'abc', the full replacement value will be: 'MY\_TOKEN\_INFO\_TYPE(3):abc'
+
+This annotation identifies the surrogate when inspecting content using the custom infoType ['SurrogateType'](https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#surrogatetype). This facilitates reversal of the surrogate when it occurs in free text.
+
+In order for inspection to work properly, the name of this infoType must not occur naturally anywhere in your data; otherwise, inspection may find a surrogate that does not correspond to an actual identifier. Therefore, choose your custom infoType name carefully after considering what your data looks like. One way to select a name that has a high chance of yielding reliable detection is to include one or more unicode characters that are highly improbable to exist in your data. For example, assuming your data is entered from a regular ASCII keyboard, the symbol with the hex code point 29DD might be used like so: ⧝MY\_TOKEN\_TYPE`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed at [https://cloud.google.com/dlp/docs/infotypes-reference](https://cloud.google.com/dlp/docs/infotypes-reference) when specifying a built-in type. When sending Cloud DLP results to Data Catalog, infoType names should conform to the pattern '[A-Za-z0-9$-_]{1,64}'.`,
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional version name for this InfoType.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"date_shift_config": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Shifts dates by random number of days, with option to be consistent for the same context. See https://cloud.google.com/dlp/docs/concepts-date-shifting to learn more.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"lower_bound_days": {
+																			Type:        schema.TypeInt,
+																			Required:    true,
+																			Description: `For example, -5 means shift date to at most 5 days back in the past.`,
+																		},
+																		"upper_bound_days": {
+																			Type:     schema.TypeInt,
+																			Required: true,
+																			Description: `Range of shift in days. Actual shift will be selected at random within this range (inclusive ends). Negative means shift to earlier in time. Must not be more than 365250 days (1000 years) each direction.
+
+For example, 3 means shift date to at most 3 days into the future.`,
+																		},
+																		"context": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `Points to the field that contains the context, for example, an entity id.
+If set, must also set cryptoKey. If set, shift will be consistent for the given context.`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Name describing the field.`,
+																					},
+																				},
+																			},
+																		},
+																		"crypto_key": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Causes the shift to be computed based on this key and the context. This results in the same shift for the same context and cryptoKey. If set, must also set context. Can only be applied to table items.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"kms_wrapped": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `KMS wrapped key.
+Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"crypto_key_name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
+																								},
+																								"wrapped_key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `The wrapped data crypto key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																					"transient": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
+																								},
+																							},
+																						},
+																					},
+																					"unwrapped": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `A 128/192/256 bit key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"fixed_size_bucketing_config": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Buckets values based on fixed size ranges. The Bucketing transformation can provide all of this functionality, but requires more configuration. This message is provided as a convenience to the user for simple bucketing strategies.
+
+The transformed value will be a hyphenated string of {lower_bound}-{upper_bound}. For example, if lower_bound = 10 and upper_bound = 20, all values that are within this bucket will be replaced with "10-20".
+
+This can be used on data of type: double, long.
+
+If the bound Value type differs from the type of data being transformed, we will first attempt converting the type of the data to be transformed to match the type of the bound before comparing.
+
+See https://cloud.google.com/dlp/docs/concepts-bucketing to learn more.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"bucket_size": {
+																			Type:     schema.TypeFloat,
+																			Required: true,
+																			Description: `Size of each bucket (except for minimum and maximum buckets).
+So if lower_bound = 10, upper_bound = 89, and bucketSize = 10, then the following buckets would be used: -10, 10-20, 20-30, 30-40, 40-50, 50-60, 60-70, 70-80, 80-89, 89+.
+Precision up to 2 decimals works.`,
+																		},
+																		"lower_bound": {
+																			Type:     schema.TypeList,
+																			Required: true,
+																			Description: `Lower bound value of buckets.
+All values less than lower_bound are grouped together into a single bucket; for example if lower_bound = 10, then all values less than 10 are replaced with the value "-10".
+The 'lower_bound' block must only contain one argument. See the 'fixed_size_bucketing_config' block description for more information about choosing a data type.`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"boolean_value": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `A boolean value.`,
+																					},
+																					"date_value": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Represents a whole or partial calendar date.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"day": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.`,
+																								},
+																								"month": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.`,
+																								},
+																								"year": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.`,
+																								},
+																							},
+																						},
+																					},
+																					"day_of_week_value": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+																					},
+																					"float_value": {
+																						Type:        schema.TypeFloat,
+																						Optional:    true,
+																						Description: `A float value.`,
+																					},
+																					"integer_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `An integer value (int64 format)`,
+																					},
+																					"string_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `A string value.`,
+																					},
+																					"time_value": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Represents a time of day.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"hours": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+																								},
+																								"minutes": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Minutes of hour of day. Must be from 0 to 59.`,
+																								},
+																								"nanos": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+																								},
+																								"seconds": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
+																								},
+																							},
+																						},
+																					},
+																					"timestamp_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+																					},
+																				},
+																			},
+																		},
+																		"upper_bound": {
+																			Type:     schema.TypeList,
+																			Required: true,
+																			Description: `Upper bound value of buckets.
+All values greater than upper_bound are grouped together into a single bucket; for example if upper_bound = 89, then all values greater than 89 are replaced with the value "89+".
+The 'upper_bound' block must only contain one argument. See the 'fixed_size_bucketing_config' block description for more information about choosing a data type.`,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"boolean_value": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `A boolean value.`,
+																					},
+																					"date_value": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Represents a whole or partial calendar date.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"day": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.`,
+																								},
+																								"month": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.`,
+																								},
+																								"year": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.`,
+																								},
+																							},
+																						},
+																					},
+																					"day_of_week_value": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+																					},
+																					"float_value": {
+																						Type:        schema.TypeFloat,
+																						Optional:    true,
+																						Description: `A float value.`,
+																					},
+																					"integer_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `An integer value (int64 format)`,
+																					},
+																					"string_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `A string value.`,
+																					},
+																					"time_value": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Represents a time of day.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"hours": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+																								},
+																								"minutes": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Minutes of hour of day. Must be from 0 to 59.`,
+																								},
+																								"nanos": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+																								},
+																								"seconds": {
+																									Type:        schema.TypeInt,
+																									Optional:    true,
+																									Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
+																								},
+																							},
+																						},
+																					},
+																					"timestamp_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+																					},
+																				},
+																			},
 																		},
 																	},
 																},
@@ -741,6 +1763,50 @@ The 'new_value' block must only contain one argument. For example when replacing
 																					},
 																				},
 																			},
+																		},
+																	},
+																},
+															},
+															"replace_dictionary_config": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Replace with a value randomly drawn (with replacement) from a dictionary.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"word_list": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `A list of words to select from for random replacement. The [limits](https://cloud.google.com/dlp/limits) page contains details about the size limits of dictionaries.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"words": {
+																						Type:        schema.TypeList,
+																						Required:    true,
+																						Description: `Words or phrases defining the dictionary. The dictionary must contain at least one phrase and every phrase must contain at least 2 characters that are letters or digits.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"time_part_config": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `For use with Date, Timestamp, and TimeOfDay, extract or preserve a portion of the value.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"part_to_extract": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validateEnum([]string{"YEAR", "MONTH", "DAY_OF_MONTH", "DAY_OF_WEEK", "WEEK_OF_YEAR", "HOUR_OF_DAY", ""}),
+																			Description:  `The part of the time to keep. Possible values: ["YEAR", "MONTH", "DAY_OF_MONTH", "DAY_OF_WEEK", "WEEK_OF_YEAR", "HOUR_OF_DAY"]`,
 																		},
 																	},
 																},
@@ -1900,9 +2966,15 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	transformed := make(map[string]interface{})
 	transformed["name"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(original["name"], d, config)
+	transformed["version"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(original["version"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2048,9 +3120,15 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	transformed := make(map[string]interface{})
 	transformed["name"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(original["name"], d, config)
+	transformed["version"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(original["version"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2443,6 +3521,22 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransforma
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationRedactConfig(original["redactConfig"], d, config)
 	transformed["character_mask_config"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCharacterMaskConfig(original["characterMaskConfig"], d, config)
+	transformed["crypto_replace_ffx_fpe_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(original["cryptoReplaceFfxFpeConfig"], d, config)
+	transformed["fixed_size_bucketing_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfig(original["fixedSizeBucketingConfig"], d, config)
+	transformed["bucketing_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfig(original["bucketingConfig"], d, config)
+	transformed["time_part_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfig(original["timePartConfig"], d, config)
+	transformed["crypto_hash_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfig(original["cryptoHashConfig"], d, config)
+	transformed["date_shift_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfig(original["dateShiftConfig"], d, config)
+	transformed["crypto_deterministic_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfig(original["cryptoDeterministicConfig"], d, config)
+	transformed["replace_dictionary_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfig(original["replaceDictionaryConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -2740,6 +3834,1661 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransforma
 }
 
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["crypto_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(original["cryptoKey"], d, config)
+	transformed["context"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(original["context"], d, config)
+	transformed["surrogate_info_type"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(original["surrogateInfoType"], d, config)
+	transformed["common_alphabet"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(original["commonAlphabet"], d, config)
+	transformed["custom_alphabet"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(original["customAlphabet"], d, config)
+	transformed["radix"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(original["radix"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["transient"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(original["transient"], d, config)
+	transformed["unwrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	transformed["kms_wrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["wrapped_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
+	transformed["crypto_key_name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(original["name"], d, config)
+	transformed["version"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(original["version"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["lower_bound"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBound(original["lowerBound"], d, config)
+	transformed["upper_bound"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBound(original["upperBound"], d, config)
+	transformed["bucket_size"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigBucketSize(original["bucketSize"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBound(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["integer_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundIntegerValue(original["integerValue"], d, config)
+	transformed["float_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundFloatValue(original["floatValue"], d, config)
+	transformed["string_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundStringValue(original["stringValue"], d, config)
+	transformed["boolean_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundBooleanValue(original["booleanValue"], d, config)
+	transformed["timestamp_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimestampValue(original["timestampValue"], d, config)
+	transformed["time_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValue(original["timeValue"], d, config)
+	transformed["date_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValue(original["dateValue"], d, config)
+	transformed["day_of_week_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDayOfWeekValue(original["dayOfWeekValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundFloatValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundBooleanValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueYear(original["year"], d, config)
+	transformed["month"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDayOfWeekValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBound(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["integer_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundIntegerValue(original["integerValue"], d, config)
+	transformed["float_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundFloatValue(original["floatValue"], d, config)
+	transformed["string_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundStringValue(original["stringValue"], d, config)
+	transformed["boolean_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundBooleanValue(original["booleanValue"], d, config)
+	transformed["timestamp_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimestampValue(original["timestampValue"], d, config)
+	transformed["time_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValue(original["timeValue"], d, config)
+	transformed["date_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValue(original["dateValue"], d, config)
+	transformed["day_of_week_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDayOfWeekValue(original["dayOfWeekValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundFloatValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundBooleanValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueYear(original["year"], d, config)
+	transformed["month"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDayOfWeekValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigBucketSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["buckets"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBuckets(original["buckets"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"min":               flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMin(original["min"], d, config),
+			"max":               flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMax(original["max"], d, config),
+			"replacement_value": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValue(original["replacementValue"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["integer_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinIntegerValue(original["integerValue"], d, config)
+	transformed["float_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinFloatValue(original["floatValue"], d, config)
+	transformed["string_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinStringValue(original["stringValue"], d, config)
+	transformed["boolean_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinBooleanValue(original["booleanValue"], d, config)
+	transformed["timestamp_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimestampValue(original["timestampValue"], d, config)
+	transformed["time_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValue(original["timeValue"], d, config)
+	transformed["date_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValue(original["dateValue"], d, config)
+	transformed["day_of_week_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDayOfWeekValue(original["dayOfWeekValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinFloatValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinBooleanValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueYear(original["year"], d, config)
+	transformed["month"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDayOfWeekValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["integer_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxIntegerValue(original["integerValue"], d, config)
+	transformed["float_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxFloatValue(original["floatValue"], d, config)
+	transformed["string_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxStringValue(original["stringValue"], d, config)
+	transformed["boolean_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxBooleanValue(original["booleanValue"], d, config)
+	transformed["timestamp_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimestampValue(original["timestampValue"], d, config)
+	transformed["time_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValue(original["timeValue"], d, config)
+	transformed["date_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValue(original["dateValue"], d, config)
+	transformed["day_of_week_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDayOfWeekValue(original["dayOfWeekValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxFloatValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxBooleanValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueYear(original["year"], d, config)
+	transformed["month"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDayOfWeekValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["integer_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueIntegerValue(original["integerValue"], d, config)
+	transformed["float_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueFloatValue(original["floatValue"], d, config)
+	transformed["string_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueStringValue(original["stringValue"], d, config)
+	transformed["boolean_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueBooleanValue(original["booleanValue"], d, config)
+	transformed["timestamp_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimestampValue(original["timestampValue"], d, config)
+	transformed["time_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValue(original["timeValue"], d, config)
+	transformed["date_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValue(original["dateValue"], d, config)
+	transformed["day_of_week_value"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDayOfWeekValue(original["dayOfWeekValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueIntegerValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueFloatValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueBooleanValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueYear(original["year"], d, config)
+	transformed["month"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDayOfWeekValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["part_to_extract"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfigPartToExtract(original["partToExtract"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfigPartToExtract(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["crypto_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(original["cryptoKey"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["transient"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(original["transient"], d, config)
+	transformed["unwrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	transformed["kms_wrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["wrapped_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
+	transformed["crypto_key_name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["upper_bound_days"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigUpperBoundDays(original["upperBoundDays"], d, config)
+	transformed["lower_bound_days"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigLowerBoundDays(original["lowerBoundDays"], d, config)
+	transformed["context"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContext(original["context"], d, config)
+	transformed["crypto_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKey(original["cryptoKey"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigUpperBoundDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigLowerBoundDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContext(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContextName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContextName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["transient"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransient(original["transient"], d, config)
+	transformed["unwrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	transformed["kms_wrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransientName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["wrapped_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
+	transformed["crypto_key_name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["crypto_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(original["cryptoKey"], d, config)
+	transformed["surrogate_info_type"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(original["surrogateInfoType"], d, config)
+	transformed["context"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(original["context"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["transient"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(original["transient"], d, config)
+	transformed["unwrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	transformed["kms_wrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["wrapped_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
+	transformed["crypto_key_name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(original["name"], d, config)
+	transformed["version"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(original["version"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["word_list"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(original["wordList"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["words"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(original["words"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -3679,10 +6428,21 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 		transformed["name"] = transformedName
 	}
 
+	transformedVersion, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
 	return transformed, nil
 }
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3915,10 +6675,21 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 		transformed["name"] = transformedName
 	}
 
+	transformedVersion, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
 	return transformed, nil
 }
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4376,6 +7147,62 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformat
 		transformed["characterMaskConfig"] = transformedCharacterMaskConfig
 	}
 
+	transformedCryptoReplaceFfxFpeConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(original["crypto_replace_ffx_fpe_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoReplaceFfxFpeConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoReplaceFfxFpeConfig"] = transformedCryptoReplaceFfxFpeConfig
+	}
+
+	transformedFixedSizeBucketingConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfig(original["fixed_size_bucketing_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFixedSizeBucketingConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["fixedSizeBucketingConfig"] = transformedFixedSizeBucketingConfig
+	}
+
+	transformedBucketingConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfig(original["bucketing_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBucketingConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["bucketingConfig"] = transformedBucketingConfig
+	}
+
+	transformedTimePartConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfig(original["time_part_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimePartConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["timePartConfig"] = transformedTimePartConfig
+	}
+
+	transformedCryptoHashConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfig(original["crypto_hash_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoHashConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoHashConfig"] = transformedCryptoHashConfig
+	}
+
+	transformedDateShiftConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfig(original["date_shift_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDateShiftConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["dateShiftConfig"] = transformedDateShiftConfig
+	}
+
+	transformedCryptoDeterministicConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfig(original["crypto_deterministic_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoDeterministicConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoDeterministicConfig"] = transformedCryptoDeterministicConfig
+	}
+
+	transformedReplaceDictionaryConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfig(original["replace_dictionary_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplaceDictionaryConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["replaceDictionaryConfig"] = transformedReplaceDictionaryConfig
+	}
+
 	return transformed, nil
 }
 
@@ -4692,6 +7519,1883 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformat
 }
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCharacterMaskConfigCharactersToIgnoreCommonCharactersToIgnore(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(original["crypto_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKey"] = transformedCryptoKey
+	}
+
+	transformedContext, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(original["context"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContext); val.IsValid() && !isEmptyValue(val) {
+		transformed["context"] = transformedContext
+	}
+
+	transformedSurrogateInfoType, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(original["surrogate_info_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSurrogateInfoType); val.IsValid() && !isEmptyValue(val) {
+		transformed["surrogateInfoType"] = transformedSurrogateInfoType
+	}
+
+	transformedCommonAlphabet, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(original["common_alphabet"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCommonAlphabet); val.IsValid() && !isEmptyValue(val) {
+		transformed["commonAlphabet"] = transformedCommonAlphabet
+	}
+
+	transformedCustomAlphabet, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(original["custom_alphabet"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomAlphabet); val.IsValid() && !isEmptyValue(val) {
+		transformed["customAlphabet"] = transformedCustomAlphabet
+	}
+
+	transformedRadix, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(original["radix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRadix); val.IsValid() && !isEmptyValue(val) {
+		transformed["radix"] = transformedRadix
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(original["transient"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
+		transformed["transient"] = transformedTransient
+	}
+
+	transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["unwrapped"] = transformedUnwrapped
+	}
+
+	transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsWrapped"] = transformedKmsWrapped
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransient(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyTransientName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyUnwrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["wrappedKey"] = transformedWrappedKey
+	}
+
+	transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKeyName"] = transformedCryptoKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigContextName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedVersion, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigSurrogateInfoTypeVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCommonAlphabet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigCustomAlphabet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLowerBound, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBound(original["lower_bound"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLowerBound); val.IsValid() && !isEmptyValue(val) {
+		transformed["lowerBound"] = transformedLowerBound
+	}
+
+	transformedUpperBound, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBound(original["upper_bound"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUpperBound); val.IsValid() && !isEmptyValue(val) {
+		transformed["upperBound"] = transformedUpperBound
+	}
+
+	transformedBucketSize, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigBucketSize(original["bucket_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBucketSize); val.IsValid() && !isEmptyValue(val) {
+		transformed["bucketSize"] = transformedBucketSize
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBound(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIntegerValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundIntegerValue(original["integer_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntegerValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["integerValue"] = transformedIntegerValue
+	}
+
+	transformedFloatValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundFloatValue(original["float_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFloatValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["floatValue"] = transformedFloatValue
+	}
+
+	transformedStringValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	transformedBooleanValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundBooleanValue(original["boolean_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBooleanValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["booleanValue"] = transformedBooleanValue
+	}
+
+	transformedTimestampValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimestampValue(original["timestamp_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimestampValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timestampValue"] = transformedTimestampValue
+	}
+
+	transformedTimeValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValue(original["time_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeValue"] = transformedTimeValue
+	}
+
+	transformedDateValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValue(original["date_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDateValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dateValue"] = transformedDateValue
+	}
+
+	transformedDayOfWeekValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDayOfWeekValue(original["day_of_week_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDayOfWeekValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dayOfWeekValue"] = transformedDayOfWeekValue
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundIntegerValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundFloatValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundStringValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundBooleanValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimestampValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !isEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !isEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueMinutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundTimeValueNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDateValueDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigLowerBoundDayOfWeekValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBound(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIntegerValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundIntegerValue(original["integer_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntegerValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["integerValue"] = transformedIntegerValue
+	}
+
+	transformedFloatValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundFloatValue(original["float_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFloatValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["floatValue"] = transformedFloatValue
+	}
+
+	transformedStringValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	transformedBooleanValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundBooleanValue(original["boolean_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBooleanValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["booleanValue"] = transformedBooleanValue
+	}
+
+	transformedTimestampValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimestampValue(original["timestamp_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimestampValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timestampValue"] = transformedTimestampValue
+	}
+
+	transformedTimeValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValue(original["time_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeValue"] = transformedTimeValue
+	}
+
+	transformedDateValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValue(original["date_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDateValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dateValue"] = transformedDateValue
+	}
+
+	transformedDayOfWeekValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDayOfWeekValue(original["day_of_week_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDayOfWeekValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dayOfWeekValue"] = transformedDayOfWeekValue
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundIntegerValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundFloatValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundStringValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundBooleanValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimestampValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !isEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !isEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueMinutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundTimeValueNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDateValueDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigUpperBoundDayOfWeekValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationFixedSizeBucketingConfigBucketSize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBuckets, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBuckets(original["buckets"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBuckets); val.IsValid() && !isEmptyValue(val) {
+		transformed["buckets"] = transformedBuckets
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBuckets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedMin, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMin(original["min"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMin); val.IsValid() && !isEmptyValue(val) {
+			transformed["min"] = transformedMin
+		}
+
+		transformedMax, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMax(original["max"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMax); val.IsValid() && !isEmptyValue(val) {
+			transformed["max"] = transformedMax
+		}
+
+		transformedReplacementValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValue(original["replacement_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedReplacementValue); val.IsValid() && !isEmptyValue(val) {
+			transformed["replacementValue"] = transformedReplacementValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIntegerValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinIntegerValue(original["integer_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntegerValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["integerValue"] = transformedIntegerValue
+	}
+
+	transformedFloatValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinFloatValue(original["float_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFloatValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["floatValue"] = transformedFloatValue
+	}
+
+	transformedStringValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	transformedBooleanValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinBooleanValue(original["boolean_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBooleanValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["booleanValue"] = transformedBooleanValue
+	}
+
+	transformedTimestampValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimestampValue(original["timestamp_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimestampValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timestampValue"] = transformedTimestampValue
+	}
+
+	transformedTimeValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValue(original["time_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeValue"] = transformedTimeValue
+	}
+
+	transformedDateValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValue(original["date_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDateValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dateValue"] = transformedDateValue
+	}
+
+	transformedDayOfWeekValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDayOfWeekValue(original["day_of_week_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDayOfWeekValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dayOfWeekValue"] = transformedDayOfWeekValue
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinIntegerValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinFloatValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinStringValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinBooleanValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimestampValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !isEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !isEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueMinutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinTimeValueNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDateValueDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMinDayOfWeekValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIntegerValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxIntegerValue(original["integer_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntegerValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["integerValue"] = transformedIntegerValue
+	}
+
+	transformedFloatValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxFloatValue(original["float_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFloatValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["floatValue"] = transformedFloatValue
+	}
+
+	transformedStringValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	transformedBooleanValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxBooleanValue(original["boolean_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBooleanValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["booleanValue"] = transformedBooleanValue
+	}
+
+	transformedTimestampValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimestampValue(original["timestamp_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimestampValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timestampValue"] = transformedTimestampValue
+	}
+
+	transformedTimeValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValue(original["time_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeValue"] = transformedTimeValue
+	}
+
+	transformedDateValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValue(original["date_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDateValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dateValue"] = transformedDateValue
+	}
+
+	transformedDayOfWeekValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDayOfWeekValue(original["day_of_week_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDayOfWeekValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dayOfWeekValue"] = transformedDayOfWeekValue
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxIntegerValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxFloatValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxStringValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxBooleanValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimestampValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !isEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !isEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueMinutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxTimeValueNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDateValueDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsMaxDayOfWeekValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIntegerValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueIntegerValue(original["integer_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntegerValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["integerValue"] = transformedIntegerValue
+	}
+
+	transformedFloatValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueFloatValue(original["float_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFloatValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["floatValue"] = transformedFloatValue
+	}
+
+	transformedStringValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	transformedBooleanValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueBooleanValue(original["boolean_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBooleanValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["booleanValue"] = transformedBooleanValue
+	}
+
+	transformedTimestampValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimestampValue(original["timestamp_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimestampValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timestampValue"] = transformedTimestampValue
+	}
+
+	transformedTimeValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValue(original["time_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeValue"] = transformedTimeValue
+	}
+
+	transformedDateValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValue(original["date_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDateValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dateValue"] = transformedDateValue
+	}
+
+	transformedDayOfWeekValue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDayOfWeekValue(original["day_of_week_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDayOfWeekValue); val.IsValid() && !isEmptyValue(val) {
+		transformed["dayOfWeekValue"] = transformedDayOfWeekValue
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueIntegerValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueFloatValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueStringValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueBooleanValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimestampValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !isEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !isEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueMinutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueTimeValueNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !isEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !isEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !isEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDateValueDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationBucketingConfigBucketsReplacementValueDayOfWeekValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPartToExtract, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfigPartToExtract(original["part_to_extract"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPartToExtract); val.IsValid() && !isEmptyValue(val) {
+		transformed["partToExtract"] = transformedPartToExtract
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationTimePartConfigPartToExtract(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(original["crypto_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKey"] = transformedCryptoKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(original["transient"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
+		transformed["transient"] = transformedTransient
+	}
+
+	transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["unwrapped"] = transformedUnwrapped
+	}
+
+	transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsWrapped"] = transformedKmsWrapped
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["wrappedKey"] = transformedWrappedKey
+	}
+
+	transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKeyName"] = transformedCryptoKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUpperBoundDays, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigUpperBoundDays(original["upper_bound_days"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUpperBoundDays); val.IsValid() && !isEmptyValue(val) {
+		transformed["upperBoundDays"] = transformedUpperBoundDays
+	}
+
+	transformedLowerBoundDays, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigLowerBoundDays(original["lower_bound_days"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLowerBoundDays); val.IsValid() && !isEmptyValue(val) {
+		transformed["lowerBoundDays"] = transformedLowerBoundDays
+	}
+
+	transformedContext, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContext(original["context"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContext); val.IsValid() && !isEmptyValue(val) {
+		transformed["context"] = transformedContext
+	}
+
+	transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKey(original["crypto_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKey"] = transformedCryptoKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigUpperBoundDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigLowerBoundDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContextName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigContextName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransient(original["transient"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
+		transformed["transient"] = transformedTransient
+	}
+
+	transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["unwrapped"] = transformedUnwrapped
+	}
+
+	transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsWrapped"] = transformedKmsWrapped
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransient(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransientName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyTransientName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyUnwrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["wrappedKey"] = transformedWrappedKey
+	}
+
+	transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKeyName"] = transformedCryptoKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationDateShiftConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(original["crypto_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKey"] = transformedCryptoKey
+	}
+
+	transformedSurrogateInfoType, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(original["surrogate_info_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSurrogateInfoType); val.IsValid() && !isEmptyValue(val) {
+		transformed["surrogateInfoType"] = transformedSurrogateInfoType
+	}
+
+	transformedContext, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(original["context"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContext); val.IsValid() && !isEmptyValue(val) {
+		transformed["context"] = transformedContext
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(original["transient"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !isEmptyValue(val) {
+		transformed["transient"] = transformedTransient
+	}
+
+	transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["unwrapped"] = transformedUnwrapped
+	}
+
+	transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsWrapped"] = transformedKmsWrapped
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransient(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyTransientName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyUnwrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrapped(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !isEmptyValue(val) {
+		transformed["wrappedKey"] = transformedWrappedKey
+	}
+
+	transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["cryptoKeyName"] = transformedCryptoKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedVersion, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigSurrogateInfoTypeVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationCryptoDeterministicConfigContextName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWordList, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(original["word_list"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWordList); val.IsValid() && !isEmptyValue(val) {
+		transformed["wordList"] = transformedWordList
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWords, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(original["words"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWords); val.IsValid() && !isEmptyValue(val) {
+		transformed["words"] = transformedWords
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformationsFieldTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
