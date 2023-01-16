@@ -12,6 +12,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeT
 	context := map[string]interface{}{
 		"organization":  getTestOrgFromEnv(t),
 		"random_suffix": randString(t, 10),
+		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -116,11 +117,12 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             crypto_key {
               kms_wrapped {
                 wrapped_key     = "B64/WRAPPED/TOKENIZATION/KEY"
-                crypto_key_name = google_kms_crypto_key.my_key.id
+                crypto_key_name = "%{kms_key_name}"
               }
             }
             surrogate_info_type {
               name = "abc"
+              version = "version-1"
             }
           }
         }
@@ -143,6 +145,7 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             }
             surrogate_info_type {
               name = "abc"
+              version = "version-1"
             }
           }
         }
@@ -162,6 +165,7 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             }
             surrogate_info_type {
               name = "CUSTOM_INFO_TYPE"
+              version = "version-1"
             }
           }
         }
@@ -178,12 +182,13 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             crypto_key {
               kms_wrapped {
                 wrapped_key     = "B64/WRAPPED/TOKENIZATION/KEY"
-                crypto_key_name = google_kms_crypto_key.my_key.id
+                crypto_key_name = "%{kms_key_name}"
               }
             }
             radix = 10
             surrogate_info_type {
               name = "CUSTOM_INFO_TYPE"
+              version = "version-1"
             }
           }
         }
@@ -206,6 +211,7 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             }
             surrogate_info_type {
               name = "CUSTOM_INFO_TYPE"
+              version = "version-1"
             }
           }
         }
@@ -225,22 +231,13 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             }
             surrogate_info_type {
               name = "CUSTOM_INFO_TYPE"
+              version = "version-1"
             }
           }
         }
       }
     }
   }
-}
-
-resource "google_kms_crypto_key" "my_key" {
-  name     = "tf-test-example-k%{random_suffix}"
-  key_ring = google_kms_key_ring.key_ring.id
-}
-
-resource "google_kms_key_ring" "key_ring" {
-  name     = "tf-test-example-keyr%{random_suffix}"
-  location = "global"
 }
 `, context)
 }
@@ -315,11 +312,12 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             crypto_key {
               kms_wrapped {
                 wrapped_key     = "B64/WRAPPED/TOKENIZATION/KEY"
-                crypto_key_name = google_kms_crypto_key.my_key.id
+                crypto_key_name = "%{kms_key_name}"
               }
             }
             surrogate_info_type {
               name = "abcd"
+              version = "version-2"
             }
           }
         }
@@ -338,6 +336,7 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             }
             surrogate_info_type {
               name = "CUSTOM_INFO_TYPEf"
+              version = "version-2"
             }
           }
         }
@@ -354,12 +353,13 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             crypto_key {
               kms_wrapped {
                 wrapped_key     = "B64/WRAPPED/TOKENIZATION/KEY"
-                crypto_key_name = google_kms_crypto_key.my_key.id
+                crypto_key_name = "%{kms_key_name}"
               }
             }
             radix = 10
             surrogate_info_type {
               name = "CUSTOM_INFO_TYPEF"
+              version = "version-2"
             }
           }
         }
@@ -382,22 +382,13 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
             }
             surrogate_info_type {
               name = "CUSTOM_INFO_TYPE"
+              version = "version-2"
             }
           }
         }
       }
     }
   }
-}
-
-resource "google_kms_crypto_key" "my_key" {
-  name     = "tf-test-example-k%{random_suffix}"
-  key_ring = google_kms_key_ring.key_ring.id
-}
-
-resource "google_kms_key_ring" "key_ring" {
-  name     = "tf-test-example-keyr%{random_suffix}"
-  location = "global"
 }
 `, context)
 }
@@ -408,6 +399,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	context := map[string]interface{}{
 		"organization":  getTestOrgFromEnv(t),
 		"random_suffix": randString(t, 10),
+		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -542,6 +534,156 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
           }
         }
       }
+      field_transformations {
+        fields {
+          name = "unconditionally-crypto-replace-ffx-fpe-field"
+        }
+        primitive_transformation {
+          crypto_replace_ffx_fpe_config {
+            context {
+              name = "someTweak"
+            }
+            crypto_key {
+              kms_wrapped {
+                wrapped_key     = "B64/WRAPPED/TOKENIZATION/KEY"
+                crypto_key_name = "%{kms_key_name}"
+              }
+            }
+            radix = 10
+            surrogate_info_type {
+              name = "CUSTOM_INFO_TYPE"
+              version = "version-1"
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-fixed-size-bucketing-field"
+        }
+        primitive_transformation {
+          fixed_size_bucketing_config {
+            lower_bound {
+              integer_value = 0
+            }
+            upper_bound {
+              integer_value = 100
+            } 
+            bucket_size = 10
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-bucketing-field"
+        }
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                string_value = "00:00:00"
+              }
+              max {
+                string_value = "11:59:59"
+              }
+              replacement_value {
+                string_value = "AM"
+              }
+            }
+            buckets {
+              min {
+                string_value = "12:00:00"
+              }
+              max {
+                string_value = "23:59:59"
+              }
+              replacement_value {
+                string_value = "PM"
+              }
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-time-part-field"
+        }
+        primitive_transformation {
+          time_part_config {
+            part_to_extract = "YEAR"
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-crypto-hash-field"
+        }
+        primitive_transformation {
+          crypto_hash_config {
+            crypto_key {
+              transient {
+                name = "beep" # Copy-pasting from existing test that uses this field
+              }
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-date-shift-field"
+        }
+        primitive_transformation {
+          date_shift_config {
+            upper_bound_days = 30
+            lower_bound_days = -30
+            context {
+              name = "unconditionally-date-shift-field"
+            }
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-crypto-deterministic-field"
+        }
+        primitive_transformation {
+          crypto_deterministic_config {
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+            surrogate_info_type {
+              name = "CREDIT_CARD_NUMBER"
+              version = "version-1"
+            }
+            context {
+              name = "unconditionally-crypto-deterministic-field"
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-replace-dictionary-field"
+        }
+        primitive_transformation {
+          replace_dictionary_config {
+            word_list {
+              words = [
+                "foo",
+                "bar",
+                "baz",
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -655,6 +797,176 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
           }
         }
       }
+      field_transformations {
+        fields {
+          name = "unconditionally-crypto-replace-ffx-fpe-field"
+        }
+        primitive_transformation {
+          crypto_replace_ffx_fpe_config {
+            common_alphabet = "UPPER_CASE_ALPHA_NUMERIC"
+            context {
+              name = "someTweak2"
+            }
+            crypto_key {
+              transient {
+                name = "beep" # Copy-pasting from existing test that uses this field
+              }
+            }
+            surrogate_info_type {
+              name = "CUSTOM_INFO_TYPE"
+              version = "version-2"
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-fixed-size-bucketing-field"
+        }
+        primitive_transformation {
+          # update values
+          fixed_size_bucketing_config {
+            lower_bound {
+              integer_value = 0
+            }
+            upper_bound {
+              integer_value = 200
+            } 
+            bucket_size = 20
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-bucketing-field"
+        }
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                string_value = "00:00:00"
+              }
+              max {
+                string_value = "11:59:59"
+              }
+              replacement_value {
+                string_value = "AM"
+              }
+            }
+            # Add new bucket
+            buckets {
+              min {
+                string_value = "12:00:00"
+              }
+              max {
+                string_value = "13:59:59"
+              }
+              replacement_value {
+                string_value = "Lunchtime"
+              }
+            }
+            buckets {
+              min {
+                string_value = "14:00:00"
+              }
+              max {
+                string_value = "23:59:59"
+              }
+              replacement_value {
+                string_value = "PM"
+              }
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-time-part-field"
+        }
+        primitive_transformation {
+          time_part_config {
+            part_to_extract = "MONTH"
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-crypto-hash-field"
+        }
+        primitive_transformation {
+          crypto_hash_config {
+            crypto_key {
+              transient {
+                # update value
+                name = "beepy-beep-updated"
+              }
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-date-shift-field"
+        }
+        primitive_transformation {
+          date_shift_config {
+            # update values
+            upper_bound_days = 60
+            lower_bound_days = -60
+            context {
+              name = "unconditionally-date-shift-field"
+            }
+            crypto_key {
+              transient {
+                # update value
+                name = "beepy-beep-updated"
+              }
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-crypto-deterministic-field"
+        }
+        primitive_transformation {
+          crypto_deterministic_config {
+            crypto_key {
+              transient {
+                # update value
+                name = "beepy-beep-updated"
+              }
+            }
+            surrogate_info_type {
+              # update info type
+              name = "CREDIT_CARD_TRACK_NUMBER"
+              version = "version-2"
+            }
+            context {
+              name = "unconditionally-crypto-deterministic-field"
+            }
+          }
+        }
+      }
+      field_transformations {
+        fields {
+          name = "unconditionally-replace-dictionary-field"
+        }
+        primitive_transformation {
+          replace_dictionary_config {
+            word_list {
+              words = [
+                # update list - deletion and addition
+                "foo",
+                "baz",
+                "fizz",
+                "buzz",
+              ]
+            }
+          }
+        }
+      }
+
     }
   }
 }

@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: Added all subfields under `deidentify_template.record_transformations.field_transformations.primitive_transformation` to `google_data_loss_prevention_deidentify_template`
+```
