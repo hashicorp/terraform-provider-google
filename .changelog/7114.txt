@@ -1,0 +1,3 @@
+```release-note:bug
+certificatemanager: removed incorrect indication that the `self_managed` field in `google_certificate_manager_certificate` was treated as sensitive, and marked `self_managed.pem_private_key` as sensitive
+```
