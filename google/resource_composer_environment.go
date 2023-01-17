@@ -50,6 +50,7 @@ var (
 		"config.0.node_count",
 		"config.0.node_config",
 		"config.0.software_config",
+		"config.0.recovery_config",
 		"config.0.private_environment_config",
 		"config.0.web_server_network_access_control",
 		"config.0.database_config",
@@ -59,6 +60,10 @@ var (
 		"config.0.workloads_config",
 		"config.0.environment_size",
 		"config.0.master_authorized_networks_config",
+	}
+
+	recoveryConfigKeys = []string{
+		"config.0.recovery_config.0.scheduled_snapshots_config",
 	}
 
 	workloadsConfigKeys = []string{
@@ -307,6 +312,48 @@ func resourceComposerEnvironment() *schema.Resource {
 													Description:      `The IP address range used to allocate IP addresses in this cluster. For Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*, this field is applicable only when use_ip_aliases is true. Set to blank to have GKE choose a range with the default size. Set to /netmask (e.g. /14) to have GKE choose a range with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use. Specify either services_secondary_range_name or services_ipv4_cidr_block but not both.`,
 													DiffSuppressFunc: cidrOrSizeDiffSuppress,
 													ConflictsWith:    []string{"config.0.node_config.0.ip_allocation_policy.0.services_secondary_range_name"},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"recovery_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The recovery configuration settings for the Cloud Composer environment`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"scheduled_snapshots_config": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: recoveryConfigKeys,
+										Description:  `The configuration settings for scheduled snapshots.`,
+										MaxItems:     1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: `When enabled, Cloud Composer periodically saves snapshots of your environment to a Cloud Storage bucket.`,
+												},
+												"snapshot_location": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `the URI of a bucket folder where to save the snapshot.`,
+												},
+												"snapshot_creation_schedule": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Snapshot schedule, in the unix-cron format.`,
+												},
+												"time_zone": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `A time zone for the schedule. This value is a time offset and does not take into account daylight saving time changes. Valid values are from UTC-12 to UTC+12. Examples: UTC, UTC-01, UTC+03.`,
 												},
 											},
 										},
@@ -996,6 +1043,18 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				return err
 			}
 		}
+
+		if d.HasChange("config.0.recovery_config.0.scheduled_snapshots_config") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.RecoveryConfig = config.RecoveryConfig
+			}
+			err = resourceComposerEnvironmentPatchField("config.RecoveryConfig.ScheduledSnapshotsConfig", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+
 		if d.HasChange("config.0.environment_size") {
 			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
 			if config != nil {
@@ -1140,6 +1199,7 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["encryption_config"] = flattenComposerEnvironmentConfigEncryptionConfig(envCfg.EncryptionConfig)
 	transformed["maintenance_window"] = flattenComposerEnvironmentConfigMaintenanceWindow(envCfg.MaintenanceWindow)
 	transformed["workloads_config"] = flattenComposerEnvironmentConfigWorkloadsConfig(envCfg.WorkloadsConfig)
+	transformed["recovery_config"] = flattenComposerEnvironmentConfigRecoveryConfig(envCfg.RecoveryConfig)
 	transformed["environment_size"] = envCfg.EnvironmentSize
 	transformed["master_authorized_networks_config"] = flattenComposerEnvironmentConfigMasterAuthorizedNetworksConfig(envCfg.MasterAuthorizedNetworksConfig)
 	return []interface{}{transformed}
@@ -1195,6 +1255,30 @@ func flattenComposerEnvironmentConfigEncryptionConfig(encryptionCfg *composer.En
 
 	transformed := make(map[string]interface{})
 	transformed["kms_key_name"] = encryptionCfg.KmsKeyName
+
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigRecoveryConfig(recoveryCfg *composer.RecoveryConfig) interface{} {
+	if recoveryCfg == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformedScheduledSnapshotsConfig := make(map[string]interface{})
+
+	scheduledSnapshotsConfig := recoveryCfg.ScheduledSnapshotsConfig
+
+	if scheduledSnapshotsConfig == nil {
+		transformedScheduledSnapshotsConfig = nil
+	} else {
+		transformedScheduledSnapshotsConfig["enabled"] = scheduledSnapshotsConfig.Enabled
+		transformedScheduledSnapshotsConfig["snapshot_location"] = scheduledSnapshotsConfig.SnapshotLocation
+		transformedScheduledSnapshotsConfig["time_zone"] = scheduledSnapshotsConfig.TimeZone
+		transformedScheduledSnapshotsConfig["snapshot_creation_schedule"] = scheduledSnapshotsConfig.SnapshotCreationSchedule
+	}
+
+	transformed["scheduled_snapshots_config"] = []interface{}{transformedScheduledSnapshotsConfig}
 
 	return []interface{}{transformed}
 }
@@ -1437,6 +1521,13 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 		return nil, err
 	}
 	transformed.MasterAuthorizedNetworksConfig = transformedMasterAuthorizedNetworksConfig
+
+	transformedRecoveryConfig, err := expandComposerEnvironmentConfigRecoveryConfig(original["recovery_config"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.RecoveryConfig = transformedRecoveryConfig
+
 	return transformed, nil
 }
 
@@ -1611,6 +1702,30 @@ func expandComposerEnvironmentConfigWorkloadsConfig(v interface{}, d *schema.Res
 			transformedWorker.MinCount = int64(originalWorkerRaw["min_count"].(int))
 			transformedWorker.MaxCount = int64(originalWorkerRaw["max_count"].(int))
 			transformed.Worker = transformedWorker
+		}
+	}
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigRecoveryConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.RecoveryConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := &composer.RecoveryConfig{}
+
+	if v, ok := original["scheduled_snapshots_config"]; ok {
+		if len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
+			transformedScheduledSnapshotsConfig := &composer.ScheduledSnapshotsConfig{}
+			originalScheduledSnapshotsConfigRaw := v.([]interface{})[0].(map[string]interface{})
+			transformedScheduledSnapshotsConfig.Enabled = originalScheduledSnapshotsConfigRaw["enabled"].(bool)
+			transformedScheduledSnapshotsConfig.SnapshotLocation = originalScheduledSnapshotsConfigRaw["snapshot_location"].(string)
+			transformedScheduledSnapshotsConfig.TimeZone = originalScheduledSnapshotsConfigRaw["time_zone"].(string)
+			transformedScheduledSnapshotsConfig.SnapshotCreationSchedule = originalScheduledSnapshotsConfigRaw["snapshot_creation_schedule"].(string)
+			transformed.ScheduledSnapshotsConfig = transformedScheduledSnapshotsConfig
 		}
 	}
 

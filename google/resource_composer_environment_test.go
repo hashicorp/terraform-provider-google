@@ -744,6 +744,46 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccComposerEnvironmentAirflow2_withRecoveryConfig(t *testing.T) {
+	t.Parallel()
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
+	subnetwork := network + "-1"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_airflow2RecoveryCfg(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComposerEnvironmentUpdate_airflow2RecoveryCfg(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironmentUpdate_airflow2RecoveryCfg(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
 func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 	t.Parallel()
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
@@ -1790,6 +1830,98 @@ resource "google_project_iam_member" "composer-worker" {
   member = "serviceAccount:${google_service_account.test.email}"
 }
 `, environment, network, subnetwork, serviceAccount)
+}
+
+func testAccComposerEnvironment_airflow2RecoveryCfg(name, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-central1"
+
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      ip_allocation_policy {
+        cluster_ipv4_cidr_block = "10.0.0.0/16"
+      }
+    }
+
+    software_config {
+      image_version = "composer-2-airflow-2"
+    }
+
+    recovery_config {
+      scheduled_snapshots_config {
+        enabled =                    true
+        snapshot_location =          "gs://example-bucket/environment_snapshots"
+        snapshot_creation_schedule = "0 4 * * *"
+        time_zone =                  "UTC+01"
+      }
+    }
+  }
+
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.test.self_link
+  private_ip_google_access = true
+}
+`, name, network, subnetwork)
+}
+
+func testAccComposerEnvironmentUpdate_airflow2RecoveryCfg(name, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-central1"
+
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      ip_allocation_policy {
+        cluster_ipv4_cidr_block = "10.0.0.0/16"
+      }
+    }
+
+    software_config {
+      image_version = "composer-2-airflow-2"
+    }
+
+    recovery_config {
+		  scheduled_snapshots_config {
+			  enabled =                    true
+			  snapshot_location =          "gs://example-bucket/environment_snapshots2"
+			  snapshot_creation_schedule = "1 2 * * *"
+			  time_zone =                  "UTC+02"
+      }
+    }
+  }
+
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.test.self_link
+  private_ip_google_access = true
+}
+`, name, network, subnetwork)
 }
 
 func testAccComposerEnvironment_softwareCfg(name, network, subnetwork string) string {
