@@ -1,0 +1,9 @@
+```release-note:new-resource
+google_gke_backup_backup_plan_iam_binding
+```
+```release-note:new-resource
+google_gke_backup_backup_plan_iam_member
+```
+```release-note:new-resource
+google_gke_backup_backup_plan_iam_policy
+```
