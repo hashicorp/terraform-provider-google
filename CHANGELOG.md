@@ -22,7 +22,7 @@ IMPROVEMENTS:
 * dataproc: added support for `node_group_affinity.` in `google_dataproc_cluster` ([#13400](https://github.com/hashicorp/terraform-provider-google/pull/13400))
 * dataproc: added support for `reservation_affinity` in `google_dataproc_cluster` ([#13393](https://github.com/hashicorp/terraform-provider-google/pull/13393))
 * dlp: added field `identifying_fields` to `big_query_options` for creating DLP jobs. ([#13463](https://github.com/hashicorp/terraform-provider-google/pull/13463))
-* metastore: Added `telemetry_config` field to `google_dataproc_metastore_service` ([#13432](https://github.com/hashicorp/terraform-provider-google/pull/13432))
+* metastore: added `telemetry_config` field to `google_dataproc_metastore_service` ([#13432](https://github.com/hashicorp/terraform-provider-google/pull/13432))
 * sql: added the ability to set `point_in_time_recovery_enabled` flag for `google_sql_database_instance` `SQLSERVER` instances ([#13454](https://github.com/hashicorp/terraform-provider-google/pull/13454))
 * sql: added `instance_type` field to `google_sql_database_instance` resource ([#13406](https://github.com/hashicorp/terraform-provider-google/pull/13406))
 * vertexai: added `scaling` field in `google_vertex_ai_featurestore` ([#13458](https://github.com/hashicorp/terraform-provider-google/pull/13458))
