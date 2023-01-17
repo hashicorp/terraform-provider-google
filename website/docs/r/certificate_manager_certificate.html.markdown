@@ -24,7 +24,7 @@ Certificate represents a HTTP-reachable backend for a Certificate.
 
 
 
-~> **Warning:** All arguments including `self_managed`, `self_managed.certificate_pem`, and `self_managed.private_key_pem` will be stored in the raw
+~> **Warning:** All arguments including `self_managed.certificate_pem`, `self_managed.private_key_pem`, and `self_managed.pem_private_key` will be stored in the raw
 state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -84,7 +84,6 @@ The following arguments are supported:
   Certificate data for a SelfManaged Certificate.
   SelfManaged Certificates are uploaded by the user. Updating such
   certificates before they expire remains the user's responsibility.
-  **Note**: This property is sensitive and will not be displayed in the plan.
   Structure is [documented below](#nested_self_managed).
 
 * `managed` -
@@ -119,6 +118,7 @@ The following arguments are supported:
 * `pem_private_key` -
   (Optional)
   The private key of the leaf certificate in PEM-encoded form.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 <a name="nested_managed"></a>The `managed` block supports:
 
