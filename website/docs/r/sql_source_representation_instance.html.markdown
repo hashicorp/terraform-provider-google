@@ -79,6 +79,30 @@ The following arguments are supported:
   The externally accessible port for the source database server.
   Defaults to 3306.
 
+* `username` -
+  (Optional)
+  The replication user account on the external server.
+
+* `password` -
+  (Optional)
+  The password for the replication user account.
+
+* `dump_file_path` -
+  (Optional)
+  A file in the bucket that contains the data from the external server.
+
+* `ca_certificate` -
+  (Optional)
+  The CA certificate on the external server. Include only if SSL/TLS is used on the external server.
+
+* `client_certificate` -
+  (Optional)
+  The client certificate on the external server. Required only for server-client authentication. Include only if SSL/TLS is used on the external server.
+
+* `client_key` -
+  (Optional)
+  The private key file for the client certificate on the external server. Required only for server-client authentication. Include only if SSL/TLS is used on the external server.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
