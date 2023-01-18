@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudbuild: added `github_enterprise_config` fields to `google_cloudbuild_trigger` resource.
+```

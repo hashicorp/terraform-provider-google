@@ -346,6 +346,29 @@ resource "google_cloudbuild_trigger" "manual-trigger" {
   
 }
 ```
+## Example Usage - Cloudbuild Trigger Manual Github Enterprise
+
+
+```hcl
+resource "google_cloudbuild_trigger" "manual-ghe-trigger" {
+  name        = "terraform-manual-ghe-trigger"
+
+  source_to_build {
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+    github_enterprise_config = "projects/myProject/locations/global/githubEnterpriseConfigs/configID"
+}
+
+git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://hashicorp/terraform-provider-google-beta"
+    revision  = "refs/heads/main"
+    repo_type = "GITHUB"
+    github_enterprise_config = "projects/myProject/locations/global/githubEnterpriseConfigs/configID"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -510,6 +533,11 @@ The following arguments are supported:
   filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions 
   If unspecified, the revision from which the trigger invocation originated is assumed to be the revision from which to read the specified path.
 
+* `github_enterprise_config` -
+  (Optional)
+  The full resource name of the github enterprise config.
+  Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.
+
 <a name="nested_source_to_build"></a>The `source_to_build` block supports:
 
 * `uri` -
@@ -525,6 +553,11 @@ The following arguments are supported:
   The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
   Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER
   Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, `GITHUB`, and `BITBUCKET_SERVER`.
+
+* `github_enterprise_config` -
+  (Optional)
+  The full resource name of the github enterprise config.
+  Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.
 
 <a name="nested_trigger_template"></a>The `trigger_template` block supports:
 
