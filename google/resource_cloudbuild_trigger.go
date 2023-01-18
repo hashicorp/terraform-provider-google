@@ -741,6 +741,12 @@ When using Pub/Sub, Webhook or Manual set the file name using git_file_source in
 							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
 Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB", "BITBUCKET_SERVER"]`,
 						},
+						"github_enterprise_config": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The full resource name of the github enterprise config.
+Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.`,
+						},
 						"revision": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -968,6 +974,12 @@ Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER Possi
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: `The URI of the repo (required).`,
+						},
+						"github_enterprise_config": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The full resource name of the github enterprise config.
+Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.`,
 						},
 					},
 				},
@@ -1661,6 +1673,8 @@ func flattenCloudBuildTriggerGitFileSource(v interface{}, d *schema.ResourceData
 		flattenCloudBuildTriggerGitFileSourceRepoType(original["repoType"], d, config)
 	transformed["revision"] =
 		flattenCloudBuildTriggerGitFileSourceRevision(original["revision"], d, config)
+	transformed["github_enterprise_config"] =
+		flattenCloudBuildTriggerGitFileSourceGithubEnterpriseConfig(original["githubEnterpriseConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudBuildTriggerGitFileSourcePath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1679,6 +1693,10 @@ func flattenCloudBuildTriggerGitFileSourceRevision(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenCloudBuildTriggerGitFileSourceGithubEnterpriseConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenCloudBuildTriggerSourceToBuild(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1694,6 +1712,8 @@ func flattenCloudBuildTriggerSourceToBuild(v interface{}, d *schema.ResourceData
 		flattenCloudBuildTriggerSourceToBuildRef(original["ref"], d, config)
 	transformed["repo_type"] =
 		flattenCloudBuildTriggerSourceToBuildRepoType(original["repoType"], d, config)
+	transformed["github_enterprise_config"] =
+		flattenCloudBuildTriggerSourceToBuildGithubEnterpriseConfig(original["githubEnterpriseConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudBuildTriggerSourceToBuildUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1705,6 +1725,10 @@ func flattenCloudBuildTriggerSourceToBuildRef(v interface{}, d *schema.ResourceD
 }
 
 func flattenCloudBuildTriggerSourceToBuildRepoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerSourceToBuildGithubEnterpriseConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2520,6 +2544,13 @@ func expandCloudBuildTriggerGitFileSource(v interface{}, d TerraformResourceData
 		transformed["revision"] = transformedRevision
 	}
 
+	transformedGithubEnterpriseConfig, err := expandCloudBuildTriggerGitFileSourceGithubEnterpriseConfig(original["github_enterprise_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGithubEnterpriseConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["githubEnterpriseConfig"] = transformedGithubEnterpriseConfig
+	}
+
 	return transformed, nil
 }
 
@@ -2536,6 +2567,10 @@ func expandCloudBuildTriggerGitFileSourceRepoType(v interface{}, d TerraformReso
 }
 
 func expandCloudBuildTriggerGitFileSourceRevision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGitFileSourceGithubEnterpriseConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2569,6 +2604,13 @@ func expandCloudBuildTriggerSourceToBuild(v interface{}, d TerraformResourceData
 		transformed["repoType"] = transformedRepoType
 	}
 
+	transformedGithubEnterpriseConfig, err := expandCloudBuildTriggerSourceToBuildGithubEnterpriseConfig(original["github_enterprise_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGithubEnterpriseConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["githubEnterpriseConfig"] = transformedGithubEnterpriseConfig
+	}
+
 	return transformed, nil
 }
 
@@ -2581,6 +2623,10 @@ func expandCloudBuildTriggerSourceToBuildRef(v interface{}, d TerraformResourceD
 }
 
 func expandCloudBuildTriggerSourceToBuildRepoType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerSourceToBuildGithubEnterpriseConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
