@@ -46,13 +46,15 @@ resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   description = "description creating"
   location = "us-central1"
+  annotations = {
+    generated-by = "magic-modules"
+  }
   ingress = "INGRESS_TRAFFIC_ALL"
   labels = {
     label-1 = "value-1"
   }
   client = "client-1"
   client_version = "client-version-1"
-  
   template {
     labels = {
       label-1 = "value-1"
@@ -63,6 +65,9 @@ resource "google_cloud_run_v2_service" "default" {
     scaling {
       max_instance_count = 3
       min_instance_count = 1
+    }
+    annotations = {
+      generated-by = "magic-modules"
     }
     containers {
       name = "container-1"
@@ -103,6 +108,9 @@ resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   description = "description updating"
   location = "us-central1"
+  annotations = {
+    generated-by = "magic-modules-files"
+  }
   ingress = "INGRESS_TRAFFIC_ALL"
   binary_authorization {
     use_default = true
@@ -113,7 +121,7 @@ resource "google_cloud_run_v2_service" "default" {
   }
   client = "client-update"
   client_version = "client-version-update"
-  
+
   template {
     labels = {
       label-1 = "value-update"
@@ -124,6 +132,9 @@ resource "google_cloud_run_v2_service" "default" {
     scaling {
       max_instance_count = 2
       min_instance_count = 1
+    }
+    annotations = {
+      generated-by = "magic-modules"
     }
     containers {
       name = "container-update"
@@ -156,7 +167,7 @@ resource "google_cloud_run_v2_service" "default" {
   traffic {
     type = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
-    tag = "traffic-tag-update"
+    tag = "tt-update"
   }
 }
 
