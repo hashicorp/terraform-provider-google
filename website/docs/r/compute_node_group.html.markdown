@@ -90,6 +90,39 @@ resource "google_compute_node_group" "nodes" {
   }
 }
 ```
+## Example Usage - Node Group Share Settings
+
+
+```hcl
+resource "google_project" "guest_project" {
+  project_id      = "project-id"
+  name            = "project-name"
+  org_id          = "123456789"
+}
+
+resource "google_compute_node_template" "soletenant-tmpl" {
+  name      = "soletenant-tmpl"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name        = "soletenant-group"
+  zone        = "us-central1-f"
+  description = "example google_compute_node_group for Terraform Google Provider"
+
+  size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+
+  share_settings {
+    share_type = "SPECIFIC_PROJECTS"
+    project_map {
+      id = google_project.guest_project.project_id
+      project_id = google_project.guest_project.project_id
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -135,6 +168,11 @@ The following arguments are supported:
   group autoscaler to automatically manage the sizes of your node groups.
   Structure is [documented below](#nested_autoscaling_policy).
 
+* `share_settings` -
+  (Optional)
+  Share settings for the node group.
+  Structure is [documented below](#nested_share_settings).
+
 * `zone` -
   (Optional)
   Zone where this node group is located
@@ -170,6 +208,27 @@ The following arguments are supported:
   (Required)
   Maximum size of the node group. Set to a value less than or equal
   to 100 and greater than or equal to min-nodes.
+
+<a name="nested_share_settings"></a>The `share_settings` block supports:
+
+* `share_type` -
+  (Required)
+  Node group sharing type.
+  Possible values are `ORGANIZATION`, `SPECIFIC_PROJECTS`, and `LOCAL`.
+
+* `project_map` -
+  (Optional)
+  A map of project id and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.
+  Structure is [documented below](#nested_project_map).
+
+
+<a name="nested_project_map"></a>The `project_map` block supports:
+
+* `id` - (Required) The identifier for this object. Format specified above.
+
+* `project_id` -
+  (Required)
+  The project id/number should be the same as the key of this project config in the project map.
 
 ## Attributes Reference
 

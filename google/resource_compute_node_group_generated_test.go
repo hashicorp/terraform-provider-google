@@ -119,6 +119,65 @@ resource "google_compute_node_group" "nodes" {
 `, context)
 }
 
+func TestAccComputeNodeGroup_nodeGroupShareSettingsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        getTestOrgFromEnv(t),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNodeGroup_nodeGroupShareSettingsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_node_group.nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"node_template", "initial_size", "zone"},
+			},
+		},
+	})
+}
+
+func testAccComputeNodeGroup_nodeGroupShareSettingsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project" "guest_project" {
+  project_id      = "tf-test-project-id%{random_suffix}"
+  name            = "tf-test-project-name%{random_suffix}"
+  org_id          = "%{org_id}"
+}
+
+resource "google_compute_node_template" "soletenant-tmpl" {
+  name      = "tf-test-soletenant-tmpl%{random_suffix}"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name        = "tf-test-soletenant-group%{random_suffix}"
+  zone        = "us-central1-f"
+  description = "example google_compute_node_group for Terraform Google Provider"
+
+  size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+
+  share_settings {
+    share_type = "SPECIFIC_PROJECTS"
+    project_map {
+      id = google_project.guest_project.project_id
+      project_id = google_project.guest_project.project_id
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeNodeGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

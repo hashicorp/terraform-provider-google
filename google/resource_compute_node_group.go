@@ -133,6 +133,46 @@ than or equal to max-nodes. The default value is 0.`,
 				ForceNew:    true,
 				Description: `Name of the resource.`,
 			},
+			"share_settings": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Share settings for the node group.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"share_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validateEnum([]string{"ORGANIZATION", "SPECIFIC_PROJECTS", "LOCAL"}),
+							Description:  `Node group sharing type. Possible values: ["ORGANIZATION", "SPECIFIC_PROJECTS", "LOCAL"]`,
+						},
+						"project_map": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `A map of project id and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The project id/number should be the same as the key of this project config in the project map.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"size": {
 				Type:         schema.TypeInt,
 				Computed:     true,
@@ -218,6 +258,12 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(autoscalingPolicyProp)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
 		obj["autoscalingPolicy"] = autoscalingPolicyProp
+	}
+	shareSettingsProp, err := expandComputeNodeGroupShareSettings(d.Get("share_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("share_settings"); !isEmptyValue(reflect.ValueOf(shareSettingsProp)) && (ok || !reflect.DeepEqual(v, shareSettingsProp)) {
+		obj["shareSettings"] = shareSettingsProp
 	}
 	zoneProp, err := expandComputeNodeGroupZone(d.Get("zone"), d, config)
 	if err != nil {
@@ -336,6 +382,9 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("autoscaling_policy", flattenComputeNodeGroupAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err := d.Set("share_settings", flattenComputeNodeGroupShareSettings(res["shareSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d, config)); err != nil {
@@ -583,6 +632,44 @@ func flattenComputeNodeGroupAutoscalingPolicyMaxNodes(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeNodeGroupShareSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["share_type"] =
+		flattenComputeNodeGroupShareSettingsShareType(original["shareType"], d, config)
+	transformed["project_map"] =
+		flattenComputeNodeGroupShareSettingsProjectMap(original["projectMap"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeNodeGroupShareSettingsShareType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeNodeGroupShareSettingsProjectMap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"id":         k,
+			"project_id": flattenComputeNodeGroupShareSettingsProjectMapProjectId(original["projectId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeNodeGroupShareSettingsProjectMapProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeNodeGroupZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -679,6 +766,65 @@ func expandComputeNodeGroupAutoscalingPolicyMinNodes(v interface{}, d TerraformR
 }
 
 func expandComputeNodeGroupAutoscalingPolicyMaxNodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupShareSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedShareType, err := expandComputeNodeGroupShareSettingsShareType(original["share_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedShareType); val.IsValid() && !isEmptyValue(val) {
+		transformed["shareType"] = transformedShareType
+	}
+
+	transformedProjectMap, err := expandComputeNodeGroupShareSettingsProjectMap(original["project_map"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectMap); val.IsValid() && !isEmptyValue(val) {
+		transformed["projectMap"] = transformedProjectMap
+	}
+
+	return transformed, nil
+}
+
+func expandComputeNodeGroupShareSettingsShareType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupShareSettingsProjectMap(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedProjectId, err := expandComputeNodeGroupShareSettingsProjectMapProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedId, err := expandString(original["id"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedId] = transformed
+	}
+	return m, nil
+}
+
+func expandComputeNodeGroupShareSettingsProjectMapProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
