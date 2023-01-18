@@ -788,7 +788,16 @@ The `software_config` block supports:
   `composer-1.16.x` to `composer-1.17.x`, or from `airflow-2.1.x` to `airflow-2.2.x`. You cannot upgrade between
   major Cloud Composer or Apache Airflow versions (from `1.x.x` to `2.x.x`). To do so, create a new environment.
 
+* `cloud_data_lineage_integration` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
+  Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and newer)
+  The configuration for Cloud Data Lineage integration. Structure is
+  [documented below](#nested_cloud_data_lineage_integration).
 
+<a name="nested_cloud_data_lineage_integration"></a>The `cloud_data_lineage_integration` block supports:
+* `enabled` -
+  (Required)
+  Whether or not Cloud Data Lineage integration is enabled.
 
 See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. The `private_environment_config` block supports:
 
