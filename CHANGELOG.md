@@ -1,4 +1,34 @@
 ## 4.50.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `google_compute_network_peering` ([#13476](https://github.com/hashicorp/terraform-provider-google/pull/13476))
+* **New Data Source:** google_compute_router_nat ([#13475](https://github.com/hashicorp/terraform-provider-google/pull/13475))
+* **New Resource:** google_cloud_run_v2_job_iam_binding ([#13492](https://github.com/hashicorp/terraform-provider-google/pull/13492))
+* **New Resource:** google_cloud_run_v2_job_iam_member ([#13492](https://github.com/hashicorp/terraform-provider-google/pull/13492))
+* **New Resource:** google_cloud_run_v2_job_iam_policy ([#13492](https://github.com/hashicorp/terraform-provider-google/pull/13492))
+* **New Resource:** google_cloud_run_v2_service_iam_binding ([#13492](https://github.com/hashicorp/terraform-provider-google/pull/13492))
+* **New Resource:** google_cloud_run_v2_service_iam_member ([#13492](https://github.com/hashicorp/terraform-provider-google/pull/13492))
+* **New Resource:** google_cloud_run_v2_service_iam_policy ([#13492](https://github.com/hashicorp/terraform-provider-google/pull/13492))
+* **New Resource:** google_gke_backup_backup_plan_iam_binding ([#13508](https://github.com/hashicorp/terraform-provider-google/pull/13508))
+* **New Resource:** google_gke_backup_backup_plan_iam_member ([#13508](https://github.com/hashicorp/terraform-provider-google/pull/13508))
+* **New Resource:** google_gke_backup_backup_plan_iam_policy ([#13508](https://github.com/hashicorp/terraform-provider-google/pull/13508))
+
+IMPROVEMENTS:
+* bigquery_table - add `reference_file_schema_uri` ([#13493](https://github.com/hashicorp/terraform-provider-google/pull/13493))
+* billingbudget: Make fields `credit_types` and `subaccounts` updatable for `google_billing_budget` ([#13466](https://github.com/hashicorp/terraform-provider-google/pull/13466))
+* cloudrunV2: added `annotations` to `CloudRunV2_service` resource ([#13509](https://github.com/hashicorp/terraform-provider-google/pull/13509))
+* composer: added `recovery_config` in `google_composer_environment` resource ([#13504](https://github.com/hashicorp/terraform-provider-google/pull/13504))
+* compute: add support for 'edge_security_policy' field to 'google_compute_backend_service' resource. ([#13494](https://github.com/hashicorp/terraform-provider-google/pull/13494))
+* compute: added `max_run_duration` field to `google_compute_instance` and `google_compute_instance_template` resource (beta) ([#13489](https://github.com/hashicorp/terraform-provider-google/pull/13489))
+* dataproc: added support for `dataproc_metric_config` to resource `google_dataproc_cluster` ([#13480](https://github.com/hashicorp/terraform-provider-google/pull/13480))
+* dlp: Added all subfields under `deidentify_template.record_transformations.field_transformations.primitive_transformation` to `google_data_loss_prevention_deidentify_template` ([#13498](https://github.com/hashicorp/terraform-provider-google/pull/13498))
+* sql: changed the default create timeout of `google_sql_database_instance` to 40m from 30m ([#13481](https://github.com/hashicorp/terraform-provider-google/pull/13481))
+
+BUG FIXES:
+* certificatemanager: removed incorrect indication that the `self_managed` field in `google_certificate_manager_certificate` was treated as sensitive, and marked `self_managed.pem_private_key` as sensitive ([#13505](https://github.com/hashicorp/terraform-provider-google/pull/13505))
+* cloudplatform: fixed the error with header `X-Goog-User-Project` on `google_client_openid_userinfo` ([#13474](https://github.com/hashicorp/terraform-provider-google/pull/13474))
+* cloudsql: fixed `disk_type` can't be updated on `google_sql_database_instance` ([#13483](https://github.com/hashicorp/terraform-provider-google/pull/13483))
+* vertexai: fixed updating value_type in google_vertex_ai_featurestore_entitytype_feature ([#13491](https://github.com/hashicorp/terraform-provider-google/pull/13491))
+
 
 ## 4.49.0 (January 17, 2023)
 FEATURES:
