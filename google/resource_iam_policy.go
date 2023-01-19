@@ -153,6 +153,9 @@ func setIamPolicyData(d *schema.ResourceData, updater ResourceIamUpdater) error 
 		return fmt.Errorf("'policy_data' is not valid for %s: %s", updater.DescribeResource(), err)
 	}
 	policy.Version = iamPolicyVersion
+	if v, ok := d.GetOk("etag"); ok {
+		policy.Etag = v.(string)
+	}
 
 	err = updater.SetResourceIamPolicy(policy)
 	if err != nil {
