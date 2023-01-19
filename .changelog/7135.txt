@@ -1,0 +1,3 @@
+```release-note:deprecation
+cloudrunv2: deprecated `startup_probe` and `liveness_probe` fields from `google_cloud_run_v2_job` resource as they are not supported by the API and they will be removed in a future major release
+```
