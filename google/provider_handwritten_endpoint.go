@@ -138,6 +138,16 @@ var ContainerAzureCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[ContainerAzureBasePathKey]),
 }
 
+var TagsLocationCustomEndpointEntryKey = "tags_location_custom_endpoint"
+var TagsLocationCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_TAGS_LOCATION_CUSTOM_ENDPOINT",
+	}, DefaultBasePaths[TagsLocationBasePathKey]),
+}
+
 func validateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {
 	re := `.*/[^/]+/$`
 	return validateRegexp(re)(v, k)
