@@ -817,6 +817,7 @@ func Provider() *schema.Provider {
 			ServiceNetworkingCustomEndpointEntryKey: ServiceNetworkingCustomEndpointEntry,
 			ServiceUsageCustomEndpointEntryKey:      ServiceUsageCustomEndpointEntry,
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
+			TagsLocationCustomEndpointEntryKey:      TagsLocationCustomEndpointEntry,
 
 			// dcl
 			ContainerAwsCustomEndpointEntryKey:   ContainerAwsCustomEndpointEntry,
@@ -1467,6 +1468,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_default_object_acl":            resourceStorageDefaultObjectAcl(),
 			"google_storage_notification":                  resourceStorageNotification(),
 			"google_storage_transfer_job":                  resourceStorageTransferJob(),
+			"google_tags_location_tag_binding":             resourceTagsLocationTagBinding(),
 			// ####### END handwritten resources ###########
 		},
 		map[string]*schema.Resource{
@@ -1712,6 +1714,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
+	config.TagsLocationBasePath = d.Get(TagsLocationCustomEndpointEntryKey).(string)
 
 	// dcl
 	config.ContainerAwsBasePath = d.Get(ContainerAwsCustomEndpointEntryKey).(string)

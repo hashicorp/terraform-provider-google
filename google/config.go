@@ -264,6 +264,7 @@ type Config struct {
 	CloudIoTBasePath          string
 	ServiceNetworkingBasePath string
 	BigtableAdminBasePath     string
+	TagsLocationBasePath      string
 
 	// dcl
 	ContainerAwsBasePath   string
@@ -366,6 +367,7 @@ const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const BigtableAdminBasePathKey = "BigtableAdmin"
 const ContainerAwsBasePathKey = "ContainerAws"
 const ContainerAzureBasePathKey = "ContainerAzure"
+const TagsLocationBasePathKey = "TagsLocation"
 
 // Generated product base paths
 var DefaultBasePaths = map[string]string{
@@ -462,6 +464,7 @@ var DefaultBasePaths = map[string]string{
 	BigtableAdminBasePathKey:        "https://bigtableadmin.googleapis.com/v2/",
 	ContainerAwsBasePathKey:         "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 	ContainerAzureBasePathKey:       "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	TagsLocationBasePathKey:         "https://{{location}}-cloudresourcemanager.googleapis.com/v3/",
 }
 
 var DefaultClientScopes = []string{
@@ -1322,4 +1325,5 @@ func ConfigureBasePaths(c *Config) {
 	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
 	c.BigtableAdminBasePath = DefaultBasePaths[BigtableAdminBasePathKey]
+	c.TagsLocationBasePath = DefaultBasePaths[TagsLocationBasePathKey]
 }
