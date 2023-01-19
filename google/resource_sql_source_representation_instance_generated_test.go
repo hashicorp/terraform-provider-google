@@ -39,9 +39,10 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 				Config: testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasicExample(context),
 			},
 			{
-				ResourceName:      "google_sql_source_representation_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_sql_source_representation_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
 			},
 		},
 	})
@@ -50,11 +51,14 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 func testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_source_representation_instance" "instance" {
-  name             = "tf-test-my-instance%{random_suffix}"
-  region           = "us-central1"
-  database_version = "MYSQL_8_0"
-  host             = "10.20.30.40"
-  port             = 3306
+  name               = "tf-test-my-instance%{random_suffix}"
+  region             = "us-central1"
+  database_version   = "MYSQL_8_0"
+  host               = "10.20.30.40"
+  port               = 3306
+  username           = "some-user"
+  password           = "password-for-the-user"
+  dump_file_path     = "gs://replica-bucket/source-database.sql.gz"
 }
 `, context)
 }

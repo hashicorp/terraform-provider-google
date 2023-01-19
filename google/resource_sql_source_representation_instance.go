@@ -92,6 +92,7 @@ func resourceSQLSourceRepresentationInstance() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The password for the replication user account.`,
+				Sensitive:   true,
 			},
 			"port": {
 				Type:         schema.TypeInt,
@@ -416,7 +417,7 @@ func flattenSQLSourceRepresentationInstanceOnPremisesConfigurationUsername(v int
 }
 
 func flattenSQLSourceRepresentationInstanceOnPremisesConfigurationPassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	return d.Get("password")
 }
 
 func flattenSQLSourceRepresentationInstanceOnPremisesConfigurationDumpFilePath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
