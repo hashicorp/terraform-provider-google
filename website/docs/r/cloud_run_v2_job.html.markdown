@@ -182,43 +182,6 @@ resource "google_compute_network" "custom_test" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudrunv2_job_probes&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Cloudrunv2 Job Probes
-
-
-```hcl
-resource "google_cloud_run_v2_job" "default" {
-  name     = "cloudrun-job"
-  location = "us-central1"
-  launch_stage = "BETA"
-
-  template {
-    template{
-      containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
-        startup_probe {
-          initial_delay_seconds = 0
-          timeout_seconds = 1
-          period_seconds = 3
-          failure_threshold = 1
-          tcp_socket {
-            port = 8080
-          }
-        }
-        liveness_probe {
-          http_get {
-            path = "/"
-          }
-        }
-      }
-    }
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudrunv2_job_secret&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -399,13 +362,15 @@ The following arguments are supported:
   Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
 
 * `liveness_probe` -
-  (Optional)
+  (Optional, Deprecated)
   Periodic probe of container liveness. Container will be restarted if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+  This field is not supported in Cloud Run Job currently.
   Structure is [documented below](#nested_liveness_probe).
 
 * `startup_probe` -
-  (Optional)
+  (Optional, Deprecated)
   Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+  This field is not supported in Cloud Run Job currently.
   Structure is [documented below](#nested_startup_probe).
 
 
