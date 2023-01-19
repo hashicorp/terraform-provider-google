@@ -1,0 +1,4 @@
+```release-note:enhancement
+sql: added several fields to `google_sql_source_representation_instance` resource.
+
+```
