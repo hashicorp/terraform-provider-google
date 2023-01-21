@@ -243,6 +243,8 @@ The `settings` block supports:
 * `connector_enforcement` - (Optional) Specifies if connections must use Cloud SQL connectors.
 
 * `deletion_protection_enabled` - (Optional) Enables protection of an instance from accidental deletion protection across all surfaces (API, gcloud, Cloud Console and Terraform). Defaults to `false`.
+  
+  ~> **NOTE:** New is version 4.48.0.
 
 * `disk_autoresize` - (Optional) Enables auto-resizing of the storage size. Defaults to `true`.
 
