@@ -169,6 +169,15 @@ See https://cloud.google.com/bigquery/docs/locations for supported locations.`,
 																Description: `If supplied, every created dataset will have its name prefixed by the provided value.
 The prefix and name will be separated by an underscore. i.e. _.`,
 															},
+															"kms_key_name": {
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Description: `Describes the Cloud KMS encryption key that will be used to protect destination BigQuery
+table. The BigQuery Service Account associated with your project requires access to this
+encryption key. i.e. projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{cryptoKey}.
+See https://cloud.google.com/bigquery/docs/customer-managed-encryption for more information.`,
+															},
 														},
 													},
 												},
@@ -576,6 +585,13 @@ https://dev.mysql.com/doc/refman/8.0/en/data-types.html`,
 				},
 				ExactlyOneOf: []string{"backfill_all", "backfill_none"},
 			},
+			"customer_managed_encryption_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `A reference to a KMS encryption key. If provided, it will be used to encrypt the data. If left blank, data
+will be encrypted using an internal Stream-specific encryption key provisioned through KMS.`,
+			},
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -652,6 +668,12 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("backfill_none"); ok || !reflect.DeepEqual(v, backfillNoneProp) {
 		obj["backfillNone"] = backfillNoneProp
+	}
+	customerManagedEncryptionKeyProp, err := expandDatastreamStreamCustomerManagedEncryptionKey(d.Get("customer_managed_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("customer_managed_encryption_key"); !isEmptyValue(reflect.ValueOf(customerManagedEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, customerManagedEncryptionKeyProp)) {
+		obj["customerManagedEncryptionKey"] = customerManagedEncryptionKeyProp
 	}
 
 	obj, err = resourceDatastreamStreamEncoder(d, meta, obj)
@@ -785,6 +807,9 @@ func resourceDatastreamStreamRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Stream: %s", err)
 	}
 	if err := d.Set("backfill_none", flattenDatastreamStreamBackfillNone(res["backfillNone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err := d.Set("customer_managed_encryption_key", flattenDatastreamStreamCustomerManagedEncryptionKey(res["customerManagedEncryptionKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Stream: %s", err)
 	}
 
@@ -1501,6 +1526,8 @@ func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHier
 		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateLocation(original["location"], d, config)
 	transformed["dataset_id_prefix"] =
 		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateDatasetIdPrefix(original["datasetIdPrefix"], d, config)
+	transformed["kms_key_name"] =
+		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1508,6 +1535,10 @@ func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHier
 }
 
 func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateDatasetIdPrefix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1668,6 +1699,10 @@ func flattenDatastreamStreamBackfillNone(v interface{}, d *schema.ResourceData, 
 	}
 	transformed := make(map[string]interface{})
 	return []interface{}{transformed}
+}
+
+func flattenDatastreamStreamCustomerManagedEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func expandDatastreamStreamLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
@@ -2358,6 +2393,13 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHiera
 		transformed["datasetIdPrefix"] = transformedDatasetIdPrefix
 	}
 
+	transformedKmsKeyName, err := expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
 	return transformed, nil
 }
 
@@ -2366,6 +2408,10 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHiera
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateDatasetIdPrefix(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2583,6 +2629,10 @@ func expandDatastreamStreamBackfillNone(v interface{}, d TerraformResourceData, 
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func expandDatastreamStreamCustomerManagedEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceDatastreamStreamEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
