@@ -264,6 +264,11 @@ The following arguments are supported:
   Timeout (in seconds) for TCP transitory connections.
   Defaults to 30s if not set.
 
+* `tcp_time_wait_timeout_sec` -
+  (Optional)
+  Timeout (in seconds) for TCP connections that are in TIME_WAIT state.
+  Defaults to 120s if not set.
+
 * `log_config` -
   (Optional)
   Configuration for logging on NAT
