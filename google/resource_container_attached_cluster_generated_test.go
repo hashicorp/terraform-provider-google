@@ -144,6 +144,60 @@ resource "google_container_attached_cluster" "primary" {
 `, context)
 }
 
+func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerAttachedClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample(context),
+			},
+			{
+				ResourceName:            "google_container_attached_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "deletion_policy"},
+			},
+		},
+	})
+}
+
+func testAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_project" "project" {
+}
+
+data "google_container_attached_versions" "versions" {
+	location       = "us-west1"
+	project        = data.google_project.project.project_id
+}
+
+resource "google_container_attached_cluster" "primary" {
+  name     = "basic%{random_suffix}"
+  location = "us-west1"
+  project = data.google_project.project.project_id
+  description = "Test cluster"
+  distribution = "aks"
+  oidc_config {
+      issuer_url = "https://oidc.issuer.url"
+  }
+  platform_version = data.google_container_attached_versions.versions.valid_versions[0]
+  fleet {
+    project = "projects/${data.google_project.project.number}"
+  }
+
+  deletion_policy = "DELETE_IGNORE_ERRORS"
+}
+`, context)
+}
+
 func testAccCheckContainerAttachedClusterDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

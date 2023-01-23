@@ -308,6 +308,12 @@ the Workload Identity Pool.`,
 					},
 				},
 			},
+			"deletion_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "DELETE",
+				Description: `Policy to determine what flags to send on delete.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -478,6 +484,12 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 		return handleNotFoundError(err, d, fmt.Sprintf("ContainerAttachedCluster %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -722,6 +734,14 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 	}
 
 	var obj map[string]interface{}
+	if v, ok := d.GetOk("deletion_policy"); ok {
+		if v == "DELETE_IGNORE_ERRORS" {
+			url, err = addQueryParams(url, map[string]string{"ignore_errors": "true"})
+			if err != nil {
+				return err
+			}
+		}
+	}
 	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -762,6 +782,11 @@ func resourceContainerAttachedClusterImport(d *schema.ResourceData, meta interfa
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DELETE"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
