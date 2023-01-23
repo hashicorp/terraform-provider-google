@@ -111,6 +111,40 @@ resource "google_container_attached_cluster" "primary" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=container_attached_cluster_ignore_errors&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Container Attached Cluster Ignore Errors
+
+
+```hcl
+data "google_project" "project" {
+}
+
+data "google_container_attached_versions" "versions" {
+	location       = "us-west1"
+	project        = data.google_project.project.project_id
+}
+
+resource "google_container_attached_cluster" "primary" {
+  name     = "basic"
+  location = "us-west1"
+  project = data.google_project.project.project_id
+  description = "Test cluster"
+  distribution = "aks"
+  oidc_config {
+      issuer_url = "https://oidc.issuer.url"
+  }
+  platform_version = data.google_container_attached_versions.versions.valid_versions[0]
+  fleet {
+    project = "projects/${data.google_project.project.number}"
+  }
+
+  deletion_policy = "DELETE_IGNORE_ERRORS"
+}
+```
 
 ## Argument Reference
 
@@ -209,6 +243,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `deletion_policy` - (Optional) Policy to determine what flags to send on delete.
 
 <a name="nested_logging_config"></a>The `logging_config` block supports:
 
