@@ -48,6 +48,10 @@ resource "google_project" "default" {
   project_id = "tf-test%{random_suffix}"
   name       = "tf-test%{random_suffix}"
   org_id     = "123456789"
+
+  labels = {
+    "firebase" = "enabled"
+  }
 }
 
 resource "google_firebase_project" "default" {

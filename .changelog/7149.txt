@@ -1,0 +1,3 @@
+```release-note:bug
+google_project: fixes misleading examples that could cause `firebase:enabled` label to be accidentally removed.
+```
