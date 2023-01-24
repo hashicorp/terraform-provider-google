@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
@@ -170,6 +171,23 @@ func bigQueryTableSchemaDiffSuppress(name, old, new string, _ *schema.ResourceDa
 	}
 
 	return eq
+}
+
+func bigQueryTableConnectionIdSuppress(name, old, new string, _ *schema.ResourceData) bool {
+	// API accepts connectionId in below two formats
+	// "{{project}}.{{location}}.{{connection_id}}" or
+	// "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".
+	// but always returns "{{project}}.{{location}}.{{connection_id}}"
+
+	if isEmptyValue(reflect.ValueOf(old)) || isEmptyValue(reflect.ValueOf(new)) {
+		return false
+	}
+
+	re := regexp.MustCompile("projects/(.+)/(?:locations|regions)/(.+)/connections/(.+)")
+	if matches := re.FindStringSubmatch(new); matches != nil {
+		return old == matches[1]+"."+matches[2]+"."+matches[3]
+	}
+	return false
 }
 
 func bigQueryTableTypeEq(old, new string) bool {
@@ -627,9 +645,10 @@ func resourceBigQueryTable() *schema.Resource {
 						// "{{project}}.{{location}}.{{connection_id}}" or
 						// "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".
 						"connection_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connectionId can have the form "{{project}}.{{location}}.{{connection_id}}" or "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: bigQueryTableConnectionIdSuppress,
+							Description:      `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connectionId can have the form "{{project}}.{{location}}.{{connection_id}}" or "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".`,
 						},
 						"reference_file_schema_uri": {
 							Type:        schema.TypeString,
