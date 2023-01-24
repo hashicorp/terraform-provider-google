@@ -220,6 +220,7 @@ type Config struct {
 	GKEBackupBasePath            string
 	GKEHubBasePath               string
 	HealthcareBasePath           string
+	IAM2BasePath                 string
 	IAMBetaBasePath              string
 	IAMWorkforcePoolBasePath     string
 	IapBasePath                  string
@@ -323,6 +324,7 @@ const GameServicesBasePathKey = "GameServices"
 const GKEBackupBasePathKey = "GKEBackup"
 const GKEHubBasePathKey = "GKEHub"
 const HealthcareBasePathKey = "Healthcare"
+const IAM2BasePathKey = "IAM2"
 const IAMBetaBasePathKey = "IAMBeta"
 const IAMWorkforcePoolBasePathKey = "IAMWorkforcePool"
 const IapBasePathKey = "Iap"
@@ -420,6 +422,7 @@ var DefaultBasePaths = map[string]string{
 	GKEBackupBasePathKey:            "https://gkebackup.googleapis.com/v1/",
 	GKEHubBasePathKey:               "https://gkehub.googleapis.com/v1/",
 	HealthcareBasePathKey:           "https://healthcare.googleapis.com/v1/",
+	IAM2BasePathKey:                 "https://iam.googleapis.com/v2/",
 	IAMBetaBasePathKey:              "https://iam.googleapis.com/v1/",
 	IAMWorkforcePoolBasePathKey:     "https://iam.googleapis.com/v1/",
 	IapBasePathKey:                  "https://iap.googleapis.com/v1/",
@@ -1279,6 +1282,7 @@ func ConfigureBasePaths(c *Config) {
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
 	c.GKEHubBasePath = DefaultBasePaths[GKEHubBasePathKey]
 	c.HealthcareBasePath = DefaultBasePaths[HealthcareBasePathKey]
+	c.IAM2BasePath = DefaultBasePaths[IAM2BasePathKey]
 	c.IAMBetaBasePath = DefaultBasePaths[IAMBetaBasePathKey]
 	c.IAMWorkforcePoolBasePath = DefaultBasePaths[IAMWorkforcePoolBasePathKey]
 	c.IapBasePath = DefaultBasePaths[IapBasePathKey]
