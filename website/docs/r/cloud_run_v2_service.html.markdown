@@ -510,12 +510,12 @@ The following arguments are supported:
 
 * `http_get` -
   (Optional)
-  HTTPGet specifies the http request to perform. Exactly one of HTTPGet or TCPSocket must be specified.
+  HTTPGet specifies the http request to perform.
   Structure is [documented below](#nested_http_get).
 
 * `tcp_socket` -
-  (Optional)
-  TCPSocket specifies an action involving a TCP port. Exactly one of HTTPGet or TCPSocket must be specified.
+  (Optional, Deprecated)
+  TCPSocket specifies an action involving a TCP port. This field is not supported in liveness probe currently.
   Structure is [documented below](#nested_tcp_socket).
 
 
