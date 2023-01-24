@@ -19,7 +19,7 @@ doc for more information.
 
 ~> This resource reads the specified billing account on every terraform apply and plan operation so you must have permissions on the specified billing account.
 
-~> It is recommended to use the `constraints/compute.skipDefaultNetworkCreation` [constraint](/docs/providers/google/r/google_organization_policy.html) to remove the default network instead of setting `auto_create_network` to false.
+~> It is recommended to use the `constraints/compute.skipDefaultNetworkCreation` [constraint](/docs/providers/google/r/google_organization_policy.html) to remove the default network instead of setting `auto_create_network` to false, when possible.
 
 To get more information about projects, see:
 
@@ -84,10 +84,12 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the project.
 
-* `auto_create_network` - (Optional) Create the 'default' network automatically.  Default `true`.
-    If set to `false`, the default network will be deleted.  Note that, for quota purposes, you
-    will still need to have 1 network slot available to create the project successfully, even if
-    you set `auto_create_network` to `false`, since the network will exist momentarily.
+* `auto_create_network` - (Optional) Controls whether the 'default' network exists on the project. Defaults
+    to `true`, where it is created. If set to `false`, the default network will still be created by GCP but
+    will be deleted immediately by Terraform. Therefore, for quota purposes, you will still need to have 1 
+    network slot available to create the project successfully, even if you set `auto_create_network` to
+    `false`. Note that when `false`, Terraform enables `compute.googleapis.com` on the project to interact
+    with the GCE API and currently leaves it enabled.
 
 ## Attributes Reference
 
