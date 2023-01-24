@@ -437,13 +437,21 @@ The following arguments are supported:
 
 * `save_findings` -
   (Optional)
-  Schedule for triggered jobs
+  If set, the detailed findings will be persisted to the specified OutputStorageConfig. Only a single instance of this action can be specified. Compatible with: Inspect, Risk
   Structure is [documented below](#nested_save_findings).
 
 * `pub_sub` -
   (Optional)
   Publish a message into a given Pub/Sub topic when the job completes.
   Structure is [documented below](#nested_pub_sub).
+
+* `publish_summary_to_cscc` -
+  (Optional)
+  Publish the result summary of a DlpJob to the Cloud Security Command Center.
+
+* `publish_findings_to_cloud_data_catalog` -
+  (Optional)
+  Publish findings of a DlpJob to Data Catalog.
 
 
 <a name="nested_save_findings"></a>The `save_findings` block supports:

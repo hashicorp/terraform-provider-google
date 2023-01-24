@@ -118,10 +118,30 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 										},
 										ExactlyOneOf: []string{},
 									},
+									"publish_findings_to_cloud_data_catalog": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Publish findings of a DlpJob to Data Catalog.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"publish_summary_to_cscc": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Publish the result summary of a DlpJob to the Cloud Security Command Center.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
 									"save_findings": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Schedule for triggered jobs`,
+										Description: `If set, the detailed findings will be persisted to the specified OutputStorageConfig. Only a single instance of this action can be specified. Compatible with: Inspect, Risk`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -1235,8 +1255,10 @@ func flattenDataLossPreventionJobTriggerInspectJobActions(v interface{}, d *sche
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"save_findings": flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindings(original["saveFindings"], d, config),
-			"pub_sub":       flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pubSub"], d, config),
+			"save_findings":                          flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindings(original["saveFindings"], d, config),
+			"pub_sub":                                flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pubSub"], d, config),
+			"publish_summary_to_cscc":                flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(original["publishSummaryToCscc"], d, config),
+			"publish_findings_to_cloud_data_catalog": flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publishFindingsToCloudDataCatalog"], d, config),
 		})
 	}
 	return transformed
@@ -1317,6 +1339,22 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(v interface{}, d
 }
 func flattenDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func expandDataLossPreventionJobTriggerDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1914,6 +1952,20 @@ func expandDataLossPreventionJobTriggerInspectJobActions(v interface{}, d Terraf
 			transformed["pubSub"] = transformedPubSub
 		}
 
+		transformedPublishSummaryToCscc, err := expandDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(original["publish_summary_to_cscc"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["publishSummaryToCscc"] = transformedPublishSummaryToCscc
+		}
+
+		transformedPublishFindingsToCloudDataCatalog, err := expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publish_findings_to_cloud_data_catalog"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["publishFindingsToCloudDataCatalog"] = transformedPublishFindingsToCloudDataCatalog
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2034,6 +2086,36 @@ func expandDataLossPreventionJobTriggerInspectJobActionsPubSub(v interface{}, d 
 
 func expandDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func resourceDataLossPreventionJobTriggerEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

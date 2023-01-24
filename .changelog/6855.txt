@@ -1,0 +1,3 @@
+```release-note:enhancement 
+dlp: added `publish_findings_to_cloud_data_catalog` and `publish_summary_to_cscc` to `google_data_loss_prevention_job_trigger` resource
+```
