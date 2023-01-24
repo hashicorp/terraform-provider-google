@@ -110,7 +110,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
 			privateNetworkCustomizeDiff,
-			pitrPostgresOnlyCustomizeDiff,
+			pitrSupportDbCustomizeDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -885,15 +885,26 @@ func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta
 	return nil
 }
 
+// helper function to see if string within list contains a particular substring
+func stringContainsSlice(arr []string, str string) bool {
+	for _, i := range arr {
+		if strings.Contains(str, i) {
+			return true
+		}
+	}
+	return false
+}
+
 // Point in time recovery for MySQL database instances needs binary_log_enabled set to true and
 // not point_in_time_recovery_enabled, which is confusing to users. This checks for
-// point_in_time_recovery_enabled being set to a non-PostgreSQL database instance and suggests
+// point_in_time_recovery_enabled being set to a non-PostgreSQL and non-SQLServer database instances and suggests
 // binary_log_enabled.
-func pitrPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+func pitrSupportDbCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	pitr := diff.Get("settings.0.backup_configuration.0.point_in_time_recovery_enabled").(bool)
 	dbVersion := diff.Get("database_version").(string)
-	if pitr && (!strings.Contains(dbVersion, "POSTGRES") && !strings.Contains(dbVersion, "SQLSERVER")) {
-		return fmt.Errorf("point_in_time_recovery_enabled is only available for Postgres and SQL Server. You may want to consider using binary_log_enabled instead.")
+	dbVersionPitrValid := []string{"POSTGRES", "SQLSERVER"}
+	if pitr && !stringContainsSlice(dbVersionPitrValid, dbVersion) {
+		return fmt.Errorf("point_in_time_recovery_enabled is only available for the following %v. You may want to consider using binary_log_enabled instead and remove point_in_time_recovery_enabled (removing point_in_time_recovery_enabled and adding binary_log_enabled will enable pitr for MYSQL)", dbVersionPitrValid)
 	}
 	return nil
 }
