@@ -1,0 +1,3 @@
+```release-note:bug
+gke: fixed the error of Invalid address to set on `config_connector_config` of the data source `google_container_cluster`
+```
