@@ -153,7 +153,7 @@ func resourceCloudRunV2Service() *schema.Resource {
 												"http_get": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													Description: `HTTPGet specifies the http request to perform. Exactly one of HTTPGet or TCPSocket must be specified.`,
+													Description: `HTTPGet specifies the http request to perform.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -201,7 +201,8 @@ func resourceCloudRunV2Service() *schema.Resource {
 												"tcp_socket": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													Description: `TCPSocket specifies an action involving a TCP port. Exactly one of HTTPGet or TCPSocket must be specified.`,
+													Deprecated:  "Cloud Run does not support tcp socket in liveness probe and `liveness_probe.tcp_socket` field will be removed in a future major release.",
+													Description: `TCPSocket specifies an action involving a TCP port. This field is not supported in liveness probe currently.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
