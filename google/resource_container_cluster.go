@@ -69,6 +69,7 @@ var (
 		"addons_config.0.dns_cache_config",
 		"addons_config.0.gce_persistent_disk_csi_driver_config",
 		"addons_config.0.gke_backup_agent_config",
+		"addons_config.0.config_connector_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -375,6 +376,22 @@ func resourceContainerCluster() *schema.Resource {
 							AtLeastOneOf: addonsConfigKeys,
 							MaxItems:     1,
 							Description:  `The status of the Backup for GKE Agent addon. It is disabled by default. Set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"config_connector_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The of the Config Connector addon.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
