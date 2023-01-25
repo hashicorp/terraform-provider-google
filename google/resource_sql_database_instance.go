@@ -608,7 +608,6 @@ is set to true. Defaults to ZONAL.`,
 			"root_password": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Sensitive:   true,
 				Description: `Initial root password. Required for MS SQL Server.`,
 			},
@@ -1518,6 +1517,67 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		err = resourceSqlDatabaseInstanceRead(d, meta)
 		if err != nil {
 			return err
+		}
+	}
+
+	// Check if the root_password is being updated, because updating root_password is an atomic operation and can not be
+	// performed with other fields, we first update root password before updating the rest of the fields.
+	if d.HasChange("root_password") {
+		oldPwd, newPwd := d.GetChange("root_password")
+		password := newPwd.(string)
+		dv := d.Get("database_version").(string)
+		name := ""
+		host := ""
+		if strings.Contains(dv, "MYSQL") {
+			name = "root"
+			host = "%"
+		} else if strings.Contains(dv, "POSTGRES") {
+			name = "postgres"
+		} else if strings.Contains(dv, "SQLSERVER") {
+			name = "sqlserver"
+			if len(password) == 0 {
+				if err := d.Set("root_password", oldPwd.(string)); err != nil {
+					return fmt.Errorf("Error re-setting root_password: %s", err)
+				}
+				return fmt.Errorf("Error, root password cannot be empty for SQL Server instance.")
+			}
+		} else {
+			if err := d.Set("root_password", oldPwd.(string)); err != nil {
+				return fmt.Errorf("Error re-setting root_password: %s", err)
+			}
+			return fmt.Errorf("Error, invalid database version")
+		}
+		instance := d.Get("name").(string)
+
+		user := &sqladmin.User{
+			Name:     name,
+			Instance: instance,
+			Password: password,
+		}
+
+		mutexKV.Lock(instanceMutexKey(project, instance))
+		defer mutexKV.Unlock(instanceMutexKey(project, instance))
+		var op *sqladmin.Operation
+		updateFunc := func() error {
+			op, err = config.NewSqlAdminClient(userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
+			return err
+		}
+		err = retryTimeDuration(updateFunc, d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			if err := d.Set("root_password", oldPwd.(string)); err != nil {
+				return fmt.Errorf("Error re-setting root_password: %s", err)
+			}
+			return fmt.Errorf("Error, failed to update root_password : %s", err)
+		}
+
+		err = sqlAdminOperationWaitTime(config, op, project, "Insert User", userAgent, d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			if err := d.Set("root_password", oldPwd.(string)); err != nil {
+				return fmt.Errorf("Error re-setting root_password: %s", err)
+			}
+			return fmt.Errorf("Error, failed to update root_password : %s", err)
 		}
 	}
 
