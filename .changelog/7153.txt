@@ -1,0 +1,3 @@
+```release-note:bug
+GCF: modify max_instances field to take API's result as default value
+```

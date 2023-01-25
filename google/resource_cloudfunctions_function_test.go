@@ -304,6 +304,10 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 			{
 				Config: testAccCloudFunctionsFunction_pubsub(functionName, bucketName,
 					topicName, zipFilePath),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(funcResourceName,
+						"max_instances", "3000"),
+				),
 			},
 			{
 				ResourceName:            funcResourceName,

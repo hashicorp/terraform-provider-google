@@ -54,7 +54,7 @@ exported:
 * `service_account_email` - The service account email to be assumed by the cloud function.
 * `vpc_connector` - The VPC Network Connector that this cloud function can connect to. 
 * `vpc_connector_egress_settings` - The egress settings for the connector, controlling what traffic is diverted through it.
-* `max_instances` - The limit on the maximum number of function instances that may coexist at a given time.
+* `max_instances` - The limit on the maximum number of function instances that may coexist at a given time. If unset or set to `0`, the API default will be used. 
 * `source_repository` - The URL of the Cloud Source Repository that the function is deployed from. Structure is [documented below](#nested_source_repository).
 
 <a name="nested_event_trigger"></a>The `event_trigger` block contains:
