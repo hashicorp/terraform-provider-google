@@ -376,7 +376,7 @@ The following arguments are supported:
   for any GCP resources created under the Cloud Composer Environment.
 
 * `tags` -
-  (Optional, Cloud Composer 1 only)
+  (Optional)
   The list of instance tags applied to all node VMs. Tags are
   used to identify valid sources or targets for network
   firewalls. Each tag within the list must comply with RFC1035.

@@ -260,7 +260,7 @@ func resourceComposerEnvironment() *schema.Resource {
 											Type: schema.TypeString,
 										},
 										Set:         schema.HashString,
-										Description: `The list of instance tags applied to all node VMs. Tags are used to identify valid sources or targets for network firewalls. Each tag within the list must comply with RFC1035. Cannot be updated. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.`,
+										Description: `The list of instance tags applied to all node VMs. Tags are used to identify valid sources or targets for network firewalls. Each tag within the list must comply with RFC1035. Cannot be updated.`,
 									},
 									"ip_allocation_policy": {
 										Type:        schema.TypeList,
