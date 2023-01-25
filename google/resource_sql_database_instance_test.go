@@ -1468,6 +1468,46 @@ func TestAccSqlDatabaseInstance_updateReadReplicaWithBinaryLogEnabled(t *testing
 	})
 }
 
+func TestAccSqlDatabaseInstance_rootPasswordShouldBeUpdatable(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + randString(t, 10)
+	rootPwd := "rootPassword-1-" + randString(t, 10)
+	newRootPwd := "rootPassword-2-" + randString(t, 10)
+	databaseVersion := "SQLSERVER_2017_STANDARD"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_updateRootPassword(databaseName, databaseVersion, rootPwd),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.main",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_updateRootPassword(databaseName, databaseVersion, newRootPwd),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.main",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_updateRootPassword(databaseName, databaseVersion, ""),
+				ExpectError: regexp.MustCompile(
+					`Error, root password cannot be empty for SQL Server instance.`),
+			},
+		},
+	})
+}
+
 func testAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_database_instance" "mysql_pvp_instance_name" {
@@ -2895,4 +2935,18 @@ resource "google_sql_database_instance" "replica" {
     }
   }
 }`, instance, instance)
+}
+
+func testGoogleSqlDatabaseInstance_updateRootPassword(instance, databaseVersion, rootPassword string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "main" {
+    name             = "%s"
+	database_version = "%s"
+	region           = "us-central1"
+	deletion_protection = false
+	root_password = "%s"
+	settings {
+		tier = "db-custom-2-13312"
+	}
+}`, instance, databaseVersion, rootPassword)
 }
