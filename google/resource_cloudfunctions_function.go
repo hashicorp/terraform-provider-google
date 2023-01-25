@@ -320,7 +320,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"max_instances": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      0,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  `The limit on the maximum number of function instances that may coexist at a given time.`,
 			},
