@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_service_account_id_token"
 description: |-
   Produces OpenID Connect token for service accounts
 ---

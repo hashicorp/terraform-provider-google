@@ -1,6 +1,5 @@
 ---
 subcategory: "Container Registry"
-page_title: "Google: google_container_registry_image"
 description: |-
   Get URLs for a given project's container registry image.
 ---

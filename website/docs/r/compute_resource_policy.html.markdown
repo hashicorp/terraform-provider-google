@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_resource_policy"
 description: |-
   A policy that can be attached to a resource to specify or schedule actions on that resource.
 ---
@@ -388,7 +387,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.

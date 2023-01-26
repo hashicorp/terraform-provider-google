@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_iam_testable_permissions"
 description: |-
   Retrieve a list of testable permissions for a resource. Testable permissions mean the permissions that user can add or remove in a role at a given resource. The resource can be referenced either via the full resource name or via a URI.
 ---

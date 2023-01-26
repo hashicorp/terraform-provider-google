@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_attached_disk"
 description: |-
   Resource that allows attaching existing persistent disks to compute instances.
 ---
@@ -111,7 +110,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - Default is 5 minutes.
 - `delete` - Default is 5 minutes.

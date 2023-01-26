@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Bigquery Analytics Hub"
-page_title: "Google: google_bigquery_analytics_hub_listing"
 description: |-
   A Bigquery Analytics Hub data exchange listing
 ---
@@ -172,7 +171,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

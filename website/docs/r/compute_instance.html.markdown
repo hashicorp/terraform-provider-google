@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_instance"
 description: |-
   Manages a VM instance resource within GCE.
 ---
@@ -496,7 +495,7 @@ The field is output only, an IPv6 address from a subnetwork associated with the 
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

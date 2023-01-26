@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_health_check"
 description: |-
   Get information about a HealthCheck.
 ---

@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Key Management Service"
-page_title: "Google: google_kms_secret"
 description: |-
   Provides access to secret data encrypted with Google Cloud KMS
 ---

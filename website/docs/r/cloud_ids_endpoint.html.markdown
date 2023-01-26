@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Intrusion Detection Service"
-page_title: "Google: google_cloud_ids_endpoint"
 description: |-
   Cloud IDS is an intrusion detection service that provides threat detection for intrusions, malware, spyware, and command-and-control attacks on your network.
 ---
@@ -116,7 +115,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

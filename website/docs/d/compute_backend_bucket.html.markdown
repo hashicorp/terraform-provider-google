@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_backend_bucket"
 description: |-
   Get information about a BackendBucket.
 ---

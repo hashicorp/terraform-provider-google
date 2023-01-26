@@ -1,6 +1,5 @@
 ---
 subcategory: "Artifact Registry Repository"
-page_title: "Google: google_artifact_registry_repository"
 description: |-
   Get information about a Google Artifact Registry Repository.
 ---

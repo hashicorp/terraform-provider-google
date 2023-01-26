@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Backup for GKE"
-page_title: "Google: google_gke_backup_backup_plan_iam"
 description: |-
   Collection of resources to manage IAM policy for Backup for GKE BackupPlan
 ---

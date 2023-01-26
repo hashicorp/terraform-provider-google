@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud SQL"
-page_title: "Google: google_sql_database_instances"
 description: |-
   Get a list of SQL database instances in a project in Google Cloud SQL.
 ---

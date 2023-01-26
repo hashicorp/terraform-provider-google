@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Functions (2nd gen)"
-page_title: "Google: google_cloudfunctions2_function_iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Functions (2nd gen) function
 ---

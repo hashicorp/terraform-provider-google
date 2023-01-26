@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_project_metadata_item"
 description: |-
   Manages a single key/value pair on common instance metadata
 ---
@@ -51,7 +50,7 @@ $ terraform import google_compute_project_metadata_item.default my_metadata
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - Default is 5 minutes.
 - `update` - Default is 5 minutes.

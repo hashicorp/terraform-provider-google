@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_active_folder"
 description: |-
   Get a folder within GCP.
 ---

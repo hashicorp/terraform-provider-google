@@ -1,6 +1,5 @@
 ---
 subcategory: "Storage Transfer Service"
-page_title: "Google: google_storage_transfer_project_service_account"
 description: |-
   Retrieve default service account used by Storage Transfer Jobs running in this project
 ---

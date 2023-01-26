@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Secret Manager"
-page_title: "Google: google_secret_manager_secret"
 description: |-
   A Secret is a logical secret whose value and versions can be accessed.
 ---
@@ -184,7 +183,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

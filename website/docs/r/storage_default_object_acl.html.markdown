@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Storage"
-page_title: "Google: google_storage_default_object_acl"
 description: |-
   Authoritatively manages the default object ACLs for a Google Cloud Storage bucket
 ---

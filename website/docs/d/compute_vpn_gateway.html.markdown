@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_vpn_gateway"
 description: |-
   Get a VPN gateway within GCE.
 ---

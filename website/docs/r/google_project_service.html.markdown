@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_project_service"
 description: |-
  Allows management of a single API service for a Google Cloud Platform project.
 ---
@@ -66,7 +65,7 @@ exported:
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - Default is 20 minutes.
 - `read`   - Default is 10 minutes.

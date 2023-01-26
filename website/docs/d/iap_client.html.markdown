@@ -1,6 +1,5 @@
 ---
 subcategory: "Identity-Aware Proxy"
-page_title: "Google: google_iap_client"
 description: |-
   Contains the data that describes an Identity Aware Proxy owned client.
 ---

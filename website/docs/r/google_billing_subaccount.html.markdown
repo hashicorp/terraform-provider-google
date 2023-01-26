@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_billing_subaccount"
 description: |-
  Allows management of a Google Cloud Billing Subaccount.
 ---

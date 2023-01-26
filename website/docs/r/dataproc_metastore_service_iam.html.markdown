@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Dataproc metastore"
-page_title: "Google: google_dataproc_metastore_service_iam"
 description: |-
   Collection of resources to manage IAM policy for Dataproc metastore Service
 ---

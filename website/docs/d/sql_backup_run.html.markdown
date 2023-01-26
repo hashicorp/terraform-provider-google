@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud SQL"
-page_title: "Google: google_sql_backup_run"
 description: |-
   Get a  SQL backup run in Google Cloud SQL.
 ---

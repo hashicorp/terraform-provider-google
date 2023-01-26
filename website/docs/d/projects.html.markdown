@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_projects"
 description: |-
   Retrieve a set of projects based on a filter.
 ---

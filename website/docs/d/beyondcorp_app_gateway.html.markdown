@@ -1,6 +1,5 @@
 ---
 subcategory: "BeyondCorp"
-page_title: "Google: google_beyondcorp_app_gateway"
 description: |-
   Get information about a Google BeyondCorp App Gateway.
 ---

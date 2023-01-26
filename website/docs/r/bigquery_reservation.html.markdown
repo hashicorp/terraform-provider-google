@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery Reservation"
-page_title: "Google: google_bigquery_reservation"
 description: |-
   A reservation is a mechanism used to guarantee BigQuery slots to users.
 ---
@@ -101,7 +100,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_router_nat"
 description: |-
   Get information about a Google Compute Router NAT.
 ---

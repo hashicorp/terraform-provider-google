@@ -1,6 +1,5 @@
 ---
 subcategory: "Kubernetes (Container) Engine"
-page_title: "Google: google_container_cluster"
 description: |-
   Creates a Google Kubernetes Engine (GKE) cluster.
 ---
@@ -1183,7 +1182,7 @@ exported:
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - Default is 40 minutes.
 - `read`   - Default is 40 minutes.

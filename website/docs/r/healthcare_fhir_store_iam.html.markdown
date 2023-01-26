@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Healthcare"
-page_title: "Google: google_healthcare_fhir_store_iam"
 description: |-
  Collection of resources to manage IAM policy for a Google Cloud Healthcare FHIR store.
 ---

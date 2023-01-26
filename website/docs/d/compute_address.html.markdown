@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_address"
 description: |-
   Get the IP address from a static address.
 ---

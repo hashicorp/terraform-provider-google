@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_network_peering"
 description: |-
   Get information of a specified compute network peering.
 ---
@@ -57,6 +56,6 @@ See [google_compute_network_peering](https://registry.terraform.io/providers/has
 ## Timeouts
 
 This datasource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `read` - Default is 4 minutes.

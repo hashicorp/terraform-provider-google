@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_router_status"
 description: |-
   Get a Cloud Router's Status.
 ---

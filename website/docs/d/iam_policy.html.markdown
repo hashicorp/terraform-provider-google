@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_iam_policy"
 description: |-
   Generates an IAM policy that can be referenced by other resources, applying
   the policy to them.

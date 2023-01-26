@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Storage"
-page_title: "Google: google_storage_notification"
 description: |-
   Creates a new notification configuration on a specified bucket.
 ---

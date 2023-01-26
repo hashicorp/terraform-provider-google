@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-page_title: "Google: google_logging_project_sink"
 description: |-
   Manages a project-level logging sink.
 ---

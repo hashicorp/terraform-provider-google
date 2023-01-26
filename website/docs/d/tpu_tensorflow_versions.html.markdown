@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud TPU"
-page_title: "Google: google_tpu_tensorflow_versions"
 description: |-
   Get available TensorFlow versions.
 ---

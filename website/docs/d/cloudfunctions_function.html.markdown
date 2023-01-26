@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Google: google_cloudfunctions_function"
 description: |-
   Get information about a Google Cloud Function.
 ---

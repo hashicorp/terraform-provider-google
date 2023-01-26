@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_instance_group"
 description: |-
   Get a Compute Instance Group within GCE.
 ---

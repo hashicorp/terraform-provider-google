@@ -1,6 +1,5 @@
 ---
 subcategory: "Tags"
-page_title: "Google: google_tags_tag_key"
 description: |-
   Get a tag key within a GCP organization.
 ---

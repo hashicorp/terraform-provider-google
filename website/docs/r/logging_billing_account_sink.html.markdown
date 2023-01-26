@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-page_title: "Google: google_logging_billing_account_sink"
 description: |-
   Manages a billing account logging sink.
 ---

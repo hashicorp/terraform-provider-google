@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Composer"
-page_title: "Google: google_composer_environment"
 description: |-
   Provides Cloud Composer environment configuration data.
 ---

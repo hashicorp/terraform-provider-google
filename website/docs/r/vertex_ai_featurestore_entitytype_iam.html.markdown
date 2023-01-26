@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Vertex AI"
-page_title: "Google: google_vertex_ai_featurestore_entitytype_iam"
 description: |-
   Collection of resources to manage IAM policy for Vertex AI FeaturestoreEntitytype
 ---

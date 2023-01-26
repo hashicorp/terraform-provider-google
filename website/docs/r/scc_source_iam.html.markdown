@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Security Command Center (SCC)"
-page_title: "Google: google_scc_source_iam"
 description: |-
   Collection of resources to manage IAM policy for Security Command Center (SCC) Source
 ---

@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_folders"
 description: |-
   Retrieve a set of folders based on a parent ID.
 ---

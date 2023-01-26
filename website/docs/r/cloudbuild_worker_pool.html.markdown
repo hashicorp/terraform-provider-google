@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Build"
-page_title: "Google: google_cloudbuild_worker_pool"
 description: |-
   Configuration for custom WorkerPool to run builds
 ---
@@ -137,7 +136,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

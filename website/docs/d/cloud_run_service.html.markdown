@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Run"
-page_title: "Google: google_cloud_run_service"
 description: |-
   Get information about a Google Cloud Run Service.
 ---

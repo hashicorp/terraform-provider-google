@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
-page_title: "Google: google_access_context_manager_access_policy_iam"
 description: |-
   Collection of resources to manage IAM policy for Access Context Manager (VPC Service Controls) AccessPolicy
 ---

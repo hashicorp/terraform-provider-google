@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Composer"
-page_title: "Google: google_composer_image_versions"
 description: |-
   Provides available Cloud Composer versions.
 ---

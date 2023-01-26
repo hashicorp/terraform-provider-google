@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "App Engine"
-page_title: "Google: google_app_engine_standard_app_version"
 description: |-
   Standard App Version resource to create a new version of standard GAE Application.
 ---
@@ -457,7 +456,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

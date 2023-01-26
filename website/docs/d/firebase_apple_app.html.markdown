@@ -1,6 +1,5 @@
 ---
 subcategory: "Firebase"
-page_title: "Google: google_firebase_apple_app"
 description: |-
   A Google Cloud Firebase Apple application instance
 ---

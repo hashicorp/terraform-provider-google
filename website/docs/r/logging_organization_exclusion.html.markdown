@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-page_title: "Google: google_logging_organization_exclusion"
 description: |-
   Manages a organization-level logging exclusion.
 ---

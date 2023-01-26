@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Data catalog"
-page_title: "Google: google_data_catalog_tag_template_iam"
 description: |-
   Collection of resources to manage IAM policy for Data catalog TagTemplate
 ---

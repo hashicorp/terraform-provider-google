@@ -1,6 +1,5 @@
 ---
 subcategory: "Firebase"
-page_title: "Google: google_firebase_android_app"
 description: |-
   A Google Cloud Firebase Android application instance
 ---

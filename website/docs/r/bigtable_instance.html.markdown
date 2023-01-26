@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Bigtable"
-page_title: "Google: google_bigtable_instance"
 description: |-
   Creates a Google Bigtable instance.
 ---

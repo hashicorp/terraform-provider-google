@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_project_service"
 description: |-
  Verify the API service for the Google Cloud Platform project to see if it is enabled or not.
 ---

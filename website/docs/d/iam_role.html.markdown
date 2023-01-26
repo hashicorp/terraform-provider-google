@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_iam_role"
 description: |-
   Get information about a Google IAM Role.
 ---

@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_network"
 description: |-
   Get a network within GCE.
 ---

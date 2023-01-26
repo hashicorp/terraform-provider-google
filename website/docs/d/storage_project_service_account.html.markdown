@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Storage"
-page_title: "Google: google_storage_project_service_account"
 description: |-
   Get the email address of the project's Google Cloud Storage service account
 ---

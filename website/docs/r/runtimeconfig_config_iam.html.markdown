@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Runtime Configurator"
-page_title: "Google: google_runtimeconfig_config_iam"
 description: |-
   Collection of resources to manage IAM policy for Runtime Configurator Config
 ---

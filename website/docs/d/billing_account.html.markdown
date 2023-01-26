@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Billing"
-page_title: "Google: google_billing_account"
 description: |-
   Get information about a Google Billing Account.
 ---

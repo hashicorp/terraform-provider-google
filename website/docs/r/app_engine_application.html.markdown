@@ -1,6 +1,5 @@
 ---
 subcategory: "App Engine"
-page_title: "Google: google_app_engine_application"
 description: |-
  Allows management of an App Engine application.
 ---
@@ -95,7 +94,7 @@ exported:
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - Default is 4 minutes.
 - `update` - Default is 4 minutes.

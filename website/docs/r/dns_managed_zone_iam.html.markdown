@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud DNS"
-page_title: "Google: google_dns_managed_zone_iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud DNS ManagedZone
 ---

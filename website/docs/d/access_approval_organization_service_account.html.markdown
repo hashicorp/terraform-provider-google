@@ -1,6 +1,5 @@
 ---
 subcategory: "Access Approval"
-page_title: "Google: google_access_approval_organization_service_account"
 description: |-
   Get the email address of an organization's Access Approval service account.
 ---
