@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added replica promotion support to `google_sql_database_instance`. This change will allow users to promote read replica as stand alone primary instance.
+```
