@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an issue with resuming failed cluster creation
+```

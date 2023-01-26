@@ -9,9 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/api/cloudkms/v1"
+	"google.golang.org/api/cloudbilling/v1"
+	cloudkms "google.golang.org/api/cloudkms/v1"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
-	"google.golang.org/api/iam/v1"
+	iam "google.golang.org/api/iam/v1"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -356,6 +357,163 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 	}
 
 	return projects
+}
+
+func removeContainerServiceAgentRoleFromContainerEngineRobot(t *testing.T, project *cloudresourcemanager.Project) {
+	config := BootstrapConfig(t)
+	if config == nil {
+		return
+	}
+
+	client := config.NewResourceManagerClient(config.userAgent)
+	containerEngineRobot := fmt.Sprintf("serviceAccount:service-%d@container-engine-robot.iam.gserviceaccount.com", project.ProjectNumber)
+	getPolicyRequest := &cloudresourcemanager.GetIamPolicyRequest{}
+	policy, err := client.Projects.GetIamPolicy(project.ProjectId, getPolicyRequest).Do()
+	if err != nil {
+		t.Fatalf("error getting project iam policy: %v", err)
+	}
+	roleFound := false
+	changed := false
+	for _, binding := range policy.Bindings {
+		if binding.Role == "roles/container.serviceAgent" {
+			memberFound := false
+			for i, member := range binding.Members {
+				if member == containerEngineRobot {
+					binding.Members[i] = binding.Members[len(binding.Members)-1]
+					memberFound = true
+				}
+			}
+			if memberFound {
+				binding.Members = binding.Members[:len(binding.Members)-1]
+				changed = true
+			}
+		} else if binding.Role == "roles/editor" {
+			memberFound := false
+			for _, member := range binding.Members {
+				if member == containerEngineRobot {
+					memberFound = true
+					break
+				}
+			}
+			if !memberFound {
+				binding.Members = append(binding.Members, containerEngineRobot)
+				changed = true
+			}
+			roleFound = true
+		}
+	}
+	if !roleFound {
+		policy.Bindings = append(policy.Bindings, &cloudresourcemanager.Binding{
+			Members: []string{containerEngineRobot},
+			Role:    "roles/editor",
+		})
+		changed = true
+	}
+	if changed {
+		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
+		policy, err = client.Projects.SetIamPolicy(project.ProjectId, setPolicyRequest).Do()
+		if err != nil {
+			t.Fatalf("error setting project iam policy: %v", err)
+		}
+	}
+}
+
+func BootstrapProject(t *testing.T, projectID, billingAccount string, services []string) *cloudresourcemanager.Project {
+	config := BootstrapConfig(t)
+	if config == nil {
+		return nil
+	}
+
+	crmClient := config.NewResourceManagerClient(config.userAgent)
+
+	project, err := crmClient.Projects.Get(projectID).Do()
+	if err != nil {
+		if !isGoogleApiErrorWithCode(err, 403) {
+			t.Fatalf("Error getting bootstrapped project: %s", err)
+		}
+		org := getTestOrgFromEnv(t)
+
+		op, err := crmClient.Projects.Create(&cloudresourcemanager.Project{
+			ProjectId: projectID,
+			Name:      "Bootstrapped Test Project",
+			Parent: &cloudresourcemanager.ResourceId{
+				Type: "organization",
+				Id:   org,
+			},
+		}).Do()
+		if err != nil {
+			t.Fatalf("Error creating bootstrapped test project: %s", err)
+		}
+
+		opAsMap, err := ConvertToMap(op)
+		if err != nil {
+			t.Fatalf("Error converting create project operation to map: %s", err)
+		}
+
+		err = resourceManagerOperationWaitTime(config, opAsMap, "creating project", config.userAgent, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("Error waiting for create project operation: %s", err)
+		}
+
+		project, err = crmClient.Projects.Get(projectID).Do()
+		if err != nil {
+			t.Fatalf("Error getting bootstrapped project: %s", err)
+		}
+
+	}
+
+	if project.LifecycleState == "DELETE_REQUESTED" {
+		_, err := crmClient.Projects.Undelete(projectID, &cloudresourcemanager.UndeleteProjectRequest{}).Do()
+		if err != nil {
+			t.Fatalf("Error undeleting bootstrapped project: %s", err)
+		}
+	}
+
+	if billingAccount != "" {
+		billingClient := config.NewBillingClient(config.userAgent)
+		var pbi *cloudbilling.ProjectBillingInfo
+		err = retryTimeDuration(func() error {
+			var reqErr error
+			pbi, reqErr = billingClient.Projects.GetBillingInfo(prefixedProject(projectID)).Do()
+			return reqErr
+		}, 30*time.Second)
+		if err != nil {
+			t.Fatalf("Error getting billing info for project %q: %v", projectID, err)
+		}
+		if strings.TrimPrefix(pbi.BillingAccountName, "billingAccounts/") != billingAccount {
+			pbi.BillingAccountName = "billingAccounts/" + billingAccount
+			err := retryTimeDuration(func() error {
+				_, err := config.NewBillingClient(config.userAgent).Projects.UpdateBillingInfo(prefixedProject(projectID), pbi).Do()
+				return err
+			}, 2*time.Minute)
+			if err != nil {
+				t.Fatalf("Error setting billing account for project %q to %q: %s", projectID, billingAccount, err)
+			}
+		}
+	}
+
+	if len(services) > 0 {
+
+		enabledServices, err := listCurrentlyEnabledServices(projectID, "", config.userAgent, config, 1*time.Minute)
+		if err != nil {
+			t.Fatalf("Error listing services for project %q: %s", projectID, err)
+		}
+
+		servicesToEnable := make([]string, 0, len(services))
+		for _, service := range services {
+			if _, ok := enabledServices[service]; !ok {
+				servicesToEnable = append(servicesToEnable, service)
+			}
+		}
+
+		if len(servicesToEnable) > 0 {
+			if err := enableServiceUsageProjectServices(servicesToEnable, projectID, "", config.userAgent, config, 10*time.Minute); err != nil {
+				t.Fatalf("Error enabling services for project %q: %s", projectID, err)
+			}
+		}
+	}
+
+	return project
 }
 
 func BootstrapConfig(t *testing.T) *Config {
