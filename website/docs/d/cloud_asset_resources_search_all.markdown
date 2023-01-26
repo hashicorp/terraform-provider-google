@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Asset Inventory"
-page_title: "Google: google_cloud_asset_resources_search_all"
 description: |-
   Retrieve all the resources within a given accessible CRM scope (project/folder/organization).
 ---

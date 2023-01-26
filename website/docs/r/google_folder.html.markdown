@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_folder"
 description: |-
  Allows management of a Google Cloud Platform folder.
 ---

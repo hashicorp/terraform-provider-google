@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Binary Authorization"
-page_title: "Google: google_binary_authorization_attestor_iam"
 description: |-
   Collection of resources to manage IAM policy for Binary Authorization Attestor
 ---

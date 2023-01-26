@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-page_title: "Google: google_logging_organization_sink"
 description: |-
   Manages a organization-level logging sink.
 ---

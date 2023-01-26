@@ -1,6 +1,5 @@
 ---
 subcategory: "Dataflow"
-page_title: "Google: google_dataflow_flex_template_job"
 description: |-
   Creates a job in Dataflow based on a Flex Template.
 ---

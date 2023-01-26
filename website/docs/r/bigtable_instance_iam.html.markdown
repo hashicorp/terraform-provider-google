@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Bigtable"
-page_title: "Google: google_bigtable_instance_iam"
 description: |-
  Collection of resources to manage IAM policy for a Bigtable instance.
 ---

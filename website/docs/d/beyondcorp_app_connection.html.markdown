@@ -1,6 +1,5 @@
 ---
 subcategory: "BeyondCorp"
-page_title: "Google: google_beyondcorp_app_connection"
 description: |-
   Get information about a Google BeyondCorp App Connection.
 ---

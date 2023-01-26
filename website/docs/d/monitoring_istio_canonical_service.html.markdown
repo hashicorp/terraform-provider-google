@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Monitoring"
-page_title: "Google: google_monitoring_istio_canonical_service"
 description: |-
   An Monitoring Service resource created automatically by GCP to monitor an
   Istio Canonical service.

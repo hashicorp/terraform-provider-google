@@ -1,6 +1,5 @@
 ---
 subcategory: "ContainerAws"
-page_title: "Google: google_container_aws_versions"
 description: |-
   Provides lists of available Kubernetes versions for the Container AWS resources.
 ---

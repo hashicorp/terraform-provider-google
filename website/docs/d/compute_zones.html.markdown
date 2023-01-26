@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_zones"
 description: |-
   Provides a list of available Google Compute zones
 ---

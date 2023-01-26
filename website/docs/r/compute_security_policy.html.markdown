@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_security_policy"
 description: |-
   Creates a Security Policy resource for Google Compute Engine.
 ---

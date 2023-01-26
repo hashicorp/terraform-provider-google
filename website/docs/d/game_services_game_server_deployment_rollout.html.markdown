@@ -1,6 +1,5 @@
 ---
 subcategory: "Game Servers"
-page_title: "Google: google_game_services_game_server_deployment_rollout"
 description: |-
   Get the rollout state.
 ---

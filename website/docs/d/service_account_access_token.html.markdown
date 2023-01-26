@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_service_account_access_token"
 description: |-
   Produces access_token for impersonated service accounts
 ---

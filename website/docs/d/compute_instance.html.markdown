@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_instance"
 description: |-
   Get a VM instance within GCE.
 ---

@@ -1,6 +1,5 @@
 ---
 subcategory: "Serverless VPC Access"
-page_title: "Google: google_vpc_access_connector"
 description: |-
   Get a Serverless VPC Access connector.
 ---

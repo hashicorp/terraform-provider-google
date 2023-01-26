@@ -1,6 +1,5 @@
 ---
 subcategory: "ContainerAttached"
-page_title: "Google: google_container_attached_versions"
 description: |-
   Provides lists of available platform versions for the Container Attached resources.
 ---

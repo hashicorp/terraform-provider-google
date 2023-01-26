@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud SQL"
-page_title: "Google: google_sql_database_instance"
 description: |-
   Get a SQL database instance in Google Cloud SQL.
 ---

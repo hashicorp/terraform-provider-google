@@ -1,6 +1,5 @@
 ---
 subcategory: "BigQuery"
-page_title: "Google: google_bigquery_table"
 description: |-
   Creates a table resource in a dataset for Google BigQuery.
 ---

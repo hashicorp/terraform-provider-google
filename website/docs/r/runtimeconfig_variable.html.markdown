@@ -1,6 +1,5 @@
 ---
 subcategory: "Runtime Configurator"
-page_title: "Google: google_runtimeconfig_variable"
 description: |-
   Manages a RuntimeConfig variable in Google Cloud.
 ---

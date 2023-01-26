@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-page_title: "Google: google_logging_billing_account_exclusion"
 description: |-
   Manages a billing_account-level logging exclusion.
 ---

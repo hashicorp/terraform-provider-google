@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Build"
-page_title: "Google: google_cloudbuild_trigger"
 description: |-
   Get information about a Google CloudBuild Trigger.
 ---

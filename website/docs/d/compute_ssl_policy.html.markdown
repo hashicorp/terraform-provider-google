@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_ssl_policy"
 description: |-
   Gets an SSL Policy within GCE, for use with Target HTTPS and Target SSL Proxies.
 ---

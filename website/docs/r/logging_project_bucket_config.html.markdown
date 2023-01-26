@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-page_title: "Google: google_logging_project_bucket_config"
 description: |-
   Manages a project-level logging bucket config.
 ---

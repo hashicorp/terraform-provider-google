@@ -1,6 +1,5 @@
 ---
 subcategory: "Firebase"
-page_title: "Google: google_firebase_web_app_config"
 description: |-
   A Google Cloud Firebase web application configuration
 ---

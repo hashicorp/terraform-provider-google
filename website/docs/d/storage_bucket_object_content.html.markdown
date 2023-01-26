@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Storage"
-page_title: "Google: google_storage_bucket_object_content"
 description: |-
   Get content of a Google Cloud Storage bucket object.
 ---

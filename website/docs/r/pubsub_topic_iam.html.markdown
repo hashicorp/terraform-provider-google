@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Pub/Sub"
-page_title: "Google: google_pubsub_topic_iam"
 description: |-
   Collection of resources to manage IAM policy for Cloud Pub/Sub Topic
 ---

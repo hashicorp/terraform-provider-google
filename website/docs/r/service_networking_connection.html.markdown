@@ -1,6 +1,5 @@
 ---
 subcategory: "Service Networking"
-page_title: "Google: google_service_networking_connection"
 description: |-
   Manages creating a private VPC connection to a service provider.
 ---

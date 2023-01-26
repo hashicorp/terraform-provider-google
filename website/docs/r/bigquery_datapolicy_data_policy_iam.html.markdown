@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "BigQuery Data Policy"
-page_title: "Google: google_bigquery_datapolicy_data_policy_iam"
 description: |-
   Collection of resources to manage IAM policy for BigQuery Data Policy DataPolicy
 ---

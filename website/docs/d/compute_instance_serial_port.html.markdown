@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_instance_serial_port"
 description: |-
   Get the serial port output from a Compute Instance.
 ---

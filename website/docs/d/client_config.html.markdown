@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_client_config"
 description: |-
   Get information about the configuration of the Google Cloud provider.
 ---

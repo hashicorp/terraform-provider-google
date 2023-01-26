@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_disk"
 description: |-
   Get information about a Google Compute Persistent disks.
 ---

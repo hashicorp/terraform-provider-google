@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_resource_policy"
 description: |-
   Provide access to a Resource Policy's attributes
 ---

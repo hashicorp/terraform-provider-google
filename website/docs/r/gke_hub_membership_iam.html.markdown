@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "GKEHub"
-page_title: "Google: google_gke_hub_membership_iam"
 description: |-
   Collection of resources to manage IAM policy for GKEHub Membership
 ---

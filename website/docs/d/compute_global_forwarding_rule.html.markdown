@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_global_forwarding_rule"
 description: |-
   Get a global forwarding rule within GCE.
 ---

@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_service_account_key"
 description: |-
   Get a Google Cloud Platform service account Public Key
 ---

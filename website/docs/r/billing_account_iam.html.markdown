@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Billing"
-page_title: "Google: google_billing_account_iam"
 description: |-
  Collection of resources to manage IAM policy for a Billing Account.
 ---

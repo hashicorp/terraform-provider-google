@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_project_iam_custom_role"
 description: |-
  Allows management of a customized Cloud IAM project role.
 ---

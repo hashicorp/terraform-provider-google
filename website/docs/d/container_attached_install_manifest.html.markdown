@@ -1,6 +1,5 @@
 ---
 subcategory: "ContainerAttached"
-page_title: "Google: google_container_attached_install_manifest"
 description: |-
   Generates a YAML manifest for boot-strapping an Attached cluster registration.
 ---

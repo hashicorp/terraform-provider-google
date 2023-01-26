@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Tags"
-page_title: "Google: google_tags_tag_value_iam"
 description: |-
   Collection of resources to manage IAM policy for Tags TagValue
 ---

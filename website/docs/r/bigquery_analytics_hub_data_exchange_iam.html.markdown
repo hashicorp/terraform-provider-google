@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Bigquery Analytics Hub"
-page_title: "Google: google_bigquery_analytics_hub_data_exchange_iam"
 description: |-
   Collection of resources to manage IAM policy for Bigquery Analytics Hub DataExchange
 ---

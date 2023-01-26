@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Storage"
-page_title: "Google: google_storage_bucket"
 description: |-
   Get information about a Google Cloud Storage bucket.
 ---

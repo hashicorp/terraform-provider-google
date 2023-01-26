@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_client_openid_userinfo"
 description: |-
   Get OpenID userinfo about the credentials used with the Google provider, specifically the email.
 ---

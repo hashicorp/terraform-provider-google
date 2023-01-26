@@ -1,6 +1,5 @@
 ---
 subcategory: "Secret Manager"
-page_title: "Google: google_secret_manager_secret_version"
 description: |-
   Get a Secret Manager secret's version.
 ---

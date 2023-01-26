@@ -1,6 +1,5 @@
 ---
 subcategory: "Firebase"
-page_title: "Google: google_firebase_apple_app_config"
 description: |-
   A Google Cloud Firebase Apple application configuration
 ---

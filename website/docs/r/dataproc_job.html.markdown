@@ -1,6 +1,5 @@
 ---
 subcategory: "Dataproc"
-page_title: "Google: google_dataproc_job"
 description: |-
   Manages a job resource within a Dataproc cluster.
 ---
@@ -377,7 +376,7 @@ This resource does not support import.
 ## Timeouts
 
 `google_dataproc_cluster` provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
 - `create` - (Default `10 minutes`) Used for submitting a job to a dataproc cluster.
 - `delete` - (Default `10 minutes`) Used for deleting a job from a dataproc cluster.

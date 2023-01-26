@@ -1,6 +1,5 @@
 ---
 subcategory: "Container Registry"
-page_title: "Google: google_container_registry_repository"
 description: |-
   Get URLs for a given project's container registry repository.
 ---

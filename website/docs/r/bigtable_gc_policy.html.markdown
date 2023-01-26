@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Bigtable"
-page_title: "Google: google_bigtable_gc_policy"
 description: |-
   Creates a Google Cloud Bigtable GC Policy inside a family.
 ---

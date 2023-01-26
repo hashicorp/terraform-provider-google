@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Spanner"
-page_title: "Google: google_spanner_database_iam"
 description: |-
  Collection of resources to manage IAM policy for a Spanner database.
 ---

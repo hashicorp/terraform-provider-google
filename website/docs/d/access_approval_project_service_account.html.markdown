@@ -1,6 +1,5 @@
 ---
 subcategory: "Access Approval"
-page_title: "Google: google_access_approval_project_service_account"
 description: |-
   Get the email address of a project's Access Approval service account.
 ---

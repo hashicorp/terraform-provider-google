@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Pub/Sub"
-page_title: "Google: google_pubsub_subscription_iam"
 description: |-
  Collection of resources to manage IAM policy for a Pubsub subscription.
 ---

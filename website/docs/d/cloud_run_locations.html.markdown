@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Run"
-page_title: "Google: google_cloud_run_locations"
 description: |-
   Get Cloud Run locations available for a project.
 ---

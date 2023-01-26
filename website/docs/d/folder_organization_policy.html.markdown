@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_folder_organization_policy"
 description: |-
   Retrieve Organization policies for a Google Folder
 ---

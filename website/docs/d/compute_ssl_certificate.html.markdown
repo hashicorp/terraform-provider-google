@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_ssl_certificate"
 description: |-
   Get info about a Google Compute SSL Certificate.
 ---

@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_node_types"
 description: |-
   Provides list of available Google Compute Engine node types for
   sole-tenant nodes.

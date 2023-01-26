@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_service_account"
 description: |-
   Get the service account from a project.
 ---

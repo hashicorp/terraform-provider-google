@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud SQL"
-page_title: "Google: google_sql_ca_certs"
 description: |-
   Get all of the trusted Certificate Authorities (CAs) for the specified SQL database instance.
 ---

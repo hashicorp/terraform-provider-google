@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_image_iam"
 description: |-
   Collection of resources to manage IAM policy for Compute Engine Image
 ---

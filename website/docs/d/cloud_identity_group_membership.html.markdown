@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Identity"
-page_title: "Google: google_cloud_identity_group_memberships"
 description: |-
   Get list of the Cloud Identity Group Memberships within a Group.
 ---

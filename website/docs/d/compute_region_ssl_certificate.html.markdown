@@ -1,6 +1,5 @@
 ---
 subcategory: "Compute Engine"
-page_title: "Google: google_compute_region_ssl_certificate"
 description: |-
   Get info about a Regional Google Compute SSL Certificate.
 ---

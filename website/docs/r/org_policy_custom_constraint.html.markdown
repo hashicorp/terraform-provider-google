@@ -13,7 +13,6 @@
 #
 # ----------------------------------------------------------------------------
 subcategory: "Organization Policy"
-page_title: "Google: google_org_policy_custom_constraint"
 description: |-
   Custom constraints are created by administrators to provide more granular and customizable control over the specific fields that are restricted by your organization policies.
 ---
@@ -136,7 +135,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following
-[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.

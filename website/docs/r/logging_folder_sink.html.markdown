@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud (Stackdriver) Logging"
-page_title: "Google: google_logging_folder_sink"
 description: |-
   Manages a folder-level logging sink.
 ---

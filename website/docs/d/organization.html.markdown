@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Platform"
-page_title: "Google: google_organization"
 description: |-
   Get information about a Google Cloud Organization.
 ---

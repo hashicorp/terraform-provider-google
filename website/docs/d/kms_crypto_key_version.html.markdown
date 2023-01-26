@@ -1,6 +1,5 @@
 ---
 subcategory: "Cloud Key Management Service"
-page_title: "Google: google_kms_crypto_key_version"
 description: |-
  Provides access to KMS key version data with Google Cloud KMS.
 ---
