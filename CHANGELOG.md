@@ -11,9 +11,7 @@ FEATURES:
 IMPROVEMENTS:
 * cloudbuild: added `github_enterprise_config` fields to `google_cloudbuild_trigger` resource. ([#13518](https://github.com/hashicorp/terraform-provider-google/pull/13518))
 * cloudrunV2: added `annotations` to `google_cloud_run_v2_service` resource ([#13509](https://github.com/hashicorp/terraform-provider-google/pull/13509))
-* composer: Added field `cloud_data_lineage_integration` to resource `google_composer_environment` (beta) ([#13514](https://github.com/hashicorp/terraform-provider-google/pull/13514))
 * compute:  added `tcp_time_wait_timeout_sec` field to `google_compute_router_nat` resource ([#13554](https://github.com/hashicorp/terraform-provider-google/pull/13554))
-* compute: Added fields to resource `google_compute_security_policy` to support Cloud Armor Auto Deploy (beta) ([#13527](https://github.com/hashicorp/terraform-provider-google/pull/13527))
 * compute: added `share_settings` field to the `google_compute_node_group` resource. ([#13522](https://github.com/hashicorp/terraform-provider-google/pull/13522))
 * containerattached: Add a deletion policy enum field. ([#13551](https://github.com/hashicorp/terraform-provider-google/pull/13551))
 * datastream: add `customer_managed_encryption_key` and `destination_config.bigquery_destination_config.source_hierarchy_datasets.dataset_template.kms_key_name` fields to `google_datastream_stream` resource ([#13549](https://github.com/hashicorp/terraform-provider-google/pull/13549))
