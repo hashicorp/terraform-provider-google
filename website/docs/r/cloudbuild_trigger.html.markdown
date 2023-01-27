@@ -368,6 +368,49 @@ git_file_source {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_repo&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Repo
+
+
+```hcl
+resource "google_cloudbuildv2_connection" "my-connection" {
+  provider = google-beta
+  location = "us-central1"
+  name = "my-connection"
+
+  github_config {
+    app_installation_id = 123123
+    authorizer_credential {
+      oauth_token_secret_version = "projects/my-project/secrets/github-pat-secret/versions/latest"
+    }
+  }
+}
+
+resource "google_cloudbuildv2_repository" "my-repository" {
+  provider = google-beta
+  name = "my-repo"
+  parent_connection = google_cloudbuildv2_connection.my-connection.id
+  remote_uri = "https://github.com/myuser/my-repo.git"
+}
+
+resource "google_cloudbuild_trigger" "repo-trigger" {
+  provider = google-beta
+  location = "us-central1"
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.my-repository.id
+    push {
+      branch = "feature-.*"
+    }
+  }
+
+  filename = "cloudbuild.yaml"
+}
+```
 
 ## Argument Reference
 
@@ -427,6 +470,11 @@ The following arguments are supported:
   (Optional)
   The file source describing the local or remote Build template.
   Structure is [documented below](#nested_git_file_source).
+
+* `repository_event_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The configuration of a trigger that creates a build whenever an event from Repo API is received.
+  Structure is [documented below](#nested_repository_event_config).
 
 * `source_to_build` -
   (Optional)
@@ -536,6 +584,58 @@ The following arguments are supported:
   (Optional)
   The full resource name of the github enterprise config.
   Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.
+
+<a name="nested_repository_event_config"></a>The `repository_event_config` block supports:
+
+* `repository` -
+  (Optional)
+  The resource name of the Repo API resource.
+
+* `pull_request` -
+  (Optional)
+  Contains filter properties for matching Pull Requests.
+  Structure is [documented below](#nested_pull_request).
+
+* `push` -
+  (Optional)
+  Contains filter properties for matching git pushes.
+  Structure is [documented below](#nested_push).
+
+
+<a name="nested_pull_request"></a>The `pull_request` block supports:
+
+* `branch` -
+  (Optional)
+  Regex of branches to match.
+  The syntax of the regular expressions accepted is the syntax accepted by
+  RE2 and described at https://github.com/google/re2/wiki/Syntax
+
+* `invert_regex` -
+  (Optional)
+  If true, branches that do NOT match the git_ref will trigger a build.
+
+* `comment_control` -
+  (Optional)
+  Configure builds to run whether a repository owner or collaborator need to comment `/gcbrun`.
+  Possible values are `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, and `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
+
+<a name="nested_push"></a>The `push` block supports:
+
+* `branch` -
+  (Optional)
+  Regex of branches to match.
+  The syntax of the regular expressions accepted is the syntax accepted by
+  RE2 and described at https://github.com/google/re2/wiki/Syntax
+
+* `tag` -
+  (Optional)
+  Regex of tags to match.
+  The syntax of the regular expressions accepted is the syntax accepted by
+  RE2 and described at https://github.com/google/re2/wiki/Syntax
+
+* `invert_regex` -
+  (Optional)
+  If true, only trigger a build if the revision regex does NOT match the git_ref regex.
 
 <a name="nested_source_to_build"></a>The `source_to_build` block supports:
 
