@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_cloudbuildv2_connection` (beta)
+```
+```release-note:new-resource
+`google_cloudbuildv2_repository` (beta)
+```
