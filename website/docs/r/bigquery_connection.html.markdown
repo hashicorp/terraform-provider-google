@@ -244,7 +244,7 @@ The following arguments are supported:
 
 * `cloud_sql` -
   (Optional)
-  A nested object resource
+  Connection properties specific to the Cloud SQL.
   Structure is [documented below](#nested_cloud_sql).
 
 * `aws` -
@@ -290,6 +290,9 @@ The following arguments are supported:
   (Required)
   Type of the Cloud SQL database.
   Possible values are `DATABASE_TYPE_UNSPECIFIED`, `POSTGRES`, and `MYSQL`.
+
+* `service_account_id` -
+  When the connection is used in the context of an operation in BigQuery, this service account will serve as the identity being used for connecting to the CloudSQL instance specified in this connection.
 
 
 <a name="nested_credential"></a>The `credential` block supports:
@@ -338,6 +341,9 @@ The following arguments are supported:
 * `redirect_uri` -
   The URL user will be redirected to after granting consent during connection setup.
 
+* `identity` -
+  A unique Google-owned and Google-generated identity for the Connection. This identity will be used to access the user's Azure Active Directory Application.
+
 <a name="nested_cloud_spanner"></a>The `cloud_spanner` block supports:
 
 * `database` -
@@ -347,6 +353,10 @@ The following arguments are supported:
 * `use_parallelism` -
   (Optional)
   If parallelism should be used when reading from Cloud Spanner
+
+* `use_serverless_analytics` -
+  (Optional)
+  If the serverless analytics service should be used to read data from Cloud Spanner. useParallelism must be set when using serverless analytics
 
 <a name="nested_cloud_resource"></a>The `cloud_resource` block supports:
 

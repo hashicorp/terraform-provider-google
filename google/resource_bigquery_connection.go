@@ -95,6 +95,11 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 							Computed:    true,
 							Description: `The client id of the Azure Active Directory Application.`,
 						},
+						"identity": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `A unique Google-owned and Google-generated identity for the Connection. This identity will be used to access the user's Azure Active Directory Application.`,
+						},
 						"object_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -142,6 +147,11 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 							Optional:    true,
 							Description: `If parallelism should be used when reading from Cloud Spanner`,
 						},
+						"use_serverless_analytics": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If the serverless analytics service should be used to read data from Cloud Spanner. useParallelism must be set when using serverless analytics`,
+						},
 					},
 				},
 				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
@@ -149,7 +159,7 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 			"cloud_sql": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `A nested object resource`,
+				Description: `Connection properties specific to the Cloud SQL.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -189,6 +199,11 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 							Required:     true,
 							ValidateFunc: validateEnum([]string{"DATABASE_TYPE_UNSPECIFIED", "POSTGRES", "MYSQL"}),
 							Description:  `Type of the Cloud SQL database. Possible values: ["DATABASE_TYPE_UNSPECIFIED", "POSTGRES", "MYSQL"]`,
+						},
+						"service_account_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `When the connection is used in the context of an operation in BigQuery, this service account will serve as the identity being used for connecting to the CloudSQL instance specified in this connection.`,
 						},
 					},
 				},
@@ -646,6 +661,8 @@ func flattenBigqueryConnectionConnectionCloudSql(v interface{}, d *schema.Resour
 		flattenBigqueryConnectionConnectionCloudSqlCredential(original["credential"], d, config)
 	transformed["type"] =
 		flattenBigqueryConnectionConnectionCloudSqlType(original["type"], d, config)
+	transformed["service_account_id"] =
+		flattenBigqueryConnectionConnectionCloudSqlServiceAccountId(original["serviceAccountId"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBigqueryConnectionConnectionCloudSqlInstanceId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -666,6 +683,10 @@ func flattenBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d *sch
 }
 
 func flattenBigqueryConnectionConnectionCloudSqlType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionCloudSqlServiceAccountId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -724,6 +745,8 @@ func flattenBigqueryConnectionConnectionAzure(v interface{}, d *schema.ResourceD
 		flattenBigqueryConnectionConnectionAzureCustomerTenantId(original["customerTenantId"], d, config)
 	transformed["redirect_uri"] =
 		flattenBigqueryConnectionConnectionAzureRedirectUri(original["redirectUri"], d, config)
+	transformed["identity"] =
+		flattenBigqueryConnectionConnectionAzureIdentity(original["identity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBigqueryConnectionConnectionAzureApplication(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -746,6 +769,10 @@ func flattenBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d *schem
 	return v
 }
 
+func flattenBigqueryConnectionConnectionAzureIdentity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenBigqueryConnectionConnectionCloudSpanner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -759,6 +786,8 @@ func flattenBigqueryConnectionConnectionCloudSpanner(v interface{}, d *schema.Re
 		flattenBigqueryConnectionConnectionCloudSpannerDatabase(original["database"], d, config)
 	transformed["use_parallelism"] =
 		flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(original["useParallelism"], d, config)
+	transformed["use_serverless_analytics"] =
+		flattenBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(original["useServerlessAnalytics"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -766,6 +795,10 @@ func flattenBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d *s
 }
 
 func flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -835,6 +868,13 @@ func expandBigqueryConnectionConnectionCloudSql(v interface{}, d TerraformResour
 		transformed["type"] = transformedType
 	}
 
+	transformedServiceAccountId, err := expandBigqueryConnectionConnectionCloudSqlServiceAccountId(original["service_account_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountId); val.IsValid() && !isEmptyValue(val) {
+		transformed["serviceAccountId"] = transformedServiceAccountId
+	}
+
 	return transformed, nil
 }
 
@@ -881,6 +921,10 @@ func expandBigqueryConnectionConnectionCloudSqlCredentialPassword(v interface{},
 }
 
 func expandBigqueryConnectionConnectionCloudSqlType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSqlServiceAccountId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -981,6 +1025,13 @@ func expandBigqueryConnectionConnectionAzure(v interface{}, d TerraformResourceD
 		transformed["redirectUri"] = transformedRedirectUri
 	}
 
+	transformedIdentity, err := expandBigqueryConnectionConnectionAzureIdentity(original["identity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentity); val.IsValid() && !isEmptyValue(val) {
+		transformed["identity"] = transformedIdentity
+	}
+
 	return transformed, nil
 }
 
@@ -1001,6 +1052,10 @@ func expandBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d Te
 }
 
 func expandBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAzureIdentity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1027,6 +1082,13 @@ func expandBigqueryConnectionConnectionCloudSpanner(v interface{}, d TerraformRe
 		transformed["useParallelism"] = transformedUseParallelism
 	}
 
+	transformedUseServerlessAnalytics, err := expandBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(original["use_serverless_analytics"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseServerlessAnalytics); val.IsValid() && !isEmptyValue(val) {
+		transformed["useServerlessAnalytics"] = transformedUseServerlessAnalytics
+	}
+
 	return transformed, nil
 }
 
@@ -1035,6 +1097,10 @@ func expandBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d Ter
 }
 
 func expandBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

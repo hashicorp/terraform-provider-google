@@ -1,0 +1,6 @@
+```release-note:enhancement
+bigquery: added `cloud_sql.service_account_id` and `azure.identity` output fields
+```
+```release-note:enhancement
+bigquery: added `cloud_spanner.use_serverless_analytics` field
+```
