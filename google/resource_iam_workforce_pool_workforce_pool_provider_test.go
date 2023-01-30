@@ -147,7 +147,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     "google.subject"  = "assertion.sub"
   }
   oidc {
-    issuer_uri        = "https://accounts.google.com"
+    issuer_uri        = "https://accounts.thirdparty.com"
     client_id         = "client-id"
   }
   display_name        = "Display name"
@@ -174,7 +174,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     "google.subject"  = "false"
   }
   oidc {
-    issuer_uri        = "https://test.google.com"
+    issuer_uri        = "https://test.thirdparty.com"
     client_id         = "new-client-id"
   }
   display_name        = "New Display name"
@@ -201,7 +201,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     "google.subject" = "assertion.sub"
   }
   oidc {
-    issuer_uri       = "https://accounts.google.com"
+    issuer_uri       = "https://accounts.thirdparty.com"
     client_id        = "client-id"
   }
 }
