@@ -942,6 +942,7 @@ func Provider() *schema.Provider {
 			"google_pubsub_topic":                                 dataSourceGooglePubsubTopic(),
 			"google_secret_manager_secret":                        dataSourceSecretManagerSecret(),
 			"google_secret_manager_secret_version":                dataSourceSecretManagerSecretVersion(),
+			"google_secret_manager_secret_version_access":         dataSourceSecretManagerSecretVersionAccess(),
 			"google_service_account":                              dataSourceGoogleServiceAccount(),
 			"google_service_account_access_token":                 dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_id_token":                     dataSourceGoogleServiceAccountIdToken(),
