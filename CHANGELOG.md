@@ -13,10 +13,10 @@ IMPROVEMENTS:
 * cloudrunV2: added `annotations` to `google_cloud_run_v2_service` resource ([#13509](https://github.com/hashicorp/terraform-provider-google/pull/13509))
 * compute:  added `tcp_time_wait_timeout_sec` field to `google_compute_router_nat` resource ([#13554](https://github.com/hashicorp/terraform-provider-google/pull/13554))
 * compute: added `share_settings` field to the `google_compute_node_group` resource. ([#13522](https://github.com/hashicorp/terraform-provider-google/pull/13522))
-* containerattached: Add a deletion policy enum field. ([#13551](https://github.com/hashicorp/terraform-provider-google/pull/13551))
-* datastream: add `customer_managed_encryption_key` and `destination_config.bigquery_destination_config.source_hierarchy_datasets.dataset_template.kms_key_name` fields to `google_datastream_stream` resource ([#13549](https://github.com/hashicorp/terraform-provider-google/pull/13549))
+* containerattached: added `deletion_policy` field to `google_container_attached_cluster` resource. ([#13551](https://github.com/hashicorp/terraform-provider-google/pull/13551))
+* datastream: added `customer_managed_encryption_key` and `destination_config.bigquery_destination_config.source_hierarchy_datasets.dataset_template.kms_key_name` fields to `google_datastream_stream` resource ([#13549](https://github.com/hashicorp/terraform-provider-google/pull/13549))
 * dlp: added `publish_findings_to_cloud_data_catalog` and `publish_summary_to_cscc` to `google_data_loss_prevention_job_trigger` resource ([#13562](https://github.com/hashicorp/terraform-provider-google/pull/13562))
-* google_sql_database_instance: added point_in_time_recovery_enabled for SQLServer in `google_sql_database_instance` ([#13555](https://github.com/hashicorp/terraform-provider-google/pull/13555))
+* sql: added point_in_time_recovery_enabled for SQLServer in `google_sql_database_instance` ([#13555](https://github.com/hashicorp/terraform-provider-google/pull/13555))
 * spanner: added support for IAM conditions with `google_spanner_database_iam_member` and `google_spanner_instance_iam_member` ([#13556](https://github.com/hashicorp/terraform-provider-google/pull/13556))
 * sql: added additional fields to `google_sql_source_representation_instance` ([#13523](https://github.com/hashicorp/terraform-provider-google/pull/13523))
 
