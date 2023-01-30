@@ -434,6 +434,16 @@ The following arguments are supported:
   field set to true.
   Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, and `MAGLEV`.
 
+* `locality_lb_policies` -
+  (Optional)
+  A list of locality load balancing policies to be used in order of
+  preference. Either the policy or the customPolicy field should be set.
+  Overrides any value set in the localityLbPolicy field.
+  localityLbPolicies is only supported when the BackendService is referenced
+  by a URL Map that is referenced by a target gRPC proxy that has the
+  validateForProxyless field set to true.
+  Structure is [documented below](#nested_locality_lb_policies).
+
 * `outlier_detection` -
   (Optional)
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
@@ -815,6 +825,69 @@ The following arguments are supported:
 * `oauth2_client_secret_sha256` -
   OAuth2 Client Secret SHA-256 for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_locality_lb_policies"></a>The `locality_lb_policies` block supports:
+
+* `policy` -
+  (Optional)
+  The configuration for a built-in load balancing policy.
+  Structure is [documented below](#nested_policy).
+
+* `custom_policy` -
+  (Optional)
+  The configuration for a custom policy implemented by the user and
+  deployed with the client.
+  Structure is [documented below](#nested_custom_policy).
+
+
+<a name="nested_policy"></a>The `policy` block supports:
+
+* `name` -
+  (Required)
+  The name of a locality load balancer policy to be used. The value
+  should be one of the predefined ones as supported by localityLbPolicy,
+  although at the moment only ROUND_ROBIN is supported.
+  This field should only be populated when the customPolicy field is not
+  used.
+  Note that specifying the same policy more than once for a backend is
+  not a valid configuration and will be rejected.
+  The possible values are:
+  * `ROUND_ROBIN`: This is a simple policy in which each healthy backend
+                  is selected in round robin order.
+  * `LEAST_REQUEST`: An O(1) algorithm which selects two random healthy
+                    hosts and picks the host which has fewer active requests.
+  * `RING_HASH`: The ring/modulo hash load balancer implements consistent
+                hashing to backends. The algorithm has the property that the
+                addition/removal of a host from a set of N hosts only affects
+                1/N of the requests.
+  * `RANDOM`: The load balancer selects a random healthy host.
+  * `ORIGINAL_DESTINATION`: Backend host is selected based on the client
+                            connection metadata, i.e., connections are opened
+                            to the same address as the destination address of
+                            the incoming connection before the connection
+                            was redirected to the load balancer.
+  * `MAGLEV`: used as a drop in replacement for the ring hash load balancer.
+              Maglev is not as stable as ring hash but has faster table lookup
+              build times and host selection times. For more information about
+              Maglev, refer to https://ai.google/research/pubs/pub44824
+  Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, and `MAGLEV`.
+
+<a name="nested_custom_policy"></a>The `custom_policy` block supports:
+
+* `name` -
+  (Required)
+  Identifies the custom policy.
+  The value should match the type the custom implementation is registered
+  with on the gRPC clients. It should follow protocol buffer
+  message naming conventions and include the full path (e.g.
+  myorg.CustomLbPolicy). The maximum length is 256 characters.
+  Note that specifying the same custom policy more than once for a
+  backend is not a valid configuration and will be rejected.
+
+* `data` -
+  (Optional)
+  An optional, arbitrary JSON object with configuration data, understood
+  by a locally installed custom policy implementation.
 
 <a name="nested_outlier_detection"></a>The `outlier_detection` block supports:
 
