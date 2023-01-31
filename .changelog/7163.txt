@@ -1,0 +1,3 @@
+```release-note:none
+sql_database: Improved the documentation of `deletion_protection_enabled` setting for `sql_database_instance`.
+```
