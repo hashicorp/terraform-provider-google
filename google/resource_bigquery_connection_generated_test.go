@@ -302,6 +302,7 @@ resource "google_bigquery_connection" "connection" {
    description   = "a riveting description"
    azure {
       customer_tenant_id = "tf-test-customer-tenant-id%{random_suffix}"
+      federated_application_client_id = "tf-test-b43eeeee-eeee-eeee-eeee-a480155501ce%{random_suffix}"
    }
 }
 `, context)
