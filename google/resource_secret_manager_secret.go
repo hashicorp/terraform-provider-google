@@ -176,7 +176,6 @@ For publication to succeed, the Secret Manager Service Agent service account mus
 						},
 					},
 				},
-				RequiredWith: []string{"rotation"},
 			},
 			"ttl": {
 				Type:     schema.TypeString,

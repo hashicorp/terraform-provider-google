@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: fixed incorrect required_with for topics in `google_secret_managed_secret`
+```
