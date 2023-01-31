@@ -85,6 +85,11 @@ func resourceBigqueryConnectionConnection() *schema.Resource {
 							Required:    true,
 							Description: `The id of customer's directory that host the data.`,
 						},
+						"federated_application_client_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Azure Application (client) ID where the federated credentials will be hosted.`,
+						},
 						"application": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -533,7 +538,8 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("azure") {
-		updateMask = append(updateMask, "azure")
+		updateMask = append(updateMask, "azure.customer_tenant_id",
+			"azure.federated_application_client_id")
 	}
 
 	if d.HasChange("cloud_spanner") {
@@ -743,6 +749,8 @@ func flattenBigqueryConnectionConnectionAzure(v interface{}, d *schema.ResourceD
 		flattenBigqueryConnectionConnectionAzureObjectId(original["objectId"], d, config)
 	transformed["customer_tenant_id"] =
 		flattenBigqueryConnectionConnectionAzureCustomerTenantId(original["customerTenantId"], d, config)
+	transformed["federated_application_client_id"] =
+		flattenBigqueryConnectionConnectionAzureFederatedApplicationClientId(original["federatedApplicationClientId"], d, config)
 	transformed["redirect_uri"] =
 		flattenBigqueryConnectionConnectionAzureRedirectUri(original["redirectUri"], d, config)
 	transformed["identity"] =
@@ -762,6 +770,10 @@ func flattenBigqueryConnectionConnectionAzureObjectId(v interface{}, d *schema.R
 }
 
 func flattenBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionAzureFederatedApplicationClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1018,6 +1030,13 @@ func expandBigqueryConnectionConnectionAzure(v interface{}, d TerraformResourceD
 		transformed["customerTenantId"] = transformedCustomerTenantId
 	}
 
+	transformedFederatedApplicationClientId, err := expandBigqueryConnectionConnectionAzureFederatedApplicationClientId(original["federated_application_client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFederatedApplicationClientId); val.IsValid() && !isEmptyValue(val) {
+		transformed["federatedApplicationClientId"] = transformedFederatedApplicationClientId
+	}
+
 	transformedRedirectUri, err := expandBigqueryConnectionConnectionAzureRedirectUri(original["redirect_uri"], d, config)
 	if err != nil {
 		return nil, err
@@ -1048,6 +1067,10 @@ func expandBigqueryConnectionConnectionAzureObjectId(v interface{}, d TerraformR
 }
 
 func expandBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionAzureFederatedApplicationClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

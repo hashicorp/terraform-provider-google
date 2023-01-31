@@ -188,6 +188,7 @@ resource "google_bigquery_connection" "connection" {
    description   = "a riveting description"
    azure {
       customer_tenant_id = "customer-tenant-id"
+      federated_application_client_id = "b43eeeee-eeee-eeee-eeee-a480155501ce"
    }
 }
 ```
@@ -337,6 +338,10 @@ The following arguments are supported:
 * `customer_tenant_id` -
   (Required)
   The id of customer's directory that host the data.
+
+* `federated_application_client_id` -
+  (Optional)
+  The Azure Application (client) ID where the federated credentials will be hosted.
 
 * `redirect_uri` -
   The URL user will be redirected to after granting consent during connection setup.

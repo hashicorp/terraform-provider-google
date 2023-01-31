@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: Added support for federated Azure identities to BigQuery Omni connections.
+```
