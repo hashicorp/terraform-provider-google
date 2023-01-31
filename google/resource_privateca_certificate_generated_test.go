@@ -28,7 +28,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
+		"pool":          BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -142,7 +142,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *test
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
+		"pool":          BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -300,7 +300,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
+		"pool":          BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -382,7 +382,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testi
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"pool":          "static-ca-pool",
+		"pool":          BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix": randString(t, 10),
 	}
 
