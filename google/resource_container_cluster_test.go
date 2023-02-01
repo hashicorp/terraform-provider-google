@@ -3797,6 +3797,7 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 
 func TestAccContainerCluster_failedCreation(t *testing.T) {
 	// Test that in a scenario where the cluster fails to create, a subsequent apply will delete the resource.
+	skipIfVcr(t)
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
