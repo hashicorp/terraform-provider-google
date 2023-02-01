@@ -399,7 +399,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -464,7 +464,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -535,7 +535,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -602,7 +602,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -667,7 +667,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -732,7 +732,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -802,7 +802,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -894,7 +894,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -964,7 +964,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
@@ -1056,7 +1056,7 @@ resource "google_app_engine_standard_app_version" "version" {
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.output_name}"
     }
   }
   env_variables = {
