@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_cloudbuildv2_connection_iam_policy` (beta)
+```
+```release-note:new-resource
+`google_cloudbuildv2_connection_iam_binding` (beta)
+```
+```release-note:new-resource
+`google_cloudbuildv2_connection_iam_member` (beta)
+```
