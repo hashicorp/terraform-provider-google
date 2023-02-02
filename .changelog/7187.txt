@@ -1,0 +1,3 @@
+```release-note:bug
+composer: fixed an issue with cleaning up environments created in an error state
+```

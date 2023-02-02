@@ -1094,8 +1094,6 @@ func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment
 		return nil
 	}
 
-	d.Partial(true)
-
 	if updateEnv.Config != nil && updateEnv.Config.SoftwareConfig != nil && len(updateEnv.Config.SoftwareConfig.PypiPackages) > 0 {
 		log.Printf("[DEBUG] Running post-create update for Environment %q", d.Id())
 		err := resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", userAgent, updateEnv, d, cfg)
@@ -1105,7 +1103,7 @@ func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment
 
 		log.Printf("[DEBUG] Finish update to Environment %q post create for update only fields", d.Id())
 	}
-	d.Partial(false)
+
 	return resourceComposerEnvironmentRead(d, cfg)
 }
 
