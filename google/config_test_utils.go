@@ -21,6 +21,7 @@ func configureTestBasePaths(c *Config, url string) {
 	c.AccessApprovalBasePath = url
 	c.AccessContextManagerBasePath = url
 	c.ActiveDirectoryBasePath = url
+	c.AlloydbBasePath = url
 	c.ApigeeBasePath = url
 	c.AppEngineBasePath = url
 	c.ArtifactRegistryBasePath = url
