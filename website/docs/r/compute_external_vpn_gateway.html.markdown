@@ -161,6 +161,10 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `labels` -
+  (Optional)
+  Labels for the external VPN gateway resource.
+
 * `redundancy_type` -
   (Optional)
   Indicates the redundancy type of this external VPN gateway
