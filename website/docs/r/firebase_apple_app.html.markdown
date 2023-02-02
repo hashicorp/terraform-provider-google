@@ -80,14 +80,12 @@ The following arguments are supported:
   (Optional)
   The Apple Developer Team ID associated with the App in the App Store.
 
-* `deletion_policy` -
-  (Optional)
-  (Optional) Set to `ABANDON` to allow the AppleApp to be untracked from terraform state
-  rather than deleted upon `terraform destroy`. This is useful because the AppleApp may be
-  serving traffic. Set to `DELETE` to delete the AppleApp. Default to `DELETE`.
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) (Optional) Set to `ABANDON` to allow the Apple to be untracked from terraform state
+rather than deleted upon `terraform destroy`. This is useful because the Apple may be
+serving traffic. Set to `DELETE` to delete the Apple. Defaults to `DELETE`.
 
 
 ## Attributes Reference
