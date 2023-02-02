@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added the field `description` to `google_vertex_ai_featurestore_entitytype`
+```
