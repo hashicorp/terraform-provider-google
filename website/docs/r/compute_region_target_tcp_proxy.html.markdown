@@ -25,12 +25,10 @@ Represents a RegionTargetTcpProxy resource, which is used by one or more
 forwarding rules to route incoming TCP requests to a regional TCP proxy load
 balancer.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about RegionTargetTcpProxy, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/targetTcpProxies)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionTargetTcpProxies)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/load-balancing/docs/tcp/internal-proxy)
 
@@ -44,14 +42,12 @@ To get more information about RegionTargetTcpProxy, see:
 
 ```hcl
 resource "google_compute_region_target_tcp_proxy" "default" {
-  provider        = google-beta
   name            = "test-proxy"
   region          = "europe-west4"
   backend_service = google_compute_region_backend_service.default.id
 }
 
 resource "google_compute_region_backend_service" "default" {
-  provider    = google-beta
   name        = "backend-service"
   protocol    = "TCP"
   timeout_sec = 10
@@ -62,7 +58,6 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  provider           = google-beta
   name               = "health-check"
   region             = "europe-west4"
   timeout_sec        = 1
