@@ -154,6 +154,48 @@ resource "google_compute_router_peer" "router1_peer2" {
 `, context)
 }
 
+func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeExternalVpnGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_external_vpn_gateway.external_gateway",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_external_vpn_gateway" "external_gateway" {
+  name            = "tf-test-external-gateway%{random_suffix}"
+  redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
+  description     = "An externally managed VPN gateway"
+  interface {
+    id         = 0
+    ip_address = "8.8.8.8"
+  }
+  labels = {
+    key = "value"
+    otherkey = ""
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeExternalVpnGatewayDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
