@@ -16,6 +16,8 @@
 package google
 
 import (
+	framework_schema "github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -26,99 +28,66 @@ var ApikeysEndpointEntryKey = "apikeys_custom_endpoint"
 var ApikeysEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_APIKEYS_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var AssuredWorkloadsEndpointEntryKey = "assured_workloads_custom_endpoint"
 var AssuredWorkloadsEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_ASSURED_WORKLOADS_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var CloudBuildWorkerPoolEndpointEntryKey = "cloud_build_worker_pool_custom_endpoint"
 var CloudBuildWorkerPoolEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CLOUD_BUILD_WORKER_POOL_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var ClouddeployEndpointEntryKey = "clouddeploy_custom_endpoint"
 var ClouddeployEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var CloudResourceManagerEndpointEntryKey = "cloud_resource_manager_custom_endpoint"
 var CloudResourceManagerEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var DataplexEndpointEntryKey = "dataplex_custom_endpoint"
 var DataplexEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_DATAPLEX_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var EventarcEndpointEntryKey = "eventarc_custom_endpoint"
 var EventarcEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var FirebaserulesEndpointEntryKey = "firebaserules_custom_endpoint"
 var FirebaserulesEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var NetworkConnectivityEndpointEntryKey = "network_connectivity_custom_endpoint"
 var NetworkConnectivityEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_NETWORK_CONNECTIVITY_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var OrgPolicyEndpointEntryKey = "org_policy_custom_endpoint"
 var OrgPolicyEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 var RecaptchaEnterpriseEndpointEntryKey = "recaptcha_enterprise_custom_endpoint"
 var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_RECAPTCHA_ENTERPRISE_CUSTOM_ENDPOINT",
-	}, ""),
 }
 
 type DCLConfig struct {
@@ -147,6 +116,134 @@ func configureDCLProvider(provider *schema.Provider) {
 	provider.Schema[NetworkConnectivityEndpointEntryKey] = NetworkConnectivityEndpointEntry
 	provider.Schema[OrgPolicyEndpointEntryKey] = OrgPolicyEndpointEntry
 	provider.Schema[RecaptchaEnterpriseEndpointEntryKey] = RecaptchaEnterpriseEndpointEntry
+}
+
+func HandleDCLProviderDefaults(d *schema.ResourceData) {
+	if d.Get(ApikeysEndpointEntryKey) == "" {
+		d.Set(ApikeysEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_APIKEYS_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(AssuredWorkloadsEndpointEntryKey) == "" {
+		d.Set(AssuredWorkloadsEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_ASSURED_WORKLOADS_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(CloudBuildWorkerPoolEndpointEntryKey) == "" {
+		d.Set(CloudBuildWorkerPoolEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_CLOUD_BUILD_WORKER_POOL_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(ClouddeployEndpointEntryKey) == "" {
+		d.Set(ClouddeployEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(CloudResourceManagerEndpointEntryKey) == "" {
+		d.Set(CloudResourceManagerEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(DataplexEndpointEntryKey) == "" {
+		d.Set(DataplexEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_DATAPLEX_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(EventarcEndpointEntryKey) == "" {
+		d.Set(EventarcEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(FirebaserulesEndpointEntryKey) == "" {
+		d.Set(FirebaserulesEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(NetworkConnectivityEndpointEntryKey) == "" {
+		d.Set(NetworkConnectivityEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_NETWORK_CONNECTIVITY_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(OrgPolicyEndpointEntryKey) == "" {
+		d.Set(OrgPolicyEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
+		}))
+	}
+	if d.Get(RecaptchaEnterpriseEndpointEntryKey) == "" {
+		d.Set(RecaptchaEnterpriseEndpointEntryKey, multiEnvSearch([]string{
+			"GOOGLE_RECAPTCHA_ENTERPRISE_CUSTOM_ENDPOINT",
+		}))
+	}
+}
+
+// plugin-framework provider set-up
+func configureDCLFrameworkProvider(frameworkSchema *framework_schema.Schema) {
+	frameworkSchema.Attributes["apikeys_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["assured_workloads_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["cloud_build_worker_pool_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["clouddeploy_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["cloud_resource_manager_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["dataplex_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["eventarc_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["firebaserules_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["network_connectivity_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["org_policy_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
+	frameworkSchema.Attributes["recaptcha_enterprise_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
 }
 
 func providerDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
