@@ -21,12 +21,10 @@ description: |-
 
 An AlloyDB Backup.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Backup, see:
 
-* [API documentation](https://cloud.google.com/alloydb/docs/reference/rest/v1beta/projects.locations.backups/create)
+* [API documentation](https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.backups/create)
 * How-to Guides
     * [AlloyDB](https://cloud.google.com/alloydb/docs/)
 
@@ -40,7 +38,6 @@ To get more information about Backup, see:
 
 ```hcl
 resource "google_alloydb_backup" "default" {
-  provider     = google-beta
   location     = "us-central1"
   backup_id    = "alloydb-backup"
   cluster_name = google_alloydb_cluster.default.name
@@ -53,14 +50,12 @@ resource "google_alloydb_backup" "default" {
 }
 
 resource "google_alloydb_cluster" "default" {
-  provider   = google-beta
   cluster_id = "alloydb-cluster"
   location   = "us-central1"
   network    = data.google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "default" {
-  provider      = google-beta
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "alloydb-instance"
   instance_type = "PRIMARY"
@@ -69,7 +64,6 @@ resource "google_alloydb_instance" "default" {
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  provider = google-beta
   name          =  "alloydb-cluster"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
@@ -78,14 +72,12 @@ resource "google_compute_global_address" "private_ip_alloc" {
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  provider   = google-beta
   network                 = data.google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 
 data "google_compute_network" "default" {
-  provider = google-beta
   name = "alloydb-network"
 }
 ```

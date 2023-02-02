@@ -21,12 +21,10 @@ description: |-
 
 A managed alloydb cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Cluster, see:
 
-* [API documentation](https://cloud.google.com/alloydb/docs/reference/rest/v1beta/projects.locations.clusters/create)
+* [API documentation](https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.clusters/create)
 * How-to Guides
     * [AlloyDB](https://cloud.google.com/alloydb/docs/)
 
@@ -43,18 +41,14 @@ state as plain-text. [Read more about sensitive data in state](https://www.terra
 
 ```hcl
 resource "google_alloydb_cluster" "default" {
-  provider   = google-beta
   cluster_id = "alloydb-cluster"
   location   = "us-central1"
   network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
 }
 
-data "google_project" "project" {
-  provider = google-beta
-}
+data "google_project" "project" {}
 
 resource "google_compute_network" "default" {
-  provider = google-beta
   name = "alloydb-cluster"
 }
 ```
@@ -68,7 +62,6 @@ resource "google_compute_network" "default" {
 
 ```hcl
 resource "google_alloydb_cluster" "full" {
-  provider     = google-beta
   cluster_id   = "alloydb-cluster-full"
   location     = "us-central1"
   network      = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
@@ -108,12 +101,9 @@ resource "google_alloydb_cluster" "full" {
   }
 }
 
-data "google_project" "project" {
-  provider = google-beta
-}
+data "google_project" "project" {}
 
 resource "google_compute_network" "default" {
-  provider = google-beta
   name = "alloydb-cluster-full"
 }
 ```

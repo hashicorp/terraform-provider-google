@@ -21,12 +21,10 @@ description: |-
 
 A managed alloydb cluster instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Instance, see:
 
-* [API documentation](https://cloud.google.com/alloydb/docs/reference/rest/v1beta/projects.locations.clusters.instances/create)
+* [API documentation](https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.clusters.instances/create)
 * How-to Guides
     * [AlloyDB](https://cloud.google.com/alloydb/docs/)
 
@@ -40,7 +38,6 @@ To get more information about Instance, see:
 
 ```hcl
 resource "google_alloydb_instance" "default" {
-  provider      = google-beta
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "alloydb-instance"
   instance_type = "PRIMARY"
@@ -53,7 +50,6 @@ resource "google_alloydb_instance" "default" {
 }
 
 resource "google_alloydb_cluster" "default" {
-  provider   = google-beta
   cluster_id = "alloydb-cluster"
   location   = "us-central1"
   network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
@@ -63,17 +59,13 @@ resource "google_alloydb_cluster" "default" {
   }
 }
 
-data "google_project" "project" {
-  provider = google-beta
-}
+data "google_project" "project" {}
 
 resource "google_compute_network" "default" {
-  provider = google-beta
   name = "alloydb-cluster"
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  provider = google-beta
   name          =  "alloydb-cluster"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
@@ -82,7 +74,6 @@ resource "google_compute_global_address" "private_ip_alloc" {
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  provider   = google-beta
   network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
