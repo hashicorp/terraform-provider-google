@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added field `instance_lifecycle_policy` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` (beta)
+```
+```release-note:enhancement
+compute: added field `force_update_on_repair` to `instance_lifecycle_policy` (beta)
+```

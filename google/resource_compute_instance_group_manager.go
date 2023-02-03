@@ -268,6 +268,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+
 			"wait_for_instances": {
 				Type:        schema.TypeBool,
 				Optional:    true,
