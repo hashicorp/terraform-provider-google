@@ -2,7 +2,7 @@
 
 FEATURES:
 * **New Data Source:** `google_secret_manager_secret_version_access` ([#13605](https://github.com/hashicorp/terraform-provider-google/pull/13605))
-* **New Resource:** google_workstations_workstation_cluster ([#13619](https://github.com/hashicorp/terraform-provider-google/pull/13619))
+* **New Resource:** `google_workstations_workstation_cluster` ([#13619](https://github.com/hashicorp/terraform-provider-google/pull/13619))
 
 IMPROVEMENTS:
 * Updated the `settings.deletion_protection_enabled` property documentation. ([#13581](https://github.com/hashicorp/terraform-provider-google/pull/13581))
