@@ -189,7 +189,6 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"stream_cmek":         BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix":       randString(t, 10),
 	}
 
@@ -313,7 +312,7 @@ resource "google_storage_bucket_iam_member" "reader" {
 }
 
 resource "google_kms_crypto_key_iam_member" "key_user" {
-    crypto_key_id = "%{stream_cmek}"
+    crypto_key_id = "tf-test-kms-name%{random_suffix}"
     role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
     member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com"
 }
@@ -410,7 +409,7 @@ resource "google_datastream_stream" "default" {
         }
     }
 
-    customer_managed_encryption_key = "%{stream_cmek}"
+    customer_managed_encryption_key = "tf-test-kms-name%{random_suffix}"
 }
 `, context)
 }

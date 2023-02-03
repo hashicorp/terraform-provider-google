@@ -272,9 +272,16 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"source_connection_profile": {
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: projectNumberDiffSuppress,
+							Description:      `Source connection profile resource. Format: projects/{project}/locations/{location}/connectionProfiles/{name}`,
+						},
 						"mysql_source_config": {
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: `MySQL data source configuration.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -461,13 +468,457 @@ If not set (or set to 0), the system's default value will be used.`,
 									},
 								},
 							},
+							ExactlyOneOf: []string{"source_config.0.mysql_source_config", "source_config.0.oracle_source_config", "source_config.0.postgresql_source_config"},
 						},
-						"source_connection_profile": {
-							Type:             schema.TypeString,
-							Required:         true,
-							ForceNew:         true,
-							DiffSuppressFunc: projectNumberDiffSuppress,
-							Description:      `Source connection profile resource. Format: projects/{project}/locations/{location}/connectionProfiles/{name}`,
+						"oracle_source_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `MySQL data source configuration.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"drop_large_objects": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration to drop large object values.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+									},
+									"exclude_objects": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Oracle objects to exclude from the stream.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"oracle_schemas": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `Oracle schemas/databases in the database server`,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"schema": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Schema name.`,
+															},
+															"oracle_tables": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Tables in the database.`,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"table": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Table name.`,
+																		},
+																		"oracle_columns": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.`,
+																			MinItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"column": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Column name.`,
+																					},
+																					"data_type": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The Oracle data type. Full data types list can be found here:
+https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html`,
+																					},
+																					"encoding": {
+																						Type:        schema.TypeString,
+																						Computed:    true,
+																						Description: `Column encoding.`,
+																					},
+																					"length": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column length.`,
+																					},
+																					"nullable": {
+																						Type:        schema.TypeBool,
+																						Computed:    true,
+																						Description: `Whether or not the column can accept a null value.`,
+																					},
+																					"ordinal_position": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `The ordinal position of the column in the table.`,
+																					},
+																					"precision": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column precision.`,
+																					},
+																					"primary_key": {
+																						Type:        schema.TypeBool,
+																						Computed:    true,
+																						Description: `Whether or not the column represents a primary key.`,
+																					},
+																					"scale": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column scale.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"include_objects": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Oracle objects to retrieve from the source.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"oracle_schemas": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `Oracle schemas/databases in the database server`,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"schema": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Schema name.`,
+															},
+															"oracle_tables": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Tables in the database.`,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"table": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Table name.`,
+																		},
+																		"oracle_columns": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.`,
+																			MinItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"column": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Column name.`,
+																					},
+																					"data_type": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The Oracle data type. Full data types list can be found here:
+https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html`,
+																					},
+																					"encoding": {
+																						Type:        schema.TypeString,
+																						Computed:    true,
+																						Description: `Column encoding.`,
+																					},
+																					"length": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column length.`,
+																					},
+																					"nullable": {
+																						Type:        schema.TypeBool,
+																						Computed:    true,
+																						Description: `Whether or not the column can accept a null value.`,
+																					},
+																					"ordinal_position": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `The ordinal position of the column in the table.`,
+																					},
+																					"precision": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column precision.`,
+																					},
+																					"primary_key": {
+																						Type:        schema.TypeBool,
+																						Computed:    true,
+																						Description: `Whether or not the column represents a primary key.`,
+																					},
+																					"scale": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column scale.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"max_concurrent_backfill_tasks": {
+										Type:         schema.TypeInt,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: validation.IntAtLeast(0),
+										Description: `Maximum number of concurrent backfill tasks. The number should be non negative.
+If not set (or set to 0), the system's default value will be used.`,
+									},
+									"max_concurrent_cdc_tasks": {
+										Type:         schema.TypeInt,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: validation.IntAtLeast(0),
+										Description: `Maximum number of concurrent CDC tasks. The number should be non negative.
+If not set (or set to 0), the system's default value will be used.`,
+									},
+									"stream_large_objects": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration to drop large object values.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"source_config.0.mysql_source_config", "source_config.0.oracle_source_config", "source_config.0.postgresql_source_config"},
+						},
+						"postgresql_source_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `PostgreSQL data source configuration.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"publication": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The name of the publication that includes the set of all tables
+that are defined in the stream's include_objects.`,
+									},
+									"replication_slot": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The name of the logical replication slot that's configured with
+the pgoutput plugin.`,
+									},
+									"exclude_objects": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `PostgreSQL objects to exclude from the stream.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"postgresql_schemas": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `PostgreSQL schemas on the server`,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"schema": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Database name.`,
+															},
+															"postgresql_tables": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Tables in the schema.`,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"table": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Table name.`,
+																		},
+																		"postgresql_columns": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.`,
+																			MinItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"column": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Column name.`,
+																					},
+																					"data_type": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The PostgreSQL data type. Full data types list can be found here:
+https://www.postgresql.org/docs/current/datatype.html`,
+																					},
+																					"nullable": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `Whether or not the column can accept a null value.`,
+																					},
+																					"ordinal_position": {
+																						Type:        schema.TypeInt,
+																						Optional:    true,
+																						Description: `The ordinal position of the column in the table.`,
+																					},
+																					"primary_key": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `Whether or not the column represents a primary key.`,
+																					},
+																					"length": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column length.`,
+																					},
+																					"precision": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column precision.`,
+																					},
+																					"scale": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column scale.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"include_objects": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `PostgreSQL objects to retrieve from the source.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"postgresql_schemas": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `PostgreSQL schemas on the server`,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"schema": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Database name.`,
+															},
+															"postgresql_tables": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Tables in the schema.`,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"table": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Table name.`,
+																		},
+																		"postgresql_columns": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.`,
+																			MinItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"column": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Column name.`,
+																					},
+																					"data_type": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The PostgreSQL data type. Full data types list can be found here:
+https://www.postgresql.org/docs/current/datatype.html`,
+																					},
+																					"nullable": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `Whether or not the column can accept a null value.`,
+																					},
+																					"ordinal_position": {
+																						Type:        schema.TypeInt,
+																						Optional:    true,
+																						Description: `The ordinal position of the column in the table.`,
+																					},
+																					"primary_key": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `Whether or not the column represents a primary key.`,
+																					},
+																					"length": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column length.`,
+																					},
+																					"precision": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column precision.`,
+																					},
+																					"scale": {
+																						Type:        schema.TypeInt,
+																						Computed:    true,
+																						Description: `Column scale.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"max_concurrent_backfill_tasks": {
+										Type:         schema.TypeInt,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: validation.IntAtLeast(0),
+										Description: `Maximum number of concurrent backfill tasks. The number should be non
+negative. If not set (or set to 0), the system's default value will be used.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"source_config.0.mysql_source_config", "source_config.0.oracle_source_config", "source_config.0.postgresql_source_config"},
 						},
 					},
 				},
@@ -558,6 +1009,193 @@ https://dev.mysql.com/doc/refman/8.0/en/data-types.html`,
 																			Type:        schema.TypeInt,
 																			Computed:    true,
 																			Description: `Column length.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"oracle_excluded_objects": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `PostgreSQL data source objects to avoid backfilling.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"oracle_schemas": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Oracle schemas/databases in the database server`,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"schema": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Schema name.`,
+												},
+												"oracle_tables": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Tables in the database.`,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"table": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Table name.`,
+															},
+															"oracle_columns": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.`,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"column": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Column name.`,
+																		},
+																		"data_type": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The Oracle data type. Full data types list can be found here:
+https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html`,
+																		},
+																		"encoding": {
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: `Column encoding.`,
+																		},
+																		"length": {
+																			Type:        schema.TypeInt,
+																			Computed:    true,
+																			Description: `Column length.`,
+																		},
+																		"nullable": {
+																			Type:        schema.TypeBool,
+																			Computed:    true,
+																			Description: `Whether or not the column can accept a null value.`,
+																		},
+																		"ordinal_position": {
+																			Type:        schema.TypeInt,
+																			Computed:    true,
+																			Description: `The ordinal position of the column in the table.`,
+																		},
+																		"precision": {
+																			Type:        schema.TypeInt,
+																			Computed:    true,
+																			Description: `Column precision.`,
+																		},
+																		"primary_key": {
+																			Type:        schema.TypeBool,
+																			Computed:    true,
+																			Description: `Whether or not the column represents a primary key.`,
+																		},
+																		"scale": {
+																			Type:        schema.TypeInt,
+																			Computed:    true,
+																			Description: `Column scale.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"postgresql_excluded_objects": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `PostgreSQL data source objects to avoid backfilling.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"postgresql_schemas": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `PostgreSQL schemas on the server`,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"schema": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Database name.`,
+												},
+												"postgresql_tables": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Tables in the schema.`,
+													MinItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"table": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Table name.`,
+															},
+															"postgresql_columns": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.`,
+																MinItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"column": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Column name.`,
+																		},
+																		"data_type": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The PostgreSQL data type. Full data types list can be found here:
+https://www.postgresql.org/docs/current/datatype.html`,
+																		},
+																		"nullable": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `Whether or not the column can accept a null value.`,
+																		},
+																		"ordinal_position": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `The ordinal position of the column in the table.`,
+																		},
+																		"primary_key": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `Whether or not the column represents a primary key.`,
+																		},
+																		"length": {
+																			Type:        schema.TypeInt,
+																			Computed:    true,
+																			Description: `Column length.`,
+																		},
+																		"precision": {
+																			Type:        schema.TypeInt,
+																			Computed:    true,
+																			Description: `Column precision.`,
+																		},
+																		"scale": {
+																			Type:        schema.TypeInt,
+																			Computed:    true,
+																			Description: `Column scale.`,
 																		},
 																	},
 																},
@@ -738,6 +1376,13 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 
 	if err := waitForDatastreamStreamReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Error waiting for Stream %q to be NOT_STARTED or RUNNING during creation: %q", d.Get("name").(string), err)
+	}
+
+	if d.Get("state") != d.Get("desired_state") {
+		log.Printf("[DEBUG] Desired state %s not equal to state = %s, updating stream %q", d.Get("desired_state"), d.Get("state"), d.Id())
+		if err = resourceDatastreamStreamUpdate(d, meta); err != nil {
+			return fmt.Errorf("Error updating Stream %q during creation: %q", d.Get("name").(string), err)
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating Stream %q: %#v", d.Id(), res)
@@ -1053,6 +1698,10 @@ func flattenDatastreamStreamSourceConfig(v interface{}, d *schema.ResourceData, 
 		flattenDatastreamStreamSourceConfigSourceConnectionProfile(original["sourceConnectionProfile"], d, config)
 	transformed["mysql_source_config"] =
 		flattenDatastreamStreamSourceConfigMysqlSourceConfig(original["mysqlSourceConfig"], d, config)
+	transformed["oracle_source_config"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfig(original["oracleSourceConfig"], d, config)
+	transformed["postgresql_source_config"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfig(original["postgresqlSourceConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatastreamStreamSourceConfigSourceConnectionProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1364,6 +2013,801 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentCdcTasks(v
 	return v // let terraform core handle it otherwise
 }
 
+func flattenDatastreamStreamSourceConfigOracleSourceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["include_objects"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjects(original["includeObjects"], d, config)
+	transformed["exclude_objects"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjects(original["excludeObjects"], d, config)
+	transformed["max_concurrent_cdc_tasks"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentCdcTasks(original["maxConcurrentCdcTasks"], d, config)
+	transformed["max_concurrent_backfill_tasks"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentBackfillTasks(original["maxConcurrentBackfillTasks"], d, config)
+	transformed["drop_large_objects"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigDropLargeObjects(original["dropLargeObjects"], d, config)
+	transformed["stream_large_objects"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigStreamLargeObjects(original["streamLargeObjects"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["oracle_schemas"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemas(original["oracleSchemas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"schema":        flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasSchema(original["schema"], d, config),
+			"oracle_tables": flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTables(original["oracleTables"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"table":          flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesTable(original["table"], d, config),
+			"oracle_columns": flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumns(original["oracleColumns"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"column":           flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(original["column"], d, config),
+			"data_type":        flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(original["dataType"], d, config),
+			"length":           flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsLength(original["length"], d, config),
+			"precision":        flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(original["precision"], d, config),
+			"scale":            flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsScale(original["scale"], d, config),
+			"encoding":         flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(original["encoding"], d, config),
+			"primary_key":      flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(original["primaryKey"], d, config),
+			"nullable":         flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(original["nullable"], d, config),
+			"ordinal_position": flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(original["ordinalPosition"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["oracle_schemas"] =
+		flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemas(original["oracleSchemas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"schema":        flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasSchema(original["schema"], d, config),
+			"oracle_tables": flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTables(original["oracleTables"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"table":          flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesTable(original["table"], d, config),
+			"oracle_columns": flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumns(original["oracleColumns"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"column":           flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(original["column"], d, config),
+			"data_type":        flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(original["dataType"], d, config),
+			"length":           flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsLength(original["length"], d, config),
+			"precision":        flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(original["precision"], d, config),
+			"scale":            flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsScale(original["scale"], d, config),
+			"encoding":         flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(original["encoding"], d, config),
+			"primary_key":      flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(original["primaryKey"], d, config),
+			"nullable":         flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(original["nullable"], d, config),
+			"ordinal_position": flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(original["ordinalPosition"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentCdcTasks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentBackfillTasks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigDropLargeObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDatastreamStreamSourceConfigOracleSourceConfigStreamLargeObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["include_objects"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjects(original["includeObjects"], d, config)
+	transformed["exclude_objects"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjects(original["excludeObjects"], d, config)
+	transformed["replication_slot"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfigReplicationSlot(original["replicationSlot"], d, config)
+	transformed["publication"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfigPublication(original["publication"], d, config)
+	transformed["max_concurrent_backfill_tasks"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfigMaxConcurrentBackfillTasks(original["maxConcurrentBackfillTasks"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["postgresql_schemas"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemas(original["postgresqlSchemas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"schema":            flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasSchema(original["schema"], d, config),
+			"postgresql_tables": flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTables(original["postgresqlTables"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"table":              flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesTable(original["table"], d, config),
+			"postgresql_columns": flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(original["postgresqlColumns"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"column":           flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(original["column"], d, config),
+			"data_type":        flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(original["dataType"], d, config),
+			"length":           flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(original["length"], d, config),
+			"precision":        flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(original["precision"], d, config),
+			"scale":            flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(original["scale"], d, config),
+			"primary_key":      flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(original["primaryKey"], d, config),
+			"nullable":         flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(original["nullable"], d, config),
+			"ordinal_position": flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(original["ordinalPosition"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["postgresql_schemas"] =
+		flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemas(original["postgresqlSchemas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"schema":            flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasSchema(original["schema"], d, config),
+			"postgresql_tables": flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTables(original["postgresqlTables"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"table":              flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesTable(original["table"], d, config),
+			"postgresql_columns": flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(original["postgresqlColumns"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"column":           flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(original["column"], d, config),
+			"data_type":        flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(original["dataType"], d, config),
+			"length":           flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(original["length"], d, config),
+			"precision":        flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(original["precision"], d, config),
+			"scale":            flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(original["scale"], d, config),
+			"primary_key":      flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(original["primaryKey"], d, config),
+			"nullable":         flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(original["nullable"], d, config),
+			"ordinal_position": flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(original["ordinalPosition"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigReplicationSlot(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigPublication(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigMaxConcurrentBackfillTasks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenDatastreamStreamDestinationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1554,6 +2998,10 @@ func flattenDatastreamStreamBackfillAll(v interface{}, d *schema.ResourceData, c
 	transformed := make(map[string]interface{})
 	transformed["mysql_excluded_objects"] =
 		flattenDatastreamStreamBackfillAllMysqlExcludedObjects(original["mysqlExcludedObjects"], d, config)
+	transformed["postgresql_excluded_objects"] =
+		flattenDatastreamStreamBackfillAllPostgresqlExcludedObjects(original["postgresqlExcludedObjects"], d, config)
+	transformed["oracle_excluded_objects"] =
+		flattenDatastreamStreamBackfillAllOracleExcludedObjects(original["oracleExcludedObjects"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatastreamStreamBackfillAllMysqlExcludedObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1693,6 +3141,347 @@ func flattenDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTa
 	return v // let terraform core handle it otherwise
 }
 
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["postgresql_schemas"] =
+		flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas(original["postgresqlSchemas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"schema":            flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasSchema(original["schema"], d, config),
+			"postgresql_tables": flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTables(original["postgresqlTables"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"table":              flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesTable(original["table"], d, config),
+			"postgresql_columns": flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(original["postgresqlColumns"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"column":           flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(original["column"], d, config),
+			"data_type":        flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(original["dataType"], d, config),
+			"length":           flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(original["length"], d, config),
+			"precision":        flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(original["precision"], d, config),
+			"scale":            flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(original["scale"], d, config),
+			"primary_key":      flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(original["primaryKey"], d, config),
+			"nullable":         flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(original["nullable"], d, config),
+			"ordinal_position": flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(original["ordinalPosition"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["oracle_schemas"] =
+		flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemas(original["oracleSchemas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"schema":        flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasSchema(original["schema"], d, config),
+			"oracle_tables": flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTables(original["oracleTables"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"table":          flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesTable(original["table"], d, config),
+			"oracle_columns": flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumns(original["oracleColumns"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"column":           flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsColumn(original["column"], d, config),
+			"data_type":        flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsDataType(original["dataType"], d, config),
+			"length":           flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsLength(original["length"], d, config),
+			"precision":        flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrecision(original["precision"], d, config),
+			"scale":            flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsScale(original["scale"], d, config),
+			"encoding":         flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsEncoding(original["encoding"], d, config),
+			"primary_key":      flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(original["primaryKey"], d, config),
+			"nullable":         flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsNullable(original["nullable"], d, config),
+			"ordinal_position": flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(original["ordinalPosition"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsColumn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsDataType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrecision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsEncoding(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsNullable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := stringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenDatastreamStreamBackfillNone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1741,6 +3530,20 @@ func expandDatastreamStreamSourceConfig(v interface{}, d TerraformResourceData, 
 		return nil, err
 	} else {
 		transformed["mysqlSourceConfig"] = transformedMysqlSourceConfig
+	}
+
+	transformedOracleSourceConfig, err := expandDatastreamStreamSourceConfigOracleSourceConfig(original["oracle_source_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["oracleSourceConfig"] = transformedOracleSourceConfig
+	}
+
+	transformedPostgresqlSourceConfig, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfig(original["postgresql_source_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["postgresqlSourceConfig"] = transformedPostgresqlSourceConfig
 	}
 
 	return transformed, nil
@@ -2146,6 +3949,941 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentCdcTasks(v 
 	return v, nil
 }
 
+func expandDatastreamStreamSourceConfigOracleSourceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIncludeObjects, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjects(original["include_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludeObjects); val.IsValid() && !isEmptyValue(val) {
+		transformed["includeObjects"] = transformedIncludeObjects
+	}
+
+	transformedExcludeObjects, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjects(original["exclude_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeObjects); val.IsValid() && !isEmptyValue(val) {
+		transformed["excludeObjects"] = transformedExcludeObjects
+	}
+
+	transformedMaxConcurrentCdcTasks, err := expandDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentCdcTasks(original["max_concurrent_cdc_tasks"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["maxConcurrentCdcTasks"] = transformedMaxConcurrentCdcTasks
+	}
+
+	transformedMaxConcurrentBackfillTasks, err := expandDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentBackfillTasks(original["max_concurrent_backfill_tasks"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["maxConcurrentBackfillTasks"] = transformedMaxConcurrentBackfillTasks
+	}
+
+	transformedDropLargeObjects, err := expandDatastreamStreamSourceConfigOracleSourceConfigDropLargeObjects(original["drop_large_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["dropLargeObjects"] = transformedDropLargeObjects
+	}
+
+	transformedStreamLargeObjects, err := expandDatastreamStreamSourceConfigOracleSourceConfigStreamLargeObjects(original["stream_large_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["streamLargeObjects"] = transformedStreamLargeObjects
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOracleSchemas, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemas(original["oracle_schemas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOracleSchemas); val.IsValid() && !isEmptyValue(val) {
+		transformed["oracleSchemas"] = transformedOracleSchemas
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSchema, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !isEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		transformedOracleTables, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTables(original["oracle_tables"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOracleTables); val.IsValid() && !isEmptyValue(val) {
+			transformed["oracleTables"] = transformedOracleTables
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTable, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesTable(original["table"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+			transformed["table"] = transformedTable
+		}
+
+		transformedOracleColumns, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumns(original["oracle_columns"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOracleColumns); val.IsValid() && !isEmptyValue(val) {
+			transformed["oracleColumns"] = transformedOracleColumns
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedColumn, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(original["column"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedColumn); val.IsValid() && !isEmptyValue(val) {
+			transformed["column"] = transformedColumn
+		}
+
+		transformedDataType, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !isEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		transformedLength, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !isEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		transformedPrecision, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(original["precision"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrecision); val.IsValid() && !isEmptyValue(val) {
+			transformed["precision"] = transformedPrecision
+		}
+
+		transformedScale, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsScale(original["scale"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScale); val.IsValid() && !isEmptyValue(val) {
+			transformed["scale"] = transformedScale
+		}
+
+		transformedEncoding, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(original["encoding"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEncoding); val.IsValid() && !isEmptyValue(val) {
+			transformed["encoding"] = transformedEncoding
+		}
+
+		transformedPrimaryKey, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(original["primary_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrimaryKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["primaryKey"] = transformedPrimaryKey
+		}
+
+		transformedNullable, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(original["nullable"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !isEmptyValue(val) {
+			transformed["nullable"] = transformedNullable
+		}
+
+		transformedOrdinalPosition, err := expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(original["ordinal_position"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOrdinalPosition); val.IsValid() && !isEmptyValue(val) {
+			transformed["ordinalPosition"] = transformedOrdinalPosition
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsScale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOracleSchemas, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemas(original["oracle_schemas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOracleSchemas); val.IsValid() && !isEmptyValue(val) {
+		transformed["oracleSchemas"] = transformedOracleSchemas
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSchema, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !isEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		transformedOracleTables, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTables(original["oracle_tables"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOracleTables); val.IsValid() && !isEmptyValue(val) {
+			transformed["oracleTables"] = transformedOracleTables
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTable, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesTable(original["table"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+			transformed["table"] = transformedTable
+		}
+
+		transformedOracleColumns, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumns(original["oracle_columns"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOracleColumns); val.IsValid() && !isEmptyValue(val) {
+			transformed["oracleColumns"] = transformedOracleColumns
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedColumn, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(original["column"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedColumn); val.IsValid() && !isEmptyValue(val) {
+			transformed["column"] = transformedColumn
+		}
+
+		transformedDataType, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !isEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		transformedLength, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !isEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		transformedPrecision, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(original["precision"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrecision); val.IsValid() && !isEmptyValue(val) {
+			transformed["precision"] = transformedPrecision
+		}
+
+		transformedScale, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsScale(original["scale"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScale); val.IsValid() && !isEmptyValue(val) {
+			transformed["scale"] = transformedScale
+		}
+
+		transformedEncoding, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(original["encoding"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEncoding); val.IsValid() && !isEmptyValue(val) {
+			transformed["encoding"] = transformedEncoding
+		}
+
+		transformedPrimaryKey, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(original["primary_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrimaryKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["primaryKey"] = transformedPrimaryKey
+		}
+
+		transformedNullable, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(original["nullable"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !isEmptyValue(val) {
+			transformed["nullable"] = transformedNullable
+		}
+
+		transformedOrdinalPosition, err := expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(original["ordinal_position"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOrdinalPosition); val.IsValid() && !isEmptyValue(val) {
+			transformed["ordinalPosition"] = transformedOrdinalPosition
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsDataType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrecision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsScale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsEncoding(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsNullable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentCdcTasks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentBackfillTasks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigDropLargeObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigOracleSourceConfigStreamLargeObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIncludeObjects, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjects(original["include_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludeObjects); val.IsValid() && !isEmptyValue(val) {
+		transformed["includeObjects"] = transformedIncludeObjects
+	}
+
+	transformedExcludeObjects, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjects(original["exclude_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeObjects); val.IsValid() && !isEmptyValue(val) {
+		transformed["excludeObjects"] = transformedExcludeObjects
+	}
+
+	transformedReplicationSlot, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigReplicationSlot(original["replication_slot"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplicationSlot); val.IsValid() && !isEmptyValue(val) {
+		transformed["replicationSlot"] = transformedReplicationSlot
+	}
+
+	transformedPublication, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigPublication(original["publication"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPublication); val.IsValid() && !isEmptyValue(val) {
+		transformed["publication"] = transformedPublication
+	}
+
+	transformedMaxConcurrentBackfillTasks, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigMaxConcurrentBackfillTasks(original["max_concurrent_backfill_tasks"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["maxConcurrentBackfillTasks"] = transformedMaxConcurrentBackfillTasks
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPostgresqlSchemas, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemas(original["postgresql_schemas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostgresqlSchemas); val.IsValid() && !isEmptyValue(val) {
+		transformed["postgresqlSchemas"] = transformedPostgresqlSchemas
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSchema, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !isEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		transformedPostgresqlTables, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTables(original["postgresql_tables"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPostgresqlTables); val.IsValid() && !isEmptyValue(val) {
+			transformed["postgresqlTables"] = transformedPostgresqlTables
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTable, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesTable(original["table"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+			transformed["table"] = transformedTable
+		}
+
+		transformedPostgresqlColumns, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(original["postgresql_columns"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPostgresqlColumns); val.IsValid() && !isEmptyValue(val) {
+			transformed["postgresqlColumns"] = transformedPostgresqlColumns
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedColumn, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(original["column"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedColumn); val.IsValid() && !isEmptyValue(val) {
+			transformed["column"] = transformedColumn
+		}
+
+		transformedDataType, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !isEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		transformedLength, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !isEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		transformedPrecision, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(original["precision"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrecision); val.IsValid() && !isEmptyValue(val) {
+			transformed["precision"] = transformedPrecision
+		}
+
+		transformedScale, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(original["scale"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScale); val.IsValid() && !isEmptyValue(val) {
+			transformed["scale"] = transformedScale
+		}
+
+		transformedPrimaryKey, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(original["primary_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrimaryKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["primaryKey"] = transformedPrimaryKey
+		}
+
+		transformedNullable, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(original["nullable"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !isEmptyValue(val) {
+			transformed["nullable"] = transformedNullable
+		}
+
+		transformedOrdinalPosition, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(original["ordinal_position"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOrdinalPosition); val.IsValid() && !isEmptyValue(val) {
+			transformed["ordinalPosition"] = transformedOrdinalPosition
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPostgresqlSchemas, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemas(original["postgresql_schemas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostgresqlSchemas); val.IsValid() && !isEmptyValue(val) {
+		transformed["postgresqlSchemas"] = transformedPostgresqlSchemas
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSchema, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !isEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		transformedPostgresqlTables, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTables(original["postgresql_tables"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPostgresqlTables); val.IsValid() && !isEmptyValue(val) {
+			transformed["postgresqlTables"] = transformedPostgresqlTables
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTable, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesTable(original["table"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+			transformed["table"] = transformedTable
+		}
+
+		transformedPostgresqlColumns, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(original["postgresql_columns"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPostgresqlColumns); val.IsValid() && !isEmptyValue(val) {
+			transformed["postgresqlColumns"] = transformedPostgresqlColumns
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedColumn, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(original["column"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedColumn); val.IsValid() && !isEmptyValue(val) {
+			transformed["column"] = transformedColumn
+		}
+
+		transformedDataType, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !isEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		transformedLength, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !isEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		transformedPrecision, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(original["precision"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrecision); val.IsValid() && !isEmptyValue(val) {
+			transformed["precision"] = transformedPrecision
+		}
+
+		transformedScale, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(original["scale"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScale); val.IsValid() && !isEmptyValue(val) {
+			transformed["scale"] = transformedScale
+		}
+
+		transformedPrimaryKey, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(original["primary_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrimaryKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["primaryKey"] = transformedPrimaryKey
+		}
+
+		transformedNullable, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(original["nullable"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !isEmptyValue(val) {
+			transformed["nullable"] = transformedNullable
+		}
+
+		transformedOrdinalPosition, err := expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(original["ordinal_position"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOrdinalPosition); val.IsValid() && !isEmptyValue(val) {
+			transformed["ordinalPosition"] = transformedOrdinalPosition
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigReplicationSlot(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigPublication(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigPostgresqlSourceConfigMaxConcurrentBackfillTasks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDatastreamStreamDestinationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2436,6 +5174,20 @@ func expandDatastreamStreamBackfillAll(v interface{}, d TerraformResourceData, c
 		transformed["mysqlExcludedObjects"] = transformedMysqlExcludedObjects
 	}
 
+	transformedPostgresqlExcludedObjects, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjects(original["postgresql_excluded_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostgresqlExcludedObjects); val.IsValid() && !isEmptyValue(val) {
+		transformed["postgresqlExcludedObjects"] = transformedPostgresqlExcludedObjects
+	}
+
+	transformedOracleExcludedObjects, err := expandDatastreamStreamBackfillAllOracleExcludedObjects(original["oracle_excluded_objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOracleExcludedObjects); val.IsValid() && !isEmptyValue(val) {
+		transformed["oracleExcludedObjects"] = transformedOracleExcludedObjects
+	}
+
 	return transformed, nil
 }
 
@@ -2613,6 +5365,393 @@ func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTab
 }
 
 func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTablesMysqlColumnsOrdinalPosition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPostgresqlSchemas, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas(original["postgresql_schemas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostgresqlSchemas); val.IsValid() && !isEmptyValue(val) {
+		transformed["postgresqlSchemas"] = transformedPostgresqlSchemas
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSchema, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !isEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		transformedPostgresqlTables, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTables(original["postgresql_tables"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPostgresqlTables); val.IsValid() && !isEmptyValue(val) {
+			transformed["postgresqlTables"] = transformedPostgresqlTables
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTable, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesTable(original["table"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+			transformed["table"] = transformedTable
+		}
+
+		transformedPostgresqlColumns, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(original["postgresql_columns"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPostgresqlColumns); val.IsValid() && !isEmptyValue(val) {
+			transformed["postgresqlColumns"] = transformedPostgresqlColumns
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedColumn, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(original["column"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedColumn); val.IsValid() && !isEmptyValue(val) {
+			transformed["column"] = transformedColumn
+		}
+
+		transformedDataType, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !isEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		transformedLength, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !isEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		transformedPrecision, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(original["precision"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrecision); val.IsValid() && !isEmptyValue(val) {
+			transformed["precision"] = transformedPrecision
+		}
+
+		transformedScale, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(original["scale"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScale); val.IsValid() && !isEmptyValue(val) {
+			transformed["scale"] = transformedScale
+		}
+
+		transformedPrimaryKey, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(original["primary_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrimaryKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["primaryKey"] = transformedPrimaryKey
+		}
+
+		transformedNullable, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(original["nullable"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !isEmptyValue(val) {
+			transformed["nullable"] = transformedNullable
+		}
+
+		transformedOrdinalPosition, err := expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(original["ordinal_position"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOrdinalPosition); val.IsValid() && !isEmptyValue(val) {
+			transformed["ordinalPosition"] = transformedOrdinalPosition
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsDataType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrecision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsScale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsPrimaryKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsNullable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumnsOrdinalPosition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOracleSchemas, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemas(original["oracle_schemas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOracleSchemas); val.IsValid() && !isEmptyValue(val) {
+		transformed["oracleSchemas"] = transformedOracleSchemas
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSchema, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !isEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		transformedOracleTables, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTables(original["oracle_tables"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOracleTables); val.IsValid() && !isEmptyValue(val) {
+			transformed["oracleTables"] = transformedOracleTables
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTable, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesTable(original["table"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+			transformed["table"] = transformedTable
+		}
+
+		transformedOracleColumns, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumns(original["oracle_columns"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOracleColumns); val.IsValid() && !isEmptyValue(val) {
+			transformed["oracleColumns"] = transformedOracleColumns
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedColumn, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsColumn(original["column"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedColumn); val.IsValid() && !isEmptyValue(val) {
+			transformed["column"] = transformedColumn
+		}
+
+		transformedDataType, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !isEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		transformedLength, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !isEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		transformedPrecision, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrecision(original["precision"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrecision); val.IsValid() && !isEmptyValue(val) {
+			transformed["precision"] = transformedPrecision
+		}
+
+		transformedScale, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsScale(original["scale"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScale); val.IsValid() && !isEmptyValue(val) {
+			transformed["scale"] = transformedScale
+		}
+
+		transformedEncoding, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsEncoding(original["encoding"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEncoding); val.IsValid() && !isEmptyValue(val) {
+			transformed["encoding"] = transformedEncoding
+		}
+
+		transformedPrimaryKey, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(original["primary_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrimaryKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["primaryKey"] = transformedPrimaryKey
+		}
+
+		transformedNullable, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsNullable(original["nullable"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !isEmptyValue(val) {
+			transformed["nullable"] = transformedNullable
+		}
+
+		transformedOrdinalPosition, err := expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(original["ordinal_position"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOrdinalPosition); val.IsValid() && !isEmptyValue(val) {
+			transformed["ordinalPosition"] = transformedOrdinalPosition
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsDataType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrecision(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsScale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsEncoding(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsPrimaryKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsNullable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumnsOrdinalPosition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

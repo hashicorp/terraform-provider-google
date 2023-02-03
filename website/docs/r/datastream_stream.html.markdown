@@ -233,6 +233,186 @@ resource "google_datastream_stream" "default" {
     customer_managed_encryption_key = "kms-name"
 }
 ```
+## Example Usage - Datastream Stream Postgresql
+
+
+```hcl
+resource "google_datastream_connection_profile" "source" {
+    display_name          = "Postgresql Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+
+    postgresql_profile {
+        hostname = "hostname"
+        port     = 3306
+        username = "user"
+        password = "pass"
+        database = "postgres"
+    }
+}
+
+resource "google_datastream_connection_profile" "destination" {
+    display_name          = "BigQuery Destination"
+    location              = "us-central1"
+    connection_profile_id = "destination-profile"
+
+    bigquery_profile {}
+}
+
+resource "google_datastream_stream" "default"  {
+    display_name = "Postgres to BigQuery"
+    location     = "us-central1"
+    stream_id    = "my-stream"
+    desired_state = "RUNNING"
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source.id
+        postgresql_source_config {
+            max_concurrent_backfill_tasks = 12
+            publication      = "publication"
+            replication_slot = "replication_slot"
+            include_objects {
+                postgresql_schemas {
+                    schema = "schema"
+                    postgresql_tables {
+                        table = "table"
+                        postgresql_columns {
+                            column = "column"
+                        }
+                    }
+                }
+            }
+            exclude_objects {
+                postgresql_schemas {
+                    schema = "schema"
+                    postgresql_tables {
+                        table = "table"
+                        postgresql_columns {
+                            column = "column"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination.id
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                   location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_all {
+        postgresql_excluded_objects {
+            postgresql_schemas {
+                schema = "schema"
+                postgresql_tables {
+                    table = "table"
+                    postgresql_columns {
+                        column = "column"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+## Example Usage - Datastream Stream Oracle
+
+
+```hcl
+resource "google_datastream_connection_profile" "source" {
+    display_name          = "Oracle Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+
+    oracle_profile {
+        hostname = "hostname"
+        port     = 1521
+        username = "user"
+        password = "pass"
+        database_service = "ORCL"
+    }
+}
+
+resource "google_datastream_connection_profile" "destination" {
+    display_name          = "BigQuery Destination"
+    location              = "us-central1"
+    connection_profile_id = "destination-profile"
+
+    bigquery_profile {}
+}
+
+resource "google_datastream_stream" "stream5" {
+    display_name = "Oracle to BigQuery"
+    location     = "us-central1"
+    stream_id    = "my-stream"
+    desired_state = "RUNNING"
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source.id
+        oracle_source_config {
+            max_concurrent_cdc_tasks = 8
+            max_concurrent_backfill_tasks = 12
+            include_objects {
+                oracle_schemas {
+                    schema = "schema"
+                    oracle_tables {
+                        table = "table"
+                        oracle_columns {
+                            column = "column"
+                        }
+                    }
+                }
+            }
+            exclude_objects {
+                oracle_schemas {
+                    schema = "schema"
+                    oracle_tables {
+                        table = "table"
+                        oracle_columns {
+                            column = "column"
+                        }
+                    }
+                }
+            }
+            drop_large_objects {}
+		    }
+    }
+
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination.id
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_all {
+        oracle_excluded_objects {
+            oracle_schemas {
+                schema = "schema"
+                oracle_tables {
+                    table = "table"
+                    oracle_columns {
+                        column = "column"
+                    }
+                }
+            }
+        }
+    }
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=datastream_stream_bigquery&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -393,9 +573,19 @@ The following arguments are supported:
   Source connection profile resource. Format: projects/{project}/locations/{location}/connectionProfiles/{name}
 
 * `mysql_source_config` -
-  (Required)
+  (Optional)
   MySQL data source configuration.
   Structure is [documented below](#nested_mysql_source_config).
+
+* `oracle_source_config` -
+  (Optional)
+  MySQL data source configuration.
+  Structure is [documented below](#nested_oracle_source_config).
+
+* `postgresql_source_config` -
+  (Optional)
+  PostgreSQL data source configuration.
+  Structure is [documented below](#nested_postgresql_source_config).
 
 
 <a name="nested_mysql_source_config"></a>The `mysql_source_config` block supports:
@@ -527,6 +717,321 @@ The following arguments are supported:
 * `collation` -
   (Optional)
   Column collation.
+
+* `primary_key` -
+  (Optional)
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  (Optional)
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  (Optional)
+  The ordinal position of the column in the table.
+
+<a name="nested_oracle_source_config"></a>The `oracle_source_config` block supports:
+
+* `include_objects` -
+  (Optional)
+  Oracle objects to retrieve from the source.
+  Structure is [documented below](#nested_include_objects).
+
+* `exclude_objects` -
+  (Optional)
+  Oracle objects to exclude from the stream.
+  Structure is [documented below](#nested_exclude_objects).
+
+* `max_concurrent_cdc_tasks` -
+  (Optional)
+  Maximum number of concurrent CDC tasks. The number should be non negative.
+  If not set (or set to 0), the system's default value will be used.
+
+* `max_concurrent_backfill_tasks` -
+  (Optional)
+  Maximum number of concurrent backfill tasks. The number should be non negative.
+  If not set (or set to 0), the system's default value will be used.
+
+* `drop_large_objects` -
+  (Optional)
+  Configuration to drop large object values.
+
+* `stream_large_objects` -
+  (Optional)
+  Configuration to drop large object values.
+
+
+<a name="nested_include_objects"></a>The `include_objects` block supports:
+
+* `oracle_schemas` -
+  (Required)
+  Oracle schemas/databases in the database server
+  Structure is [documented below](#nested_oracle_schemas).
+
+
+<a name="nested_oracle_schemas"></a>The `oracle_schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `oracle_tables` -
+  (Optional)
+  Tables in the database.
+  Structure is [documented below](#nested_oracle_tables).
+
+
+<a name="nested_oracle_tables"></a>The `oracle_tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `oracle_columns` -
+  (Optional)
+  Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_oracle_columns).
+
+
+<a name="nested_oracle_columns"></a>The `oracle_columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The Oracle data type. Full data types list can be found here:
+  https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
+
+* `length` -
+  Column length.
+
+* `precision` -
+  Column precision.
+
+* `scale` -
+  Column scale.
+
+* `encoding` -
+  Column encoding.
+
+* `primary_key` -
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  The ordinal position of the column in the table.
+
+<a name="nested_exclude_objects"></a>The `exclude_objects` block supports:
+
+* `oracle_schemas` -
+  (Required)
+  Oracle schemas/databases in the database server
+  Structure is [documented below](#nested_oracle_schemas).
+
+
+<a name="nested_oracle_schemas"></a>The `oracle_schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `oracle_tables` -
+  (Optional)
+  Tables in the database.
+  Structure is [documented below](#nested_oracle_tables).
+
+
+<a name="nested_oracle_tables"></a>The `oracle_tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `oracle_columns` -
+  (Optional)
+  Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_oracle_columns).
+
+
+<a name="nested_oracle_columns"></a>The `oracle_columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The Oracle data type. Full data types list can be found here:
+  https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
+
+* `length` -
+  Column length.
+
+* `precision` -
+  Column precision.
+
+* `scale` -
+  Column scale.
+
+* `encoding` -
+  Column encoding.
+
+* `primary_key` -
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  The ordinal position of the column in the table.
+
+<a name="nested_postgresql_source_config"></a>The `postgresql_source_config` block supports:
+
+* `include_objects` -
+  (Optional)
+  PostgreSQL objects to retrieve from the source.
+  Structure is [documented below](#nested_include_objects).
+
+* `exclude_objects` -
+  (Optional)
+  PostgreSQL objects to exclude from the stream.
+  Structure is [documented below](#nested_exclude_objects).
+
+* `replication_slot` -
+  (Required)
+  The name of the logical replication slot that's configured with
+  the pgoutput plugin.
+
+* `publication` -
+  (Required)
+  The name of the publication that includes the set of all tables
+  that are defined in the stream's include_objects.
+
+* `max_concurrent_backfill_tasks` -
+  (Optional)
+  Maximum number of concurrent backfill tasks. The number should be non
+  negative. If not set (or set to 0), the system's default value will be used.
+
+
+<a name="nested_include_objects"></a>The `include_objects` block supports:
+
+* `postgresql_schemas` -
+  (Required)
+  PostgreSQL schemas on the server
+  Structure is [documented below](#nested_postgresql_schemas).
+
+
+<a name="nested_postgresql_schemas"></a>The `postgresql_schemas` block supports:
+
+* `schema` -
+  (Required)
+  Database name.
+
+* `postgresql_tables` -
+  (Optional)
+  Tables in the schema.
+  Structure is [documented below](#nested_postgresql_tables).
+
+
+<a name="nested_postgresql_tables"></a>The `postgresql_tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `postgresql_columns` -
+  (Optional)
+  PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_postgresql_columns).
+
+
+<a name="nested_postgresql_columns"></a>The `postgresql_columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The PostgreSQL data type. Full data types list can be found here:
+  https://www.postgresql.org/docs/current/datatype.html
+
+* `length` -
+  Column length.
+
+* `precision` -
+  Column precision.
+
+* `scale` -
+  Column scale.
+
+* `primary_key` -
+  (Optional)
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  (Optional)
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  (Optional)
+  The ordinal position of the column in the table.
+
+<a name="nested_exclude_objects"></a>The `exclude_objects` block supports:
+
+* `postgresql_schemas` -
+  (Required)
+  PostgreSQL schemas on the server
+  Structure is [documented below](#nested_postgresql_schemas).
+
+
+<a name="nested_postgresql_schemas"></a>The `postgresql_schemas` block supports:
+
+* `schema` -
+  (Required)
+  Database name.
+
+* `postgresql_tables` -
+  (Optional)
+  Tables in the schema.
+  Structure is [documented below](#nested_postgresql_tables).
+
+
+<a name="nested_postgresql_tables"></a>The `postgresql_tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `postgresql_columns` -
+  (Optional)
+  PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_postgresql_columns).
+
+
+<a name="nested_postgresql_columns"></a>The `postgresql_columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The PostgreSQL data type. Full data types list can be found here:
+  https://www.postgresql.org/docs/current/datatype.html
+
+* `length` -
+  Column length.
+
+* `precision` -
+  Column precision.
+
+* `scale` -
+  Column scale.
 
 * `primary_key` -
   (Optional)
@@ -681,6 +1186,16 @@ The following arguments are supported:
   MySQL data source objects to avoid backfilling.
   Structure is [documented below](#nested_mysql_excluded_objects).
 
+* `postgresql_excluded_objects` -
+  (Optional)
+  PostgreSQL data source objects to avoid backfilling.
+  Structure is [documented below](#nested_postgresql_excluded_objects).
+
+* `oracle_excluded_objects` -
+  (Optional)
+  PostgreSQL data source objects to avoid backfilling.
+  Structure is [documented below](#nested_oracle_excluded_objects).
+
 
 <a name="nested_mysql_excluded_objects"></a>The `mysql_excluded_objects` block supports:
 
@@ -742,6 +1257,134 @@ The following arguments are supported:
 
 * `ordinal_position` -
   (Optional)
+  The ordinal position of the column in the table.
+
+<a name="nested_postgresql_excluded_objects"></a>The `postgresql_excluded_objects` block supports:
+
+* `postgresql_schemas` -
+  (Required)
+  PostgreSQL schemas on the server
+  Structure is [documented below](#nested_postgresql_schemas).
+
+
+<a name="nested_postgresql_schemas"></a>The `postgresql_schemas` block supports:
+
+* `schema` -
+  (Required)
+  Database name.
+
+* `postgresql_tables` -
+  (Optional)
+  Tables in the schema.
+  Structure is [documented below](#nested_postgresql_tables).
+
+
+<a name="nested_postgresql_tables"></a>The `postgresql_tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `postgresql_columns` -
+  (Optional)
+  PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_postgresql_columns).
+
+
+<a name="nested_postgresql_columns"></a>The `postgresql_columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The PostgreSQL data type. Full data types list can be found here:
+  https://www.postgresql.org/docs/current/datatype.html
+
+* `length` -
+  Column length.
+
+* `precision` -
+  Column precision.
+
+* `scale` -
+  Column scale.
+
+* `primary_key` -
+  (Optional)
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  (Optional)
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  (Optional)
+  The ordinal position of the column in the table.
+
+<a name="nested_oracle_excluded_objects"></a>The `oracle_excluded_objects` block supports:
+
+* `oracle_schemas` -
+  (Required)
+  Oracle schemas/databases in the database server
+  Structure is [documented below](#nested_oracle_schemas).
+
+
+<a name="nested_oracle_schemas"></a>The `oracle_schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `oracle_tables` -
+  (Optional)
+  Tables in the database.
+  Structure is [documented below](#nested_oracle_tables).
+
+
+<a name="nested_oracle_tables"></a>The `oracle_tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `oracle_columns` -
+  (Optional)
+  Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_oracle_columns).
+
+
+<a name="nested_oracle_columns"></a>The `oracle_columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The Oracle data type. Full data types list can be found here:
+  https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
+
+* `length` -
+  Column length.
+
+* `precision` -
+  Column precision.
+
+* `scale` -
+  Column scale.
+
+* `encoding` -
+  Column encoding.
+
+* `primary_key` -
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
   The ordinal position of the column in the table.
 
 ## Attributes Reference
