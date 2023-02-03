@@ -194,7 +194,6 @@ able to access the public internet.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Current version of the Data Fusion.`,
 			},
 			"zone": {
@@ -591,6 +590,12 @@ func resourceDataFusionInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	versionProp, err := expandDataFusionInstanceVersion(d.Get("version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionProp)) {
+		obj["version"] = versionProp
 	}
 	eventPublishConfigProp, err := expandDataFusionInstanceEventPublishConfig(d.Get("event_publish_config"), d, config)
 	if err != nil {

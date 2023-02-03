@@ -1,0 +1,3 @@
+```release-note:bug
+datafusion: fixed `version` can't be updated on `google_data_fusion_instance`
+```
