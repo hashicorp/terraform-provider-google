@@ -1,0 +1,9 @@
+```release-note:enhancement
+datastream: Added `postgresql_source_config` & `oracle_source_config` in `google_datastream_stream`
+```
+```release-note:enhancement
+datastream: Added support for `desired_state=RUNNING` in `google_datastream_stream`
+```
+```release-note:enhancement
+datastream: Exposed validation errors in `google_datastream_stream`
+```
