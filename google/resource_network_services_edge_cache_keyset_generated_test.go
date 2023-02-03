@@ -52,7 +52,7 @@ func testAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetBasicEx
 	return Nprintf(`
 
 resource "google_network_services_edge_cache_keyset" "default" {
-  name                 = "default%{random_suffix}"
+  name                 = "tf-test-my-keyset%{random_suffix}"
   description          = "The default keyset"
   public_key {
     id = "my-public-key"
@@ -108,7 +108,7 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 }
 
 resource "google_network_services_edge_cache_keyset" "default" {
-  name        = "default%{random_suffix}"
+  name        = "tf-test-my-keyset%{random_suffix}"
   description = "The default keyset"
   public_key {
     id      = "my-public-key"
