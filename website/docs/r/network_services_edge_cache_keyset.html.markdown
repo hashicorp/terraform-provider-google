@@ -37,7 +37,7 @@ state as plain-text. [Read more about sensitive data in state](https://www.terra
 ```hcl
 
 resource "google_network_services_edge_cache_keyset" "default" {
-  name                 = "default"
+  name                 = "my-keyset"
   description          = "The default keyset"
   public_key {
     id = "my-public-key"
@@ -73,7 +73,7 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 }
 
 resource "google_network_services_edge_cache_keyset" "default" {
-  name        = "default"
+  name        = "my-keyset"
   description = "The default keyset"
   public_key {
     id      = "my-public-key"
