@@ -25,8 +25,9 @@ func TestAccDataFusionInstanceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":   randString(t, 10),
+		"role":            "roles/viewer",
+		"prober_test_run": `options = { prober_test_run = "true" }`,
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -60,8 +61,9 @@ func TestAccDataFusionInstanceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":   randString(t, 10),
+		"role":            "roles/viewer",
+		"prober_test_run": `options = { prober_test_run = "true" }`,
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -86,8 +88,9 @@ func TestAccDataFusionInstanceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":   randString(t, 10),
+		"role":            "roles/viewer",
+		"prober_test_run": `options = { prober_test_run = "true" }`,
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -122,10 +125,7 @@ resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
   type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 
 resource "google_data_fusion_instance_iam_member" "foo" {
@@ -144,10 +144,7 @@ resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
   type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 
 data "google_iam_policy" "foo" {
@@ -172,10 +169,7 @@ resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
   type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 
 data "google_iam_policy" "foo" {
@@ -196,10 +190,7 @@ resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
   type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 
 resource "google_data_fusion_instance_iam_binding" "foo" {
@@ -218,10 +209,7 @@ resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
   type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 
 resource "google_data_fusion_instance_iam_binding" "foo" {

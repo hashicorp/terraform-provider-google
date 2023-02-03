@@ -41,10 +41,7 @@ resource "google_data_fusion_instance" "basic_instance" {
   name   = "my-instance"
   region = "us-central1"
   type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -77,10 +74,7 @@ resource "google_data_fusion_instance" "extended_instance" {
     ip_allocation = "${google_compute_global_address.private_ip_alloc.address}/${google_compute_global_address.private_ip_alloc.prefix_length}"
   }
 
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  
 }
 
 data "google_app_engine_default_service_account" "default" {
@@ -154,10 +148,7 @@ resource "google_data_fusion_instance" "enterprise_instance" {
   region = "us-central1"
   type = "ENTERPRISE"
   enable_rbac = true
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
