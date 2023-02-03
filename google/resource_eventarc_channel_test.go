@@ -110,13 +110,11 @@ data "google_kms_crypto_key" "key1" {
 }
 
   
-resource "google_kms_crypto_key_iam_binding" "key1_binding" {
+resource "google_kms_crypto_key_iam_member" "key1_member" {
 	crypto_key_id = data.google_kms_crypto_key.key1.id
 	role      = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-	members = [
-	"serviceAccount:service-${data.google_project.test_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com",
-	]
+	member = "serviceAccount:service-${data.google_project.test_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
 }
 
 resource "google_eventarc_channel" "primary" {
@@ -124,7 +122,7 @@ resource "google_eventarc_channel" "primary" {
 	name     = "tf-test-name%{random_suffix}"
 	crypto_key_name =  data.google_kms_crypto_key.key1.id
 	third_party_provider = "projects/${data.google_project.test_project.project_id}/locations/%{region}/providers/datadog"
-	depends_on = [google_kms_crypto_key_iam_binding.key1_binding]
+	depends_on = [google_kms_crypto_key_iam_member.key1_member]
 }
 `, context)
 }
@@ -145,13 +143,11 @@ data "google_kms_crypto_key" "key2" {
 	key_ring = data.google_kms_key_ring.test_key_ring.id
 }
 
-resource "google_kms_crypto_key_iam_binding" "key2_binding" {
+resource "google_kms_crypto_key_iam_member" "key2_member" {
 	crypto_key_id = data.google_kms_crypto_key.key2.id
 	role      = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 	
-	members = [
-	"serviceAccount:service-${data.google_project.test_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com",
-	]
+	member = "serviceAccount:service-${data.google_project.test_project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
 }
 
 resource "google_eventarc_channel" "primary" {
@@ -159,7 +155,7 @@ resource "google_eventarc_channel" "primary" {
 	name     = "tf-test-name%{random_suffix}"
 	crypto_key_name= data.google_kms_crypto_key.key2.id
 	third_party_provider = "projects/${data.google_project.test_project.project_id}/locations/%{region}/providers/datadog"
-	depends_on = [google_kms_crypto_key_iam_binding.key2_binding]
+	depends_on = [google_kms_crypto_key_iam_member.key2_member]
 }
 `, context)
 }
