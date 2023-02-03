@@ -619,6 +619,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
     name = "customhttp"
     port = 8080
   }
+
 }
 `, template, target, description, igm)
 }
@@ -710,6 +711,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
     name = "customhttps"
     port = 8443
   }
+
 
 }
 `, template1, target1, target2, template2, description, igm)
