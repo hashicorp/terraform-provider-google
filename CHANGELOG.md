@@ -1,5 +1,23 @@
 ## 4.52.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_secret_manager_secret_version_access` ([#13605](https://github.com/hashicorp/terraform-provider-google/pull/13605))
+* **New Resource:** google_workstations_workstation_cluster ([#13619](https://github.com/hashicorp/terraform-provider-google/pull/13619))
+
+IMPROVEMENTS:
+* Updated the `settings.deletion_protection_enabled` property documentation. ([#13581](https://github.com/hashicorp/terraform-provider-google/pull/13581))
+* bigquery: Added support for federated Azure identities to BigQuery Omni connections. ([#13614](https://github.com/hashicorp/terraform-provider-google/pull/13614))
+* bigquery: added `cloud_spanner.use_serverless_analytics` field ([#13588](https://github.com/hashicorp/terraform-provider-google/pull/13588))
+* bigquery: added `cloud_sql.service_account_id` and `azure.identity` output fields ([#13588](https://github.com/hashicorp/terraform-provider-google/pull/13588))
+* compute: added `locality_lb_policies` field to `google_compute_backend_service` ([#13604](https://github.com/hashicorp/terraform-provider-google/pull/13604))
+* sql: made `root_password` field updatable in `google_sql_database_instance` ([#13574](https://github.com/hashicorp/terraform-provider-google/pull/13574))
+
+BUG FIXES:
+* GCF: modify max_instances field to take API's result as default value ([#13575](https://github.com/hashicorp/terraform-provider-google/pull/13575))
+* container: fixed an issue with resuming failed cluster creation ([#13580](https://github.com/hashicorp/terraform-provider-google/pull/13580))
+* gke: fixed the error of Invalid address to set on `config_connector_config` of the data source `google_container_cluster` ([#13566](https://github.com/hashicorp/terraform-provider-google/pull/13566))
+* secretmanager: fixed incorrect required_with for topics in `google_secret_managed_secret` ([#13612](https://github.com/hashicorp/terraform-provider-google/pull/13612))
+
 ## 4.51.0 (January 30, 2023)
 
 DEPRECATIONS:
