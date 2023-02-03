@@ -27,7 +27,8 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"prober_test_run": `options = { prober_test_run = "true" }`,
+		"random_suffix":   randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -54,10 +55,7 @@ resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
   type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 `, context)
 }
@@ -66,7 +64,8 @@ func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"prober_test_run": `options = { prober_test_run = "true" }`,
+		"random_suffix":   randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -110,10 +109,7 @@ resource "google_data_fusion_instance" "extended_instance" {
     ip_allocation = "${google_compute_global_address.private_ip_alloc.address}/${google_compute_global_address.private_ip_alloc.prefix_length}"
   }
 
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 
 data "google_app_engine_default_service_account" "default" {
@@ -199,7 +195,8 @@ func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"prober_test_run": `options = { prober_test_run = "true" }`,
+		"random_suffix":   randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -227,10 +224,7 @@ resource "google_data_fusion_instance" "enterprise_instance" {
   region = "us-central1"
   type = "ENTERPRISE"
   enable_rbac = true
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
+  %{prober_test_run}
 }
 `, context)
 }
