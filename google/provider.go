@@ -633,7 +633,6 @@ func Provider() *schema.Provider {
 			"google_container_registry_repository":                dataSourceGoogleContainerRepo(),
 			"google_dataproc_metastore_service":                   dataSourceDataprocMetastoreService(),
 			"google_dns_keys":                                     dataSourceDNSKeys(),
-			"google_dns_managed_zone":                             dataSourceDnsManagedZone(),
 			"google_game_services_game_server_deployment_rollout": dataSourceGameServicesGameServerDeploymentRollout(),
 			"google_iam_policy":                                   dataSourceGoogleIamPolicy(),
 			"google_iam_role":                                     dataSourceGoogleIamRole(),
