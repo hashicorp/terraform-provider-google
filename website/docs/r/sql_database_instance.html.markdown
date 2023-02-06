@@ -144,8 +144,9 @@ resource "google_sql_database_instance" "instance" {
   settings {
     tier = "db-f1-micro"
     ip_configuration {
-      ipv4_enabled    = false
-      private_network = google_compute_network.private_network.id
+      ipv4_enabled                                  = false
+      private_network                               = google_compute_network.private_network.id
+      enable_private_path_for_google_cloud_services = true
     }
   }
 }
@@ -209,7 +210,7 @@ includes an up-to-date reference of supported versions.
 
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` command that deletes the instance will fail. Defaults to `true`.
-    
+
   ~> **NOTE:** This flag only protects instances from deletion within Terraform. To protect your instances from accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform), use the API flag `settings.deletion_protection_enabled`.
 
 * `restore_backup_context` - (optional) The context needed to restore the database to a backup run. This field will
@@ -280,7 +281,7 @@ The optional `settings.sql_server_audit_config` subblock supports:
 
 * `upload_interval` - (Optional) How often to upload generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
-* `retention_interval` - (Optional) How long to keep generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s". 
+* `retention_interval` - (Optional) How long to keep generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
 * `time_zone` - (Optional) The time_zone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.
 
@@ -323,6 +324,8 @@ This setting can be updated, but it cannot be removed after it is set.
 * `require_ssl` - (Optional) Whether SSL connections over IP are enforced or not.
 
 * `allocated_ip_range` - (Optional) The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://datatracker.ietf.org/doc/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
+
+* `enable_private_path_for_google_cloud_services` - (Optional) Whether Google Cloud services such as BigQuery are allowed to access data in this Cloud SQL instance over a private IP connection. SQLSERVER database type is not supported.
 
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
