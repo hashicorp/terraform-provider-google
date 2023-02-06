@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -86,4 +87,53 @@ func handleDatasourceNotFoundError(ctx context.Context, err error, state *tfsdk.
 	}
 
 	diags.AddError(fmt.Sprintf("Error when reading or editing %s", resource), err.Error())
+}
+
+// field helpers
+
+// Parses a project field with the following formats:
+// - projects/{my_projects}/{resource_type}/{resource_name}
+func parseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaField string, rVal, pVal types.String, isEmptyValid bool, diags *diag.Diagnostics) *ProjectFieldValue {
+	if len(fieldValue) == 0 {
+		if isEmptyValid {
+			return &ProjectFieldValue{resourceType: resourceType}
+		}
+		diags.AddError("field can not be empty", fmt.Sprintf("The project field for resource %s cannot be empty", resourceType))
+		return nil
+	}
+
+	r := regexp.MustCompile(fmt.Sprintf(projectBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &ProjectFieldValue{
+			Project: parts[1],
+			Name:    parts[2],
+
+			resourceType: resourceType,
+		}
+	}
+
+	project := getProjectFromFrameworkSchema(projectSchemaField, rVal, pVal, diags)
+	if diags.HasError() {
+		return nil
+	}
+
+	return &ProjectFieldValue{
+		Project: project.ValueString(),
+		Name:    GetResourceNameFromSelfLink(fieldValue),
+
+		resourceType: resourceType,
+	}
+}
+
+func getProjectFromFrameworkSchema(projectSchemaField string, rVal, pVal types.String, diags *diag.Diagnostics) types.String {
+	if !rVal.IsNull() && projectSchemaField != "" {
+		return rVal
+	}
+
+	if !pVal.IsNull() {
+		return pVal
+	}
+
+	diags.AddError("required field is not set", fmt.Sprintf("%s must be set", projectSchemaField))
+	return types.String{}
 }
