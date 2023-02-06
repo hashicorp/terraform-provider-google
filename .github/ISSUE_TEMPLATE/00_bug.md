@@ -22,7 +22,7 @@ about: For when something is there, but doesn't work how it should.
 
 ### Affected Resource(s)
 
-<!--- Please list the affected resources and data sources. --->
+<!--- Please list the affected resources and data sources. Use google_* if all resources or data sources are affected. --->
 
 * google_XXXXX
 

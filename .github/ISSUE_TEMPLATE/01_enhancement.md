@@ -21,7 +21,7 @@ about: For when something (a resource, field, etc.) is missing, and should be ad
 
 ### New or Affected Resource(s)
 
-<!--- Please list the new or affected resources and data sources. --->
+<!--- Please list the new or affected resources and data sources. Use google_* if all resources or data sources are affected. --->
 
 * google_XXXXX
 
