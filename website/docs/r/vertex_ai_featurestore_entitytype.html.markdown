@@ -112,6 +112,7 @@ resource "google_vertex_ai_featurestore_entitytype" "entity" {
       value = 0.3
     }
   }
+  offline_storage_ttl_days = 30
 }
 ```
 
@@ -145,6 +146,10 @@ The following arguments are supported:
   The default monitoring configuration for all Features under this EntityType.
   If this is populated with [FeaturestoreMonitoringConfig.monitoring_interval] specified, snapshot analysis monitoring is enabled. Otherwise, snapshot analysis monitoring is disabled.
   Structure is [documented below](#nested_monitoring_config).
+
+* `offline_storage_ttl_days` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Config for data retention policy in offline storage. TTL in days for feature values that will be stored in offline storage. The Feature Store offline storage periodically removes obsolete feature values older than offlineStorageTtlDays since the feature generation time. If unset (or explicitly set to 0), default to 4000 days TTL.
 
 
 <a name="nested_monitoring_config"></a>The `monitoring_config` block supports:

@@ -101,7 +101,7 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(t *testing.T
 func testAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_vertex_ai_featurestore" "featurestore" {
-  name     = "terraform%{random_suffix}"
+  name     = "terraform3%{random_suffix}"
   labels = {
     foo = "bar"
   }

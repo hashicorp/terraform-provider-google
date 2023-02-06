@@ -1,0 +1,6 @@
+```release-note:enhancement
+vertex_ai: added `online_storage_ttl_days` to `google_vertex_ai_featurestore` resource (beta)
+```
+```release-note:enhancement
+vertex_ai: added `offline_storage_ttl_days` to `google_vertex_ai_featurestore_entitytype` resource (beta)
+```
