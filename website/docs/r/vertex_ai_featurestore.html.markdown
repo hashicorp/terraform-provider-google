@@ -47,12 +47,33 @@ resource "google_vertex_ai_featurestore" "featurestore" {
   force_destroy = true
 }
 ```
+## Example Usage - Vertex Ai Featurestore With Beta Fields
+
+
+```hcl
+resource "google_vertex_ai_featurestore" "featurestore" {
+  provider = google-beta
+  name     = "terraform2"
+  labels = {
+    foo = "bar"
+  }
+  region   = "us-central1"
+  online_serving_config {
+    fixed_node_count = 2
+  }
+  encryption_spec {
+    kms_key_name = "kms-name"
+  }
+  online_storage_ttl_days = 30
+  force_destroy = true
+}
+```
 ## Example Usage - Vertex Ai Featurestore Scaling
 
 
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
-  name     = "terraform"
+  name     = "terraform3"
   labels = {
     foo = "bar"
   }
@@ -91,6 +112,10 @@ The following arguments are supported:
   (Optional)
   Config for online serving resources.
   Structure is [documented below](#nested_online_serving_config).
+
+* `online_storage_ttl_days` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  TTL in days for feature values that will be stored in online serving storage. The Feature Store online storage periodically removes obsolete feature values older than onlineStorageTtlDays since the feature generation time. Note that onlineStorageTtlDays should be less than or equal to offlineStorageTtlDays for each EntityType under a featurestore. If not set, default to 4000 days
 
 * `encryption_spec` -
   (Optional)
