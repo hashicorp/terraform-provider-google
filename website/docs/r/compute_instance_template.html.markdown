@@ -336,6 +336,8 @@ The following arguments are supported:
     resource is tied to a specific region. Defaults to the region of the
     Provider if no value is given.
 
+* `resource_policies` (Optional) -- A list of self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.
+
 * `reservation_affinity` - (Optional) Specifies the reservations that this instance can consume from.
     Structure is [documented below](#nested_reservation_affinity).
 

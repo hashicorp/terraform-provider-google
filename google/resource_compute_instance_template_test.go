@@ -759,6 +759,33 @@ func TestAccComputeInstanceTemplate_soleTenantNodeAffinities(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_instanceResourcePolicies(t *testing.T) {
+	t.Parallel()
+
+	var template compute.InstanceTemplate
+	var policyName = "tf-test-policy-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_instanceResourcePolicyCollocated(randString(t, 10), policyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &template),
+					testAccCheckComputeInstanceTemplateHasInstanceResourcePolicies(&template, policyName),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_reservationAffinities(t *testing.T) {
 	t.Parallel()
 
@@ -974,7 +1001,7 @@ func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstanceTemplate_resourcePolicies(t *testing.T) {
+func TestAccComputeInstanceTemplate_diskResourcePolicies(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
@@ -986,7 +1013,7 @@ func TestAccComputeInstanceTemplate_resourcePolicies(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceTemplate_resourcePolicies(randString(t, 10), policyName),
+				Config: testAccComputeInstanceTemplate_diskResourcePolicies(randString(t, 10), policyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(&instanceTemplate, policyName),
@@ -1454,6 +1481,18 @@ func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *comp
 
 		return nil
 	}
+}
+
+func testAccCheckComputeInstanceTemplateHasInstanceResourcePolicies(instanceTemplate *compute.InstanceTemplate, resourcePolicy string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		resourcePolicyActual := instanceTemplate.Properties.ResourcePolicies[0]
+		if resourcePolicyActual != resourcePolicy {
+			return fmt.Errorf("Wrong instance resource policy: expected %s, got %s", resourcePolicy, resourcePolicyActual)
+		}
+
+		return nil
+	}
+
 }
 
 func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate *compute.InstanceTemplate, consumeReservationType string, specificReservationNames ...string) resource.TestCheckFunc {
@@ -2414,6 +2453,50 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix)
 }
 
+func testAccComputeInstanceTemplate_instanceResourcePolicyCollocated(suffix string, policyName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_resource_policy" "foo" {
+  name = "%s"
+  region = "us-central1"
+  group_placement_policy {
+    vm_count  = 2
+    collocation = "COLLOCATED"
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "e2-standard-4"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = false
+    automatic_restart = false
+  }
+
+  resource_policies = [google_compute_resource_policy.foo.self_link]
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, policyName, suffix)
+}
+
 func testAccComputeInstanceTemplate_reservationAffinityInstanceTemplate_nonSpecificReservation(templateName, consumeReservationType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -2645,7 +2728,7 @@ resource "google_compute_instance_template" "foobar" {
 `, diskName, imageName, imageDescription)
 }
 
-func testAccComputeInstanceTemplate_resourcePolicies(suffix string, policyName string) string {
+func testAccComputeInstanceTemplate_diskResourcePolicies(suffix string, policyName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-11"
