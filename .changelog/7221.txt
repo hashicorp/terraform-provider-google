@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed wrong maximum limit description for possible VPC MTUs
+```

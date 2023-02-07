@@ -96,8 +96,11 @@ The following arguments are supported:
 
 * `mtu` -
   (Optional)
-  Maximum Transmission Unit in bytes. The minimum value for this field is 1460
-  and the maximum value is 1500 bytes.
+  Maximum Transmission Unit in bytes. The default value is 1460 bytes. 
+  The minimum value for this field is 1300 and the maximum value is 8896 bytes (jumbo frames).
+  Note that packets larger than 1500 bytes (standard Ethernet) can be subject to TCP-MSS clamping or dropped
+  with an ICMP `Fragmentation-Needed` message if the packets are routed to the Internet or other VPCs 
+  with varying MTUs.
 
 * `enable_ula_internal_ipv6` -
   (Optional)
