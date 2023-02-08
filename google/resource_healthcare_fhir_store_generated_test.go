@@ -211,14 +211,13 @@ resource "google_healthcare_fhir_store" "default" {
     label1 = "labelvalue1"
   }
 
-  notification_configs {
-    pubsub_topic = "${google_pubsub_topic.topic.id}" 
-    send_full_resource = true
+  notification_config {
+    pubsub_topic = "${google_pubsub_topic.topic.id}"
   }
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-fhir-notifications%{random_suffix}"
+  name = "tf-test-fhir-notifications%{random_suffix}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
