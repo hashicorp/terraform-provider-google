@@ -85,11 +85,8 @@ The following arguments are supported:
 
 * `format` -
   (Required)
-  The format of packages that are stored in the repository. Supported formats
-  can be found [here](https://cloud.google.com/artifact-registry/docs/supported-formats).
-  You can only create alpha formats if you are a member of the
-  [alpha user group](https://cloud.google.com/artifact-registry/docs/supported-formats#alpha-access).
-
+  The format of packages that are stored in the repository. Format must be one of `apt`, `docker`, `kfp`, `maven`, `npm`, `python`, `yum`.
+  Supported formats can be found [here](https://cloud.google.com/sdk/gcloud/reference/artifacts/repositories/create#REQUIRED-FLAGS).
 
 - - -
 
