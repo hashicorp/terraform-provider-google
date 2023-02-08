@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -110,6 +111,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
+			customdiff.ForceNewIfChange("master_instance_name", isMasterInstanceNameSet),
+			customdiff.IfValueChange("instance_type", isReplicaPromoteRequested, checkPromoteConfigurationsAndUpdateDiff),
 			privateNetworkCustomizeDiff,
 			pitrSupportDbCustomizeDiff,
 		),
@@ -669,7 +672,6 @@ is set to true. Defaults to ZONAL.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The name of the instance that will act as the master in the replication setup. Note, this requires the master to have binary_log_enabled set, as well as existing backups.`,
 			},
 
@@ -684,6 +686,7 @@ is set to true. Defaults to ZONAL.`,
 			"instance_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Optional:    true,
 				Description: `The type of the instance. The valid values are:- 'SQL_INSTANCE_TYPE_UNSPECIFIED', 'CLOUD_SQL_INSTANCE', 'ON_PREMISES_INSTANCE' and 'READ_REPLICA_INSTANCE'.`,
 			},
 
@@ -1504,6 +1507,20 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		maintenance_version = v.(string)
 	}
 
+	promoteReadReplicaRequired := false
+	if d.HasChange("instance_type") {
+		oldInstanceType, newInstanceType := d.GetChange("instance_type")
+
+		if isReplicaPromoteRequested(nil, oldInstanceType, newInstanceType, nil) {
+			err = checkPromoteConfigurations(d)
+			if err != nil {
+				return err
+			}
+
+			promoteReadReplicaRequired = true
+		}
+	}
+
 	desiredSetting := d.Get("settings")
 	var op *sqladmin.Operation
 	var instance *sqladmin.DatabaseInstance
@@ -1602,6 +1619,24 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
 		}
 		err = sqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	if promoteReadReplicaRequired {
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.PromoteReplica(project, d.Get("name").(string)).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to promote read replica instance as primary stand-alone %s: %s", instance.Name, err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Promote Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -2105,4 +2140,63 @@ func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *Config
 func caseDiffDashSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	postReplaceNew := strings.Replace(new, "-", "_", -1)
 	return strings.ToUpper(postReplaceNew) == strings.ToUpper(old)
+}
+
+func isMasterInstanceNameSet(_ context.Context, oldMasterInstanceName interface{}, newMasterInstanceName interface{}, _ interface{}) bool {
+	new := newMasterInstanceName.(string)
+	if new == "" {
+		return false
+	}
+
+	return true
+}
+
+func isReplicaPromoteRequested(_ context.Context, oldInstanceType interface{}, newInstanceType interface{}, _ interface{}) bool {
+	oldInstanceType = oldInstanceType.(string)
+	newInstanceType = newInstanceType.(string)
+
+	if newInstanceType == "CLOUD_SQL_INSTANCE" && oldInstanceType == "READ_REPLICA_INSTANCE" {
+		return true
+	}
+
+	return false
+}
+
+func checkPromoteConfigurations(d *schema.ResourceData) error {
+	masterInstanceName := d.GetRawConfig().GetAttr("master_instance_name")
+	replicaConfiguration := d.GetRawConfig().GetAttr("replica_configuration").AsValueSlice()
+
+	return validatePromoteConfigurations(masterInstanceName, replicaConfiguration)
+}
+
+func checkPromoteConfigurationsAndUpdateDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
+	masterInstanceName := diff.GetRawConfig().GetAttr("master_instance_name")
+	replicaConfiguration := diff.GetRawConfig().GetAttr("replica_configuration").AsValueSlice()
+
+	err := validatePromoteConfigurations(masterInstanceName, replicaConfiguration)
+	if err != nil {
+		return err
+	}
+
+	err = diff.SetNew("master_instance_name", nil)
+	if err != nil {
+		return err
+	}
+
+	err = diff.SetNew("replica_configuration", nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func validatePromoteConfigurations(masterInstanceName cty.Value, replicaConfigurations []cty.Value) error {
+	if !masterInstanceName.IsNull() {
+		return fmt.Errorf("Replica promote configuration check failed. Please remove master_instance_name and try again.")
+	}
+
+	if len(replicaConfigurations) != 0 {
+		return fmt.Errorf("Replica promote configuration check failed. Please remove replica_configuration and try again.")
+	}
+	return nil
 }
