@@ -1,5 +1,5 @@
+---
 subcategory: "Tags"
-page_title: "Google: google_tags_location_tag_binding"
 description: |-
   A LocationTagBinding represents a connection between a TagValue and a Regional cloud resources.
 ---
