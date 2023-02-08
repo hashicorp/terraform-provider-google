@@ -1112,6 +1112,7 @@ func resourceComputeRegionDiskDecoder(d *schema.ResourceData, meta interface{}, 
 		transformed := make(map[string]interface{})
 		// The raw key won't be returned, so we need to use the original.
 		transformed["rawKey"] = d.Get("disk_encryption_key.0.raw_key")
+		transformed["rsaEncryptedKey"] = d.Get("disk_encryption_key.0.rsa_encrypted_key")
 		transformed["sha256"] = original["sha256"]
 
 		if kmsKeyName, ok := original["kmsKeyName"]; ok {
