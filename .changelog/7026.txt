@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: added field `rsaEncryptedKey` to resource `disk` 
+
+```
