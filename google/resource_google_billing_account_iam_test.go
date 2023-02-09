@@ -15,7 +15,7 @@ func TestAccBillingAccountIam(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
-	billing := getTestBillingAccountFromEnv(t)
+	billing := getTestMasterBillingAccountFromEnv(t)
 	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/billing.viewer"
 	vcrTest(t, resource.TestCase{

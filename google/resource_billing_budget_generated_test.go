@@ -27,7 +27,7 @@ func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -75,7 +75,7 @@ func TestAccBillingBudget_billingBudgetLastperiodExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -132,7 +132,7 @@ func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -196,7 +196,7 @@ func TestAccBillingBudget_billingBudgetNotifyExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -273,7 +273,7 @@ func TestAccBillingBudget_billingBudgetCustomperiodExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -348,7 +348,7 @@ func TestAccBillingBudget_billingBudgetOptionalExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
