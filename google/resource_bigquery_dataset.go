@@ -182,6 +182,7 @@ Changing this forces a new resource to be created.`,
 			},
 			"max_time_travel_hours": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: `Defines the time travel window in hours. The value can be from 48 to 168 hours (2 to 7 days).`,
 			},
