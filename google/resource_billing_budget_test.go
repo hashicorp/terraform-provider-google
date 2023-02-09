@@ -11,7 +11,7 @@ func TestAccBillingBudget_billingBudgetCurrencycode(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -69,7 +69,7 @@ func TestAccBillingBudget_billingBudgetUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
+		"billing_acct":  getTestMasterBillingAccountFromEnv(t),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -542,7 +542,7 @@ func TestAccBillingBudget_budgetFilterProjectsOrdering(t *testing.T) {
 
 	context := map[string]interface{}{
 		"org":             getTestOrgFromEnv(t),
-		"billing_acct":    getTestBillingAccountFromEnv(t),
+		"billing_acct":    getTestMasterBillingAccountFromEnv(t),
 		"random_suffix_1": randString(t, 10),
 		"random_suffix_2": randString(t, 10),
 	}
