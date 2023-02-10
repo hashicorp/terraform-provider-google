@@ -23,7 +23,6 @@ title: "Failing test(s): TestAccWhatever"
 
 * google_XXXXX
 
-
 ### Nightly builds
 
 <!-- Link to the nightly build(s), ideally with one impacted test opened -->
