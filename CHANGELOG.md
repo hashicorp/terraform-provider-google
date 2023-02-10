@@ -6,6 +6,8 @@ FEATURES:
 * **New Resource:** `google_cloudbuildv2_connection_iam_member` (beta) ([#13633](https://github.com/hashicorp/terraform-provider-google/pull/13633))
 * **New Resource:** `google_cloudbuildv2_connection_iam_policy` (beta) ([#13633](https://github.com/hashicorp/terraform-provider-google/pull/13633))
 * **New Resource:** `google_alloydb_cluster` ([#13639](https://github.com/hashicorp/terraform-provider-google/pull/13639))
+* **New Resource:** `google_alloydb_instance` ([#13639](https://github.com/hashicorp/terraform-provider-google/pull/13639))
+* **New Resource:** `google_alloydb_backup` ([#13639](https://github.com/hashicorp/terraform-provider-google/pull/13639))
 * **New Resource:** `google_compute_region_target_tcp_proxy` ([#13640](https://github.com/hashicorp/terraform-provider-google/pull/13640))
 * **New Resource:** `google_firestore_database` ([#13675](https://github.com/hashicorp/terraform-provider-google/pull/13675))
 * **New Resource:** `google_workstations_workstation_cluster` ([#13619](https://github.com/hashicorp/terraform-provider-google/pull/13619))
