@@ -1,5 +1,33 @@
 ## 4.53.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_apigee_addons_config` ([#13654](https://github.com/hashicorp/terraform-provider-google/pull/13654))
+* **New Resource:** `google_cloudbuildv2_connection_iam_binding` (beta) ([#13633](https://github.com/hashicorp/terraform-provider-google/pull/13633))
+* **New Resource:** `google_cloudbuildv2_connection_iam_member` (beta) ([#13633](https://github.com/hashicorp/terraform-provider-google/pull/13633))
+* **New Resource:** `google_cloudbuildv2_connection_iam_policy` (beta) ([#13633](https://github.com/hashicorp/terraform-provider-google/pull/13633))
+* **New Resource:** `google_alloydb_cluster` ([#13639](https://github.com/hashicorp/terraform-provider-google/pull/13639))
+* **New Resource:** `google_compute_region_target_tcp_proxy` ([#13640](https://github.com/hashicorp/terraform-provider-google/pull/13640))
+* **New Resource:** `google_firestore_database` ([#13675](https://github.com/hashicorp/terraform-provider-google/pull/13675))
+* **New Resource:** `google_workstations_workstation_cluster` ([#13619](https://github.com/hashicorp/terraform-provider-google/pull/13619))
+
+IMPROVEMENTS:
+* compute: added `resource_policies` field to `google_compute_instance_template` ([#13677](https://github.com/hashicorp/terraform-provider-google/pull/13677))
+* compute: added field `force_update_on_repair` to `instance_lifecycle_policy` (beta) ([#13655](https://github.com/hashicorp/terraform-provider-google/pull/13655))
+* compute: added field `instance_lifecycle_policy` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` (beta) ([#13655](https://github.com/hashicorp/terraform-provider-google/pull/13655))
+* compute: added the `labels` field to the `google_compute_external_vpn_gateway` resource ([#13642](https://github.com/hashicorp/terraform-provider-google/pull/13642))
+* datastream: added `postgresql_source_config` & `oracle_source_config` in `google_datastream_stream` ([#13646](https://github.com/hashicorp/terraform-provider-google/pull/13646))
+* datastream: added support for creating `google_datastream_stream` with `desired_state=RUNNING` ([#13646](https://github.com/hashicorp/terraform-provider-google/pull/13646))
+* datastream: exposed validation errors in `google_datastream_stream` ([#13646](https://github.com/hashicorp/terraform-provider-google/pull/13646))
+* firebase: marked `deletion_policy` as updatable without recreation on `google_firebase_android_app` and `google_firebase_apple_app` ([#13643](https://github.com/hashicorp/terraform-provider-google/pull/13643))
+* redis: Remove `auth_string` parameter from doc as it is only an output ([#13653](https://github.com/hashicorp/terraform-provider-google/pull/13653))
+* sql: added `enable_private_path_for_google_cloud_services` field to `google_sql_database_instance` resource ([#13668](https://github.com/hashicorp/terraform-provider-google/pull/13668))
+* vertex_ai: added the field `description` to `google_vertex_ai_featurestore_entitytype` ([#13641](https://github.com/hashicorp/terraform-provider-google/pull/13641))
+
+BUG FIXES:
+* composer: fixed an issue with cleaning up environments created in an error state ([#13644](https://github.com/hashicorp/terraform-provider-google/pull/13644))
+* compute: fixed wrong maximum limit description for possible VPC MTUs ([#13674](https://github.com/hashicorp/terraform-provider-google/pull/13674))
+* datafusion: fixed `version` can't be updated on `google_data_fusion_instance` ([#13658](https://github.com/hashicorp/terraform-provider-google/pull/13658))
+
 ## 4.52.0 (February 6, 2023)
 
 FEATURES:
