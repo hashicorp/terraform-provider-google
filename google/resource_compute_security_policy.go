@@ -207,7 +207,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 										Optional:     true,
 										Default:      "ALL",
 										Description:  `Determines the key to enforce the rateLimitThreshold on`,
-										ValidateFunc: validation.StringInSlice([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", ""}, false),
 									},
 
 									"enforce_on_key_name": {
@@ -982,12 +982,13 @@ func flattenSecurityPolicyRuleRateLimitOptions(conf *compute.SecurityPolicyRuleR
 	}
 
 	data := map[string]interface{}{
-		"ban_threshold":           flattenThreshold(conf.BanThreshold),
-		"rate_limit_threshold":    flattenThreshold(conf.RateLimitThreshold),
-		"exceed_action":           conf.ExceedAction,
-		"conform_action":          conf.ConformAction,
-		"enforce_on_key":          conf.EnforceOnKey,
-		"enforce_on_key_name":     conf.EnforceOnKeyName,
+		"ban_threshold":        flattenThreshold(conf.BanThreshold),
+		"rate_limit_threshold": flattenThreshold(conf.RateLimitThreshold),
+		"exceed_action":        conf.ExceedAction,
+		"conform_action":       conf.ConformAction,
+		"enforce_on_key":       conf.EnforceOnKey,
+		"enforce_on_key_name":  conf.EnforceOnKeyName,
+
 		"ban_duration_sec":        conf.BanDurationSec,
 		"exceed_redirect_options": flattenSecurityPolicyRedirectOptions(conf.ExceedRedirectOptions),
 	}
