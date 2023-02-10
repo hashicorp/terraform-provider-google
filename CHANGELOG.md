@@ -19,9 +19,9 @@ IMPROVEMENTS:
 * compute: added the `labels` field to the `google_compute_external_vpn_gateway` resource ([#13642](https://github.com/hashicorp/terraform-provider-google/pull/13642))
 * datastream: added `postgresql_source_config` & `oracle_source_config` in `google_datastream_stream` ([#13646](https://github.com/hashicorp/terraform-provider-google/pull/13646))
 * datastream: added support for creating `google_datastream_stream` with `desired_state=RUNNING` ([#13646](https://github.com/hashicorp/terraform-provider-google/pull/13646))
-* datastream: exposed validation errors in `google_datastream_stream` ([#13646](https://github.com/hashicorp/terraform-provider-google/pull/13646))
+* datastream: exposed validation errors during `google_datastream_stream` creation ([#13646](https://github.com/hashicorp/terraform-provider-google/pull/13646))
 * firebase: marked `deletion_policy` as updatable without recreation on `google_firebase_android_app` and `google_firebase_apple_app` ([#13643](https://github.com/hashicorp/terraform-provider-google/pull/13643))
-* redis: Remove `auth_string` parameter from doc as it is only an output ([#13653](https://github.com/hashicorp/terraform-provider-google/pull/13653))
+* redis: remove `auth_string` parameter from doc as it is only an output ([#13653](https://github.com/hashicorp/terraform-provider-google/pull/13653))
 * sql: added `enable_private_path_for_google_cloud_services` field to `google_sql_database_instance` resource ([#13668](https://github.com/hashicorp/terraform-provider-google/pull/13668))
 * vertex_ai: added the field `description` to `google_vertex_ai_featurestore_entitytype` ([#13641](https://github.com/hashicorp/terraform-provider-google/pull/13641))
 
