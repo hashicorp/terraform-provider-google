@@ -12,7 +12,7 @@ title: "Failing test(s): TestAccWhatever"
 - 100% since YYYY-MM-DD
 - X% in MONTH
 
-### Impacted tests:
+### Impacted tests
 <!-- List all impacted tests for searchability. The title of the issue can instead list one or more groups of tests, or describe the overall root cause. -->
 
 - TestAccWhatever
