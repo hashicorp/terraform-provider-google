@@ -22,6 +22,80 @@ description: |-
 
 Beta only: The Cloudbuildv2 Connection resource
 
+## Example Usage - ghe
+```hcl
+resource "google_secret_manager_secret" "private-key-secret" {
+  provider = google-beta
+  secret_id = "ghe-pk-secret"
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "private-key-secret-version" {
+  provider = google-beta
+  secret = google_secret_manager_secret.private-key-secret.id
+  secret_data = file("private-key.pem")
+}
+
+resource "google_secret_manager_secret" "webhook-secret-secret" {
+  provider = google-beta
+  secret_id = "github-token-secret"
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "webhook-secret-secret-version" {
+  provider = google-beta
+  secret = google_secret_manager_secret.webhook-secret-secret.id
+  secret_data = "<webhook-secret-data>"
+}
+
+data "google_iam_policy" "p4sa-secretAccessor" {
+  provider = google-beta
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
+    members = ["serviceAccount:service-123456789@gcp-sa-cloudbuild.iam.gserviceaccount.com"]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-pk" {
+  provider = google-beta
+  secret_id = google_secret_manager_secret.private-key-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-whs" {
+  provider = google-beta
+  secret_id = google_secret_manager_secret.webhook-secret-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_cloudbuildv2_connection" "my-connection" {
+  provider = google-beta
+  location = "us-central1"
+  name = "my-terraform-ghe-connection"
+
+  github_enterprise_config {
+    host_uri = "https://ghe.com"
+    private_key_secret_version = google_secret_manager_secret_version.private-key-secret-version.id
+    webhook_secret_secret_version = google_secret_manager_secret_version.webhook-secret-secret-version.id
+    app_id = 200
+    app_slug = "gcb-app"
+    app_installation_id = 300
+  }
+
+  depends_on = [
+    google_secret_manager_secret_iam_policy.policy-pk,
+    google_secret_manager_secret_iam_policy.policy-whs
+  ]
+}
+
+```
 ## Example Usage - GitHub Connection
 Creates a Connection to github.com
 ```hcl
