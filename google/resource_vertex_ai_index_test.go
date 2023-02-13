@@ -47,7 +47,7 @@ func TestAccVertexAIIndex_updated(t *testing.T) {
 func testAccVertexAIIndex_basic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-%{project}-vertex-ai-index-test%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-%{random_suffix}"
   location = "us-central1"
   uniform_bucket_level_access = true
 }
@@ -101,7 +101,7 @@ resource "google_vertex_ai_index" "index" {
 func testAccVertexAIIndex_updated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-%{project}-vertex-ai-index-test%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-%{random_suffix}"
   location = "us-central1"
   uniform_bucket_level_access = true
 }
