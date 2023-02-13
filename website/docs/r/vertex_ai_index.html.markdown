@@ -31,7 +31,7 @@ To get more information about Index, see:
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name     = "my-project-name-vertex-ai-index-test"  # Every bucket name must be globally unique
+  name     = "vertex-ai-index-test"
   location = "us-central1"
   uniform_bucket_level_access = true
 }
@@ -76,7 +76,7 @@ resource "google_vertex_ai_index" "index" {
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name     = "my-project-name-vertex-ai-index-test"  # Every bucket name must be globally unique
+  name     = "vertex-ai-index-test"
   location = "us-central1"
   uniform_bucket_level_access = true
 }
