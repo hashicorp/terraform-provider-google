@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudbuildv2: Added github enterprise docs examples to `google_cloudbuildv2_connection` and `google_cloudbuildv2_resources`
+```
