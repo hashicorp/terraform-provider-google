@@ -278,17 +278,14 @@ func getTestAccProviders(testName string, c resource.TestCase) map[string]*schem
 	}
 	var testProvider string
 	providerMapKeys := reflect.ValueOf(c.Providers).MapKeys()
-	if len(providerMapKeys) > 0 {
-		if strings.Contains(providerMapKeys[0].String(), "google-beta") {
-			testProvider = "google-beta"
-		} else {
-			testProvider = "google"
-		}
-		return map[string]*schema.Provider{
-			testProvider: prov,
-		}
+	if strings.Contains(providerMapKeys[0].String(), "google-beta") {
+		testProvider = "google-beta"
+	} else {
+		testProvider = "google"
 	}
-	return map[string]*schema.Provider{}
+	return map[string]*schema.Provider{
+		testProvider: prov,
+	}
 }
 
 func isVcrEnabled() bool {
@@ -303,8 +300,6 @@ func vcrTest(t *testing.T, c resource.TestCase) {
 	if isVcrEnabled() {
 		providers := getTestAccProviders(t.Name(), c)
 		c.Providers = providers
-		fwProviders := getTestAccFrameworkProviders(t.Name(), c)
-		c.ProtoV5ProviderFactories = fwProviders
 		defer closeRecorder(t)
 	} else if isReleaseDiffEnabled() {
 		c = initializeReleaseDiffTest(c)
