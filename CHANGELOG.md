@@ -1,5 +1,10 @@
 ## 4.54.0 (Unreleased)
 
+## 4.53.1 (February 14, 2023)
+
+BUG FIXES:
+* provider: fixed crash when trying to configure the provider with invalid credentials
+
 ## 4.53.0 (February 13, 2023)
 
 FEATURES:
