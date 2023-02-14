@@ -1,0 +1,3 @@
+```release-note:bug 
+Fixing failing test case for TestAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample
+```
