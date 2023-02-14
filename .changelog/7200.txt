@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed an issue with updating the `google_sql_database_instance.settings.activation_policy` field
+```
