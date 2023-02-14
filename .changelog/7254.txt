@@ -1,0 +1,3 @@
+```release-note:bug
+compute: added possibility to remove `stateful_disks` in `compute_instance_group_manager` and `compute_region_instance_group_manager`.
+```

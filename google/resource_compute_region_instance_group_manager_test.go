@@ -1507,14 +1507,6 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     max_surge_fixed              = 0
     max_unavailable_fixed        = 6
   }
-  stateful_disk {
-    device_name = "stateful-disk"
-    delete_rule = "NEVER"
-  }
-  stateful_disk {
-    device_name = "stateful-disk2"
-    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
-  }
 }
 `, network, template, igm)
 }
