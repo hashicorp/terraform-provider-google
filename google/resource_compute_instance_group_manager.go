@@ -877,21 +877,55 @@ func expandAutoHealingPolicies(configured []interface{}) []*compute.InstanceGrou
 }
 
 func expandStatefulPolicy(d *schema.ResourceData) *compute.StatefulPolicy {
+
 	preservedState := &compute.StatefulPolicyPreservedState{}
-	stateful_disks := d.Get("stateful_disk").(*schema.Set).List()
-	disks := make(map[string]compute.StatefulPolicyPreservedStateDiskDevice)
-	for _, raw := range stateful_disks {
-		data := raw.(map[string]interface{})
-		disk := compute.StatefulPolicyPreservedStateDiskDevice{
-			AutoDelete: data["delete_rule"].(string),
+
+	isRemovingAStatefulDisk := false
+	if d.HasChange("stateful_disk") {
+		oldDisks, newDisks := d.GetChange("stateful_disk")
+		preservedState.Disks = expandStatefulDisks(newDisks.(*schema.Set).List())
+		// Remove Disks
+		for _, raw := range oldDisks.(*schema.Set).List() {
+			data := raw.(map[string]interface{})
+			deviceName := data["device_name"].(string)
+			if _, exist := preservedState.Disks[deviceName]; !exist {
+				isRemovingAStatefulDisk = true
+				preservedState.NullFields = append(preservedState.NullFields, "Disks."+deviceName)
+			}
 		}
-		disks[data["device_name"].(string)] = disk
+		preservedState.ForceSendFields = append(preservedState.ForceSendFields, "Disks")
 	}
-	preservedState.Disks = disks
+	if !isRemovingAStatefulDisk {
+		preservedState := &compute.StatefulPolicyPreservedState{}
+		stateful_disks := d.Get("stateful_disk").(*schema.Set).List()
+		disks := make(map[string]compute.StatefulPolicyPreservedStateDiskDevice)
+		for _, raw := range stateful_disks {
+			data := raw.(map[string]interface{})
+			disk := compute.StatefulPolicyPreservedStateDiskDevice{
+				AutoDelete: data["delete_rule"].(string),
+			}
+			disks[data["device_name"].(string)] = disk
+		}
+		preservedState.Disks = disks
+	}
+
 	statefulPolicy := &compute.StatefulPolicy{PreservedState: preservedState}
 	statefulPolicy.ForceSendFields = append(statefulPolicy.ForceSendFields, "PreservedState")
 
 	return statefulPolicy
+}
+
+func expandStatefulDisks(statefulDisk []interface{}) map[string]compute.StatefulPolicyPreservedStateDiskDevice {
+	statefulDisksMap := make(map[string]compute.StatefulPolicyPreservedStateDiskDevice)
+
+	for _, raw := range statefulDisk {
+		data := raw.(map[string]interface{})
+		deviceName := compute.StatefulPolicyPreservedStateDiskDevice{
+			AutoDelete: data["delete_rule"].(string),
+		}
+		statefulDisksMap[data["device_name"].(string)] = deviceName
+	}
+	return statefulDisksMap
 }
 
 func expandVersions(configured []interface{}) []*compute.InstanceGroupManagerVersion {
