@@ -831,7 +831,6 @@ func (p *frameworkProvider) Configure(ctx context.Context, req provider.Configur
 // DataSources defines the data sources implemented in the provider.
 func (p *frameworkProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewGoogleDnsManagedZoneDataSource,
 		NewGoogleDnsRecordSetDataSource,
 	}
 }
