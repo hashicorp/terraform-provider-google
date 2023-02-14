@@ -464,6 +464,26 @@ resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
   filename = "cloudbuild.yaml"
 }
 ```
+## Example Usage - Cloudbuild Trigger Github Enterprise
+
+
+```hcl
+resource "google_cloudbuild_trigger" "ghe-trigger" {
+  name        = "terraform-ghe-trigger"
+  location    = "us-central1"
+
+  github {
+    owner = "hashicorp"
+    name  = "terraform-provider-google"
+    push {
+      branch = "^main$"
+    }
+    enterprise_config_resource_name = "projects/123456789/locations/us-central1/githubEnterpriseConfigs/configID"
+  }
+
+  filename = "cloudbuild.yaml"
+}
+```
 
 ## Argument Reference
 
@@ -773,6 +793,11 @@ The following arguments are supported:
   (Optional)
   filter to match changes in refs, like branches or tags. Specify only one of `pull_request` or `push`.
   Structure is [documented below](#nested_push).
+
+* `enterprise_config_resource_name` -
+  (Optional)
+  The resource name of the github enterprise config that should be applied to this installation.
+  For example: "projects/{$projectId}/locations/{$locationId}/githubEnterpriseConfigs/{$configId}"
 
 
 <a name="nested_pull_request"></a>The `pull_request` block supports:
