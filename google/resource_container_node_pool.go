@@ -342,6 +342,7 @@ var schemaNodePool = map[string]*schema.Schema{
 					Type:        schema.TypeString,
 					Optional:    true,
 					ForceNew:    true,
+					Computed:    true,
 					Description: `The ID of the secondary range for pod IPs. If create_pod_range is true, this ID is used for the new range. If create_pod_range is false, uses an existing secondary range with this ID.`,
 				},
 				"pod_ipv4_cidr_block": {
