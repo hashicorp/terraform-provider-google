@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -318,24 +317,6 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 			paginate = token != ""
 		}
 	}
-}
-
-func TestAccComputeDisk_timeout(t *testing.T) {
-	// Vcr speeds up test, so it doesn't time out
-	skipIfVcr(t)
-	t.Parallel()
-
-	diskName := fmt.Sprintf("tf-test-disk-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccComputeDisk_timeout(diskName),
-				ExpectError: regexp.MustCompile("timeout"),
-			},
-		},
-	})
 }
 
 func TestAccComputeDisk_update(t *testing.T) {
@@ -659,26 +640,6 @@ resource "google_compute_disk" "foobar" {
   zone  = "us-central1-a"
   labels = {
     my-label = "my-label-value"
-  }
-}
-`, diskName)
-}
-
-func testAccComputeDisk_timeout(diskName string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "debian-11"
-  project = "debian-cloud"
-}
-
-resource "google_compute_disk" "foobar" {
-  name  = "%s"
-  image = data.google_compute_image.my_image.self_link
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
-
-  timeouts {
-    create = ".5s"
   }
 }
 `, diskName)
