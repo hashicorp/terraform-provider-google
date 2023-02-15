@@ -40,21 +40,21 @@ resource "google_storage_bucket" "bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
-
+ 
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
   source = "function-source.zip"  # Add path to the zipped function source code
 }
-
+ 
 resource "google_cloudfunctions2_function" "function" {
   name = "function-v2"
   location = "us-central1"
   description = "a new function"
-
+ 
   build_config {
     runtime = "nodejs16"
-    entry_point = "helloHttp"  # Set the entry point
+    entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
         bucket = google_storage_bucket.bucket.name
@@ -62,7 +62,7 @@ resource "google_cloudfunctions2_function" "function" {
       }
     }
   }
-
+ 
   service_config {
     max_instance_count  = 1
     available_memory    = "256M"
@@ -70,7 +70,7 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 
-output "function_uri" {
+output "function_uri" { 
   value = google_cloudfunctions2_function.function.service_config[0].uri
 }
 # [END functions_v2_basic]
@@ -98,21 +98,21 @@ resource "google_storage_bucket" "bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
-
+ 
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
   source = "function-source.zip"  # Add path to the zipped function source code
 }
-
+ 
 resource "google_cloudfunctions2_function" "function" {
   name = "gcf-function"
   location = "us-central1"
   description = "a new function"
-
+ 
   build_config {
     runtime = "nodejs16"
-    entry_point = "helloPubSub"  # Set the entry point
+    entry_point = "helloPubSub"  # Set the entry point 
     environment_variables = {
         BUILD_CONFIG_TEST = "build_test"
     }
@@ -123,7 +123,7 @@ resource "google_cloudfunctions2_function" "function" {
       }
     }
   }
-
+ 
   service_config {
     max_instance_count  = 3
     min_instance_count = 1
@@ -159,7 +159,7 @@ resource "google_storage_bucket" "source-bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
-
+ 
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.source-bucket.name
@@ -218,7 +218,7 @@ resource "google_cloudfunctions2_function" "function" {
   name = "gcf-function"
   location = "us-central1"
   description = "a new function"
-
+ 
   build_config {
     runtime     = "nodejs12"
     entry_point = "entryPoint" # Set the entry point in the code
@@ -232,7 +232,7 @@ resource "google_cloudfunctions2_function" "function" {
       }
     }
   }
-
+ 
   service_config {
     max_instance_count  = 3
     min_instance_count = 1
@@ -274,7 +274,7 @@ resource "google_storage_bucket" "source-bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
-
+ 
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.source-bucket.name
@@ -324,7 +324,7 @@ resource "google_cloudfunctions2_function" "function" {
   name = "gcf-function"
   location = "us-central1"
   description = "a new function"
-
+ 
   build_config {
     runtime     = "nodejs12"
     entry_point = "entryPoint" # Set the entry point in the code
@@ -338,7 +338,7 @@ resource "google_cloudfunctions2_function" "function" {
       }
     }
   }
-
+ 
   service_config {
     max_instance_count  = 3
     min_instance_count = 1
@@ -387,21 +387,21 @@ resource "google_storage_bucket" "bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
-
+ 
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
   source = "function-source.zip"  # Add path to the zipped function source code
 }
-
+ 
 resource "google_cloudfunctions2_function" "function" {
   name = "function-secret"
   location = "us-central1"
   description = "a new function"
-
+ 
   build_config {
     runtime = "nodejs16"
-    entry_point = "helloHttp"  # Set the entry point
+    entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
         bucket = google_storage_bucket.bucket.name
@@ -409,7 +409,7 @@ resource "google_cloudfunctions2_function" "function" {
       }
     }
   }
-
+ 
   service_config {
     max_instance_count  = 1
     available_memory    = "256M"
@@ -422,6 +422,7 @@ resource "google_cloudfunctions2_function" "function" {
       version    = "latest"
     }
   }
+  depends_on = [google_secret_manager_secret_version.secret]
 }
 
 resource "google_secret_manager_secret" "secret" {
@@ -456,21 +457,21 @@ resource "google_storage_bucket" "bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
-
+ 
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
   source = "function-source.zip"  # Add path to the zipped function source code
 }
-
+ 
 resource "google_cloudfunctions2_function" "function" {
   name = "function-secret"
   location = "us-central1"
   description = "a new function"
-
+ 
   build_config {
     runtime = "nodejs16"
-    entry_point = "helloHttp"  # Set the entry point
+    entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
         bucket = google_storage_bucket.bucket.name
@@ -478,7 +479,7 @@ resource "google_cloudfunctions2_function" "function" {
       }
     }
   }
-
+ 
   service_config {
     max_instance_count  = 1
     available_memory    = "256M"
@@ -490,6 +491,7 @@ resource "google_cloudfunctions2_function" "function" {
       secret     = google_secret_manager_secret.secret.secret_id
     }
   }
+  depends_on = [google_secret_manager_secret_version.secret]
 }
 
 resource "google_secret_manager_secret" "secret" {
@@ -621,14 +623,14 @@ The following arguments are supported:
 
 * `generation` -
   (Optional)
-  Google Cloud Storage generation for the object. If the generation
+  Google Cloud Storage generation for the object. If the generation 
   is omitted, the latest generation will be used.
 
 <a name="nested_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
-  ID of the project that owns the Cloud Source Repository. If omitted, the
+  ID of the project that owns the Cloud Source Repository. If omitted, the 
   project ID requesting the build is assumed.
 
 * `repo_name` -
@@ -653,7 +655,7 @@ The following arguments are supported:
 
 * `invert_regex` -
   (Optional)
-  Only trigger a build if the revision regex does
+  Only trigger a build if the revision regex does 
   NOT match the revision regex.
 
 <a name="nested_service_config"></a>The `service_config` block supports:
