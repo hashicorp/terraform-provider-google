@@ -24,7 +24,7 @@ func TestAccMonitoringNotificationChannel_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccMonitoringNotificationChannel_update("sms", `number = "+15555379009"`, "false"),
+				Config: testAccMonitoringNotificationChannel_update("sms", `number = "+16502530000"`, "false"),
 			},
 			{
 				ResourceName:      "google_monitoring_notification_channel.update",
