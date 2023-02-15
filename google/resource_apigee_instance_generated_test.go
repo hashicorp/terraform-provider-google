@@ -270,7 +270,7 @@ resource "google_compute_global_address" "apigee_range" {
   name          = "apigee-range"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 22
+  prefix_length = 21
   network       = google_compute_network.apigee_network.id
   project       = google_project.project.project_id
 }
@@ -296,7 +296,7 @@ resource "google_apigee_instance" "apigee_instance" {
   name     = "tf-test%{random_suffix}"
   location = "us-central1"
   org_id   = google_apigee_organization.apigee_org.id
-  ip_range = "10.87.8.0/22"
+  ip_range = "${google_compute_global_address.apigee_range.address}/22"
 }
 `, context)
 }
