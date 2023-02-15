@@ -102,6 +102,72 @@ resource "google_cloudfunctions_function_iam_member" "invoker" {
 }
 ```
 
+## Example Usage - Secret Environment Variables
+
+```hcl
+locals {
+  project = "my-project-name"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "test-bucket"
+  location = "US"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./path/to/zip/file/which/contains/code"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name        = "function-test"
+  description = "My function"
+  runtime     = "nodejs16"
+
+  available_memory_mb          = 128
+  source_archive_bucket        = google_storage_bucket.bucket.name
+  source_archive_object        = google_storage_bucket_object.archive.name
+  trigger_http                 = true
+  https_trigger_security_level = "SECURE_ALWAYS"
+  timeout                      = 60
+  entry_point                  = "helloGET"
+  labels = {
+    my-label = "my-label-value"
+  }
+
+  environment_variables = {
+    MY_ENV_VAR = "my-env-var-value"
+  }
+
+  secret_environment_variables {
+    key        = "TEST"
+    project_id = local.project
+    secret     = google_secret_manager_secret.secret.secret_id
+    version    = "latest"
+  }
+}
+
+resource "google_secret_manager_secret" "secret" {
+  secret_id = "secret"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }  
+}
+
+resource "google_secret_manager_secret_version" "secret" {
+  secret = google_secret_manager_secret.secret.name
+
+  secret_data = "secret"
+  enabled = true
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -149,7 +215,7 @@ Eg. `"nodejs16"`, `"python39"`, `"dotnet3"`, `"go116"`, `"java11"`, `"ruby30"`, 
 * `source_archive_object` - (Optional) The source archive object (file) in archive bucket.
 
 * `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
-  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is [documented below](#nested_source_repository). It must match the pattern `projects/{project}/locations/{location}/repositories/{repository}`.* 
+  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is [documented below](#nested_source_repository). It must match the pattern `projects/{project}/locations/{location}/repositories/{repository}`.*
 
 * `docker_registry` - (Optional) Docker Registry to use for storing the function's Docker images. Allowed values are CONTAINER_REGISTRY (default) and ARTIFACT_REGISTRY.
 
