@@ -1310,41 +1310,13 @@ data "google_project" "project" {
   project_id = "%s"
 }
 
-
-resource "google_project_iam_member" "kms-project-binding1" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@cloudcomposer-accounts.iam.gserviceaccount.com"
-}
-resource "google_project_iam_member" "kms-project-binding2" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
-}
-resource "google_project_iam_member" "kms-project-binding3" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
-}
-resource "google_project_iam_member" "kms-project-binding4" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
-}
-resource "google_project_iam_member" "kms-project-binding5" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
 resource "google_kms_crypto_key_iam_member" "iam" {
   crypto_key_id = "%s"
   role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member  = "serviceAccount:service-${data.google_project.project.number}@gs-project-accounts.iam.gserviceaccount.com"
 }
 resource "google_composer_environment" "test" {
-  depends_on = [google_project_iam_member.kms-project-binding1, google_project_iam_member.kms-project-binding2,
-  google_project_iam_member.kms-project-binding3, google_project_iam_member.kms-project-binding4,
-  google_project_iam_member.kms-project-binding5, google_kms_crypto_key_iam_member.iam]
+  depends_on = [google_kms_crypto_key_iam_member.iam]
   name   = "%s"
   region = "us-central1"
   config {
