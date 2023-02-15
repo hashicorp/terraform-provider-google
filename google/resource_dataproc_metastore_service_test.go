@@ -53,6 +53,7 @@ resource "google_dataproc_metastore_service" "my_metastore" {
 }
 
 func TestAccDataprocMetastoreService_PrivateServiceConnect(t *testing.T) {
+	t.Skip("Skipping due to https://github.com/hashicorp/terraform-provider-google/issues/13710")
 	t.Parallel()
 
 	context := map[string]interface{}{
