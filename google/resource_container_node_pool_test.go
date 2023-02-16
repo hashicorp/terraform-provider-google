@@ -346,10 +346,12 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100us", true),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100us", true, 2048),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "true"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.pod_pids_limit", "2048"),
 				),
 			},
 			{
@@ -358,7 +360,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", false),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", false, 1024),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "false"),
@@ -387,7 +389,7 @@ func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", true),
+				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", true, 1024),
 				ExpectError: regexp.MustCompile(`.*to be one of \[static none \].*`),
 			},
 		},
@@ -1987,7 +1989,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 `, projectID, cluster, np)
 }
 
-func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period string, quota bool) string {
+func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period string, quota bool, podPidsLimit int) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -2013,6 +2015,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
       cpu_manager_policy   = %q
       cpu_cfs_quota        = %v
       cpu_cfs_quota_period = %q
+      pod_pids_limit			 = %d
     }
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -2020,7 +2023,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
     ]
   }
 }
-`, cluster, np, policy, quota, period)
+`, cluster, np, policy, quota, period, podPidsLimit)
 }
 
 func testAccContainerNodePool_withLinuxNodeConfig(cluster, np string, maxBacklog, soMaxConn int, tcpMem string, twReuse int) string {

@@ -401,6 +401,11 @@ func schemaNodeConfig() *schema.Schema {
 								Optional:    true,
 								Description: `Set the CPU CFS quota period value 'cpu.cfs_period_us'.`,
 							},
+							"pod_pids_limit": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: `Controls the maximum number of processes allowed to run in a pod.`,
+							},
 						},
 					},
 				},
@@ -690,6 +695,9 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	if cpuCfsQuotaPeriod, ok := cfg["cpu_cfs_quota_period"]; ok {
 		kConfig.CpuCfsQuotaPeriod = cpuCfsQuotaPeriod.(string)
 	}
+	if podPidsLimit, ok := cfg["pod_pids_limit"]; ok {
+		kConfig.PodPidsLimit = int64(podPidsLimit.(int))
+	}
 	return kConfig
 }
 
@@ -872,6 +880,7 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 			"cpu_cfs_quota":        c.CpuCfsQuota,
 			"cpu_cfs_quota_period": c.CpuCfsQuotaPeriod,
 			"cpu_manager_policy":   c.CpuManagerPolicy,
+			"pod_pids_limit":       c.PodPidsLimit,
 		})
 	}
 	return result

@@ -1,0 +1,3 @@
+```release-note:enhancement
+feat(google_container_node_pool): support `node_config.kubelet_config.pod_pids_limit`
+```
