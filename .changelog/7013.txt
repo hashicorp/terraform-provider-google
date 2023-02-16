@@ -1,0 +1,3 @@
+```release-note:none
+Added test for GCF Gen2 worker pool to validate functionality
+```
