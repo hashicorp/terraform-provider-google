@@ -851,6 +851,7 @@ kubelet_config {
   cpu_manager_policy   = "static"
   cpu_cfs_quota        = true
   cpu_cfs_quota_period = "100us"
+  pod_pids_limit       = 1024
 }
 ```
 
@@ -1115,6 +1116,8 @@ such as `"300ms"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m",
 value and accepts an invalid `default` value instead. While this remains true,
 not specifying the `kubelet_config` block should be the equivalent of specifying
 `none`.
+
+* `pod_pids_limit` - (Optional) Controls the maximum number of processes allowed to run in a pod. The value must be greater than or equal to 1024 and less than 4194304.
 
 <a name="nested_linux_node_config"></a>The `linux_node_config` block supports:
 
