@@ -1,5 +1,27 @@
 ## 4.54.0 (Unreleased)
 
+UNKNOWN CHANGELOG TYPE:
+* Provide a support for `rsaEncryptedkey` in `compute_disk` ([#13685](https://github.com/hashicorp/terraform-provider-google/pull/13685))
+
+FEATURES:
+* **New Data Source:** `google_firebase_hosting_channel` ([#13686](https://github.com/hashicorp/terraform-provider-google/pull/13686))
+* **New Data Source:** `google_logging_sink` ([#13742](https://github.com/hashicorp/terraform-provider-google/pull/13742))
+* **New Data Source:** google_sql_databases ([#13738](https://github.com/hashicorp/terraform-provider-google/pull/13738))
+
+IMPROVEMENTS:
+* cloudbuild: added `bitbucket_server_trigger_config` field to `google_cloudbuild_trigger` resource ([#13728](https://github.com/hashicorp/terraform-provider-google/pull/13728))
+* cloudbuild: added `github.enterprise_config_resource_name` field to `google_cloudbuild_trigger` resource ([#13739](https://github.com/hashicorp/terraform-provider-google/pull/13739))
+* cloudbuildv2: Added github enterprise docs examples to `google_cloudbuildv2_connection` and `google_cloudbuildv2_resources` ([#13729](https://github.com/hashicorp/terraform-provider-google/pull/13729))
+* compute: Added new contents in rules[].rateLimitOptionsfields for `google_compute_security_policy` to support Cloud Armor Rate Limit Options (beta) ([#13697](https://github.com/hashicorp/terraform-provider-google/pull/13697))
+* sql: added replica promotion support to `google_sql_database_instance`. This change will allow users to promote read replica as stand alone primary instance. ([#13682](https://github.com/hashicorp/terraform-provider-google/pull/13682))
+
+BUG FIXES:
+* Fixing failing test case for TestAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample ([#13732](https://github.com/hashicorp/terraform-provider-google/pull/13732))
+* bigquery: fixed permadiff on `max_time_travel_hours` of `google_bigquery_dataset` ([#13691](https://github.com/hashicorp/terraform-provider-google/pull/13691))
+* compute: added possibility to remove `stateful_disks` in `compute_instance_group_manager` and `compute_region_instance_group_manager`. ([#13737](https://github.com/hashicorp/terraform-provider-google/pull/13737))
+* provider: fixed crash when trying to configure the provider with invalid credentials ([#13743](https://github.com/hashicorp/terraform-provider-google/pull/13743))
+* sql: fixed an issue with updating the `google_sql_database_instance.settings.activation_policy` field ([#13736](https://github.com/hashicorp/terraform-provider-google/pull/13736))
+
 ## 4.53.1 (February 14, 2023)
 
 BUG FIXES:
