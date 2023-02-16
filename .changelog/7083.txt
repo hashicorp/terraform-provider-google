@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_cloudbuild_bitbucket_server_config`
+```
