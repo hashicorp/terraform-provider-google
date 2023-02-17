@@ -51,7 +51,8 @@ func resourceDocumentAIProcessorDefaultVersion() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: projectNumberDiffSuppress,
-				Description:      `The version to set`,
+				Description: `The version to set. Using 'stable' or 'rc' will cause the API to return the latest version in that release channel.
+Apply 'lifecycle.ignore_changes' to the 'version' field to suppress this diff.`,
 			},
 		},
 		UseJSONNumber: true,
