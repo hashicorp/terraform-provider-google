@@ -8,13 +8,13 @@ FEATURES:
 IMPROVEMENTS:
 * cloudbuild: added `bitbucket_server_trigger_config` field to `google_cloudbuild_trigger` resource ([#13728](https://github.com/hashicorp/terraform-provider-google/pull/13728))
 * cloudbuild: added `github.enterprise_config_resource_name` field to `google_cloudbuild_trigger` resource ([#13739](https://github.com/hashicorp/terraform-provider-google/pull/13739))
-* compute: added field `rsaEncryptedKey` to resource `disk` ([#13685](https://github.com/hashicorp/terraform-provider-google/pull/13685))
+* compute: added field `rsa_encrypted_key` to `google_compute_disk` resource ([#13685](https://github.com/hashicorp/terraform-provider-google/pull/13685))
 * sql: added replica promotion support to `google_sql_database_instance`. This change will allow users to promote read replica as stand alone primary instance. ([#13682](https://github.com/hashicorp/terraform-provider-google/pull/13682))
 
 BUG FIXES:
 * bigquery: fixed permadiff on `max_time_travel_hours` of `google_bigquery_dataset` ([#13691](https://github.com/hashicorp/terraform-provider-google/pull/13691))
-* compute: added possibility to remove `stateful_disks` in `compute_instance_group_manager` and `compute_region_instance_group_manager`. ([#13737](https://github.com/hashicorp/terraform-provider-google/pull/13737))
-* sql: fixed an issue with updating the `google_sql_database_instance.settings.activation_policy` field ([#13736](https://github.com/hashicorp/terraform-provider-google/pull/13736))
+* compute: added possibility to remove `stateful_disk` in `compute_instance_group_manager` and `compute_region_instance_group_manager`. ([#13737](https://github.com/hashicorp/terraform-provider-google/pull/13737))
+* sql: fixed an issue with updating the `settings.activation_policy` field in `google_sql_database_instance`([#13736](https://github.com/hashicorp/terraform-provider-google/pull/13736))
 
 ## 4.53.1 (February 14, 2023)
 
