@@ -1,0 +1,3 @@
+```release-note:enhancement
+storage: changed the default create timeout of `google_storage_bucket` to 10m from 4m
+```
