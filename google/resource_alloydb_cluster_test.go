@@ -51,7 +51,7 @@ resource "google_alloydb_cluster" "default" {
   network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
 
   labels = {
-	update = "true" 
+	foo = "bar" 
   }
 
   lifecycle {
