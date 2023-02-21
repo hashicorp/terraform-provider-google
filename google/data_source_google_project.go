@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleProject() *schema.Resource {
+func DataSourceGoogleProject() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceGoogleProject().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceGoogleProject().Schema)
 
 	addOptionalFieldsToSchema(dsSchema, "project_id")
 

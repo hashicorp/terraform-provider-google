@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func dataSourceGoogleIamTestablePermissions() *schema.Resource {
+func DataSourceGoogleIamTestablePermissions() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleIamTestablePermissionsRead,
 		Schema: map[string]*schema.Schema{

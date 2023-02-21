@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApigeeEndpointAttachment() *schema.Resource {
+func ResourceApigeeEndpointAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeEndpointAttachmentCreate,
 		Read:   resourceApigeeEndpointAttachmentRead,

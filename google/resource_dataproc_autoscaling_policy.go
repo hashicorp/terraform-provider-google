@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDataprocAutoscalingPolicy() *schema.Resource {
+func ResourceDataprocAutoscalingPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocAutoscalingPolicyCreate,
 		Read:   resourceDataprocAutoscalingPolicyRead,

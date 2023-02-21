@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceDialogflowCXVersion() *schema.Resource {
+func ResourceDialogflowCXVersion() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDialogflowCXVersionCreate,
 		Read:   resourceDialogflowCXVersionRead,

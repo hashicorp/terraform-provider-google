@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeInstanceSerialPort() *schema.Resource {
+func DataSourceGoogleComputeInstanceSerialPort() *schema.Resource {
 	return &schema.Resource{
 		Read: computeInstanceSerialPortRead,
 		Schema: map[string]*schema.Schema{

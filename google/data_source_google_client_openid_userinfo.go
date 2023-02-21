@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleClientOpenIDUserinfo() *schema.Resource {
+func DataSourceGoogleClientOpenIDUserinfo() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleClientOpenIDUserinfoRead,
 		Schema: map[string]*schema.Schema{

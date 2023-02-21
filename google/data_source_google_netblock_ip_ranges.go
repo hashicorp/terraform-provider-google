@@ -20,7 +20,7 @@ type prefixes struct {
 	Ipv6Prefix string `json:"ipv6Prefix"`
 }
 
-func dataSourceGoogleNetblockIpRanges() *schema.Resource {
+func DataSourceGoogleNetblockIpRanges() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleNetblockIpRangesRead,
 

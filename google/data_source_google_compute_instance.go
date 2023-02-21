@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeInstance() *schema.Resource {
+func DataSourceGoogleComputeInstance() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeInstance().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeInstance().Schema)
 
 	// Set 'Optional' schema elements
 	addOptionalFieldsToSchema(dsSchema, "name", "self_link", "project", "zone")

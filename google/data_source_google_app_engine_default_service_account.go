@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleAppEngineDefaultServiceAccount() *schema.Resource {
+func DataSourceGoogleAppEngineDefaultServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleAppEngineDefaultServiceAccountRead,
 		Schema: map[string]*schema.Schema{

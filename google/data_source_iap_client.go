@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleIapClient() *schema.Resource {
+func DataSourceGoogleIapClient() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceIapClient().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceIapClient().Schema)
 	addRequiredFieldsToSchema(dsSchema, "brand", "client_id")
 
 	return &schema.Resource{

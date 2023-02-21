@@ -22,7 +22,7 @@ import (
 	"google.golang.org/api/storage/v1"
 )
 
-func resourceStorageBucket() *schema.Resource {
+func ResourceStorageBucket() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageBucketCreate,
 		Read:   resourceStorageBucketRead,

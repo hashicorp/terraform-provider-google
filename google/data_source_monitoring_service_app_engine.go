@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceMonitoringServiceAppEngine() *schema.Resource {
+func DataSourceMonitoringServiceAppEngine() *schema.Resource {
 	aeSchema := map[string]*schema.Schema{
 		"module_id": {
 			Type:     schema.TypeString,

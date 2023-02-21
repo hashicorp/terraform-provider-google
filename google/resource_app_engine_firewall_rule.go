@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAppEngineFirewallRule() *schema.Resource {
+func ResourceAppEngineFirewallRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppEngineFirewallRuleCreate,
 		Read:   resourceAppEngineFirewallRuleRead,

@@ -139,7 +139,7 @@ func resourceBigQueryDatasetAccessReassignIamMemberInNestedObjectList(d *schema.
 	return "", nil, nil
 }
 
-func resourceBigQueryDatasetAccess() *schema.Resource {
+func ResourceBigQueryDatasetAccess() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryDatasetAccessCreate,
 		Read:   resourceBigQueryDatasetAccessRead,

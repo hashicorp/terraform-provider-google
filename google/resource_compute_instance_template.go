@@ -36,7 +36,7 @@ var (
 
 var REQUIRED_SCRATCH_DISK_SIZE_GB = 375
 
-func resourceComputeInstanceTemplate() *schema.Resource {
+func ResourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceTemplateCreate,
 		Read:   resourceComputeInstanceTemplateRead,

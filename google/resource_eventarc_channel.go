@@ -27,7 +27,7 @@ import (
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
 )
 
-func resourceEventarcChannel() *schema.Resource {
+func ResourceEventarcChannel() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceEventarcChannelCreate,
 		Read:   resourceEventarcChannelRead,

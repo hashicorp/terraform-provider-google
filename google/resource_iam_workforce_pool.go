@@ -46,7 +46,7 @@ func validateWorkforcePoolId(v interface{}, k string) (ws []string, errors []err
 	return
 }
 
-func resourceIAMWorkforcePoolWorkforcePool() *schema.Resource {
+func ResourceIAMWorkforcePoolWorkforcePool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIAMWorkforcePoolWorkforcePoolCreate,
 		Read:   resourceIAMWorkforcePoolWorkforcePoolRead,

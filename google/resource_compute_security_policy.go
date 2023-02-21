@@ -13,7 +13,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func resourceComputeSecurityPolicy() *schema.Resource {
+func ResourceComputeSecurityPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSecurityPolicyCreate,
 		Read:   resourceComputeSecurityPolicyRead,

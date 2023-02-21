@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/cloudbilling/v1"
 )
 
-func resourceBillingSubaccount() *schema.Resource {
+func ResourceBillingSubaccount() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBillingSubaccountCreate,
 		Read:   resourceBillingSubaccountRead,

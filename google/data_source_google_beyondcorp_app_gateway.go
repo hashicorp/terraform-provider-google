@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleBeyondcorpAppGateway() *schema.Resource {
+func DataSourceGoogleBeyondcorpAppGateway() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceBeyondcorpAppGateway().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceBeyondcorpAppGateway().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "name")
 

@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDocumentAIProcessor() *schema.Resource {
+func ResourceDocumentAIProcessor() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDocumentAIProcessorCreate,
 		Read:   resourceDocumentAIProcessorRead,

@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func dataSourceGoogleComputeRegions() *schema.Resource {
+func DataSourceGoogleComputeRegions() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeRegionsRead,
 		Schema: map[string]*schema.Schema{

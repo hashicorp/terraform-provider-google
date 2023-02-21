@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeSslPolicy() *schema.Resource {
+func DataSourceGoogleComputeSslPolicy() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeSslPolicy().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeSslPolicy().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "name")

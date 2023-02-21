@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCloudRunV2Job() *schema.Resource {
+func ResourceCloudRunV2Job() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunV2JobCreate,
 		Read:   resourceCloudRunV2JobRead,

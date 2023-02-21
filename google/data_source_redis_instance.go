@@ -2,9 +2,9 @@ package google
 
 import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-func dataSourceGoogleRedisInstance() *schema.Resource {
+func DataSourceGoogleRedisInstance() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceRedisInstance().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceRedisInstance().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "name")

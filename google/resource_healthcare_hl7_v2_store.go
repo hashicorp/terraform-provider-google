@@ -27,7 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceHealthcareHl7V2Store() *schema.Resource {
+func ResourceHealthcareHl7V2Store() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceHealthcareHl7V2StoreCreate,
 		Read:   resourceHealthcareHl7V2StoreRead,

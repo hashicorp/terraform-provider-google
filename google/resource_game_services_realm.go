@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceGameServicesRealm() *schema.Resource {
+func ResourceGameServicesRealm() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGameServicesRealmCreate,
 		Read:   resourceGameServicesRealmRead,

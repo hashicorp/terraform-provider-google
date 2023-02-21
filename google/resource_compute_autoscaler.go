@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeAutoscaler() *schema.Resource {
+func ResourceComputeAutoscaler() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeAutoscalerCreate,
 		Read:   resourceComputeAutoscalerRead,

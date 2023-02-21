@@ -23,7 +23,7 @@ func diffSuppressIamUserName(_, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
-func resourceSqlUser() *schema.Resource {
+func ResourceSqlUser() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSqlUserCreate,
 		Read:   resourceSqlUserRead,

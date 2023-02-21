@@ -27,7 +27,7 @@ import (
 	logging "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/logging"
 )
 
-func resourceLoggingLogView() *schema.Resource {
+func ResourceLoggingLogView() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceLoggingLogViewCreate,
 		Read:   resourceLoggingLogViewRead,

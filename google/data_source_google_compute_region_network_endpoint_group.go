@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeRegionNetworkEndpointGroup() *schema.Resource {
+func DataSourceGoogleComputeRegionNetworkEndpointGroup() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeRegionNetworkEndpointGroup().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeRegionNetworkEndpointGroup().Schema)
 
 	addOptionalFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "region")

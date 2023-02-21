@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceArtifactRegistryRepository() *schema.Resource {
+func DataSourceArtifactRegistryRepository() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceArtifactRegistryRepository().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceArtifactRegistryRepository().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "repository_id", "location")

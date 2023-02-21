@@ -3,12 +3,13 @@ package google
 import (
 	"fmt"
 
+	"regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"regexp"
 )
 
-func dataSourceGoogleServiceAccountKey() *schema.Resource {
+func DataSourceGoogleServiceAccountKey() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleServiceAccountKeyRead,
 

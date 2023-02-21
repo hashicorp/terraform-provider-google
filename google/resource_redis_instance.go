@@ -67,7 +67,7 @@ func secondaryIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	return false
 }
 
-func resourceRedisInstance() *schema.Resource {
+func ResourceRedisInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceRedisInstanceCreate,
 		Read:   resourceRedisInstanceRead,

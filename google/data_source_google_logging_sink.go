@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleLoggingSink() *schema.Resource {
+func DataSourceGoogleLoggingSink() *schema.Resource {
 	dsSchema := datasourceSchemaFromResourceSchema(resourceLoggingSinkSchema())
 	dsSchema["id"] = &schema.Schema{
 		Type:        schema.TypeString,

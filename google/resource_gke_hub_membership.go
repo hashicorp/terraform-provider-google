@@ -34,7 +34,7 @@ func suppressGkeHubEndpointSelfLinkDiff(_, old, new string, _ *schema.ResourceDa
 	return false
 }
 
-func resourceGKEHubMembership() *schema.Resource {
+func ResourceGKEHubMembership() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGKEHubMembershipCreate,
 		Read:   resourceGKEHubMembershipRead,

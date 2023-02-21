@@ -69,7 +69,7 @@ func createTagTemplateField(d *schema.ResourceData, config *Config, body map[str
 	return nil
 }
 
-func resourceDataCatalogTagTemplate() *schema.Resource {
+func ResourceDataCatalogTagTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataCatalogTagTemplateCreate,
 		Read:   resourceDataCatalogTagTemplateRead,
@@ -436,7 +436,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 
 	// fields schema to create schema.set below
 	dataCatalogTagTemplateFieldsSchema := &schema.Resource{
-		Schema: resourceDataCatalogTagTemplate().Schema["fields"].Elem.(*schema.Resource).Schema,
+		Schema: ResourceDataCatalogTagTemplate().Schema["fields"].Elem.(*schema.Resource).Schema,
 	}
 
 	for name, change := range vals {

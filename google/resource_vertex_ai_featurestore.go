@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceVertexAIFeaturestore() *schema.Resource {
+func ResourceVertexAIFeaturestore() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVertexAIFeaturestoreCreate,
 		Read:   resourceVertexAIFeaturestoreRead,

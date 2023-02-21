@@ -13,7 +13,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func resourceComputeRouterInterface() *schema.Resource {
+func ResourceComputeRouterInterface() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterInterfaceCreate,
 		Read:   resourceComputeRouterInterfaceRead,

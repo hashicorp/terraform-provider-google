@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourcePubsubLiteSubscription() *schema.Resource {
+func ResourcePubsubLiteSubscription() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubLiteSubscriptionCreate,
 		Read:   resourcePubsubLiteSubscriptionRead,

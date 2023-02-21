@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceMonitoringGroup() *schema.Resource {
+func ResourceMonitoringGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringGroupCreate,
 		Read:   resourceMonitoringGroupRead,

@@ -25,7 +25,7 @@ import (
 	"google.golang.org/api/bigtableadmin/v2"
 )
 
-func resourceBigtableAppProfile() *schema.Resource {
+func ResourceBigtableAppProfile() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigtableAppProfileCreate,
 		Read:   resourceBigtableAppProfileRead,

@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleMonitoringUptimeCheckIps() *schema.Resource {
+func DataSourceGoogleMonitoringUptimeCheckIps() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleMonitoringUptimeCheckIpsRead,
 

@@ -174,7 +174,7 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	return hashcode(buf.String())
 }
 
-func resourceComputeBackendService() *schema.Resource {
+func ResourceComputeBackendService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeBackendServiceCreate,
 		Read:   resourceComputeBackendServiceRead,

@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func dataSourceGoogleComputeImage() *schema.Resource {
+func DataSourceGoogleComputeImage() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeImageRead,
 

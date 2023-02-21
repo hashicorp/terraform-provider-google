@@ -12,7 +12,7 @@ import (
 	"cloud.google.com/go/bigtable"
 )
 
-func resourceBigtableInstance() *schema.Resource {
+func ResourceBigtableInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigtableInstanceCreate,
 		Read:   resourceBigtableInstanceRead,

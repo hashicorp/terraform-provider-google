@@ -6,7 +6,7 @@ import (
 
 // No tests are added in this PR as currently there is no TF-supported method that can be used to
 // enable both services (Cluster Istio and Mesh Istio) in GKE
-func dataSourceMonitoringServiceMeshIstio() *schema.Resource {
+func DataSourceMonitoringServiceMeshIstio() *schema.Resource {
 	miSchema := map[string]*schema.Schema{
 		"mesh_uid": {
 			Type:     schema.TypeString,

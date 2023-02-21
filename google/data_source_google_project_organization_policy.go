@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleProjectOrganizationPolicy() *schema.Resource {
+func DataSourceGoogleProjectOrganizationPolicy() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceGoogleProjectOrganizationPolicy().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceGoogleProjectOrganizationPolicy().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "project")
 	addRequiredFieldsToSchema(dsSchema, "constraint")

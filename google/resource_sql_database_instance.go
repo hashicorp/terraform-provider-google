@@ -93,7 +93,7 @@ var (
 	}
 )
 
-func resourceSqlDatabaseInstance() *schema.Resource {
+func ResourceSqlDatabaseInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSqlDatabaseInstanceCreate,
 		Read:   resourceSqlDatabaseInstanceRead,

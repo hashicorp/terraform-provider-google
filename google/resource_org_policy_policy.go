@@ -27,7 +27,7 @@ import (
 	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy"
 )
 
-func resourceOrgPolicyPolicy() *schema.Resource {
+func ResourceOrgPolicyPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceOrgPolicyPolicyCreate,
 		Read:   resourceOrgPolicyPolicyRead,

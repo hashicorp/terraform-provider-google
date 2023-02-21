@@ -61,7 +61,7 @@ func firestoreIFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bo
 	return firestoreIFieldsDiffSuppressFunc(k, old, new, d)
 }
 
-func resourceFirestoreIndex() *schema.Resource {
+func ResourceFirestoreIndex() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFirestoreIndexCreate,
 		Read:   resourceFirestoreIndexRead,

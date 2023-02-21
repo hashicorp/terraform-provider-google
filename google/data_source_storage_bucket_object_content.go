@@ -9,9 +9,9 @@ import (
 	"google.golang.org/api/storage/v1"
 )
 
-func dataSourceGoogleStorageBucketObjectContent() *schema.Resource {
+func DataSourceGoogleStorageBucketObjectContent() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceStorageBucketObject().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceStorageBucketObject().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "bucket")
 	addRequiredFieldsToSchema(dsSchema, "name")

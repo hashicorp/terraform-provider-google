@@ -49,7 +49,7 @@ func accessApprovalEnrolledServicesHash(v interface{}) int {
 	return hashcode(buf.String())
 }
 
-func resourceAccessApprovalFolderSettings() *schema.Resource {
+func ResourceAccessApprovalFolderSettings() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessApprovalFolderSettingsCreate,
 		Read:   resourceAccessApprovalFolderSettingsRead,

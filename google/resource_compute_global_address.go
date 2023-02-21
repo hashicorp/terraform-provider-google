@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeGlobalAddress() *schema.Resource {
+func ResourceComputeGlobalAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeGlobalAddressCreate,
 		Read:   resourceComputeGlobalAddressRead,

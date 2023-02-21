@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApigeeEnvironment() *schema.Resource {
+func ResourceApigeeEnvironment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeEnvironmentCreate,
 		Read:   resourceApigeeEnvironmentRead,

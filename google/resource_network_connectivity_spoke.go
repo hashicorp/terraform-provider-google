@@ -27,7 +27,7 @@ import (
 	networkconnectivity "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/networkconnectivity"
 )
 
-func resourceNetworkConnectivitySpoke() *schema.Resource {
+func ResourceNetworkConnectivitySpoke() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkConnectivitySpokeCreate,
 		Read:   resourceNetworkConnectivitySpokeRead,

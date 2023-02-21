@@ -27,7 +27,7 @@ import (
 	clouddeploy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/clouddeploy"
 )
 
-func resourceClouddeployDeliveryPipeline() *schema.Resource {
+func ResourceClouddeployDeliveryPipeline() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceClouddeployDeliveryPipelineCreate,
 		Read:   resourceClouddeployDeliveryPipelineRead,

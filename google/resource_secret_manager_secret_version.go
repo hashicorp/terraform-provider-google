@@ -38,7 +38,7 @@ func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta inter
 	return resourceSecretManagerSecretVersionRead(d, meta)
 }
 
-func resourceSecretManagerSecretVersion() *schema.Resource {
+func ResourceSecretManagerSecretVersion() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSecretManagerSecretVersionCreate,
 		Read:   resourceSecretManagerSecretVersionRead,

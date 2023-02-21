@@ -7,7 +7,7 @@ import (
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
-func dataSourceGoogleActiveFolder() *schema.Resource {
+func DataSourceGoogleActiveFolder() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleActiveFolderRead,
 

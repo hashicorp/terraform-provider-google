@@ -69,7 +69,7 @@ func rrdatasListDiffSuppress(oldList, newList []string, fun func(x string) strin
 	return true
 }
 
-func resourceDnsRecordSet() *schema.Resource {
+func ResourceDnsRecordSet() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDnsRecordSetCreate,
 		Read:   resourceDnsRecordSetRead,

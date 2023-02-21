@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCloudRunV2Service() *schema.Resource {
+func ResourceCloudRunV2Service() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunV2ServiceCreate,
 		Read:   resourceCloudRunV2ServiceRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDataFusionInstance() *schema.Resource {
+func ResourceDataFusionInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataFusionInstanceCreate,
 		Read:   resourceDataFusionInstanceRead,

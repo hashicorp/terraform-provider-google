@@ -121,7 +121,7 @@ var (
 	}
 )
 
-func resourceComposerEnvironment() *schema.Resource {
+func ResourceComposerEnvironment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComposerEnvironmentCreate,
 		Read:   resourceComposerEnvironmentRead,

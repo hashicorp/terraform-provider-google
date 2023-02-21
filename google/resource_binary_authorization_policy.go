@@ -40,7 +40,7 @@ func defaultBinaryAuthorizationPolicy(project string) map[string]interface{} {
 	}
 }
 
-func resourceBinaryAuthorizationPolicy() *schema.Resource {
+func ResourceBinaryAuthorizationPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBinaryAuthorizationPolicyCreate,
 		Read:   resourceBinaryAuthorizationPolicyRead,
@@ -189,7 +189,7 @@ specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 						copy["require_attestations_by"] = schema.NewSet(selfLinkNameHash, convertStringArrToInterface(t))
 					}
 					var buf bytes.Buffer
-					schema.SerializeResourceForHash(&buf, copy, resourceBinaryAuthorizationPolicy().Schema["cluster_admission_rules"].Elem.(*schema.Resource))
+					schema.SerializeResourceForHash(&buf, copy, ResourceBinaryAuthorizationPolicy().Schema["cluster_admission_rules"].Elem.(*schema.Resource))
 					return hashcode(buf.String())
 				},
 			},

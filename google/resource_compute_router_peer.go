@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeRouterBgpPeer() *schema.Resource {
+func ResourceComputeRouterBgpPeer() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterBgpPeerCreate,
 		Read:   resourceComputeRouterBgpPeerRead,

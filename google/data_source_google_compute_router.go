@@ -4,8 +4,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeRouter() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeRouter().Schema)
+func DataSourceGoogleComputeRouter() *schema.Resource {
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeRouter().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addRequiredFieldsToSchema(dsSchema, "network")
 	addOptionalFieldsToSchema(dsSchema, "region")

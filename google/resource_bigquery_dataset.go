@@ -51,7 +51,7 @@ func validateDefaultTableExpirationMs(v interface{}, k string) (ws []string, err
 	return
 }
 
-func resourceBigQueryDataset() *schema.Resource {
+func ResourceBigQueryDataset() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryDatasetCreate,
 		Read:   resourceBigQueryDatasetRead,

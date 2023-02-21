@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGooglePubsubSubscription() *schema.Resource {
+func DataSourceGooglePubsubSubscription() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourcePubsubSubscription().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourcePubsubSubscription().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "project")
 

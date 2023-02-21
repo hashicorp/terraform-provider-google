@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleProjects() *schema.Resource {
+func DataSourceGoogleProjects() *schema.Resource {
 	return &schema.Resource{
 		Read: datasourceGoogleProjectsRead,
 		Schema: map[string]*schema.Schema{

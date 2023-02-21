@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeRegionTargetHttpProxy() *schema.Resource {
+func ResourceComputeRegionTargetHttpProxy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionTargetHttpProxyCreate,
 		Read:   resourceComputeRegionTargetHttpProxyRead,

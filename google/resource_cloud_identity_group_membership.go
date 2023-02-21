@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCloudIdentityGroupMembership() *schema.Resource {
+func ResourceCloudIdentityGroupMembership() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudIdentityGroupMembershipCreate,
 		Read:   resourceCloudIdentityGroupMembershipRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourcePrivatecaCertificate() *schema.Resource {
+func ResourcePrivatecaCertificate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePrivatecaCertificateCreate,
 		Read:   resourcePrivatecaCertificateRead,

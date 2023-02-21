@@ -53,7 +53,7 @@ func validateWorkloadIdentityPoolProviderId(v interface{}, k string) (ws []strin
 	return
 }
 
-func resourceIAMBetaWorkloadIdentityPoolProvider() *schema.Resource {
+func ResourceIAMBetaWorkloadIdentityPoolProvider() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIAMBetaWorkloadIdentityPoolProviderCreate,
 		Read:   resourceIAMBetaWorkloadIdentityPoolProviderRead,

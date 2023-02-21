@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/storage/v1"
 )
 
-func resourceStorageNotification() *schema.Resource {
+func ResourceStorageNotification() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageNotificationCreate,
 		Read:   resourceStorageNotificationRead,

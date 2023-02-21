@@ -9,7 +9,7 @@ import (
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
-func dataSourceGoogleTagsTagKey() *schema.Resource {
+func DataSourceGoogleTagsTagKey() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleTagsTagKeyRead,
 

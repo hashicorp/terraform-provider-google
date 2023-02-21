@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceLoggingMetric() *schema.Resource {
+func ResourceLoggingMetric() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceLoggingMetricCreate,
 		Read:   resourceLoggingMetricRead,

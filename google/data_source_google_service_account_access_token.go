@@ -10,7 +10,7 @@ import (
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 )
 
-func dataSourceGoogleServiceAccountAccessToken() *schema.Resource {
+func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 
 	return &schema.Resource{
 		Read: dataSourceGoogleServiceAccountAccessTokenRead,

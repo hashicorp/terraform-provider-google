@@ -142,7 +142,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 	},
 }
 
-func resourceGoogleOrganizationPolicy() *schema.Resource {
+func ResourceGoogleOrganizationPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleOrganizationPolicyCreate,
 		Read:   resourceGoogleOrganizationPolicyRead,

@@ -26,7 +26,7 @@ var dnssecDigestType = map[string]int{
 	"sha384": 4,
 }
 
-func dataSourceDNSKeys() *schema.Resource {
+func DataSourceDNSKeys() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDNSKeysRead,
 

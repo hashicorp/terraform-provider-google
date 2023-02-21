@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAccessApprovalOrganizationSettings() *schema.Resource {
+func ResourceAccessApprovalOrganizationSettings() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessApprovalOrganizationSettingsCreate,
 		Read:   resourceAccessApprovalOrganizationSettingsRead,

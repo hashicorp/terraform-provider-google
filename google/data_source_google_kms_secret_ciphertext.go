@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleKmsSecretCiphertext() *schema.Resource {
+func DataSourceGoogleKmsSecretCiphertext() *schema.Resource {
 	return &schema.Resource{
 		DeprecationMessage: "Use the google_kms_secret_ciphertext resource instead.",
 		Read:               dataSourceGoogleKmsSecretCiphertextRead,

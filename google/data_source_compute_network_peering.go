@@ -9,9 +9,9 @@ import (
 
 const regexGCEName = "^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$"
 
-func dataSourceComputeNetworkPeering() *schema.Resource {
+func DataSourceComputeNetworkPeering() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeNetworkPeering().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeNetworkPeering().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name", "network")
 
 	dsSchema["name"].ValidateFunc = validateRegexp(regexGCEName)

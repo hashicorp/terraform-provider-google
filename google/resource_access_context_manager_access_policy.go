@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAccessContextManagerAccessPolicy() *schema.Resource {
+func ResourceAccessContextManagerAccessPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessContextManagerAccessPolicyCreate,
 		Read:   resourceAccessContextManagerAccessPolicyRead,

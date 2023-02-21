@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
+func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessContextManagerGcpUserAccessBindingCreate,
 		Read:   resourceAccessContextManagerGcpUserAccessBindingRead,

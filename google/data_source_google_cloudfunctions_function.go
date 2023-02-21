@@ -4,9 +4,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleCloudFunctionsFunction() *schema.Resource {
+func DataSourceGoogleCloudFunctionsFunction() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceCloudFunctionsFunction().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceCloudFunctionsFunction().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "name")

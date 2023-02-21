@@ -31,7 +31,7 @@ var (
 	bigqueryTableRegexp   = regexp.MustCompile("projects/(.+)/datasets/(.+)/tables/(.+)")
 )
 
-func resourceBigQueryJob() *schema.Resource {
+func ResourceBigQueryJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryJobCreate,
 		Read:   resourceBigQueryJobRead,

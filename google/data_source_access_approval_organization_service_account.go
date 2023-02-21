@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceAccessApprovalOrganizationServiceAccount() *schema.Resource {
+func DataSourceAccessApprovalOrganizationServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceAccessApprovalOrganizationServiceAccountRead,
 		Schema: map[string]*schema.Schema{

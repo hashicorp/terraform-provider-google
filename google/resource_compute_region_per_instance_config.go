@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeRegionPerInstanceConfig() *schema.Resource {
+func ResourceComputeRegionPerInstanceConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionPerInstanceConfigCreate,
 		Read:   resourceComputeRegionPerInstanceConfigRead,

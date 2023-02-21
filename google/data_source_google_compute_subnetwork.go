@@ -7,7 +7,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func dataSourceGoogleComputeSubnetwork() *schema.Resource {
+func DataSourceGoogleComputeSubnetwork() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeSubnetworkRead,
 

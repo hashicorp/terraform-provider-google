@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceStorageBucketAccessControl() *schema.Resource {
+func ResourceStorageBucketAccessControl() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageBucketAccessControlCreate,
 		Read:   resourceStorageBucketAccessControlRead,

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/cloudbilling/v1"
 )
 
-func dataSourceGoogleBillingAccount() *schema.Resource {
+func DataSourceGoogleBillingAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceBillingAccountRead,
 		Schema: map[string]*schema.Schema{

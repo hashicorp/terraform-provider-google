@@ -41,7 +41,7 @@ func validateAvailabilitySli(v interface{}, key string) (ws []string, errs []err
 	return
 }
 
-func resourceMonitoringSlo() *schema.Resource {
+func ResourceMonitoringSlo() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringSloCreate,
 		Read:   resourceMonitoringSloRead,

@@ -52,7 +52,7 @@ func compareSignatureAlgorithm(_, old, new string, _ *schema.ResourceData) bool 
 	return false
 }
 
-func resourceBinaryAuthorizationAttestor() *schema.Resource {
+func ResourceBinaryAuthorizationAttestor() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBinaryAuthorizationAttestorCreate,
 		Read:   resourceBinaryAuthorizationAttestorRead,

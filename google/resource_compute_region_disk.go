@@ -26,7 +26,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func resourceComputeRegionDisk() *schema.Resource {
+func ResourceComputeRegionDisk() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionDiskCreate,
 		Read:   resourceComputeRegionDiskRead,

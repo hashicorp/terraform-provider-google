@@ -7,7 +7,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func dataSourceGoogleComputeVpnGateway() *schema.Resource {
+func DataSourceGoogleComputeVpnGateway() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeVpnGatewayRead,
 

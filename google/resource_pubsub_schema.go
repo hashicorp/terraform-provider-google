@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourcePubsubSchema() *schema.Resource {
+func ResourcePubsubSchema() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubSchemaCreate,
 		Read:   resourcePubsubSchemaRead,

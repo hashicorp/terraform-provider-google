@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDataprocMetastoreService() *schema.Resource {
+func ResourceDataprocMetastoreService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocMetastoreServiceCreate,
 		Read:   resourceDataprocMetastoreServiceRead,

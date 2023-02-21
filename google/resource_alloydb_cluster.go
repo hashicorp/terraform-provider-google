@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAlloydbCluster() *schema.Resource {
+func ResourceAlloydbCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAlloydbClusterCreate,
 		Read:   resourceAlloydbClusterRead,

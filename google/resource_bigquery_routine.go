@@ -27,7 +27,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func resourceBigQueryRoutine() *schema.Resource {
+func ResourceBigQueryRoutine() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryRoutineCreate,
 		Read:   resourceBigQueryRoutineRead,

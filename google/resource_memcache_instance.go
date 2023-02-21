@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceMemcacheInstance() *schema.Resource {
+func ResourceMemcacheInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMemcacheInstanceCreate,
 		Read:   resourceMemcacheInstanceRead,

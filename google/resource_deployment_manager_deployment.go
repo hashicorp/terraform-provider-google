@@ -49,7 +49,7 @@ func customDiffDeploymentManagerDeployment(_ context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceDeploymentManagerDeployment() *schema.Resource {
+func ResourceDeploymentManagerDeployment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDeploymentManagerDeploymentCreate,
 		Read:   resourceDeploymentManagerDeploymentRead,

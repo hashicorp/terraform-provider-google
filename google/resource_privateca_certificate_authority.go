@@ -50,7 +50,7 @@ func isNewResource(diff TerraformResourceDiff) bool {
 	return name.(string) == ""
 }
 
-func resourcePrivatecaCertificateAuthority() *schema.Resource {
+func ResourcePrivatecaCertificateAuthority() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePrivatecaCertificateAuthorityCreate,
 		Read:   resourcePrivatecaCertificateAuthorityRead,

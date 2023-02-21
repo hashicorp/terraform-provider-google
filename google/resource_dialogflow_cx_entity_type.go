@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceDialogflowCXEntityType() *schema.Resource {
+func ResourceDialogflowCXEntityType() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDialogflowCXEntityTypeCreate,
 		Read:   resourceDialogflowCXEntityTypeRead,

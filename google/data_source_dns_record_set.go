@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceDnsRecordSet() *schema.Resource {
+func DataSourceDnsRecordSet() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDnsRecordSetRead,
 
@@ -66,7 +66,7 @@ func dataSourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error 
 
 	resp, err := config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).Name(name).Type(dnsType).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("dataSourceDnsRecordSet %q", name))
+		return handleNotFoundError(err, d, fmt.Sprintf("DataSourceDnsRecordSet %q", name))
 	}
 	if len(resp.Rrsets) != 1 {
 		return fmt.Errorf("Only expected 1 record set, got %d", len(resp.Rrsets))

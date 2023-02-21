@@ -45,7 +45,7 @@ var (
 	}
 )
 
-func resourceStorageTransferJob() *schema.Resource {
+func ResourceStorageTransferJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageTransferJobCreate,
 		Read:   resourceStorageTransferJobRead,

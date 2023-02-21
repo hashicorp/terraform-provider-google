@@ -145,7 +145,7 @@ func resourceDataprocPropertyDiffSuppress(k, old, new string, d *schema.Resource
 	return false
 }
 
-func resourceDataprocCluster() *schema.Resource {
+func ResourceDataprocCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocClusterCreate,
 		Read:   resourceDataprocClusterRead,

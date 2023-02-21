@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeSharedVpcHostProject() *schema.Resource {
+func ResourceComputeSharedVpcHostProject() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSharedVpcHostProjectCreate,
 		Read:   resourceComputeSharedVpcHostProjectRead,

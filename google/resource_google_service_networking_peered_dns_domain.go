@@ -11,7 +11,7 @@ import (
 	"google.golang.org/api/servicenetworking/v1"
 )
 
-func resourceGoogleServiceNetworkingPeeredDNSDomain() *schema.Resource {
+func ResourceGoogleServiceNetworkingPeeredDNSDomain() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleServiceNetworkingPeeredDNSDomainCreate,
 		Read:   resourceGoogleServiceNetworkingPeeredDNSDomainRead,

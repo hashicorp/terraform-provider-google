@@ -47,7 +47,7 @@ func resourceDataflowJobLabelDiffSuppress(k, old, new string, d *schema.Resource
 	return false
 }
 
-func resourceDataflowJob() *schema.Resource {
+func ResourceDataflowJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataflowJobCreate,
 		Read:   resourceDataflowJobRead,
@@ -228,7 +228,7 @@ func resourceDataflowJob() *schema.Resource {
 func resourceDataflowJobTypeCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	// All non-virtual fields are ForceNew for batch jobs
 	if d.Get("type") == "JOB_TYPE_BATCH" {
-		resourceSchema := resourceDataflowJob().Schema
+		resourceSchema := ResourceDataflowJob().Schema
 		for field := range resourceSchema {
 			if field == "on_delete" {
 				continue
@@ -379,7 +379,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 // Stream update method. Batch job changes should have been set to ForceNew via custom diff
 func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interface{}) error {
 	// Don't send an update request if only virtual fields have changes
-	if resourceDataflowJobIsVirtualUpdate(d, resourceDataflowJob().Schema) {
+	if resourceDataflowJobIsVirtualUpdate(d, ResourceDataflowJob().Schema) {
 		return nil
 	}
 

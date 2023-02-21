@@ -42,7 +42,7 @@ func resourceSourceRepoRepositoryPubSubConfigsHash(v interface{}) int {
 	return hashcode(buf.String())
 }
 
-func resourceSourceRepoRepository() *schema.Resource {
+func ResourceSourceRepoRepository() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSourceRepoRepositoryCreate,
 		Read:   resourceSourceRepoRepositoryRead,

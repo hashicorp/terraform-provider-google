@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleCloudBuildTrigger() *schema.Resource {
+func DataSourceGoogleCloudBuildTrigger() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceCloudBuildTrigger().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceCloudBuildTrigger().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "trigger_id", "location")
 	addOptionalFieldsToSchema(dsSchema, "project")

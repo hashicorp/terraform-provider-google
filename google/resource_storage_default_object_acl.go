@@ -2,11 +2,12 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/storage/v1"
 )
 
-func resourceStorageDefaultObjectAcl() *schema.Resource {
+func ResourceStorageDefaultObjectAcl() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageDefaultObjectAclCreateUpdate,
 		Read:   resourceStorageDefaultObjectAclRead,

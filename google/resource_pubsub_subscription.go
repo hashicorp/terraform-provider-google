@@ -37,7 +37,7 @@ func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.Res
 	return trimmedNew == trimmedOld
 }
 
-func resourcePubsubSubscription() *schema.Resource {
+func ResourcePubsubSubscription() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubSubscriptionCreate,
 		Read:   resourcePubsubSubscriptionRead,

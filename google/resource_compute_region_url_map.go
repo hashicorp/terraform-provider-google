@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceComputeRegionUrlMap() *schema.Resource {
+func ResourceComputeRegionUrlMap() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionUrlMapCreate,
 		Read:   resourceComputeRegionUrlMapRead,

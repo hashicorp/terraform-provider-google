@@ -29,7 +29,7 @@ import (
 const gcsBaseUrl = "https://storage.googleapis.com"
 const googleCredentialsEnvVar = "GOOGLE_APPLICATION_CREDENTIALS"
 
-func dataSourceGoogleSignedUrl() *schema.Resource {
+func DataSourceGoogleSignedUrl() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleSignedUrlRead,
 

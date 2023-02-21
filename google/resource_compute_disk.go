@@ -269,7 +269,7 @@ func suppressWindowsFamilyDiff(imageName, familyName string) bool {
 	return strings.Contains(updatedImageName, updatedFamilyString)
 }
 
-func resourceComputeDisk() *schema.Resource {
+func ResourceComputeDisk() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeDiskCreate,
 		Read:   resourceComputeDiskRead,

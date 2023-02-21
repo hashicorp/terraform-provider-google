@@ -154,7 +154,7 @@ func computeRouterNatRulesHash(v interface{}) int {
 	return ruleNumber + descriptionHash + schema.HashString(match) + sourceNatActiveIpHash + sourceNatDrainIpHash
 }
 
-func resourceComputeRouterNat() *schema.Resource {
+func ResourceComputeRouterNat() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterNatCreate,
 		Read:   resourceComputeRouterNatRead,

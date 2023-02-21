@@ -9,7 +9,7 @@ import (
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
-func dataSourceSqlDatabases() *schema.Resource {
+func DataSourceSqlDatabases() *schema.Resource {
 
 	return &schema.Resource{
 		Read: dataSourceSqlDatabasesRead,
@@ -29,7 +29,7 @@ func dataSourceSqlDatabases() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
-					Schema: datasourceSchemaFromResourceSchema(resourceSQLDatabase().Schema),
+					Schema: datasourceSchemaFromResourceSchema(ResourceSQLDatabase().Schema),
 				},
 			},
 		},

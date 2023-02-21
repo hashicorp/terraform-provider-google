@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIAM2AccessBoundaryPolicy() *schema.Resource {
+func ResourceIAM2AccessBoundaryPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIAM2AccessBoundaryPolicyCreate,
 		Read:   resourceIAM2AccessBoundaryPolicyRead,

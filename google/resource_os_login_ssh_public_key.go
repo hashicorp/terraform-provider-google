@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceOSLoginSSHPublicKey() *schema.Resource {
+func ResourceOSLoginSSHPublicKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceOSLoginSSHPublicKeyCreate,
 		Read:   resourceOSLoginSSHPublicKeyRead,

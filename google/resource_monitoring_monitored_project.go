@@ -27,7 +27,7 @@ import (
 	monitoring "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/monitoring"
 )
 
-func resourceMonitoringMonitoredProject() *schema.Resource {
+func ResourceMonitoringMonitoredProject() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringMonitoredProjectCreate,
 		Read:   resourceMonitoringMonitoredProjectRead,

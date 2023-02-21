@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIdentityPlatformConfig() *schema.Resource {
+func ResourceIdentityPlatformConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityPlatformConfigCreate,
 		Read:   resourceIdentityPlatformConfigRead,

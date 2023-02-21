@@ -46,7 +46,7 @@ func domainMappingLabelDiffSuppress(k, old, new string, d *schema.ResourceData) 
 	return false
 }
 
-func resourceCloudRunDomainMapping() *schema.Resource {
+func ResourceCloudRunDomainMapping() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunDomainMappingCreate,
 		Read:   resourceCloudRunDomainMappingRead,

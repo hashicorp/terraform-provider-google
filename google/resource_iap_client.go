@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIapClient() *schema.Resource {
+func ResourceIapClient() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIapClientCreate,
 		Read:   resourceIapClientRead,

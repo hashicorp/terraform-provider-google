@@ -37,7 +37,7 @@ func sensitiveLabelCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 	return nil
 }
 
-func resourceMonitoringNotificationChannel() *schema.Resource {
+func ResourceMonitoringNotificationChannel() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringNotificationChannelCreate,
 		Read:   resourceMonitoringNotificationChannelRead,

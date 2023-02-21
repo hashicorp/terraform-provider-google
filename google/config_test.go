@@ -95,7 +95,7 @@ func TestAccConfigLoadValidate_impersonated(t *testing.T) {
 	}
 	testAccPreCheck(t)
 
-	serviceaccount := multiEnvSearch([]string{"IMPERSONATE_SERVICE_ACCOUNT_ACCTEST"})
+	serviceaccount := MultiEnvSearch([]string{"IMPERSONATE_SERVICE_ACCOUNT_ACCTEST"})
 	creds := getTestCredsFromEnv()
 	proj := getTestProjectFromEnv()
 
@@ -127,7 +127,7 @@ func TestAccConfigLoadValidate_accessTokenImpersonated(t *testing.T) {
 
 	creds := getTestCredsFromEnv()
 	proj := getTestProjectFromEnv()
-	serviceaccount := multiEnvSearch([]string{"IMPERSONATE_SERVICE_ACCOUNT_ACCTEST"})
+	serviceaccount := MultiEnvSearch([]string{"IMPERSONATE_SERVICE_ACCOUNT_ACCTEST"})
 
 	c, err := google.CredentialsFromJSON(context.Background(), []byte(creds), DefaultClientScopes...)
 	if err != nil {
@@ -222,7 +222,7 @@ func TestConfigLoadAndValidate_customScopes(t *testing.T) {
 
 func TestConfigLoadAndValidate_defaultBatchingConfig(t *testing.T) {
 	// Use default batching config
-	batchCfg, err := expandProviderBatchingConfig(nil)
+	batchCfg, err := ExpandProviderBatchingConfig(nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -247,7 +247,7 @@ func TestConfigLoadAndValidate_defaultBatchingConfig(t *testing.T) {
 }
 
 func TestConfigLoadAndValidate_customBatchingConfig(t *testing.T) {
-	batchCfg, err := expandProviderBatchingConfig([]interface{}{
+	batchCfg, err := ExpandProviderBatchingConfig([]interface{}{
 		map[string]interface{}{
 			"send_after":      "1s",
 			"enable_batching": false,

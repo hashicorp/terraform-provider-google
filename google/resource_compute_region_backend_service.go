@@ -114,7 +114,7 @@ func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, m
 	}
 }
 
-func resourceComputeRegionBackendService() *schema.Resource {
+func ResourceComputeRegionBackendService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionBackendServiceCreate,
 		Read:   resourceComputeRegionBackendServiceRead,

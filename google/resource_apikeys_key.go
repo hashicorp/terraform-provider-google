@@ -27,7 +27,7 @@ import (
 	apikeys "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/apikeys"
 )
 
-func resourceApikeysKey() *schema.Resource {
+func ResourceApikeysKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApikeysKeyCreate,
 		Read:   resourceApikeysKeyRead,

@@ -266,7 +266,7 @@ func validateCloudIotDeviceRegistrySubfolderMatch(v interface{}, k string) (warn
 	return
 }
 
-func resourceCloudIotDeviceRegistry() *schema.Resource {
+func ResourceCloudIotDeviceRegistry() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudIotDeviceRegistryCreate,
 		Read:   resourceCloudIotDeviceRegistryRead,

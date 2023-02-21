@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceStorageHmacKey() *schema.Resource {
+func ResourceStorageHmacKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageHmacKeyCreate,
 		Read:   resourceStorageHmacKeyRead,

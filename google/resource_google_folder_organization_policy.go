@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-func resourceGoogleFolderOrganizationPolicy() *schema.Resource {
+func ResourceGoogleFolderOrganizationPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleFolderOrganizationPolicyCreate,
 		Read:   resourceGoogleFolderOrganizationPolicyRead,

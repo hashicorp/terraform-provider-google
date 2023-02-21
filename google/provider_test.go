@@ -447,19 +447,19 @@ func testAccPreCheck(t *testing.T) {
 		os.Setenv("GOOGLE_CREDENTIALS", string(creds))
 	}
 
-	if v := multiEnvSearch(credsEnvVars); v == "" {
+	if v := MultiEnvSearch(credsEnvVars); v == "" {
 		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(credsEnvVars, ", "))
 	}
 
-	if v := multiEnvSearch(projectEnvVars); v == "" {
+	if v := MultiEnvSearch(projectEnvVars); v == "" {
 		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(projectEnvVars, ", "))
 	}
 
-	if v := multiEnvSearch(regionEnvVars); v == "" {
+	if v := MultiEnvSearch(regionEnvVars); v == "" {
 		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(regionEnvVars, ", "))
 	}
 
-	if v := multiEnvSearch(zoneEnvVars); v == "" {
+	if v := MultiEnvSearch(zoneEnvVars); v == "" {
 		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(zoneEnvVars, ", "))
 	}
 }
@@ -759,77 +759,77 @@ func getTestProject(is *terraform.InstanceState, config *Config) (string, error)
 
 // testAccPreCheck ensures at least one of the project env variables is set.
 func getTestProjectNumberFromEnv() string {
-	return multiEnvSearch(projectNumberEnvVars)
+	return MultiEnvSearch(projectNumberEnvVars)
 }
 
 // testAccPreCheck ensures at least one of the project env variables is set.
 func getTestProjectFromEnv() string {
-	return multiEnvSearch(projectEnvVars)
+	return MultiEnvSearch(projectEnvVars)
 }
 
 // testAccPreCheck ensures at least one of the credentials env variables is set.
 func getTestCredsFromEnv() string {
 	// Return empty string if GOOGLE_USE_DEFAULT_CREDENTIALS is set to true.
-	if multiEnvSearch(credsEnvVars) == "true" {
+	if MultiEnvSearch(credsEnvVars) == "true" {
 		return ""
 	}
-	return multiEnvSearch(credsEnvVars)
+	return MultiEnvSearch(credsEnvVars)
 }
 
 // testAccPreCheck ensures at least one of the region env variables is set.
 func getTestRegionFromEnv() string {
-	return multiEnvSearch(regionEnvVars)
+	return MultiEnvSearch(regionEnvVars)
 }
 
 func getTestZoneFromEnv() string {
-	return multiEnvSearch(zoneEnvVars)
+	return MultiEnvSearch(zoneEnvVars)
 }
 
 func getTestCustIdFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, custIdEnvVars...)
-	return multiEnvSearch(custIdEnvVars)
+	return MultiEnvSearch(custIdEnvVars)
 }
 
 func getTestIdentityUserFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, identityUserEnvVars...)
-	return multiEnvSearch(identityUserEnvVars)
+	return MultiEnvSearch(identityUserEnvVars)
 }
 
 // Firestore can't be enabled at the same time as Datastore, so we need a new
 // project to manage it until we can enable Firestore programmatically.
 func getTestFirestoreProjectFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, firestoreProjectEnvVars...)
-	return multiEnvSearch(firestoreProjectEnvVars)
+	return MultiEnvSearch(firestoreProjectEnvVars)
 }
 
 func getTestOrgFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgEnvVars...)
-	return multiEnvSearch(orgEnvVars)
+	return MultiEnvSearch(orgEnvVars)
 }
 
 func getTestOrgDomainFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgEnvDomainVars...)
-	return multiEnvSearch(orgEnvDomainVars)
+	return MultiEnvSearch(orgEnvDomainVars)
 }
 
 func getTestOrgTargetFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgTargetEnvVars...)
-	return multiEnvSearch(orgTargetEnvVars)
+	return MultiEnvSearch(orgTargetEnvVars)
 }
 
 func getTestBillingAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, billingAccountEnvVars...)
-	return multiEnvSearch(billingAccountEnvVars)
+	return MultiEnvSearch(billingAccountEnvVars)
 }
 
 func getTestMasterBillingAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, masterBillingAccountEnvVars...)
-	return multiEnvSearch(masterBillingAccountEnvVars)
+	return MultiEnvSearch(masterBillingAccountEnvVars)
 }
 
 func getTestServiceAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, serviceAccountEnvVars...)
-	return multiEnvSearch(serviceAccountEnvVars)
+	return MultiEnvSearch(serviceAccountEnvVars)
 }
 
 // Some tests fail during VCR. One common case is race conditions when creating resources.

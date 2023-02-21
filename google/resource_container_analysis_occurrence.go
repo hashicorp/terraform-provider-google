@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceContainerAnalysisOccurrence() *schema.Resource {
+func ResourceContainerAnalysisOccurrence() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerAnalysisOccurrenceCreate,
 		Read:   resourceContainerAnalysisOccurrenceRead,

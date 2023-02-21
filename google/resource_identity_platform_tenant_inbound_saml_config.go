@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIdentityPlatformTenantInboundSamlConfig() *schema.Resource {
+func ResourceIdentityPlatformTenantInboundSamlConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityPlatformTenantInboundSamlConfigCreate,
 		Read:   resourceIdentityPlatformTenantInboundSamlConfigRead,

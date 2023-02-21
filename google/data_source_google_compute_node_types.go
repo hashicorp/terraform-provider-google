@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func dataSourceGoogleComputeNodeTypes() *schema.Resource {
+func DataSourceGoogleComputeNodeTypes() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeNodeTypesRead,
 		Schema: map[string]*schema.Schema{

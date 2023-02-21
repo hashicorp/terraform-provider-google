@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceKMSCryptoKey() *schema.Resource {
+func ResourceKMSCryptoKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKMSCryptoKeyCreate,
 		Read:   resourceKMSCryptoKeyRead,

@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceLoggingFolderSink() *schema.Resource {
+func ResourceLoggingFolderSink() *schema.Resource {
 	schm := &schema.Resource{
 		Create: resourceLoggingFolderSinkCreate,
 		Read:   resourceLoggingFolderSinkRead,

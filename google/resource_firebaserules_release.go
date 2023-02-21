@@ -27,7 +27,7 @@ import (
 	firebaserules "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/firebaserules"
 )
 
-func resourceFirebaserulesRelease() *schema.Resource {
+func ResourceFirebaserulesRelease() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFirebaserulesReleaseCreate,
 		Read:   resourceFirebaserulesReleaseRead,

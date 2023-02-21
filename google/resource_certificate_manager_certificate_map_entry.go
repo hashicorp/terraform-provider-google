@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCertificateManagerCertificateMapEntry() *schema.Resource {
+func ResourceCertificateManagerCertificateMapEntry() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCertificateManagerCertificateMapEntryCreate,
 		Read:   resourceCertificateManagerCertificateMapEntryRead,

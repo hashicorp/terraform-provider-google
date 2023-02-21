@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceKMSSecretCiphertext() *schema.Resource {
+func ResourceKMSSecretCiphertext() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKMSSecretCiphertextCreate,
 		Read:   resourceKMSSecretCiphertextRead,

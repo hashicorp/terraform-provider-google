@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCloudBuildBitbucketServerConfig() *schema.Resource {
+func ResourceCloudBuildBitbucketServerConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudBuildBitbucketServerConfigCreate,
 		Read:   resourceCloudBuildBitbucketServerConfigRead,

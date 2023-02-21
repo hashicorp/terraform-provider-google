@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/iam/v1"
 )
 
-func resourceGoogleServiceAccountKey() *schema.Resource {
+func ResourceGoogleServiceAccountKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleServiceAccountKeyCreate,
 		Read:   resourceGoogleServiceAccountKeyRead,

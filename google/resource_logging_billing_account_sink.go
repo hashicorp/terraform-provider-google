@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceLoggingBillingAccountSink() *schema.Resource {
+func ResourceLoggingBillingAccountSink() *schema.Resource {
 	schm := &schema.Resource{
 		Create: resourceLoggingBillingAccountSinkCreate,
 		Read:   resourceLoggingBillingAccountSinkRead,

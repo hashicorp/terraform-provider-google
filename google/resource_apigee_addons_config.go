@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApigeeAddonsConfig() *schema.Resource {
+func ResourceApigeeAddonsConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeAddonsConfigCreate,
 		Read:   resourceApigeeAddonsConfigRead,

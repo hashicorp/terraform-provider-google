@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeResourcePolicy() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeResourcePolicy().Schema)
+func DataSourceGoogleComputeResourcePolicy() *schema.Resource {
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeResourcePolicy().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "region")

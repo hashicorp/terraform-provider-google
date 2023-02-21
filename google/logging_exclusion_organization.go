@@ -39,7 +39,7 @@ func NewOrganizationLoggingExclusionUpdater(d *schema.ResourceData, config *Conf
 	}, nil
 }
 
-func organizationLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error {
+func OrganizationLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error {
 	loggingExclusionId, err := parseLoggingExclusionId(d.Id())
 	if err != nil {
 		return err

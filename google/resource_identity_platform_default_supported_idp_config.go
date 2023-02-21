@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIdentityPlatformDefaultSupportedIdpConfig() *schema.Resource {
+func ResourceIdentityPlatformDefaultSupportedIdpConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityPlatformDefaultSupportedIdpConfigCreate,
 		Read:   resourceIdentityPlatformDefaultSupportedIdpConfigRead,

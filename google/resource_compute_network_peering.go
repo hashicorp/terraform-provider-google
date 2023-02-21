@@ -15,7 +15,7 @@ import (
 
 const peerNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
 
-func resourceComputeNetworkPeering() *schema.Resource {
+func ResourceComputeNetworkPeering() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkPeeringCreate,
 		Read:   resourceComputeNetworkPeeringRead,

@@ -38,7 +38,7 @@ func sslSettingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
-func resourceAppEngineDomainMapping() *schema.Resource {
+func ResourceAppEngineDomainMapping() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppEngineDomainMappingCreate,
 		Read:   resourceAppEngineDomainMappingRead,

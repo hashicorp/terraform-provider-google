@@ -27,7 +27,7 @@ import (
 	"google.golang.org/api/dns/v1"
 )
 
-func resourceDNSManagedZone() *schema.Resource {
+func ResourceDNSManagedZone() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDNSManagedZoneCreate,
 		Read:   resourceDNSManagedZoneRead,

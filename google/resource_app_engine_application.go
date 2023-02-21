@@ -12,7 +12,7 @@ import (
 	appengine "google.golang.org/api/appengine/v1"
 )
 
-func resourceAppEngineApplication() *schema.Resource {
+func ResourceAppEngineApplication() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppEngineApplicationCreate,
 		Read:   resourceAppEngineApplicationRead,

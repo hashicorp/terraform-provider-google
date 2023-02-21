@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDialogflowEntityType() *schema.Resource {
+func ResourceDialogflowEntityType() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDialogflowEntityTypeCreate,
 		Read:   resourceDialogflowEntityTypeRead,

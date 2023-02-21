@@ -85,7 +85,7 @@ func compareSelfLinkOrResourceNameWithMultipleParts(_, old, new string, _ *schem
 	return strings.HasSuffix(old, new)
 }
 
-func resourceCloudFunctionsFunction() *schema.Resource {
+func ResourceCloudFunctionsFunction() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudFunctionsCreate,
 		Read:   resourceCloudFunctionsRead,

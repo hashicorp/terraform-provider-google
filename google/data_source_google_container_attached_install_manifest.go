@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleContainerAttachedInstallManifest() *schema.Resource {
+func DataSourceGoogleContainerAttachedInstallManifest() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleContainerAttachedInstallManifestRead,
 		Schema: map[string]*schema.Schema{

@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleCloudRunService() *schema.Resource {
+func DataSourceGoogleCloudRunService() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceCloudRunService().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceCloudRunService().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name", "location")
 	addOptionalFieldsToSchema(dsSchema, "project")
 

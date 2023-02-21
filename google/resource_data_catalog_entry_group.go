@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDataCatalogEntryGroup() *schema.Resource {
+func ResourceDataCatalogEntryGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataCatalogEntryGroupCreate,
 		Read:   resourceDataCatalogEntryGroupRead,

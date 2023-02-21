@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAppEngineFlexibleAppVersion() *schema.Resource {
+func ResourceAppEngineFlexibleAppVersion() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppEngineFlexibleAppVersionCreate,
 		Read:   resourceAppEngineFlexibleAppVersionRead,

@@ -37,7 +37,7 @@ func checkValAndDefaultStringSuppress(defaultVal string, checkVal string) schema
 	}
 }
 
-func resourceBillingBudget() *schema.Resource {
+func ResourceBillingBudget() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBillingBudgetCreate,
 		Read:   resourceBillingBudgetRead,

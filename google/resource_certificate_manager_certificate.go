@@ -31,7 +31,7 @@ func certManagerDefaultScopeDiffSuppress(_, old, new string, diff *schema.Resour
 	return false
 }
 
-func resourceCertificateManagerCertificate() *schema.Resource {
+func ResourceCertificateManagerCertificate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCertificateManagerCertificateCreate,
 		Read:   resourceCertificateManagerCertificateRead,

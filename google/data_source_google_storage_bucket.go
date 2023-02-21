@@ -1,13 +1,14 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleStorageBucket() *schema.Resource {
+func DataSourceGoogleStorageBucket() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceStorageBucket().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceStorageBucket().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "name")
 

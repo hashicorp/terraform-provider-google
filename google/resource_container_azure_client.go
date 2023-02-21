@@ -27,7 +27,7 @@ import (
 	containerazure "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containerazure"
 )
 
-func resourceContainerAzureClient() *schema.Resource {
+func ResourceContainerAzureClient() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerAzureClientCreate,
 		Read:   resourceContainerAzureClientRead,

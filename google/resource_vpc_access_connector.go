@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceVPCAccessConnector() *schema.Resource {
+func ResourceVPCAccessConnector() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVPCAccessConnectorCreate,
 		Read:   resourceVPCAccessConnectorRead,

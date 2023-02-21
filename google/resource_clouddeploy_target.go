@@ -27,7 +27,7 @@ import (
 	clouddeploy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/clouddeploy"
 )
 
-func resourceClouddeployTarget() *schema.Resource {
+func ResourceClouddeployTarget() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceClouddeployTargetCreate,
 		Read:   resourceClouddeployTargetRead,

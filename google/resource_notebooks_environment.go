@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotebooksEnvironment() *schema.Resource {
+func ResourceNotebooksEnvironment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNotebooksEnvironmentCreate,
 		Read:   resourceNotebooksEnvironmentRead,
