@@ -2565,9 +2565,10 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection = false
   settings {
     tier                   = "db-f1-micro"
+    availability_type      = "REGIONAL"
     location_preference {
       zone           = "us-central1-f"
-	  secondary_zone = "us-central1-a"
+      secondary_zone = "us-central1-a"
     }
 
     ip_configuration {
@@ -2582,6 +2583,7 @@ resource "google_sql_database_instance" "instance" {
     backup_configuration {
       enabled    = "true"
       start_time = "19:19"
+      binary_log_enabled = true
     }
 
     activation_policy = "ALWAYS"
