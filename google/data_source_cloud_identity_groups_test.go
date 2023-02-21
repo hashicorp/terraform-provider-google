@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccDataSourceCloudIdentityGroups_basic(t *testing.T) {
+func testAccDataSourceCloudIdentityGroups_basicTest(t *testing.T) {
 
 	context := map[string]interface{}{
 		"org_domain":    getTestOrgDomainFromEnv(t),
