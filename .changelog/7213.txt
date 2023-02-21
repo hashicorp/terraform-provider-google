@@ -1,0 +1,4 @@
+```release-note:new-resource
+google_firebase_hosting_version
+google_firebase_hosting_release
+```
