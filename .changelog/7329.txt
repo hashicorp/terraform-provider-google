@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a crash when leaving `placement_policy` blank on `google_container_node_pool`
+```
