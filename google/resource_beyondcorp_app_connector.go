@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceBeyondcorpAppConnector() *schema.Resource {
+func ResourceBeyondcorpAppConnector() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBeyondcorpAppConnectorCreate,
 		Read:   resourceBeyondcorpAppConnectorRead,

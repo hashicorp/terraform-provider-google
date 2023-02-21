@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeHaVpnGateway() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeHaVpnGateway().Schema)
+func DataSourceGoogleComputeHaVpnGateway() *schema.Resource {
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeHaVpnGateway().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "name")

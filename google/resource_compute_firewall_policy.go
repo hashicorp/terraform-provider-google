@@ -27,7 +27,7 @@ import (
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 )
 
-func resourceComputeFirewallPolicy() *schema.Resource {
+func ResourceComputeFirewallPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFirewallPolicyCreate,
 		Read:   resourceComputeFirewallPolicyRead,

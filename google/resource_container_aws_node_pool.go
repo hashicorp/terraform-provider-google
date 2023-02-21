@@ -27,7 +27,7 @@ import (
 	containeraws "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containeraws"
 )
 
-func resourceContainerAwsNodePool() *schema.Resource {
+func ResourceContainerAwsNodePool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerAwsNodePoolCreate,
 		Read:   resourceContainerAwsNodePoolRead,

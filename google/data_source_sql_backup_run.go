@@ -7,7 +7,7 @@ import (
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
-func dataSourceSqlBackupRun() *schema.Resource {
+func DataSourceSqlBackupRun() *schema.Resource {
 
 	return &schema.Resource{
 		Read: dataSourceSqlBackupRunRead,

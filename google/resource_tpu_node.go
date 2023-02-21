@@ -72,7 +72,7 @@ func tpuNodeCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta int
 	return nil
 }
 
-func resourceTPUNode() *schema.Resource {
+func ResourceTPUNode() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceTPUNodeCreate,
 		Read:   resourceTPUNodeRead,

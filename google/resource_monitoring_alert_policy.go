@@ -29,7 +29,7 @@ func crossSeriesReducerDiffSuppress(k, old, new string, d *schema.ResourceData) 
 	return (new == "" && old == "REDUCE_NONE") || (new == "REDUCE_NONE" && old == "")
 }
 
-func resourceMonitoringAlertPolicy() *schema.Resource {
+func ResourceMonitoringAlertPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringAlertPolicyCreate,
 		Read:   resourceMonitoringAlertPolicyRead,

@@ -35,7 +35,7 @@ func sharedConfigForRegion(region string) (*Config, error) {
 		return nil, fmt.Errorf("set project using any of these env variables %v", projectEnvVars)
 	}
 
-	if v := multiEnvSearch(credsEnvVars); v == "" {
+	if v := MultiEnvSearch(credsEnvVars); v == "" {
 		return nil, fmt.Errorf("set credentials using any of these env variables %v", credsEnvVars)
 	}
 

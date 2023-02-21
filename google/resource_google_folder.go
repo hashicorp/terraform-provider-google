@@ -10,7 +10,7 @@ import (
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
-func resourceGoogleFolder() *schema.Resource {
+func ResourceGoogleFolder() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleFolderCreate,
 		Read:   resourceGoogleFolderRead,

@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeDisk() *schema.Resource {
+func DataSourceGoogleComputeDisk() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeDisk().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeDisk().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "project")
 	addOptionalFieldsToSchema(dsSchema, "zone")

@@ -28,7 +28,7 @@ func resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress(k, old, new st
 	return old == "/"+new
 }
 
-func resourceMonitoringUptimeCheckConfig() *schema.Resource {
+func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringUptimeCheckConfigCreate,
 		Read:   resourceMonitoringUptimeCheckConfigRead,

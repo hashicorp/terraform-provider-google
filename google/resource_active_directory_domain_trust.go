@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceActiveDirectoryDomainTrust() *schema.Resource {
+func ResourceActiveDirectoryDomainTrust() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceActiveDirectoryDomainTrustCreate,
 		Read:   resourceActiveDirectoryDomainTrustRead,

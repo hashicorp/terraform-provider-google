@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeInstanceGroup() *schema.Resource {
+func DataSourceGoogleComputeInstanceGroup() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceComputeInstanceGroupRead,
 		Schema: map[string]*schema.Schema{

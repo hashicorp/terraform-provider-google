@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeInstanceGroupNamedPort() *schema.Resource {
+func ResourceComputeInstanceGroupNamedPort() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceGroupNamedPortCreate,
 		Read:   resourceComputeInstanceGroupNamedPortRead,

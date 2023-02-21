@@ -13,7 +13,7 @@ import (
 
 var jobTypes = []string{"pyspark_config", "spark_config", "hadoop_config", "hive_config", "pig_config", "sparksql_config", "presto_config"}
 
-func resourceDataprocJob() *schema.Resource {
+func ResourceDataprocJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocJobCreate,
 		Update: resourceDataprocJobUpdate,

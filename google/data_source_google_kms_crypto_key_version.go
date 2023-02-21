@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
+func DataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleKmsCryptoKeyVersionRead,
 		Schema: map[string]*schema.Schema{

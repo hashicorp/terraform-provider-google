@@ -46,7 +46,7 @@ func waitForAgentPoolReady(d *schema.ResourceData, config *Config, timeout time.
 	})
 }
 
-func resourceStorageTransferAgentPool() *schema.Resource {
+func ResourceStorageTransferAgentPool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageTransferAgentPoolCreate,
 		Read:   resourceStorageTransferAgentPoolRead,

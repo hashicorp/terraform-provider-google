@@ -94,7 +94,7 @@ func validateHttpHeaders() schema.SchemaValidateFunc {
 	}
 }
 
-func resourceCloudSchedulerJob() *schema.Resource {
+func ResourceCloudSchedulerJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudSchedulerJobCreate,
 		Read:   resourceCloudSchedulerJobRead,

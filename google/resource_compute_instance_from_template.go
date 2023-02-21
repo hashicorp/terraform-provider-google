@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func resourceComputeInstanceFromTemplate() *schema.Resource {
+func ResourceComputeInstanceFromTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceFromTemplateCreate,
 		Read:   resourceComputeInstanceRead,
@@ -19,16 +19,16 @@ func resourceComputeInstanceFromTemplate() *schema.Resource {
 		// Import doesn't really make sense, because you could just import
 		// as a google_compute_instance.
 
-		Timeouts: resourceComputeInstance().Timeouts,
+		Timeouts: ResourceComputeInstance().Timeouts,
 
 		Schema:        computeInstanceFromTemplateSchema(),
-		CustomizeDiff: resourceComputeInstance().CustomizeDiff,
+		CustomizeDiff: ResourceComputeInstance().CustomizeDiff,
 		UseJSONNumber: true,
 	}
 }
 
 func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
-	s := resourceComputeInstance().Schema
+	s := ResourceComputeInstance().Schema
 
 	for _, field := range []string{"boot_disk", "machine_type", "network_interface"} {
 		// The user can set these fields as an override, but doesn't need to -

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCloudfunctions2function() *schema.Resource {
+func ResourceCloudfunctions2function() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudfunctions2functionCreate,
 		Read:   resourceCloudfunctions2functionRead,

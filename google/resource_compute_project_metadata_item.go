@@ -17,7 +17,7 @@ const (
 	overwritePresent metadataPresentBehavior = false
 )
 
-func resourceComputeProjectMetadataItem() *schema.Resource {
+func ResourceComputeProjectMetadataItem() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeProjectMetadataItemCreate,
 		Read:   resourceComputeProjectMetadataItemRead,

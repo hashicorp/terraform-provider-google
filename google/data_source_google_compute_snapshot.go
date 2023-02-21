@@ -8,10 +8,10 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func dataSourceGoogleComputeSnapshot() *schema.Resource {
+func DataSourceGoogleComputeSnapshot() *schema.Resource {
 
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeSnapshot().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeSnapshot().Schema)
 
 	dsSchema["filter"] = &schema.Schema{
 		Type:     schema.TypeString,

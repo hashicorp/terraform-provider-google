@@ -27,7 +27,7 @@ import (
 	dataplex "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataplex"
 )
 
-func resourceDataplexZone() *schema.Resource {
+func ResourceDataplexZone() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataplexZoneCreate,
 		Read:   resourceDataplexZoneRead,

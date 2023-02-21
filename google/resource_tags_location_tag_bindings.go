@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceTagsLocationTagBinding() *schema.Resource {
+func ResourceTagsLocationTagBinding() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceTagsLocationTagBindingCreate,
 		Read:   resourceTagsLocationTagBindingRead,

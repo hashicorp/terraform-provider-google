@@ -27,7 +27,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func resourceSQLSourceRepresentationInstance() *schema.Resource {
+func ResourceSQLSourceRepresentationInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSQLSourceRepresentationInstanceCreate,
 		Read:   resourceSQLSourceRepresentationInstanceRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceFilestoreSnapshot() *schema.Resource {
+func ResourceFilestoreSnapshot() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFilestoreSnapshotCreate,
 		Read:   resourceFilestoreSnapshotRead,

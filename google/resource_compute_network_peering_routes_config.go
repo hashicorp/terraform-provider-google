@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
+func ResourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkPeeringRoutesConfigCreate,
 		Read:   resourceComputeNetworkPeeringRoutesConfigRead,

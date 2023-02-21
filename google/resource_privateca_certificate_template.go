@@ -27,7 +27,7 @@ import (
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
 )
 
-func resourcePrivatecaCertificateTemplate() *schema.Resource {
+func ResourcePrivatecaCertificateTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePrivatecaCertificateTemplateCreate,
 		Read:   resourcePrivatecaCertificateTemplateRead,

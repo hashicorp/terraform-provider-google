@@ -9,7 +9,7 @@ import (
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
-func resourceSqlSslCert() *schema.Resource {
+func ResourceSqlSslCert() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSqlSslCertCreate,
 		Read:   resourceSqlSslCertRead,

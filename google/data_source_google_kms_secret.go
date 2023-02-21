@@ -5,11 +5,12 @@ import (
 
 	"encoding/base64"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleKmsSecret() *schema.Resource {
+func DataSourceGoogleKmsSecret() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleKmsSecretRead,
 		Schema: map[string]*schema.Schema{

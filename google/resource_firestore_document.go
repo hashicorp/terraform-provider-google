@@ -27,7 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceFirestoreDocument() *schema.Resource {
+func ResourceFirestoreDocument() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFirestoreDocumentCreate,
 		Read:   resourceFirestoreDocumentRead,

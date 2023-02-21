@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeBackendBucketSignedUrlKey() *schema.Resource {
+func ResourceComputeBackendBucketSignedUrlKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeBackendBucketSignedUrlKeyCreate,
 		Read:   resourceComputeBackendBucketSignedUrlKeyRead,

@@ -45,7 +45,7 @@ func sslPolicyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v inte
 	return nil
 }
 
-func resourceComputeSslPolicy() *schema.Resource {
+func ResourceComputeSslPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSslPolicyCreate,
 		Read:   resourceComputeSslPolicyRead,

@@ -2,9 +2,9 @@ package google
 
 import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-func dataSourceGoogleComputeHealthCheck() *schema.Resource {
+func DataSourceGoogleComputeHealthCheck() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeHealthCheck().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeHealthCheck().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "name")

@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceSQLDatabase() *schema.Resource {
+func ResourceSQLDatabase() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSQLDatabaseCreate,
 		Read:   resourceSQLDatabaseRead,

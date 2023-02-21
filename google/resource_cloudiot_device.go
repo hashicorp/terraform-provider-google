@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCloudIotDevice() *schema.Resource {
+func ResourceCloudIotDevice() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudIotDeviceCreate,
 		Read:   resourceCloudIotDeviceRead,

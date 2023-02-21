@@ -11,7 +11,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func dataSourceGoogleComputeZones() *schema.Resource {
+func DataSourceGoogleComputeZones() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeZonesRead,
 		Schema: map[string]*schema.Schema{

@@ -73,7 +73,7 @@ func paramsCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interfa
 	return paramsCustomizeDiffFunc(diff)
 }
 
-func resourceBigqueryDataTransferConfig() *schema.Resource {
+func ResourceBigqueryDataTransferConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigqueryDataTransferConfigCreate,
 		Read:   resourceBigqueryDataTransferConfigRead,

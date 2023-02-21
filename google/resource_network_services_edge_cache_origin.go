@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceNetworkServicesEdgeCacheOrigin() *schema.Resource {
+func ResourceNetworkServicesEdgeCacheOrigin() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkServicesEdgeCacheOriginCreate,
 		Read:   resourceNetworkServicesEdgeCacheOriginRead,

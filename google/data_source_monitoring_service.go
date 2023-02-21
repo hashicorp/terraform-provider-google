@@ -19,7 +19,7 @@ func dataSourceMonitoringServiceType(
 	typeStateSetter monitoringServiceTypeStateSetter) *schema.Resource {
 
 	// Convert monitoring schema to ds schema
-	dsSchema := datasourceSchemaFromResourceSchema(resourceMonitoringService().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceMonitoringService().Schema)
 	addOptionalFieldsToSchema(dsSchema, "project")
 
 	// Add schema specific to the service type

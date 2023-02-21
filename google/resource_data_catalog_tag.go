@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDataCatalogTag() *schema.Resource {
+func ResourceDataCatalogTag() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataCatalogTagCreate,
 		Read:   resourceDataCatalogTagRead,

@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeRegionDiskResourcePolicyAttachment() *schema.Resource {
+func ResourceComputeRegionDiskResourcePolicyAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionDiskResourcePolicyAttachmentCreate,
 		Read:   resourceComputeRegionDiskResourcePolicyAttachmentRead,

@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceDataprocMetastoreService() *schema.Resource {
+func DataSourceDataprocMetastoreService() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceDataprocMetastoreService().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceDataprocMetastoreService().Schema)
 	addRequiredFieldsToSchema(dsSchema, "service_id")
 	addRequiredFieldsToSchema(dsSchema, "location")
 	addOptionalFieldsToSchema(dsSchema, "project")

@@ -41,7 +41,7 @@ func NotebooksInstanceLabelDiffSuppress(k, old, new string, d *schema.ResourceDa
 	return false
 }
 
-func resourceNotebooksInstance() *schema.Resource {
+func ResourceNotebooksInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNotebooksInstanceCreate,
 		Read:   resourceNotebooksInstanceRead,

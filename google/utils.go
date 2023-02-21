@@ -504,7 +504,7 @@ func SnakeToPascalCase(s string) string {
 	return strings.Join(split, "")
 }
 
-func multiEnvSearch(ks []string) string {
+func MultiEnvSearch(ks []string) string {
 	for _, k := range ks {
 		if v := os.Getenv(k); v != "" {
 			return v

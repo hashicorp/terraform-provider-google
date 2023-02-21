@@ -27,7 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceComputeReservation() *schema.Resource {
+func ResourceComputeReservation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeReservationCreate,
 		Read:   resourceComputeReservationRead,

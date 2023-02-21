@@ -88,7 +88,7 @@ func cloudrunLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool 
 	return false
 }
 
-func resourceCloudRunService() *schema.Resource {
+func ResourceCloudRunService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunServiceCreate,
 		Read:   resourceCloudRunServiceRead,

@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeHttpsHealthCheck() *schema.Resource {
+func ResourceComputeHttpsHealthCheck() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeHttpsHealthCheckCreate,
 		Read:   resourceComputeHttpsHealthCheckRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceHealthcareFhirStore() *schema.Resource {
+func ResourceHealthcareFhirStore() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceHealthcareFhirStoreCreate,
 		Read:   resourceHealthcareFhirStoreRead,

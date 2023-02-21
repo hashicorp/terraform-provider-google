@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceHealthcareDicomStore() *schema.Resource {
+func ResourceHealthcareDicomStore() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceHealthcareDicomStoreCreate,
 		Read:   resourceHealthcareDicomStoreRead,

@@ -96,7 +96,7 @@ func validateDatabaseRetentionPeriod(v interface{}, k string) (ws []string, erro
 	return
 }
 
-func resourceSpannerDatabase() *schema.Resource {
+func ResourceSpannerDatabase() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerDatabaseCreate,
 		Read:   resourceSpannerDatabaseRead,

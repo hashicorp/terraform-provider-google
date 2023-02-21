@@ -69,7 +69,7 @@ func validateProjectServiceService(val interface{}, key string) (warns []string,
 	return
 }
 
-func resourceGoogleProjectService() *schema.Resource {
+func ResourceGoogleProjectService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectServiceCreate,
 		Read:   resourceGoogleProjectServiceRead,

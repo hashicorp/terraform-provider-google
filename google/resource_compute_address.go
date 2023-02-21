@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeAddress() *schema.Resource {
+func ResourceComputeAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeAddressCreate,
 		Read:   resourceComputeAddressRead,

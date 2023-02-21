@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/iam/v1"
 )
 
-func resourceGoogleProjectIamCustomRole() *schema.Resource {
+func ResourceGoogleProjectIamCustomRole() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectIamCustomRoleCreate,
 		Read:   resourceGoogleProjectIamCustomRoleRead,

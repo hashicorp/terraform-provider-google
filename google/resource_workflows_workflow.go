@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceWorkflowsWorkflow() *schema.Resource {
+func ResourceWorkflowsWorkflow() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceWorkflowsWorkflowCreate,
 		Read:   resourceWorkflowsWorkflowRead,

@@ -8,7 +8,7 @@ import (
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
-func dataSourceSqlDatabaseInstances() *schema.Resource {
+func DataSourceSqlDatabaseInstances() *schema.Resource {
 
 	return &schema.Resource{
 		Read: dataSourceSqlDatabaseInstancesRead,
@@ -48,7 +48,7 @@ func dataSourceSqlDatabaseInstances() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
-					Schema: datasourceSchemaFromResourceSchema(resourceSqlDatabaseInstance().Schema),
+					Schema: datasourceSchemaFromResourceSchema(ResourceSqlDatabaseInstance().Schema),
 				},
 			},
 		},

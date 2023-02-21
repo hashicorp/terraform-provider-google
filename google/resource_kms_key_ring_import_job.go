@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceKMSKeyRingImportJob() *schema.Resource {
+func ResourceKMSKeyRingImportJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKMSKeyRingImportJobCreate,
 		Read:   resourceKMSKeyRingImportJobRead,

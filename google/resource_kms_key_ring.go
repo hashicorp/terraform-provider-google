@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceKMSKeyRing() *schema.Resource {
+func ResourceKMSKeyRing() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKMSKeyRingCreate,
 		Read:   resourceKMSKeyRingRead,

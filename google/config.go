@@ -563,7 +563,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	return nil
 }
 
-func expandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
+func ExpandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
 	config := &batchingConfig{
 		sendAfter:      time.Second * defaultBatchSendIntervalSec,
 		enableBatching: true,

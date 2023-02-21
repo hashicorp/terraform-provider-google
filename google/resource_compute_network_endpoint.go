@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeNetworkEndpoint() *schema.Resource {
+func ResourceComputeNetworkEndpoint() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkEndpointCreate,
 		Read:   resourceComputeNetworkEndpointRead,

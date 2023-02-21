@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAccessContextManagerServicePerimeter() *schema.Resource {
+func ResourceAccessContextManagerServicePerimeter() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessContextManagerServicePerimeterCreate,
 		Read:   resourceAccessContextManagerServicePerimeterRead,

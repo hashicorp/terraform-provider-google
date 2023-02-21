@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceEssentialContactsContact() *schema.Resource {
+func ResourceEssentialContactsContact() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceEssentialContactsContactCreate,
 		Read:   resourceEssentialContactsContactRead,

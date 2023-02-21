@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeBackendBucket() *schema.Resource {
+func ResourceComputeBackendBucket() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeBackendBucketCreate,
 		Read:   resourceComputeBackendBucketRead,

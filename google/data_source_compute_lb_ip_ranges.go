@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeLbIpRanges() *schema.Resource {
+func DataSourceGoogleComputeLbIpRanges() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeLbIpRangesRead,
 

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleCloudRunLocations() *schema.Resource {
+func DataSourceGoogleCloudRunLocations() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleCloudRunLocationsRead,
 		Schema: map[string]*schema.Schema{

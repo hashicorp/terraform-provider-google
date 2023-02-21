@@ -13,7 +13,7 @@ var (
 	computeAddressLinkRegex  = regexp.MustCompile("projects/(.+)/regions/(.+)/addresses/(.+)$")
 )
 
-func dataSourceGoogleComputeAddress() *schema.Resource {
+func DataSourceGoogleComputeAddress() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeAddressRead,
 

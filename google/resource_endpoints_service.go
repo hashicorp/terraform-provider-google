@@ -16,7 +16,7 @@ import (
 	"google.golang.org/api/servicemanagement/v1"
 )
 
-func resourceEndpointsService() *schema.Resource {
+func ResourceEndpointsService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceEndpointsServiceCreate,
 		Read:   resourceEndpointsServiceRead,

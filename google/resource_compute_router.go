@@ -42,7 +42,7 @@ func resourceComputeRouterCustomDiff(_ context.Context, diff *schema.ResourceDif
 	return nil
 }
 
-func resourceComputeRouter() *schema.Resource {
+func ResourceComputeRouter() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterCreate,
 		Read:   resourceComputeRouterRead,

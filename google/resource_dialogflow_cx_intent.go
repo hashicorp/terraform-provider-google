@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceDialogflowCXIntent() *schema.Resource {
+func ResourceDialogflowCXIntent() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDialogflowCXIntentCreate,
 		Read:   resourceDialogflowCXIntentRead,

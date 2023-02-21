@@ -16,7 +16,7 @@ import (
 
 var clusterIdRegex = regexp.MustCompile("projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<name>[^/]+)")
 
-func resourceContainerNodePool() *schema.Resource {
+func ResourceContainerNodePool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerNodePoolCreate,
 		Read:   resourceContainerNodePoolRead,

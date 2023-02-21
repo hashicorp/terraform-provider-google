@@ -33,7 +33,7 @@ func suppressSuffixDiff(_, old, new string, _ *schema.ResourceData) bool {
 	return false
 }
 
-func resourceGameServicesGameServerCluster() *schema.Resource {
+func ResourceGameServicesGameServerCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGameServicesGameServerClusterCreate,
 		Read:   resourceGameServicesGameServerClusterRead,

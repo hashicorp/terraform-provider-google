@@ -135,7 +135,7 @@ type DCLConfig struct {
 	RecaptchaEnterpriseBasePath  string
 }
 
-func configureDCLProvider(provider *schema.Provider) {
+func ConfigureDCLProvider(provider *schema.Provider) {
 	provider.Schema[ApikeysEndpointEntryKey] = ApikeysEndpointEntry
 	provider.Schema[AssuredWorkloadsEndpointEntryKey] = AssuredWorkloadsEndpointEntry
 	provider.Schema[CloudBuildWorkerPoolEndpointEntryKey] = CloudBuildWorkerPoolEndpointEntry
@@ -149,7 +149,7 @@ func configureDCLProvider(provider *schema.Provider) {
 	provider.Schema[RecaptchaEnterpriseEndpointEntryKey] = RecaptchaEnterpriseEndpointEntry
 }
 
-func providerDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
+func ProviderDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
 	config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
 	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)

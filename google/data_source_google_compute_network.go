@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeNetwork() *schema.Resource {
+func DataSourceGoogleComputeNetwork() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleComputeNetworkRead,
 

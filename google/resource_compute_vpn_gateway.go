@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeVpnGateway() *schema.Resource {
+func ResourceComputeVpnGateway() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeVpnGatewayCreate,
 		Read:   resourceComputeVpnGatewayRead,

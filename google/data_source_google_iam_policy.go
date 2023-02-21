@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-// dataSourceGoogleIamPolicy returns a *schema.Resource that allows a customer
+// DataSourceGoogleIamPolicy returns a *schema.Resource that allows a customer
 // to express a Google Cloud IAM policy in a data resource. This is an example
 // of how the schema would be used in a config:
 //
@@ -24,7 +24,7 @@ import (
 //     ]
 //   }
 // }
-func dataSourceGoogleIamPolicy() *schema.Resource {
+func DataSourceGoogleIamPolicy() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleIamPolicyRead,
 		Schema: map[string]*schema.Schema{

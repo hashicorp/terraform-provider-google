@@ -39,7 +39,7 @@ func NewBillingAccountLoggingExclusionUpdater(d *schema.ResourceData, config *Co
 	}, nil
 }
 
-func billingAccountLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error {
+func BillingAccountLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error {
 	loggingExclusionId, err := parseLoggingExclusionId(d.Id())
 	if err != nil {
 		return err

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceArtifactRegistryRepository() *schema.Resource {
+func ResourceArtifactRegistryRepository() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceArtifactRegistryRepositoryCreate,
 		Read:   resourceArtifactRegistryRepositoryRead,

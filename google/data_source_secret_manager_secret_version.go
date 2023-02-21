@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSecretManagerSecretVersion() *schema.Resource {
+func DataSourceSecretManagerSecretVersion() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceSecretManagerSecretVersionRead,
 		Schema: map[string]*schema.Schema{

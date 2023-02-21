@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceHealthcareDataset() *schema.Resource {
+func ResourceHealthcareDataset() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceHealthcareDatasetCreate,
 		Read:   resourceHealthcareDatasetRead,

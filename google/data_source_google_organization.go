@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-func dataSourceGoogleOrganization() *schema.Resource {
+func DataSourceGoogleOrganization() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceOrganizationRead,
 		Schema: map[string]*schema.Schema{

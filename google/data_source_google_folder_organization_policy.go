@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleFolderOrganizationPolicy() *schema.Resource {
+func DataSourceGoogleFolderOrganizationPolicy() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(resourceGoogleFolderOrganizationPolicy().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceGoogleFolderOrganizationPolicy().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "folder")
 	addRequiredFieldsToSchema(dsSchema, "constraint")

@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotebooksLocation() *schema.Resource {
+func ResourceNotebooksLocation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNotebooksLocationCreate,
 		Read:   resourceNotebooksLocationRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAppEngineServiceNetworkSettings() *schema.Resource {
+func ResourceAppEngineServiceNetworkSettings() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppEngineServiceNetworkSettingsCreate,
 		Read:   resourceAppEngineServiceNetworkSettingsRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceAccessContextManagerAccessLevel() *schema.Resource {
+func ResourceAccessContextManagerAccessLevel() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessContextManagerAccessLevelCreate,
 		Read:   resourceAccessContextManagerAccessLevelRead,

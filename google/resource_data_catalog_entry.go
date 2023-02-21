@@ -28,7 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceDataCatalogEntry() *schema.Resource {
+func ResourceDataCatalogEntry() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataCatalogEntryCreate,
 		Read:   resourceDataCatalogEntryRead,

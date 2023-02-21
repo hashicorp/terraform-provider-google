@@ -88,7 +88,7 @@ func forceNewIfNetworkIPNotUpdatableFunc(d TerraformResourceDiff) error {
 	return nil
 }
 
-func resourceComputeInstance() *schema.Resource {
+func ResourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceCreate,
 		Read:   resourceComputeInstanceRead,

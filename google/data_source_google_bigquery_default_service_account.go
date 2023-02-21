@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleBigqueryDefaultServiceAccount() *schema.Resource {
+func DataSourceGoogleBigqueryDefaultServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleBigqueryDefaultServiceAccountRead,
 		Schema: map[string]*schema.Schema{

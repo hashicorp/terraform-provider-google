@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceDataLossPreventionDeidentifyTemplate() *schema.Resource {
+func ResourceDataLossPreventionDeidentifyTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataLossPreventionDeidentifyTemplateCreate,
 		Read:   resourceDataLossPreventionDeidentifyTemplateRead,

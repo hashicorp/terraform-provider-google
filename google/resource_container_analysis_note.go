@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceContainerAnalysisNote() *schema.Resource {
+func ResourceContainerAnalysisNote() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerAnalysisNoteCreate,
 		Read:   resourceContainerAnalysisNoteRead,

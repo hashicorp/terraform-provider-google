@@ -32,7 +32,7 @@ func suppressOmittedMaxDuration(_, old, new string, _ *schema.ResourceData) bool
 	return false
 }
 
-func resourceCloudTasksQueue() *schema.Resource {
+func ResourceCloudTasksQueue() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudTasksQueueCreate,
 		Read:   resourceCloudTasksQueueRead,

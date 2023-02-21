@@ -152,10 +152,10 @@ func getResourceName(fName, googleDir string, providerFiles []string) (string, e
 		return "", err
 	}
 	// Loop through all the top-level objects in the resource file.
-	// One of them is the resource definition: something like resourceComputeInstance()
+	// One of them is the resource definition: something like ResourceComputeInstance()
 	for k := range resourceFile.Scope.Objects {
 		// Matches the line in the provider file where the resource is defined,
-		// e.g. "google_compute_instance":     resourceComputeInstance()
+		// e.g. "google_compute_instance":     ResourceComputeInstance()
 		re := regexp.MustCompile(`"(.*)":\s*` + k + `\(\)`)
 
 		// Check all the provider files to see if they have a line that matches

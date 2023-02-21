@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceVertexAIDataset() *schema.Resource {
+func ResourceVertexAIDataset() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVertexAIDatasetCreate,
 		Read:   resourceVertexAIDatasetRead,

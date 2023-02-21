@@ -109,7 +109,7 @@ func portDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
-func resourceComputeHealthCheck() *schema.Resource {
+func ResourceComputeHealthCheck() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeHealthCheckCreate,
 		Read:   resourceComputeHealthCheckRead,

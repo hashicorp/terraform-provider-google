@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceBeyondcorpAppGateway() *schema.Resource {
+func ResourceBeyondcorpAppGateway() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBeyondcorpAppGatewayCreate,
 		Read:   resourceBeyondcorpAppGatewayRead,

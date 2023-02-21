@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleContainerAwsVersions() *schema.Resource {
+func DataSourceGoogleContainerAwsVersions() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleContainerAwsVersionsRead,
 		Schema: map[string]*schema.Schema{

@@ -46,7 +46,7 @@ func NotReturnedByAPIDiffSuppress(k, old, new string, d *schema.ResourceData) bo
 	return true
 }
 
-func resourceNotebooksRuntime() *schema.Resource {
+func ResourceNotebooksRuntime() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNotebooksRuntimeCreate,
 		Read:   resourceNotebooksRuntimeRead,

@@ -27,7 +27,7 @@ import (
 	osconfig "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/osconfig"
 )
 
-func resourceOsConfigOsPolicyAssignment() *schema.Resource {
+func ResourceOsConfigOsPolicyAssignment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceOsConfigOsPolicyAssignmentCreate,
 		Read:   resourceOsConfigOsPolicyAssignmentRead,

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-func resourceGoogleProjectOrganizationPolicy() *schema.Resource {
+func ResourceGoogleProjectOrganizationPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectOrganizationPolicyCreate,
 		Read:   resourceGoogleProjectOrganizationPolicyRead,

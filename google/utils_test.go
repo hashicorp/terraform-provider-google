@@ -145,7 +145,7 @@ func TestRfc3339TimeDiffSuppress(t *testing.T) {
 }
 
 func TestGetZone(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceComputeDisk().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, ResourceComputeDisk().Schema, map[string]interface{}{
 		"zone": "foo",
 	})
 	var config Config
@@ -172,7 +172,7 @@ func TestGetZone(t *testing.T) {
 }
 
 func TestGetRegion(t *testing.T) {
-	d := schema.TestResourceDataRaw(t, resourceComputeDisk().Schema, map[string]interface{}{
+	d := schema.TestResourceDataRaw(t, ResourceComputeDisk().Schema, map[string]interface{}{
 		"zone": "foo",
 	})
 	var config Config

@@ -35,7 +35,7 @@ func suppressAttachedClustersLoggingConfigDiff(_, old, new string, d *schema.Res
 	return false
 }
 
-func resourceContainerAttachedCluster() *schema.Resource {
+func ResourceContainerAttachedCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerAttachedClusterCreate,
 		Read:   resourceContainerAttachedClusterRead,

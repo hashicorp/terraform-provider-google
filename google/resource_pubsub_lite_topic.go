@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourcePubsubLiteTopic() *schema.Resource {
+func ResourcePubsubLiteTopic() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubLiteTopicCreate,
 		Read:   resourcePubsubLiteTopicRead,

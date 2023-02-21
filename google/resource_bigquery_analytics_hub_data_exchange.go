@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
+func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigqueryAnalyticsHubDataExchangeCreate,
 		Read:   resourceBigqueryAnalyticsHubDataExchangeRead,

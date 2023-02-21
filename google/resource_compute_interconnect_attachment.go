@@ -43,7 +43,7 @@ func waitForAttachmentToBeProvisioned(d *schema.ResourceData, config *Config, ti
 	})
 }
 
-func resourceComputeInterconnectAttachment() *schema.Resource {
+func ResourceComputeInterconnectAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInterconnectAttachmentCreate,
 		Read:   resourceComputeInterconnectAttachmentRead,

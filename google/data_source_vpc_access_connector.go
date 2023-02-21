@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceVPCAccessConnector() *schema.Resource {
+func DataSourceVPCAccessConnector() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceVPCAccessConnector().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceVPCAccessConnector().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "project", "region")
 

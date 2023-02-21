@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceSecurityCenterSource() *schema.Resource {
+func ResourceSecurityCenterSource() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSecurityCenterSourceCreate,
 		Read:   resourceSecurityCenterSourceRead,

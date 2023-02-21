@@ -15,7 +15,7 @@ import (
 
 var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
 
-func resourceComputeTargetPool() *schema.Resource {
+func ResourceComputeTargetPool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeTargetPoolCreate,
 		Read:   resourceComputeTargetPoolRead,

@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputePacketMirroring() *schema.Resource {
+func ResourceComputePacketMirroring() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputePacketMirroringCreate,
 		Read:   resourceComputePacketMirroringRead,

@@ -57,7 +57,7 @@ func resourceBigtableGCPolicyCustomizeDiff(_ context.Context, d *schema.Resource
 	return resourceBigtableGCPolicyCustomizeDiffFunc(d)
 }
 
-func resourceBigtableGCPolicy() *schema.Resource {
+func ResourceBigtableGCPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create:        resourceBigtableGCPolicyUpsert,
 		Read:          resourceBigtableGCPolicyRead,

@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleContainerRepo() *schema.Resource {
+func DataSourceGoogleContainerRepo() *schema.Resource {
 	return &schema.Resource{
 		Read: containerRegistryRepoRead,
 		Schema: map[string]*schema.Schema{

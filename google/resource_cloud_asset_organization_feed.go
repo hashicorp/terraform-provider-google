@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCloudAssetOrganizationFeed() *schema.Resource {
+func ResourceCloudAssetOrganizationFeed() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudAssetOrganizationFeedCreate,
 		Read:   resourceCloudAssetOrganizationFeedRead,

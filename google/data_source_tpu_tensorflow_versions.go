@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceTpuTensorflowVersions() *schema.Resource {
+func DataSourceTpuTensorflowVersions() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceTpuTensorFlowVersionsRead,
 		Schema: map[string]*schema.Schema{

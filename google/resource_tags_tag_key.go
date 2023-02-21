@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceTagsTagKey() *schema.Resource {
+func ResourceTagsTagKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceTagsTagKeyCreate,
 		Read:   resourceTagsTagKeyRead,

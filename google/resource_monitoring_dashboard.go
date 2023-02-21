@@ -31,7 +31,7 @@ func monitoringDashboardDiffSuppress(k, old, new string, d *schema.ResourceData)
 	return reflect.DeepEqual(oldMap, newMap)
 }
 
-func resourceMonitoringDashboard() *schema.Resource {
+func ResourceMonitoringDashboard() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringDashboardCreate,
 		Read:   resourceMonitoringDashboardRead,

@@ -49,7 +49,7 @@ func projectListDiffSuppressFunc(d TerraformResourceDataChange) bool {
 	return oldInt == newInt
 }
 
-func resourceApigeeInstance() *schema.Resource {
+func ResourceApigeeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeInstanceCreate,
 		Read:   resourceApigeeInstanceRead,

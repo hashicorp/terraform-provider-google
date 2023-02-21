@@ -24,7 +24,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func resourceComputeNetwork() *schema.Resource {
+func ResourceComputeNetwork() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkCreate,
 		Read:   resourceComputeNetworkRead,

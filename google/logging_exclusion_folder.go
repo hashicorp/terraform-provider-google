@@ -40,7 +40,7 @@ func NewFolderLoggingExclusionUpdater(d *schema.ResourceData, config *Config) (R
 	}, nil
 }
 
-func folderLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error {
+func FolderLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error {
 	loggingExclusionId, err := parseLoggingExclusionId(d.Id())
 	if err != nil {
 		return err

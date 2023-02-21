@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleContainerAttachedVersions() *schema.Resource {
+func DataSourceGoogleContainerAttachedVersions() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleContainerAttachedVersionsRead,
 		Schema: map[string]*schema.Schema{

@@ -61,7 +61,7 @@ func deleteSpannerBackups(d *schema.ResourceData, config *Config, res map[string
 	return nil
 }
 
-func resourceSpannerInstance() *schema.Resource {
+func ResourceSpannerInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerInstanceCreate,
 		Read:   resourceSpannerInstanceRead,

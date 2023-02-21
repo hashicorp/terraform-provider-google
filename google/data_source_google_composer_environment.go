@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComposerEnvironment() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComposerEnvironment().Schema)
+func DataSourceGoogleComposerEnvironment() *schema.Resource {
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComposerEnvironment().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "name")

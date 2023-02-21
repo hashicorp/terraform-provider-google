@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceFilestoreInstance() *schema.Resource {
+func ResourceFilestoreInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFilestoreInstanceCreate,
 		Read:   resourceFilestoreInstanceRead,

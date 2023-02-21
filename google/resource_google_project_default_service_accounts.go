@@ -12,11 +12,11 @@ import (
 	"google.golang.org/api/iam/v1"
 )
 
-// resourceGoogleProjectDefaultServiceAccounts returns a *schema.Resource that allows a customer
+// ResourceGoogleProjectDefaultServiceAccounts returns a *schema.Resource that allows a customer
 // to manage all the default serviceAccounts.
 // It does mean that terraform tried to perform the action in the SA at some point but does not ensure that
 // all defaults serviceAccounts where managed. Eg.: API was activated after project creation.
-func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
+func ResourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectDefaultServiceAccountsCreate,
 		Read:   schema.Noop,

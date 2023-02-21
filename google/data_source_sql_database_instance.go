@@ -4,9 +4,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSqlDatabaseInstance() *schema.Resource {
+func DataSourceSqlDatabaseInstance() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceSqlDatabaseInstance().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceSqlDatabaseInstance().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "project")
 

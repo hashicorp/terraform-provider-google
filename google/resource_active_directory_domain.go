@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceActiveDirectoryDomain() *schema.Resource {
+func ResourceActiveDirectoryDomain() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceActiveDirectoryDomainCreate,
 		Read:   resourceActiveDirectoryDomainRead,

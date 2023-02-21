@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleStorageTransferProjectServiceAccount() *schema.Resource {
+func DataSourceGoogleStorageTransferProjectServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleStorageTransferProjectServiceAccountRead,
 		Schema: map[string]*schema.Schema{

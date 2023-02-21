@@ -16,7 +16,7 @@ const (
 	userInfoScope = "https://www.googleapis.com/auth/userinfo.email"
 )
 
-func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
+func DataSourceGoogleServiceAccountIdToken() *schema.Resource {
 
 	return &schema.Resource{
 		Read: dataSourceGoogleServiceAccountIdTokenRead,

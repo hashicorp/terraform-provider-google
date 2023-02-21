@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceBigqueryConnectionConnection() *schema.Resource {
+func ResourceBigqueryConnectionConnection() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigqueryConnectionConnectionCreate,
 		Read:   resourceBigqueryConnectionConnectionRead,

@@ -62,7 +62,7 @@ func stepTimeoutCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v in
 	return nil
 }
 
-func resourceCloudBuildTrigger() *schema.Resource {
+func ResourceCloudBuildTrigger() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudBuildTriggerCreate,
 		Read:   resourceCloudBuildTriggerRead,

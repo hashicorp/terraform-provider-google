@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleContainerImage() *schema.Resource {
+func DataSourceGoogleContainerImage() *schema.Resource {
 	return &schema.Resource{
 		Read: containerRegistryImageRead,
 		Schema: map[string]*schema.Schema{

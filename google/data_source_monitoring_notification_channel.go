@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceMonitoringNotificationChannel() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceMonitoringNotificationChannel().Schema)
+func DataSourceMonitoringNotificationChannel() *schema.Resource {
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceMonitoringNotificationChannel().Schema)
 
 	// Set 'Optional' schema elements
 	addOptionalFieldsToSchema(dsSchema, "display_name")

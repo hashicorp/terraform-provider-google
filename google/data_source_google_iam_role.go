@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleIamRole() *schema.Resource {
+func DataSourceGoogleIamRole() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleIamRoleRead,
 		Schema: map[string]*schema.Schema{

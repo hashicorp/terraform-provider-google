@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApigeeEnvgroupAttachment() *schema.Resource {
+func ResourceApigeeEnvgroupAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeEnvgroupAttachmentCreate,
 		Read:   resourceApigeeEnvgroupAttachmentRead,

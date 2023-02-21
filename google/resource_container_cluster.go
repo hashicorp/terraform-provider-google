@@ -160,7 +160,7 @@ func isBeenEnabled(_ context.Context, old, new, _ interface{}) bool {
 	return false
 }
 
-func resourceContainerCluster() *schema.Resource {
+func ResourceContainerCluster() *schema.Resource {
 	return &schema.Resource{
 		UseJSONNumber: true,
 		Create:        resourceContainerClusterCreate,

@@ -4,8 +4,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleKmsKeyRing() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceKMSKeyRing().Schema)
+func DataSourceGoogleKmsKeyRing() *schema.Resource {
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceKMSKeyRing().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addRequiredFieldsToSchema(dsSchema, "location")
 	addOptionalFieldsToSchema(dsSchema, "project")

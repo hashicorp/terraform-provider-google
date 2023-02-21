@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleComputeForwardingRule() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComputeForwardingRule().Schema)
+func DataSourceGoogleComputeForwardingRule() *schema.Resource {
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeForwardingRule().Schema)
 
 	// Set 'Required' schema elements
 	addRequiredFieldsToSchema(dsSchema, "name")

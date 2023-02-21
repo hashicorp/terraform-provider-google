@@ -13,7 +13,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func resourceComputeInstanceGroup() *schema.Resource {
+func ResourceComputeInstanceGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceGroupCreate,
 		Read:   resourceComputeInstanceGroupRead,

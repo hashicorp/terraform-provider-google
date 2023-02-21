@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceOSConfigPatchDeployment() *schema.Resource {
+func ResourceOSConfigPatchDeployment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceOSConfigPatchDeploymentCreate,
 		Read:   resourceOSConfigPatchDeploymentRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceVertexAITensorboard() *schema.Resource {
+func ResourceVertexAITensorboard() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVertexAITensorboardCreate,
 		Read:   resourceVertexAITensorboardRead,

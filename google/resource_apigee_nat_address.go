@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApigeeNatAddress() *schema.Resource {
+func ResourceApigeeNatAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeNatAddressCreate,
 		Read:   resourceApigeeNatAddressRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourcePubsubLiteReservation() *schema.Resource {
+func ResourcePubsubLiteReservation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubLiteReservationCreate,
 		Read:   resourcePubsubLiteReservationRead,

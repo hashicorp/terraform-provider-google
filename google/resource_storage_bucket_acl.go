@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/storage/v1"
 )
 
-func resourceStorageBucketAcl() *schema.Resource {
+func ResourceStorageBucketAcl() *schema.Resource {
 	return &schema.Resource{
 		Create:        resourceStorageBucketAclCreate,
 		Read:          resourceStorageBucketAclRead,

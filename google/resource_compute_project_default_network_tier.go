@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func resourceComputeProjectDefaultNetworkTier() *schema.Resource {
+func ResourceComputeProjectDefaultNetworkTier() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeProjectDefaultNetworkTierCreateOrUpdate,
 		Read:   resourceComputeProjectDefaultNetworkTierRead,

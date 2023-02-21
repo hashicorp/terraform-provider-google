@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceCertificateManagerDnsAuthorization() *schema.Resource {
+func ResourceCertificateManagerDnsAuthorization() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCertificateManagerDnsAuthorizationCreate,
 		Read:   resourceCertificateManagerDnsAuthorizationRead,

@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleSQLCaCerts() *schema.Resource {
+func DataSourceGoogleSQLCaCerts() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleSQLCaCertsRead,
 

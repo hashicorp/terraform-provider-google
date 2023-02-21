@@ -127,7 +127,7 @@ func getVpnTunnelLink(config *Config, project, region, tunnel, userAgent string)
 
 }
 
-func resourceComputeVpnTunnel() *schema.Resource {
+func ResourceComputeVpnTunnel() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeVpnTunnelCreate,
 		Read:   resourceComputeVpnTunnelRead,

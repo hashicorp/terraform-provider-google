@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleLoggingProjectCmekSettings() *schema.Resource {
+func DataSourceGoogleLoggingProjectCmekSettings() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGoogleLoggingProjectCmekSettingsRead,
 		Schema: map[string]*schema.Schema{

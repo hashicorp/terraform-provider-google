@@ -23,9 +23,9 @@ type ServicesCall interface {
 	Do(opts ...googleapi.CallOption) (*serviceusage.Operation, error)
 }
 
-// resourceGoogleProject returns a *schema.Resource that allows a customer
+// ResourceGoogleProject returns a *schema.Resource that allows a customer
 // to declare a Google Cloud Project resource.
-func resourceGoogleProject() *schema.Resource {
+func ResourceGoogleProject() *schema.Resource {
 	return &schema.Resource{
 		SchemaVersion: 1,
 

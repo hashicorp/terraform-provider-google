@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceMonitoringGenericService() *schema.Resource {
+func ResourceMonitoringGenericService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringGenericServiceCreate,
 		Read:   resourceMonitoringGenericServiceRead,

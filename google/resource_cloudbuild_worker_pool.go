@@ -27,7 +27,7 @@ import (
 	cloudbuild "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/cloudbuild"
 )
 
-func resourceCloudbuildWorkerPool() *schema.Resource {
+func ResourceCloudbuildWorkerPool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudbuildWorkerPoolCreate,
 		Read:   resourceCloudbuildWorkerPoolRead,

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeImage() *schema.Resource {
+func ResourceComputeImage() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeImageCreate,
 		Read:   resourceComputeImageRead,

@@ -10,7 +10,7 @@ import (
 
 const nonUniqueWriterAccount = "serviceAccount:cloud-logs@system.gserviceaccount.com"
 
-func resourceLoggingProjectSink() *schema.Resource {
+func ResourceLoggingProjectSink() *schema.Resource {
 	schm := &schema.Resource{
 		Create:        resourceLoggingProjectSinkCreate,
 		Read:          resourceLoggingProjectSinkRead,

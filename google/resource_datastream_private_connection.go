@@ -57,7 +57,7 @@ func waitForPrivateConnectionReady(d *schema.ResourceData, config *Config, timeo
 	})
 }
 
-func resourceDatastreamPrivateConnection() *schema.Resource {
+func ResourceDatastreamPrivateConnection() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDatastreamPrivateConnectionCreate,
 		Read:   resourceDatastreamPrivateConnectionRead,

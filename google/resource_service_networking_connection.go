@@ -14,7 +14,7 @@ import (
 	"google.golang.org/api/servicenetworking/v1"
 )
 
-func resourceServiceNetworkingConnection() *schema.Resource {
+func ResourceServiceNetworkingConnection() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceServiceNetworkingConnectionCreate,
 		Read:   resourceServiceNetworkingConnectionRead,

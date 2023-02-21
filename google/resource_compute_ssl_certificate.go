@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeSslCertificate() *schema.Resource {
+func ResourceComputeSslCertificate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSslCertificateCreate,
 		Read:   resourceComputeSslCertificateRead,

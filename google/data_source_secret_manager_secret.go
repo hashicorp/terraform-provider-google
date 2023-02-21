@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSecretManagerSecret() *schema.Resource {
+func DataSourceSecretManagerSecret() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceSecretManagerSecret().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceSecretManagerSecret().Schema)
 	addRequiredFieldsToSchema(dsSchema, "secret_id")
 	addOptionalFieldsToSchema(dsSchema, "project")
 

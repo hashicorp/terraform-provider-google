@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputeTargetGrpcProxy() *schema.Resource {
+func ResourceComputeTargetGrpcProxy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeTargetGrpcProxyCreate,
 		Read:   resourceComputeTargetGrpcProxyRead,

@@ -78,7 +78,7 @@ func waitForDatastreamStreamReady(d *schema.ResourceData, config *Config, timeou
 	})
 }
 
-func resourceDatastreamStream() *schema.Resource {
+func ResourceDatastreamStream() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDatastreamStreamCreate,
 		Read:   resourceDatastreamStreamRead,

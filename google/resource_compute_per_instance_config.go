@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceComputePerInstanceConfig() *schema.Resource {
+func ResourceComputePerInstanceConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputePerInstanceConfigCreate,
 		Read:   resourceComputePerInstanceConfigRead,

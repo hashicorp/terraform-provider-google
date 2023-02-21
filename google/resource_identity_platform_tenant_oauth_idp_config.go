@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIdentityPlatformTenantOauthIdpConfig() *schema.Resource {
+func ResourceIdentityPlatformTenantOauthIdpConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityPlatformTenantOauthIdpConfigCreate,
 		Read:   resourceIdentityPlatformTenantOauthIdpConfigRead,

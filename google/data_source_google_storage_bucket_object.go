@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceGoogleStorageBucketObject() *schema.Resource {
+func DataSourceGoogleStorageBucketObject() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceStorageBucketObject().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceStorageBucketObject().Schema)
 
 	addOptionalFieldsToSchema(dsSchema, "bucket")
 	addOptionalFieldsToSchema(dsSchema, "name")

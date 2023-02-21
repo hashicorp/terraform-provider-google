@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSpannerInstance() *schema.Resource {
+func DataSourceSpannerInstance() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(resourceSpannerInstance().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(ResourceSpannerInstance().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "config")       // not sure why this is configurable

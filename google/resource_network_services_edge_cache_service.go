@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNetworkServicesEdgeCacheService() *schema.Resource {
+func ResourceNetworkServicesEdgeCacheService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkServicesEdgeCacheServiceCreate,
 		Read:   resourceNetworkServicesEdgeCacheServiceRead,
