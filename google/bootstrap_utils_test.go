@@ -594,7 +594,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		if err != nil {
 			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
 		}
-		err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", config.userAgent, time.Duration(20)*time.Minute)
+		err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", config.userAgent, time.Duration(40)*time.Minute)
 		if err != nil {
 			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
 		}
