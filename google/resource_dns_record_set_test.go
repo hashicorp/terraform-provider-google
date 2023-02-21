@@ -306,9 +306,6 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-network-%s", randString(t, 10))
-	backendName := fmt.Sprintf("tf-test-backend-%s", randString(t, 10))
-	forwardingRuleName := fmt.Sprintf("tf-test-forwarding-rule-%s", randString(t, 10))
 	zoneName := fmt.Sprintf("dnszone-test-%s", randString(t, 10))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -325,7 +322,7 @@ func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsRecordSet_routingPolicyGEO(networkName, backendName, forwardingRuleName, zoneName, 300),
+				Config: testAccDnsRecordSet_routingPolicy(zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -410,6 +407,34 @@ resource "google_dns_record_set" "foobar" {
   ttl          = %d
 }
 `, zoneName, zoneName, zoneName, addr2, ttl)
+}
+
+func testAccDnsRecordSet_routingPolicy(zoneName string, ttl int) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+  routing_policy {
+    wrr {
+      weight  = 0
+      rrdatas = ["1.2.3.4", "4.3.2.1"]
+    }
+
+    wrr {
+      weight  = 0
+      rrdatas = ["2.3.4.5", "5.4.3.2"]
+    }
+  }
+}
+`, zoneName, zoneName, zoneName, ttl)
 }
 
 func testAccDnsRecordSet_NS(name string, recordSetName string, ttl int) string {
@@ -508,6 +533,7 @@ resource "google_compute_forwarding_rule" "default" {
   load_balancing_scheme = "INTERNAL"
   backend_service       = google_compute_region_backend_service.backend.id
   all_ports             = true
+  allow_global_access   = true
   network               = google_compute_network.default.name
 }
 
@@ -515,6 +541,7 @@ resource "google_dns_managed_zone" "parent-zone" {
   name        = "%s"
   dns_name    = "%s.hashicorptest.com."
   description = "Test Description"
+  visibility = "private"
 }
 
 resource "google_dns_record_set" "foobar" {
@@ -572,6 +599,7 @@ resource "google_compute_forwarding_rule" "default" {
   load_balancing_scheme = "INTERNAL"
   backend_service       = google_compute_region_backend_service.backend.id
   all_ports             = true
+  allow_global_access   = true
   network               = google_compute_network.default.name
 }
 
@@ -579,6 +607,7 @@ resource "google_dns_managed_zone" "parent-zone" {
   name        = "%s"
   dns_name    = "%s.hashicorptest.com."
   description = "Test Description"
+  visibility = "private"
 }
 
 resource "google_dns_record_set" "foobar" {
@@ -638,6 +667,7 @@ resource "google_compute_forwarding_rule" "default" {
   load_balancing_scheme = "INTERNAL"
   backend_service       = google_compute_region_backend_service.backend.id
   all_ports             = true
+  allow_global_access   = true
   network               = google_compute_network.default.name
 }
 
@@ -645,6 +675,7 @@ resource "google_dns_managed_zone" "parent-zone" {
   name        = "%s"
   dns_name    = "%s.hashicorptest.com."
   description = "Test Description"
+  visibility = "private"
 }
 
 resource "google_dns_record_set" "foobar" {
