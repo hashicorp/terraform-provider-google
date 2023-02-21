@@ -421,7 +421,6 @@ resource "google_bigquery_routine" "public" {
 
 resource "google_bigquery_dataset" "private" {
   dataset_id  = "%{private_dataset}"
-  description = "This dataset is private"
 }
 
 resource "google_bigquery_dataset_access" "authorized_routine" {
