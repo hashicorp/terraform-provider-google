@@ -1,15 +1,16 @@
 package google
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/iam/v1"
 )
 
-func TestAccCloudIdentityGroupMembership_update(t *testing.T) {
-	t.Parallel()
-
+func testAccCloudIdentityGroupMembership_updateTest(t *testing.T) {
 	context := map[string]interface{}{
 		"org_domain":    getTestOrgDomainFromEnv(t),
 		"cust_id":       getTestCustIdFromEnv(t),
@@ -115,9 +116,7 @@ resource "google_cloud_identity_group_membership" "basic" {
 `, context)
 }
 
-func TestAccCloudIdentityGroupMembership_import(t *testing.T) {
-	t.Parallel()
-
+func testAccCloudIdentityGroupMembership_importTest(t *testing.T) {
 	context := map[string]interface{}{
 		"org_domain":    getTestOrgDomainFromEnv(t),
 		"cust_id":       getTestCustIdFromEnv(t),
@@ -176,11 +175,10 @@ resource "google_cloud_identity_group_membership" "basic" {
 `, context)
 }
 
-func TestAccCloudIdentityGroupMembership_membershipDoesNotExist(t *testing.T) {
+func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T) {
 	// Skip VCR because the service account needs to be created/deleted out of
 	// band, and so those calls aren't recorded
 	skipIfVcr(t)
-	t.Parallel()
 
 	context := map[string]interface{}{
 		"org_domain":    getTestOrgDomainFromEnv(t),
@@ -258,4 +256,166 @@ resource "google_cloud_identity_group_membership" "basic" {
   }
 }
 `, context)
+}
+
+func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExampleTest(t *testing.T) {
+	context := map[string]interface{}{
+		"org_domain":    getTestOrgDomainFromEnv(t),
+		"cust_id":       getTestCustIdFromEnv(t),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_identity_group_membership.cloud_identity_group_membership_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"group"},
+			},
+		},
+	})
+}
+
+func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloud_identity_group" "group" {
+  display_name = "tf-test-my-identity-group%{random_suffix}"
+
+  parent = "customers/%{cust_id}"
+
+  group_key {
+  	id = "tf-test-my-identity-group%{random_suffix}@%{org_domain}"
+  }
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+}
+
+resource "google_cloud_identity_group" "child-group" {
+  display_name = "tf-test-my-identity-group%{random_suffix}-child"
+
+  parent = "customers/%{cust_id}"
+
+  group_key {
+  	id = "tf-test-my-identity-group%{random_suffix}-child@%{org_domain}"
+  }
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+}
+
+resource "google_cloud_identity_group_membership" "cloud_identity_group_membership_basic" {
+  group    = google_cloud_identity_group.group.id
+
+  preferred_member_key {
+    id = google_cloud_identity_group.child-group.group_key[0].id
+  }
+
+  roles {
+  	name = "MEMBER"
+  }
+}
+`, context)
+}
+
+func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExampleTest(t *testing.T) {
+	context := map[string]interface{}{
+		"org_domain":    getTestOrgDomainFromEnv(t),
+		"cust_id":       getTestCustIdFromEnv(t),
+		"identity_user": getTestIdentityUserFromEnv(t),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_identity_group_membership.cloud_identity_group_membership_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"group"},
+			},
+		},
+	})
+}
+
+func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloud_identity_group" "group" {
+  display_name = "tf-test-my-identity-group%{random_suffix}"
+
+  parent = "customers/%{cust_id}"
+
+  group_key {
+    id = "tf-test-my-identity-group%{random_suffix}@%{org_domain}"
+  }
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+}
+
+resource "google_cloud_identity_group_membership" "cloud_identity_group_membership_basic" {
+  group    = google_cloud_identity_group.group.id
+
+  preferred_member_key {
+    id = "%{identity_user}@%{org_domain}"
+  }
+
+  roles {
+    name = "MEMBER"
+  }
+
+  roles {
+    name = "MANAGER"
+  }
+}
+`, context)
+}
+
+func testAccCheckCloudIdentityGroupMembershipDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_cloud_identity_group_membership" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{CloudIdentityBasePath}}{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("CloudIdentityGroupMembership still exists at %s", url)
+			}
+		}
+
+		return nil
+	}
 }
