@@ -1,0 +1,3 @@
+```release-note:enhancement
+network_services: increase maximum `allow_origins` from 5 to 25 on `network_services_edge_cache_service`
+```
