@@ -749,7 +749,7 @@ This translates to the Access-Control-Allow-Credentials response header.`,
 																			Description: `Specifies the list of origins that will be allowed to do CORS requests.
 
 This translates to the Access-Control-Allow-Origin response header.`,
-																			MaxItems: 5,
+																			MaxItems: 25,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
