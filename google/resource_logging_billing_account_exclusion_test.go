@@ -31,7 +31,7 @@ func TestAccLoggingBillingAccountExclusion(t *testing.T) {
 }
 
 func testAccLoggingBillingAccountExclusion_basic(t *testing.T) {
-	billingAccount := getTestBillingAccountFromEnv(t)
+	billingAccount := getTestMasterBillingAccountFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + randString(t, 10)
 	description := "Description " + randString(t, 10)
 
@@ -53,7 +53,7 @@ func testAccLoggingBillingAccountExclusion_basic(t *testing.T) {
 }
 
 func testAccLoggingBillingAccountExclusion_update(t *testing.T) {
-	billingAccount := getTestBillingAccountFromEnv(t)
+	billingAccount := getTestMasterBillingAccountFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + randString(t, 10)
 	descriptionBefore := "Basic BillingAccount Logging Exclusion" + randString(t, 10)
 	descriptionAfter := "Updated Basic BillingAccount Logging Exclusion" + randString(t, 10)
@@ -84,7 +84,7 @@ func testAccLoggingBillingAccountExclusion_update(t *testing.T) {
 }
 
 func testAccLoggingBillingAccountExclusion_multiple(t *testing.T) {
-	billingAccount := getTestBillingAccountFromEnv(t)
+	billingAccount := getTestMasterBillingAccountFromEnv(t)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
