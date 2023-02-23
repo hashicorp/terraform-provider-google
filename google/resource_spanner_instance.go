@@ -424,7 +424,7 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
-	if resourceSpannerInstanceVirtualUpdate(d, resourceSpannerInstance().Schema) {
+	if resourceSpannerInstanceVirtualUpdate(d, ResourceSpannerInstance().Schema) {
 		if d.Get("force_destroy") != nil {
 			if err := d.Set("force_destroy", d.Get("force_destroy")); err != nil {
 				return fmt.Errorf("Error reading Instance: %s", err)
