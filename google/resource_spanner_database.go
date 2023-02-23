@@ -96,6 +96,22 @@ func validateDatabaseRetentionPeriod(v interface{}, k string) (ws []string, erro
 	return
 }
 
+func resourceSpannerDBVirtualUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
+	// deletion_protection is the only virtual field
+	if d.HasChange("deletion_protection") {
+		for field := range resourceSchema {
+			if field == "deletion_protection" {
+				continue
+			}
+			if d.HasChange(field) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
 func ResourceSpannerDatabase() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerDatabaseCreate,
@@ -510,6 +526,15 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 			// Return early to avoid making an API call that errors,
 			// due to containing no DDL SQL statements
 			return resourceSpannerDatabaseRead(d, meta)
+		}
+
+		if resourceSpannerDBVirtualUpdate(d, resourceSpannerInstance().Schema) {
+			if d.Get("deletion_protection") != nil {
+				if err := d.Set("deletion_protection", d.Get("deletion_protection")); err != nil {
+					return fmt.Errorf("Error reading Instance: %s", err)
+				}
+			}
+			return nil
 		}
 
 		// err == nil indicates that the billing_project value was found
