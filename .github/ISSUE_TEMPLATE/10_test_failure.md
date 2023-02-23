@@ -23,9 +23,9 @@ title: "Failing test(s): TestAccWhatever"
 
 * google_XXXXX
 
-### Nightly builds
+### Nightly build test history
 
-<!-- Link to the nightly build(s), ideally with one impacted test opened -->
+<!-- Link to the test failure(s) page ie https://ci-oss.hashicorp.engineering/test/4373437493444570564?currentProjectId=GoogleCloudBeta&branch=%3Cdefault%3E -->
 - Link
 
 <!-- The error message that displays in the tests tab, for reference -->
