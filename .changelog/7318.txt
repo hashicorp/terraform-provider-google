@@ -1,0 +1,6 @@
+```release-note:bug
+spanner: fixed the error when updating `deletion_protection` on `google_spanner_database` 
+```
+```release-note:bug
+spanner: fixed the error when updating `force_destroy` on `google_spanner_instance`
+```

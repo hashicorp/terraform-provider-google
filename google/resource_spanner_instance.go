@@ -61,6 +61,22 @@ func deleteSpannerBackups(d *schema.ResourceData, config *Config, res map[string
 	return nil
 }
 
+func resourceSpannerInstanceVirtualUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
+	// force_destroy is the only virtual field
+	if d.HasChange("force_destroy") {
+		for field := range resourceSchema {
+			if field == "force_destroy" {
+				continue
+			}
+			if d.HasChange(field) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
 func ResourceSpannerInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerInstanceCreate,
@@ -408,6 +424,14 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
+	if resourceSpannerInstanceVirtualUpdate(d, resourceSpannerInstance().Schema) {
+		if d.Get("force_destroy") != nil {
+			if err := d.Set("force_destroy", d.Get("force_destroy")); err != nil {
+				return fmt.Errorf("Error reading Instance: %s", err)
+			}
+		}
+		return nil
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
