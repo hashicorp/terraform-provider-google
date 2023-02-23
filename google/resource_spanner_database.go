@@ -528,7 +528,7 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 			return resourceSpannerDatabaseRead(d, meta)
 		}
 
-		if resourceSpannerDBVirtualUpdate(d, resourceSpannerInstance().Schema) {
+		if resourceSpannerDBVirtualUpdate(d, ResourceSpannerDatabase().Schema) {
 			if d.Get("deletion_protection") != nil {
 				if err := d.Set("deletion_protection", d.Get("deletion_protection")); err != nil {
 					return fmt.Errorf("Error reading Instance: %s", err)
