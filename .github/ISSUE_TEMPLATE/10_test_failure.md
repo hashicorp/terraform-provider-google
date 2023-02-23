@@ -23,7 +23,7 @@ title: "Failing test(s): TestAccWhatever"
 
 * google_XXXXX
 
-### Teamcity test history
+### Nightly build test history
 
 <!-- Link to the test failure(s) page ie https://ci-oss.hashicorp.engineering/test/4373437493444570564?currentProjectId=GoogleCloudBeta&branch=%3Cdefault%3E -->
 - Link
