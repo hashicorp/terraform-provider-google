@@ -197,7 +197,7 @@ The following arguments are supported:
 
 * `enabled` -
   (Optional)
-  Whether automated automated backups are enabled.
+  Whether automated backups are enabled.
 
 
 <a name="nested_weekly_schedule"></a>The `weekly_schedule` block supports:
