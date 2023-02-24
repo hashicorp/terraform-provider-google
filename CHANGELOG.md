@@ -1,4 +1,34 @@
-## 4.54.0 (Unreleased)
+## 4.55.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_cloudbuild_bitbucket_server_config` ([#13767](https://github.com/hashicorp/terraform-provider-google/pull/13767))
+* **New Resource:** `google_firebase_hosting_release` ([#13793](https://github.com/hashicorp/terraform-provider-google/pull/13793))
+* **New Resource:** `google_firebase_hosting_version` ([#13793](https://github.com/hashicorp/terraform-provider-google/pull/13793))
+
+IMPROVEMENTS:
+* container: added support for `node_config.kubelet_config.pod_pids_limit` on `google_container_node_pool` ([#13762](https://github.com/hashicorp/terraform-provider-google/pull/13762))
+* storage: changed the default create timeout of `google_storage_bucket` to 10m from 4m ([#13774](https://github.com/hashicorp/terraform-provider-google/pull/13774))
+
+BUG FIXES:
+* container: fixed a crash when leaving `placement_policy` blank on `google_container_node_pool` ([#13797](https://github.com/hashicorp/terraform-provider-google/pull/13797))
+
+## 4.54.0 (February 23, 2023)
+
+FEATURES:
+* **New Data Source:** `google_firebase_hosting_channel` ([#13686](https://github.com/hashicorp/terraform-provider-google/pull/13686))
+* **New Data Source:** `google_logging_sink` ([#13742](https://github.com/hashicorp/terraform-provider-google/pull/13742))
+* **New Data Source:** `google_sql_databases` ([#13738](https://github.com/hashicorp/terraform-provider-google/pull/13738))
+
+IMPROVEMENTS:
+* cloudbuild: added `bitbucket_server_trigger_config` field to `google_cloudbuild_trigger` resource ([#13728](https://github.com/hashicorp/terraform-provider-google/pull/13728))
+* cloudbuild: added `github.enterprise_config_resource_name` field to `google_cloudbuild_trigger` resource ([#13739](https://github.com/hashicorp/terraform-provider-google/pull/13739))
+* compute: added field `rsa_encrypted_key` to `google_compute_disk` resource ([#13685](https://github.com/hashicorp/terraform-provider-google/pull/13685))
+* sql: added replica promotion support to `google_sql_database_instance`. This change will allow users to promote read replica as stand alone primary instance. ([#13682](https://github.com/hashicorp/terraform-provider-google/pull/13682))
+
+BUG FIXES:
+* bigquery: fixed permadiff on `max_time_travel_hours` of `google_bigquery_dataset` ([#13691](https://github.com/hashicorp/terraform-provider-google/pull/13691))
+* compute: added possibility to remove `stateful_disk` in `compute_instance_group_manager` and `compute_region_instance_group_manager`. ([#13737](https://github.com/hashicorp/terraform-provider-google/pull/13737))
+* sql: fixed an issue with updating the `settings.activation_policy` field in `google_sql_database_instance`([#13736](https://github.com/hashicorp/terraform-provider-google/pull/13736))
 
 ## 4.53.1 (February 14, 2023)
 
