@@ -131,7 +131,7 @@ func TestAccLoggingBucketConfigBillingAccount_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":        randString(t, 10),
-		"billing_account_name": "billingAccounts/" + getTestBillingAccountFromEnv(t),
+		"billing_account_name": "billingAccounts/" + getTestMasterBillingAccountFromEnv(t),
 		"org_id":               getTestOrgFromEnv(t),
 	}
 

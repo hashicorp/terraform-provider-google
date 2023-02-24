@@ -99,6 +99,8 @@ var orgTargetEnvVars = []string{
 	"GOOGLE_ORG_2",
 }
 
+// This is the billing account that will be charged for the infrastructure used during testing. For
+// that reason, it is also the billing account used for creating new projects.
 var billingAccountEnvVars = []string{
 	"GOOGLE_BILLING_ACCOUNT",
 }
@@ -113,6 +115,8 @@ type VcrSource struct {
 
 var sources map[string]VcrSource
 
+// This is the billing account that will be modified to test billing-related functionality. It is
+// expected to have more permissions granted to the test user and support subaccounts.
 var masterBillingAccountEnvVars = []string{
 	"GOOGLE_MASTER_BILLING_ACCOUNT",
 }
@@ -817,11 +821,15 @@ func getTestOrgTargetFromEnv(t *testing.T) string {
 	return MultiEnvSearch(orgTargetEnvVars)
 }
 
+// This is the billing account that will be charged for the infrastructure used during testing. For
+// that reason, it is also the billing account used for creating new projects.
 func getTestBillingAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, billingAccountEnvVars...)
 	return MultiEnvSearch(billingAccountEnvVars)
 }
 
+// This is the billing account that will be modified to test billing-related functionality. It is
+// expected to have more permissions granted to the test user and support subaccounts.
 func getTestMasterBillingAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, masterBillingAccountEnvVars...)
 	return MultiEnvSearch(masterBillingAccountEnvVars)
