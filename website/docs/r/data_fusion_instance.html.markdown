@@ -62,7 +62,6 @@ resource "google_data_fusion_instance" "extended_instance" {
   enable_stackdriver_logging    = true
   enable_stackdriver_monitoring = true
   private_instance              = true
-  version                       = "6.6.0"
   dataproc_service_account      = data.google_app_engine_default_service_account.default.email
 
   labels = {
@@ -164,7 +163,6 @@ resource "google_data_fusion_instance" "event" {
   name    = "my-instance"
   region  = "us-central1"
   type    = "BASIC"
-  version = "6.7.0"
 
   event_publish_config {
     enabled = true
