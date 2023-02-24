@@ -123,6 +123,8 @@ func TestAccProject_create(t *testing.T) {
 func TestAccProject_billing(t *testing.T) {
 	t.Parallel()
 	org := getTestOrgFromEnv(t)
+	// This is a second billing account that can be charged, which is used only in this test to
+	// verify that a project can update its billing account.
 	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
 	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
 	billingId := getTestBillingAccountFromEnv(t)

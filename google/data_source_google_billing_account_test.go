@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccDataSourceGoogleBillingAccount_byFullName(t *testing.T) {
-	billingId := getTestBillingAccountFromEnv(t)
+	billingId := getTestMasterBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
 	vcrTest(t, resource.TestCase{
@@ -29,7 +29,7 @@ func TestAccDataSourceGoogleBillingAccount_byFullName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleBillingAccount_byShortName(t *testing.T) {
-	billingId := getTestBillingAccountFromEnv(t)
+	billingId := getTestMasterBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
 	vcrTest(t, resource.TestCase{
@@ -49,7 +49,7 @@ func TestAccDataSourceGoogleBillingAccount_byShortName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleBillingAccount_byFullNameClosed(t *testing.T) {
-	billingId := getTestBillingAccountFromEnv(t)
+	billingId := getTestMasterBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
 	vcrTest(t, resource.TestCase{
