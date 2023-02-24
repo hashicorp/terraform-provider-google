@@ -1154,6 +1154,8 @@ func instanceConfigSchema(parent string) *schema.Schema {
 		"cluster_config.0." + parent + ".0.accelerators",
 	}
 
+	masterConfig := strings.Contains(parent, "master")
+
 	return &schema.Schema{
 		Type:         schema.TypeList,
 		Optional:     true,
@@ -1166,6 +1168,7 @@ func instanceConfigSchema(parent string) *schema.Schema {
 				"num_instances": {
 					Type:         schema.TypeInt,
 					Optional:     true,
+					ForceNew:     masterConfig,
 					Computed:     true,
 					Description:  `Specifies the number of master/worker nodes to create. If not specified, GCP will default to a predetermined computed value.`,
 					AtLeastOneOf: instanceConfigKeys,
