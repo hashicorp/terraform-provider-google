@@ -42,7 +42,8 @@ resource "google_data_fusion_instance" "foobar" {
   name   = "%s"
   region = "us-central1"
   type   = "BASIC"
-  version = "6.1.1"
+  # See supported versions here https://cloud.google.com/data-fusion/docs/support/version-support-policy
+  version = "6.7.0"
   # Mark for testing to avoid service networking connection usage that is not cleaned up
   options = {
   	prober_test_run = "true"
@@ -64,7 +65,7 @@ resource "google_data_fusion_instance" "foobar" {
     label1 = "value1"
     label2 = "value2"
   }
-  version = "6.2.0"
+  version = "6.8.0"
   # Mark for testing to avoid service networking connection usage that is not cleaned up
   options = {
   	prober_test_run = "true"
