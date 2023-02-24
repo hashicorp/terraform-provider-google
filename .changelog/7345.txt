@@ -1,0 +1,3 @@
+```release-note:bug
+artifactregistry: fixed an issue where `google-beta` used an outdated beta API rather than the GA service API. New format values like "KFP" will now be accepted by both providers.
+```
