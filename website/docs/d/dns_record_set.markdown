@@ -34,6 +34,8 @@ The following arguments are supported:
 
 * `name` - (Required) The DNS name for the resource.
 
+* `type` - (Required) The RRSet type. [See this table for supported types](https://cloud.google.com/dns/docs/records#record_type).
+
 * `project` - (Optional) The ID of the project for the Google Cloud.
 
 ## Attributes Reference
