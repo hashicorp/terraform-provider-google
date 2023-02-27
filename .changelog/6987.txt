@@ -1,0 +1,3 @@
+```release-note:enhancement
+added `template.0.containers0.liveness_probe.grpc`, `template.0.containers0.startup_probe.grpc` fields to `google_cloud_run_v2_service` resource
+```
