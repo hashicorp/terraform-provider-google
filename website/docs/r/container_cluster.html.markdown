@@ -357,6 +357,9 @@ subnetwork in which the cluster's instances are launched.
 * `gateway_api_config` - (Optional)
   Configuration for [GKE Gateway API controller](https://cloud.google.com/kubernetes-engine/docs/concepts/gateway-api). Structure is [documented below](#nested_gateway_api_config).
 
+* `protect_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enable/Disable Protect API features for the cluster. Structure is [documented below](#nested_protect_config).
+
 <a name="nested_default_snat_status"></a>The `default_snat_status` block supports
 
 *  `disabled` - (Required) Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic
@@ -1140,6 +1143,16 @@ and all pods running on the nodes. Specified as a map from the key, such as
 <a name="nested_gateway_api_config"></a>The `gateway_api_config` block supports:
 
 * `channel` - (Required) Which Gateway Api channel should be used. `CHANNEL_DISABLED` or `CHANNEL_STANDARD`.
+
+<a name="nested_protect_config"></a>The `protect_config` block supports:
+
+* `workload_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) WorkloadConfig defines which actions are enabled for a cluster's workload configurations. Structure is [documented below](#nested_workload_config)
+
+* `workload_vulnerability_mode` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Sets which mode to use for Protect workload vulnerability scanning feature. Accepted values are WORKLOAD_VULNERABILITY_MODE_UNSPECIFIED, DISABLED, BASIC.
+
+<a name="nested_workload_config"></a>The `protect_config.workload_config` block supports:
+
+* `auditMode` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) WorkloadConfig defines the flags to enable or disable the workload configurations for the cluster. Accepted values are MODE_UNSPECIFIED, DISABLED, BASIC.
 
 ## Attributes Reference
 
