@@ -884,6 +884,7 @@ func flattenComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *
 	}
 	return transformed
 }
+
 func flattenComputeFirewallAllowProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -915,6 +916,7 @@ func flattenComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *C
 	}
 	return transformed
 }
+
 func flattenComputeFirewallDenyProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
