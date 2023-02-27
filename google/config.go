@@ -42,6 +42,7 @@ import (
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
 	"google.golang.org/api/pubsub/v1"
+	runadminv2 "google.golang.org/api/run/v2"
 	"google.golang.org/api/servicemanagement/v1"
 	"google.golang.org/api/servicenetworking/v1"
 	"google.golang.org/api/serviceusage/v1"
@@ -1144,6 +1145,20 @@ func (c *Config) NewBigTableProjectsInstancesTablesClient(userAgent string) *big
 	clientBigtableProjectsInstancesTables := bigtableadmin.NewProjectsInstancesTablesService(clientBigtable)
 
 	return clientBigtableProjectsInstancesTables
+}
+
+func (c *Config) NewCloudRunV2Client(userAgent string) *runadminv2.Service {
+	runAdminV2ClientBasePath := removeBasePathVersion(removeBasePathVersion(c.CloudRunV2BasePath))
+	log.Printf("[INFO] Instantiating Google Cloud Run Admin v2 client for path %s", runAdminV2ClientBasePath)
+	clientRunAdminV2, err := runadminv2.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client run admin: %s", err)
+		return nil
+	}
+	clientRunAdminV2.UserAgent = userAgent
+	clientRunAdminV2.BasePath = runAdminV2ClientBasePath
+
+	return clientRunAdminV2
 }
 
 // staticTokenSource is used to be able to identify static token sources without reflection.
