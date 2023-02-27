@@ -125,6 +125,47 @@ func TestAccComputePerInstanceConfig_update(t *testing.T) {
 	})
 }
 
+func TestAccComputePerInstanceConfig_statefulIps(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+		"igm_name":      fmt.Sprintf("tf-test-igm-%s", randString(t, 10)),
+		"config_name":   fmt.Sprintf("instance-%s", randString(t, 10)),
+		"network":       fmt.Sprintf("tf-test-igm-%s", randString(t, 10)),
+		"subnetwork":    fmt.Sprintf("tf-test-igm-%s", randString(t, 10)),
+		"address1":      fmt.Sprintf("tf-test-igm-address%s", randString(t, 10)),
+		"address2":      fmt.Sprintf("tf-test-igm-address%s", randString(t, 10)),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				// Create one config
+				Config: testAccComputePerInstanceConfig_statefulIpsBasic(context),
+			},
+			{
+				ResourceName:            "google_compute_per_instance_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
+			},
+			{
+				// Update an existing config
+				Config: testAccComputePerInstanceConfig_statefulIpsUpdate(context),
+			},
+			{
+				ResourceName:            "google_compute_per_instance_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
+			},
+		},
+	})
+}
+
 func testAccComputePerInstanceConfig_statefulBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_per_instance_config" "default" {
@@ -293,6 +334,156 @@ resource "google_compute_instance_group_manager" "igm" {
   base_instance_name = "tf-test-igm-no-tp"
 }
 `, context)
+}
+
+func testAccComputePerInstanceConfig_statefulIpsBasic(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_network" "default" {
+  name = "%{network}"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnetwork}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+	
+resource "google_compute_address" "static_internal_ip" {
+  name         = "%{address1}"
+  address_type = "INTERNAL"
+}
+	
+resource "google_compute_address" "static_external_ip" {
+  name         = "%{address2}"
+  address_type = "EXTERNAL"
+}
+	  
+resource "google_compute_per_instance_config" "default" {
+  instance_group_manager = google_compute_instance_group_manager.igm.name
+  name = "%{config_name}"
+  remove_instance_state_on_destroy = true
+  preserved_state {
+    metadata = {
+      asdf = "asdf"
+    }
+    disk {
+      device_name = "my-stateful-disk1"
+      source      = google_compute_disk.disk.id
+    }
+
+    disk {
+      device_name = "my-stateful-disk2"
+      source      = google_compute_disk.disk1.id
+    }
+    internal_ip {
+      ip_address {
+        address = google_compute_address.static_internal_ip.self_link
+      }
+      auto_delete    = "NEVER"
+      interface_name = "nic0"
+    }
+    external_ip {
+      ip_address {
+        address = google_compute_address.static_external_ip.self_link
+      }
+      auto_delete    = "NEVER"
+      interface_name = "nic0"
+    }
+  }
+}
+
+resource "google_compute_disk" "disk" {
+  name  = "test-disk-%{random_suffix}"
+  type  = "pd-ssd"
+  zone  = google_compute_instance_group_manager.igm.zone
+  image = "debian-8-jessie-v20170523"
+  physical_block_size_bytes = 4096
+}
+  
+resource "google_compute_disk" "disk1" {
+  name  = "test-disk2-%{random_suffix}"
+  type  = "pd-ssd"
+  zone  = google_compute_instance_group_manager.igm.zone
+  image = "debian-cloud/debian-11"
+  physical_block_size_bytes = 4096
+}
+`, context) + testAccComputePerInstanceConfig_igm(context)
+}
+
+func testAccComputePerInstanceConfig_statefulIpsUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_network" "default" {
+  name = "%{network}"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnetwork}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+	
+resource "google_compute_address" "static_internal_ip" {
+  name         = "%{address1}"
+  address_type = "INTERNAL"
+}
+	
+resource "google_compute_address" "static_external_ip" {
+  name         = "%{address2}"
+  address_type = "EXTERNAL"
+}
+	  
+resource "google_compute_per_instance_config" "default" {
+  instance_group_manager = google_compute_instance_group_manager.igm.name
+  name = "%{config_name}"
+  remove_instance_state_on_destroy = true
+  preserved_state {
+    metadata = {
+      asdf = "asdf"
+    }
+    disk {
+      device_name = "my-stateful-disk1"
+      source      = google_compute_disk.disk.id
+    }
+
+    disk {
+      device_name = "my-stateful-disk2"
+      source      = google_compute_disk.disk1.id
+    }
+    internal_ip {
+      ip_address {
+        address = google_compute_address.static_internal_ip.self_link
+      }
+      auto_delete    = "ON_PERMANENT_INSTANCE_DELETION"
+      interface_name = "nic0"
+    }
+    external_ip {
+      ip_address {
+        address = google_compute_address.static_external_ip.self_link
+      }
+      auto_delete    = "ON_PERMANENT_INSTANCE_DELETION"
+      interface_name = "nic0"
+    }
+  }
+}
+
+resource "google_compute_disk" "disk" {
+  name  = "test-disk-%{random_suffix}"
+  type  = "pd-ssd"
+  zone  = google_compute_instance_group_manager.igm.zone
+  image = "debian-8-jessie-v20170523"
+  physical_block_size_bytes = 4096
+}
+  
+resource "google_compute_disk" "disk1" {
+  name  = "test-disk2-%{random_suffix}"
+  type  = "pd-ssd"
+  zone  = google_compute_instance_group_manager.igm.zone
+  image = "debian-cloud/debian-11"
+  physical_block_size_bytes = 4096
+}
+`, context) + testAccComputePerInstanceConfig_igm(context)
 }
 
 // Checks that the per instance config with the given name was destroyed
