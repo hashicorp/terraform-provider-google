@@ -150,6 +150,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 	}
 	network_config {
 		peered_network = google_compute_network.network.id
+		peered_network_ip_range = "/29"
 	}
 	depends_on = [google_service_networking_connection.worker_pool_conn]
 }

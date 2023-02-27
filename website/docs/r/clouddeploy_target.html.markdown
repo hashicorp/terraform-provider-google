@@ -22,6 +22,42 @@ description: |-
 
 The Cloud Deploy `Target` resource
 
+## Example Usage - multi_target
+tests creating and updating a multi-target
+```hcl
+resource "google_clouddeploy_target" "primary" {
+  location = "us-west1"
+  name     = "target"
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  description = "multi-target description"
+
+  execution_configs {
+    usages            = ["RENDER", "DEPLOY"]
+    execution_timeout = "3600s"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+
+  multi_target {
+    target_ids = ["1", "2"]
+  }
+
+  project          = "my-project-name"
+  require_approval = false
+  provider = google-beta
+}
+
+```
 ## Example Usage - run_target
 tests creating and updating a cloud run target
 ```hcl
@@ -130,6 +166,10 @@ The following arguments are supported:
   (Optional)
   Optional. Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.
   
+* `multi_target` -
+  (Optional)
+  (Beta only) Information specifying a multiTarget.
+  
 * `project` -
   (Optional)
   The project for the resource
@@ -181,6 +221,12 @@ The `gke` block supports:
 * `internal_ip` -
   (Optional)
   Optional. If true, `cluster` is accessed using the private IP address of the control plane endpoint. Otherwise, the default IP address of the control plane endpoint is used. The default IP address is the private IP address for clusters with private control-plane endpoints and the public IP address otherwise. Only specify this option when `cluster` is a [private GKE cluster](https://cloud.google.com/kubernetes-engine/docs/concepts/private-cluster-concept).
+    
+The `multi_target` block supports:
+    
+* `target_ids` -
+  (Required)
+  Required. The target_ids of this multiTarget.
     
 The `run` block supports:
     
