@@ -21,12 +21,10 @@ description: |-
 
 Denotes one policy tag in a taxonomy.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about PolicyTag, see:
 
-* [API documentation](https://cloud.google.com/data-catalog/docs/reference/rest/v1beta1/projects.locations.taxonomies.policyTags)
+* [API documentation](https://cloud.google.com/data-catalog/docs/reference/rest/v1/projects.locations.taxonomies.policyTags)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/data-catalog/docs)
 
@@ -40,15 +38,12 @@ To get more information about PolicyTag, see:
 
 ```hcl
 resource "google_data_catalog_policy_tag" "basic_policy_tag" {
-  provider = google-beta
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "Low security"
   description = "A policy tag normally associated with low security items"
 }
 
 resource "google_data_catalog_taxonomy" "my_taxonomy" {
-  provider = google-beta
-  region = "us"
   display_name =  "taxonomy_display_name"
   description = "A collection of policy tags"
   activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
@@ -64,14 +59,12 @@ resource "google_data_catalog_taxonomy" "my_taxonomy" {
 
 ```hcl
 resource "google_data_catalog_policy_tag" "parent_policy" {
-  provider = google-beta
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "High"
   description = "A policy tag category used for high security access"
 }
 
 resource "google_data_catalog_policy_tag" "child_policy" {
-  provider = google-beta
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "ssn"
   description = "A hash of the users ssn"
@@ -79,7 +72,6 @@ resource "google_data_catalog_policy_tag" "child_policy" {
 }
 
 resource "google_data_catalog_policy_tag" "child_policy2" {
-  provider = google-beta
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "dob"
   description = "The users date of birth"
@@ -89,8 +81,6 @@ resource "google_data_catalog_policy_tag" "child_policy2" {
 }
 
 resource "google_data_catalog_taxonomy" "my_taxonomy" {
-  provider = google-beta
-  region = "us"
   display_name =  "taxonomy_display_name"
   description = "A collection of policy tags"
   activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]

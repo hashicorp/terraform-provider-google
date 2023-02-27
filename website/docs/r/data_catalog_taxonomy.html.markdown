@@ -21,12 +21,10 @@ description: |-
 
 A collection of policy tags that classify data along a common axis.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Taxonomy, see:
 
-* [API documentation](https://cloud.google.com/data-catalog/docs/reference/rest/v1beta1/projects.locations.taxonomies)
+* [API documentation](https://cloud.google.com/data-catalog/docs/reference/rest/v1/projects.locations.taxonomies)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/data-catalog/docs)
 
@@ -40,9 +38,7 @@ To get more information about Taxonomy, see:
 
 ```hcl
 resource "google_data_catalog_taxonomy" "basic_taxonomy" {
-  provider = google-beta
-  region = "us"
-  display_name =  "my_display_name"
+  display_name =  "my_taxonomy"
   description = "A collection of policy tags"
   activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
 }
