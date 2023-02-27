@@ -1,0 +1,12 @@
+```release-note:enhancement
+containerazure: added `azure_services_authentication` to `google_container_azure_cluster`
+```
+```release-note:deprecation
+gkehub: deprecated `mesh.control_plane` in `google_gke_hub_feature_membership`. Use `mesh.management` instead (beta-only)
+```
+```release-note:enhancement
+cloudbuild: added `peered_network_ip_range` field to `google_cloudbuild_worker_pool` resource
+```
+```release-note:enhancement
+clouddeploy: added `multi_target` field to `google_clouddeploy_target` resource (beta-only)
+```

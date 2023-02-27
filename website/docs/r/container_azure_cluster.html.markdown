@@ -91,10 +91,6 @@ The following arguments are supported:
   (Required)
   The Azure region where the cluster runs. Each Google Cloud region supports a subset of nearby Azure regions. You can call to list all supported Azure regions within a given Google Cloud region.
   
-* `client` -
-  (Required)
-  Name of the AzureClient. The `AzureClient` resource must reside on the same GCP project and region as the `AzureCluster`. `AzureClient` names are formatted as `projects/<project-number>/locations/<region>/azureClients/<client-id>`. See Resource Names (https:cloud.google.com/apis/design/resource_names) for more details on Google Cloud resource names.
-  
 * `control_plane` -
   (Required)
   Configuration related to the cluster control plane.
@@ -210,6 +206,14 @@ The `networking` block supports:
   (Optional)
   Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Keys can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.
   
+* `azure_services_authentication` -
+  (Optional)
+  Azure authentication configuration for management of Azure resources
+  
+* `client` -
+  (Optional)
+  Name of the AzureClient. The `AzureClient` resource must reside on the same GCP project and region as the `AzureCluster`. `AzureClient` names are formatted as `projects/<project-number>/locations/<region>/azureClients/<client-id>`. See Resource Names (https:cloud.google.com/apis/design/resource_names) for more details on Google Cloud resource names.
+  
 * `description` -
   (Optional)
   Optional. A human readable description of this cluster. Cannot be longer than 255 UTF-8 encoded bytes.
@@ -224,6 +228,16 @@ The `networking` block supports:
   
 
 
+The `azure_services_authentication` block supports:
+    
+* `application_id` -
+  (Required)
+  The Azure Active Directory Application ID for Authentication configuration.
+    
+* `tenant_id` -
+  (Required)
+  The Azure Active Directory Tenant ID for Authentication configuration.
+    
 The `database_encryption` block supports:
     
 * `key_id` -

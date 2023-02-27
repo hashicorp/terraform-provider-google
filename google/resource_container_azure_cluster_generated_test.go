@@ -231,10 +231,10 @@ func testAccCheckContainerAzureClusterDestroyProducer(t *testing.T) func(s *terr
 
 			obj := &containerazure.Cluster{
 				AzureRegion:     dcl.String(rs.Primary.Attributes["azure_region"]),
-				Client:          dcl.String(rs.Primary.Attributes["client"]),
 				Location:        dcl.String(rs.Primary.Attributes["location"]),
 				Name:            dcl.String(rs.Primary.Attributes["name"]),
 				ResourceGroupId: dcl.String(rs.Primary.Attributes["resource_group_id"]),
+				Client:          dcl.String(rs.Primary.Attributes["client"]),
 				Description:     dcl.String(rs.Primary.Attributes["description"]),
 				Project:         dcl.StringOrNil(rs.Primary.Attributes["project"]),
 				CreateTime:      dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
