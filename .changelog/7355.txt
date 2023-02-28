@@ -1,0 +1,3 @@
+```release-note:bug
+cloudfunctions: fixed no diff found on `event_trigger.resource` of `google_cloudfunctions_function`
+```
