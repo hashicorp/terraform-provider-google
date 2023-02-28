@@ -118,6 +118,136 @@ func TestValidLabelKeys(t *testing.T) {
 	}
 }
 
+func TestCompareSelfLinkOrResourceNameWithMultipleParts(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"projects to no projects doc": {
+			Old:                "projects/myproject/databases/default/documents/resource",
+			New:                "resource",
+			ExpectDiffSuppress: true,
+		},
+		"no projects to projects doc": {
+			Old:                "resource",
+			New:                "projects/myproject/databases/default/documents/resource",
+			ExpectDiffSuppress: true,
+		},
+		"projects to projects doc": {
+			Old:                "projects/myproject/databases/default/documents/resource",
+			New:                "projects/myproject/databases/default/documents/resource",
+			ExpectDiffSuppress: true,
+		},
+		"multi messages doc": {
+			Old:                "messages/{messageId}",
+			New:                "projects/myproject/databases/(default)/documents/messages/{messageId}",
+			ExpectDiffSuppress: true,
+		},
+		"multi messages 2 doc": {
+			Old:                "projects/myproject/databases/(default)/documents/messages/{messageId}",
+			New:                "messages/{messageId}",
+			ExpectDiffSuppress: true,
+		},
+		"projects to no projects topics": {
+			Old:                "projects/myproject/topics/resource",
+			New:                "resource",
+			ExpectDiffSuppress: true,
+		},
+		"no projects to projects topics": {
+			Old:                "resource",
+			New:                "projects/myproject/topics/resource",
+			ExpectDiffSuppress: true,
+		},
+		"projects to projects topics": {
+			Old:                "projects/myproject/topics/resource",
+			New:                "projects/myproject/topics/resource",
+			ExpectDiffSuppress: true,
+		},
+
+		"unmatched projects to no projects doc": {
+			Old:                "projects/myproject/databases/default/documents/resource",
+			New:                "resourcex",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched no projects to projects doc": {
+			Old:                "resourcex",
+			New:                "projects/myproject/databases/default/documents/resource",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched projects to projects doc": {
+			Old:                "projects/myproject/databases/default/documents/resource",
+			New:                "projects/myproject/databases/default/documents/resourcex",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched projects to projects 2 doc": {
+			Old:                "projects/myprojectx/databases/default/documents/resource",
+			New:                "projects/myproject/databases/default/documents/resource",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched projects to empty doc": {
+			Old:                "",
+			New:                "projects/myproject/databases/default/documents/resource",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched empty to projects 2 doc": {
+			Old:                "projects/myprojectx/databases/default/documents/resource",
+			New:                "",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched default to default2 doc": {
+			Old:                "projects/myproject/databases/default/documents/resource",
+			New:                "projects/myproject/databases/default2/documents/resource",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched projects to no projects topics": {
+			Old:                "projects/myproject/topics/resource",
+			New:                "resourcex",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched no projects to projects topics": {
+			Old:                "resourcex",
+			New:                "projects/myproject/topics/resource",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched projects to projects topics": {
+			Old:                "projects/myproject/topics/resource",
+			New:                "projects/myproject/topics/resourcex",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched projects to projects 2 topics": {
+			Old:                "projects/myprojectx/topics/resource",
+			New:                "projects/myproject/topics/resource",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched projects to empty topics": {
+			Old:                "projects/myproject/topics/resource",
+			New:                "",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched empty to projects topics": {
+			Old:                "",
+			New:                "projects/myproject/topics/resource",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched resource to resource-partial": {
+			Old:                "resource",
+			New:                "resource-partial",
+			ExpectDiffSuppress: false,
+		},
+		"unmatched resource-partial to projects": {
+			Old:                "resource-partial",
+			New:                "projects/myproject/topics/resource",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if compareSelfLinkOrResourceNameWithMultipleParts("resource", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
