@@ -129,6 +129,10 @@ The following arguments are supported:
 
 <a name="nested_transfer_spec"></a>The `transfer_spec` block supports:
 
+* `source_agent_pool_name` - (Optional) Specifies the agent pool name associated with the posix data source. When unspecified, the default name is used.
+
+* `sink_agent_pool_name` - (Optional) Specifies the agent pool name associated with the posix data sink. When unspecified, the default name is used.
+
 * `gcs_data_sink` - (Optional) A Google Cloud Storage data sink. Structure [documented below](#nested_gcs_data_sink).
 
 * `posix_data_sink` - (Optional) A POSIX data sink. Structure [documented below](#nested_posix_data_sink).

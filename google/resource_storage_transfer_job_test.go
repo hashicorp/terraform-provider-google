@@ -105,6 +105,7 @@ func TestAccStorageTransferJob_posixSource(t *testing.T) {
 
 	testDataSinkName := randString(t, 10)
 	testTransferJobDescription := randString(t, 10)
+	testSourceAgentPoolName := fmt.Sprintf("tf-test-source-agent-pool-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -112,7 +113,7 @@ func TestAccStorageTransferJob_posixSource(t *testing.T) {
 		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageTransferJob_posixSource(getTestProjectFromEnv(), testDataSinkName, testTransferJobDescription),
+				Config: testAccStorageTransferJob_posixSource(getTestProjectFromEnv(), testDataSinkName, testTransferJobDescription, testSourceAgentPoolName),
 			},
 			{
 				ResourceName:      "google_storage_transfer_job.transfer_job",
@@ -122,12 +123,12 @@ func TestAccStorageTransferJob_posixSource(t *testing.T) {
 		},
 	})
 }
-
 func TestAccStorageTransferJob_posixSink(t *testing.T) {
 	t.Parallel()
 
 	testDataSourceName := randString(t, 10)
 	testTransferJobDescription := randString(t, 10)
+	testSinkAgentPoolName := fmt.Sprintf("tf-test-sink-agent-pool-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -135,7 +136,7 @@ func TestAccStorageTransferJob_posixSink(t *testing.T) {
 		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageTransferJob_posixSink(getTestProjectFromEnv(), testDataSourceName, testTransferJobDescription),
+				Config: testAccStorageTransferJob_posixSink(getTestProjectFromEnv(), testDataSourceName, testTransferJobDescription, testSinkAgentPoolName),
 			},
 			{
 				ResourceName:      "google_storage_transfer_job.transfer_job",
@@ -580,7 +581,7 @@ resource "google_storage_transfer_job" "transfer_job" {
 `, project, dataSourceBucketName, project, dataSinkBucketName, project, transferJobDescription, project)
 }
 
-func testAccStorageTransferJob_posixSource(project string, dataSinkBucketName string, transferJobDescription string) string {
+func testAccStorageTransferJob_posixSource(project string, dataSinkBucketName string, transferJobDescription string, sourceAgentPoolName string) string {
 	return fmt.Sprintf(`
 data "google_storage_transfer_project_service_account" "default" {
   project = "%s"
@@ -605,11 +606,21 @@ resource "google_project_iam_member" "pubsub" {
   member  = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
 }
 
+resource "google_storage_transfer_agent_pool" "foo" {
+  name         = "%s"
+  bandwidth_limit {
+    limit_mbps = "120"
+  }
+
+  depends_on = [google_project_iam_member.pubsub]
+}
+
 resource "google_storage_transfer_job" "transfer_job" {
   description = "%s"
   project     = "%s"
 
   transfer_spec {
+    source_agent_pool_name = google_storage_transfer_agent_pool.foo.id
     posix_data_source {
     	root_directory = "/some/path"
     }
@@ -643,10 +654,10 @@ resource "google_storage_transfer_job" "transfer_job" {
     google_project_iam_member.pubsub
   ]
 }
-`, project, dataSinkBucketName, project, transferJobDescription, project)
+`, project, dataSinkBucketName, project, transferJobDescription, sourceAgentPoolName, project)
 }
 
-func testAccStorageTransferJob_posixSink(project string, dataSourceBucketName string, transferJobDescription string) string {
+func testAccStorageTransferJob_posixSink(project string, dataSourceBucketName string, transferJobDescription string, sinkAgentPoolName string) string {
 	return fmt.Sprintf(`
 data "google_storage_transfer_project_service_account" "default" {
   project = "%s"
@@ -671,11 +682,21 @@ resource "google_project_iam_member" "pubsub" {
   member  = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
 }
 
+resource "google_storage_transfer_agent_pool" "foo" {
+  name         = "%s"
+  bandwidth_limit {
+    limit_mbps = "120"
+  }
+
+  depends_on = [google_project_iam_member.pubsub]
+}
+
 resource "google_storage_transfer_job" "transfer_job" {
   description = "%s"
   project     = "%s"
 
   transfer_spec {
+    sink_agent_pool_name  = google_storage_transfer_agent_pool.foo.id
     posix_data_sink {
     	root_directory = "/some/path"
     }
@@ -708,7 +729,7 @@ resource "google_storage_transfer_job" "transfer_job" {
     google_project_iam_member.pubsub
   ]
 }
-`, project, dataSourceBucketName, project, transferJobDescription, project)
+`, project, dataSourceBucketName, project, sinkAgentPoolName, transferJobDescription, project)
 }
 
 func testAccStorageTransferJob_transferOptions(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string, overwriteObjectsAlreadyExistingInSink bool, deleteObjectsUniqueInSink bool, deleteObjectsFromSourceAfterTransfer bool, overwriteWhenVal string, pubSubTopicName string) string {
