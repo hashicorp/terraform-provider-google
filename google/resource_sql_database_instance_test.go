@@ -208,8 +208,7 @@ func TestAccSqlDatabaseInstance_deleteDefaultUserBeforeSubsequentApiCalls(t *tes
 
 	databaseName := "tf-test-" + randString(t, 10)
 	addressName := "tf-test-" + randString(t, 10)
-	networkName := "tf-bootstrap-net-sql-instance-private-clone"
-	// networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-clone")
+	networkName := BootstrapSharedTestNetwork(t, "sql-instance-private-clone-2")
 
 	// 1. Create an instance.
 	// 2. Add a root@'%' user.
@@ -1308,8 +1307,6 @@ func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 	t.Parallel()
 	databaseName := "tf-test-" + randString(t, 10)
 	rootPassword := randString(t, 15)
-	addressName := "tf-test-" + randString(t, 10)
-	networkName := BootstrapSharedTestNetwork(t, "sql-instance-sqlserver-audit")
 	bucketName := fmt.Sprintf("%s-%d", "tf-test-bucket", randInt(t))
 	uploadInterval := "900s"
 	retentionInterval := "86400s"
@@ -1323,7 +1320,7 @@ func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlDatabaseInstance_SqlServerAuditConfig(networkName, addressName, databaseName, rootPassword, bucketName, uploadInterval, retentionInterval),
+				Config: testGoogleSqlDatabaseInstance_SqlServerAuditConfig(databaseName, rootPassword, bucketName, uploadInterval, retentionInterval),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1332,7 +1329,7 @@ func TestAccSqlDatabaseInstance_SqlServerAuditConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
 			},
 			{
-				Config: testGoogleSqlDatabaseInstance_SqlServerAuditConfig(networkName, addressName, databaseName, rootPassword, bucketNameUpdate, uploadIntervalUpdate, retentionIntervalUpdate),
+				Config: testGoogleSqlDatabaseInstance_SqlServerAuditConfig(databaseName, rootPassword, bucketNameUpdate, uploadIntervalUpdate, retentionIntervalUpdate),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1374,8 +1371,6 @@ func TestAccSqlDatabaseInstance_Timezone(t *testing.T) {
 
 	databaseName := "tf-test-" + randString(t, 10)
 	rootPassword := randString(t, 15)
-	addressName := "tf-test-" + randString(t, 10)
-	networkName := BootstrapSharedTestNetwork(t, "sql-instance-sqlserver-audit")
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1383,7 +1378,7 @@ func TestAccSqlDatabaseInstance_Timezone(t *testing.T) {
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlDatabaseInstance_Timezone(networkName, addressName, databaseName, rootPassword, "Pacific Standard Time"),
+				Config: testGoogleSqlDatabaseInstance_Timezone(databaseName, rootPassword, "Pacific Standard Time"),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1924,7 +1919,7 @@ resource "google_sql_database_instance" "instance" {
 }`, databaseName, endDate, startDate, time)
 }
 
-func testGoogleSqlDatabaseInstance_SqlServerAuditConfig(networkName, addressName, databaseName, rootPassword, bucketName, uploadInterval, retentionInterval string) string {
+func testGoogleSqlDatabaseInstance_SqlServerAuditConfig(databaseName, rootPassword, bucketName, uploadInterval, retentionInterval string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "gs-bucket" {
   name                      	= "%s"
@@ -1932,26 +1927,7 @@ resource "google_storage_bucket" "gs-bucket" {
   uniform_bucket_level_access = true
 }
 
-data "google_compute_network" "servicenet" {
-  name = "%s"
-}
-
-resource "google_compute_global_address" "foobar" {
-  name          = "%s"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = data.google_compute_network.servicenet.self_link
-}
-
-resource "google_service_networking_connection" "foobar" {
-  network                 = data.google_compute_network.servicenet.self_link
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.foobar.name]
-}
-
 resource "google_sql_database_instance" "instance" {
-	depends_on = [google_service_networking_connection.foobar]
   name             = "%s"
   region           = "us-central1"
   database_version = "SQLSERVER_2017_STANDARD"
@@ -1960,8 +1936,7 @@ resource "google_sql_database_instance" "instance" {
   settings {
     tier = "db-custom-1-3840"
     ip_configuration {
-      ipv4_enabled       = "false"
-      private_network    = data.google_compute_network.servicenet.self_link
+      ipv4_enabled       = "true"
     }
     sql_server_audit_config {
       bucket = "gs://%s"
@@ -1970,7 +1945,7 @@ resource "google_sql_database_instance" "instance" {
     }
   }
 }
-`, bucketName, networkName, addressName, databaseName, rootPassword, bucketName, retentionInterval, uploadInterval)
+`, bucketName, databaseName, rootPassword, bucketName, retentionInterval, uploadInterval)
 }
 
 func testGoogleSqlDatabaseInstance_SqlServerAuditOptionalBucket(databaseName, rootPassword, uploadInterval, retentionInterval string) string {
@@ -1992,27 +1967,9 @@ resource "google_sql_database_instance" "instance" {
 `, databaseName, rootPassword, retentionInterval, uploadInterval)
 }
 
-func testGoogleSqlDatabaseInstance_Timezone(networkName, addressName, databaseName, rootPassword, timezone string) string {
+func testGoogleSqlDatabaseInstance_Timezone(databaseName, rootPassword, timezone string) string {
 	return fmt.Sprintf(`
-data "google_compute_network" "servicenet" {
-  name = "%s"
-}
-
-resource "google_compute_global_address" "foobar" {
-  name          = "%s"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = data.google_compute_network.servicenet.self_link
-}
-
-resource "google_service_networking_connection" "foobar" {
-  network                 = data.google_compute_network.servicenet.self_link
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.foobar.name]
-}
 resource "google_sql_database_instance" "instance" {
-	depends_on = [google_service_networking_connection.foobar]
   name             = "%s"
   region           = "us-central1"
   database_version = "SQLSERVER_2017_STANDARD"
@@ -2021,13 +1978,12 @@ resource "google_sql_database_instance" "instance" {
   settings {
     tier = "db-custom-1-3840"
     ip_configuration {
-      ipv4_enabled       = "false"
-      private_network    = data.google_compute_network.servicenet.self_link
+      ipv4_enabled       = "true"
     }
     time_zone = "%s"
   }
 }
-`, networkName, addressName, databaseName, rootPassword, timezone)
+`, databaseName, rootPassword, timezone)
 }
 
 func testGoogleSqlDatabaseInstanceConfig_withoutReplica(instanceName string) string {
