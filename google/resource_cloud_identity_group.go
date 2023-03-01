@@ -445,6 +445,10 @@ func resourceCloudIdentityGroupImport(d *schema.ResourceData, meta interface{}) 
 
 	name := d.Get("name").(string)
 
+	if d.Get("initial_group_config") == nil {
+		d.Set("initial_group_config", "EMPTY")
+	}
+
 	if err := d.Set("name", name); err != nil {
 		return nil, fmt.Errorf("Error setting name: %s", err)
 	}

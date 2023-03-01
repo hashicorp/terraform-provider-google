@@ -1,0 +1,3 @@
+```release-note:bug
+cloudidentity: fixed an issue on `initialGroupConfig` field when users make an import.
+```
