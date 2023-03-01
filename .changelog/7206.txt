@@ -1,0 +1,4 @@
+```release-note:enhancement
+tags: added support for zonal resources in parent for `tags_location_tag_binding` 
+
+```

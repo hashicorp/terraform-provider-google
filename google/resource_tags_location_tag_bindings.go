@@ -100,7 +100,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 	// identity fields and d.Id() before read
 
 	var opRes map[string]interface{}
-	err = tagsOperationWaitTimeWithResponse(
+	err = tagsLocationOperationWaitTimeWithResponse(
 		config, res, &opRes, "Creating LocationTagBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
@@ -242,7 +242,7 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 		return handleNotFoundError(err, d, "LocationTagBinding")
 	}
 
-	err = tagsOperationWaitTime(
+	err = tagsLocationOperationWaitTime(
 		config, res, "Deleting LocationTagBinding", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
