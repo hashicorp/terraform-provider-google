@@ -335,7 +335,7 @@ resource "google_datastream_stream" "default" {
         gcs_destination_config {
             path = "mydata"
             file_rotation_mb = 200
-            file_rotation_interval = "900s"
+            file_rotation_interval = "60s"
             json_file_format {
                 schema_file_format = "NO_SCHEMA_FILE"
                 compression = "GZIP"
