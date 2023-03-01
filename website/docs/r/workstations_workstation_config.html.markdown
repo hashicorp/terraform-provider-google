@@ -323,9 +323,9 @@ resource "google_kms_crypto_key" "default" {
 }
 
 resource "google_service_account" "default" {
-  account_id   = "cloud-workstations-kms"
-  display_name = "Service Account for Cloud Workstations"
-  provider     = google-beta
+  account_id   = "my-account"
+  display_name = "Service Account"
+  provider = google-beta
 }
 
 resource "google_workstations_workstation_config" "default" {
