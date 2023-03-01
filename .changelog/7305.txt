@@ -1,0 +1,6 @@
+```release-note:new-resource
+google_apigee_env_keystore
+```
+```release-note:new-resource
+google_apigee_env_references
+```
