@@ -23,8 +23,8 @@ var (
 )
 
 func init() {
-	resource.AddTestSweepers("Project", &resource.Sweeper{
-		Name: "Project",
+	resource.AddTestSweepers("GoogleProject", &resource.Sweeper{
+		Name: "GoogleProject",
 		F:    testSweepProject,
 	})
 }
@@ -42,23 +42,25 @@ func testSweepProject(region string) error {
 		return err
 	}
 
+	org := UnsafeGetTestOrgFromEnv()
+	if org == "" {
+		log.Printf("[INFO][SWEEPER_LOG] no organization set, failing project sweeper")
+		return fmt.Errorf("no organization set")
+	}
+
 	token := ""
 	for paginate := true; paginate; {
 		// Filter for projects with test prefix
-		filter := "id:" + testPrefix + "*"
+		filter := fmt.Sprintf("id:\"%s*\" -lifecycleState:DELETE_REQUESTED parent.id:%v", testPrefix, org)
 		found, err := config.NewResourceManagerClient(config.userAgent).Projects.List().Filter(filter).PageToken(token).Do()
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error listing projects: %s", err)
 			return nil
 		}
+
 		for _, project := range found.Projects {
-			if project.LifecycleState != "ACTIVE" {
-				continue
-			}
 			log.Printf("[INFO][SWEEPER_LOG] Sweeping Project id: %s", project.ProjectId)
-
 			_, err := config.NewResourceManagerClient(config.userAgent).Projects.Delete(project.ProjectId).Do()
-
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error, failed to delete project %s: %s", project.Name, err)
 				continue

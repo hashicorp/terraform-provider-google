@@ -806,8 +806,16 @@ func getTestFirestoreProjectFromEnv(t *testing.T) string {
 	return MultiEnvSearch(firestoreProjectEnvVars)
 }
 
+// Returns the raw organization id like 1234567890, skipping the test if one is
+// not found.
 func getTestOrgFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgEnvVars...)
+	return MultiEnvSearch(orgEnvVars)
+}
+
+// Alternative to getTestOrgFromEnv that doesn't need *testing.T
+// If using this, you need to process unset values at the call site
+func UnsafeGetTestOrgFromEnv() string {
 	return MultiEnvSearch(orgEnvVars)
 }
 
