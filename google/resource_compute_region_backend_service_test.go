@@ -222,6 +222,45 @@ func TestAccComputeRegionBackendService_withBackendAndIAP(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionBackendService_UDPFailOverPolicyUpdate(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_UDPFailOverPolicyHasDrain(serviceName, "TCP", "true", checkName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_UDPFailOverPolicyHasDrain(serviceName, "TCP", "false", checkName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_UDPFailOverPolicy(serviceName, "UDP", "false", checkName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeRegionBackendService_ilbBasic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
@@ -281,6 +320,59 @@ resource "google_compute_health_check" "health_check" {
   }
 }
 `, serviceName, checkName)
+}
+
+func testAccComputeRegionBackendService_UDPFailOverPolicy(serviceName, protocol, failover, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_health_check.zero.self_link]
+  region        = "us-central1"
+
+  protocol = "%s"
+  failover_policy {
+      # Disable connection drain on failover cannot be set when the protocol is UDP
+      drop_traffic_if_unhealthy = "%s"
+  }
+}
+
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+`, serviceName, protocol, failover, checkName)
+}
+
+func testAccComputeRegionBackendService_UDPFailOverPolicyHasDrain(serviceName, protocol, failover, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_health_check.zero.self_link]
+  region        = "us-central1"
+
+  protocol = "%s"
+  failover_policy {
+      # Disable connection drain on failover cannot be set when the protocol is UDP
+      drop_traffic_if_unhealthy = "%s"
+      disable_connection_drain_on_failover = "%s"
+  }
+}
+
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+`, serviceName, protocol, failover, failover, checkName)
 }
 
 func testAccComputeRegionBackendService_basic(serviceName, checkName string) string {

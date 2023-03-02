@@ -490,6 +490,7 @@ Defaults to 1024.`,
 					Schema: map[string]*schema.Schema{
 						"disable_connection_drain_on_failover": {
 							Type:     schema.TypeBool,
+							Computed: true,
 							Optional: true,
 							Description: `On failover or failback, this field indicates whether connection drain
 will be honored. Setting this to true has the following effect: connections
@@ -503,6 +504,7 @@ The default is false.`,
 						},
 						"drop_traffic_if_unhealthy": {
 							Type:     schema.TypeBool,
+							Computed: true,
 							Optional: true,
 							Description: `This option is used only when no healthy VMs are detected in the primary
 and backup instance groups. When set to true, traffic is dropped. When
@@ -3238,7 +3240,7 @@ func expandComputeRegionBackendServiceFailoverPolicy(v interface{}, d TerraformR
 	transformedDisableConnectionDrainOnFailover, err := expandComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disable_connection_drain_on_failover"], d, config)
 	if err != nil {
 		return nil, err
-	} else {
+	} else if val := reflect.ValueOf(transformedDisableConnectionDrainOnFailover); val.IsValid() && !isEmptyValue(val) {
 		transformed["disableConnectionDrainOnFailover"] = transformedDisableConnectionDrainOnFailover
 	}
 
