@@ -269,6 +269,7 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_private_interconnect_info"></a>The `private_interconnect_info` block contains:
 
 * `tag8021q` -
+  (Output)
   802.1q encapsulation tag to be used for traffic between
   Google and the customer, going to and from this network and region.
 

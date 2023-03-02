@@ -719,10 +719,12 @@ The following arguments are supported:
   Structure is [documented below](#nested_time_of_day).
 
 * `last_execute_time` -
+  (Output)
   The time the last patch job ran successfully.
   A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 
 * `next_execute_time` -
+  (Output)
   The time the next patch job is scheduled to run.
   A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 

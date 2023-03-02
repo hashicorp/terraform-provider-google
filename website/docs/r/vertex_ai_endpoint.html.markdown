@@ -150,58 +150,74 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_deployed_models"></a>The `deployed_models` block contains:
 
 * `dedicated_resources` -
+  (Output)
   A description of resources that are dedicated to the DeployedModel, and that need a higher degree of manual configuration.
   Structure is [documented below](#nested_dedicated_resources).
 
 * `automatic_resources` -
+  (Output)
   A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration.
   Structure is [documented below](#nested_automatic_resources).
 
 * `id` -
+  (Output)
   The ID of the DeployedModel. If not provided upon deployment, Vertex AI will generate a value for this ID. This value should be 1-10 characters, and valid characters are /[0-9]/.
 
 * `model` -
+  (Output)
   The name of the Model that this is the deployment of. Note that the Model may be in a different location than the DeployedModel's Endpoint.
 
 * `model_version_id` -
+  (Output)
   Output only. The version ID of the model that is deployed.
 
 * `display_name` -
+  (Output)
   The display name of the DeployedModel. If not provided upon creation, the Model's display_name is used.
 
 * `create_time` -
+  (Output)
   Output only. Timestamp when the DeployedModel was created.
 
 * `service_account` -
+  (Output)
   The service account that the DeployedModel's container runs as. Specify the email address of the service account. If this service account is not specified, the container runs as a service account that doesn't have access to the resource project. Users deploying the Model must have the `iam.serviceAccounts.actAs` permission on this service account.
 
 * `enable_access_logging` -
+  (Output)
   These logs are like standard server access logs, containing information like timestamp and latency for each prediction request. Note that Stackdriver logs may incur a cost, especially if your project receives prediction requests at a high queries per second rate (QPS). Estimate your costs before enabling this option.
 
 * `private_endpoints` -
+  (Output)
   Output only. Provide paths for users to send predict/explain/health requests directly to the deployed model services running on Cloud via private services access. This field is populated if network is configured.
   Structure is [documented below](#nested_private_endpoints).
 
 * `shared_resources` -
+  (Output)
   The resource name of the shared DeploymentResourcePool to deploy on. Format: projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
 * `enable_container_logging` -
+  (Output)
   If true, the container of the DeployedModel instances will send `stderr` and `stdout` streams to Stackdriver Logging. Only supported for custom-trained Models and AutoML Tabular Models.
 
 
 <a name="nested_dedicated_resources"></a>The `dedicated_resources` block contains:
 
 * `machine_spec` -
+  (Output)
   The specification of a single machine used by the prediction.
   Structure is [documented below](#nested_machine_spec).
 
 * `min_replica_count` -
+  (Output)
   The minimum number of machine replicas this DeployedModel will be always deployed on. This value must be greater than or equal to 1. If traffic against the DeployedModel increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
 
 * `max_replica_count` -
+  (Output)
   The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many replicas is guaranteed (barring service outages). If traffic against the DeployedModel increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, will use min_replica_count as the default value. The value of this field impacts the charge against Vertex CPU and GPU quotas. Specifically, you will be charged for max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
 
 * `autoscaling_metric_specs` -
+  (Output)
   The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value (default to 60 if not set). At most one entry is allowed per metric. If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and scale up when either metrics exceeds its target value while scale down if both metrics are under their target value. The default target value is 60 for both metrics. If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set. For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.
   Structure is [documented below](#nested_autoscaling_metric_specs).
 
@@ -209,42 +225,53 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_machine_spec"></a>The `machine_spec` block contains:
 
 * `machine_type` -
+  (Output)
   The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required. TODO(rsurowka): Try to better unify the required vs optional.
 
 * `accelerator_type` -
+  (Output)
   The type of accelerator(s) that may be attached to the machine as per accelerator_count. See possible values [here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
 
 * `accelerator_count` -
+  (Output)
   The number of accelerators to attach to the machine.
 
 <a name="nested_autoscaling_metric_specs"></a>The `autoscaling_metric_specs` block contains:
 
 * `metric_name` -
+  (Output)
   The resource metric name. Supported metrics: * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization`
 
 * `target` -
+  (Output)
   The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change. The default value is 60 (representing 60%) if not provided.
 
 <a name="nested_automatic_resources"></a>The `automatic_resources` block contains:
 
 * `min_replica_count` -
+  (Output)
   The minimum number of replicas this DeployedModel will be always deployed on. If traffic against it increases, it may dynamically be deployed onto more replicas up to max_replica_count, and as traffic decreases, some of these extra replicas may be freed. If the requested value is too large, the deployment will error.
 
 * `max_replica_count` -
+  (Output)
   The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many replicas is guaranteed (barring service outages). If traffic against the DeployedModel increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale beyond certain replica number.
 
 <a name="nested_private_endpoints"></a>The `private_endpoints` block contains:
 
 * `predict_http_uri` -
+  (Output)
   Output only. Http(s) path to send prediction requests.
 
 * `explain_http_uri` -
+  (Output)
   Output only. Http(s) path to send explain requests.
 
 * `health_http_uri` -
+  (Output)
   Output only. Http(s) path to send health check requests.
 
 * `service_attachment` -
+  (Output)
   Output only. The name of the service attachment resource. Populated if private service connect is enabled.
 
 ## Timeouts

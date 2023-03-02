@@ -163,6 +163,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_public_keys).
 
 * `delegation_service_account_email` -
+  (Output)
   This field will contain the service account email address that
   this Attestor will use as the principal when querying Container
   Analysis. Attestor administrators must grant this service account

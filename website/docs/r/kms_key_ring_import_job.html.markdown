@@ -121,15 +121,18 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_public_key"></a>The `public_key` block contains:
 
 * `pem` -
+  (Output)
   The public key, encoded in PEM format. For more information, see the RFC 7468 sections
   for General Considerations and Textual Encoding of Subject Public Key Info.
 
 <a name="nested_attestation"></a>The `attestation` block contains:
 
 * `format` -
+  (Output)
   The format of the attestation data.
 
 * `content` -
+  (Output)
   The attestation data provided by the HSM when the key operation was performed.
   A base64-encoded string.
 

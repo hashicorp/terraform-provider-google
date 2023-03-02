@@ -823,6 +823,7 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `oauth2_client_secret_sha256` -
+  (Output)
   OAuth2 Client Secret SHA-256 for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
 

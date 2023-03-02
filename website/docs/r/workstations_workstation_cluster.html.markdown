@@ -176,11 +176,13 @@ The following arguments are supported:
   Whether Workstations endpoint is private.
 
 * `cluster_hostname` -
+  (Output)
   Hostname for the workstation cluster. 
   This field will be populated only when private endpoint is enabled. 
   To access workstations in the cluster, create a new DNS zone mapping this domain name to an internal IP address and a forwarding rule mapping that address to the service attachment.
 
 * `service_attachment_uri` -
+  (Output)
   Service attachment URI for the workstation cluster. 
   The service attachemnt is created when private endpoint is enabled. 
   To access workstations in the cluster, configure access to the managed service using (Private Service Connect)[https://cloud.google.com/vpc/docs/configure-private-service-connect-services].
@@ -216,12 +218,15 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_conditions"></a>The `conditions` block contains:
 
 * `code` -
+  (Output)
   The status code, which should be an enum value of google.rpc.Code.
 
 * `message` -
+  (Output)
   Human readable message indicating details about the current status.
 
 * `details` -
+  (Output)
   A list of messages that carry the error details.
 
 ## Timeouts

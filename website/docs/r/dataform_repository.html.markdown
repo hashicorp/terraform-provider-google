@@ -113,6 +113,7 @@ The following arguments are supported:
   The name of the Secret Manager secret version to use as an authentication token for Git operations. Must be in the format projects/*/secrets/*/versions/*.
 
 * `token_status` -
+  (Output)
   Indicates the status of the Git access token. https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories#TokenStatus
 
 ## Attributes Reference

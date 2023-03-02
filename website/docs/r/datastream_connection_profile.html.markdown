@@ -325,6 +325,7 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `client_key_set` -
+  (Output)
   Indicates whether the clientKey field is set.
 
 * `client_certificate` -
@@ -336,6 +337,7 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `client_certificate_set` -
+  (Output)
   Indicates whether the clientCertificate field is set.
 
 * `ca_certificate` -
@@ -345,6 +347,7 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `ca_certificate_set` -
+  (Output)
   Indicates whether the clientKey field is set.
 
 <a name="nested_postgresql_profile"></a>The `postgresql_profile` block supports:

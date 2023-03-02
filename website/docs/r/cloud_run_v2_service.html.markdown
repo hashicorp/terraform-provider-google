@@ -819,71 +819,92 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_terminal_condition"></a>The `terminal_condition` block contains:
 
 * `type` -
+  (Output)
   type is used to communicate the status of the reconciliation process. See also: https://github.com/knative/serving/blob/main/docs/spec/errors.md#error-conditions-and-reporting Types common to all resources include: * "Ready": True when the Resource is ready.
 
 * `state` -
+  (Output)
   State of the condition.
 
 * `message` -
+  (Output)
   Human readable message indicating details about the current status.
 
 * `last_transition_time` -
+  (Output)
   Last time the condition transitioned from one status to another.
 
 * `severity` -
+  (Output)
   How to interpret failures of this condition, one of Error, Warning, Info
 
 * `reason` -
+  (Output)
   A common (service-level) reason for this condition.
 
 * `revision_reason` -
+  (Output)
   A reason for the revision condition.
 
 * `execution_reason` -
+  (Output)
   A reason for the execution condition.
 
 <a name="nested_conditions"></a>The `conditions` block contains:
 
 * `type` -
+  (Output)
   type is used to communicate the status of the reconciliation process. See also: https://github.com/knative/serving/blob/main/docs/spec/errors.md#error-conditions-and-reporting Types common to all resources include: * "Ready": True when the Resource is ready.
 
 * `state` -
+  (Output)
   State of the condition.
 
 * `message` -
+  (Output)
   Human readable message indicating details about the current status.
 
 * `last_transition_time` -
+  (Output)
   Last time the condition transitioned from one status to another.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 * `severity` -
+  (Output)
   How to interpret failures of this condition, one of Error, Warning, Info
 
 * `reason` -
+  (Output)
   A common (service-level) reason for this condition.
 
 * `revision_reason` -
+  (Output)
   A reason for the revision condition.
 
 * `execution_reason` -
+  (Output)
   A reason for the execution condition.
 
 <a name="nested_traffic_statuses"></a>The `traffic_statuses` block contains:
 
 * `type` -
+  (Output)
   The allocation type for this traffic target.
 
 * `revision` -
+  (Output)
   Revision to which this traffic is sent.
 
 * `percent` -
+  (Output)
   Specifies percent of the traffic to this Revision.
 
 * `tag` -
+  (Output)
   Indicates the string used in the URI to exclusively reference this target.
 
 * `uri` -
+  (Output)
   Displays the target URI.
 
 ## Timeouts

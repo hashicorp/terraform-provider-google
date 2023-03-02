@@ -314,9 +314,11 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_connected_endpoints"></a>The `connected_endpoints` block contains:
 
 * `endpoint` -
+  (Output)
   The URL of the consumer forwarding rule.
 
 * `status` -
+  (Output)
   The status of the connection from the consumer forwarding rule to
   this service attachment.
 

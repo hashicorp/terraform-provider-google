@@ -119,9 +119,11 @@ The following arguments are supported:
   behavior.
 
 * `create_time` -
+  (Output)
   Time the AccessPolicy was created in UTC.
 
 * `update_time` -
+  (Output)
   Time the AccessPolicy was updated in UTC.
 
 * `perimeter_type` -

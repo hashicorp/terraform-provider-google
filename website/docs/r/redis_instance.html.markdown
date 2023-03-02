@@ -425,6 +425,7 @@ The following arguments are supported:
   Possible values are `ONE_HOUR`, `SIX_HOURS`, `TWELVE_HOURS`, and `TWENTY_FOUR_HOURS`.
 
 * `rdb_next_snapshot_time` -
+  (Output)
   Output only. The next time that a snapshot attempt is scheduled to occur.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up
   to nine fractional digits.
@@ -442,11 +443,13 @@ The following arguments are supported:
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 
 * `create_time` -
+  (Output)
   Output only. The time when the policy was created.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
   resolution and up to nine fractional digits.
 
 * `update_time` -
+  (Output)
   Output only. The time when the policy was last updated.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
   resolution and up to nine fractional digits.
@@ -481,6 +484,7 @@ The following arguments are supported:
   Possible values are `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
 * `duration` -
+  (Output)
   Output only. Duration of the maintenance window.
   The current window is fixed at 1 hour.
   A duration in seconds with up to nine fractional digits,
@@ -515,16 +519,19 @@ The following arguments are supported:
 <a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block supports:
 
 * `start_time` -
+  (Output)
   Output only. The start time of any upcoming scheduled maintenance for this instance.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
   resolution and up to nine fractional digits.
 
 * `end_time` -
+  (Output)
   Output only. The end time of any upcoming scheduled maintenance for this instance.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
   resolution and up to nine fractional digits.
 
 * `schedule_deadline_time` -
+  (Output)
   Output only. The deadline that the maintenance schedule start time
   can not go beyond, including reschedule.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
@@ -581,26 +588,33 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_server_ca_certs"></a>The `server_ca_certs` block contains:
 
 * `serial_number` -
+  (Output)
   Serial number, as extracted from the certificate.
 
 * `cert` -
+  (Output)
   The certificate data in PEM format.
 
 * `create_time` -
+  (Output)
   The time when the certificate was created.
 
 * `expire_time` -
+  (Output)
   The time when the certificate expires.
 
 * `sha1_fingerprint` -
+  (Output)
   Sha1 Fingerprint of the certificate.
 
 <a name="nested_nodes"></a>The `nodes` block contains:
 
 * `id` -
+  (Output)
   Node identifying string. e.g. 'node-0', 'node-1'
 
 * `zone` -
+  (Output)
   Location of the node.
 
 ## Timeouts

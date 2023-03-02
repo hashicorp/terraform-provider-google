@@ -228,6 +228,7 @@ The following arguments are supported:
   * gs://another_bucket/a.txt: matches gs://another_bucket/a.txt
 
 * `sample_gcs_file_specs` -
+  (Output)
   Sample files contained in this fileset, not all files contained in this fileset are represented here.
   Structure is [documented below](#nested_sample_gcs_file_specs).
 
@@ -235,9 +236,11 @@ The following arguments are supported:
 <a name="nested_sample_gcs_file_specs"></a>The `sample_gcs_file_specs` block contains:
 
 * `file_path` -
+  (Output)
   The full file path
 
 * `size_bytes` -
+  (Output)
   The size of the file, in bytes.
 
 ## Attributes Reference
@@ -267,13 +270,16 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_bigquery_table_spec"></a>The `bigquery_table_spec` block contains:
 
 * `table_source_type` -
+  (Output)
   The table source type.
 
 * `view_spec` -
+  (Output)
   Table view specification. This field should only be populated if tableSourceType is BIGQUERY_VIEW.
   Structure is [documented below](#nested_view_spec).
 
 * `table_spec` -
+  (Output)
   Spec of a BigQuery table. This field should only be populated if tableSourceType is BIGQUERY_TABLE.
   Structure is [documented below](#nested_table_spec).
 
@@ -281,11 +287,13 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_view_spec"></a>The `view_spec` block contains:
 
 * `view_query` -
+  (Output)
   The query that defines the table view.
 
 <a name="nested_table_spec"></a>The `table_spec` block contains:
 
 * `grouped_entry` -
+  (Output)
   If the table is a dated shard, i.e., with name pattern [prefix]YYYYMMDD, groupedEntry is the
   Data Catalog resource name of the date sharded grouped entry, for example,
   projects/{project_id}/locations/{location}/entrygroups/{entryGroupId}/entries/{entryId}.
@@ -294,14 +302,17 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_bigquery_date_sharded_spec"></a>The `bigquery_date_sharded_spec` block contains:
 
 * `dataset` -
+  (Output)
   The Data Catalog resource name of the dataset entry the current table belongs to, for example,
   projects/{project_id}/locations/{location}/entrygroups/{entryGroupId}/entries/{entryId}
 
 * `table_prefix` -
+  (Output)
   The table name prefix of the shards. The name of any given shard is [tablePrefix]YYYYMMDD,
   for example, for shard MyTable20180101, the tablePrefix is MyTable.
 
 * `shard_count` -
+  (Output)
   Total number of shards.
 
 ## Timeouts

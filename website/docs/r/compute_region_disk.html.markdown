@@ -197,6 +197,7 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
+  (Output)
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
@@ -216,6 +217,7 @@ The following arguments are supported:
   The name of the encryption key that is stored in Google Cloud KMS.
 
 * `sha256` -
+  (Output)
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 

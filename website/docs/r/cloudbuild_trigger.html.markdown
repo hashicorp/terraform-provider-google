@@ -888,6 +888,7 @@ The following arguments are supported:
 <a name="nested_pubsub_config"></a>The `pubsub_config` block supports:
 
 * `subscription` -
+  (Output)
   Output only. Name of the subscription.
 
 * `topic` -
@@ -899,6 +900,7 @@ The following arguments are supported:
   Service account that will make the push request.
 
 * `state` -
+  (Output)
   Potential issues with the underlying Pub/Sub subscription configuration.
   Only populated on get requests.
 
@@ -909,6 +911,7 @@ The following arguments are supported:
   Resource name for the secret required as a URL parameter.
 
 * `state` -
+  (Output)
   Potential issues with the underlying Pub/Sub subscription configuration.
   Only populated on get requests.
 
@@ -1236,6 +1239,7 @@ The following arguments are supported:
   Path globs used to match files in the build's workspace.
 
 * `timing` -
+  (Output)
   Output only. Stores timing information for pushing all artifact objects.
   Structure is [documented below](#nested_timing).
 

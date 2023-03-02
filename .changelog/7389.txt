@@ -1,0 +1,3 @@
+```release-note:note
+updated documentation to mark attribute fields contained in block arguments as outputs
+```

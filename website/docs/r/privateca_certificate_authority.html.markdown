@@ -675,10 +675,12 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_access_urls"></a>The `access_urls` block contains:
 
 * `ca_certificate_access_url` -
+  (Output)
   The URL where this CertificateAuthority's CA certificate is published. This will only be
   set for CAs that have been activated.
 
 * `crl_access_urls` -
+  (Output)
   The URL where this CertificateAuthority's CRLs are published. This will only be set for
   CAs that have been activated.
 

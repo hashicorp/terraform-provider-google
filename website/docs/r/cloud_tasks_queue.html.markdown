@@ -146,6 +146,7 @@ The following arguments are supported:
   By default, the task is sent to an instance which is available when the task is attempted.
 
 * `host` -
+  (Output)
   The host that the task is sent to.
 
 <a name="nested_rate_limits"></a>The `rate_limits` block supports:
@@ -163,6 +164,7 @@ The following arguments are supported:
   concurrent requests decreases.
 
 * `max_burst_size` -
+  (Output)
   The max burst size.
   Max burst size limits how fast tasks in queue are processed when many tasks are
   in the queue and the rate is high. This field allows the queue to have a high

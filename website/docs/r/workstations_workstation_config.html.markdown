@@ -576,12 +576,15 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_conditions"></a>The `conditions` block contains:
 
 * `code` -
+  (Output)
   The status code, which should be an enum value of google.rpc.Code.
 
 * `message` -
+  (Output)
   Human readable message indicating details about the current status.
 
 * `details` -
+  (Output)
   A list of messages that carry the error details.
 
 ## Timeouts

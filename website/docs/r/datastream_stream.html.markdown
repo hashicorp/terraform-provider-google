@@ -650,6 +650,7 @@ The following arguments are supported:
   https://dev.mysql.com/doc/refman/8.0/en/data-types.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `collation` -
@@ -712,6 +713,7 @@ The following arguments are supported:
   https://dev.mysql.com/doc/refman/8.0/en/data-types.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `collation` -
@@ -805,24 +807,31 @@ The following arguments are supported:
   https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `precision` -
+  (Output)
   Column precision.
 
 * `scale` -
+  (Output)
   Column scale.
 
 * `encoding` -
+  (Output)
   Column encoding.
 
 * `primary_key` -
+  (Output)
   Whether or not the column represents a primary key.
 
 * `nullable` -
+  (Output)
   Whether or not the column can accept a null value.
 
 * `ordinal_position` -
+  (Output)
   The ordinal position of the column in the table.
 
 <a name="nested_exclude_objects"></a>The `exclude_objects` block supports:
@@ -869,24 +878,31 @@ The following arguments are supported:
   https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `precision` -
+  (Output)
   Column precision.
 
 * `scale` -
+  (Output)
   Column scale.
 
 * `encoding` -
+  (Output)
   Column encoding.
 
 * `primary_key` -
+  (Output)
   Whether or not the column represents a primary key.
 
 * `nullable` -
+  (Output)
   Whether or not the column can accept a null value.
 
 * `ordinal_position` -
+  (Output)
   The ordinal position of the column in the table.
 
 <a name="nested_postgresql_source_config"></a>The `postgresql_source_config` block supports:
@@ -961,12 +977,15 @@ The following arguments are supported:
   https://www.postgresql.org/docs/current/datatype.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `precision` -
+  (Output)
   Column precision.
 
 * `scale` -
+  (Output)
   Column scale.
 
 * `primary_key` -
@@ -1025,12 +1044,15 @@ The following arguments are supported:
   https://www.postgresql.org/docs/current/datatype.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `precision` -
+  (Output)
   Column precision.
 
 * `scale` -
+  (Output)
   Column scale.
 
 * `primary_key` -
@@ -1241,6 +1263,7 @@ The following arguments are supported:
   https://dev.mysql.com/doc/refman/8.0/en/data-types.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `collation` -
@@ -1303,12 +1326,15 @@ The following arguments are supported:
   https://www.postgresql.org/docs/current/datatype.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `precision` -
+  (Output)
   Column precision.
 
 * `scale` -
+  (Output)
   Column scale.
 
 * `primary_key` -
@@ -1367,24 +1393,31 @@ The following arguments are supported:
   https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
 
 * `length` -
+  (Output)
   Column length.
 
 * `precision` -
+  (Output)
   Column precision.
 
 * `scale` -
+  (Output)
   Column scale.
 
 * `encoding` -
+  (Output)
   Column encoding.
 
 * `primary_key` -
+  (Output)
   Whether or not the column represents a primary key.
 
 * `nullable` -
+  (Output)
   Whether or not the column can accept a null value.
 
 * `ordinal_position` -
+  (Output)
   The ordinal position of the column in the table.
 
 ## Attributes Reference

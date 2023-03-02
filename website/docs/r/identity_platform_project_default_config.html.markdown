@@ -96,6 +96,7 @@ The following arguments are supported:
   Whether to allow more than one account to have the same email.
 
 * `hash_config` -
+  (Output)
   Output only. Hash config information.
   Structure is [documented below](#nested_hash_config).
 
@@ -131,18 +132,23 @@ The following arguments are supported:
 <a name="nested_hash_config"></a>The `hash_config` block contains:
 
 * `algorithm` -
+  (Output)
   Different password hash algorithms used in Identity Toolkit.
 
 * `signer_key` -
+  (Output)
   Signer key in base64.
 
 * `salt_separator` -
+  (Output)
   Non-printable character to be inserted between the salt and plain text password in base64.
 
 * `rounds` -
+  (Output)
   How many rounds for hash calculation. Used by scrypt and other similar password derivation algorithms.
 
 * `memory_cost` -
+  (Output)
   Memory cost for hash calculation. Used by scrypt and other similar password derivation algorithms. See https://tools.ietf.org/html/rfc7914 for explanation of field.
 
 ## Attributes Reference

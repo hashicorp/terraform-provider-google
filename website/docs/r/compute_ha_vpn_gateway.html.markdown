@@ -170,6 +170,7 @@ The following arguments are supported:
   The numeric ID of this VPN gateway interface.
 
 * `ip_address` -
+  (Output)
   The external IP address for this VPN gateway interface.
 
 * `interconnect_attachment` -

@@ -98,6 +98,7 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_state"></a>The `state` block contains:
 
 * `disk_utilization_bytes` -
+  (Output)
   The disk utilization of the MetadataStore in bytes.
 
 ## Timeouts

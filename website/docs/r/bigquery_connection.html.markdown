@@ -293,6 +293,7 @@ The following arguments are supported:
   Possible values are `DATABASE_TYPE_UNSPECIFIED`, `POSTGRES`, and `MYSQL`.
 
 * `service_account_id` -
+  (Output)
   When the connection is used in the context of an operation in BigQuery, this service account will serve as the identity being used for connecting to the CloudSQL instance specified in this connection.
 
 
@@ -322,17 +323,21 @@ The following arguments are supported:
   The user’s AWS IAM Role that trusts the Google-owned AWS IAM user Connection.
 
 * `identity` -
+  (Output)
   A unique Google-owned and Google-generated identity for the Connection. This identity will be used to access the user's AWS IAM Role.
 
 <a name="nested_azure"></a>The `azure` block supports:
 
 * `application` -
+  (Output)
   The name of the Azure Active Directory Application.
 
 * `client_id` -
+  (Output)
   The client id of the Azure Active Directory Application.
 
 * `object_id` -
+  (Output)
   The object id of the Azure Active Directory Application.
 
 * `customer_tenant_id` -
@@ -344,9 +349,11 @@ The following arguments are supported:
   The Azure Application (client) ID where the federated credentials will be hosted.
 
 * `redirect_uri` -
+  (Output)
   The URL user will be redirected to after granting consent during connection setup.
 
 * `identity` -
+  (Output)
   A unique Google-owned and Google-generated identity for the Connection. This identity will be used to access the user's Azure Active Directory Application.
 
 <a name="nested_cloud_spanner"></a>The `cloud_spanner` block supports:
@@ -366,6 +373,7 @@ The following arguments are supported:
 <a name="nested_cloud_resource"></a>The `cloud_resource` block supports:
 
 * `service_account_id` -
+  (Output)
   The account ID of the service created for the purpose of this connection.
 
 ## Attributes Reference
