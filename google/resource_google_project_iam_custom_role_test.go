@@ -136,7 +136,7 @@ func testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t *testing.T) func(s 
 				continue
 			}
 
-			role, err := config.NewIamClient(config.userAgent).Projects.Roles.Get(rs.Primary.ID).Do()
+			role, err := config.NewIamClient(config.UserAgent).Projects.Roles.Get(rs.Primary.ID).Do()
 
 			if err != nil {
 				return err
@@ -164,7 +164,7 @@ func testAccCheckGoogleProjectIamCustomRoleDeletionStatus(t *testing.T, n string
 		}
 
 		config := googleProviderConfig(t)
-		role, err := config.NewIamClient(config.userAgent).Projects.Roles.Get(rs.Primary.ID).Do()
+		role, err := config.NewIamClient(config.UserAgent).Projects.Roles.Get(rs.Primary.ID).Do()
 
 		if err != nil {
 			return err

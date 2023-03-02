@@ -32,7 +32,7 @@ func (w *IAMWorkforcePoolOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.IAMWorkforcePoolBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
 
 func createIAMWorkforcePoolWaiter(config *Config, op map[string]interface{}, activity, userAgent string) (*IAMWorkforcePoolOperationWaiter, error) {
@@ -46,7 +46,7 @@ func createIAMWorkforcePoolWaiter(config *Config, op map[string]interface{}, act
 	return w, nil
 }
 
-func iAMWorkforcePoolOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func IAMWorkforcePoolOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

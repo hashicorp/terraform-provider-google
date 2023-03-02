@@ -34,7 +34,7 @@ func (w *NotebooksOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.NotebooksBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createNotebooksWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*NotebooksOperationWaiter, error) {
@@ -50,7 +50,7 @@ func createNotebooksWaiter(config *Config, op map[string]interface{}, project, a
 }
 
 // nolint: deadcode,unused
-func notebooksOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func NotebooksOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createNotebooksWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func notebooksOperationWaitTimeWithResponse(config *Config, op map[string]interf
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func notebooksOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func NotebooksOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

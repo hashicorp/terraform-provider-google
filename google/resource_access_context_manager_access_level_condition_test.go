@@ -58,7 +58,7 @@ func testAccCheckAccessContextManagerAccessLevelConditionPresent(t *testing.T, n
 			return err
 		}
 
-		al, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+		al, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err != nil {
 			return err
 		}
@@ -86,7 +86,7 @@ func testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t *test
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			_, err = SendRequest(config, "GET", "", url, config.UserAgent, nil)
 			if err == nil {
 				return fmt.Errorf("AccessLevel still exists at %s", url)
 			}

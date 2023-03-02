@@ -96,7 +96,7 @@ func getRouterLockName(region string, router string) string {
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resource string) error {
-	if isGoogleApiErrorWithCode(err, 404) {
+	if IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[WARN] Removing %s because it's gone", resource)
 		// The resource doesn't exist anymore
 		d.SetId("")
@@ -108,7 +108,7 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
 }
 
-func isGoogleApiErrorWithCode(err error, errCode int) bool {
+func IsGoogleApiErrorWithCode(err error, errCode int) bool {
 	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
 	return ok && gerr != nil && gerr.Code == errCode
 }
@@ -324,7 +324,7 @@ func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Re
 	return merged, err
 }
 
-func stringToFixed64(v string) (int64, error) {
+func StringToFixed64(v string) (int64, error) {
 	return strconv.ParseInt(v, 10, 64)
 }
 
@@ -381,7 +381,7 @@ func serviceAccountFQN(serviceAccount string, d TerraformResourceData, config *C
 }
 
 func paginatedListRequest(project, baseUrl, userAgent string, config *Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
-	res, err := sendRequest(config, "GET", project, baseUrl, userAgent, nil)
+	res, err := SendRequest(config, "GET", project, baseUrl, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -393,7 +393,7 @@ func paginatedListRequest(project, baseUrl, userAgent string, config *Config, fl
 			break
 		}
 		url := fmt.Sprintf("%s?pageToken=%s", baseUrl, pageToken.(string))
-		res, err = sendRequest(config, "GET", project, url, userAgent, nil)
+		res, err = SendRequest(config, "GET", project, url, userAgent, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -521,7 +521,7 @@ func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
 
 	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
 	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
-	res, err := sendRequest(config, "GET", "NO_BILLING_PROJECT_OVERRIDE", "https://openidconnect.googleapis.com/v1/userinfo", userAgent, nil)
+	res, err := SendRequest(config, "GET", "NO_BILLING_PROJECT_OVERRIDE", "https://openidconnect.googleapis.com/v1/userinfo", userAgent, nil)
 
 	if err != nil {
 		return "", fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)

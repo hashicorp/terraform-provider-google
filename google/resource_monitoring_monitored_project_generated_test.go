@@ -92,7 +92,7 @@ func testAccCheckMonitoringMonitoredProjectDestroyProducer(t *testing.T) func(s 
 				CreateTime:   dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
 			}
 
-			client := NewDCLMonitoringClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLMonitoringClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetMonitoredProject(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_monitoring_monitored_project still exists %v", obj)

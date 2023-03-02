@@ -23,7 +23,7 @@ func (w *VertexAIOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/%s", region, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createVertexAIWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*VertexAIOperationWaiter, error) {
@@ -39,7 +39,7 @@ func createVertexAIWaiter(config *Config, op map[string]interface{}, project, ac
 }
 
 // nolint: deadcode,unused
-func vertexAIOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VertexAIOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createVertexAIWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func vertexAIOperationWaitTimeWithResponse(config *Config, op map[string]interfa
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func vertexAIOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VertexAIOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

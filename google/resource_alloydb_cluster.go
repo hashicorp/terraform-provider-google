@@ -281,7 +281,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Cluster: %s", err)
 	}
@@ -349,7 +349,7 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	err = alloydbOperationWaitTime(
+	err = AlloydbOperationWaitTime(
 		config, res, project, "Creating Cluster", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
@@ -366,7 +366,7 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -389,7 +389,7 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AlloydbCluster %q", d.Id()))
 	}
@@ -431,7 +431,7 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -505,7 +505,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Cluster %q: %s", d.Id(), err)
@@ -513,7 +513,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		log.Printf("[DEBUG] Finished updating Cluster %q: %#v", d.Id(), res)
 	}
 
-	err = alloydbOperationWaitTime(
+	err = AlloydbOperationWaitTime(
 		config, res, project, "Updating Cluster", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -526,7 +526,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -552,12 +552,12 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Cluster")
 	}
 
-	err = alloydbOperationWaitTime(
+	err = AlloydbOperationWaitTime(
 		config, res, project, "Deleting Cluster", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
@@ -694,7 +694,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interf
 func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -711,7 +711,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v i
 func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -728,7 +728,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesMinutes(v
 func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -745,7 +745,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesSeconds(v
 func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -792,7 +792,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetention(v interfac
 func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

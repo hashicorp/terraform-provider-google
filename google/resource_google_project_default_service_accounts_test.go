@@ -194,7 +194,7 @@ resource "google_project_default_service_accounts" "acceptance" {
 func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, project, action string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
-		response, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.List(prefixedProject(project)).Do()
+		response, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.List(PrefixedProject(project)).Do()
 		if err != nil {
 			return fmt.Errorf("failed to list service accounts on project %q: %v", project, err)
 		}
@@ -208,7 +208,7 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 				case "DELETE":
 					return fmt.Errorf("compute engine default service account is not deleted")
 				case "DEPRIVILEGE":
-					iamPolicy, err := config.NewResourceManagerClient(config.userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
+					iamPolicy, err := config.NewResourceManagerClient(config.UserAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
 					if err != nil {
 						return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
 					}
@@ -231,7 +231,7 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 func testAccCheckGoogleProjectDefaultServiceAccountsRevert(t *testing.T, project, action string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
-		response, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.List(prefixedProject(project)).Do()
+		response, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.List(PrefixedProject(project)).Do()
 		if err != nil {
 			return fmt.Errorf("failed to list service accounts on project %q: %v", project, err)
 		}

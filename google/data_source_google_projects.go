@@ -63,7 +63,7 @@ func DataSourceGoogleProjects() *schema.Resource {
 
 func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 
-		res, err := sendRequest(config, "GET", "", url, userAgent, nil)
+		res, err := SendRequest(config, "GET", "", url, userAgent, nil)
 		if err != nil {
 			return fmt.Errorf("Error retrieving projects: %s", err)
 		}

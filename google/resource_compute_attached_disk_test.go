@@ -128,7 +128,7 @@ func testCheckAttachedDiskIsNowDetached(t *testing.T, instanceName, diskName str
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		instance, err := config.NewComputeClient(config.userAgent).Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
+		instance, err := config.NewComputeClient(config.UserAgent).Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
 		if err != nil {
 			return err
 		}
@@ -146,7 +146,7 @@ func testCheckAttachedDiskContainsManyDisks(t *testing.T, instanceName string, c
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		instance, err := config.NewComputeClient(config.userAgent).Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
+		instance, err := config.NewComputeClient(config.UserAgent).Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
 		if err != nil {
 			return err
 		}

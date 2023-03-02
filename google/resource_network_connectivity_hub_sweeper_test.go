@@ -58,7 +58,7 @@ func testSweepNetworkConnectivityHub(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLNetworkConnectivityClient(config, config.userAgent, "", 0)
+	client := NewDCLNetworkConnectivityClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllHub(context.Background(), d["project"], isDeletableNetworkConnectivityHub)
 	if err != nil {
 		return err

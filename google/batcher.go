@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/errwrap"
 )
 
-const defaultBatchSendIntervalSec = 3
+const DefaultBatchSendIntervalSec = 3
 
 // RequestBatcher keeps track of batched requests globally.
 // It should be created at a provider level. In general, one
@@ -98,8 +98,8 @@ type batchSubscriber struct {
 
 // batchingConfig contains user configuration for controlling batch requests.
 type batchingConfig struct {
-	sendAfter      time.Duration
-	enableBatching bool
+	SendAfter      time.Duration
+	EnableBatching bool
 }
 
 // Initializes a new batcher.
@@ -161,7 +161,7 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	if request.SendF == nil {
 		return nil, fmt.Errorf("error, cannot request batching for BatchRequest with nil SendF")
 	}
-	if !b.enableBatching {
+	if !b.EnableBatching {
 		log.Printf("[DEBUG] Batching is disabled, sending single request for %q", request.DebugId)
 		return request.SendF(request.ResourceName, request.Body)
 	}
@@ -243,7 +243,7 @@ func (b *RequestBatcher) registerBatchRequest(batchKey string, newRequest *Batch
 	}
 
 	// Start a timer to send the request
-	b.batches[batchKey].timer = time.AfterFunc(b.sendAfter, func() {
+	b.batches[batchKey].timer = time.AfterFunc(b.SendAfter, func() {
 		batch := b.popBatch(batchKey)
 		if batch == nil {
 			log.Printf("[ERROR] batch should have been added to saved batches - just run as single request %q", newRequest.DebugId)

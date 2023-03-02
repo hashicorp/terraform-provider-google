@@ -101,7 +101,7 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, en
 		modifyF := func(ep *cloudresourcemanager.Policy) error {
 			cleaned := filterBindingsWithRoleAndCondition(ep.Bindings, binding.Role, binding.Condition)
 			ep.Bindings = append(cleaned, binding)
-			ep.Version = iamPolicyVersion
+			ep.Version = IamPolicyVersion
 			return nil
 		}
 

@@ -430,7 +430,7 @@ func testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t *testing.T) func(s *ter
 				Name:        dcl.StringOrNil(rs.Primary.Attributes["name"]),
 			}
 
-			client := NewDCLRecaptchaEnterpriseClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLRecaptchaEnterpriseClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetKey(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_recaptcha_enterprise_key still exists %v", obj)

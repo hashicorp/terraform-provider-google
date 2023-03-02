@@ -22,10 +22,10 @@ func (w *TagsLocationOperationWaiter) QueryOp() (interface{}, error) {
 	if location != w.CommonOperationWaiter.Op.Name {
 		// Found location in Op.Name, fill it in TagsLocationBasePath and rewrite URL
 		url := fmt.Sprintf("%s%s", strings.Replace(w.Config.TagsLocationBasePath, "{{location}}", location, 1), w.CommonOperationWaiter.Op.Name)
-		return sendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+		return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 	} else {
 		url := fmt.Sprintf("%s%s", w.Config.TagsBasePath, w.CommonOperationWaiter.Op.Name)
-		return sendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+		return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 	}
 }
 
@@ -40,7 +40,7 @@ func createTagsLocationWaiter(config *Config, op map[string]interface{}, activit
 	return w, nil
 }
 
-func tagsLocationOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func TagsLocationOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	w, err := createTagsLocationWaiter(config, op, activity, userAgent)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func tagsLocationOperationWaitTimeWithResponse(config *Config, op map[string]int
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func tagsLocationOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func TagsLocationOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

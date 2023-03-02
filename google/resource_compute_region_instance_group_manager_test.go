@@ -36,7 +36,7 @@ func testSweepComputeRegionInstanceGroupManager(region string) error {
 		return err
 	}
 
-	found, err := config.NewComputeClient(config.userAgent).RegionInstanceGroupManagers.List(config.Project, region).Do()
+	found, err := config.NewComputeClient(config.UserAgent).RegionInstanceGroupManagers.List(config.Project, region).Do()
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -51,7 +51,7 @@ func testSweepComputeRegionInstanceGroupManager(region string) error {
 		}
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err := config.NewComputeClient(config.userAgent).RegionInstanceGroupManagers.Delete(config.Project, region, rigm.Name).Do()
+		_, err := config.NewComputeClient(config.UserAgent).RegionInstanceGroupManagers.Delete(config.Project, region, rigm.Name).Do()
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, rigm.Name, err)
 		} else {
@@ -420,7 +420,7 @@ func testAccCheckRegionInstanceGroupManagerDestroyProducer(t *testing.T) func(s 
 			if rs.Type != "google_compute_region_instance_group_manager" {
 				continue
 			}
-			_, err := config.NewComputeClient(config.userAgent).RegionInstanceGroupManagers.Get(
+			_, err := config.NewComputeClient(config.UserAgent).RegionInstanceGroupManagers.Get(
 				rs.Primary.Attributes["project"], rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("RegionInstanceGroupManager still exists")

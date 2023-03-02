@@ -118,7 +118,7 @@ func testAccCheckGoogleHealthcareDatasetUpdate(t *testing.T, timeZone string) re
 				return err
 			}
 
-			response, err := config.NewHealthcareClient(config.userAgent).Projects.Locations.Datasets.Get(gcpResourceUri).Do()
+			response, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.Get(gcpResourceUri).Do()
 			if err != nil {
 				return fmt.Errorf("Unexpected failure while verifying 'updated' dataset: %s", err)
 			}

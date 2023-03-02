@@ -255,7 +255,7 @@ Format: 'locations/{location}/workforcePools/{workforcePoolId}/providers/{provid
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating WorkforcePoolProvider: %s", err)
 	}
@@ -329,7 +329,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
-	err = iAMWorkforcePoolOperationWaitTime(
+	err = IAMWorkforcePoolOperationWaitTime(
 		config, res, "Creating WorkforcePoolProvider", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
@@ -346,7 +346,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -363,7 +363,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IAMWorkforcePoolWorkforcePoolProvider %q", d.Id()))
 	}
@@ -413,7 +413,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -511,7 +511,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating WorkforcePoolProvider %q: %s", d.Id(), err)
@@ -519,7 +519,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 		log.Printf("[DEBUG] Finished updating WorkforcePoolProvider %q: %#v", d.Id(), res)
 	}
 
-	err = iAMWorkforcePoolOperationWaitTime(
+	err = IAMWorkforcePoolOperationWaitTime(
 		config, res, "Updating WorkforcePoolProvider", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -532,7 +532,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -552,12 +552,12 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderDelete(d *schema.ResourceData,
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "WorkforcePoolProvider")
 	}
 
-	err = iAMWorkforcePoolOperationWaitTime(
+	err = IAMWorkforcePoolOperationWaitTime(
 		config, res, "Deleting WorkforcePoolProvider", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 

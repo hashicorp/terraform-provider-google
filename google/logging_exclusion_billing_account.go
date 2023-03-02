@@ -26,7 +26,7 @@ type BillingAccountLoggingExclusionUpdater struct {
 func NewBillingAccountLoggingExclusionUpdater(d *schema.ResourceData, config *Config) (ResourceLoggingExclusionUpdater, error) {
 	billingAccount := d.Get("billing_account").(string)
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}

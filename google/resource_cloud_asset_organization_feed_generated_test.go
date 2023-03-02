@@ -118,7 +118,7 @@ func testAccCheckCloudAssetOrganizationFeedDestroyProducer(t *testing.T) func(s 
 				billingProject = config.BillingProject
 			}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
 			if err == nil {
 				return fmt.Errorf("CloudAssetOrganizationFeed still exists at %s", url)
 			}

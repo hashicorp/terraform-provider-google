@@ -33,7 +33,7 @@ func (w *AlloydbOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.AlloydbBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createAlloydbWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*AlloydbOperationWaiter, error) {
@@ -48,7 +48,7 @@ func createAlloydbWaiter(config *Config, op map[string]interface{}, project, act
 	return w, nil
 }
 
-func alloydbOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func AlloydbOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

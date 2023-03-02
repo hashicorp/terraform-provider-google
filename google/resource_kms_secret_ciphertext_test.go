@@ -71,7 +71,7 @@ func testAccDecryptSecretDataWithCryptoKey(t *testing.T, s *terraform.State, cry
 		kmsDecryptRequest.AdditionalAuthenticatedData = base64.StdEncoding.EncodeToString([]byte(aad))
 	}
 
-	decryptResponse, err := config.NewKmsClient(config.userAgent).Projects.Locations.KeyRings.CryptoKeys.Decrypt(cryptoKeyId, kmsDecryptRequest).Do()
+	decryptResponse, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.Decrypt(cryptoKeyId, kmsDecryptRequest).Do()
 
 	if err != nil {
 		return "", fmt.Errorf("Error decrypting ciphertext: %s", err)

@@ -11,7 +11,7 @@ import (
 func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
-		userAgent, err := generateUserAgentString(d, config.userAgent)
+		userAgent, err := generateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return nil, err
 		}
@@ -25,7 +25,7 @@ func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta inter
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "POST", project, url, userAgent, nil)
+		res, err := SendRequest(config, "POST", project, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -43,7 +43,7 @@ func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta inter
 func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
-		userAgent, err := generateUserAgentString(d, config.userAgent)
+		userAgent, err := generateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return nil, err
 		}
@@ -57,7 +57,7 @@ func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "POST", project, url, userAgent, nil)
+		res, err := SendRequest(config, "POST", project, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -79,7 +79,7 @@ func findInstanceName(d *schema.ResourceData, config *Config) (string, error) {
 		return "", err
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return "", err
 	}
@@ -98,7 +98,7 @@ func findInstanceName(d *schema.ResourceData, config *Config) (string, error) {
 		} else {
 			urlWithToken = fmt.Sprintf("%s?maxResults=1", url)
 		}
-		res, err := sendRequest(config, "POST", project, urlWithToken, userAgent, nil)
+		res, err := SendRequest(config, "POST", project, urlWithToken, userAgent, nil)
 		if err != nil {
 			return "", err
 		}

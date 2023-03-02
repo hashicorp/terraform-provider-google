@@ -166,7 +166,7 @@ Format: projects/{project}/global/{networks}/{name}`,
 
 func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating PrivateConnection: %s", err)
 	}
@@ -225,7 +225,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = datastreamOperationWaitTimeWithResponse(
+	err = DatastreamOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating PrivateConnection", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -257,7 +257,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 
 func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DatastreamPrivateConnection %q", d.Id()))
 	}
@@ -313,7 +313,7 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 
 func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -339,12 +339,12 @@ func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "PrivateConnection")
 	}
 
-	err = datastreamOperationWaitTime(
+	err = DatastreamOperationWaitTime(
 		config, res, project, "Deleting PrivateConnection", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 

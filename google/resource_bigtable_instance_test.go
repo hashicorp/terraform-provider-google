@@ -383,7 +383,7 @@ func testAccCheckBigtableInstanceDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			config := googleProviderConfig(t)
-			c, err := config.BigTableClientFactory(config.userAgent).NewInstanceAdminClient(config.Project)
+			c, err := config.BigTableClientFactory(config.UserAgent).NewInstanceAdminClient(config.Project)
 			if err != nil {
 				return fmt.Errorf("Error starting instance admin client. %s", err)
 			}

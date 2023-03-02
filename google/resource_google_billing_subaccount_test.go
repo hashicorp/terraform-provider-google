@@ -97,7 +97,7 @@ func testAccCheckGoogleBillingSubaccountExists(bindingResourceName string) resou
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		_, err := config.NewBillingClient(config.userAgent).BillingAccounts.Get(subaccount.Primary.ID).Do()
+		_, err := config.NewBillingClient(config.UserAgent).BillingAccounts.Get(subaccount.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -117,7 +117,7 @@ func testAccCheckGoogleBillingSubaccountRenameOnDestroy(s *terraform.State) erro
 
 		config := testAccProvider.Meta().(*Config)
 
-		res, err := config.NewBillingClient(config.userAgent).BillingAccounts.Get(rs.Primary.ID).Do()
+		res, err := config.NewBillingClient(config.UserAgent).BillingAccounts.Get(rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}

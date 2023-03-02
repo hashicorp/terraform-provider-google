@@ -32,7 +32,7 @@ func testSweepContainerClusters(region string) error {
 	}
 
 	// List clusters for all zones by using "-" as the zone name
-	found, err := config.NewContainerClient(config.userAgent).Projects.Zones.Clusters.List(config.Project, "-").Do()
+	found, err := config.NewContainerClient(config.UserAgent).Projects.Zones.Clusters.List(config.Project, "-").Do()
 	if err != nil {
 		log.Printf("error listing container clusters: %s", err)
 		return nil
@@ -47,7 +47,7 @@ func testSweepContainerClusters(region string) error {
 		if isSweepableTestResource(cluster.Name) {
 			log.Printf("Sweeping Container Cluster: %s", cluster.Name)
 			clusterURL := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", config.Project, cluster.Location, cluster.Name)
-			_, err := config.NewContainerClient(config.userAgent).Projects.Locations.Clusters.Delete(clusterURL).Do()
+			_, err := config.NewContainerClient(config.UserAgent).Projects.Locations.Clusters.Delete(clusterURL).Do()
 
 			if err != nil {
 				log.Printf("Error, failed to delete cluster %s: %s", cluster.Name, err)
@@ -2953,7 +2953,7 @@ func testAccContainerCluster_masterAuthorizedNetworksDisabled(t *testing.T, reso
 		config := googleProviderConfig(t)
 		attributes := rs.Primary.Attributes
 
-		cluster, err := config.NewContainerClient(config.userAgent).Projects.Zones.Clusters.Get(
+		cluster, err := config.NewContainerClient(config.UserAgent).Projects.Zones.Clusters.Get(
 			config.Project, attributes["location"], attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -2977,7 +2977,7 @@ func testAccCheckContainerClusterDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			attributes := rs.Primary.Attributes
-			_, err := config.NewContainerClient(config.userAgent).Projects.Locations.Clusters.Get(
+			_, err := config.NewContainerClient(config.UserAgent).Projects.Locations.Clusters.Get(
 				fmt.Sprintf("projects/%s/locations/%s/clusters/%s", config.Project, attributes["location"], attributes["name"])).Do()
 			if err == nil {
 				return fmt.Errorf("Cluster still exists")

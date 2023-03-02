@@ -168,7 +168,7 @@ func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.Te
 				ProjectId: config.Project,
 			},
 		}
-		_, err := config.NewBigQueryClient(config.userAgent).Tables.Insert(config.Project, datasetID, table).Do()
+		_, err := config.NewBigQueryClient(config.UserAgent).Tables.Insert(config.Project, datasetID, table).Do()
 		if err != nil {
 			return fmt.Errorf("Could not create table")
 		}

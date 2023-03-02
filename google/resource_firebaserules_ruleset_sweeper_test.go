@@ -58,7 +58,7 @@ func testSweepFirebaserulesRuleset(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLFirebaserulesClient(config, config.userAgent, "", 0)
+	client := NewDCLFirebaserulesClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllRuleset(context.Background(), d["project"], isDeletableFirebaserulesRuleset)
 	if err != nil {
 		return err

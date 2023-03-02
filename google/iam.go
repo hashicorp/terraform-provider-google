@@ -17,7 +17,7 @@ import (
 )
 
 const maxBackoffSeconds = 30
-const iamPolicyVersion = 3
+const IamPolicyVersion = 3
 
 // These types are implemented per GCP resource type and specify how to do per-resource IAM operations.
 // They are used in the generic Terraform IAM resource definitions
@@ -84,7 +84,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	for {
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
-		if isGoogleApiErrorWithCode(err, 429) {
+		if IsGoogleApiErrorWithCode(err, 429) {
 			log.Printf("[DEBUG] 429 while attempting to read policy for %s, waiting %v before attempting again", updater.DescribeResource(), backoff)
 			time.Sleep(backoff)
 			continue
@@ -111,7 +111,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 				new_p, err := updater.GetResourceIamPolicy()
 				if err != nil {
 					// Quota for Read is pretty limited, so watch out for running out of quota.
-					if isGoogleApiErrorWithCode(err, 429) {
+					if IsGoogleApiErrorWithCode(err, 429) {
 						fetchBackoff = fetchBackoff * 2
 					} else {
 						return err
@@ -181,7 +181,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 }
 
 // Flattens a list of Bindings so each role+condition has a single Binding with combined members
-func mergeBindings(bindings []*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
+func MergeBindings(bindings []*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
 	bm := createIamBindingsMap(bindings)
 	return listFromIamBindingMap(bm)
 }

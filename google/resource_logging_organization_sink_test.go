@@ -203,7 +203,7 @@ func testAccCheckLoggingOrganizationSinkDestroyProducer(t *testing.T) func(s *te
 
 			attributes := rs.Primary.Attributes
 
-			_, err := config.NewLoggingClient(config.userAgent).Organizations.Sinks.Get(attributes["id"]).Do()
+			_, err := config.NewLoggingClient(config.UserAgent).Organizations.Sinks.Get(attributes["id"]).Do()
 			if err == nil {
 				return fmt.Errorf("organization sink still exists")
 			}
@@ -221,7 +221,7 @@ func testAccCheckLoggingOrganizationSinkExists(t *testing.T, n string, sink *log
 		}
 		config := googleProviderConfig(t)
 
-		si, err := config.NewLoggingClient(config.userAgent).Organizations.Sinks.Get(attributes["id"]).Do()
+		si, err := config.NewLoggingClient(config.UserAgent).Organizations.Sinks.Get(attributes["id"]).Do()
 		if err != nil {
 			return err
 		}

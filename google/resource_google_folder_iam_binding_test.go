@@ -258,7 +258,7 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 	token := ""
 
 	for paginate := true; paginate; {
-		resp, err := config.NewResourceManagerV3Client(config.userAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
+		resp, err := config.NewResourceManagerV3Client(config.UserAgent).Folders.List().Parent(parent).PageSize(300).PageToken(token).Do()
 		if err != nil {
 			return nil, fmt.Errorf("Error reading folder list: %s", err)
 		}
@@ -280,7 +280,7 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 		return nil, fmt.Errorf("Folder not found: %s", displayName)
 	}
 
-	return getFolderIamPolicyByFolderName(folderMatch.Name, config.userAgent, config)
+	return getFolderIamPolicyByFolderName(folderMatch.Name, config.UserAgent, config)
 }
 
 func testAccFolderIamBasic(org, fname string) string {

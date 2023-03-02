@@ -216,7 +216,7 @@ func testAccCheckNetworkConnectivitySpokeDestroyProducer(t *testing.T) func(s *t
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLNetworkConnectivityClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLNetworkConnectivityClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetSpoke(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_network_connectivity_spoke still exists %v", obj)

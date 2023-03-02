@@ -71,7 +71,7 @@ func testServiceNetworkingConnectionDestroy(t *testing.T, parent, network string
 		config := googleProviderConfig(t)
 		parentService := "services/" + parent
 		networkName := fmt.Sprintf("projects/%s/global/networks/%s", getTestProjectFromEnv(), network)
-		listCall := config.NewServiceNetworkingClient(config.userAgent).Services.Connections.List(parentService).Network(networkName)
+		listCall := config.NewServiceNetworkingClient(config.UserAgent).Services.Connections.List(parentService).Network(networkName)
 		if config.UserProjectOverride {
 			listCall.Header().Add("X-Goog-User-Project", getTestProjectFromEnv())
 		}

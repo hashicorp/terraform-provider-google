@@ -111,7 +111,7 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 func testAccCheckPubsubSubscriptionIam(t *testing.T, subscription, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
-		p, err := config.NewPubsubClient(config.userAgent).Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(getTestProjectFromEnv(), subscription)).Do()
+		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(getTestProjectFromEnv(), subscription)).Do()
 		if err != nil {
 			return err
 		}

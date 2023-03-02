@@ -19,7 +19,7 @@ func serviceUsageOperationWait(config *Config, op *serviceusage.Operation, proje
 	if err := json.Unmarshal(b, &m); err != nil {
 		return err
 	}
-	return serviceUsageOperationWaitTime(config, m, project, activity, userAgent, timeout)
+	return ServiceUsageOperationWaitTime(config, m, project, activity, userAgent, timeout)
 }
 
 func handleServiceUsageRetryableError(err error) error {

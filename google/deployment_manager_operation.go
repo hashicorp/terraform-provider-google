@@ -25,7 +25,7 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("cannot query unset/nil operation")
 	}
 
-	resp, err := sendRequest(w.Config, "GET", w.Project, w.Op.SelfLink, w.UserAgent, nil)
+	resp, err := SendRequest(w.Config, "GET", w.Project, w.Op.SelfLink, w.UserAgent, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 	return op, nil
 }
 
-func deploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func DeploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	op := &compute.Operation{}
 	err := Convert(resp, op)
 	if err != nil {

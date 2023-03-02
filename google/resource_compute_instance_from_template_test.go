@@ -225,7 +225,7 @@ func testAccCheckComputeInstanceFromTemplateDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			_, err := config.NewComputeClient(config.userAgent).Instances.Get(
+			_, err := config.NewComputeClient(config.UserAgent).Instances.Get(
 				config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 			if err == nil {
 				return fmt.Errorf("Instance still exists")

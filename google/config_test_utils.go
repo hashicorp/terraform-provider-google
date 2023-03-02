@@ -8,7 +8,7 @@ import (
 // NewTestConfig create a config using the http test server.
 func NewTestConfig(server *httptest.Server) *Config {
 	cfg := &Config{}
-	cfg.client = server.Client()
+	cfg.Client = server.Client()
 	configureTestBasePaths(cfg, server.URL)
 	return cfg
 }

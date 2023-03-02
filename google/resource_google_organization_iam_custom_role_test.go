@@ -130,7 +130,7 @@ func testAccCheckGoogleOrganizationIamCustomRoleDestroyProducer(t *testing.T) fu
 				continue
 			}
 
-			role, err := config.NewIamClient(config.userAgent).Organizations.Roles.Get(rs.Primary.ID).Do()
+			role, err := config.NewIamClient(config.UserAgent).Organizations.Roles.Get(rs.Primary.ID).Do()
 
 			if err != nil {
 				return err
@@ -158,7 +158,7 @@ func testAccCheckGoogleOrganizationIamCustomRole(t *testing.T, n, title, descrip
 		}
 
 		config := googleProviderConfig(t)
-		role, err := config.NewIamClient(config.userAgent).Organizations.Roles.Get(rs.Primary.ID).Do()
+		role, err := config.NewIamClient(config.UserAgent).Organizations.Roles.Get(rs.Primary.ID).Do()
 
 		if err != nil {
 			return err
@@ -198,7 +198,7 @@ func testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(t *testing.T, n s
 		}
 
 		config := googleProviderConfig(t)
-		role, err := config.NewIamClient(config.userAgent).Organizations.Roles.Get(rs.Primary.ID).Do()
+		role, err := config.NewIamClient(config.UserAgent).Organizations.Roles.Get(rs.Primary.ID).Do()
 
 		if err != nil {
 			return err

@@ -18,8 +18,8 @@ import (
 
 var (
 	pname          = "Terraform Acceptance Tests"
-	originalPolicy *cloudresourcemanager.Policy
-	testPrefix     = "tf-test"
+	OriginalPolicy *cloudresourcemanager.Policy
+	TestPrefix     = "tf-test"
 )
 
 func init() {
@@ -51,8 +51,8 @@ func testSweepProject(region string) error {
 	token := ""
 	for paginate := true; paginate; {
 		// Filter for projects with test prefix
-		filter := fmt.Sprintf("id:\"%s*\" -lifecycleState:DELETE_REQUESTED parent.id:%v", testPrefix, org)
-		found, err := config.NewResourceManagerClient(config.userAgent).Projects.List().Filter(filter).PageToken(token).Do()
+		filter := fmt.Sprintf("id:\"%s*\" -lifecycleState:DELETE_REQUESTED parent.id:%v", TestPrefix, org)
+		found, err := config.NewResourceManagerClient(config.UserAgent).Projects.List().Filter(filter).PageToken(token).Do()
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error listing projects: %s", err)
 			return nil
@@ -60,7 +60,7 @@ func testSweepProject(region string) error {
 
 		for _, project := range found.Projects {
 			log.Printf("[INFO][SWEEPER_LOG] Sweeping Project id: %s", project.ProjectId)
-			_, err := config.NewResourceManagerClient(config.userAgent).Projects.Delete(project.ProjectId).Do()
+			_, err := config.NewResourceManagerClient(config.UserAgent).Projects.Delete(project.ProjectId).Do()
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error, failed to delete project %s: %s", project.Name, err)
 				continue
@@ -82,7 +82,7 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
 	}
 
-	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
+	pid := fmt.Sprintf("%s-%d", TestPrefix, randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -104,7 +104,7 @@ func TestAccProject_create(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
+	pid := fmt.Sprintf("%s-%d", TestPrefix, randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -127,10 +127,10 @@ func TestAccProject_billing(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	// This is a second billing account that can be charged, which is used only in this test to
 	// verify that a project can update its billing account.
-	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
+	SkipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
 	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
+	pid := fmt.Sprintf("%s-%d", TestPrefix, randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -172,7 +172,7 @@ func TestAccProject_labels(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
+	pid := fmt.Sprintf("%s-%d", TestPrefix, randInt(t))
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -214,7 +214,7 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
+	pid := fmt.Sprintf("%s-%d", TestPrefix, randInt(t))
 	billingId := getTestBillingAccountFromEnv(t)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -231,8 +231,8 @@ func TestAccProject_parentFolder(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
-	folderDisplayName := testPrefix + randString(t, 10)
+	pid := fmt.Sprintf("%s-%d", TestPrefix, randInt(t))
+	folderDisplayName := TestPrefix + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -248,8 +248,8 @@ func TestAccProject_migrateParent(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
-	folderDisplayName := testPrefix + randString(t, 10)
+	pid := fmt.Sprintf("%s-%d", TestPrefix, randInt(t))
+	folderDisplayName := TestPrefix + randString(t, 10)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -320,9 +320,9 @@ func testAccCheckGoogleProjectHasBillingAccount(t *testing.T, r, pid, billingId 
 		// Actual value in API should match state and expected
 		// Read the billing account
 		config := googleProviderConfig(t)
-		ba, err := config.NewBillingClient(config.userAgent).Projects.GetBillingInfo(prefixedProject(pid)).Do()
+		ba, err := config.NewBillingClient(config.UserAgent).Projects.GetBillingInfo(PrefixedProject(pid)).Do()
 		if err != nil {
-			return fmt.Errorf("Error reading billing account for project %q: %v", prefixedProject(pid), err)
+			return fmt.Errorf("Error reading billing account for project %q: %v", PrefixedProject(pid), err)
 		}
 		if billingId != strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/") {
 			return fmt.Errorf("Billing ID returned by API (%s) did not match expected value (%s)", ba.BillingAccountName, billingId)
@@ -346,7 +346,7 @@ func testAccCheckGoogleProjectHasLabels(t *testing.T, r, pid string, expected ma
 		// Actual value in API should match state and expected
 		config := googleProviderConfig(t)
 
-		found, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(pid).Do()
+		found, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
 		if err != nil {
 			return err
 		}
@@ -388,7 +388,7 @@ func testAccCheckGoogleProjectHasNoLabels(t *testing.T, r, pid string) resource.
 		// Actual value in API should match state and expected
 		config := googleProviderConfig(t)
 
-		found, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(pid).Do()
+		found, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
 		if err != nil {
 			return err
 		}
@@ -497,18 +497,4 @@ resource "google_folder" "folder1" {
   parent       = "organizations/%s"
 }
 `, pid, projectName, org, folderName, org)
-}
-
-func skipIfEnvNotSet(t *testing.T, envs ...string) {
-	if t == nil {
-		log.Printf("[DEBUG] Not running inside of test - skip skipping")
-		return
-	}
-
-	for _, k := range envs {
-		if os.Getenv(k) == "" {
-			log.Printf("[DEBUG] Warning - environment variable %s is not set - skipping test %s", k, t.Name())
-			t.Skipf("Environment variable %s is not set", k)
-		}
-	}
 }

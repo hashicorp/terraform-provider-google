@@ -169,7 +169,7 @@ func testAccCheckClouddeployDeliveryPipelineDestroyProducer(t *testing.T) func(s
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLClouddeployClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLClouddeployClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetDeliveryPipeline(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_clouddeploy_delivery_pipeline still exists %v", obj)

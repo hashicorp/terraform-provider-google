@@ -161,7 +161,7 @@ func testAccCheckComputeNetworkExists(t *testing.T, n string, network *compute.N
 
 		config := googleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.userAgent).Networks.Get(
+		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -190,7 +190,7 @@ func testAccCheckComputeNetworkDefaultRoutesDeleted(t *testing.T, n string, netw
 
 		config := googleProviderConfig(t)
 
-		routes, err := config.NewComputeClient(config.userAgent).Routes.List(config.Project).Filter(fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)).Do()
+		routes, err := config.NewComputeClient(config.UserAgent).Routes.List(config.Project).Filter(fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)).Do()
 		if err != nil {
 			return err
 		}
@@ -207,7 +207,7 @@ func testAccCheckComputeNetworkIsAutoSubnet(t *testing.T, n string, network *com
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.userAgent).Networks.Get(
+		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -229,7 +229,7 @@ func testAccCheckComputeNetworkIsCustomSubnet(t *testing.T, n string, network *c
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.userAgent).Networks.Get(
+		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err
@@ -260,7 +260,7 @@ func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *c
 			return fmt.Errorf("Routing mode not found on resource")
 		}
 
-		found, err := config.NewComputeClient(config.userAgent).Networks.Get(
+		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
 			config.Project, network.Name).Do()
 		if err != nil {
 			return err

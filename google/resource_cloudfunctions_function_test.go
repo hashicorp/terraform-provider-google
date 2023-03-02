@@ -701,7 +701,7 @@ func testAccCheckCloudFunctionsFunctionDestroyProducer(t *testing.T) func(s *ter
 				Region:  region,
 				Name:    name,
 			}
-			_, err := config.NewCloudFunctionsClient(config.userAgent).Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
+			_, err := config.NewCloudFunctionsClient(config.UserAgent).Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 			if err == nil {
 				return fmt.Errorf("Function still exists")
 			}
@@ -731,7 +731,7 @@ func testAccCloudFunctionsFunctionExists(t *testing.T, n string, function *cloud
 			Region:  region,
 			Name:    name,
 		}
-		found, err := config.NewCloudFunctionsClient(config.userAgent).Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
+		found, err := config.NewCloudFunctionsClient(config.UserAgent).Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
 		if err != nil {
 			return fmt.Errorf("CloudFunctions Function not present")
 		}

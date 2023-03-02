@@ -68,7 +68,7 @@ func testAccCheckComputeRegionTargetTcpProxyExists(t *testing.T, n string) resou
 		name := rs.Primary.Attributes["name"]
 		region := rs.Primary.Attributes["region"]
 
-		found, err := config.NewComputeClient(config.userAgent).RegionTargetTcpProxies.Get(
+		found, err := config.NewComputeClient(config.UserAgent).RegionTargetTcpProxies.Get(
 			config.Project, region, name).Do()
 		if err != nil {
 			return err

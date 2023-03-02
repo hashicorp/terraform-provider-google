@@ -64,7 +64,7 @@ func DataSourceGoogleIamTestablePermissions() *schema.Resource {
 
 func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta interface{}) (err error) {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta int
 	for {
 		url := "https://iam.googleapis.com/v1/permissions:queryTestablePermissions"
 		body["fullResourceName"] = d.Get("full_resource_name").(string)
-		res, err := sendRequest(config, "POST", "", url, userAgent, body)
+		res, err := SendRequest(config, "POST", "", url, userAgent, body)
 		if err != nil {
 			return fmt.Errorf("Error retrieving permissions: %s", err)
 		}

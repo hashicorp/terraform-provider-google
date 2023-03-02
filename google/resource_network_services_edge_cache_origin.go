@@ -337,7 +337,7 @@ If the response headers have already been written to the connection, the respons
 
 func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -435,7 +435,7 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating EdgeCacheOrigin: %s", err)
 	}
@@ -447,7 +447,7 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
-	err = networkServicesOperationWaitTime(
+	err = NetworkServicesOperationWaitTime(
 		config, res, project, "Creating EdgeCacheOrigin", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
@@ -464,7 +464,7 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 
 func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -487,7 +487,7 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("NetworkServicesEdgeCacheOrigin %q", d.Id()))
 	}
@@ -538,7 +538,7 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 
 func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -692,7 +692,7 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating EdgeCacheOrigin %q: %s", d.Id(), err)
@@ -700,7 +700,7 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 		log.Printf("[DEBUG] Finished updating EdgeCacheOrigin %q: %#v", d.Id(), res)
 	}
 
-	err = networkServicesOperationWaitTime(
+	err = NetworkServicesOperationWaitTime(
 		config, res, project, "Updating EdgeCacheOrigin", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -713,7 +713,7 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 
 func resourceNetworkServicesEdgeCacheOriginDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -739,12 +739,12 @@ func resourceNetworkServicesEdgeCacheOriginDelete(d *schema.ResourceData, meta i
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "EdgeCacheOrigin")
 	}
 
-	err = networkServicesOperationWaitTime(
+	err = NetworkServicesOperationWaitTime(
 		config, res, project, "Deleting EdgeCacheOrigin", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
@@ -795,7 +795,7 @@ func flattenNetworkServicesEdgeCacheOriginProtocol(v interface{}, d *schema.Reso
 func flattenNetworkServicesEdgeCacheOriginPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -812,7 +812,7 @@ func flattenNetworkServicesEdgeCacheOriginPort(v interface{}, d *schema.Resource
 func flattenNetworkServicesEdgeCacheOriginMaxAttempts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

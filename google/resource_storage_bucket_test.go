@@ -1204,7 +1204,7 @@ func testAccCheckStorageBucketExists(t *testing.T, n string, bucketName string, 
 
 		config := googleProviderConfig(t)
 
-		found, err := config.NewStorageClient(config.userAgent).Buckets.Get(rs.Primary.ID).Do()
+		found, err := config.NewStorageClient(config.UserAgent).Buckets.Get(rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
@@ -1249,7 +1249,7 @@ func testAccCheckStorageBucketPutItem(t *testing.T, bucketName string) resource.
 		object := &storage.Object{Name: "bucketDestroyTestFile"}
 
 		// This needs to use Media(io.Reader) call, otherwise it does not go to /upload API and fails
-		if res, err := config.NewStorageClient(config.userAgent).Objects.Insert(bucketName, object).Media(dataReader).Do(); err == nil {
+		if res, err := config.NewStorageClient(config.UserAgent).Objects.Insert(bucketName, object).Media(dataReader).Do(); err == nil {
 			log.Printf("[INFO] Created object %v at location %v\n\n", res.Name, res.SelfLink)
 		} else {
 			return fmt.Errorf("Objects.Insert failed: %v", err)
@@ -1268,21 +1268,21 @@ func testAccCheckStorageBucketRetentionPolicy(t *testing.T, bucketName string) r
 		object := &storage.Object{Name: "bucketDestroyTestFile"}
 
 		// This needs to use Media(io.Reader) call, otherwise it does not go to /upload API and fails
-		if res, err := config.NewStorageClient(config.userAgent).Objects.Insert(bucketName, object).Media(dataReader).Do(); err == nil {
+		if res, err := config.NewStorageClient(config.UserAgent).Objects.Insert(bucketName, object).Media(dataReader).Do(); err == nil {
 			log.Printf("[INFO] Created object %v at location %v\n\n", res.Name, res.SelfLink)
 		} else {
 			return fmt.Errorf("Objects.Insert failed: %v", err)
 		}
 
 		// Test deleting immediately, this should fail because of the 10 second retention
-		if err := config.NewStorageClient(config.userAgent).Objects.Delete(bucketName, objectName).Do(); err == nil {
+		if err := config.NewStorageClient(config.UserAgent).Objects.Delete(bucketName, objectName).Do(); err == nil {
 			return fmt.Errorf("Objects.Delete succeeded: %v", object.Name)
 		}
 
 		// Wait 10 seconds and delete again
 		time.Sleep(10000 * time.Millisecond)
 
-		if err := config.NewStorageClient(config.userAgent).Objects.Delete(bucketName, object.Name).Do(); err == nil {
+		if err := config.NewStorageClient(config.UserAgent).Objects.Delete(bucketName, object.Name).Do(); err == nil {
 			log.Printf("[INFO] Deleted object %v at location %v\n\n", object.Name, object.SelfLink)
 		} else {
 			return fmt.Errorf("Objects.Delete failed: %v", err)
@@ -1296,7 +1296,7 @@ func testAccCheckStorageBucketMissing(t *testing.T, bucketName string) resource.
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		_, err := config.NewStorageClient(config.userAgent).Buckets.Get(bucketName).Do()
+		_, err := config.NewStorageClient(config.UserAgent).Buckets.Get(bucketName).Do()
 		if err == nil {
 			return fmt.Errorf("Found %s", bucketName)
 		}
@@ -1337,7 +1337,7 @@ func testAccStorageBucketDestroyProducer(t *testing.T) func(s *terraform.State) 
 				continue
 			}
 
-			_, err := config.NewStorageClient(config.userAgent).Buckets.Get(rs.Primary.ID).Do()
+			_, err := config.NewStorageClient(config.UserAgent).Buckets.Get(rs.Primary.ID).Do()
 			if err == nil {
 				return fmt.Errorf("Bucket still exists")
 			}

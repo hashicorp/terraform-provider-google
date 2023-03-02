@@ -21,7 +21,7 @@ func (w *ServiceNetworkingOperationWaiter) QueryOp() (interface{}, error) {
 	return opGetCall.Do()
 }
 
-func serviceNetworkingOperationWaitTime(config *Config, op *servicenetworking.Operation, activity, userAgent, project string, timeout time.Duration) error {
+func ServiceNetworkingOperationWaitTime(config *Config, op *servicenetworking.Operation, activity, userAgent, project string, timeout time.Duration) error {
 	w := &ServiceNetworkingOperationWaiter{
 		Service:             config.NewServiceNetworkingClient(userAgent),
 		Project:             project,

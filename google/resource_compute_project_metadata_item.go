@@ -59,7 +59,7 @@ func ResourceComputeProjectMetadataItem() *schema.Resource {
 
 func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 
 func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 
 func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 
 func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -221,7 +221,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID, key, userAge
 
 		log.Printf("[DEBUG] SetCommonInstanceMetadata: %d (%s)", op.Id, op.SelfLink)
 
-		return computeOperationWaitTime(config, op, project.Name, "SetCommonInstanceMetadata", userAgent, timeout)
+		return ComputeOperationWaitTime(config, op, project.Name, "SetCommonInstanceMetadata", userAgent, timeout)
 	}
 
 	return MetadataRetryWrapper(updateMD)

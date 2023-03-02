@@ -336,8 +336,8 @@ func TestAccStorageObjectAcl_noOwner(t *testing.T) {
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		c, diagnostics := oldConfigureFunc(ctx, d)
 		config := c.(*Config)
-		roundTripper := &testRoundTripper{RoundTripper: config.client.Transport, bucketName: bucketName, objectName: objectName}
-		config.client.Transport = roundTripper
+		roundTripper := &testRoundTripper{RoundTripper: config.Client.Transport, bucketName: bucketName, objectName: objectName}
+		config.Client.Transport = roundTripper
 		return c, diagnostics
 	}
 	providers := map[string]*schema.Provider{
@@ -365,7 +365,7 @@ func testAccCheckGoogleStorageObjectAcl(t *testing.T, bucket, object, roleEntity
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		res, err := config.NewStorageClient(config.userAgent).ObjectAccessControls.Get(bucket,
+		res, err := config.NewStorageClient(config.UserAgent).ObjectAccessControls.Get(bucket,
 			object, roleEntity.Entity).Do()
 
 		if err != nil {
@@ -385,7 +385,7 @@ func testAccCheckGoogleStorageObjectAclDelete(t *testing.T, bucket, object, role
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		_, err := config.NewStorageClient(config.userAgent).ObjectAccessControls.Get(bucket,
+		_, err := config.NewStorageClient(config.UserAgent).ObjectAccessControls.Get(bucket,
 			object, roleEntity.Entity).Do()
 
 		if err != nil {
@@ -408,7 +408,7 @@ func testAccStorageObjectAclDestroyProducer(t *testing.T) func(s *terraform.Stat
 			bucket := rs.Primary.Attributes["bucket"]
 			object := rs.Primary.Attributes["object"]
 
-			_, err := config.NewStorageClient(config.userAgent).ObjectAccessControls.List(bucket, object).Do()
+			_, err := config.NewStorageClient(config.UserAgent).ObjectAccessControls.List(bucket, object).Do()
 
 			if err == nil {
 				return fmt.Errorf("Acl for bucket %s still exists", bucket)

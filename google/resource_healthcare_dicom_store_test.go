@@ -169,7 +169,7 @@ func testAccCheckGoogleHealthcareDicomStoreUpdate(t *testing.T, pubsubTopic stri
 				return err
 			}
 
-			response, err := config.NewHealthcareClient(config.userAgent).Projects.Locations.Datasets.DicomStores.Get(gcpResourceUri).Do()
+			response, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.DicomStores.Get(gcpResourceUri).Do()
 			if err != nil {
 				return fmt.Errorf("Unexpected failure while verifying 'updated' dataset: %s", err)
 			}

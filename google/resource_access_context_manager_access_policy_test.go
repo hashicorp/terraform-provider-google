@@ -40,8 +40,8 @@ func testSweepAccessContextManagerPolicies(region string) error {
 	parent := neturl.QueryEscape(fmt.Sprintf("organizations/%s", testOrg))
 	listUrl := fmt.Sprintf("%saccessPolicies?parent=%s", config.AccessContextManagerBasePath, parent)
 
-	resp, err := sendRequest(config, "GET", "", listUrl, config.userAgent, nil)
-	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+	resp, err := SendRequest(config, "GET", "", listUrl, config.UserAgent, nil)
+	if err != nil && !IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("unable to list AccessPolicies for organization %q: %v", testOrg, err)
 		return nil
 	}
@@ -65,7 +65,7 @@ func testSweepAccessContextManagerPolicies(region string) error {
 	log.Printf("[DEBUG] Deleting test Access Policies %q", policy["name"])
 
 	policyUrl := config.AccessContextManagerBasePath + policy["name"].(string)
-	if _, err := sendRequest(config, "DELETE", "", policyUrl, config.userAgent, nil); err != nil && !isGoogleApiErrorWithCode(err, 404) {
+	if _, err := SendRequest(config, "DELETE", "", policyUrl, config.UserAgent, nil); err != nil && !IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("unable to delete access policy %q", policy["name"].(string))
 		return nil
 	}
@@ -145,7 +145,7 @@ func testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t *testing.T) f
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			_, err = SendRequest(config, "GET", "", url, config.UserAgent, nil)
 			if err == nil {
 				return fmt.Errorf("AccessPolicy still exists at %s", url)
 			}

@@ -171,7 +171,7 @@ func testAccCheckComputeSslPolicyExists(t *testing.T, n string, sslPolicy *compu
 
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.NewComputeClient(config.userAgent).SslPolicies.Get(
+		found, err := config.NewComputeClient(config.UserAgent).SslPolicies.Get(
 			project, name).Do()
 		if err != nil {
 			return fmt.Errorf("Error Reading SSL Policy %s: %s", name, err)

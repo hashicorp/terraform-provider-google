@@ -58,7 +58,7 @@ func testSweepRecaptchaEnterpriseKey(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLRecaptchaEnterpriseClient(config, config.userAgent, "", 0)
+	client := NewDCLRecaptchaEnterpriseClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllKey(context.Background(), d["project"], isDeletableRecaptchaEnterpriseKey)
 	if err != nil {
 		return err

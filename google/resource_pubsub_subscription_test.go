@@ -284,11 +284,11 @@ func testAccCheckPubsubSubscriptionCache404(t *testing.T, subName string) resour
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 		url := fmt.Sprintf("%sprojects/%s/subscriptions/%s", config.PubsubBasePath, getTestProjectFromEnv(), subName)
-		resp, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+		resp, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err == nil {
 			return fmt.Errorf("Expected Pubsub Subscription %q not to exist, was found", resp["name"])
 		}
-		if !isGoogleApiErrorWithCode(err, 404) {
+		if !IsGoogleApiErrorWithCode(err, 404) {
 			return fmt.Errorf("Got non-404 error while trying to read Pubsub Subscription %q: %v", subName, err)
 		}
 		return nil

@@ -496,7 +496,7 @@ func TestRetryTimeDuration(t *testing.T) {
 			Code: 500,
 		}
 	}
-	if err := retryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 500 {
+	if err := RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 500 {
 		t.Errorf("unexpected error retrying: %v", err)
 	}
 	if i < 2 {
@@ -513,7 +513,7 @@ func TestRetryTimeDuration_wrapped(t *testing.T) {
 		}
 		return errwrap.Wrapf("nested error: {{err}}", err)
 	}
-	if err := retryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil {
+	if err := RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil {
 		t.Errorf("unexpected nil error, expected an error")
 	} else {
 		innerErr := errwrap.GetType(err, &googleapi.Error{})
@@ -538,7 +538,7 @@ func TestRetryTimeDuration_noretry(t *testing.T) {
 			Code: 400,
 		}
 	}
-	if err := retryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 400 {
+	if err := RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 400 {
 		t.Errorf("unexpected error retrying: %v", err)
 	}
 	if i != 1 {
@@ -569,7 +569,7 @@ func TestRetryTimeDuration_URLTimeoutsShouldRetry(t *testing.T) {
 		}
 		return nil
 	}
-	err := retryTimeDuration(retryFunc, 1*time.Minute)
+	err := RetryTimeDuration(retryFunc, 1*time.Minute)
 	if err != nil {
 		t.Errorf("unexpected error: got '%v' want 'nil'", err)
 	}

@@ -207,7 +207,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 func testAccCheckProjectService(t *testing.T, services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
-		currentlyEnabled, err := listCurrentlyEnabledServices(pid, "", config.userAgent, config, time.Minute*10)
+		currentlyEnabled, err := ListCurrentlyEnabledServices(pid, "", config.UserAgent, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}

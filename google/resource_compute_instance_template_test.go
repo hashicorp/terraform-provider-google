@@ -1203,7 +1203,7 @@ func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *te
 			}
 
 			splits := strings.Split(rs.Primary.ID, "/")
-			_, err := config.NewComputeClient(config.userAgent).InstanceTemplates.Get(
+			_, err := config.NewComputeClient(config.UserAgent).InstanceTemplates.Get(
 				config.Project, splits[len(splits)-1]).Do()
 			if err == nil {
 				return fmt.Errorf("Instance template still exists")
@@ -1237,7 +1237,7 @@ func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p strin
 
 		splits := strings.Split(rs.Primary.ID, "/")
 		templateName := splits[len(splits)-1]
-		found, err := config.NewComputeClient(config.userAgent).InstanceTemplates.Get(
+		found, err := config.NewComputeClient(config.UserAgent).InstanceTemplates.Get(
 			p, templateName).Do()
 		if err != nil {
 			return err

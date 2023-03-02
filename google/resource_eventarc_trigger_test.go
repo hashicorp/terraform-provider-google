@@ -156,7 +156,7 @@ func testAccCheckEventarcChannelTriggerDestroyProducer(t *testing.T) func(s *ter
 				Channel:        dcl.StringOrNil(rs.Primary.Attributes["channel"]),
 			}
 
-			client := NewDCLEventarcClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLEventarcClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetTrigger(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_eventarc_trigger still exists %v", obj)

@@ -58,7 +58,7 @@ func testSweepDataplexLake(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLDataplexClient(config, config.userAgent, "", 0)
+	client := NewDCLDataplexClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllLake(context.Background(), d["project"], d["location"], isDeletableDataplexLake)
 	if err != nil {
 		return err

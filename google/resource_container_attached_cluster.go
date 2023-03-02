@@ -327,7 +327,7 @@ the Workload Identity Pool.`,
 
 func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -413,7 +413,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Cluster: %s", err)
 	}
@@ -428,7 +428,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = containerAttachedOperationWaitTimeWithResponse(
+	err = ContainerAttachedOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Cluster", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -456,7 +456,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 
 func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -479,7 +479,7 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ContainerAttachedCluster %q", d.Id()))
 	}
@@ -557,7 +557,7 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 
 func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -694,7 +694,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Cluster %q: %s", d.Id(), err)
@@ -702,7 +702,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		log.Printf("[DEBUG] Finished updating Cluster %q: %#v", d.Id(), res)
 	}
 
-	err = containerAttachedOperationWaitTime(
+	err = ContainerAttachedOperationWaitTime(
 		config, res, project, "Updating Cluster", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -715,7 +715,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 
 func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -749,12 +749,12 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Cluster")
 	}
 
-	err = containerAttachedOperationWaitTime(
+	err = ContainerAttachedOperationWaitTime(
 		config, res, project, "Deleting Cluster", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 

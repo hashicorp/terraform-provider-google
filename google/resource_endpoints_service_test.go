@@ -181,7 +181,7 @@ EOF
 func testAccCheckEndpointExistsByName(t *testing.T, serviceId string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
-		service, err := config.NewServiceManClient(config.userAgent).Services.GetConfig(
+		service, err := config.NewServiceManClient(config.UserAgent).Services.GetConfig(
 			fmt.Sprintf("%s.endpoints.%s.cloud.goog", serviceId, config.Project)).Do()
 		if err != nil {
 			return err
@@ -207,10 +207,10 @@ func testAccCheckEndpointServiceDestroyProducer(t *testing.T) func(s *terraform.
 			}
 
 			serviceName := rs.Primary.Attributes["service_name"]
-			service, err := config.NewServiceManClient(config.userAgent).Services.GetConfig(serviceName).Do()
+			service, err := config.NewServiceManClient(config.UserAgent).Services.GetConfig(serviceName).Do()
 			if err != nil {
 				// ServiceManagement returns 403 if service doesn't exist.
-				if !isGoogleApiErrorWithCode(err, 403) {
+				if !IsGoogleApiErrorWithCode(err, 403) {
 					return err
 				}
 			}

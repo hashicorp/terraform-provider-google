@@ -52,14 +52,14 @@ func tpuNodeCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta int
 		pid = parts[1]
 	}
 
-	project, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(pid).Do()
+	project, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve project, pid: %s, err: %s", pid, err)
 	}
 
 	if networkLinkRegex.MatchString(old.(string)) {
 		parts := networkLinkRegex.FindStringSubmatch(old.(string))
-		i, err := stringToFixed64(parts[1])
+		i, err := StringToFixed64(parts[1])
 		if err == nil {
 			if project.ProjectNumber == i {
 				if err := diff.SetNew("network", old); err != nil {
@@ -228,7 +228,7 @@ permissions to that data.`,
 
 func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Node: %s", err)
 	}
@@ -323,7 +323,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = tpuOperationWaitTimeWithResponse(
+	err = TPUOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Node", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -351,7 +351,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -374,7 +374,7 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("TPUNode %q", d.Id()))
 	}
@@ -422,7 +422,7 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -457,14 +457,14 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 			billingProject = bp
 		}
 
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Node %q: %s", d.Id(), err)
 		} else {
 			log.Printf("[DEBUG] Finished updating Node %q: %#v", d.Id(), res)
 		}
 
-		err = tpuOperationWaitTime(
+		err = TPUOperationWaitTime(
 			config, res, project, "Updating Node", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -479,7 +479,7 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -505,12 +505,12 @@ func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Node")
 	}
 
-	err = tpuOperationWaitTime(
+	err = TPUOperationWaitTime(
 		config, res, project, "Deleting Node", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
@@ -621,7 +621,7 @@ func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceDa
 func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

@@ -357,7 +357,7 @@ func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		routersService := config.NewComputeClient(config.userAgent).Routers
+		routersService := config.NewComputeClient(config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {
@@ -391,7 +391,7 @@ func testAccCheckComputeRouterNatDelete(t *testing.T, n string) resource.TestChe
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		routersService := config.NewComputeClient(config.userAgent).Routers
+		routersService := config.NewComputeClient(config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router_nat" {

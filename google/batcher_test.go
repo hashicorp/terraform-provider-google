@@ -24,8 +24,8 @@ func TestRequestBatcher_disableBatching(t *testing.T) {
 		"testBatcher",
 		context.Background(),
 		&batchingConfig{
-			sendAfter:      time.Duration(1) * time.Second,
-			enableBatching: false,
+			SendAfter:      time.Duration(1) * time.Second,
+			EnableBatching: false,
 		})
 
 	testCombine := func(currV interface{}, toAddV interface{}) (interface{}, error) {
@@ -72,8 +72,8 @@ func TestRequestBatcher_errInCombine(t *testing.T) {
 		"testBatcher",
 		context.Background(),
 		&batchingConfig{
-			sendAfter:      time.Duration(5) * time.Second,
-			enableBatching: true,
+			SendAfter:      time.Duration(5) * time.Second,
+			EnableBatching: true,
 		})
 
 	combineErrText := "this is an expected error in combine"
@@ -136,8 +136,8 @@ func TestRequestBatcher_errInSend(t *testing.T) {
 		"testBatcher",
 		context.Background(),
 		&batchingConfig{
-			sendAfter:      time.Duration(5) * time.Second,
-			enableBatching: true,
+			SendAfter:      time.Duration(5) * time.Second,
+			EnableBatching: true,
 		})
 
 	// combineF keeps track of the batched indexes
@@ -205,8 +205,8 @@ func TestRequestBatcher_errTimeout(t *testing.T) {
 		"testBatcher",
 		context.Background(),
 		&batchingConfig{
-			sendAfter:      time.Duration(5) * time.Second,
-			enableBatching: true,
+			SendAfter:      time.Duration(5) * time.Second,
+			EnableBatching: true,
 		})
 
 	testResource := "resource for send error"
@@ -250,8 +250,8 @@ func testBasicCountBatches(t *testing.T, testName string, numBatches int) {
 		"testBatcher",
 		context.Background(),
 		&batchingConfig{
-			sendAfter:      time.Duration(1) * time.Second,
-			enableBatching: true,
+			SendAfter:      time.Duration(1) * time.Second,
+			EnableBatching: true,
 		})
 
 	testCombine := func(currV interface{}, toAddV interface{}) (interface{}, error) {

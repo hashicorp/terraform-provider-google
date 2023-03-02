@@ -152,7 +152,7 @@ configuration in order to serve the application via this domain mapping.`,
 
 func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DomainMapping: %s", err)
 	}
@@ -212,7 +212,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = appEngineOperationWaitTimeWithResponse(
+	err = AppEngineOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating DomainMapping", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -240,7 +240,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 
 func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -263,7 +263,7 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineDomainMapping %q", d.Id()))
 	}
@@ -290,7 +290,7 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 
 func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -342,7 +342,7 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DomainMapping %q: %s", d.Id(), err)
@@ -350,7 +350,7 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 		log.Printf("[DEBUG] Finished updating DomainMapping %q: %#v", d.Id(), res)
 	}
 
-	err = appEngineOperationWaitTime(
+	err = AppEngineOperationWaitTime(
 		config, res, project, "Updating DomainMapping", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -363,7 +363,7 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 
 func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -396,12 +396,12 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DomainMapping")
 	}
 
-	err = appEngineOperationWaitTime(
+	err = AppEngineOperationWaitTime(
 		config, res, project, "Deleting DomainMapping", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 

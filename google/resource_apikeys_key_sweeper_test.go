@@ -58,7 +58,7 @@ func testSweepApikeysKey(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLApikeysClient(config, config.userAgent, "", 0)
+	client := NewDCLApikeysClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllKey(context.Background(), d["project"], isDeletableApikeysKey)
 	if err != nil {
 		return err

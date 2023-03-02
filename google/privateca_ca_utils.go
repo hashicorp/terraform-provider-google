@@ -20,13 +20,13 @@ func enableCA(config *Config, d *schema.ResourceData, project string, billingPro
 
 	log.Printf("[DEBUG] Enabling CertificateAuthority")
 
-	res, err := sendRequest(config, "POST", billingProject, enableUrl, userAgent, nil)
+	res, err := SendRequest(config, "POST", billingProject, enableUrl, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
 
 	var opRes map[string]interface{}
-	err = privatecaOperationWaitTimeWithResponse(
+	err = PrivatecaOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -43,13 +43,13 @@ func disableCA(config *Config, d *schema.ResourceData, project string, billingPr
 
 	log.Printf("[DEBUG] Disabling CA")
 
-	dRes, err := sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
+	dRes, err := SendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error disabling CA: %s", err)
 	}
 
 	var opRes map[string]interface{}
-	err = privatecaOperationWaitTimeWithResponse(
+	err = PrivatecaOperationWaitTimeWithResponse(
 		config, dRes, &opRes, project, "Disabling CA", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 	if err != nil {
@@ -97,13 +97,13 @@ func activateSubCAWithThirdPartyIssuer(config *Config, d *schema.ResourceData, p
 	}
 
 	log.Printf("[DEBUG] Activating CertificateAuthority: %#v", activateObj)
-	res, err := sendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
+	res, err := SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
 
 	var opRes map[string]interface{}
-	err = privatecaOperationWaitTimeWithResponse(
+	err = PrivatecaOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Activating CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -133,7 +133,7 @@ func activateSubCAWithFirstPartyIssuer(config *Config, d *schema.ResourceData, p
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", billingProject, fetchCSRUrl, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, fetchCSRUrl, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("failed to fetch CSR: %v", err)
 	}
@@ -187,7 +187,7 @@ func activateSubCAWithFirstPartyIssuer(config *Config, d *schema.ResourceData, p
 	}
 
 	log.Printf("[DEBUG] Signing CA Certificate: %#v", obj)
-	res, err = sendRequestWithTimeout(config, "POST", billingProject, signUrl, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err = SendRequestWithTimeout(config, "POST", billingProject, signUrl, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Certificate: %s", err)
 	}
@@ -205,13 +205,13 @@ func activateSubCAWithFirstPartyIssuer(config *Config, d *schema.ResourceData, p
 	}
 
 	log.Printf("[DEBUG] Activating CertificateAuthority: %#v", activateObj)
-	res, err = sendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
+	res, err = SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
 
 	var opRes map[string]interface{}
-	err = privatecaOperationWaitTimeWithResponse(
+	err = PrivatecaOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {

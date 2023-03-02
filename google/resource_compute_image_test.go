@@ -170,7 +170,7 @@ func testAccCheckComputeImageExists(t *testing.T, n string, image *compute.Image
 
 		config := googleProviderConfig(t)
 
-		found, err := config.NewComputeClient(config.userAgent).Images.Get(
+		found, err := config.NewComputeClient(config.UserAgent).Images.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -262,7 +262,7 @@ func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestChe
 		family := rs.Primary.Attributes["family"]
 		link := rs.Primary.Attributes["self_link"]
 
-		latestDebian, err := config.NewComputeClient(config.userAgent).Images.GetFromFamily("debian-cloud", "debian-11").Do()
+		latestDebian, err := config.NewComputeClient(config.UserAgent).Images.GetFromFamily("debian-cloud", "debian-11").Do()
 		if err != nil {
 			return fmt.Errorf("Error retrieving latest debian: %s", err)
 		}
@@ -285,7 +285,7 @@ func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestChe
 		}
 
 		for input, expectation := range images {
-			result, err := resolveImage(config, project, input, config.userAgent)
+			result, err := resolveImage(config, project, input, config.UserAgent)
 			if err != nil {
 				return fmt.Errorf("Error resolving input %s to image: %+v\n", input, err)
 			}

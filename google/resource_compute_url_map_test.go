@@ -161,7 +161,7 @@ func testAccCheckComputeUrlMapExists(t *testing.T, n string) resource.TestCheckF
 		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.NewComputeClient(config.userAgent).UrlMaps.Get(
+		found, err := config.NewComputeClient(config.UserAgent).UrlMaps.Get(
 			config.Project, name).Do()
 		if err != nil {
 			return err

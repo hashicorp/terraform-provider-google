@@ -138,7 +138,7 @@ func resourceComputeRegionNetworkFirewallPolicyCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 	directive := CreateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func resourceComputeRegionNetworkFirewallPolicyRead(d *schema.ResourceData, meta
 		Location:    dcl.String(region),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -260,7 +260,7 @@ func resourceComputeRegionNetworkFirewallPolicyUpdate(d *schema.ResourceData, me
 		Location:    dcl.String(region),
 	}
 	directive := UpdateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -311,7 +311,7 @@ func resourceComputeRegionNetworkFirewallPolicyDelete(d *schema.ResourceData, me
 	}
 
 	log.Printf("[DEBUG] Deleting NetworkFirewallPolicy %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

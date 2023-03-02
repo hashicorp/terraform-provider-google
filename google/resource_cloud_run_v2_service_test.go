@@ -333,14 +333,14 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceGRPCProbesUpdate(t *testing.T) {
 func testAccCheckCloudRunV2ServiceDestroyByNameProducer(t *testing.T, serviceName string) func() {
 	return func() {
 		config := googleProviderConfig(t)
-		service := config.NewCloudRunV2Client(config.userAgent).Projects.Locations.Services
+		service := config.NewCloudRunV2Client(config.UserAgent).Projects.Locations.Services
 		qualifiedServiceName := fmt.Sprintf("projects/%s/locations/%s/services/%s", config.Project, config.Region, serviceName)
 		op, err := service.Delete(qualifiedServiceName).Do()
 		if err != nil {
 			t.Errorf("Error while deleting the Cloud Run service: %s", err)
 			return
 		}
-		err = runAdminV2OperationWaitTime(config, op, config.Project, "Waiting for Cloud Run service to be deleted", config.userAgent, 5*time.Minute)
+		err = runAdminV2OperationWaitTime(config, op, config.Project, "Waiting for Cloud Run service to be deleted", config.UserAgent, 5*time.Minute)
 		if err != nil {
 			t.Errorf("Error while waiting for Cloud Run service delete operation to complete: %s", err.Error())
 		}

@@ -195,7 +195,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 		ServiceAccount: &iam.ServiceAccount{},
 	}
 
-	sa, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
+	sa, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 	if err != nil {
 		t.Fatalf("Error creating service account: %s", err)
 	}
@@ -214,7 +214,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 				PreConfig: func() {
 					config := googleProviderConfig(t)
 
-					_, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Delete(sa.Name).Do()
+					_, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Delete(sa.Name).Do()
 					if err != nil {
 						t.Errorf("cannot delete service account %s: %v", sa.Name, err)
 						return
@@ -410,7 +410,7 @@ func testAccCheckCloudIdentityGroupMembershipDestroyProducer(t *testing.T) func(
 				billingProject = config.BillingProject
 			}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
 			if err == nil {
 				return fmt.Errorf("CloudIdentityGroupMembership still exists at %s", url)
 			}

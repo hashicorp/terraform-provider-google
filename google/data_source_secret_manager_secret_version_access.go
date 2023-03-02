@@ -43,7 +43,7 @@ func DataSourceSecretManagerSecretVersionAccess() *schema.Resource {
 
 func dataSourceSecretManagerSecretVersionAccessRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func dataSourceSecretManagerSecretVersionAccessRead(d *schema.ResourceData, meta
 	}
 
 	url = fmt.Sprintf("%s:access", url)
-	resp, err := sendRequest(config, "GET", project, url, userAgent, nil)
+	resp, err := SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving available secret manager secret version access: %s", err.Error())
 	}

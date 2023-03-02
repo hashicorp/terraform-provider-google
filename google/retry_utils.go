@@ -13,10 +13,10 @@ func retry(retryFunc func() error) error {
 }
 
 func retryTime(retryFunc func() error, minutes int) error {
-	return retryTimeDuration(retryFunc, time.Duration(minutes)*time.Minute)
+	return RetryTimeDuration(retryFunc, time.Duration(minutes)*time.Minute)
 }
 
-func retryTimeDuration(retryFunc func() error, duration time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) error {
+func RetryTimeDuration(retryFunc func() error, duration time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) error {
 	return resource.Retry(duration, func() *resource.RetryError {
 		err := retryFunc()
 		if err == nil {

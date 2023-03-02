@@ -505,7 +505,7 @@ func testAccComputePerInstanceConfigListNames(t *testing.T, igmId string) (map[s
 	config := googleProviderConfig(t)
 
 	url := fmt.Sprintf("%s%s/listPerInstanceConfigs", config.ComputeBasePath, igmId)
-	res, err := sendRequest(config, "POST", "", url, config.userAgent, nil)
+	res, err := SendRequest(config, "POST", "", url, config.UserAgent, nil)
 	if err != nil {
 		return nil, err
 	}

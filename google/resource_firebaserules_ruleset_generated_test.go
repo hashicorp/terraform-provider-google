@@ -135,7 +135,7 @@ func testAccCheckFirebaserulesRulesetDestroyProducer(t *testing.T) func(s *terra
 				Name:       dcl.StringOrNil(rs.Primary.Attributes["name"]),
 			}
 
-			client := NewDCLFirebaserulesClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLFirebaserulesClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetRuleset(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_firebaserules_ruleset still exists %v", obj)

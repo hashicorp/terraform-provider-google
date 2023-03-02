@@ -105,7 +105,7 @@ func resourceEventarcGoogleChannelConfigCreate(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	directive := UpdateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func resourceEventarcGoogleChannelConfigRead(d *schema.ResourceData, meta interf
 		Project:       dcl.String(project),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func resourceEventarcGoogleChannelConfigUpdate(d *schema.ResourceData, meta inte
 		Project:       dcl.String(project),
 	}
 	directive := UpdateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func resourceEventarcGoogleChannelConfigDelete(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Deleting GoogleChannelConfig %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

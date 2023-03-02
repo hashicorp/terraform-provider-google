@@ -58,7 +58,7 @@ func testSweepComputeNetworkFirewallPolicy(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLComputeClient(config, config.userAgent, "", 0)
+	client := NewDCLComputeClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllNetworkFirewallPolicy(context.Background(), d["project"], d["location"], isDeletableComputeNetworkFirewallPolicy)
 	if err != nil {
 		return err

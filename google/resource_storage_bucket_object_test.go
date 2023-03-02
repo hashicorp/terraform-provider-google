@@ -401,7 +401,7 @@ func testAccCheckGoogleStorageObjectWithEncryption(t *testing.T, bucket, object,
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		objectsService := storage.NewObjectsService(config.NewStorageClient(config.userAgent))
+		objectsService := storage.NewObjectsService(config.NewStorageClient(config.UserAgent))
 
 		getCall := objectsService.Get(bucket, object)
 		if customerEncryptionKey != "" {
@@ -438,7 +438,7 @@ func testAccStorageObjectDestroyProducer(t *testing.T) func(s *terraform.State) 
 			bucket := rs.Primary.Attributes["bucket"]
 			name := rs.Primary.Attributes["name"]
 
-			objectsService := storage.NewObjectsService(config.NewStorageClient(config.userAgent))
+			objectsService := storage.NewObjectsService(config.NewStorageClient(config.UserAgent))
 
 			getCall := objectsService.Get(bucket, name)
 			_, err := getCall.Do()

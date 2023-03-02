@@ -146,7 +146,7 @@ func testAccCheckLoggingProjectExclusionDestroyProducer(t *testing.T) func(s *te
 
 			attributes := rs.Primary.Attributes
 
-			_, err := config.NewLoggingClient(config.userAgent).Projects.Exclusions.Get(attributes["id"]).Do()
+			_, err := config.NewLoggingClient(config.UserAgent).Projects.Exclusions.Get(attributes["id"]).Do()
 			if err == nil {
 				return fmt.Errorf("project exclusion %s still exists", attributes["id"])
 			}

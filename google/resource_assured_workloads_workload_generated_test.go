@@ -183,7 +183,7 @@ func testAccCheckAssuredWorkloadsWorkloadDestroyProducer(t *testing.T) func(s *t
 				Name:                       dcl.StringOrNil(rs.Primary.Attributes["name"]),
 			}
 
-			client := NewDCLAssuredWorkloadsClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLAssuredWorkloadsClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetWorkload(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_assured_workloads_workload still exists %v", obj)

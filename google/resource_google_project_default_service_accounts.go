@@ -65,7 +65,7 @@ func ResourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 
 func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData, meta interface{}, action, uniqueID, email, project string) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 
 func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -164,14 +164,14 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	if err := d.Set("service_accounts", changedServiceAccounts); err != nil {
 		return fmt.Errorf("error setting service_accounts: %s", err)
 	}
-	d.SetId(prefixedProject(pid))
+	d.SetId(PrefixedProject(pid))
 
 	return nil
 }
 
 func listServiceAccounts(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
 	pid := d.Get("project").(string)
-	response, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List(prefixedProject(pid)).Do()
+	response, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List(PrefixedProject(pid)).Do()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list service accounts on project %q: %v", pid, err)
 	}
