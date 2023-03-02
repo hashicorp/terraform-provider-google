@@ -84,6 +84,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"policyChanged": BootstrapPSARoles(t, "gsp-sa-healthcare", []string{"roles/bigquery.dataEditor", "roles/bigquery.jobUser"}),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -130,25 +131,6 @@ resource "google_healthcare_fhir_store" "default" {
       }
     }
   }
-
-  depends_on = [
-    google_project_iam_member.bigquery_editor,
-    google_project_iam_member.bigquery_job_user
-  ]
-}
-
-data "google_project" "project" {}
-
-resource "google_project_iam_member" "bigquery_editor" {
-  project = data.google_project.project.project_id
-  role    = "roles/bigquery.dataEditor"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-healthcare.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "bigquery_job_user" {
-  project = data.google_project.project.project_id
-  role    = "roles/bigquery.jobUser"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-healthcare.iam.gserviceaccount.com"
 }
 
 resource "google_pubsub_topic" "topic" {
