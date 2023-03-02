@@ -602,7 +602,6 @@ WorkstationConfig can be imported using any of these accepted formats:
 $ terraform import google_workstations_workstation_config.default projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}
 $ terraform import google_workstations_workstation_config.default {{project}}/{{location}}/{{workstation_cluster_id}}/{{workstation_config_id}}
 $ terraform import google_workstations_workstation_config.default {{location}}/{{workstation_cluster_id}}/{{workstation_config_id}}
-$ terraform import google_workstations_workstation_config.default {{workstation_config_id}}
 ```
 
 ## User Project Overrides

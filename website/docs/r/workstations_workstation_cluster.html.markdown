@@ -242,7 +242,6 @@ WorkstationCluster can be imported using any of these accepted formats:
 $ terraform import google_workstations_workstation_cluster.default projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}
 $ terraform import google_workstations_workstation_cluster.default {{project}}/{{location}}/{{workstation_cluster_id}}
 $ terraform import google_workstations_workstation_cluster.default {{location}}/{{workstation_cluster_id}}
-$ terraform import google_workstations_workstation_cluster.default {{workstation_cluster_id}}
 ```
 
 ## User Project Overrides
