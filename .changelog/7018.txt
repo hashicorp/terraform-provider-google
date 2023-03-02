@@ -1,0 +1,6 @@
+```release-note:bug
+workstations: removed invalid import formats from workstations resources
+```
+```release-note:new-resource
+`google_workstations_workstation`
+```
