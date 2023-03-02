@@ -15,7 +15,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsBasic(t *testing.T) {
 
 	resourceName := "google_project_default_service_accounts.acceptance"
 	org := getTestOrgFromEnv(t)
-	project := fmt.Sprintf("tf-project-%d", randInt(t))
+	project := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 
 	vcrTest(t, resource.TestCase{
@@ -55,7 +55,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDisable(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	project := fmt.Sprintf("tf-project-%d", randInt(t))
+	project := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 	action := "DISABLE"
 	restorePolicy := "REVERT"
@@ -84,7 +84,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDelete(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	project := fmt.Sprintf("tf-project-%d", randInt(t))
+	project := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 	action := "DELETE"
 	restorePolicy := "REVERT"
@@ -113,7 +113,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDeleteRevertIgnoreFailure
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	project := fmt.Sprintf("tf-project-%d", randInt(t))
+	project := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 	action := "DELETE"
 	restorePolicy := "REVERT_AND_IGNORE_FAILURE"
@@ -141,7 +141,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDeprivilege(t *testing.T)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	project := fmt.Sprintf("tf-project-%d", randInt(t))
+	project := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 	action := "DEPRIVILEGE"
 	restorePolicy := "REVERT"
