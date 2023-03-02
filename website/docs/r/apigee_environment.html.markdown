@@ -131,6 +131,7 @@ The following arguments are supported:
   recommended maximum number of nodes for that gateway.
 
 * `current_aggregate_node_count` -
+  (Output)
   The current total number of gateway nodes that each environment currently has across
   all instances.
 

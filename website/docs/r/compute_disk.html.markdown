@@ -219,6 +219,7 @@ The following arguments are supported:
   RFC 4648 base64 to either encrypt or decrypt this resource.
 
 * `sha256` -
+  (Output)
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
@@ -251,6 +252,7 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
+  (Output)
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
@@ -283,6 +285,7 @@ The following arguments are supported:
   See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 * `sha256` -
+  (Output)
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 

@@ -93,6 +93,7 @@ The following arguments are supported:
   Possible values are `AUTOMATIC` and `MANUAL`.
 
 * `pending_managed_certificate_id` -
+  (Output)
   ID of the managed `AuthorizedCertificate` resource currently being provisioned, if applicable. Until the new
   managed certificate has been successfully provisioned, the previous SSL state will be preserved. Once the
   provisioning process completes, the `certificateId` field will reflect the new managed certificate and this

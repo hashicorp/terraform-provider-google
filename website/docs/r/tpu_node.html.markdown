@@ -198,9 +198,11 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_network_endpoints"></a>The `network_endpoints` block contains:
 
 * `ip_address` -
+  (Output)
   The IP address of this network endpoint.
 
 * `port` -
+  (Output)
   The port of this network endpoint.
 
 ## Timeouts

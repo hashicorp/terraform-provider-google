@@ -596,6 +596,7 @@ The following arguments are supported:
   The BigQuery Service Account associated with your project requires access to this encryption key.
 
 * `kms_key_version` -
+  (Output)
   Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
 <a name="nested_script_options"></a>The `script_options` block supports:
@@ -797,6 +798,7 @@ The following arguments are supported:
   The BigQuery Service Account associated with your project requires access to this encryption key.
 
 * `kms_key_version` -
+  (Output)
   Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
 <a name="nested_copy"></a>The `copy` block supports:
@@ -875,6 +877,7 @@ The following arguments are supported:
   The BigQuery Service Account associated with your project requires access to this encryption key.
 
 * `kms_key_version` -
+  (Output)
   Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
 <a name="nested_extract"></a>The `extract` block supports:
@@ -996,6 +999,7 @@ In addition to the arguments listed above, the following computed attributes are
   Email address of the user who ran the job.
 
 * `job_type` -
+  (Output)
   The type of the job.
 
 * `status` -
@@ -1006,16 +1010,19 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_status"></a>The `status` block contains:
 
 * `error_result` -
+  (Output)
   Final error result of the job. If present, indicates that the job has completed and was unsuccessful.
   Structure is [documented below](#nested_error_result).
 
 * `errors` -
+  (Output)
   The first errors encountered during the running of the job. The final message
   includes the number of errors that caused the process to stop. Errors here do
   not necessarily mean that the job has not completed or was unsuccessful.
   Structure is [documented below](#nested_errors).
 
 * `state` -
+  (Output)
   Running state of the job. Valid states include 'PENDING', 'RUNNING', and 'DONE'.
 
 

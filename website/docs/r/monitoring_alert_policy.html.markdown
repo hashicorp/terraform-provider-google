@@ -120,6 +120,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_condition_absent).
 
 * `name` -
+  (Output)
   The unique resource name for this condition.
   Its syntax is:
   projects/[PROJECT_ID]/alertPolicies/[POLICY_ID]/conditions/[CONDITION_ID]
@@ -794,9 +795,11 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_creation_record"></a>The `creation_record` block contains:
 
 * `mutate_time` -
+  (Output)
   When the change occurred.
 
 * `mutated_by` -
+  (Output)
   The email address of the user making the change.
 
 ## Timeouts

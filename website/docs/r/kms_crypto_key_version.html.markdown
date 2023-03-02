@@ -98,9 +98,11 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_attestation"></a>The `attestation` block contains:
 
 * `format` -
+  (Output)
   The format of the attestation data.
 
 * `content` -
+  (Output)
   The attestation data provided by the HSM when the key operation was performed.
 
 * `cert_chains` -

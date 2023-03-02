@@ -352,9 +352,11 @@ The following arguments are supported:
 * `field_name` - (Required) The identifier for this object. Format specified above.
 
 * `display_name` -
+  (Output)
   The display name of this field
 
 * `order` -
+  (Output)
   The order of this field with respect to other fields in this tag. For example, a higher value can indicate
   a more important field. The value can be negative. Multiple fields can have the same order, and field orders
   within a tag do not have to be sequential.

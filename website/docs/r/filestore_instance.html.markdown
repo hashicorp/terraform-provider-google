@@ -166,6 +166,7 @@ The following arguments are supported:
   for the standard tier, or 2560 GiB for the premium tier.
 
 * `source_backup` -
+  (Output)
   The resource name of the backup, in the format
   projects/{projectId}/locations/{locationId}/backups/{backupId},
   that this file share has been restored from.
@@ -229,6 +230,7 @@ The following arguments are supported:
   addresses reserved for this instance.
 
 * `ip_addresses` -
+  (Output)
   A list of IPv4 or IPv6 addresses.
 
 * `connect_mode` -

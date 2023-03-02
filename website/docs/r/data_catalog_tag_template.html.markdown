@@ -102,6 +102,7 @@ The following arguments are supported:
 * `field_id` - (Required) The identifier for this object. Format specified above.
 
 * `name` -
+  (Output)
   The resource name of the tag template field in URL format. Example: projects/{project_id}/locations/{location}/tagTemplates/{tagTemplateId}/fields/{field}
 
 * `display_name` -

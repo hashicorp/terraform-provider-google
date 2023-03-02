@@ -183,9 +183,11 @@ The following arguments are supported:
   for a list of possible values.
 
 * `uri` -
+  (Output)
   Server-defined URI for this resource.
 
 * `ingress_port` -
+  (Output)
   Ingress port reserved on the gateways for this AppConnection, if not specified or zero, the default port is 19443.
 
 ## Attributes Reference

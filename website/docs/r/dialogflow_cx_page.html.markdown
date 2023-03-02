@@ -205,6 +205,7 @@ The following arguments are supported:
   A collection of text responses.
 
 * `allow_playback_interruption` -
+  (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
 <a name="nested_form"></a>The `form` block supports:
@@ -289,11 +290,13 @@ The following arguments are supported:
   A collection of text responses.
 
 * `allow_playback_interruption` -
+  (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
 <a name="nested_transition_routes"></a>The `transition_routes` block supports:
 
 * `name` -
+  (Output)
   The unique identifier of this transition route.
 
 * `intent` -
@@ -357,11 +360,13 @@ The following arguments are supported:
   A collection of text responses.
 
 * `allow_playback_interruption` -
+  (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
 <a name="nested_event_handlers"></a>The `event_handlers` block supports:
 
 * `name` -
+  (Output)
   The unique identifier of this event handler.
 
 * `event` -
@@ -419,6 +424,7 @@ The following arguments are supported:
   A collection of text responses.
 
 * `allow_playback_interruption` -
+  (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
 ## Attributes Reference

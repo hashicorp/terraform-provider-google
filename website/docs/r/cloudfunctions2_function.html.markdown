@@ -618,6 +618,7 @@ The following arguments are supported:
 <a name="nested_build_config"></a>The `build_config` block supports:
 
 * `build` -
+  (Output)
   The Cloud Build name of the latest successful
   deployment of the function.
 
@@ -768,9 +769,11 @@ The following arguments are supported:
   Possible values are `ALLOW_ALL`, `ALLOW_INTERNAL_ONLY`, and `ALLOW_INTERNAL_AND_GCLB`.
 
 * `uri` -
+  (Output)
   URI of the Service deployed.
 
 * `gcf_uri` -
+  (Output)
   URIs of the Service deployed
 
 * `service_account_email` -
@@ -843,6 +846,7 @@ The following arguments are supported:
 <a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `trigger` -
+  (Output)
   Output only. The resource name of the Eventarc trigger.
 
 * `trigger_region` -

@@ -140,6 +140,7 @@ The following arguments are supported:
   Physical memory available to the node, defined in MB.
 
 * `local_ssd` -
+  (Output)
   Use local SSD
 
 <a name="nested_server_binding"></a>The `server_binding` block supports:

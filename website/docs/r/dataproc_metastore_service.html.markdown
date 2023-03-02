@@ -301,6 +301,7 @@ The following arguments are supported:
 <a name="nested_consumers"></a>The `consumers` block supports:
 
 * `endpoint_uri` -
+  (Output)
   The URI of the endpoint used to access the metastore service.
 
 * `subnetwork` -

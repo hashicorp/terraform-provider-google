@@ -193,6 +193,7 @@ The following arguments are supported:
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
 * `expires_at` -
+  (Output)
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
 <a name="nested_connectors_platform_config"></a>The `connectors_platform_config` block supports:
@@ -202,6 +203,7 @@ The following arguments are supported:
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
 * `expires_at` -
+  (Output)
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
 ## Attributes Reference

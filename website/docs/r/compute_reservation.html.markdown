@@ -90,6 +90,7 @@ The following arguments are supported:
   The number of resources that are allocated.
 
 * `in_use_count` -
+  (Output)
   How many instances are in use.
 
 * `instance_properties` -

@@ -119,6 +119,7 @@ The following arguments are supported:
   Callback URI where responses from IDP are handled. Must start with `https://`.
 
 * `sp_certificates` -
+  (Output)
   The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
   Structure is [documented below](#nested_sp_certificates).
 
@@ -126,6 +127,7 @@ The following arguments are supported:
 <a name="nested_sp_certificates"></a>The `sp_certificates` block contains:
 
 * `x509_certificate` -
+  (Output)
   The x509 certificate
 
 - - -

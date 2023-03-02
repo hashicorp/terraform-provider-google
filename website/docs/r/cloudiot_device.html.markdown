@@ -152,9 +152,11 @@ The following arguments are supported:
   Possible values are `ASSOCIATION_ONLY`, `DEVICE_AUTH_TOKEN_ONLY`, and `ASSOCIATION_AND_DEVICE_AUTH_TOKEN`.
 
 * `last_accessed_gateway_id` -
+  (Output)
   The ID of the gateway the device accessed most recently.
 
 * `last_accessed_gateway_time` -
+  (Output)
   The most recent time at which the device accessed the gateway specified in last_accessed_gateway.
 
 ## Attributes Reference
@@ -215,12 +217,15 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_config"></a>The `config` block contains:
 
 * `version` -
+  (Output)
   The version of this update.
 
 * `cloud_update_time` -
+  (Output)
   The time at which this configuration version was updated in Cloud IoT Core.
 
 * `device_ack_time` -
+  (Output)
   The time at which Cloud IoT Core received the acknowledgment from the device,
   indicating that the device has received this configuration version.
 

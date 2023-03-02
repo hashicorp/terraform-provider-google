@@ -145,6 +145,7 @@ The following arguments are supported:
 <a name="nested_training_phrases"></a>The `training_phrases` block supports:
 
 * `id` -
+  (Output)
   The unique identifier of the training phrase.
 
 * `parts` -

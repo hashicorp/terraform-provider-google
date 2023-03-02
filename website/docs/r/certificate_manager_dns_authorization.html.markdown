@@ -100,13 +100,16 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_dns_resource_record"></a>The `dns_resource_record` block contains:
 
 * `name` -
+  (Output)
   Fully qualified name of the DNS Resource Record.
   E.g. `_acme-challenge.example.com`.
 
 * `type` -
+  (Output)
   Type of the DNS Resource Record.
 
 * `data` -
+  (Output)
   Data of the DNS Resource Record.
 
 ## Timeouts

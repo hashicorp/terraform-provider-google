@@ -168,6 +168,7 @@ The following arguments are supported:
   RFC 4648 base64 to either encrypt or decrypt this resource.
 
 * `sha256` -
+  (Output)
   The RFC 4648 base64 encoded SHA-256 hash of the
   customer-supplied encryption key that protects this resource.
 

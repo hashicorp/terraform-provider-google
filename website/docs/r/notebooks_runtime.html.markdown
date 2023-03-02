@@ -242,9 +242,11 @@ The following arguments are supported:
 <a name="nested_virtual_machine"></a>The `virtual_machine` block supports:
 
 * `instance_name` -
+  (Output)
   The user-friendly name of the Managed Compute Engine instance.
 
 * `instance_id` -
+  (Output)
   The unique identifier of the Managed Compute Engine instance.
 
 * `virtual_machine_config` -
@@ -256,6 +258,7 @@ The following arguments are supported:
 <a name="nested_virtual_machine_config"></a>The `virtual_machine_config` block supports:
 
 * `zone` -
+  (Output)
   The zone where the virtual machine is located.
 
 * `machine_type` -
@@ -329,6 +332,7 @@ The following arguments are supported:
   label-or-tag-resources#tags)).
 
 * `guest_attributes` -
+  (Output)
   The Compute Engine guest attributes. (see [Project and instance
   guest attributes](https://cloud.google.com/compute/docs/
   storing-retrieving-metadata#guest_attributes)).
@@ -364,16 +368,19 @@ The following arguments are supported:
 <a name="nested_data_disk"></a>The `data_disk` block supports:
 
 * `auto_delete` -
+  (Output)
   Optional. Specifies whether the disk will be auto-deleted
   when the instance is deleted (but not when the disk is
   detached from the instance).
 
 * `boot` -
+  (Output)
   Optional. Indicates that this is a boot disk. The virtual
   machine will use the first partition of the disk for its
   root filesystem.
 
 * `device_name` -
+  (Output)
   Optional. Specifies a unique device name of your choice
   that is reflected into the /dev/disk/by-id/google-* tree
   of a Linux operating system running within the instance.
@@ -385,6 +392,7 @@ The following arguments are supported:
   is only applicable for persistent disks.
 
 * `guest_os_features` -
+  (Output)
   Indicates a list of features to enable on the guest operating
   system. Applicable only for bootable images. To see a list of
   available features, read `https://cloud.google.com/compute/docs/
@@ -392,6 +400,7 @@ The following arguments are supported:
   options. ``
 
 * `index` -
+  (Output)
   Output only. A zero-based index to this disk, where 0 is
   reserved for the boot disk. If you have many disks attached
   to an instance, each disk would have a unique index number.
@@ -416,10 +425,12 @@ The following arguments are supported:
   over NVMe, see Local SSD performance. Valid values: * NVME * SCSI".
 
 * `kind` -
+  (Output)
   Type of the resource. Always compute#attachedDisk for attached
   disks.
 
 * `licenses` -
+  (Output)
   Output only. Any valid publicly visible licenses.
 
 * `mode` -
@@ -543,6 +554,7 @@ The following arguments are supported:
   Currently supports one owner only.
 
 * `proxy_uri` -
+  (Output)
   The proxy endpoint that is used to access the runtime.
 
 <a name="nested_software_config"></a>The `software_config` block supports:
@@ -571,6 +583,7 @@ The following arguments are supported:
   Install Nvidia Driver automatically.
 
 * `upgradeable` -
+  (Output)
   Bool indicating whether an newer image is available in an image family.
 
 * `custom_gpu_driver_path` -
@@ -629,6 +642,7 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_metrics"></a>The `metrics` block contains:
 
 * `system_metrics` -
+  (Output)
   Contains runtime daemon metrics, such as OS and kernels and
   sessions stats.
 

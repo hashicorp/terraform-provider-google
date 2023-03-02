@@ -131,13 +131,16 @@ The following arguments are supported:
   Authorizations that will be used for performing domain authorization
 
 * `state` -
+  (Output)
   A state of this Managed Certificate.
 
 * `provisioning_issue` -
+  (Output)
   Information about issues with provisioning this Managed Certificate.
   Structure is [documented below](#nested_provisioning_issue).
 
 * `authorization_attempt_info` -
+  (Output)
   Detailed state of the latest authorization attempt for each domain
   specified for this Managed Certificate.
   Structure is [documented below](#nested_authorization_attempt_info).
@@ -146,9 +149,11 @@ The following arguments are supported:
 <a name="nested_provisioning_issue"></a>The `provisioning_issue` block contains:
 
 * `reason` -
+  (Output)
   Reason for provisioning failures.
 
 * `details` -
+  (Output)
   Human readable explanation about the issue. Provided to help address
   the configuration issues.
   Not guaranteed to be stable. For programmatic access use `reason` field.
@@ -156,15 +161,19 @@ The following arguments are supported:
 <a name="nested_authorization_attempt_info"></a>The `authorization_attempt_info` block contains:
 
 * `domain` -
+  (Output)
   Domain name of the authorization attempt.
 
 * `state` -
+  (Output)
   State of the domain for managed certificate issuance.
 
 * `failure_reason` -
+  (Output)
   Reason for failure of the authorization attempt for the domain.
 
 * `details` -
+  (Output)
   Human readable explanation for reaching the state. Provided to help
   address the configuration issues.
   Not guaranteed to be stable. For programmatic access use `failure_reason` field.
