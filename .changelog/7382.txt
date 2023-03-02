@@ -1,0 +1,3 @@
+```release-note:bug
+cloudbuildv2: Fixed `google_cloudbuildv2_connection_iam` documentation section.
+```
