@@ -12,13 +12,13 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Build V2"
+subcategory: "Cloud Build v2"
 description: |-
-  Collection of resources to manage IAM policy for Cloud Build V2 Connection
+  Collection of resources to manage IAM policy for Cloud Build v2 Connection
 ---
 
-# IAM policy for Cloud Build V2 Connection
-Three different resources help you manage your IAM policy for Cloud Build V2 Connection. Each of these resources serves a different use case:
+# IAM policy for Cloud Build v2 Connection
+Three different resources help you manage your IAM policy for Cloud Build v2 Connection. Each of these resources serves a different use case:
 
 * `google_cloudbuildv2_connection_iam_policy`: Authoritative. Sets the IAM policy for the connection and replaces any existing policy already attached.
 * `google_cloudbuildv2_connection_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the connection are preserved.
@@ -129,7 +129,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Cloud Build V2 connection IAM resources can be imported using the resource identifiers, role, and member.
+Cloud Build v2 connection IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
