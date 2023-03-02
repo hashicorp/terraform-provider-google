@@ -4,7 +4,7 @@
 // Do not use for waiting on operations or polling of resource state,
 // especially if the expected state (operation done, resource ready, etc)
 // takes longer to reach than the default client Timeout.
-// In those cases, retryTimeDuration(...)/resource.Retry with appropriate timeout
+// In those cases, RetryTimeDuration(...)/resource.Retry with appropriate timeout
 // and error predicates/handling should be used as a wrapper around the request
 // instead.
 //

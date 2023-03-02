@@ -152,7 +152,7 @@ func testAccCheckProjectMetadataItemDestroyProducer(t *testing.T) func(s *terraf
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		project, err := config.NewComputeClient(config.userAgent).Projects.Get(config.Project).Do()
+		project, err := config.NewComputeClient(config.UserAgent).Projects.Get(config.Project).Do()
 		if err != nil {
 			return err
 		}

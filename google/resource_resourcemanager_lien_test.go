@@ -58,7 +58,7 @@ func testAccCheckResourceManagerLienExists(t *testing.T, n, projectName string, 
 
 		config := googleProviderConfig(t)
 
-		found, err := config.NewResourceManagerClient(config.userAgent).Liens.List().Parent(fmt.Sprintf("projects/%s", projectName)).Do()
+		found, err := config.NewResourceManagerClient(config.UserAgent).Liens.List().Parent(fmt.Sprintf("projects/%s", projectName)).Do()
 		if err != nil {
 			return err
 		}
@@ -81,7 +81,7 @@ func testAccCheckResourceManagerLienDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			_, err := config.NewResourceManagerClient(config.userAgent).Liens.List().Parent(fmt.Sprintf("projects/%s", rs.Primary.Attributes["parent"])).Do()
+			_, err := config.NewResourceManagerClient(config.UserAgent).Liens.List().Parent(fmt.Sprintf("projects/%s", rs.Primary.Attributes["parent"])).Do()
 			if err == nil {
 				return fmt.Errorf("Lien %s still exists", rs.Primary.ID)
 			}

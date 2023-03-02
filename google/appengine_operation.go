@@ -30,7 +30,7 @@ func (w *AppEngineOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Apps.Operations.Get(w.AppId, matches[1]).Do()
 }
 
-func appEngineOperationWaitTimeWithResponse(config *Config, res interface{}, response *map[string]interface{}, appId, activity, userAgent string, timeout time.Duration) error {
+func AppEngineOperationWaitTimeWithResponse(config *Config, res interface{}, response *map[string]interface{}, appId, activity, userAgent string, timeout time.Duration) error {
 	op := &appengine.Operation{}
 	err := Convert(res, op)
 	if err != nil {
@@ -51,7 +51,7 @@ func appEngineOperationWaitTimeWithResponse(config *Config, res interface{}, res
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func appEngineOperationWaitTime(config *Config, res interface{}, appId, activity, userAgent string, timeout time.Duration) error {
+func AppEngineOperationWaitTime(config *Config, res interface{}, appId, activity, userAgent string, timeout time.Duration) error {
 	op := &appengine.Operation{}
 	err := Convert(res, op)
 	if err != nil {

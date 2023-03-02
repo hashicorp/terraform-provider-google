@@ -465,7 +465,7 @@ func testAccCheckApikeysKeyDestroyProducer(t *testing.T) func(s *terraform.State
 				Uid:         dcl.StringOrNil(rs.Primary.Attributes["uid"]),
 			}
 
-			client := NewDCLApikeysClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLApikeysClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetKey(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_apikeys_key still exists %v", obj)

@@ -58,7 +58,7 @@ func testSweepClouddeployDeliveryPipeline(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLClouddeployClient(config, config.userAgent, "", 0)
+	client := NewDCLClouddeployClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllDeliveryPipeline(context.Background(), d["project"], d["location"], isDeletableClouddeployDeliveryPipeline)
 	if err != nil {
 		return err

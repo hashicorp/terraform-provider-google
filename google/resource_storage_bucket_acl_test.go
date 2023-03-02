@@ -25,7 +25,7 @@ func TestAccStorageBucketAcl_basic(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
+	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -46,7 +46,7 @@ func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
+	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -84,7 +84,7 @@ func TestAccStorageBucketAcl_upgradeSingleUser(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
+	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -122,7 +122,7 @@ func TestAccStorageBucketAcl_downgrade(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
+	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -177,7 +177,7 @@ func TestAccStorageBucketAcl_unordered(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
+	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -212,7 +212,7 @@ func testAccCheckGoogleStorageBucketAclDelete(t *testing.T, bucket, roleEntityS 
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		_, err := config.NewStorageClient(config.userAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
+		_, err := config.NewStorageClient(config.UserAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
 
 		if err != nil {
 			return nil
@@ -227,7 +227,7 @@ func testAccCheckGoogleStorageBucketAcl(t *testing.T, bucket, roleEntityS string
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		res, err := config.NewStorageClient(config.userAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
+		res, err := config.NewStorageClient(config.UserAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
 
 		if err != nil {
 			return fmt.Errorf("Error retrieving contents of acl for bucket %s: %s", bucket, err)
@@ -252,7 +252,7 @@ func testAccStorageBucketAclDestroyProducer(t *testing.T) func(s *terraform.Stat
 
 			bucket := rs.Primary.Attributes["bucket"]
 
-			_, err := config.NewStorageClient(config.userAgent).BucketAccessControls.List(bucket).Do()
+			_, err := config.NewStorageClient(config.UserAgent).BucketAccessControls.List(bucket).Do()
 
 			if err == nil {
 				return fmt.Errorf("Acl for bucket %s still exists", bucket)

@@ -490,7 +490,7 @@ func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 	directive := CreateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -539,7 +539,7 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 		Project:               dcl.String(project),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -612,7 +612,7 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 		Project:               dcl.String(project),
 	}
 	directive := UpdateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -663,7 +663,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Deleting CertificateTemplate %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

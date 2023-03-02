@@ -132,7 +132,7 @@ func testAccCheckComputeNetworkFirewallPolicyAssociationDestroyProducer(t *testi
 				ShortName:        dcl.StringOrNil(rs.Primary.Attributes["short_name"]),
 			}
 
-			client := NewDCLComputeClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLComputeClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetNetworkFirewallPolicyAssociation(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_compute_network_firewall_policy_association still exists %v", obj)

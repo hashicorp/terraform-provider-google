@@ -34,7 +34,7 @@ func (w *GameServicesOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.GameServicesBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createGameServicesWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*GameServicesOperationWaiter, error) {
@@ -50,7 +50,7 @@ func createGameServicesWaiter(config *Config, op map[string]interface{}, project
 }
 
 // nolint: deadcode,unused
-func gameServicesOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func GameServicesOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createGameServicesWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func gameServicesOperationWaitTimeWithResponse(config *Config, op map[string]int
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func gameServicesOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func GameServicesOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

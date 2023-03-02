@@ -90,7 +90,7 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 	directive := CreateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 		Name:             dcl.String(d.Get("name").(string)),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Deleting FirewallPolicyAssociation %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

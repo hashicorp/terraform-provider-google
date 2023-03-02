@@ -33,7 +33,7 @@ func testSweepAppEngineAppVersion(region string) error {
 	}
 
 	servicesUrl := "https://appengine.googleapis.com/v1/apps/" + config.Project + "/services"
-	res, err := sendRequest(config, "GET", config.Project, servicesUrl, config.userAgent, nil)
+	res, err := SendRequest(config, "GET", config.Project, servicesUrl, config.UserAgent, nil)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", servicesUrl, err)
 		return nil
@@ -66,7 +66,7 @@ func testSweepAppEngineAppVersion(region string) error {
 
 		deleteUrl := servicesUrl + "/" + id
 		// Don't wait on operations as we may have a lot to delete
-		_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, config.userAgent, nil)
+		_, err = SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {

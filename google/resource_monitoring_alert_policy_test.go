@@ -168,7 +168,7 @@ func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.Stat
 			name := rs.Primary.Attributes["name"]
 
 			url := fmt.Sprintf("https://monitoring.googleapis.com/v3/%s", name)
-			_, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+			_, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
 
 			if err == nil {
 				return fmt.Errorf("Error, alert policy %s still exists", name)

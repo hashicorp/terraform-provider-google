@@ -24,7 +24,7 @@ func (w *DatastreamOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.DatastreamBasePath, w.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func (w *DatastreamOperationWaiter) Error() error {
@@ -55,7 +55,7 @@ func createDatastreamWaiter(config *Config, op map[string]interface{}, project, 
 }
 
 // nolint: deadcode,unused
-func datastreamOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func DatastreamOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createDatastreamWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -66,7 +66,7 @@ func datastreamOperationWaitTimeWithResponse(config *Config, op map[string]inter
 	return json.Unmarshal([]byte(w.Op.Response), response)
 }
 
-func datastreamOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func DatastreamOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

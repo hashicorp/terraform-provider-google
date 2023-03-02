@@ -185,7 +185,7 @@ func testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t *testing.T) func(s 
 				Uid:                dcl.StringOrNil(rs.Primary.Attributes["uid"]),
 			}
 
-			client := NewDCLOsConfigClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLOsConfigClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetOSPolicyAssignment(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_os_config_os_policy_assignment still exists %v", obj)

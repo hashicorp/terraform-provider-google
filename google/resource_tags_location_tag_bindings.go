@@ -57,7 +57,7 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 
 func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating LocationTagBinding: %s", err)
 	}
@@ -100,7 +100,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 	// identity fields and d.Id() before read
 
 	var opRes map[string]interface{}
-	err = tagsLocationOperationWaitTimeWithResponse(
+	err = TagsLocationOperationWaitTimeWithResponse(
 		config, res, &opRes, "Creating LocationTagBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
@@ -137,7 +137,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 
 func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 	}
@@ -173,7 +173,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 			if err != nil {
 				return handleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 			}
-			resp, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+			resp, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 			if err != nil {
 				return handleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 			}
@@ -217,7 +217,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 
 func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -237,12 +237,12 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "LocationTagBinding")
 	}
 
-	err = tagsLocationOperationWaitTime(
+	err = TagsLocationOperationWaitTime(
 		config, res, "Deleting LocationTagBinding", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 

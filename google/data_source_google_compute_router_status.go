@@ -58,7 +58,7 @@ func DataSourceGoogleComputeRouterStatus() *schema.Resource {
 
 func dataSourceComputeRouterStatusRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

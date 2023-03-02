@@ -490,7 +490,7 @@ The only allowed value is 'match-path-pattern'.
 
 func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -552,7 +552,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating function: %s", err)
 	}
@@ -567,7 +567,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = cloudfunctions2OperationWaitTimeWithResponse(
+	err = Cloudfunctions2OperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating function", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -595,7 +595,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 
 func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -618,7 +618,7 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Cloudfunctions2function %q", d.Id()))
 	}
@@ -660,7 +660,7 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 
 func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -744,7 +744,7 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating function %q: %s", d.Id(), err)
@@ -752,7 +752,7 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 		log.Printf("[DEBUG] Finished updating function %q: %#v", d.Id(), res)
 	}
 
-	err = cloudfunctions2OperationWaitTime(
+	err = Cloudfunctions2OperationWaitTime(
 		config, res, project, "Updating function", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -765,7 +765,7 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 
 func resourceCloudfunctions2functionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -791,12 +791,12 @@ func resourceCloudfunctions2functionDelete(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "function")
 	}
 
-	err = cloudfunctions2OperationWaitTime(
+	err = Cloudfunctions2OperationWaitTime(
 		config, res, project, "Deleting function", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
@@ -954,7 +954,7 @@ func flattenCloudfunctions2functionBuildConfigSourceStorageSourceObject(v interf
 func flattenCloudfunctions2functionBuildConfigSourceStorageSourceGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1085,7 +1085,7 @@ func flattenCloudfunctions2functionServiceConfigService(v interface{}, d *schema
 func flattenCloudfunctions2functionServiceConfigTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1106,7 +1106,7 @@ func flattenCloudfunctions2functionServiceConfigAvailableMemory(v interface{}, d
 func flattenCloudfunctions2functionServiceConfigMaxInstanceRequestConcurrency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1131,7 +1131,7 @@ func flattenCloudfunctions2functionServiceConfigEnvironmentVariables(v interface
 func flattenCloudfunctions2functionServiceConfigMaxInstanceCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1148,7 +1148,7 @@ func flattenCloudfunctions2functionServiceConfigMaxInstanceCount(v interface{}, 
 func flattenCloudfunctions2functionServiceConfigMinInstanceCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

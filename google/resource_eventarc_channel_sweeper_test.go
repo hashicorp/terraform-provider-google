@@ -58,7 +58,7 @@ func testSweepEventarcChannel(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLEventarcClient(config, config.userAgent, "", 0)
+	client := NewDCLEventarcClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllChannel(context.Background(), d["project"], d["location"], isDeletableEventarcChannel)
 	if err != nil {
 		return err

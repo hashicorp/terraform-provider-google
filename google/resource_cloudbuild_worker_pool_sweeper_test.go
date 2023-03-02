@@ -58,7 +58,7 @@ func testSweepCloudbuildWorkerPool(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLCloudbuildClient(config, config.userAgent, "", 0)
+	client := NewDCLCloudbuildClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllWorkerPool(context.Background(), d["project"], d["location"], isDeletableCloudbuildWorkerPool)
 	if err != nil {
 		return err

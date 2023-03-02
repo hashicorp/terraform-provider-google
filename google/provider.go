@@ -1584,13 +1584,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		Zone:                d.Get("zone").(string),
 		UserProjectOverride: d.Get("user_project_override").(bool),
 		BillingProject:      d.Get("billing_project").(string),
-		userAgent:           p.UserAgent("terraform-provider-google", version.ProviderVersion),
+		UserAgent:           p.UserAgent("terraform-provider-google", version.ProviderVersion),
 	}
 
 	// opt in extension for adding to the User-Agent header
 	if ext := os.Getenv("GOOGLE_TERRAFORM_USERAGENT_EXTENSION"); ext != "" {
-		ua := config.userAgent
-		config.userAgent = fmt.Sprintf("%s %s", ua, ext)
+		ua := config.UserAgent
+		config.UserAgent = fmt.Sprintf("%s %s", ua, ext)
 	}
 
 	if v, ok := d.GetOk("request_timeout"); ok {

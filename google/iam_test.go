@@ -157,9 +157,9 @@ func TestIamMergeBindings(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		got := mergeBindings(tc.input)
+		got := MergeBindings(tc.input)
 		if !compareBindings(got, tc.expect) {
-			t.Errorf("Unexpected value for mergeBindings(%s).\nActual: %s\nExpected: %s\n",
+			t.Errorf("Unexpected value for MergeBindings(%s).\nActual: %s\nExpected: %s\n",
 				debugPrintBindings(tc.input), debugPrintBindings(got), debugPrintBindings(tc.expect))
 		}
 	}

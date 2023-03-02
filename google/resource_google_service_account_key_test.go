@@ -94,7 +94,7 @@ func testAccCheckGoogleServiceAccountKeyExists(t *testing.T, r string) resource.
 		}
 		config := googleProviderConfig(t)
 
-		_, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Keys.Get(rs.Primary.ID).Do()
+		_, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Keys.Get(rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}

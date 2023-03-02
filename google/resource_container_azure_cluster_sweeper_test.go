@@ -58,7 +58,7 @@ func testSweepContainerAzureCluster(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLContainerAzureClient(config, config.userAgent, "", 0)
+	client := NewDCLContainerAzureClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllCluster(context.Background(), d["project"], d["location"], isDeletableContainerAzureCluster)
 	if err != nil {
 		return err

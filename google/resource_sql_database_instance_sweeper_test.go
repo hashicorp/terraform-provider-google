@@ -28,7 +28,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 		log.Fatalf("error loading: %s", err)
 	}
 
-	found, err := config.NewSqlAdminClient(config.userAgent).Instances.List(config.Project).Do()
+	found, err := config.NewSqlAdminClient(config.UserAgent).Instances.List(config.Project).Do()
 	if err != nil {
 		log.Printf("error listing databases: %s", err)
 		return nil
@@ -72,14 +72,14 @@ func testSweepSQLDatabaseInstance(region string) error {
 			}
 
 			// need to stop replication before being able to destroy a database
-			op, err := config.NewSqlAdminClient(config.userAgent).Instances.StopReplica(config.Project, replicaName).Do()
+			op, err := config.NewSqlAdminClient(config.UserAgent).Instances.StopReplica(config.Project, replicaName).Do()
 
 			if err != nil {
 				log.Printf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
 				return nil
 			}
 
-			err = sqlAdminOperationWaitTime(config, op, config.Project, "Stop Replica", config.userAgent, 10*time.Minute)
+			err = SqlAdminOperationWaitTime(config, op, config.Project, "Stop Replica", config.UserAgent, 10*time.Minute)
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
@@ -97,7 +97,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 
 		for _, db := range ordering {
 			// destroy instances, replicas first
-			op, err := config.NewSqlAdminClient(config.userAgent).Instances.Delete(config.Project, db).Do()
+			op, err := config.NewSqlAdminClient(config.UserAgent).Instances.Delete(config.Project, db).Do()
 
 			if err != nil {
 				if strings.Contains(err.Error(), "409") {
@@ -111,7 +111,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 				return nil
 			}
 
-			err = sqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.userAgent, 10*time.Minute)
+			err = SqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.UserAgent, 10*time.Minute)
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("SQL instance not found")

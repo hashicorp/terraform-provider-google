@@ -103,11 +103,11 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, config.Zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, config.Zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -175,12 +175,12 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -243,12 +243,12 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -297,11 +297,11 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 		SourceImage: "projects/debian-cloud/global/images/family/debian-11",
 		Zone:        zone,
 	}
-	op, err := config.NewComputeClient(config.userAgent).Disks.Insert(config.Project, zone, disk).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Disks.Insert(config.Project, zone, disk).Do()
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "disk to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "disk to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -329,11 +329,11 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 			},
 		},
 	}
-	op, err = config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err = config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr = ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -378,11 +378,11 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 		SourceImage: "projects/debian-cloud/global/images/family/debian-11",
 		Zone:        zone,
 	}
-	op, err := config.NewComputeClient(config.userAgent).Disks.Insert(config.Project, zone, disk).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Disks.Insert(config.Project, zone, disk).Do()
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "disk to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "disk to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -410,11 +410,11 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 			},
 		},
 	}
-	op, err = config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err = config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr = ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -479,11 +479,11 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -548,11 +548,11 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -619,11 +619,11 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -692,11 +692,11 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -761,11 +761,11 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -826,11 +826,11 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeOperationWaitTime(config, op, config.Project, "instance to create", config.userAgent, 4*time.Minute)
+	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -902,28 +902,28 @@ func runInstanceMigrateTest(t *testing.T, id, testName string, version int, attr
 }
 
 func cleanUpInstance(config *Config, instanceName, zone string) {
-	op, err := config.NewComputeClient(config.userAgent).Instances.Delete(config.Project, zone, instanceName).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Instances.Delete(config.Project, zone, instanceName).Do()
 	if err != nil {
 		log.Printf("[WARNING] Error deleting instance %q, dangling resources may exist: %s", instanceName, err)
 		return
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWaitTime(config, op, config.Project, "instance to delete", config.userAgent, 4*time.Minute)
+	opErr := ComputeOperationWaitTime(config, op, config.Project, "instance to delete", config.UserAgent, 4*time.Minute)
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting instance %q, dangling resources may exist: %s", instanceName, opErr)
 	}
 }
 
 func cleanUpDisk(config *Config, diskName, zone string) {
-	op, err := config.NewComputeClient(config.userAgent).Disks.Delete(config.Project, zone, diskName).Do()
+	op, err := config.NewComputeClient(config.UserAgent).Disks.Delete(config.Project, zone, diskName).Do()
 	if err != nil {
 		log.Printf("[WARNING] Error deleting disk %q, dangling resources may exist: %s", diskName, err)
 		return
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWaitTime(config, op, config.Project, "disk to delete", config.userAgent, 4*time.Minute)
+	opErr := ComputeOperationWaitTime(config, op, config.Project, "disk to delete", config.UserAgent, 4*time.Minute)
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting disk %q, dangling resources may exist: %s", diskName, opErr)
 	}

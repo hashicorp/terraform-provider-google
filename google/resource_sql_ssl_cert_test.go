@@ -57,7 +57,7 @@ func testAccCheckGoogleSqlClientCertExists(t *testing.T, n string) resource.Test
 
 		instance := rs.Primary.Attributes["instance"]
 		fingerprint := rs.Primary.Attributes["sha1_fingerprint"]
-		sslClientCert, err := config.NewSqlAdminClient(config.userAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
+		sslClientCert, err := config.NewSqlAdminClient(config.UserAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
 
 		if err != nil {
 			return err
@@ -81,7 +81,7 @@ func testAccSqlClientCertDestroyProducer(t *testing.T) func(s *terraform.State) 
 
 			fingerprint := rs.Primary.Attributes["sha1_fingerprint"]
 			instance := rs.Primary.Attributes["instance"]
-			sslCert, _ := config.NewSqlAdminClient(config.userAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
+			sslCert, _ := config.NewSqlAdminClient(config.UserAgent).SslCerts.Get(config.Project, instance, fingerprint).Do()
 
 			commonName := rs.Primary.Attributes["common_name"]
 			if sslCert != nil {

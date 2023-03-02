@@ -33,7 +33,7 @@ func getSignedTestOccurrenceAttestationPayload(
 	pbytes := []byte(rawPayload)
 	ssum := sha512.Sum512(pbytes)
 	hashed := base64.StdEncoding.EncodeToString(ssum[:])
-	signed, err := config.NewKmsClient(config.userAgent).Projects.Locations.KeyRings.CryptoKeys.
+	signed, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.
 		CryptoKeyVersions.AsymmetricSign(
 		fmt.Sprintf("%s/cryptoKeyVersions/1", signingKey.CryptoKey.Name),
 		&cloudkms.AsymmetricSignRequest{

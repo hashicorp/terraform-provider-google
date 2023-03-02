@@ -248,7 +248,7 @@ reservations that are tied to a commitment.`,
 
 func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -310,7 +310,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Reservation: %s", err)
 	}
@@ -322,7 +322,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	err = computeOperationWaitTime(
+	err = ComputeOperationWaitTime(
 		config, res, project, "Creating Reservation", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
@@ -339,7 +339,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -362,7 +362,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeReservation %q", d.Id()))
 	}
@@ -404,7 +404,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -466,7 +466,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 
 	// if updateMask is empty we are not updating anything so skip the post
 	if len(updateMask) > 0 {
-		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
 			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
@@ -474,7 +474,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 			log.Printf("[DEBUG] Finished updating Reservation %q: %#v", d.Id(), res)
 		}
 
-		err = computeOperationWaitTime(
+		err = ComputeOperationWaitTime(
 			config, res, project, "Updating Reservation", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
@@ -521,14 +521,14 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 			billingProject = bp
 		}
 
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
 		} else {
 			log.Printf("[DEBUG] Finished updating Reservation %q: %#v", d.Id(), res)
 		}
 
-		err = computeOperationWaitTime(
+		err = ComputeOperationWaitTime(
 			config, res, project, "Updating Reservation", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -543,7 +543,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -569,12 +569,12 @@ func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Reservation")
 	}
 
-	err = computeOperationWaitTime(
+	err = ComputeOperationWaitTime(
 		config, res, project, "Deleting Reservation", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
@@ -651,7 +651,7 @@ func flattenComputeReservationSpecificReservation(v interface{}, d *schema.Resou
 func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -668,7 +668,7 @@ func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.
 func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -735,7 +735,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelera
 func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -775,7 +775,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInte
 func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1108,7 +1108,7 @@ func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interf
 			// convert id to number.
 			if err != nil {
 				config := meta.(*Config)
-				project, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(projectId).Do()
+				project, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(projectId).Do()
 				if err != nil {
 					return nil, fmt.Errorf("Invalid value for projectId: %s", err)
 				}

@@ -416,7 +416,7 @@ func testAccCheckContainerAwsNodePoolDestroyProducer(t *testing.T) func(s *terra
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLContainerAwsClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLContainerAwsClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetNodePool(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_container_aws_node_pool still exists %v", obj)

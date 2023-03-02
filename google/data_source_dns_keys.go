@@ -190,7 +190,7 @@ func flattenDigests(dnsKeyDigests []*dns.DnsKeyDigest) []map[string]interface{} 
 
 func dataSourceDNSKeysRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -210,9 +210,9 @@ func dataSourceDNSKeysRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Fetching DNS keys from managed zone %s", managedZone)
 
 	response, err := config.NewDnsClient(userAgent).DnsKeys.List(project, managedZone).Do()
-	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+	if err != nil && !IsGoogleApiErrorWithCode(err, 404) {
 		return fmt.Errorf("error retrieving DNS keys: %s", err)
-	} else if isGoogleApiErrorWithCode(err, 404) {
+	} else if IsGoogleApiErrorWithCode(err, 404) {
 		return nil
 	}
 

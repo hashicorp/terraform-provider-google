@@ -34,7 +34,7 @@ func (w *NetworkManagementOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.NetworkManagementBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createNetworkManagementWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*NetworkManagementOperationWaiter, error) {
@@ -50,7 +50,7 @@ func createNetworkManagementWaiter(config *Config, op map[string]interface{}, pr
 }
 
 // nolint: deadcode,unused
-func networkManagementOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func NetworkManagementOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createNetworkManagementWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func networkManagementOperationWaitTimeWithResponse(config *Config, op map[strin
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func networkManagementOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func NetworkManagementOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

@@ -368,7 +368,7 @@ func testAccCheckOrgPolicyPolicyDestroyProducer(t *testing.T) func(s *terraform.
 				Parent: dcl.String(rs.Primary.Attributes["parent"]),
 			}
 
-			client := NewDCLOrgPolicyClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLOrgPolicyClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetPolicy(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_org_policy_policy still exists %v", obj)

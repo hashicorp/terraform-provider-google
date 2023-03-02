@@ -241,11 +241,11 @@ func testAccProjectExistingPolicy(t *testing.T, pid string) resource.TestCheckFu
 	return func(s *terraform.State) error {
 		c := googleProviderConfig(t)
 		var err error
-		originalPolicy, err = getProjectIamPolicy(pid, c)
+		OriginalPolicy, err = getProjectIamPolicy(pid, c)
 		if err != nil {
 			return fmt.Errorf("Failed to retrieve IAM Policy for project %q: %s", pid, err)
 		}
-		if len(originalPolicy.Bindings) == 0 {
+		if len(OriginalPolicy.Bindings) == 0 {
 			return fmt.Errorf("Refuse to run test against project with zero IAM Bindings. This is likely an error in the test code that is not properly identifying the IAM policy of a project.")
 		}
 		return nil

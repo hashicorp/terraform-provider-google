@@ -165,9 +165,9 @@ type Config struct {
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
 
-	client             *http.Client
+	Client             *http.Client
 	context            context.Context
-	userAgent          string
+	UserAgent          string
 	gRPCLoggingOptions []option.ClientOption
 
 	tokenSource oauth2.TokenSource
@@ -273,7 +273,7 @@ type Config struct {
 	ContainerAwsBasePath   string
 	ContainerAzureBasePath string
 
-	requestBatcherServiceUsage *RequestBatcher
+	RequestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
 }
 
@@ -535,10 +535,10 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	// This timeout is a timeout per HTTP request, not per logical operation.
 	client.Timeout = c.synchronousTimeout()
 
-	c.client = client
+	c.Client = client
 	c.context = ctx
 	c.Region = GetRegionFromRegionSelfLink(c.Region)
-	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
+	c.RequestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.requestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
 	c.PollInterval = 10 * time.Second
 
@@ -566,8 +566,8 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 func ExpandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
 	config := &batchingConfig{
-		sendAfter:      time.Second * defaultBatchSendIntervalSec,
-		enableBatching: true,
+		SendAfter:      time.Second * DefaultBatchSendIntervalSec,
+		EnableBatching: true,
 	}
 
 	if v == nil {
@@ -580,15 +580,15 @@ func ExpandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
 
 	cfgV := ls[0].(map[string]interface{})
 	if sendAfterV, ok := cfgV["send_after"]; ok {
-		sendAfter, err := time.ParseDuration(sendAfterV.(string))
+		SendAfter, err := time.ParseDuration(sendAfterV.(string))
 		if err != nil {
 			return nil, fmt.Errorf("unable to parse duration from 'send_after' value %q", sendAfterV)
 		}
-		config.sendAfter = sendAfter
+		config.SendAfter = SendAfter
 	}
 
 	if enable, ok := cfgV["enable_batching"]; ok {
-		config.enableBatching = enable.(bool)
+		config.EnableBatching = enable.(bool)
 	}
 
 	return config, nil
@@ -609,9 +609,9 @@ func (c *Config) logGoogleIdentities() error {
 		if err != nil {
 			return err
 		}
-		c.client = oauth2.NewClient(c.context, tokenSource) // c.client isn't initialised fully when this code is called.
+		c.Client = oauth2.NewClient(c.context, tokenSource) // c.Client isn't initialised fully when this code is called.
 
-		email, err := GetCurrentUserEmail(c, c.userAgent)
+		email, err := GetCurrentUserEmail(c, c.UserAgent)
 		if err != nil {
 			log.Printf("[INFO] error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)
 		}
@@ -628,9 +628,9 @@ func (c *Config) logGoogleIdentities() error {
 	if err != nil {
 		return err
 	}
-	c.client = oauth2.NewClient(c.context, tokenSource) // c.client isn't initialised fully when this code is called.
+	c.Client = oauth2.NewClient(c.context, tokenSource) // c.Client isn't initialised fully when this code is called.
 
-	email, err := GetCurrentUserEmail(c, c.userAgent)
+	email, err := GetCurrentUserEmail(c, c.UserAgent)
 	if err != nil {
 		log.Printf("[INFO] error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)
 	}
@@ -643,7 +643,7 @@ func (c *Config) logGoogleIdentities() error {
 	if err != nil {
 		return err
 	}
-	c.client = oauth2.NewClient(c.context, tokenSource) // c.client isn't initialised fully when this code is called.
+	c.Client = oauth2.NewClient(c.context, tokenSource) // c.Client isn't initialised fully when this code is called.
 
 	return nil
 }
@@ -666,7 +666,7 @@ func (c *Config) getTokenSource(clientScopes []string, initialCredentialsOnly bo
 // the basePath value in the client library file.
 func (c *Config) NewComputeClient(userAgent string) *compute.Service {
 	log.Printf("[INFO] Instantiating GCE client for path %s", c.ComputeBasePath)
-	clientCompute, err := compute.NewService(c.context, option.WithHTTPClient(c.client))
+	clientCompute, err := compute.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client compute: %s", err)
 		return nil
@@ -678,9 +678,9 @@ func (c *Config) NewComputeClient(userAgent string) *compute.Service {
 }
 
 func (c *Config) NewContainerClient(userAgent string) *container.Service {
-	containerClientBasePath := removeBasePathVersion(c.ContainerBasePath)
+	containerClientBasePath := RemoveBasePathVersion(c.ContainerBasePath)
 	log.Printf("[INFO] Instantiating GKE client for path %s", containerClientBasePath)
-	clientContainer, err := container.NewService(c.context, option.WithHTTPClient(c.client))
+	clientContainer, err := container.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client container: %s", err)
 		return nil
@@ -692,10 +692,10 @@ func (c *Config) NewContainerClient(userAgent string) *container.Service {
 }
 
 func (c *Config) NewDnsClient(userAgent string) *dns.Service {
-	dnsClientBasePath := removeBasePathVersion(c.DNSBasePath)
+	dnsClientBasePath := RemoveBasePathVersion(c.DNSBasePath)
 	dnsClientBasePath = strings.ReplaceAll(dnsClientBasePath, "/dns/", "")
 	log.Printf("[INFO] Instantiating Google Cloud DNS client for path %s", dnsClientBasePath)
-	clientDns, err := dns.NewService(c.context, option.WithHTTPClient(c.client))
+	clientDns, err := dns.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client dns: %s", err)
 		return nil
@@ -707,9 +707,9 @@ func (c *Config) NewDnsClient(userAgent string) *dns.Service {
 }
 
 func (c *Config) NewKmsClientWithCtx(ctx context.Context, userAgent string) *cloudkms.Service {
-	kmsClientBasePath := removeBasePathVersion(c.KMSBasePath)
+	kmsClientBasePath := RemoveBasePathVersion(c.KMSBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud KMS client for path %s", kmsClientBasePath)
-	clientKms, err := cloudkms.NewService(ctx, option.WithHTTPClient(c.client))
+	clientKms, err := cloudkms.NewService(ctx, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client kms: %s", err)
 		return nil
@@ -725,9 +725,9 @@ func (c *Config) NewKmsClient(userAgent string) *cloudkms.Service {
 }
 
 func (c *Config) NewLoggingClient(userAgent string) *cloudlogging.Service {
-	loggingClientBasePath := removeBasePathVersion(c.LoggingBasePath)
+	loggingClientBasePath := RemoveBasePathVersion(c.LoggingBasePath)
 	log.Printf("[INFO] Instantiating Google Stackdriver Logging client for path %s", loggingClientBasePath)
-	clientLogging, err := cloudlogging.NewService(c.context, option.WithHTTPClient(c.client))
+	clientLogging, err := cloudlogging.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client logging: %s", err)
 		return nil
@@ -741,7 +741,7 @@ func (c *Config) NewLoggingClient(userAgent string) *cloudlogging.Service {
 func (c *Config) NewStorageClient(userAgent string) *storage.Service {
 	storageClientBasePath := c.StorageBasePath
 	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
-	clientStorage, err := storage.NewService(c.context, option.WithHTTPClient(c.client))
+	clientStorage, err := storage.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client storage: %s", err)
 		return nil
@@ -760,9 +760,9 @@ func (c *Config) NewStorageClientWithTimeoutOverride(userAgent string, timeout t
 	// We have to do this because otherwise we will accidentally change the timeout for all other
 	// synchronous operations, which would not be desirable.
 	httpClient := &http.Client{
-		Transport:     c.client.Transport,
-		CheckRedirect: c.client.CheckRedirect,
-		Jar:           c.client.Jar,
+		Transport:     c.Client.Transport,
+		CheckRedirect: c.Client.CheckRedirect,
+		Jar:           c.Client.Jar,
 		Timeout:       timeout,
 	}
 	clientStorage, err := storage.NewService(c.context, option.WithHTTPClient(httpClient))
@@ -777,9 +777,9 @@ func (c *Config) NewStorageClientWithTimeoutOverride(userAgent string, timeout t
 }
 
 func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
-	sqlClientBasePath := removeBasePathVersion(removeBasePathVersion(c.SQLBasePath))
+	sqlClientBasePath := RemoveBasePathVersion(RemoveBasePathVersion(c.SQLBasePath))
 	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)
-	clientSqlAdmin, err := sqladmin.NewService(c.context, option.WithHTTPClient(c.client))
+	clientSqlAdmin, err := sqladmin.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client storage: %s", err)
 		return nil
@@ -791,9 +791,9 @@ func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
 }
 
 func (c *Config) NewPubsubClient(userAgent string) *pubsub.Service {
-	pubsubClientBasePath := removeBasePathVersion(c.PubsubBasePath)
+	pubsubClientBasePath := RemoveBasePathVersion(c.PubsubBasePath)
 	log.Printf("[INFO] Instantiating Google Pubsub client for path %s", pubsubClientBasePath)
-	wrappedPubsubClient := ClientWithAdditionalRetries(c.client, pubsubTopicProjectNotReady)
+	wrappedPubsubClient := ClientWithAdditionalRetries(c.Client, pubsubTopicProjectNotReady)
 	clientPubsub, err := pubsub.NewService(c.context, option.WithHTTPClient(wrappedPubsubClient))
 	if err != nil {
 		log.Printf("[WARN] Error creating client pubsub: %s", err)
@@ -806,9 +806,9 @@ func (c *Config) NewPubsubClient(userAgent string) *pubsub.Service {
 }
 
 func (c *Config) NewDataflowClient(userAgent string) *dataflow.Service {
-	dataflowClientBasePath := removeBasePathVersion(c.DataflowBasePath)
+	dataflowClientBasePath := RemoveBasePathVersion(c.DataflowBasePath)
 	log.Printf("[INFO] Instantiating Google Dataflow client for path %s", dataflowClientBasePath)
-	clientDataflow, err := dataflow.NewService(c.context, option.WithHTTPClient(c.client))
+	clientDataflow, err := dataflow.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client dataflow: %s", err)
 		return nil
@@ -820,9 +820,9 @@ func (c *Config) NewDataflowClient(userAgent string) *dataflow.Service {
 }
 
 func (c *Config) NewResourceManagerClient(userAgent string) *cloudresourcemanager.Service {
-	resourceManagerBasePath := removeBasePathVersion(c.ResourceManagerBasePath)
+	resourceManagerBasePath := RemoveBasePathVersion(c.ResourceManagerBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager client for path %s", resourceManagerBasePath)
-	clientResourceManager, err := cloudresourcemanager.NewService(c.context, option.WithHTTPClient(c.client))
+	clientResourceManager, err := cloudresourcemanager.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client resource manager: %s", err)
 		return nil
@@ -834,9 +834,9 @@ func (c *Config) NewResourceManagerClient(userAgent string) *cloudresourcemanage
 }
 
 func (c *Config) NewResourceManagerV3Client(userAgent string) *resourceManagerV3.Service {
-	resourceManagerV3BasePath := removeBasePathVersion(c.ResourceManagerV3BasePath)
+	resourceManagerV3BasePath := RemoveBasePathVersion(c.ResourceManagerV3BasePath)
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V3 client for path %s", resourceManagerV3BasePath)
-	clientResourceManagerV3, err := resourceManagerV3.NewService(c.context, option.WithHTTPClient(c.client))
+	clientResourceManagerV3, err := resourceManagerV3.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client resource manager v3: %s", err)
 		return nil
@@ -848,9 +848,9 @@ func (c *Config) NewResourceManagerV3Client(userAgent string) *resourceManagerV3
 }
 
 func (c *Config) NewIamClient(userAgent string) *iam.Service {
-	iamClientBasePath := removeBasePathVersion(c.IAMBasePath)
+	iamClientBasePath := RemoveBasePathVersion(c.IAMBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud IAM client for path %s", iamClientBasePath)
-	clientIAM, err := iam.NewService(c.context, option.WithHTTPClient(c.client))
+	clientIAM, err := iam.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client iam: %s", err)
 		return nil
@@ -862,9 +862,9 @@ func (c *Config) NewIamClient(userAgent string) *iam.Service {
 }
 
 func (c *Config) NewIamCredentialsClient(userAgent string) *iamcredentials.Service {
-	iamCredentialsClientBasePath := removeBasePathVersion(c.IamCredentialsBasePath)
+	iamCredentialsClientBasePath := RemoveBasePathVersion(c.IamCredentialsBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud IAMCredentials client for path %s", iamCredentialsClientBasePath)
-	clientIamCredentials, err := iamcredentials.NewService(c.context, option.WithHTTPClient(c.client))
+	clientIamCredentials, err := iamcredentials.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client iam credentials: %s", err)
 		return nil
@@ -876,9 +876,9 @@ func (c *Config) NewIamCredentialsClient(userAgent string) *iamcredentials.Servi
 }
 
 func (c *Config) NewServiceManClient(userAgent string) *servicemanagement.APIService {
-	serviceManagementClientBasePath := removeBasePathVersion(c.ServiceManagementBasePath)
+	serviceManagementClientBasePath := RemoveBasePathVersion(c.ServiceManagementBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Service Management client for path %s", serviceManagementClientBasePath)
-	clientServiceMan, err := servicemanagement.NewService(c.context, option.WithHTTPClient(c.client))
+	clientServiceMan, err := servicemanagement.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client service management: %s", err)
 		return nil
@@ -890,9 +890,9 @@ func (c *Config) NewServiceManClient(userAgent string) *servicemanagement.APISer
 }
 
 func (c *Config) NewServiceUsageClient(userAgent string) *serviceusage.Service {
-	serviceUsageClientBasePath := removeBasePathVersion(c.ServiceUsageBasePath)
+	serviceUsageClientBasePath := RemoveBasePathVersion(c.ServiceUsageBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Service Usage client for path %s", serviceUsageClientBasePath)
-	clientServiceUsage, err := serviceusage.NewService(c.context, option.WithHTTPClient(c.client))
+	clientServiceUsage, err := serviceusage.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client service usage: %s", err)
 		return nil
@@ -904,9 +904,9 @@ func (c *Config) NewServiceUsageClient(userAgent string) *serviceusage.Service {
 }
 
 func (c *Config) NewBillingClient(userAgent string) *cloudbilling.APIService {
-	cloudBillingClientBasePath := removeBasePathVersion(c.CloudBillingBasePath)
+	cloudBillingClientBasePath := RemoveBasePathVersion(c.CloudBillingBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Billing client for path %s", cloudBillingClientBasePath)
-	clientBilling, err := cloudbilling.NewService(c.context, option.WithHTTPClient(c.client))
+	clientBilling, err := cloudbilling.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client billing: %s", err)
 		return nil
@@ -918,9 +918,9 @@ func (c *Config) NewBillingClient(userAgent string) *cloudbilling.APIService {
 }
 
 func (c *Config) NewBuildClient(userAgent string) *cloudbuild.Service {
-	cloudBuildClientBasePath := removeBasePathVersion(c.CloudBuildBasePath)
+	cloudBuildClientBasePath := RemoveBasePathVersion(c.CloudBuildBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Build client for path %s", cloudBuildClientBasePath)
-	clientBuild, err := cloudbuild.NewService(c.context, option.WithHTTPClient(c.client))
+	clientBuild, err := cloudbuild.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client build: %s", err)
 		return nil
@@ -932,9 +932,9 @@ func (c *Config) NewBuildClient(userAgent string) *cloudbuild.Service {
 }
 
 func (c *Config) NewCloudFunctionsClient(userAgent string) *cloudfunctions.Service {
-	cloudFunctionsClientBasePath := removeBasePathVersion(c.CloudFunctionsBasePath)
+	cloudFunctionsClientBasePath := RemoveBasePathVersion(c.CloudFunctionsBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud CloudFunctions Client for path %s", cloudFunctionsClientBasePath)
-	clientCloudFunctions, err := cloudfunctions.NewService(c.context, option.WithHTTPClient(c.client))
+	clientCloudFunctions, err := cloudfunctions.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client cloud functions: %s", err)
 		return nil
@@ -946,9 +946,9 @@ func (c *Config) NewCloudFunctionsClient(userAgent string) *cloudfunctions.Servi
 }
 
 func (c *Config) NewSourceRepoClient(userAgent string) *sourcerepo.Service {
-	sourceRepoClientBasePath := removeBasePathVersion(c.SourceRepoBasePath)
+	sourceRepoClientBasePath := RemoveBasePathVersion(c.SourceRepoBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Source Repo client for path %s", sourceRepoClientBasePath)
-	clientSourceRepo, err := sourcerepo.NewService(c.context, option.WithHTTPClient(c.client))
+	clientSourceRepo, err := sourcerepo.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client source repo: %s", err)
 		return nil
@@ -962,7 +962,7 @@ func (c *Config) NewSourceRepoClient(userAgent string) *sourcerepo.Service {
 func (c *Config) NewBigQueryClient(userAgent string) *bigquery.Service {
 	bigQueryClientBasePath := c.BigQueryBasePath
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
-	wrappedBigQueryClient := ClientWithAdditionalRetries(c.client, iamMemberMissing)
+	wrappedBigQueryClient := ClientWithAdditionalRetries(c.Client, iamMemberMissing)
 	clientBigQuery, err := bigquery.NewService(c.context, option.WithHTTPClient(wrappedBigQueryClient))
 	if err != nil {
 		log.Printf("[WARN] Error creating client big query: %s", err)
@@ -975,9 +975,9 @@ func (c *Config) NewBigQueryClient(userAgent string) *bigquery.Service {
 }
 
 func (c *Config) NewSpannerClient(userAgent string) *spanner.Service {
-	spannerClientBasePath := removeBasePathVersion(c.SpannerBasePath)
+	spannerClientBasePath := RemoveBasePathVersion(c.SpannerBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Spanner client for path %s", spannerClientBasePath)
-	clientSpanner, err := spanner.NewService(c.context, option.WithHTTPClient(c.client))
+	clientSpanner, err := spanner.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client source repo: %s", err)
 		return nil
@@ -989,9 +989,9 @@ func (c *Config) NewSpannerClient(userAgent string) *spanner.Service {
 }
 
 func (c *Config) NewDataprocClient(userAgent string) *dataproc.Service {
-	dataprocClientBasePath := removeBasePathVersion(c.DataprocBasePath)
+	dataprocClientBasePath := RemoveBasePathVersion(c.DataprocBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Dataproc client for path %s", dataprocClientBasePath)
-	clientDataproc, err := dataproc.NewService(c.context, option.WithHTTPClient(c.client))
+	clientDataproc, err := dataproc.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client dataproc: %s", err)
 		return nil
@@ -1003,9 +1003,9 @@ func (c *Config) NewDataprocClient(userAgent string) *dataproc.Service {
 }
 
 func (c *Config) NewCloudIoTClient(userAgent string) *cloudiot.Service {
-	cloudIoTClientBasePath := removeBasePathVersion(c.CloudIoTBasePath)
+	cloudIoTClientBasePath := RemoveBasePathVersion(c.CloudIoTBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud IoT Core client for path %s", cloudIoTClientBasePath)
-	clientCloudIoT, err := cloudiot.NewService(c.context, option.WithHTTPClient(c.client))
+	clientCloudIoT, err := cloudiot.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client cloud iot: %s", err)
 		return nil
@@ -1017,9 +1017,9 @@ func (c *Config) NewCloudIoTClient(userAgent string) *cloudiot.Service {
 }
 
 func (c *Config) NewAppEngineClient(userAgent string) *appengine.APIService {
-	appEngineClientBasePath := removeBasePathVersion(c.AppEngineBasePath)
+	appEngineClientBasePath := RemoveBasePathVersion(c.AppEngineBasePath)
 	log.Printf("[INFO] Instantiating App Engine client for path %s", appEngineClientBasePath)
-	clientAppEngine, err := appengine.NewService(c.context, option.WithHTTPClient(c.client))
+	clientAppEngine, err := appengine.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client appengine: %s", err)
 		return nil
@@ -1031,9 +1031,9 @@ func (c *Config) NewAppEngineClient(userAgent string) *appengine.APIService {
 }
 
 func (c *Config) NewComposerClient(userAgent string) *composer.Service {
-	composerClientBasePath := removeBasePathVersion(c.ComposerBasePath)
+	composerClientBasePath := RemoveBasePathVersion(c.ComposerBasePath)
 	log.Printf("[INFO] Instantiating Cloud Composer client for path %s", composerClientBasePath)
-	clientComposer, err := composer.NewService(c.context, option.WithHTTPClient(c.client))
+	clientComposer, err := composer.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client composer: %s", err)
 		return nil
@@ -1045,9 +1045,9 @@ func (c *Config) NewComposerClient(userAgent string) *composer.Service {
 }
 
 func (c *Config) NewServiceNetworkingClient(userAgent string) *servicenetworking.APIService {
-	serviceNetworkingClientBasePath := removeBasePathVersion(c.ServiceNetworkingBasePath)
+	serviceNetworkingClientBasePath := RemoveBasePathVersion(c.ServiceNetworkingBasePath)
 	log.Printf("[INFO] Instantiating Service Networking client for path %s", serviceNetworkingClientBasePath)
-	clientServiceNetworking, err := servicenetworking.NewService(c.context, option.WithHTTPClient(c.client))
+	clientServiceNetworking, err := servicenetworking.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client service networking: %s", err)
 		return nil
@@ -1059,9 +1059,9 @@ func (c *Config) NewServiceNetworkingClient(userAgent string) *servicenetworking
 }
 
 func (c *Config) NewStorageTransferClient(userAgent string) *storagetransfer.Service {
-	storageTransferClientBasePath := removeBasePathVersion(c.StorageTransferBasePath)
+	storageTransferClientBasePath := RemoveBasePathVersion(c.StorageTransferBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer client for path %s", storageTransferClientBasePath)
-	clientStorageTransfer, err := storagetransfer.NewService(c.context, option.WithHTTPClient(c.client))
+	clientStorageTransfer, err := storagetransfer.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client storage transfer: %s", err)
 		return nil
@@ -1073,9 +1073,9 @@ func (c *Config) NewStorageTransferClient(userAgent string) *storagetransfer.Ser
 }
 
 func (c *Config) NewHealthcareClient(userAgent string) *healthcare.Service {
-	healthcareClientBasePath := removeBasePathVersion(c.HealthcareBasePath)
+	healthcareClientBasePath := RemoveBasePathVersion(c.HealthcareBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Healthcare client for path %s", healthcareClientBasePath)
-	clientHealthcare, err := healthcare.NewService(c.context, option.WithHTTPClient(c.client))
+	clientHealthcare, err := healthcare.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client healthcare: %s", err)
 		return nil
@@ -1087,9 +1087,9 @@ func (c *Config) NewHealthcareClient(userAgent string) *healthcare.Service {
 }
 
 func (c *Config) NewCloudIdentityClient(userAgent string) *cloudidentity.Service {
-	cloudidentityClientBasePath := removeBasePathVersion(c.CloudIdentityBasePath)
+	cloudidentityClientBasePath := RemoveBasePathVersion(c.CloudIdentityBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud CloudIdentity client for path %s", cloudidentityClientBasePath)
-	clientCloudIdentity, err := cloudidentity.NewService(c.context, option.WithHTTPClient(c.client))
+	clientCloudIdentity, err := cloudidentity.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client cloud identity: %s", err)
 		return nil
@@ -1118,9 +1118,9 @@ func (c *Config) BigTableClientFactory(userAgent string) *BigtableClientFactory 
 // we expose those directly instead of providing the `Service` object
 // as a factory.
 func (c *Config) NewBigTableProjectsInstancesClient(userAgent string) *bigtableadmin.ProjectsInstancesService {
-	bigtableAdminBasePath := removeBasePathVersion(c.BigtableAdminBasePath)
+	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableAdminBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
-	clientBigtable, err := bigtableadmin.NewService(c.context, option.WithHTTPClient(c.client))
+	clientBigtable, err := bigtableadmin.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client big table projects instances: %s", err)
 		return nil
@@ -1133,9 +1133,9 @@ func (c *Config) NewBigTableProjectsInstancesClient(userAgent string) *bigtablea
 }
 
 func (c *Config) NewBigTableProjectsInstancesTablesClient(userAgent string) *bigtableadmin.ProjectsInstancesTablesService {
-	bigtableAdminBasePath := removeBasePathVersion(c.BigtableAdminBasePath)
+	bigtableAdminBasePath := RemoveBasePathVersion(c.BigtableAdminBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
-	clientBigtable, err := bigtableadmin.NewService(c.context, option.WithHTTPClient(c.client))
+	clientBigtable, err := bigtableadmin.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client projects instances tables: %s", err)
 		return nil
@@ -1148,9 +1148,9 @@ func (c *Config) NewBigTableProjectsInstancesTablesClient(userAgent string) *big
 }
 
 func (c *Config) NewCloudRunV2Client(userAgent string) *runadminv2.Service {
-	runAdminV2ClientBasePath := removeBasePathVersion(removeBasePathVersion(c.CloudRunV2BasePath))
+	runAdminV2ClientBasePath := RemoveBasePathVersion(RemoveBasePathVersion(c.CloudRunV2BasePath))
 	log.Printf("[INFO] Instantiating Google Cloud Run Admin v2 client for path %s", runAdminV2ClientBasePath)
-	clientRunAdminV2, err := runadminv2.NewService(c.context, option.WithHTTPClient(c.client))
+	clientRunAdminV2, err := runadminv2.NewService(c.context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client run admin: %s", err)
 		return nil
@@ -1241,7 +1241,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 }
 
 // Remove the `/{{version}}/` from a base path if present.
-func removeBasePathVersion(url string) string {
+func RemoveBasePathVersion(url string) string {
 	re := regexp.MustCompile(`(?P<base>http[s]://.*)(?P<version>/[^/]+?/$)`)
 	return re.ReplaceAllString(url, "$1/")
 }

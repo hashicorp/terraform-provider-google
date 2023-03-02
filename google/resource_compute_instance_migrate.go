@@ -329,7 +329,7 @@ func getInstanceFromInstanceState(config *Config, is *terraform.InstanceState) (
 		}
 	}
 
-	instance, err := config.NewComputeClient(config.userAgent).Instances.Get(
+	instance, err := config.NewComputeClient(config.UserAgent).Instances.Get(
 		project, zone, is.ID).Do()
 	if err != nil {
 		return nil, fmt.Errorf("error reading instance: %s", err)
@@ -360,7 +360,7 @@ func getAllDisksFromInstanceState(config *Config, is *terraform.InstanceState) (
 	diskList := []*compute.Disk{}
 	token := ""
 	for {
-		disks, err := config.NewComputeClient(config.userAgent).Disks.List(project, zone).PageToken(token).Do()
+		disks, err := config.NewComputeClient(config.UserAgent).Disks.List(project, zone).PageToken(token).Do()
 		if err != nil {
 			return nil, fmt.Errorf("error reading disks: %s", err)
 		}
@@ -448,7 +448,7 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 }
 
 func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
-	img, err := resolveImage(config, project, image, config.userAgent)
+	img, err := resolveImage(config, project, image, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}

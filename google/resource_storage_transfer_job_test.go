@@ -276,7 +276,7 @@ func testAccStorageTransferJobDestroyProducer(t *testing.T) func(s *terraform.St
 				return err
 			}
 
-			res, err := config.NewStorageTransferClient(config.userAgent).TransferJobs.Get(name, project).Do()
+			res, err := config.NewStorageTransferClient(config.UserAgent).TransferJobs.Get(name, project).Do()
 			if err != nil {
 				return fmt.Errorf("Transfer Job does not exist, should exist and be DELETED")
 			}

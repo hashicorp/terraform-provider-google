@@ -35,7 +35,7 @@ func testSweepComputeInstanceGroupManager(region string) error {
 		return err
 	}
 
-	found, err := config.NewComputeClient(config.userAgent).InstanceGroupManagers.AggregatedList(config.Project).Do()
+	found, err := config.NewComputeClient(config.UserAgent).InstanceGroupManagers.AggregatedList(config.Project).Do()
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -51,7 +51,7 @@ func testSweepComputeInstanceGroupManager(region string) error {
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := config.NewComputeClient(config.userAgent).InstanceGroupManagers.Delete(config.Project, GetResourceNameFromSelfLink(zone), igm.Name).Do()
+			_, err := config.NewComputeClient(config.UserAgent).InstanceGroupManagers.Delete(config.Project, GetResourceNameFromSelfLink(zone), igm.Name).Do()
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, igm.Name, err)
 			} else {
@@ -448,7 +448,7 @@ func testAccCheckInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terra
 			if rs.Type != "google_compute_instance_group_manager" {
 				continue
 			}
-			_, err := config.NewComputeClient(config.userAgent).InstanceGroupManagers.Get(
+			_, err := config.NewComputeClient(config.UserAgent).InstanceGroupManagers.Get(
 				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("InstanceGroupManager still exists")

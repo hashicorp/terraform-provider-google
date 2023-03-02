@@ -57,7 +57,7 @@ func ResourceBillingSubaccount() *schema.Resource {
 
 func resourceBillingSubaccountCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func resourceBillingSubaccountCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceBillingSubaccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func resourceBillingSubaccountRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceBillingSubaccountUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func resourceBillingSubaccountUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceBillingSubaccountDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

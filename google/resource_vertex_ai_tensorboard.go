@@ -121,7 +121,7 @@ Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/
 
 func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Tensorboard: %s", err)
 	}
@@ -186,7 +186,7 @@ func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{})
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = vertexAIOperationWaitTimeWithResponse(
+	err = VertexAIOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Tensorboard", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -214,7 +214,7 @@ func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{})
 
 func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("VertexAITensorboard %q", d.Id()))
 	}
@@ -279,7 +279,7 @@ func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -343,7 +343,7 @@ func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Tensorboard %q: %s", d.Id(), err)
@@ -351,7 +351,7 @@ func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{})
 		log.Printf("[DEBUG] Finished updating Tensorboard %q: %#v", d.Id(), res)
 	}
 
-	err = vertexAIOperationWaitTime(
+	err = VertexAIOperationWaitTime(
 		config, res, project, "Updating Tensorboard", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -364,7 +364,7 @@ func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceVertexAITensorboardDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -390,12 +390,12 @@ func resourceVertexAITensorboardDelete(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Tensorboard")
 	}
 
-	err = vertexAIOperationWaitTime(
+	err = VertexAIOperationWaitTime(
 		config, res, project, "Deleting Tensorboard", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 

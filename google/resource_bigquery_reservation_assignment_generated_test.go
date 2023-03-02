@@ -97,7 +97,7 @@ func testAccCheckBigqueryReservationAssignmentDestroyProducer(t *testing.T) func
 				State:       bigqueryreservation.AssignmentStateEnumRef(rs.Primary.Attributes["state"]),
 			}
 
-			client := NewDCLBigqueryReservationClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLBigqueryReservationClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetAssignment(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_bigquery_reservation_assignment still exists %v", obj)

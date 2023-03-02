@@ -55,7 +55,7 @@ resource "google_compute_http_health_check" "zero" {
 func testAccCheckComputeBackendServiceSignedUrlKeyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		exists, err := checkComputeBackendServiceSignedUrlKeyExists(t, s)
-		if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+		if err != nil && !IsGoogleApiErrorWithCode(err, 404) {
 			return err
 		}
 		if exists {
@@ -95,7 +95,7 @@ func checkComputeBackendServiceSignedUrlKeyExists(t *testing.T, s *terraform.Sta
 			return false, err
 		}
 
-		res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+		res, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err != nil {
 			return false, err
 		}

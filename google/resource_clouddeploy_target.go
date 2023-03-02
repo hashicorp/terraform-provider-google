@@ -252,7 +252,7 @@ func resourceClouddeployTargetCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 	directive := CreateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func resourceClouddeployTargetUpdate(d *schema.ResourceData, meta interface{}) e
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
 	}
 	directive := UpdateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -446,7 +446,7 @@ func resourceClouddeployTargetDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Deleting Target %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

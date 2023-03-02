@@ -124,7 +124,7 @@ func testAccCheckLoggingBillingAccountExclusionDestroyProducer(t *testing.T) fun
 
 			attributes := rs.Primary.Attributes
 
-			_, err := config.NewLoggingClient(config.userAgent).BillingAccounts.Exclusions.Get(attributes["id"]).Do()
+			_, err := config.NewLoggingClient(config.UserAgent).BillingAccounts.Exclusions.Get(attributes["id"]).Do()
 			if err == nil {
 				return fmt.Errorf("billingAccount exclusion still exists")
 			}

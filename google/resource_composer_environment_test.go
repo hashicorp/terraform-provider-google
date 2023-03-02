@@ -940,7 +940,7 @@ func testAccComposerEnvironmentDestroyProducer(t *testing.T) func(s *terraform.S
 				Environment: idTokens[5],
 			}
 
-			_, err := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
+			_, err := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
 			if err == nil {
 				return fmt.Errorf("environment %s still exists", envName.resourceName())
 			}
@@ -2253,7 +2253,7 @@ func testSweepComposerResources(region string) error {
 }
 
 func testSweepComposerEnvironments(config *Config, region string) error {
-	found, err := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.List(
+	found, err := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.List(
 		fmt.Sprintf("projects/%s/locations/%s", config.Project, region)).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets for composer environment: %s", err)
@@ -2291,12 +2291,12 @@ func testSweepComposerEnvironments(config *Config, region string) error {
 		case "ERROR":
 			fallthrough
 		default:
-			op, deleteErr := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.Delete(e.Name).Do()
+			op, deleteErr := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.Delete(e.Name).Do()
 			if deleteErr != nil {
 				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, deleteErr))
 				continue
 			}
-			waitErr := composerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", config.userAgent, 10*time.Minute)
+			waitErr := ComposerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", config.UserAgent, 10*time.Minute)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, waitErr))
 			}
@@ -2307,9 +2307,9 @@ func testSweepComposerEnvironments(config *Config, region string) error {
 
 func testSweepComposerEnvironmentBuckets(config *Config, region string) error {
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
-	artifactBucket, err := config.NewStorageClient(config.userAgent).Buckets.Get(artifactsBName).Do()
+	artifactBucket, err := config.NewStorageClient(config.UserAgent).Buckets.Get(artifactsBName).Do()
 	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
+		if IsGoogleApiErrorWithCode(err, 404) {
 			log.Printf("composer environment bucket %q not found, doesn't need to be cleaned up", artifactsBName)
 		} else {
 			return err
@@ -2318,7 +2318,7 @@ func testSweepComposerEnvironmentBuckets(config *Config, region string) error {
 		return err
 	}
 
-	found, err := config.NewStorageClient(config.userAgent).Buckets.List(config.Project).Prefix(region).Do()
+	found, err := config.NewStorageClient(config.UserAgent).Buckets.List(config.Project).Prefix(region).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets created when testing composer environment: %s", err)
 	}
@@ -2340,20 +2340,20 @@ func testSweepComposerEnvironmentBuckets(config *Config, region string) error {
 
 func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.Bucket) error {
 	var allErrors error
-	objList, err := config.NewStorageClient(config.userAgent).Objects.List(bucket.Name).Do()
+	objList, err := config.NewStorageClient(config.UserAgent).Objects.List(bucket.Name).Do()
 	if err != nil {
 		allErrors = multierror.Append(allErrors,
 			fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
 	}
 
 	for _, o := range objList.Items {
-		if err := config.NewStorageClient(config.userAgent).Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
+		if err := config.NewStorageClient(config.UserAgent).Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
 			allErrors = multierror.Append(allErrors,
 				fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
 		}
 	}
 
-	if err := config.NewStorageClient(config.userAgent).Buckets.Delete(bucket.Name).Do(); err != nil {
+	if err := config.NewStorageClient(config.UserAgent).Buckets.Delete(bucket.Name).Do(); err != nil {
 		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
 	}
 
@@ -2374,12 +2374,12 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 		config.Project = getTestProjectFromEnv()
-		network, err := config.NewComputeClient(config.userAgent).Networks.Get(getTestProjectFromEnv(), networkName).Do()
+		network, err := config.NewComputeClient(config.UserAgent).Networks.Get(getTestProjectFromEnv(), networkName).Do()
 		if err != nil {
 			return err
 		}
 
-		foundFirewalls, err := config.NewComputeClient(config.userAgent).Firewalls.List(config.Project).Do()
+		foundFirewalls, err := config.NewComputeClient(config.UserAgent).Firewalls.List(config.Project).Do()
 		if err != nil {
 			return fmt.Errorf("Unable to list firewalls for network %q: %s", network.Name, err)
 		}
@@ -2390,15 +2390,15 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 				continue
 			}
 			log.Printf("[DEBUG] Deleting firewall %q for test-resource network %q", firewall.Name, network.Name)
-			op, err := config.NewComputeClient(config.userAgent).Firewalls.Delete(config.Project, firewall.Name).Do()
+			op, err := config.NewComputeClient(config.UserAgent).Firewalls.Delete(config.Project, firewall.Name).Do()
 			if err != nil {
 				allErrors = multierror.Append(allErrors,
 					fmt.Errorf("Unable to delete firewalls for network %q: %s", network.Name, err))
 				continue
 			}
 
-			waitErr := computeOperationWaitTime(config, op, config.Project,
-				"Sweeping test composer environment firewalls", config.userAgent, 10)
+			waitErr := ComputeOperationWaitTime(config, op, config.Project,
+				"Sweeping test composer environment firewalls", config.UserAgent, 10)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors,
 					fmt.Errorf("Error while waiting to delete firewall %q: %s", firewall.Name, waitErr))

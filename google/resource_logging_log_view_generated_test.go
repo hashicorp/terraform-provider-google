@@ -99,7 +99,7 @@ func testAccCheckLoggingLogViewDestroyProducer(t *testing.T) func(s *terraform.S
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLLoggingClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLLoggingClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetLogView(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_logging_log_view still exists %v", obj)

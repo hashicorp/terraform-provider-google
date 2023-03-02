@@ -37,7 +37,7 @@ func DataSourceGoogleContainerAttachedInstallManifest() *schema.Resource {
 
 func dataSourceGoogleContainerAttachedInstallManifestRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func dataSourceGoogleContainerAttachedInstallManifestRead(d *schema.ResourceData
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return err
 	}

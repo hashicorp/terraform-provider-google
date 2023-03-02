@@ -230,7 +230,7 @@ func isSqlInternalError(err error) (bool, string) {
 
 // Retry if Cloud SQL operation returns a 429 with a specific message for
 // concurrent operations.
-func isSqlOperationInProgressError(err error) (bool, string) {
+func IsSqlOperationInProgressError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
 		if strings.Contains(gerr.Body, "instanceAlreadyExists") {
 			return false, ""

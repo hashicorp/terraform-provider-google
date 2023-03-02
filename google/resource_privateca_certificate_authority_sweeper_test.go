@@ -46,7 +46,7 @@ func testSweepCertificateAuthority(region string) error {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", config.Project, caPoolsUrl, config.userAgent, nil)
+	res, err := SendRequest(config, "GET", config.Project, caPoolsUrl, config.UserAgent, nil)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", caPoolsUrl, err)
 		return nil
@@ -70,7 +70,7 @@ func testSweepCertificateAuthority(region string) error {
 
 		caListUrl := config.PrivatecaBasePath + poolName + "/certificateAuthorities"
 
-		res, err := sendRequest(config, "GET", config.Project, caListUrl, config.userAgent, nil)
+		res, err := SendRequest(config, "GET", config.Project, caListUrl, config.UserAgent, nil)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", caPoolsUrl, err)
 			return nil
@@ -101,7 +101,7 @@ func testSweepCertificateAuthority(region string) error {
 
 			if obj["state"] == "ENABLED" {
 				disableUrl := fmt.Sprintf("%s%s:disable", config.PrivatecaBasePath, caName)
-				_, err = sendRequest(config, "POST", config.Project, disableUrl, config.userAgent, nil)
+				_, err = SendRequest(config, "POST", config.Project, disableUrl, config.UserAgent, nil)
 				if err != nil {
 					log.Printf("[INFO][SWEEPER_LOG] Error disabling for url %s : %s", disableUrl, err)
 				} else {
@@ -110,7 +110,7 @@ func testSweepCertificateAuthority(region string) error {
 			}
 
 			deleteUrl := config.PrivatecaBasePath + caName
-			_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, config.userAgent, nil)
+			_, err = SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 			} else {

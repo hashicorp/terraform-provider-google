@@ -92,7 +92,7 @@ func testAccCheckActiveDirectoryDomainTrustDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			res, _ := sendRequest(config, "GET", "", url, config.userAgent, nil)
+			res, _ := SendRequest(config, "GET", "", url, config.UserAgent, nil)
 
 			var v interface{}
 			var ok bool

@@ -58,7 +58,7 @@ func testSweepContainerAwsCluster(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLContainerAwsClient(config, config.userAgent, "", 0)
+	client := NewDCLContainerAwsClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllCluster(context.Background(), d["project"], d["location"], isDeletableContainerAwsCluster)
 	if err != nil {
 		return err

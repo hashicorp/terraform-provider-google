@@ -177,7 +177,7 @@ func testAccCheckEventarcGoogleChannelConfigDestroyProducer(t *testing.T) func(s
 				UpdateTime:    dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLEventarcClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLEventarcClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetGoogleChannelConfig(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_eventarc_google_channel_config still exists %v", obj)

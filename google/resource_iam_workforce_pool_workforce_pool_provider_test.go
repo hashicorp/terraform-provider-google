@@ -118,7 +118,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderAccess(t *testing.T, rando
 		}
 
 		url := fmt.Sprintf("%s/providers/my-provider-%s", pool_url, random_suffix)
-		res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+		res, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err != nil {
 			return nil
 		}

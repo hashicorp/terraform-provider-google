@@ -33,7 +33,7 @@ func (w *ApigeeOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.ApigeeBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
 
 func createApigeeWaiter(config *Config, op map[string]interface{}, activity, userAgent string) (*ApigeeOperationWaiter, error) {
@@ -48,7 +48,7 @@ func createApigeeWaiter(config *Config, op map[string]interface{}, activity, use
 }
 
 // nolint: deadcode,unused
-func apigeeOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func ApigeeOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	w, err := createApigeeWaiter(config, op, activity, userAgent)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func apigeeOperationWaitTimeWithResponse(config *Config, op map[string]interface
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func apigeeOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func ApigeeOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

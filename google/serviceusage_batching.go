@@ -22,7 +22,7 @@ func BatchRequestEnableService(service string, project string, d *schema.Resourc
 		return tryEnableRenamedService(service, altName, project, d, config)
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func BatchRequestEnableService(service string, project string, d *schema.Resourc
 		DebugId:      fmt.Sprintf("Enable Project Service %q for project %q", service, project),
 	}
 
-	_, err = config.requestBatcherServiceUsage.SendRequestWithTimeout(
+	_, err = config.RequestBatcherServiceUsage.SendRequestWithTimeout(
 		fmt.Sprintf(batchKeyTmplServiceUsageEnableServices, project),
 		req,
 		d.Timeout(schema.TimeoutCreate))
@@ -49,7 +49,7 @@ func BatchRequestEnableService(service string, project string, d *schema.Resourc
 }
 
 func tryEnableRenamedService(service, altName string, project string, d *schema.ResourceData, config *Config) error {
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -64,10 +64,10 @@ func tryEnableRenamedService(service, altName string, project string, d *schema.
 	}
 
 	log.Printf("[DEBUG] attempting enabling service with user-specified name %s", service)
-	err = enableServiceUsageProjectServices([]string{service}, project, billingProject, userAgent, config, 1*time.Minute)
+	err = EnableServiceUsageProjectServices([]string{service}, project, billingProject, userAgent, config, 1*time.Minute)
 	if err != nil {
 		log.Printf("[DEBUG] saw error %s. attempting alternate name %v", err, altName)
-		err2 := enableServiceUsageProjectServices([]string{altName}, project, billingProject, userAgent, config, 1*time.Minute)
+		err2 := EnableServiceUsageProjectServices([]string{altName}, project, billingProject, userAgent, config, 1*time.Minute)
 		if err2 != nil {
 			return fmt.Errorf("Saw 2 subsequent errors attempting to enable a renamed service: %s / %s", err, err2)
 		}
@@ -76,7 +76,7 @@ func tryEnableRenamedService(service, altName string, project string, d *schema.
 }
 
 func BatchRequestReadServices(project string, d *schema.ResourceData, config *Config) (interface{}, error) {
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func BatchRequestReadServices(project string, d *schema.ResourceData, config *Co
 		DebugId:  fmt.Sprintf("List Project Services %s", project),
 	}
 
-	return config.requestBatcherServiceUsage.SendRequestWithTimeout(
+	return config.RequestBatcherServiceUsage.SendRequestWithTimeout(
 		fmt.Sprintf(batchKeyTmplServiceUsageListServices, project),
 		req,
 		d.Timeout(schema.TimeoutRead))
@@ -121,12 +121,12 @@ func sendBatchFuncEnableServices(config *Config, userAgent, billingProject strin
 		if !ok {
 			return nil, fmt.Errorf("Expected batch body type to be []string, got %v. This is a provider error.", toEnableRaw)
 		}
-		return nil, enableServiceUsageProjectServices(toEnable, project, billingProject, userAgent, config, timeout)
+		return nil, EnableServiceUsageProjectServices(toEnable, project, billingProject, userAgent, config, timeout)
 	}
 }
 
 func sendListServices(config *Config, billingProject, userAgent string, timeout time.Duration) BatcherSendFunc {
 	return func(project string, _ interface{}) (interface{}, error) {
-		return listCurrentlyEnabledServices(project, billingProject, userAgent, config, timeout)
+		return ListCurrentlyEnabledServices(project, billingProject, userAgent, config, timeout)
 	}
 }

@@ -16,7 +16,7 @@ func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *Config, 
 		if err != nil {
 			return fmt.Errorf("Error deleting old access_config: %s", err)
 		}
-		opErr := computeOperationWaitTime(config, op, project, "old access_config to delete", userAgent, d.Timeout(schema.TimeoutUpdate))
+		opErr := ComputeOperationWaitTime(config, op, project, "old access_config to delete", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}
@@ -31,7 +31,7 @@ func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *Config, ins
 		if err != nil {
 			return fmt.Errorf("Error adding new access_config: %s", err)
 		}
-		opErr := computeOperationWaitTime(config, op, project, "new access_config to add", userAgent, d.Timeout(schema.TimeoutUpdate))
+		opErr := ComputeOperationWaitTime(config, op, project, "new access_config to add", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}
@@ -65,7 +65,7 @@ func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config 
 		if err != nil {
 			return errwrap.Wrapf("Error updating network interface: {{err}}", err)
 		}
-		opErr := computeOperationWaitTime(config, op, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+		opErr := ComputeOperationWaitTime(config, op, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}

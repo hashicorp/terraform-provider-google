@@ -208,7 +208,7 @@ func testAccCheckComputeRegionNetworkFirewallPolicyRuleDestroyProducer(t *testin
 				Kind:           dcl.StringOrNil(rs.Primary.Attributes["kind"]),
 			}
 
-			client := NewDCLComputeClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLComputeClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetNetworkFirewallPolicyRule(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_compute_region_network_firewall_policy_rule still exists %v", obj)

@@ -124,7 +124,7 @@ func testAccCheckLoggingOrganizationExclusionDestroyProducer(t *testing.T) func(
 
 			attributes := rs.Primary.Attributes
 
-			_, err := config.NewLoggingClient(config.userAgent).Organizations.Exclusions.Get(attributes["id"]).Do()
+			_, err := config.NewLoggingClient(config.UserAgent).Organizations.Exclusions.Get(attributes["id"]).Do()
 			if err == nil {
 				return fmt.Errorf("organization exclusion still exists")
 			}

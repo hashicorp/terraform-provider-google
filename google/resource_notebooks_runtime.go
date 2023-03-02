@@ -624,7 +624,7 @@ sessions stats.`,
 
 func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -668,7 +668,7 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Runtime: %s", err)
 	}
@@ -683,7 +683,7 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = notebooksOperationWaitTimeWithResponse(
+	err = NotebooksOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Runtime", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -707,7 +707,7 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceNotebooksRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -730,7 +730,7 @@ func resourceNotebooksRuntimeRead(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("NotebooksRuntime %q", d.Id()))
 	}
@@ -763,7 +763,7 @@ func resourceNotebooksRuntimeRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -830,7 +830,7 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Runtime %q: %s", d.Id(), err)
@@ -838,7 +838,7 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[DEBUG] Finished updating Runtime %q: %#v", d.Id(), res)
 	}
 
-	err = notebooksOperationWaitTime(
+	err = NotebooksOperationWaitTime(
 		config, res, project, "Updating Runtime", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -851,7 +851,7 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceNotebooksRuntimeDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -877,12 +877,12 @@ func resourceNotebooksRuntimeDelete(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Runtime")
 	}
 
-	err = notebooksOperationWaitTime(
+	err = NotebooksOperationWaitTime(
 		config, res, project, "Deleting Runtime", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
@@ -1044,7 +1044,7 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskGuestOsFea
 func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskIndex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1090,7 +1090,7 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskInitialize
 func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskInitializeParamsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1231,7 +1231,7 @@ func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigAcceleratorConfigT
 func flattenNotebooksRuntimeVirtualMachineVirtualMachineConfigAcceleratorConfigCoreCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1364,7 +1364,7 @@ func flattenNotebooksRuntimeSoftwareConfigIdleShutdown(v interface{}, d *schema.
 func flattenNotebooksRuntimeSoftwareConfigIdleShutdownTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

@@ -128,7 +128,7 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 
 func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -190,7 +190,7 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating CertificateMapEntry: %s", err)
 	}
@@ -202,7 +202,7 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
-	err = certificateManagerOperationWaitTime(
+	err = CertificateManagerOperationWaitTime(
 		config, res, project, "Creating CertificateMapEntry", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
@@ -219,7 +219,7 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 
 func resourceCertificateManagerCertificateMapEntryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func resourceCertificateManagerCertificateMapEntryRead(d *schema.ResourceData, m
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CertificateManagerCertificateMapEntry %q", d.Id()))
 	}
@@ -284,7 +284,7 @@ func resourceCertificateManagerCertificateMapEntryRead(d *schema.ResourceData, m
 
 func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating CertificateMapEntry %q: %s", d.Id(), err)
@@ -376,7 +376,7 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 		log.Printf("[DEBUG] Finished updating CertificateMapEntry %q: %#v", d.Id(), res)
 	}
 
-	err = certificateManagerOperationWaitTime(
+	err = CertificateManagerOperationWaitTime(
 		config, res, project, "Updating CertificateMapEntry", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -389,7 +389,7 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 
 func resourceCertificateManagerCertificateMapEntryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -415,12 +415,12 @@ func resourceCertificateManagerCertificateMapEntryDelete(d *schema.ResourceData,
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "CertificateMapEntry")
 	}
 
-	err = certificateManagerOperationWaitTime(
+	err = CertificateManagerOperationWaitTime(
 		config, res, project, "Deleting CertificateMapEntry", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 

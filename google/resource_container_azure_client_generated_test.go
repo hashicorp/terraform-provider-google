@@ -94,7 +94,7 @@ func testAccCheckContainerAzureClientDestroyProducer(t *testing.T) func(s *terra
 				Uid:           dcl.StringOrNil(rs.Primary.Attributes["uid"]),
 			}
 
-			client := NewDCLContainerAzureClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLContainerAzureClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetClient(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_container_azure_client still exists %v", obj)

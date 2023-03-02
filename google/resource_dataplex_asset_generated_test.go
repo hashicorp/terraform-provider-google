@@ -223,7 +223,7 @@ func testAccCheckDataplexAssetDestroyProducer(t *testing.T) func(s *terraform.St
 				UpdateTime:   dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLDataplexClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLDataplexClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetAsset(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_dataplex_asset still exists %v", obj)

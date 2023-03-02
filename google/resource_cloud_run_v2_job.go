@@ -767,7 +767,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 
 func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -829,7 +829,7 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Job: %s", err)
 	}
@@ -844,7 +844,7 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
-	err = cloudRunV2OperationWaitTimeWithResponse(
+	err = CloudRunV2OperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Job", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -868,7 +868,7 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -891,7 +891,7 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunV2Job %q", d.Id()))
 	}
@@ -951,7 +951,7 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -1014,7 +1014,7 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Job %q: %s", d.Id(), err)
@@ -1022,7 +1022,7 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 		log.Printf("[DEBUG] Finished updating Job %q: %#v", d.Id(), res)
 	}
 
-	err = cloudRunV2OperationWaitTime(
+	err = CloudRunV2OperationWaitTime(
 		config, res, project, "Updating Job", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
@@ -1035,7 +1035,7 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceCloudRunV2JobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -1061,12 +1061,12 @@ func resourceCloudRunV2JobDelete(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Job")
 	}
 
-	err = cloudRunV2OperationWaitTime(
+	err = CloudRunV2OperationWaitTime(
 		config, res, project, "Deleting Job", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
@@ -1171,7 +1171,7 @@ func flattenCloudRunV2JobTemplateLabels(v interface{}, d *schema.ResourceData, c
 func flattenCloudRunV2JobTemplateParallelism(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1188,7 +1188,7 @@ func flattenCloudRunV2JobTemplateParallelism(v interface{}, d *schema.ResourceDa
 func flattenCloudRunV2JobTemplateTaskCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1380,7 +1380,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersPortsName(v interface{}, d *s
 func flattenCloudRunV2JobTemplateTemplateContainersPortsContainerPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1451,7 +1451,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbe(v interface{}, 
 func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeInitialDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1468,7 +1468,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeInitialDelaySeco
 func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1485,7 +1485,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTimeoutSeconds(v
 func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1502,7 +1502,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbePeriodSeconds(v 
 func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1572,7 +1572,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocket(v inte
 func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1612,7 +1612,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersStartupProbe(v interface{}, d
 func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeInitialDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1629,7 +1629,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeInitialDelaySecon
 func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1646,7 +1646,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTimeoutSeconds(v 
 func flattenCloudRunV2JobTemplateTemplateContainersStartupProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1663,7 +1663,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersStartupProbePeriodSeconds(v i
 func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1733,7 +1733,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocket(v inter
 func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1795,7 +1795,7 @@ func flattenCloudRunV2JobTemplateTemplateVolumesSecretSecret(v interface{}, d *s
 func flattenCloudRunV2JobTemplateTemplateVolumesSecretDefaultMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1840,7 +1840,7 @@ func flattenCloudRunV2JobTemplateTemplateVolumesSecretItemsVersion(v interface{}
 func flattenCloudRunV2JobTemplateTemplateVolumesSecretItemsMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -1913,7 +1913,7 @@ func flattenCloudRunV2JobTemplateTemplateVPCAccessEgress(v interface{}, d *schem
 func flattenCloudRunV2JobTemplateTemplateMaxRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}
@@ -2050,7 +2050,7 @@ func flattenCloudRunV2JobConditionsExecutionReason(v interface{}, d *schema.Reso
 func flattenCloudRunV2JobExecutionCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := stringToFixed64(strVal); err == nil {
+		if intVal, err := StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

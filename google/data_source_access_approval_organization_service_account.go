@@ -29,7 +29,7 @@ func DataSourceAccessApprovalOrganizationServiceAccount() *schema.Resource {
 
 func dataSourceAccessApprovalOrganizationServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func dataSourceAccessApprovalOrganizationServiceAccountRead(d *schema.ResourceDa
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessApprovalOrganizationServiceAccount %q", d.Id()))
 	}

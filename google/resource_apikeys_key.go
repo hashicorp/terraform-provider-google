@@ -245,7 +245,7 @@ func resourceApikeysKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 	directive := CreateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -290,7 +290,7 @@ func resourceApikeysKeyRead(d *schema.ResourceData, meta interface{}) error {
 		Restrictions: expandApikeysKeyRestrictions(d.Get("restrictions")),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -347,7 +347,7 @@ func resourceApikeysKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 		Restrictions: expandApikeysKeyRestrictions(d.Get("restrictions")),
 	}
 	directive := UpdateDirective
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -394,7 +394,7 @@ func resourceApikeysKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Deleting Key %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

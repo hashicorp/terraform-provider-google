@@ -34,7 +34,7 @@ func (w *CloudBuildOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.CloudBuildBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createCloudBuildWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*CloudBuildOperationWaiter, error) {
@@ -50,7 +50,7 @@ func createCloudBuildWaiter(config *Config, op map[string]interface{}, project, 
 }
 
 // nolint: deadcode,unused
-func cloudBuildOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func CloudBuildOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createCloudBuildWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func cloudBuildOperationWaitTimeWithResponse(config *Config, op map[string]inter
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func cloudBuildOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func CloudBuildOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

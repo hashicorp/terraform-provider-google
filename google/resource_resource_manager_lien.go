@@ -94,7 +94,7 @@ e.g. ['resourcemanager.projects.delete']`,
 
 func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
 	}
@@ -172,7 +172,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 
 func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ResourceManagerLien %q", d.Id()))
 	}
@@ -242,7 +242,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -270,7 +270,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Lien")
 	}
@@ -417,7 +417,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 	// 3) the project IDs represented by both the new and old values are the same.
 	config := meta.(*Config)
 
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -439,7 +439,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 	// If it's a project ID
 	var oldProjId int64
 	var newProjId int64
-	if oldVal, err := stringToFixed64(old); err == nil {
+	if oldVal, err := StringToFixed64(old); err == nil {
 		log.Printf("[DEBUG] The old value was a real number: %d", oldVal)
 		oldProjId = oldVal
 	} else {
@@ -449,7 +449,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		}
 		oldProjId = pOld.ProjectNumber
 	}
-	if newVal, err := stringToFixed64(new); err == nil {
+	if newVal, err := StringToFixed64(new); err == nil {
 		log.Printf("[DEBUG] The new value was a real number: %d", newVal)
 		newProjId = newVal
 	} else {

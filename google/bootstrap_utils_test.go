@@ -73,10 +73,10 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, keyShortName)
 
 	// Get or Create the hard coded shared keyring for testing
-	kmsClient := config.NewKmsClient(config.userAgent)
+	kmsClient := config.NewKmsClient(config.UserAgent)
 	keyRing, err := kmsClient.Projects.Locations.KeyRings.Get(keyRingName).Do()
 	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
+		if IsGoogleApiErrorWithCode(err, 404) {
 			keyRing, err = kmsClient.Projects.Locations.KeyRings.Create(keyRingParent, &cloudkms.KeyRing{}).
 				KeyRingId(SharedKeyRing).Do()
 			if err != nil {
@@ -94,7 +94,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 	// Get or Create the hard coded, shared crypto key for testing
 	cryptoKey, err := kmsClient.Projects.Locations.KeyRings.CryptoKeys.Get(keyName).Do()
 	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
+		if IsGoogleApiErrorWithCode(err, 404) {
 			algos := map[string]string{
 				"ENCRYPT_DECRYPT":    "GOOGLE_SYMMETRIC_ENCRYPTION",
 				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA512",
@@ -140,8 +140,8 @@ func getOrCreateServiceAccount(config *Config, project string) (*iam.ServiceAcco
 	name := fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", project, serviceAccountEmail, project)
 	log.Printf("[DEBUG] Verifying %s as bootstrapped service account.\n", name)
 
-	sa, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Get(name).Do()
-	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+	sa, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Get(name).Do()
+	if err != nil && !IsGoogleApiErrorWithCode(err, 404) {
 		return nil, err
 	}
 
@@ -155,7 +155,7 @@ func getOrCreateServiceAccount(config *Config, project string) (*iam.ServiceAcco
 			AccountId:      serviceAccountEmail,
 			ServiceAccount: sa,
 		}
-		sa, err = config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
+		sa, err = config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 		if err != nil {
 			return nil, err
 		}
@@ -183,7 +183,7 @@ func impersonationServiceAccountPermissions(config *Config, sa *iam.ServiceAccou
 	// Overwrite the roles each time on this service account. This is because this account is
 	// only created for the test suite and will stop snowflaking of permissions to get tests
 	// to run. Overwriting permissions on 1 service account shouldn't affect others.
-	_, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.SetIamPolicy(sa.Name, &iam.SetIamPolicyRequest{
+	_, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.SetIamPolicy(sa.Name, &iam.SetIamPolicyRequest{
 		Policy: &policy,
 	}).Do()
 	if err != nil {
@@ -226,8 +226,8 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 
 	log.Printf("[DEBUG] Getting shared test active directory domain %q", adDomainName)
 	getURL := fmt.Sprintf("%s%s", config.ActiveDirectoryBasePath, adDomainName)
-	_, err := sendRequestWithTimeout(config, "GET", project, getURL, config.userAgent, nil, 4*time.Minute)
-	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+	_, err := SendRequestWithTimeout(config, "GET", project, getURL, config.UserAgent, nil, 4*time.Minute)
+	if err != nil && IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] AD domain %q not found, bootstrapping", sharedADDomain)
 		postURL := fmt.Sprintf("%sprojects/%s/locations/global/domains?domainName=%s", config.ActiveDirectoryBasePath, project, sharedADDomain)
 		domainObj := map[string]interface{}{
@@ -236,7 +236,7 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 			"authorizedNetworks": []string{fmt.Sprintf("projects/%s/global/networks/%s", project, networkName)},
 		}
 
-		_, err := sendRequestWithTimeout(config, "POST", project, postURL, config.userAgent, domainObj, 60*time.Minute)
+		_, err := SendRequestWithTimeout(config, "POST", project, postURL, config.UserAgent, domainObj, 60*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared active directory domain %q: %s", adDomainName, err)
 		}
@@ -244,7 +244,7 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 		log.Printf("[DEBUG] Waiting for active directory domain creation to finish")
 	}
 
-	_, err = sendRequestWithTimeout(config, "GET", project, getURL, config.userAgent, nil, 4*time.Minute)
+	_, err = SendRequestWithTimeout(config, "GET", project, getURL, config.UserAgent, nil, 4*time.Minute)
 
 	if err != nil {
 		t.Fatalf("Error getting shared active directory domain %q: %s", adDomainName, err)
@@ -273,8 +273,8 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	}
 
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
-	_, err := config.NewComputeClient(config.userAgent).Networks.Get(project, networkName).Do()
-	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+	_, err := config.NewComputeClient(config.UserAgent).Networks.Get(project, networkName).Do()
+	if err != nil && IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
 		url := fmt.Sprintf("%sprojects/%s/global/networks", config.ComputeBasePath, project)
 		netObj := map[string]interface{}{
@@ -282,19 +282,19 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 			"autoCreateSubnetworks": false,
 		}
 
-		res, err := sendRequestWithTimeout(config, "POST", project, url, config.userAgent, netObj, 4*time.Minute)
+		res, err := SendRequestWithTimeout(config, "POST", project, url, config.UserAgent, netObj, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
 		}
 
 		log.Printf("[DEBUG] Waiting for network creation to finish")
-		err = computeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", config.userAgent, 4*time.Minute)
+		err = ComputeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", config.UserAgent, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
 		}
 	}
 
-	network, err := config.NewComputeClient(config.userAgent).Networks.Get(project, networkName).Do()
+	network, err := config.NewComputeClient(config.UserAgent).Networks.Get(project, networkName).Do()
 	if err != nil {
 		t.Errorf("Error getting shared test network %q: %s", networkName, err)
 	}
@@ -318,7 +318,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
 	// that API behavior changes.
 	prefixFilter := fmt.Sprintf("id:%s* parent.id:%s", SharedServicePerimeterProjectPrefix, org)
-	res, err := config.NewResourceManagerClient(config.userAgent).Projects.List().Filter(prefixFilter).Do()
+	res, err := config.NewResourceManagerClient(config.UserAgent).Projects.List().Filter(prefixFilter).Do()
 	if err != nil {
 		t.Fatalf("Error getting shared test projects: %s", err)
 	}
@@ -334,7 +334,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 				Id:   org,
 			},
 		}
-		op, err := config.NewResourceManagerClient(config.userAgent).Projects.Create(project).Do()
+		op, err := config.NewResourceManagerClient(config.UserAgent).Projects.Create(project).Do()
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test project: %s", err)
 		}
@@ -344,12 +344,12 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 			t.Fatalf("Error bootstrapping shared test project: %s", err)
 		}
 
-		err = resourceManagerOperationWaitTime(config, opAsMap, "creating project", config.userAgent, 4)
+		err = ResourceManagerOperationWaitTime(config, opAsMap, "creating project", config.UserAgent, 4)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test project: %s", err)
 		}
 
-		p, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(pid).Do()
+		p, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
 		if err != nil {
 			t.Fatalf("Error getting shared test project: %s", err)
 		}
@@ -365,7 +365,7 @@ func removeContainerServiceAgentRoleFromContainerEngineRobot(t *testing.T, proje
 		return
 	}
 
-	client := config.NewResourceManagerClient(config.userAgent)
+	client := config.NewResourceManagerClient(config.UserAgent)
 	containerEngineRobot := fmt.Sprintf("serviceAccount:service-%d@container-engine-robot.iam.gserviceaccount.com", project.ProjectNumber)
 	getPolicyRequest := &cloudresourcemanager.GetIamPolicyRequest{}
 	policy, err := client.Projects.GetIamPolicy(project.ProjectId, getPolicyRequest).Do()
@@ -424,11 +424,11 @@ func BootstrapProject(t *testing.T, projectID, billingAccount string, services [
 		return nil
 	}
 
-	crmClient := config.NewResourceManagerClient(config.userAgent)
+	crmClient := config.NewResourceManagerClient(config.UserAgent)
 
 	project, err := crmClient.Projects.Get(projectID).Do()
 	if err != nil {
-		if !isGoogleApiErrorWithCode(err, 403) {
+		if !IsGoogleApiErrorWithCode(err, 403) {
 			t.Fatalf("Error getting bootstrapped project: %s", err)
 		}
 		org := getTestOrgFromEnv(t)
@@ -450,7 +450,7 @@ func BootstrapProject(t *testing.T, projectID, billingAccount string, services [
 			t.Fatalf("Error converting create project operation to map: %s", err)
 		}
 
-		err = resourceManagerOperationWaitTime(config, opAsMap, "creating project", config.userAgent, 4*time.Minute)
+		err = ResourceManagerOperationWaitTime(config, opAsMap, "creating project", config.UserAgent, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error waiting for create project operation: %s", err)
 		}
@@ -470,11 +470,11 @@ func BootstrapProject(t *testing.T, projectID, billingAccount string, services [
 	}
 
 	if billingAccount != "" {
-		billingClient := config.NewBillingClient(config.userAgent)
+		billingClient := config.NewBillingClient(config.UserAgent)
 		var pbi *cloudbilling.ProjectBillingInfo
-		err = retryTimeDuration(func() error {
+		err = RetryTimeDuration(func() error {
 			var reqErr error
-			pbi, reqErr = billingClient.Projects.GetBillingInfo(prefixedProject(projectID)).Do()
+			pbi, reqErr = billingClient.Projects.GetBillingInfo(PrefixedProject(projectID)).Do()
 			return reqErr
 		}, 30*time.Second)
 		if err != nil {
@@ -482,8 +482,8 @@ func BootstrapProject(t *testing.T, projectID, billingAccount string, services [
 		}
 		if strings.TrimPrefix(pbi.BillingAccountName, "billingAccounts/") != billingAccount {
 			pbi.BillingAccountName = "billingAccounts/" + billingAccount
-			err := retryTimeDuration(func() error {
-				_, err := config.NewBillingClient(config.userAgent).Projects.UpdateBillingInfo(prefixedProject(projectID), pbi).Do()
+			err := RetryTimeDuration(func() error {
+				_, err := config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(PrefixedProject(projectID), pbi).Do()
 				return err
 			}, 2*time.Minute)
 			if err != nil {
@@ -494,7 +494,7 @@ func BootstrapProject(t *testing.T, projectID, billingAccount string, services [
 
 	if len(services) > 0 {
 
-		enabledServices, err := listCurrentlyEnabledServices(projectID, "", config.userAgent, config, 1*time.Minute)
+		enabledServices, err := ListCurrentlyEnabledServices(projectID, "", config.UserAgent, config, 1*time.Minute)
 		if err != nil {
 			t.Fatalf("Error listing services for project %q: %s", projectID, err)
 		}
@@ -507,7 +507,7 @@ func BootstrapProject(t *testing.T, projectID, billingAccount string, services [
 		}
 
 		if len(servicesToEnable) > 0 {
-			if err := enableServiceUsageProjectServices(servicesToEnable, projectID, "", config.userAgent, config, 10*time.Minute); err != nil {
+			if err := EnableServiceUsageProjectServices(servicesToEnable, projectID, "", config.UserAgent, config, 10*time.Minute); err != nil {
 				t.Fatalf("Error enabling services for project %q: %s", projectID, err)
 			}
 		}
@@ -527,7 +527,7 @@ func BootstrapAllPSARoles(t *testing.T, agentNames, roles []string) bool {
 		t.Fatal("Could not bootstrap a config for BootstrapAllPSARoles.")
 		return false
 	}
-	client := config.NewResourceManagerClient(config.userAgent)
+	client := config.NewResourceManagerClient(config.UserAgent)
 
 	// Get the project since we need its number, id, and policy.
 	project, err := client.Projects.Get(getTestProjectFromEnv()).Do()
@@ -558,7 +558,7 @@ func BootstrapAllPSARoles(t *testing.T, agentNames, roles []string) bool {
 		})
 	}
 
-	mergedBindings := mergeBindings(append(policy.Bindings, newBindings...))
+	mergedBindings := MergeBindings(append(policy.Bindings, newBindings...))
 
 	if !compareBindings(policy.Bindings, mergedBindings) {
 		// The policy must change.
@@ -628,7 +628,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 
 	log.Printf("[DEBUG] Getting list of existing sql instances")
 
-	instances, err := config.NewSqlAdminClient(config.userAgent).Instances.List(project).Do()
+	instances, err := config.NewSqlAdminClient(config.UserAgent).Instances.List(project).Do()
 	if err != nil {
 		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve instance list: %s", err)
 	}
@@ -663,21 +663,21 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		}
 
 		var op *sqladmin.Operation
-		err = retryTimeDuration(func() (operr error) {
-			op, operr = config.NewSqlAdminClient(config.userAgent).Instances.Insert(project, bootstrapInstance).Do()
+		err = RetryTimeDuration(func() (operr error) {
+			op, operr = config.NewSqlAdminClient(config.UserAgent).Instances.Insert(project, bootstrapInstance).Do()
 			return operr
-		}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
+		}, time.Duration(20)*time.Minute, IsSqlOperationInProgressError)
 		if err != nil {
 			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
 		}
-		err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", config.userAgent, time.Duration(40)*time.Minute)
+		err = SqlAdminOperationWaitTime(config, op, project, "Create Instance", config.UserAgent, time.Duration(40)*time.Minute)
 		if err != nil {
 			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
 		}
 	}
 
 	// Look for backups in bootstrap instance
-	res, err := config.NewSqlAdminClient(config.userAgent).BackupRuns.List(project, bootstrapInstance.Name).Do()
+	res, err := config.NewSqlAdminClient(config.UserAgent).BackupRuns.List(project, bootstrapInstance.Name).Do()
 	if err != nil {
 		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve backup list: %s", err)
 	}
@@ -689,14 +689,14 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		}
 
 		var op *sqladmin.Operation
-		err = retryTimeDuration(func() (operr error) {
-			op, operr = config.NewSqlAdminClient(config.userAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
+		err = RetryTimeDuration(func() (operr error) {
+			op, operr = config.NewSqlAdminClient(config.UserAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
 			return operr
-		}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
+		}, time.Duration(20)*time.Minute, IsSqlOperationInProgressError)
 		if err != nil {
 			t.Fatalf("Error, failed to create instance backup: %s", err)
 		}
-		err = sqlAdminOperationWaitTime(config, op, project, "Backup Instance", config.userAgent, time.Duration(20)*time.Minute)
+		err = SqlAdminOperationWaitTime(config, op, project, "Backup Instance", config.UserAgent, time.Duration(20)*time.Minute)
 		if err != nil {
 			t.Fatalf("Error, failed to create instance backup: %s", err)
 		}
@@ -716,27 +716,27 @@ func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
 
 	log.Printf("[DEBUG] Getting shared CA pool %q", poolName)
 	url := fmt.Sprintf("%sprojects/%s/locations/%s/caPools/%s", config.PrivatecaBasePath, project, location, poolName)
-	_, err := sendRequest(config, "GET", project, url, config.userAgent, nil)
+	_, err := SendRequest(config, "GET", project, url, config.UserAgent, nil)
 	if err != nil {
 		log.Printf("[DEBUG] CA pool %q not found, bootstrapping", poolName)
 		poolObj := map[string]interface{}{
 			"tier": "ENTERPRISE",
 		}
 		createUrl := fmt.Sprintf("%sprojects/%s/locations/%s/caPools?caPoolId=%s", config.PrivatecaBasePath, project, location, poolName)
-		res, err := sendRequestWithTimeout(config, "POST", project, createUrl, config.userAgent, poolObj, 4*time.Minute)
+		res, err := SendRequestWithTimeout(config, "POST", project, createUrl, config.UserAgent, poolObj, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared CA pool %q: %s", poolName, err)
 		}
 
 		log.Printf("[DEBUG] Waiting for CA pool creation to finish")
 		var opRes map[string]interface{}
-		err = privatecaOperationWaitTimeWithResponse(
-			config, res, &opRes, project, "Creating CA pool", config.userAgent,
+		err = PrivatecaOperationWaitTimeWithResponse(
+			config, res, &opRes, project, "Creating CA pool", config.UserAgent,
 			4*time.Minute)
 		if err != nil {
 			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
 		}
-		_, err = sendRequest(config, "GET", project, url, config.userAgent, nil)
+		_, err = SendRequest(config, "GET", project, url, config.UserAgent, nil)
 		if err != nil {
 			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
 		}

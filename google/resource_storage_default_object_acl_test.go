@@ -143,7 +143,7 @@ func testAccCheckGoogleStorageDefaultObjectAcl(t *testing.T, bucket, roleEntityS
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		res, err := config.NewStorageClient(config.userAgent).DefaultObjectAccessControls.Get(bucket,
+		res, err := config.NewStorageClient(config.UserAgent).DefaultObjectAccessControls.Get(bucket,
 			roleEntity.Entity).Do()
 
 		if err != nil {
@@ -170,7 +170,7 @@ func testAccStorageDefaultObjectAclDestroyProducer(t *testing.T) func(s *terrafo
 
 			bucket := rs.Primary.Attributes["bucket"]
 
-			_, err := config.NewStorageClient(config.userAgent).DefaultObjectAccessControls.List(bucket).Do()
+			_, err := config.NewStorageClient(config.UserAgent).DefaultObjectAccessControls.List(bucket).Do()
 			if err == nil {
 				return fmt.Errorf("Default Storage Object Acl for bucket %s still exists", bucket)
 			}
@@ -184,7 +184,7 @@ func testAccCheckGoogleStorageDefaultObjectAclDelete(t *testing.T, bucket, roleE
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		_, err := config.NewStorageClient(config.userAgent).DefaultObjectAccessControls.Get(bucket, roleEntity.Entity).Do()
+		_, err := config.NewStorageClient(config.UserAgent).DefaultObjectAccessControls.Get(bucket, roleEntity.Entity).Do()
 
 		if err != nil {
 			return nil

@@ -68,7 +68,7 @@ func (w *SqlAdminOperationWaiter) QueryOp() (interface{}, error) {
 
 	var op interface{}
 	var err error
-	err = retryTimeDuration(
+	err = RetryTimeDuration(
 		func() error {
 			op, err = w.Service.Operations.Get(w.Project, w.Op.Name).Do()
 			return err
@@ -100,7 +100,7 @@ func (w *SqlAdminOperationWaiter) TargetStates() []string {
 	return []string{"DONE"}
 }
 
-func sqlAdminOperationWaitTime(config *Config, res interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func SqlAdminOperationWaitTime(config *Config, res interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	op := &sqladmin.Operation{}
 	err := Convert(res, op)
 	if err != nil {

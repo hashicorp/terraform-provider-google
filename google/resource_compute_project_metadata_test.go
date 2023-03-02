@@ -110,7 +110,7 @@ func testAccCheckComputeProjectMetadataDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			project, err := config.NewComputeClient(config.userAgent).Projects.Get(rs.Primary.ID).Do()
+			project, err := config.NewComputeClient(config.UserAgent).Projects.Get(rs.Primary.ID).Do()
 			if err == nil && len(project.CommonInstanceMetadata.Items) > 0 {
 				return fmt.Errorf("Error, metadata items still exist in %s", rs.Primary.ID)
 			}

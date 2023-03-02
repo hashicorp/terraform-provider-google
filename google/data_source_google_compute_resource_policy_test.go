@@ -47,7 +47,7 @@ func testAccCheckDataSourceComputeResourcePolicyDestroy(t *testing.T, name strin
 
 			policyAttrs := rs.Primary.Attributes
 
-			_, err := config.NewComputeClient(config.userAgent).ResourcePolicies.Get(
+			_, err := config.NewComputeClient(config.UserAgent).ResourcePolicies.Get(
 				config.Project, policyAttrs["region"], policyAttrs["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("Resource Policy still exists")

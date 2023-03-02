@@ -58,7 +58,7 @@ func testSweepClouddeployTarget(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLClouddeployClient(config, config.userAgent, "", 0)
+	client := NewDCLClouddeployClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllTarget(context.Background(), d["project"], d["location"], isDeletableClouddeployTarget)
 	if err != nil {
 		return err

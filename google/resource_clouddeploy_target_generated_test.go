@@ -310,7 +310,7 @@ func testAccCheckClouddeployTargetDestroyProducer(t *testing.T) func(s *terrafor
 				UpdateTime:      dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLClouddeployClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLClouddeployClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetTarget(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_clouddeploy_target still exists %v", obj)

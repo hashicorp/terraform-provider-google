@@ -217,7 +217,7 @@ func testAccCheckGoogleOrganizationPolicyDestroyProducer(t *testing.T) func(s *t
 
 			org := "organizations/" + rs.Primary.Attributes["org_id"]
 			constraint := canonicalOrgPolicyConstraint(rs.Primary.Attributes["constraint"])
-			policy, err := config.NewResourceManagerClient(config.userAgent).Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
+			policy, err := config.NewResourceManagerClient(config.UserAgent).Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
 				Constraint: constraint,
 			}).Do()
 
@@ -330,7 +330,7 @@ func getGoogleOrganizationPolicyTestResource(t *testing.T, s *terraform.State, n
 
 	config := googleProviderConfig(t)
 
-	return config.NewResourceManagerClient(config.userAgent).Organizations.GetOrgPolicy("organizations/"+rs.Primary.Attributes["org_id"], &cloudresourcemanager.GetOrgPolicyRequest{
+	return config.NewResourceManagerClient(config.UserAgent).Organizations.GetOrgPolicy("organizations/"+rs.Primary.Attributes["org_id"], &cloudresourcemanager.GetOrgPolicyRequest{
 		Constraint: rs.Primary.Attributes["constraint"],
 	}).Do()
 }

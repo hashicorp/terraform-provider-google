@@ -206,7 +206,7 @@ func testAccCheckFirebaserulesReleaseDestroyProducer(t *testing.T) func(s *terra
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLFirebaserulesClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLFirebaserulesClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetRelease(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_firebaserules_release still exists %v", obj)

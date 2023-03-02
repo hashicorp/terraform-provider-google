@@ -246,7 +246,7 @@ func testAccCheckContainerAzureClusterDestroyProducer(t *testing.T) func(s *terr
 				UpdateTime:      dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLContainerAzureClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLContainerAzureClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetCluster(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_container_azure_cluster still exists %v", obj)

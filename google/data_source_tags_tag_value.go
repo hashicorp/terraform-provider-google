@@ -52,7 +52,7 @@ func DataSourceGoogleTagsTagValue() *schema.Resource {
 
 func dataSourceGoogleTagsTagValueRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

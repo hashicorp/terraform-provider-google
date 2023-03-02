@@ -58,7 +58,7 @@ func testSweepNetworkConnectivitySpoke(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLNetworkConnectivityClient(config, config.userAgent, "", 0)
+	client := NewDCLNetworkConnectivityClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllSpoke(context.Background(), d["project"], d["location"], isDeletableNetworkConnectivitySpoke)
 	if err != nil {
 		return err

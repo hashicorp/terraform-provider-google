@@ -173,7 +173,7 @@ func testAccCheckDataplexZoneDestroyProducer(t *testing.T) func(s *terraform.Sta
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLDataplexClient(config, config.userAgent, billingProject, 0)
+			client := NewDCLDataplexClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetZone(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_dataplex_zone still exists %v", obj)
