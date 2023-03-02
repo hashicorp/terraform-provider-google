@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed the error of invalid value for field `resource.failoverPolicy` when UDP is selected on `google_compute_region_backend_service`
+```
