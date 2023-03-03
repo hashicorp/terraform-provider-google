@@ -966,6 +966,9 @@ resource "google_composer_environment" "test" {
         cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
     }
+    software_config {
+      image_version = "composer-1-airflow-2.3"
+    }
   }
 }
 
@@ -1001,6 +1004,9 @@ resource "google_composer_environment" "test" {
         use_ip_aliases          = true
         cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
+    }
+    software_config {
+      image_version = "composer-1-airflow-2"
     }
     private_environment_config {
       enable_private_endpoint = true
@@ -1091,6 +1097,9 @@ resource "google_composer_environment" "test" {
       cloud_sql_ipv4_cidr_block = "10.32.0.0/12"
       master_ipv4_cidr_block =  "172.17.50.0/28"
     }
+    software_config {
+      image_version = "composer-1-airflow-2"
+    }
     web_server_network_access_control {
       allowed_ip_range {
         value = "192.168.0.1"
@@ -1143,6 +1152,9 @@ resource "google_composer_environment" "test" {
       cloud_sql_ipv4_cidr_block = "10.32.0.0/12"
       master_ipv4_cidr_block =  "172.17.50.0/28"
     }
+    software_config {
+      image_version = "composer-1-airflow-2"
+    }
     web_server_network_access_control {
       allowed_ip_range {
         value = "192.168.0.1"
@@ -1186,6 +1198,9 @@ resource "google_composer_environment" "test" {
     database_config {
       machine_type  = "db-n1-standard-4"
     }
+    software_config {
+      image_version = "composer-1-airflow-2"
+    }
   }
 }
 
@@ -1219,6 +1234,9 @@ resource "google_composer_environment" "test" {
     database_config {
       machine_type  = "db-n1-standard-8"
     }
+    software_config {
+      image_version = "composer-1-airflow-2"
+    }
   }
 }
 
@@ -1248,6 +1266,9 @@ resource "google_composer_environment" "test" {
       network    = google_compute_network.test.self_link
       subnetwork = google_compute_subnetwork.test.self_link
       zone       = "us-central1-a"
+    }
+    software_config {
+      image_version = "composer-1-airflow-2"
     }
     web_server_config {
       machine_type  = "composer-n1-webserver-4"
@@ -1281,6 +1302,9 @@ resource "google_composer_environment" "test" {
       network    = google_compute_network.test.self_link
       subnetwork = google_compute_subnetwork.test.self_link
       zone       = "us-central1-a"
+    }
+    software_config {
+      image_version = "composer-1-airflow-2"
     }
     web_server_config {
       machine_type  = "composer-n1-webserver-8"
@@ -1683,7 +1707,7 @@ resource "google_composer_environment" "test" {
     }
 
     software_config {
-      image_version = "composer-1-airflow-1"
+      image_version = "composer-1-airflow-2"
 
       airflow_config_overrides = {
         core-load_example = "True"
@@ -1804,6 +1828,9 @@ resource "google_composer_environment" "test" {
         use_ip_aliases          = true
         cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
+    }
+    software_config {
+      image_version = "composer-1-airflow-2"
     }
   }
   depends_on = [google_project_iam_member.composer-worker]
@@ -1972,6 +1999,7 @@ resource "google_composer_environment" "test" {
       zone       = "us-central1-a"
     }
     software_config {
+      image_version = "composer-1-airflow-2"
       pypi_packages = {
         numpy = ""
       }
