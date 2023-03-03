@@ -10,8 +10,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"pool_name":           BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"pool_location":       "us-central1",
 		"deletion_protection": false,
 		"random_suffix":       randString(t, 10),
 	}
@@ -54,12 +52,18 @@ func TestAccPrivatecaCertificate_privatecaCertificateUpdate(t *testing.T) {
 
 func testAccPrivatecaCertificate_privatecaCertificateStart(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  location = "us-central1"
+  name = "my-pool-%{random_suffix}"
+  tier = "ENTERPRISE"
+}
+
 resource "google_privateca_certificate_authority" "default" {
 	// This example assumes this pool already exists.
 	// Pools cannot be deleted in normal test circumstances, so we depend on static pools
-	pool = "%{pool_name}"
+  	location = "us-central1"
+	pool = google_privateca_ca_pool.default.name
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
-	location = "%{pool_location}"
 	deletion_protection = false
 	skip_grace_period = true
 	config {
@@ -93,8 +97,8 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 resource "google_privateca_certificate" "default" {
-	pool = "%{pool_name}"
-	location = "%{pool_location}"
+	pool = google_privateca_ca_pool.default.name
+  	location = "us-central1"
 	certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
 	lifetime = "860s"
 	name = "my-certificate-%{random_suffix}"
@@ -133,14 +137,18 @@ resource "google_privateca_certificate" "default" {
 
 func testAccPrivatecaCertificate_privatecaCertificateEnd(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  location = "us-central1"
+  name = "my-pool-%{random_suffix}"
+  tier = "ENTERPRISE"
+}
+
 resource "google_privateca_certificate_authority" "default" {
 	// This example assumes this pool already exists.
 	// Pools cannot be deleted in normal test circumstances, so we depend on static pools
-	pool = "%{pool_name}"
+	location = "us-central1"
+	pool = google_privateca_ca_pool.default.name
 	certificate_authority_id = "tf-test-my-certificate-authority-%{random_suffix}"
-	location = "%{pool_location}"
-	deletion_protection = false
-	skip_grace_period = true
 	config {
 		subject_config {
 			subject {
@@ -169,11 +177,16 @@ resource "google_privateca_certificate_authority" "default" {
 	key_spec {
 		algorithm = "RSA_PKCS1_4096_SHA256"
 	}
+
+	// Disable CA deletion related safe checks for easier cleanup.
+	deletion_protection                    = false
+	skip_grace_period                      = true
+	ignore_active_certificates_on_deletion = true
 }
 
 resource "google_privateca_certificate" "default" {
-	pool = "%{pool_name}"
-	location = "%{pool_location}"
+	location = "us-central1"
+	pool = google_privateca_ca_pool.default.name
 	certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
 	lifetime = "860s"
 	name = "my-certificate-%{random_suffix}"

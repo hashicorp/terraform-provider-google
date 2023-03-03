@@ -31,10 +31,16 @@ A Certificate corresponds to a signed X.509 certificate issued by a Certificate.
 
 
 ```hcl
-resource "google_privateca_certificate_authority" "test-ca" {
-  certificate_authority_id = "my-certificate-authority"
+resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
-  pool = ""
+  name = "my-pool"
+  tier = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
   config {
     subject_config {
       subject {
@@ -71,9 +77,9 @@ resource "google_privateca_certificate_authority" "test-ca" {
 }
 
 resource "google_privateca_certificate" "default" {
-  pool = ""
   location = "us-central1"
-  certificate_authority = google_privateca_certificate_authority.test-ca.certificate_authority_id
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
   lifetime = "860s"
   name = "my-certificate"
   config {
@@ -118,7 +124,13 @@ resource "google_privateca_certificate" "default" {
 
 
 ```hcl
-resource "google_privateca_certificate_template" "template" {
+resource "google_privateca_ca_pool" "default" {
+  location = "us-central1"
+  name = "my-pool"
+  tier = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_template" "default" {
   location    = "us-central1"
   name = "my-certificate-template"
   description = "An updated sample certificate template"
@@ -193,10 +205,10 @@ resource "google_privateca_certificate_template" "template" {
   }
 }
 
-resource "google_privateca_certificate_authority" "test-ca" {
-  pool = ""
-  certificate_authority_id = "my-certificate-authority"
+resource "google_privateca_certificate_authority" "default" {
   location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
   config {
     subject_config {
       subject {
@@ -236,23 +248,29 @@ resource "google_privateca_certificate_authority" "test-ca" {
 
 
 resource "google_privateca_certificate" "default" {
-  pool = ""
   location = "us-central1"
-  certificate_authority = google_privateca_certificate_authority.test-ca.certificate_authority_id
-  lifetime = "860s"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
   name = "my-certificate"
+  lifetime = "860s"
   pem_csr = file("test-fixtures/rsa_csr.pem")
-  certificate_template = google_privateca_certificate_template.template.id
+  certificate_template = google_privateca_certificate_template.default.id
 }
 ```
 ## Example Usage - Privateca Certificate Csr
 
 
 ```hcl
-resource "google_privateca_certificate_authority" "test-ca" {
-  pool = ""
-  certificate_authority_id = "my-certificate-authority"
+resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
+  name = "my-pool"
+  tier = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
   config {
     subject_config {
       subject {
@@ -292,11 +310,11 @@ resource "google_privateca_certificate_authority" "test-ca" {
 
 
 resource "google_privateca_certificate" "default" {
-  pool = ""
   location = "us-central1"
-  certificate_authority = google_privateca_certificate_authority.test-ca.certificate_authority_id
-  lifetime = "860s"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
   name = "my-certificate"
+  lifetime = "860s"
   pem_csr = file("test-fixtures/rsa_csr.pem")
 }
 ```
@@ -304,12 +322,16 @@ resource "google_privateca_certificate" "default" {
 
 
 ```hcl
-resource "google_privateca_certificate_authority" "authority" {
-  // This example assumes this pool already exists.
-  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
-  pool = ""
-  certificate_authority_id = "my-authority"
+resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
+  name = "my-pool"
+  tier = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
   config {
     subject_config {
       subject {
@@ -349,10 +371,10 @@ resource "google_privateca_certificate_authority" "authority" {
 
 
 resource "google_privateca_certificate" "default" {
-  pool = ""
   location = "us-central1"
-  lifetime = "860s"
+  pool = google_privateca_ca_pool.default.name
   name = "my-certificate"
+  lifetime = "860s"
   config {
     subject_config  {
       subject {
@@ -386,7 +408,7 @@ resource "google_privateca_certificate" "default" {
   }
   // Certificates require an authority to exist in the pool, though they don't
   // need to be explicitly connected to it
-  depends_on = [google_privateca_certificate_authority.authority]
+  depends_on = [google_privateca_certificate_authority.default]
 }
 ```
 
