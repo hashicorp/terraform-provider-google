@@ -25,11 +25,11 @@ func TestAccOrganizationIamAuditConfig_basic(t *testing.T) {
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply an IAM audit config
 			{
@@ -45,13 +45,13 @@ func TestAccOrganizationIamAuditConfig_multiple(t *testing.T) {
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply an IAM audit config
 			{
@@ -70,17 +70,17 @@ func TestAccOrganizationIamAuditConfig_multiple(t *testing.T) {
 // Test that multiple IAM audit configs can be applied to an organization all at once
 func TestAccOrganizationIamAuditConfig_multipleAtOnce(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply an IAM audit config
 			{
@@ -97,12 +97,12 @@ func TestAccOrganizationIamAuditConfig_update(t *testing.T) {
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply an IAM audit config
 			{
@@ -128,17 +128,17 @@ func TestAccOrganizationIamAuditConfig_update(t *testing.T) {
 // Test that an IAM audit config can be removed from an organization
 func TestAccOrganizationIamAuditConfig_remove(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply multiple IAM audit configs
 			{
@@ -161,14 +161,14 @@ func TestAccOrganizationIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
 	members := []string{}
 	members2 := []string{"user:gterraformtest1@gmail.com"}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply IAM audit config with no members
 			{
@@ -190,14 +190,14 @@ func TestAccOrganizationIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
 	members := []string{"user:gterraformtest1@gmail.com"}
 	members2 := []string{}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply IAM audit config with member
 			{
@@ -219,14 +219,14 @@ func TestAccOrganizationIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	logType := "DATA_READ"
 	logType2 := "DATA_WRITE"
 	service := "cloudkms.googleapis.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Apply IAM audit config with DATA_READ
 			{

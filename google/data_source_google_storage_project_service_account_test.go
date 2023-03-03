@@ -11,9 +11,9 @@ func TestAccDataSourceGoogleStorageProjectServiceAccount_basic(t *testing.T) {
 
 	resourceName := "data.google_storage_project_service_account.gcs_account"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleStorageProjectServiceAccount_basic,

@@ -26,7 +26,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -35,16 +35,16 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +54,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +66,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -75,9 +75,9 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -85,7 +85,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -97,7 +97,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -106,16 +106,16 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -124,7 +124,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -136,7 +136,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -145,16 +145,16 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamBinding_withConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -164,11 +164,11 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 
 func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -177,28 +177,28 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withAndWithoutCondit
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamBinding_withAndWithoutConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -210,7 +210,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -219,16 +219,16 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamMember_withConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -238,11 +238,11 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 
 func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -251,28 +251,28 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withAndWithoutConditi
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamMember_withAndWithoutConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -284,7 +284,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -297,9 +297,9 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamPolicy_withConditionGenerated(context),
@@ -312,7 +312,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

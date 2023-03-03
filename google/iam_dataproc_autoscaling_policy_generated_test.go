@@ -25,20 +25,20 @@ func TestAccDataprocAutoscalingPolicyIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocAutoscalingPolicyIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_dataproc_autoscaling_policy_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +48,7 @@ func TestAccDataprocAutoscalingPolicyIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_autoscaling_policy_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -60,13 +60,13 @@ func TestAccDataprocAutoscalingPolicyIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -74,7 +74,7 @@ func TestAccDataprocAutoscalingPolicyIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_autoscaling_policy_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -86,20 +86,20 @@ func TestAccDataprocAutoscalingPolicyIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocAutoscalingPolicyIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_dataproc_autoscaling_policy_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +108,7 @@ func TestAccDataprocAutoscalingPolicyIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_autoscaling_policy_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataproc-policy%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

@@ -16,14 +16,14 @@ func TestAccEventarcChannel_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"region":        getTestRegionFromEnv(),
-		"project_name":  getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"region":        GetTestRegionFromEnv(),
+		"project_name":  GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckEventarcChannelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -41,22 +41,22 @@ func TestAccEventarcChannel_basic(t *testing.T) {
 func TestAccEventarcChannel_cryptoKeyUpdate(t *testing.T) {
 	t.Parallel()
 
-	region := getTestRegionFromEnv()
+	region := GetTestRegionFromEnv()
 	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key1")
 	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key2")
 
 	context := map[string]interface{}{
 		"region":        region,
-		"project_name":  getTestProjectFromEnv(),
+		"project_name":  GetTestProjectFromEnv(),
 		"key_ring":      GetResourceNameFromSelfLink(key1.KeyRing.Name),
 		"key1":          GetResourceNameFromSelfLink(key1.CryptoKey.Name),
 		"key2":          GetResourceNameFromSelfLink(key2.CryptoKey.Name),
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckEventarcChannelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -170,7 +170,7 @@ func testAccCheckEventarcChannelDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

@@ -20,7 +20,7 @@ func testSweepComputeInstanceTemplate(region string) error {
 	resourceName := "ComputeInstanceTemplate"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -49,7 +49,7 @@ func testSweepComputeInstanceTemplate(region string) error {
 	nonPrefixCount := 0
 	for _, instanceTemplate := range instanceTemplates.Items {
 		// Increment count and skip if resource is not sweepable.
-		if !isSweepableTestResource(instanceTemplate.Name) {
+		if !IsSweepableTestResource(instanceTemplate.Name) {
 			nonPrefixCount++
 			continue
 		}

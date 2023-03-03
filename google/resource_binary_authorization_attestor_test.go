@@ -54,10 +54,10 @@ func TestSignatureAlgorithmDiffSuppress(t *testing.T) {
 func TestAccBinaryAuthorizationAttestor_basic(t *testing.T) {
 	t.Parallel()
 
-	name := randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	name := RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -75,10 +75,10 @@ func TestAccBinaryAuthorizationAttestor_basic(t *testing.T) {
 func TestAccBinaryAuthorizationAttestor_full(t *testing.T) {
 	t.Parallel()
 
-	name := randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	name := RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -97,11 +97,11 @@ func TestAccBinaryAuthorizationAttestor_kms(t *testing.T) {
 	t.Parallel()
 
 	kms := BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_SIGN")
-	attestorName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	attestorName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -119,10 +119,10 @@ func TestAccBinaryAuthorizationAttestor_kms(t *testing.T) {
 func TestAccBinaryAuthorizationAttestor_update(t *testing.T) {
 	t.Parallel()
 
-	name := randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	name := RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

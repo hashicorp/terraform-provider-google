@@ -27,12 +27,12 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestI
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -111,12 +111,12 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestA
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -190,7 +190,7 @@ func testAccCheckNetworkManagementConnectivityTestDestroyProducer(t *testing.T) 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
 			if err != nil {

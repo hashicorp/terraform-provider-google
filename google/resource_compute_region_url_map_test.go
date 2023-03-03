@@ -10,11 +10,11 @@ import (
 func TestAccComputeRegionUrlMap_update_path_matcher(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -40,11 +40,11 @@ func TestAccComputeRegionUrlMap_update_path_matcher(t *testing.T) {
 func TestAccComputeRegionUrlMap_advanced(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -70,11 +70,11 @@ func TestAccComputeRegionUrlMap_advanced(t *testing.T) {
 func TestAccComputeRegionUrlMap_noPathRulesWithUpdate(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -100,11 +100,11 @@ func TestAccComputeRegionUrlMap_noPathRulesWithUpdate(t *testing.T) {
 func TestAccComputeRegionUrlMap_ilbPathUpdate(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -130,11 +130,11 @@ func TestAccComputeRegionUrlMap_ilbPathUpdate(t *testing.T) {
 func TestAccComputeRegionUrlMap_ilbRouteUpdate(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -160,11 +160,11 @@ func TestAccComputeRegionUrlMap_ilbRouteUpdate(t *testing.T) {
 func TestAccComputeRegionUrlMap_defaultUrlRedirect(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -182,11 +182,11 @@ func TestAccComputeRegionUrlMap_defaultUrlRedirect(t *testing.T) {
 func TestAccComputeRegionUrlMap_defaultUrlRedirectWithinPathMatcher(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -205,11 +205,11 @@ func TestAccComputeRegionUrlMap_defaultUrlRedirectWithinPathMatcher(t *testing.T
 func TestAccComputeRegionUrlMap_defaultRouteAction_full_update(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

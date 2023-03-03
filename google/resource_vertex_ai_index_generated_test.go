@@ -27,13 +27,13 @@ func TestAccVertexAIIndex_vertexAiIndexExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckVertexAIIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -98,13 +98,13 @@ func TestAccVertexAIIndex_vertexAiIndexStreamingExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckVertexAIIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -172,7 +172,7 @@ func testAccCheckVertexAIIndexDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 			if err != nil {

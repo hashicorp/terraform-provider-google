@@ -26,7 +26,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -35,16 +35,16 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +54,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +66,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -75,9 +75,9 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -85,7 +85,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -97,7 +97,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -106,16 +106,16 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -124,7 +124,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -136,7 +136,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -145,16 +145,16 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withCondition(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamBinding_withConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -164,11 +164,11 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withCondition(t *testing.T) {
 
 func TestAccIapAppEngineVersionIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -177,28 +177,28 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withAndWithoutCondition(t *te
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamBinding_withAndWithoutConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -210,7 +210,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -219,16 +219,16 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withCondition(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamMember_withConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -238,11 +238,11 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withCondition(t *testing.T) {
 
 func TestAccIapAppEngineVersionIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -251,28 +251,28 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withAndWithoutCondition(t *tes
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamMember_withAndWithoutConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -284,7 +284,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/iap.httpsResourceAccessor",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -297,9 +297,9 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamPolicy_withConditionGenerated(context),
@@ -312,7 +312,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", GetTestProjectFromEnv(), GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

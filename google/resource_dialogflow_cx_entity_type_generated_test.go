@@ -27,12 +27,12 @@ func TestAccDialogflowCXEntityType_dialogflowcxEntityTypeFullExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDialogflowCXEntityTypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -93,7 +93,7 @@ func testAccCheckDialogflowCXEntityTypeDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
 			if err != nil {

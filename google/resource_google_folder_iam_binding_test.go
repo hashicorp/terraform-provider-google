@@ -15,11 +15,11 @@ import (
 func TestAccFolderIamBinding_basic(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -45,14 +45,14 @@ func TestAccFolderIamBinding_basic(t *testing.T) {
 // Test that multiple IAM bindings can be applied to a folder, one at a time
 func TestAccFolderIamBinding_multiple(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -92,14 +92,14 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 // Test that multiple IAM bindings can be applied to a folder all at once
 func TestAccFolderIamBinding_multipleAtOnce(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -130,11 +130,11 @@ func TestAccFolderIamBinding_multipleAtOnce(t *testing.T) {
 func TestAccFolderIamBinding_update(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -180,14 +180,14 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 // Test that an IAM binding can be removed from a folder
 func TestAccFolderIamBinding_remove(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -223,7 +223,7 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 
 func testAccCheckGoogleFolderIamBindingExists(t *testing.T, expected *cloudresourcemanager.Binding, org, fname string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		folderPolicy, err := getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, config)
 		if err != nil {
 			return fmt.Errorf("Failed to retrieve IAM policy for folder %q: %s", fname, err)

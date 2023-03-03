@@ -32,15 +32,15 @@ func TestAccAccessApprovalSettings(t *testing.T) {
 
 func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"org_id":        getTestOrgFromEnv(t),
-		"location":      getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"org_id":        GetTestOrgFromEnv(t),
+		"location":      GetTestRegionFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessApprovalOrganizationSettingsDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

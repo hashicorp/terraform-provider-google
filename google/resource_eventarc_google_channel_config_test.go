@@ -16,14 +16,14 @@ func TestAccEventarcGoogleChannelConfig_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  getTestProjectFromEnv(),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project_name":  GetTestProjectFromEnv(),
+		"region":        GetTestRegionFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckEventarcGoogleChannelConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -41,22 +41,22 @@ func TestAccEventarcGoogleChannelConfig_basic(t *testing.T) {
 func TestAccEventarcGoogleChannelConfig_cryptoKeyUpdate(t *testing.T) {
 	t.Parallel()
 
-	region := getTestRegionFromEnv()
+	region := GetTestRegionFromEnv()
 	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key1")
 	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key2")
 
 	context := map[string]interface{}{
-		"project_name":  getTestProjectFromEnv(),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project_name":  GetTestProjectFromEnv(),
+		"region":        GetTestRegionFromEnv(),
+		"random_suffix": RandString(t, 10),
 		"key_ring":      GetResourceNameFromSelfLink(key1.KeyRing.Name),
 		"key1":          GetResourceNameFromSelfLink(key1.CryptoKey.Name),
 		"key2":          GetResourceNameFromSelfLink(key2.CryptoKey.Name),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckEventarcGoogleChannelConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -162,7 +162,7 @@ func testAccCheckEventarcGoogleChannelConfigDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

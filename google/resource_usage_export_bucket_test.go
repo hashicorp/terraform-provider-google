@@ -8,14 +8,14 @@ import (
 )
 
 func TestAccComputeResourceUsageExportBucket(t *testing.T) {
-	org := getTestOrgFromEnv(t)
-	billingId := getTestBillingAccountFromEnv(t)
+	org := GetTestOrgFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
 
-	baseProject := fmt.Sprintf("tf-test-%d", randInt(t))
+	baseProject := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceUsageExportBucket(baseProject, org, billingId),

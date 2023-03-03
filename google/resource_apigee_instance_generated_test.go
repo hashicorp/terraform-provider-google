@@ -24,18 +24,18 @@ import (
 )
 
 func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -116,18 +116,18 @@ resource "google_apigee_instance" "apigee_instance" {
 }
 
 func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -209,18 +209,18 @@ resource "google_apigee_instance" "apigee_instance" {
 }
 
 func TestAccApigeeInstance_apigeeInstanceIpRangeTestExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -302,18 +302,18 @@ resource "google_apigee_instance" "apigee_instance" {
 }
 
 func TestAccApigeeInstance_apigeeInstanceServiceAttachmentBasicTestExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -504,7 +504,7 @@ func testAccCheckApigeeInstanceDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
 			if err != nil {

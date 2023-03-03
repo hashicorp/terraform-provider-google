@@ -27,12 +27,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,12 +72,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBuildExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -174,12 +174,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -235,12 +235,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -298,12 +298,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -386,12 +386,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerManualExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -442,12 +442,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -488,12 +488,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -541,7 +541,7 @@ func testAccCheckCloudBuildTriggerDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 			if err != nil {

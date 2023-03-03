@@ -27,12 +27,12 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -62,12 +62,12 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"network_name":  BootstrapSharedTestNetwork(t, "redis-full"),
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -136,12 +136,12 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 
 	context := map[string]interface{}{
 		"network_name":  BootstrapSharedTestNetwork(t, "redis-mrr"),
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -175,17 +175,17 @@ resource "google_redis_instance" "cache-persis" {
 }
 
 func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"network_name":  BootstrapSharedTestNetwork(t, "redis-private"),
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -254,12 +254,12 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"network_name":  BootstrapSharedTestNetwork(t, "redis-mrr"),
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -323,7 +323,7 @@ func testAccCheckRedisInstanceDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 			if err != nil {

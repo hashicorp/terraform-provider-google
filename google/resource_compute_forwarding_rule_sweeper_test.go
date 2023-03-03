@@ -34,7 +34,7 @@ func init() {
 func testSweepComputeForwardingRule(region string) error {
 	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeForwardingRule")
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -47,7 +47,7 @@ func testSweepComputeForwardingRule(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := getTestBillingAccountFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to be used for Delete arguments.
 	d := map[string]string{
@@ -67,5 +67,5 @@ func testSweepComputeForwardingRule(region string) error {
 }
 
 func isDeletableComputeForwardingRule(r *compute.ForwardingRule) bool {
-	return isSweepableTestResource(*r.Name)
+	return IsSweepableTestResource(*r.Name)
 }

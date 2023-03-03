@@ -27,12 +27,12 @@ func TestAccComputePacketMirroring_computePacketMirroringFullExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputePacketMirroringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -139,7 +139,7 @@ func testAccCheckComputePacketMirroringDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
 			if err != nil {

@@ -21,7 +21,7 @@ func testSweepBigqueryReservation(region string) error {
 	resourceName := "BigqueryReservation"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -61,7 +61,7 @@ func testSweepBigqueryReservation(region string) error {
 		reservationNameParts := strings.Split(reservationName, "/")
 		reservationShortName := reservationNameParts[len(reservationNameParts)-1]
 		// Increment count and skip if resource is not sweepable.
-		if !isSweepableTestResource(reservationShortName) {
+		if !IsSweepableTestResource(reservationShortName) {
 			nonPrefixCount++
 			continue
 		}

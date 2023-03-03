@@ -10,13 +10,13 @@ import (
 func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeGlobalAddress_ipv6(randString(t, 10)),
+				Config: testAccComputeGlobalAddress_ipv6(RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_global_address.foobar",
@@ -30,13 +30,13 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 func TestAccComputeGlobalAddress_internal(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeGlobalAddress_internal(randString(t, 10), randString(t, 10)),
+				Config: testAccComputeGlobalAddress_internal(RandString(t, 10), RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_global_address.foobar",

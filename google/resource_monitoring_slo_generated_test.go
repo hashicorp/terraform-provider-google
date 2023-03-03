@@ -27,12 +27,12 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -81,13 +81,13 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -134,12 +134,12 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -184,12 +184,12 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -240,12 +240,12 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -296,12 +296,12 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -365,7 +365,7 @@ func testAccCheckMonitoringSloDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
 			if err != nil {

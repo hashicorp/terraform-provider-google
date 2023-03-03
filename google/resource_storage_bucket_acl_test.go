@@ -26,9 +26,9 @@ func TestAccStorageBucketAcl_basic(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -47,9 +47,9 @@ func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,9 +85,9 @@ func TestAccStorageBucketAcl_upgradeSingleUser(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -123,9 +123,9 @@ func TestAccStorageBucketAcl_downgrade(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -160,9 +160,9 @@ func TestAccStorageBucketAcl_predefined(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -178,9 +178,9 @@ func TestAccStorageBucketAcl_unordered(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	SkipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -195,9 +195,9 @@ func TestAccStorageBucketAcl_RemoveOwner(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -210,7 +210,7 @@ func TestAccStorageBucketAcl_RemoveOwner(t *testing.T) {
 func testAccCheckGoogleStorageBucketAclDelete(t *testing.T, bucket, roleEntityS string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		_, err := config.NewStorageClient(config.UserAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
 
@@ -225,7 +225,7 @@ func testAccCheckGoogleStorageBucketAclDelete(t *testing.T, bucket, roleEntityS 
 func testAccCheckGoogleStorageBucketAcl(t *testing.T, bucket, roleEntityS string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		res, err := config.NewStorageClient(config.UserAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
 
@@ -243,7 +243,7 @@ func testAccCheckGoogleStorageBucketAcl(t *testing.T, bucket, roleEntityS string
 
 func testAccStorageBucketAclDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_storage_bucket_acl" {

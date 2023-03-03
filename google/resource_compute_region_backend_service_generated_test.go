@@ -27,12 +27,12 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,12 +74,12 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -119,12 +119,12 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -180,12 +180,12 @@ func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -287,7 +287,7 @@ func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 			if err != nil {

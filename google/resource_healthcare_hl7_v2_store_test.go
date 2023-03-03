@@ -72,14 +72,14 @@ func TestAccHealthcareHl7V2StoreIdParsing(t *testing.T) {
 func TestAccHealthcareHl7V2Store_basic(t *testing.T) {
 	t.Parallel()
 
-	datasetName := fmt.Sprintf("tf-test-dataset-%s", randString(t, 10))
-	hl7_v2StoreName := fmt.Sprintf("tf-test-hl7_v2-store-%s", randString(t, 10))
-	pubsubTopic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-dataset-%s", RandString(t, 10))
+	hl7_v2StoreName := fmt.Sprintf("tf-test-hl7_v2-store-%s", RandString(t, 10))
+	pubsubTopic := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
 	resourceName := "google_healthcare_hl7_v2_store.default"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckHealthcareHl7V2StoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -167,7 +167,7 @@ func testAccCheckGoogleHealthcareHl7V2StoreUpdate(t *testing.T, pubsubTopic stri
 			}
 			foundResource = true
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			gcpResourceUri, err := replaceVarsForTest(config, rs, "{{dataset}}/hl7V2Stores/{{name}}")
 			if err != nil {

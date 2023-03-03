@@ -24,16 +24,16 @@ import (
 )
 
 func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -63,16 +63,16 @@ resource "google_spanner_instance" "example" {
 }
 
 func TestAccSpannerInstance_spannerInstanceProcessingUnitsExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -102,16 +102,16 @@ resource "google_spanner_instance" "example" {
 }
 
 func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -150,7 +150,7 @@ func testAccCheckSpannerInstanceDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 			if err != nil {

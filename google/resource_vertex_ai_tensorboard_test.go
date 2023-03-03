@@ -10,11 +10,11 @@ import (
 func TestAccVertexAITensorboard_Update(t *testing.T) {
 	t.Parallel()
 
-	random_suffix := "tf-test-" + randString(t, 10)
+	random_suffix := "tf-test-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckVertexAITensorboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

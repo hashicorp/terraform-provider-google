@@ -27,12 +27,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -68,12 +68,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -118,12 +118,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -162,12 +162,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -224,7 +224,7 @@ func testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t *testing.T
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
 			if err != nil {

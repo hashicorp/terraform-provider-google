@@ -24,12 +24,12 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExa
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(context),
@@ -85,12 +85,12 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExamp
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(context),

@@ -28,7 +28,7 @@ func testSweepFirebaseWebApp(region string) error {
 	resourceName := "FirebaseWebApp"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -41,7 +41,7 @@ func testSweepFirebaseWebApp(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := getTestBillingAccountFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
 	d := &ResourceDataMock{
@@ -86,7 +86,7 @@ func testSweepFirebaseWebApp(region string) error {
 		}
 
 		// Skip resources that shouldn't be sweeped
-		if !isSweepableTestResource(obj["displayName"].(string)) {
+		if !IsSweepableTestResource(obj["displayName"].(string)) {
 			nonPrefixCount++
 			continue
 		}

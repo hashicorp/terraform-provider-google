@@ -18,11 +18,11 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 	t.Parallel()
 
 	var proxy compute.TargetHttpsProxy
-	resourceSuffix := randString(t, 10)
+	resourceSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -53,11 +53,11 @@ func TestAccComputeTargetHttpsProxy_certificateMap(t *testing.T) {
 	t.Parallel()
 
 	var proxy compute.TargetHttpsProxy
-	resourceSuffix := randString(t, 10)
+	resourceSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -84,7 +84,7 @@ func testAccCheckComputeTargetHttpsProxyExists(t *testing.T, n string, proxy *co
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.NewComputeClient(config.UserAgent).TargetHttpsProxies.Get(
@@ -114,7 +114,7 @@ func testAccComputeTargetHttpsProxyDescription(description string, proxy *comput
 
 func testAccComputeTargetHttpsProxyHasSslCertificate(t *testing.T, cert string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		certUrl := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert)
 
 		for _, sslCertificate := range proxy.SslCertificates {
@@ -129,7 +129,7 @@ func testAccComputeTargetHttpsProxyHasSslCertificate(t *testing.T, cert string, 
 
 func testAccComputeTargetHttpsProxyHasCertificateMap(t *testing.T, certificateMap string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		certificateMapUrl := fmt.Sprintf(canonicalCertificateMapTemplate, config.Project, certificateMap)
 
 		if ConvertSelfLinkToV1(proxy.CertificateMap) == certificateMapUrl {

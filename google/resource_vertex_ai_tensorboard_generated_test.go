@@ -27,12 +27,12 @@ func TestAccVertexAITensorboard_vertexAiTensorboardExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckVertexAITensorboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -67,12 +67,12 @@ func TestAccVertexAITensorboard_vertexAiTensorboardFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"kms_key_name":  BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckVertexAITensorboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -124,7 +124,7 @@ func testAccCheckVertexAITensorboardDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{VertexAIBasePath}}{{name}}")
 			if err != nil {

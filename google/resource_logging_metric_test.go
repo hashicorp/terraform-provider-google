@@ -10,13 +10,13 @@ import (
 func TestAccLoggingMetric_update(t *testing.T) {
 	t.Parallel()
 
-	suffix := randString(t, 10)
+	suffix := RandString(t, 10)
 	filter := "resource.type=gae_app AND severity>=ERROR"
 	updatedFilter := "resource.type=gae_app AND severity=ERROR"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -42,12 +42,12 @@ func TestAccLoggingMetric_update(t *testing.T) {
 func TestAccLoggingMetric_explicitBucket(t *testing.T) {
 	t.Parallel()
 
-	suffix := randString(t, 10)
+	suffix := RandString(t, 10)
 	filter := "resource.type=gae_app AND severity>=ERROR"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -66,12 +66,12 @@ func TestAccLoggingMetric_loggingBucket(t *testing.T) {
 	t.Parallel()
 
 	filter := "resource.type=gae_app AND severity>=ERROR"
-	project_id := getTestProjectFromEnv()
-	suffix := randString(t, 10)
+	project_id := GetTestProjectFromEnv()
+	suffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -105,11 +105,11 @@ func TestAccLoggingMetric_loggingBucket(t *testing.T) {
 func TestAccLoggingMetric_descriptionUpdated(t *testing.T) {
 	t.Parallel()
 
-	suffix := randString(t, 10)
+	suffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -12,11 +12,11 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerAccessLevels_basicTest(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessContextManagerAccessLevelsDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,7 +54,7 @@ func testAccCheckAccessContextManagerAccessLevelsDestroyProducer(t *testing.T) f
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
 			if err != nil {

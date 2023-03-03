@@ -10,14 +10,14 @@ import (
 func TestAccComputeAutoscaler_update(t *testing.T) {
 	t.Parallel()
 
-	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -43,14 +43,14 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 	t.Parallel()
 
-	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -68,14 +68,14 @@ func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 func TestAccComputeAutoscaler_scaleDownControl(t *testing.T) {
 	t.Parallel()
 
-	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -93,14 +93,14 @@ func TestAccComputeAutoscaler_scaleDownControl(t *testing.T) {
 func TestAccComputeAutoscaler_scalingSchedule(t *testing.T) {
 	t.Parallel()
 
-	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -118,14 +118,14 @@ func TestAccComputeAutoscaler_scalingSchedule(t *testing.T) {
 func TestAccComputeAutoscaler_scaleInControl(t *testing.T) {
 	t.Parallel()
 
-	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -143,14 +143,14 @@ func TestAccComputeAutoscaler_scaleInControl(t *testing.T) {
 func TestAccComputeAutoscaler_scaleInControlFixed(t *testing.T) {
 	t.Parallel()
 
-	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

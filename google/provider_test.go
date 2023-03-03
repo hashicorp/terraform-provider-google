@@ -33,10 +33,10 @@ import (
 	"google.golang.org/api/serviceusage/v1"
 )
 
-var testAccProviders map[string]*schema.Provider
+var TestAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
-var credsEnvVars = []string{
+var CredsEnvVars = []string{
 	"GOOGLE_CREDENTIALS",
 	"GOOGLE_CLOUD_KEYFILE_JSON",
 	"GCLOUD_KEYFILE_JSON",
@@ -48,7 +48,7 @@ var projectNumberEnvVars = []string{
 	"GOOGLE_PROJECT_NUMBER",
 }
 
-var projectEnvVars = []string{
+var ProjectEnvVars = []string{
 	"GOOGLE_PROJECT",
 	"GCLOUD_PROJECT",
 	"CLOUDSDK_CORE_PROJECT",
@@ -128,7 +128,7 @@ func init() {
 	configs = make(map[string]*Config)
 	sources = make(map[string]VcrSource)
 	testAccProvider = Provider()
-	testAccProviders = map[string]*schema.Provider{
+	TestAccProviders = map[string]*schema.Provider{
 		"google": testAccProvider,
 	}
 }
@@ -260,7 +260,7 @@ func closeRecorder(t *testing.T) {
 	}
 }
 
-func googleProviderConfig(t *testing.T) *Config {
+func GoogleProviderConfig(t *testing.T) *Config {
 	configsLock.RLock()
 	config, ok := configs[t.Name()]
 	configsLock.RUnlock()
@@ -300,7 +300,7 @@ func isVcrEnabled() bool {
 
 // Wrapper for resource.Test to swap out providers for VCR providers and handle VCR specific things
 // Can be called when VCR is not enabled, and it will behave as normal
-func vcrTest(t *testing.T, c resource.TestCase) {
+func VcrTest(t *testing.T, c resource.TestCase) {
 	if isVcrEnabled() {
 		providers := getTestAccProviders(t.Name(), c)
 		c.Providers = providers
@@ -389,7 +389,7 @@ func writeSeedToFile(seed int64, fileName string) error {
 	return nil
 }
 
-func randString(t *testing.T, length int) string {
+func RandString(t *testing.T, length int) string {
 	if !isVcrEnabled() {
 		return acctest.RandString(length)
 	}
@@ -410,7 +410,7 @@ func randString(t *testing.T, length int) string {
 	return string(result)
 }
 
-func randInt(t *testing.T) int {
+func RandInt(t *testing.T) int {
 	if !isVcrEnabled() {
 		return acctest.RandInt()
 	}
@@ -451,12 +451,12 @@ func testAccPreCheck(t *testing.T) {
 		os.Setenv("GOOGLE_CREDENTIALS", string(creds))
 	}
 
-	if v := MultiEnvSearch(credsEnvVars); v == "" {
-		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(credsEnvVars, ", "))
+	if v := MultiEnvSearch(CredsEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(CredsEnvVars, ", "))
 	}
 
-	if v := MultiEnvSearch(projectEnvVars); v == "" {
-		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(projectEnvVars, ", "))
+	if v := MultiEnvSearch(ProjectEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(ProjectEnvVars, ", "))
 	}
 
 	if v := MultiEnvSearch(regionEnvVars); v == "" {
@@ -503,13 +503,13 @@ func TestProvider_loadCredentialsFromJSON(t *testing.T) {
 func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", randString(t, 10)),
+				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -523,13 +523,13 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", randString(t, 10)),
+				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", RandString(t, 10)),
 				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
 			},
 		},
@@ -540,13 +540,13 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 	t.Parallel()
 
 	moduleName := "my-module"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderMeta_setModuleName(moduleName, randString(t, 10)),
+				Config: testAccProviderMeta_setModuleName(moduleName, RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -559,13 +559,13 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 
 func TestAccProviderUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	billing := getTestBillingAccountFromEnv(t)
-	pid := "tf-test-" + randString(t, 10)
-	topicName := "tf-test-topic-" + randString(t, 10)
+	org := GetTestOrgFromEnv(t)
+	billing := GetTestBillingAccountFromEnv(t)
+	pid := "tf-test-" + RandString(t, 10)
+	topicName := "tf-test-topic-" + RandString(t, 10)
 
 	config := BootstrapConfig(t)
 	accessToken, err := setupProjectsAndGetAccessToken(org, billing, pid, "pubsub", config)
@@ -573,9 +573,9 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 		t.Error(err)
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
@@ -601,12 +601,12 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 // a reference to a different resource instead of a project field.
 func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	billing := getTestBillingAccountFromEnv(t)
-	pid := "tf-test-" + randString(t, 10)
+	org := GetTestOrgFromEnv(t)
+	billing := GetTestBillingAccountFromEnv(t)
+	pid := "tf-test-" + RandString(t, 10)
 
 	config := BootstrapConfig(t)
 	accessToken, err := setupProjectsAndGetAccessToken(org, billing, pid, "cloudkms", config)
@@ -614,9 +614,9 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 		t.Error(err)
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
@@ -739,8 +739,8 @@ provider "google" {
 `, accessToken, override)
 }
 
-// getTestRegion has the same logic as the provider's getRegion, to be used in tests.
-func getTestRegion(is *terraform.InstanceState, config *Config) (string, error) {
+// GetTestRegion has the same logic as the provider's getRegion, to be used in tests.
+func GetTestRegion(is *terraform.InstanceState, config *Config) (string, error) {
 	if res, ok := is.Attributes["region"]; ok {
 		return res, nil
 	}
@@ -750,8 +750,8 @@ func getTestRegion(is *terraform.InstanceState, config *Config) (string, error) 
 	return "", fmt.Errorf("%q: required field is not set", "region")
 }
 
-// getTestProject has the same logic as the provider's getProject, to be used in tests.
-func getTestProject(is *terraform.InstanceState, config *Config) (string, error) {
+// GetTestProject has the same logic as the provider's getProject, to be used in tests.
+func GetTestProject(is *terraform.InstanceState, config *Config) (string, error) {
 	if res, ok := is.Attributes["project"]; ok {
 		return res, nil
 	}
@@ -767,83 +767,83 @@ func getTestProjectNumberFromEnv() string {
 }
 
 // testAccPreCheck ensures at least one of the project env variables is set.
-func getTestProjectFromEnv() string {
-	return MultiEnvSearch(projectEnvVars)
+func GetTestProjectFromEnv() string {
+	return MultiEnvSearch(ProjectEnvVars)
 }
 
 // testAccPreCheck ensures at least one of the credentials env variables is set.
-func getTestCredsFromEnv() string {
+func GetTestCredsFromEnv() string {
 	// Return empty string if GOOGLE_USE_DEFAULT_CREDENTIALS is set to true.
-	if MultiEnvSearch(credsEnvVars) == "true" {
+	if MultiEnvSearch(CredsEnvVars) == "true" {
 		return ""
 	}
-	return MultiEnvSearch(credsEnvVars)
+	return MultiEnvSearch(CredsEnvVars)
 }
 
 // testAccPreCheck ensures at least one of the region env variables is set.
-func getTestRegionFromEnv() string {
+func GetTestRegionFromEnv() string {
 	return MultiEnvSearch(regionEnvVars)
 }
 
-func getTestZoneFromEnv() string {
+func GetTestZoneFromEnv() string {
 	return MultiEnvSearch(zoneEnvVars)
 }
 
-func getTestCustIdFromEnv(t *testing.T) string {
+func GetTestCustIdFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, custIdEnvVars...)
 	return MultiEnvSearch(custIdEnvVars)
 }
 
-func getTestIdentityUserFromEnv(t *testing.T) string {
+func GetTestIdentityUserFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, identityUserEnvVars...)
 	return MultiEnvSearch(identityUserEnvVars)
 }
 
 // Firestore can't be enabled at the same time as Datastore, so we need a new
 // project to manage it until we can enable Firestore programmatically.
-func getTestFirestoreProjectFromEnv(t *testing.T) string {
+func GetTestFirestoreProjectFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, firestoreProjectEnvVars...)
 	return MultiEnvSearch(firestoreProjectEnvVars)
 }
 
 // Returns the raw organization id like 1234567890, skipping the test if one is
 // not found.
-func getTestOrgFromEnv(t *testing.T) string {
+func GetTestOrgFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, orgEnvVars...)
 	return MultiEnvSearch(orgEnvVars)
 }
 
-// Alternative to getTestOrgFromEnv that doesn't need *testing.T
+// Alternative to GetTestOrgFromEnv that doesn't need *testing.T
 // If using this, you need to process unset values at the call site
 func UnsafeGetTestOrgFromEnv() string {
 	return MultiEnvSearch(orgEnvVars)
 }
 
-func getTestOrgDomainFromEnv(t *testing.T) string {
+func GetTestOrgDomainFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, orgEnvDomainVars...)
 	return MultiEnvSearch(orgEnvDomainVars)
 }
 
-func getTestOrgTargetFromEnv(t *testing.T) string {
+func GetTestOrgTargetFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, orgTargetEnvVars...)
 	return MultiEnvSearch(orgTargetEnvVars)
 }
 
 // This is the billing account that will be charged for the infrastructure used during testing. For
 // that reason, it is also the billing account used for creating new projects.
-func getTestBillingAccountFromEnv(t *testing.T) string {
+func GetTestBillingAccountFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, billingAccountEnvVars...)
 	return MultiEnvSearch(billingAccountEnvVars)
 }
 
 // This is the billing account that will be modified to test billing-related functionality. It is
 // expected to have more permissions granted to the test user and support subaccounts.
-func getTestMasterBillingAccountFromEnv(t *testing.T) string {
+func GetTestMasterBillingAccountFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, masterBillingAccountEnvVars...)
 	return MultiEnvSearch(masterBillingAccountEnvVars)
 }
 
-func getTestServiceAccountFromEnv(t *testing.T) string {
+func GetTestServiceAccountFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, serviceAccountEnvVars...)
 	return MultiEnvSearch(serviceAccountEnvVars)
 }
@@ -851,13 +851,13 @@ func getTestServiceAccountFromEnv(t *testing.T) string {
 // Some tests fail during VCR. One common case is race conditions when creating resources.
 // If a test config adds two fine-grained resources with the same parent it is undefined
 // which will be created first, causing VCR to fail ~50% of the time
-func skipIfVcr(t *testing.T) {
+func SkipIfVcr(t *testing.T) {
 	if isVcrEnabled() {
 		t.Skipf("VCR enabled, skipping test: %s", t.Name())
 	}
 }
 
-func sleepInSecondsForTest(t int) resource.TestCheckFunc {
+func SleepInSecondsForTest(t int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		time.Sleep(time.Duration(t) * time.Second)
 		return nil

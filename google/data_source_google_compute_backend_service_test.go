@@ -10,12 +10,12 @@ import (
 func TestAccDataSourceComputeBackendService_basic(t *testing.T) {
 	t.Parallel()
 
-	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	serviceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

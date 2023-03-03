@@ -20,7 +20,7 @@ func testSweepAppEngineAppVersion(region string) error {
 	resourceName := "AppEngineAppVersion"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -59,7 +59,7 @@ func testSweepAppEngineAppVersion(region string) error {
 
 		id := obj["id"].(string)
 		// Increment count and skip if resource is not sweepable.
-		if !isSweepableTestResource(id) {
+		if !IsSweepableTestResource(id) {
 			nonPrefixCount++
 			continue
 		}

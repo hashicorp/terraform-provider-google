@@ -10,12 +10,12 @@ import (
 func TestAccDataSourceComputeRegionSslCertificate(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceComputeRegionSslCertificateConfig(randString(t, 10)),
+				Config: testAccDataSourceComputeRegionSslCertificateConfig(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_region_ssl_certificate.cert",

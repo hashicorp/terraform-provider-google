@@ -27,12 +27,12 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckFilestoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,12 +72,12 @@ func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckFilestoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -138,7 +138,7 @@ func testAccCheckFilestoreInstanceDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 			if err != nil {

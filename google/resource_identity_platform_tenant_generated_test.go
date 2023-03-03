@@ -27,12 +27,12 @@ func TestAccIdentityPlatformTenant_identityPlatformTenantBasicExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckIdentityPlatformTenantDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -66,7 +66,7 @@ func testAccCheckIdentityPlatformTenantDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{name}}")
 			if err != nil {

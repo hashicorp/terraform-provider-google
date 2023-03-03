@@ -19,7 +19,7 @@ func init() {
 }
 
 func testSweepAccessContextManagerPolicies(region string) error {
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Fatalf("error getting shared config for region %q: %s", region, err)
 	}
@@ -29,7 +29,7 @@ func testSweepAccessContextManagerPolicies(region string) error {
 		log.Fatalf("error loading and validating shared config for region %q: %s", region, err)
 	}
 
-	testOrg := getTestOrgFromEnv(nil)
+	testOrg := GetTestOrgFromEnv(nil)
 	if testOrg == "" {
 		log.Printf("test org not set for test environment, skip sweep")
 		return nil
@@ -104,11 +104,11 @@ func TestAccAccessContextManager(t *testing.T) {
 }
 
 func testAccAccessContextManagerAccessPolicy_basicTest(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -138,7 +138,7 @@ func testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t *testing.T) f
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 			if err != nil {
@@ -165,11 +165,11 @@ resource "google_access_context_manager_access_policy" "test-access" {
 }
 
 func testAccAccessContextManagerAccessPolicy_scopedTest(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

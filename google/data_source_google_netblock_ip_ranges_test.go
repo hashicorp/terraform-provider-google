@@ -8,9 +8,9 @@ import (
 )
 
 func TestAccDataSourceGoogleNetblockIpRanges_basic(t *testing.T) {
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetblockIpRangesConfig,

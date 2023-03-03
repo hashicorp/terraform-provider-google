@@ -13,12 +13,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceFullUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -206,12 +206,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceTCPProbesUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -240,12 +240,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceHTTPProbesUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -273,14 +273,14 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceHTTPProbesUpdate(t *testing.T) {
 func TestAccCloudRunV2Service_cloudrunv2ServiceGRPCProbesUpdate(t *testing.T) {
 	t.Parallel()
 
-	serviceName := fmt.Sprintf("tf-test-cloudrun-service%s", randString(t, 10))
+	serviceName := fmt.Sprintf("tf-test-cloudrun-service%s", RandString(t, 10))
 	context := map[string]interface{}{
 		"service_name": serviceName,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -332,7 +332,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceGRPCProbesUpdate(t *testing.T) {
 
 func testAccCheckCloudRunV2ServiceDestroyByNameProducer(t *testing.T, serviceName string) func() {
 	return func() {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		service := config.NewCloudRunV2Client(config.UserAgent).Projects.Locations.Services
 		qualifiedServiceName := fmt.Sprintf("projects/%s/locations/%s/services/%s", config.Project, config.Region, serviceName)
 		op, err := service.Delete(qualifiedServiceName).Do()

@@ -10,11 +10,11 @@ import (
 func TestAccDataSourceGoogleProjects_basic(t *testing.T) {
 	t.Parallel()
 
-	project := getTestProjectFromEnv()
+	project := GetTestProjectFromEnv()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectsConfig(project),

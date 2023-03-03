@@ -10,13 +10,13 @@ import (
 
 func TestAccSqlUser_mysql(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -36,7 +36,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_user.user2",
-				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
+				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", GetTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
@@ -47,13 +47,13 @@ func TestAccSqlUser_mysql(t *testing.T) {
 
 func TestAccSqlUser_iamUser(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -64,7 +64,7 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sql_user.user1",
-				ImportStateId:     fmt.Sprintf("%s/%s/%%/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), instance, instance, getTestProjectFromEnv()),
+				ImportStateId:     fmt.Sprintf("%s/%s/%%/%s@%s.iam.gserviceaccount.com", GetTestProjectFromEnv(), instance, instance, GetTestProjectFromEnv()),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,10 +75,10 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 func TestAccSqlUser_postgres(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -96,7 +96,7 @@ func TestAccSqlUser_postgres(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_user.user",
-				ImportStateId:           fmt.Sprintf("%s/%s/admin", getTestProjectFromEnv(), instance),
+				ImportStateId:           fmt.Sprintf("%s/%s/admin", GetTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
@@ -108,10 +108,10 @@ func TestAccSqlUser_postgres(t *testing.T) {
 func TestAccSqlUser_postgresIAM(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -122,7 +122,7 @@ func TestAccSqlUser_postgresIAM(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_user.user",
-				ImportStateId:           fmt.Sprintf("%s/%s/admin", getTestProjectFromEnv(), instance),
+				ImportStateId:           fmt.Sprintf("%s/%s/admin", GetTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
@@ -134,11 +134,11 @@ func TestAccSqlUser_postgresIAM(t *testing.T) {
 func TestAccSqlUser_postgresAbandon(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", randInt(t))
+	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
 	userName := "admin"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -149,7 +149,7 @@ func TestAccSqlUser_postgresAbandon(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_user.user",
-				ImportStateId:           fmt.Sprintf("%s/%s/admin", getTestProjectFromEnv(), instance),
+				ImportStateId:           fmt.Sprintf("%s/%s/admin", GetTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password", "deletion_policy"},
@@ -167,7 +167,7 @@ func TestAccSqlUser_postgresAbandon(t *testing.T) {
 
 func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Resource not found: %s", n)
@@ -195,7 +195,7 @@ func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckF
 
 func testAccCheckGoogleSqlUserExistsWithName(t *testing.T, instance, name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		users, err := config.NewSqlAdminClient(config.UserAgent).Users.List(config.Project,
 			instance).Do()
@@ -217,7 +217,7 @@ func testAccCheckGoogleSqlUserExistsWithName(t *testing.T, instance, name string
 func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 			if rs.Type != "google_sql_database" {
 				continue
 			}
@@ -247,13 +247,13 @@ func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error 
 
 func TestAccSqlUser_mysqlPasswordPolicy(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-i%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-i%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -273,7 +273,7 @@ func TestAccSqlUser_mysqlPasswordPolicy(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_user.user2",
-				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
+				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", GetTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},

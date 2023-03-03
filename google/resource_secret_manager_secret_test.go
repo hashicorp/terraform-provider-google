@@ -10,12 +10,12 @@ func TestAccSecretManagerSecret_import(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckSecretManagerSecretDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -37,14 +37,14 @@ func TestAccSecretManagerSecret_cmek(t *testing.T) {
 	kmscentral := BootstrapKMSKeyInLocation(t, "us-central1")
 	kmseast := BootstrapKMSKeyInLocation(t, "us-east1")
 	context1 := map[string]interface{}{
-		"pid":                  getTestProjectFromEnv(),
-		"random_suffix":        randString(t, 10),
+		"pid":                  GetTestProjectFromEnv(),
+		"random_suffix":        RandString(t, 10),
 		"kms_key_name_central": kmscentral.CryptoKey.Name,
 		"kms_key_name_east":    kmseast.CryptoKey.Name,
 	}
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckSecretManagerSecretDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

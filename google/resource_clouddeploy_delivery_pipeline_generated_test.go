@@ -30,14 +30,14 @@ func TestAccClouddeployDeliveryPipeline_DeliveryPipeline(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  getTestProjectFromEnv(),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project_name":  GetTestProjectFromEnv(),
+		"region":        GetTestRegionFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckClouddeployDeliveryPipelineDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -150,7 +150,7 @@ func testAccCheckClouddeployDeliveryPipelineDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

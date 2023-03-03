@@ -27,12 +27,12 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckStorageBucketAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,7 +73,7 @@ func testAccCheckStorageBucketAccessControlDestroyProducer(t *testing.T) func(s 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 			if err != nil {

@@ -24,18 +24,18 @@ import (
 )
 
 func TestAccApigeeEnvgroup_apigeeEnvironmentGroupBasicTestExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApigeeEnvgroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -125,7 +125,7 @@ func testAccCheckApigeeEnvgroupDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
 			if err != nil {

@@ -27,12 +27,12 @@ func TestAccContainerAttachedCluster_containerAttachedClusterBasicExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckContainerAttachedClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -79,12 +79,12 @@ func TestAccContainerAttachedCluster_containerAttachedClusterFullExample(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckContainerAttachedClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -148,12 +148,12 @@ func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckContainerAttachedClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -208,7 +208,7 @@ func testAccCheckContainerAttachedClusterDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
 			if err != nil {

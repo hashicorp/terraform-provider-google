@@ -15,12 +15,12 @@ import (
 func TestAccProjectIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	member := "user:evanbrown@google.com"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -46,11 +46,11 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectIamPolicyEmptyMembers(pid, pname, org),
@@ -63,11 +63,11 @@ func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
 func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectAssociatePolicyExpanded(pid, pname, org),
@@ -83,11 +83,11 @@ func TestAccProjectIamPolicy_expanded(t *testing.T) {
 func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -113,11 +113,11 @@ func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectAssociatePolicyAuditConfigExpanded(pid, pname, org),
@@ -132,11 +132,11 @@ func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 func TestAccProjectIamPolicy_withCondition(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -162,12 +162,12 @@ func TestAccProjectIamPolicy_withCondition(t *testing.T) {
 func TestAccProjectIamPolicy_invalidMembers(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProjectAssociatePolicyBasic(pid, pname, org, "admin@hashicorptest.com"),
@@ -239,7 +239,7 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 // Confirm that a project has an IAM policy with at least 1 binding
 func testAccProjectExistingPolicy(t *testing.T, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		c := googleProviderConfig(t)
+		c := GoogleProviderConfig(t)
 		var err error
 		OriginalPolicy, err = getProjectIamPolicy(pid, c)
 		if err != nil {

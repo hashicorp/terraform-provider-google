@@ -14,9 +14,9 @@ import (
 func TestAccComputeZones_basic(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeZones_basic,
@@ -32,9 +32,9 @@ func TestAccComputeZones_filter(t *testing.T) {
 	t.Parallel()
 	region := "us-central1"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeZones_filter(region),

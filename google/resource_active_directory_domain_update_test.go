@@ -15,7 +15,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 
 	t.Parallel()
 
-	domain := fmt.Sprintf("tf-test%s.org1.com", randString(t, 5))
+	domain := fmt.Sprintf("tf-test%s.org1.com", RandString(t, 5))
 	context := map[string]interface{}{
 		"domain":        domain,
 		"resource_name": "ad-domain",
@@ -23,9 +23,9 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 
 	resourceName := Nprintf("google_active_directory_domain.%{resource_name}", context)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckActiveDirectoryDomainDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -94,7 +94,7 @@ func testAccCheckActiveDirectoryDomainDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ActiveDirectoryBasePath}}{{name}}")
 			if err != nil {

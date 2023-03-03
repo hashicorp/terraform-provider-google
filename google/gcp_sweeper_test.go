@@ -27,20 +27,20 @@ func TestMain(m *testing.M) {
 	resource.TestMain(m)
 }
 
-// sharedConfigForRegion returns a common config setup needed for the sweeper
+// SharedConfigForRegion returns a common config setup needed for the sweeper
 // functions for a given region
-func sharedConfigForRegion(region string) (*Config, error) {
-	project := getTestProjectFromEnv()
+func SharedConfigForRegion(region string) (*Config, error) {
+	project := GetTestProjectFromEnv()
 	if project == "" {
-		return nil, fmt.Errorf("set project using any of these env variables %v", projectEnvVars)
+		return nil, fmt.Errorf("set project using any of these env variables %v", ProjectEnvVars)
 	}
 
-	if v := MultiEnvSearch(credsEnvVars); v == "" {
-		return nil, fmt.Errorf("set credentials using any of these env variables %v", credsEnvVars)
+	if v := MultiEnvSearch(CredsEnvVars); v == "" {
+		return nil, fmt.Errorf("set credentials using any of these env variables %v", CredsEnvVars)
 	}
 
 	conf := &Config{
-		Credentials: getTestCredsFromEnv(),
+		Credentials: GetTestCredsFromEnv(),
 		Region:      region,
 		Project:     project,
 	}
@@ -50,7 +50,7 @@ func sharedConfigForRegion(region string) (*Config, error) {
 	return conf, nil
 }
 
-func isSweepableTestResource(resourceName string) bool {
+func IsSweepableTestResource(resourceName string) bool {
 	for _, p := range testResourcePrefixes {
 		if strings.HasPrefix(resourceName, p) {
 			return true

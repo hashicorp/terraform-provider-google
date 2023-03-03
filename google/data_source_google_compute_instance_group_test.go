@@ -15,12 +15,12 @@ import (
 func TestAccDataSourceGoogleComputeInstanceGroup_basic(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfig(randString(t, 10), randString(t, 10)),
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfig(RandString(t, 10), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataSourceGoogleComputeInstanceGroup("data.google_compute_instance_group.test"),
 				),
@@ -32,12 +32,12 @@ func TestAccDataSourceGoogleComputeInstanceGroup_basic(t *testing.T) {
 func TestAccDataSourceGoogleComputeInstanceGroup_withNamedPort(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort(randString(t, 10), randString(t, 10)),
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort(RandString(t, 10), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataSourceGoogleComputeInstanceGroup("data.google_compute_instance_group.test"),
 				),
@@ -49,12 +49,12 @@ func TestAccDataSourceGoogleComputeInstanceGroup_withNamedPort(t *testing.T) {
 func TestAccDataSourceGoogleComputeInstanceGroup_fromIGM(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(fmt.Sprintf("tf-test-igm-%d", randInt(t)), fmt.Sprintf("tf-test-igm-%d", randInt(t))),
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(fmt.Sprintf("tf-test-igm-%d", RandInt(t)), fmt.Sprintf("tf-test-igm-%d", RandInt(t))),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_instance_group.test", "instances.#", "10"),
 				),

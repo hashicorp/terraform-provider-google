@@ -24,17 +24,17 @@ import (
 )
 
 func TestAccDatastreamStream_datastreamStreamBasicExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
+		"random_suffix":       RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 			"time":   {},
@@ -184,18 +184,18 @@ resource "google_datastream_stream" "default" {
 }
 
 func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
 		"stream_cmek":         BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix":       randString(t, 10),
+		"random_suffix":       RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 			"time":   {},
@@ -416,18 +416,18 @@ resource "google_datastream_stream" "default" {
 }
 
 func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"deletion_protection":                     false,
 		"bigquery_destination_table_kms_key_name": BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix":                           randString(t, 10),
+		"random_suffix":                           RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 			"time":   {},
@@ -576,7 +576,7 @@ func testAccCheckDatastreamStreamDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/streams/{{stream_id}}")
 			if err != nil {

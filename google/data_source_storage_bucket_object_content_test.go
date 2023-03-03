@@ -9,12 +9,12 @@ import (
 
 func TestAccDataSourceStorageBucketObjectContent_Basic(t *testing.T) {
 
-	bucket := "tf-bucket-object-content-" + randString(t, 10)
+	bucket := "tf-bucket-object-content-" + RandString(t, 10)
 	content := "qwertyuioasdfghjk1234567!!@#$*"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceStorageBucketObjectContent_Basic(content, bucket),

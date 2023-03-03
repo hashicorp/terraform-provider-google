@@ -12,11 +12,11 @@ import (
 func TestAccFolderIamMember_basic(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -41,14 +41,14 @@ func TestAccFolderIamMember_basic(t *testing.T) {
 
 // Test that multiple IAM bindings can be applied to a folder
 func TestAccFolderIamMember_multiple(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -83,14 +83,14 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 
 // Test that an IAM binding can be removed from a folder
 func TestAccFolderIamMember_remove(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	fname := "tf-test-" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	fname := "tf-test-" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{

@@ -27,12 +27,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -69,12 +69,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSqlExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       randString(t, 10),
+		"random_suffix":       RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -178,12 +178,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceVpcaccessExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -243,12 +243,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceProbesExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -297,12 +297,12 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSecretExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunV2ServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -383,7 +383,7 @@ func testAccCheckCloudRunV2ServiceDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/services/{{name}}")
 			if err != nil {

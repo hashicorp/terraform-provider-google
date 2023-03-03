@@ -27,12 +27,12 @@ func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -88,12 +88,12 @@ func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -125,12 +125,12 @@ func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -170,13 +170,13 @@ func TestAccLoggingMetric_loggingMetricLoggingBucketExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -217,7 +217,7 @@ func testAccCheckLoggingMetricDestroyProducer(t *testing.T) func(s *terraform.St
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
 			if err != nil {

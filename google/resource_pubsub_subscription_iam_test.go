@@ -13,32 +13,32 @@ import (
 func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + randString(t, 10)
-	subscription := "tf-test-sub-iam-" + randString(t, 10)
-	account := "tf-test-iam-" + randString(t, 10)
+	topic := "tf-test-topic-iam-" + RandString(t, 10)
+	subscription := "tf-test-sub-iam-" + RandString(t, 10)
+	account := "tf-test-iam-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccPubsubSubscriptionIamBinding_basic(subscription, topic, account),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				// Test IAM Binding update
 				Config: testAccPubsubSubscriptionIamBinding_update(subscription, topic, account),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
-					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber", getComputedSubscriptionName(getTestProjectFromEnv(), subscription)),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber", getComputedSubscriptionName(GetTestProjectFromEnv(), subscription)),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,14 +49,14 @@ func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + randString(t, 10)
-	subscription := "tf-test-sub-iam-" + randString(t, 10)
-	account := "tf-test-iam-" + randString(t, 10)
-	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv())
+	topic := "tf-test-topic-iam-" + RandString(t, 10)
+	subscription := "tf-test-sub-iam-" + RandString(t, 10)
+	account := "tf-test-iam-" + RandString(t, 10)
+	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv())
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -67,7 +67,7 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", getComputedSubscriptionName(getTestProjectFromEnv(), subscription), accountEmail),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", getComputedSubscriptionName(GetTestProjectFromEnv(), subscription), accountEmail),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -78,29 +78,29 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + randString(t, 10)
-	subscription := "tf-test-sub-iam-" + randString(t, 10)
-	account := "tf-test-iam-" + randString(t, 10)
+	topic := "tf-test-topic-iam-" + RandString(t, 10)
+	subscription := "tf-test-sub-iam-" + RandString(t, 10)
+	account := "tf-test-iam-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.subscriber"),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.viewer"),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.viewer", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_policy.foo",
-				ImportStateId:     getComputedSubscriptionName(getTestProjectFromEnv(), subscription),
+				ImportStateId:     getComputedSubscriptionName(GetTestProjectFromEnv(), subscription),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -110,8 +110,8 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 
 func testAccCheckPubsubSubscriptionIam(t *testing.T, subscription, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
-		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(getTestProjectFromEnv(), subscription)).Do()
+		config := GoogleProviderConfig(t)
+		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(GetTestProjectFromEnv(), subscription)).Do()
 		if err != nil {
 			return err
 		}

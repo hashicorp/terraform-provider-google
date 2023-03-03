@@ -11,17 +11,17 @@ import (
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", randInt(t))
-	peeringName := fmt.Sprintf("peering-test-1-%d", randInt(t))
-	importId := fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), primaryNetworkName, peeringName)
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
+	peeringName := fmt.Sprintf("peering-test-1-%d", RandInt(t))
+	importId := fmt.Sprintf("%s/%s/%s", GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName, randString(t, 10)),
+				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName, RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_network_peering.foo",
@@ -37,17 +37,17 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", randInt(t))
-	peeringName := fmt.Sprintf("peering-test-%d", randInt(t))
-	importId := fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), primaryNetworkName, peeringName)
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
+	peeringName := fmt.Sprintf("peering-test-%d", RandInt(t))
+	importId := fmt.Sprintf("%s/%s/%s", GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkPeering_subnetRoutes(primaryNetworkName, peeringName, randString(t, 10)),
+				Config: testAccComputeNetworkPeering_subnetRoutes(primaryNetworkName, peeringName, RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_network_peering.bar",
@@ -62,14 +62,14 @@ func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", randInt(t))
-	peeringName := fmt.Sprintf("peering-test-%d", randInt(t))
-	importId := fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), primaryNetworkName, peeringName)
-	suffix := randString(t, 10)
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
+	peeringName := fmt.Sprintf("peering-test-%d", RandInt(t))
+	importId := fmt.Sprintf("%s/%s/%s", GetTestProjectFromEnv(), primaryNetworkName, peeringName)
+	suffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -105,7 +105,7 @@ func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 
 func testAccComputeNetworkPeeringDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_network_peering" {

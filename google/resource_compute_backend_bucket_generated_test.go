@@ -27,12 +27,12 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -67,12 +67,12 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -118,12 +118,12 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -165,12 +165,12 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -210,12 +210,12 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -255,12 +255,12 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -385,12 +385,12 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -430,12 +430,12 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -479,7 +479,7 @@ func testAccCheckComputeBackendBucketDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 			if err != nil {

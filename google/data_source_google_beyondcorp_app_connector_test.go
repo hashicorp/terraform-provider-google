@@ -10,12 +10,12 @@ func TestAccDataSourceGoogleBeyondcorpAppConnector_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -32,12 +32,12 @@ func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalProject(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,12 +54,12 @@ func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalRegion(t *testing.T) 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,12 +76,12 @@ func TestAccDataSourceGoogleBeyondcorpAppConnector_optionalProjectRegion(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

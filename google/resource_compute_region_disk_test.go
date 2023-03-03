@@ -13,13 +13,13 @@ import (
 func TestAccComputeRegionDisk_basic(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	var disk compute.Disk
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -53,13 +53,13 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	var disk compute.Disk
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -97,12 +97,12 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 func TestAccComputeRegionDisk_encryption(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	var disk compute.Disk
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -121,15 +121,15 @@ func TestAccComputeRegionDisk_encryption(t *testing.T) {
 func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	regionDiskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	regionDiskName2 := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	regionDiskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	regionDiskName2 := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	var disk compute.Disk
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -177,13 +177,13 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 func TestAccComputeRegionDisk_cloneDisk(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	var disk compute.Disk
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -204,7 +204,7 @@ func TestAccComputeRegionDisk_cloneDisk(t *testing.T) {
 
 func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		p := getTestProjectFromEnv()
+		p := GetTestProjectFromEnv()
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
@@ -214,7 +214,7 @@ func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *compute.D
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		found, err := config.NewComputeClient(config.UserAgent).RegionDisks.Get(
 			p, rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()

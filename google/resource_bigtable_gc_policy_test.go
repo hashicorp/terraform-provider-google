@@ -14,16 +14,16 @@ import (
 
 func TestAccBigtableGCPolicy_basic(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -39,16 +39,16 @@ func TestAccBigtableGCPolicy_basic(t *testing.T) {
 
 func TestAccBigtableGCPolicy_abandoned(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,16 +72,16 @@ func TestAccBigtableGCPolicy_abandoned(t *testing.T) {
 
 func TestAccBigtableGCPolicy_swapOffDeprecated(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -110,16 +110,16 @@ func TestAccBigtableGCPolicy_swapOffDeprecated(t *testing.T) {
 
 func TestAccBigtableGCPolicy_union(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -136,16 +136,16 @@ func TestAccBigtableGCPolicy_union(t *testing.T) {
 // Testing multiple GC policies; one per column family.
 func TestAccBigtableGCPolicy_multiplePolicies(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -164,19 +164,19 @@ func TestAccBigtableGCPolicy_multiplePolicies(t *testing.T) {
 }
 
 func TestAccBigtableGCPolicy_gcRulesPolicy(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	gcRulesOriginal := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"10h\"},{\"max_version\":2}]}"
 	gcRulesUpdate := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"16h\"},{\"max_version\":1}]}"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -478,7 +478,7 @@ func testAccCheckBigtableGCPolicyDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 			c, err := config.BigTableClientFactory(config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 			if err != nil {
 				// The instance is already gone
@@ -517,7 +517,7 @@ func testAccBigtableGCPolicyExists(t *testing.T, n string, compareGcRules bool) 
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		c, err := config.BigTableClientFactory(config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting admin client. %s", err)
@@ -563,7 +563,7 @@ func testAccBigtableRemoteGCPolicyExists(t *testing.T, table_name_space string) 
 			return fmt.Errorf("Table not found: %s", table_name_space)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		c, err := config.BigTableClientFactory(config.UserAgent).NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting admin client. %s", err)
@@ -606,7 +606,7 @@ func testAccBigtableCanWriteData(t *testing.T, n string, numberOfRows int) resou
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		c, err := config.BigTableClientFactory(config.UserAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting client. %s", err)
@@ -646,7 +646,7 @@ func testAccBigtableCanReadData(t *testing.T, n string, numberOfRows int) resour
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		c, err := config.BigTableClientFactory(config.UserAgent).NewClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting client. %s", err)

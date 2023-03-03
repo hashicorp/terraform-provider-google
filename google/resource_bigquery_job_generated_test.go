@@ -24,12 +24,12 @@ func TestAccBigQueryJob_bigqueryJobQueryExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobQueryExample(context),
@@ -90,12 +90,12 @@ func TestAccBigQueryJob_bigqueryJobQueryTableReferenceExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobQueryTableReferenceExample(context),
@@ -158,12 +158,12 @@ func TestAccBigQueryJob_bigqueryJobLoadExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobLoadExample(context),
@@ -225,13 +225,13 @@ func TestAccBigQueryJob_bigqueryJobLoadGeojsonExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobLoadGeojsonExample(context),
@@ -313,12 +313,12 @@ func TestAccBigQueryJob_bigqueryJobLoadTableReferenceExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobLoadTableReferenceExample(context),
@@ -378,13 +378,13 @@ func TestAccBigQueryJob_bigqueryJobCopyExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobCopyExample(context),
@@ -533,13 +533,13 @@ func TestAccBigQueryJob_bigqueryJobCopyTableReferenceExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobCopyTableReferenceExample(context),
@@ -682,12 +682,12 @@ func TestAccBigQueryJob_bigqueryJobExtractExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobExtractExample(context),
@@ -766,12 +766,12 @@ func TestAccBigQueryJob_bigqueryJobExtractTableReferenceExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_bigqueryJobExtractTableReferenceExample(context),

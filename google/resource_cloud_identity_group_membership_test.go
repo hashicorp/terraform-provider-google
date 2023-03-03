@@ -12,15 +12,15 @@ import (
 
 func testAccCloudIdentityGroupMembership_updateTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"identity_user": getTestIdentityUserFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"org_domain":    GetTestOrgDomainFromEnv(t),
+		"cust_id":       GetTestCustIdFromEnv(t),
+		"identity_user": GetTestIdentityUserFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -118,15 +118,15 @@ resource "google_cloud_identity_group_membership" "basic" {
 
 func testAccCloudIdentityGroupMembership_importTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"identity_user": getTestIdentityUserFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"org_domain":    GetTestOrgDomainFromEnv(t),
+		"cust_id":       GetTestCustIdFromEnv(t),
+		"identity_user": GetTestIdentityUserFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -178,16 +178,16 @@ resource "google_cloud_identity_group_membership" "basic" {
 func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T) {
 	// Skip VCR because the service account needs to be created/deleted out of
 	// band, and so those calls aren't recorded
-	skipIfVcr(t)
+	SkipIfVcr(t)
 
 	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"org_domain":    GetTestOrgDomainFromEnv(t),
+		"cust_id":       GetTestCustIdFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	saId := "tf-test-sa-" + randString(t, 10)
-	project := getTestProjectFromEnv()
+	saId := "tf-test-sa-" + RandString(t, 10)
+	project := GetTestProjectFromEnv()
 	config := BootstrapConfig(t)
 
 	r := &iam.CreateServiceAccountRequest{
@@ -202,9 +202,9 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 
 	context["member_id"] = sa.Email
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -212,7 +212,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 			},
 			{
 				PreConfig: func() {
-					config := googleProviderConfig(t)
+					config := GoogleProviderConfig(t)
 
 					_, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Delete(sa.Name).Do()
 					if err != nil {
@@ -260,14 +260,14 @@ resource "google_cloud_identity_group_membership" "basic" {
 
 func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExampleTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"org_domain":    GetTestOrgDomainFromEnv(t),
+		"cust_id":       GetTestCustIdFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -329,15 +329,15 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
 
 func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExampleTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"identity_user": getTestIdentityUserFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"org_domain":    GetTestOrgDomainFromEnv(t),
+		"cust_id":       GetTestCustIdFromEnv(t),
+		"identity_user": GetTestIdentityUserFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -397,7 +397,7 @@ func testAccCheckCloudIdentityGroupMembershipDestroyProducer(t *testing.T) func(
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{CloudIdentityBasePath}}{{name}}")
 			if err != nil {

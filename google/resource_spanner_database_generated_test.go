@@ -24,16 +24,16 @@ import (
 )
 
 func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -80,7 +80,7 @@ func testAccCheckSpannerDatabaseDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 			if err != nil {

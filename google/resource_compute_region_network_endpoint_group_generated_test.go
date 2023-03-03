@@ -28,12 +28,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 
 	context := map[string]interface{}{
 		"zip_path":      createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath),
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -91,12 +91,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -148,12 +148,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -248,12 +248,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -285,12 +285,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -388,7 +388,7 @@ func testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t *testing.T) 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}")
 			if err != nil {

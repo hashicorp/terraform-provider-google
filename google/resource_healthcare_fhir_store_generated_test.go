@@ -27,12 +27,12 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,12 +85,12 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 
 	context := map[string]interface{}{
 		"policyChanged": BootstrapPSARoles(t, "gsp-sa-healthcare", []string{"roles/bigquery.dataEditor", "roles/bigquery.jobUser"}),
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -156,12 +156,12 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(t *
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -219,7 +219,7 @@ func testAccCheckHealthcareFhirStoreDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
 			if err != nil {

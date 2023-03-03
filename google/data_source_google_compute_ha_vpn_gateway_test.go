@@ -10,11 +10,11 @@ import (
 func TestAccDataSourceComputeHaVpnGateway(t *testing.T) {
 	t.Parallel()
 
-	gwName := fmt.Sprintf("tf-%s", randString(t, 10))
+	gwName := fmt.Sprintf("tf-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeHaVpnGatewayConfig(gwName),

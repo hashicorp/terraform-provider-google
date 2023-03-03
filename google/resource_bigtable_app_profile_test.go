@@ -9,14 +9,14 @@ import (
 
 func TestAccBigtableAppProfile_update(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -43,14 +43,14 @@ func TestAccBigtableAppProfile_update(t *testing.T) {
 
 func TestAccBigtableAppProfile_ignoreWarnings(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -68,14 +68,14 @@ func TestAccBigtableAppProfile_ignoreWarnings(t *testing.T) {
 
 func TestAccBigtableAppProfile_multiClusterIds(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -102,14 +102,14 @@ func TestAccBigtableAppProfile_multiClusterIds(t *testing.T) {
 
 func TestAccBigtableAppProfile_updateSingleToMulti(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

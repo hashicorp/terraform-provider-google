@@ -10,13 +10,13 @@ import (
 func TestAccComputeFirewallPolicy_update(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	policyName := fmt.Sprintf("tf-test-firewall-policy-%s", randString(t, 10))
-	folderName := fmt.Sprintf("tf-test-folder-%s", randString(t, 10))
+	org := GetTestOrgFromEnv(t)
+	policyName := fmt.Sprintf("tf-test-firewall-policy-%s", RandString(t, 10))
+	folderName := fmt.Sprintf("tf-test-folder-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

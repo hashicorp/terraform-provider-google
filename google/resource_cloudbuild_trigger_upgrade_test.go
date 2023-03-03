@@ -11,9 +11,9 @@ import (
 // Tests schema version migration by creating a trigger with an old version of the provider (4.30.0)
 // and then updating it with the current version the provider.
 func TestAccCloudBuildTrigger_migration(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
-	name := fmt.Sprintf("tf-test-%d", randInt(t))
+	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	oldVersion := map[string]resource.ExternalProvider{
 		"google": {
@@ -22,10 +22,10 @@ func TestAccCloudBuildTrigger_migration(t *testing.T) {
 		},
 	}
 	newVersion := map[string]func() (*schema.Provider, error){
-		"mynewprovider": func() (*schema.Provider, error) { return testAccProviders["google"], nil },
+		"mynewprovider": func() (*schema.Provider, error) { return TestAccProviders["google"], nil },
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{

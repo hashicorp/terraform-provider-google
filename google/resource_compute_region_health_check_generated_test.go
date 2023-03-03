@@ -27,12 +27,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckTcpExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -67,12 +67,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -114,12 +114,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckSslExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,12 +154,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -201,12 +201,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpExample(t *testing.T) 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -241,12 +241,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -289,12 +289,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -329,12 +329,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(t *testin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -377,12 +377,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -417,12 +417,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(t *testin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -465,12 +465,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(t *testing.T) 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -505,12 +505,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -553,7 +553,7 @@ func testAccCheckComputeRegionHealthCheckDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/healthChecks/{{name}}")
 			if err != nil {

@@ -26,7 +26,7 @@ func TestAccBigQueryTableIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -35,16 +35,16 @@ func TestAccBigQueryTableIamBindingGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +54,7 @@ func TestAccBigQueryTableIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +66,7 @@ func TestAccBigQueryTableIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -75,9 +75,9 @@ func TestAccBigQueryTableIamMemberGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -85,7 +85,7 @@ func TestAccBigQueryTableIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -97,7 +97,7 @@ func TestAccBigQueryTableIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -106,16 +106,16 @@ func TestAccBigQueryTableIamPolicyGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -124,7 +124,7 @@ func TestAccBigQueryTableIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -136,7 +136,7 @@ func TestAccBigQueryTableIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -145,16 +145,16 @@ func TestAccBigQueryTableIamBindingGenerated_withCondition(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamBinding_withConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner %s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner %s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -164,11 +164,11 @@ func TestAccBigQueryTableIamBindingGenerated_withCondition(t *testing.T) {
 
 func TestAccBigQueryTableIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -177,28 +177,28 @@ func TestAccBigQueryTableIamBindingGenerated_withAndWithoutCondition(t *testing.
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamBinding_withAndWithoutConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner %s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner %s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner %s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner %s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -210,7 +210,7 @@ func TestAccBigQueryTableIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -219,16 +219,16 @@ func TestAccBigQueryTableIamMemberGenerated_withCondition(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamMember_withConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com %s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -238,11 +238,11 @@ func TestAccBigQueryTableIamMemberGenerated_withCondition(t *testing.T) {
 
 func TestAccBigQueryTableIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -251,28 +251,28 @@ func TestAccBigQueryTableIamMemberGenerated_withAndWithoutCondition(t *testing.T
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamMember_withAndWithoutConditionGenerated(context),
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com %s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com %s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s roles/bigquery.dataOwner user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -284,7 +284,7 @@ func TestAccBigQueryTableIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           randString(t, 10),
+		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/bigquery.dataOwner",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -297,9 +297,9 @@ func TestAccBigQueryTableIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamPolicy_withConditionGenerated(context),
@@ -312,7 +312,7 @@ func TestAccBigQueryTableIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s", getTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/datasets/%s/tables/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf_test_dataset_id%s", context["random_suffix"]), fmt.Sprintf("tf_test_table_id%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

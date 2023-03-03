@@ -10,11 +10,11 @@ import (
 func TestAccDataSourceGoogleStorageBucket_basic(t *testing.T) {
 	t.Parallel()
 
-	bucket := "tf-bucket-" + randString(t, 10)
+	bucket := "tf-bucket-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

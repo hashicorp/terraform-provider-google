@@ -72,14 +72,14 @@ func TestAccHealthcareDicomStoreIdParsing(t *testing.T) {
 func TestAccHealthcareDicomStore_basic(t *testing.T) {
 	t.Parallel()
 
-	datasetName := fmt.Sprintf("tf-test-dataset-%s", randString(t, 10))
-	dicomStoreName := fmt.Sprintf("tf-test-dicom-store-%s", randString(t, 10))
-	pubsubTopic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-dataset-%s", RandString(t, 10))
+	dicomStoreName := fmt.Sprintf("tf-test-dicom-store-%s", RandString(t, 10))
+	pubsubTopic := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
 	resourceName := "google_healthcare_dicom_store.default"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckHealthcareDicomStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -162,7 +162,7 @@ func testAccCheckGoogleHealthcareDicomStoreUpdate(t *testing.T, pubsubTopic stri
 			}
 			foundResource = true
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			gcpResourceUri, err := replaceVarsForTest(config, rs, "{{dataset}}/dicomStores/{{name}}")
 			if err != nil {

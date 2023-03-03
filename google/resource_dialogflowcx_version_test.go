@@ -13,14 +13,14 @@ func TestAccDialogflowCXVersion_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDialogflowCXVersion_basic(context),
@@ -116,12 +116,12 @@ func TestAccDialogflowCXVersion_dialogflowcxVersionFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDialogflowCXVersionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -173,7 +173,7 @@ func testAccCheckDialogflowCXVersionDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
 			if err != nil {

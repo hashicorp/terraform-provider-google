@@ -27,13 +27,13 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -162,13 +162,13 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExampl
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -261,7 +261,7 @@ func testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t *testing.T) 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
 			if err != nil {

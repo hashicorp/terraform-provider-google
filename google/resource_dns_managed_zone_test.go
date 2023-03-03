@@ -12,11 +12,11 @@ import (
 func TestAccDNSManagedZone_update(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := randString(t, 10)
+	zoneSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -42,11 +42,11 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := randString(t, 10)
+	zoneSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,11 +72,11 @@ func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := randString(t, 10)
+	zoneSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -102,11 +102,11 @@ func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := randString(t, 10)
+	zoneSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -124,11 +124,11 @@ func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := randString(t, 10)
+	zoneSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,11 +154,11 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := randString(t, 10)
+	zoneSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -192,12 +192,12 @@ func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 	//t.Parallel()
 
-	zoneSuffix := randString(t, 10)
-	project := getTestProjectFromEnv()
+	zoneSuffix := RandString(t, 10)
+	project := GetTestProjectFromEnv()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -212,7 +212,7 @@ func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 
 func testAccCheckManagedZoneCreateRRs(t *testing.T, zoneSuffix string, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		zone := fmt.Sprintf("mzone-test-%s", zoneSuffix)
 		// Build the change
 		chg := &dns.Change{
@@ -576,12 +576,12 @@ func TestDnsManagedZoneImport_parseImportId(t *testing.T) {
 func TestAccDNSManagedZone_importWithProject(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := randString(t, 10)
-	project := getTestProjectFromEnv()
+	zoneSuffix := RandString(t, 10)
+	project := GetTestProjectFromEnv()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

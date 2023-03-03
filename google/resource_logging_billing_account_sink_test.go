@@ -12,15 +12,15 @@ import (
 func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + randString(t, 10)
-	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
+	sinkName := "tf-test-sink-" + RandString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
 	var sink logging.LogSink
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -41,16 +41,16 @@ func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + randString(t, 10)
-	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
-	updatedBucketName := "tf-test-sink-bucket-" + randString(t, 10)
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
+	sinkName := "tf-test-sink-" + RandString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
+	updatedBucketName := "tf-test-sink-bucket-" + RandString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
 	var sinkBefore, sinkAfter logging.LogSink
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -86,13 +86,13 @@ func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 func TestAccLoggingBillingAccountSink_described(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + randString(t, 10)
-	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
+	sinkName := "tf-test-sink-" + RandString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -109,13 +109,13 @@ func TestAccLoggingBillingAccountSink_described(t *testing.T) {
 func TestAccLoggingBillingAccountSink_disabled(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + randString(t, 10)
-	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
+	sinkName := "tf-test-sink-" + RandString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -132,13 +132,13 @@ func TestAccLoggingBillingAccountSink_disabled(t *testing.T) {
 func TestAccLoggingBillingAccountSink_updateBigquerySink(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + randString(t, 10)
-	bqDatasetID := "tf_test_sink_" + randString(t, 10)
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
+	sinkName := "tf-test-sink-" + RandString(t, 10)
+	bqDatasetID := "tf_test_sink_" + RandString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -164,15 +164,15 @@ func TestAccLoggingBillingAccountSink_updateBigquerySink(t *testing.T) {
 func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + randString(t, 10)
-	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
+	sinkName := "tf-test-sink-" + RandString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
 	var sink logging.LogSink
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -192,7 +192,7 @@ func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
 
 func testAccCheckLoggingBillingAccountSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_logging_billing_account_sink" {
@@ -217,7 +217,7 @@ func testAccCheckLoggingBillingAccountSinkExists(t *testing.T, n string, sink *l
 		if err != nil {
 			return err
 		}
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		si, err := config.NewLoggingClient(config.UserAgent).BillingAccounts.Sinks.Get(attributes["id"]).Do()
 		if err != nil {
@@ -265,7 +265,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+`, name, billingAccount, GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingBillingAccountSink_described(name, bucketName, billingAccount string) string {
@@ -282,7 +282,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+`, name, billingAccount, GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingBillingAccountSink_disabled(name, bucketName, billingAccount string) string {
@@ -298,7 +298,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+`, name, billingAccount, GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingBillingAccountSink_update(name, bucketName, billingAccount string) string {
@@ -315,7 +315,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+`, name, billingAccount, GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingBillingAccountSink_heredoc(name, bucketName, billingAccount string) string {
@@ -338,7 +338,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+`, name, billingAccount, GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingBillingAccountSink_bigquery_before(sinkName, bqDatasetID, billingAccount string) string {
@@ -357,7 +357,7 @@ resource "google_logging_billing_account_sink" "bigquery" {
 resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
-}`, sinkName, billingAccount, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}`, sinkName, billingAccount, GetTestProjectFromEnv(), GetTestProjectFromEnv(), bqDatasetID)
 }
 
 func testAccLoggingBillingAccountSink_bigquery_after(sinkName, bqDatasetID, billingAccount string) string {
@@ -372,5 +372,5 @@ resource "google_logging_billing_account_sink" "bigquery" {
 resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
-}`, sinkName, billingAccount, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}`, sinkName, billingAccount, GetTestProjectFromEnv(), GetTestProjectFromEnv(), bqDatasetID)
 }

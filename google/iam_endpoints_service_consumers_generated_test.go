@@ -25,15 +25,15 @@ func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":    randString(t, 10),
+		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     getTestProjectFromEnv(),
-		"consumer_project": getTestProjectFromEnv(),
+		"project_name":     GetTestProjectFromEnv(),
+		"consumer_project": GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceManagementServiceConsumersIamBinding_basicGenerated(context),
@@ -62,15 +62,15 @@ func TestAccServiceManagementServiceConsumersIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":    randString(t, 10),
+		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     getTestProjectFromEnv(),
-		"consumer_project": getTestProjectFromEnv(),
+		"project_name":     GetTestProjectFromEnv(),
+		"consumer_project": GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -90,15 +90,15 @@ func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":    randString(t, 10),
+		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     getTestProjectFromEnv(),
-		"consumer_project": getTestProjectFromEnv(),
+		"project_name":     GetTestProjectFromEnv(),
+		"consumer_project": GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceManagementServiceConsumersIamPolicy_basicGenerated(context),

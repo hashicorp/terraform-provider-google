@@ -27,12 +27,12 @@ func TestAccComputeReservation_reservationBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeReservationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -66,19 +66,19 @@ resource "google_compute_reservation" "gce_reservation" {
 }
 
 func TestAccComputeReservation_sharedReservationBasicExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":         getTestProjectFromEnv(),
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"project":         GetTestProjectFromEnv(),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeReservationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -160,7 +160,7 @@ func testAccCheckComputeReservationDestroyProducer(t *testing.T) func(s *terrafo
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 			if err != nil {

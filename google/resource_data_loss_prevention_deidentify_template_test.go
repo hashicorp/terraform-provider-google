@@ -10,14 +10,14 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeT
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"organization":  GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -397,14 +397,14 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"organization":  GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

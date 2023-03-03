@@ -10,11 +10,11 @@ import (
 func TestAccArtifactRegistryRepository_update(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", randInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -40,11 +40,11 @@ func TestAccArtifactRegistryRepository_update(t *testing.T) {
 func TestAccArtifactRegistryRepository_createMvnSnapshot(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", randInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -62,11 +62,11 @@ func TestAccArtifactRegistryRepository_createMvnSnapshot(t *testing.T) {
 func TestAccArtifactRegistryRepository_createMvnRelease(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", randInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -84,11 +84,11 @@ func TestAccArtifactRegistryRepository_createMvnRelease(t *testing.T) {
 func TestAccArtifactRegistryRepository_kfp(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", randInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

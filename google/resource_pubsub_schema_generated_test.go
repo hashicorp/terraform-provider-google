@@ -27,12 +27,12 @@ func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckPubsubSchemaDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -62,13 +62,13 @@ func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project_name":  GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckPubsubSchemaDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -114,7 +114,7 @@ func testAccCheckPubsubSchemaDestroyProducer(t *testing.T) func(s *terraform.Sta
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
 			if err != nil {

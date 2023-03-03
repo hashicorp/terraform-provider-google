@@ -11,10 +11,10 @@ import (
 func TestAccSqlClientCert_mysql(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlClientCertDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -31,10 +31,10 @@ func TestAccSqlClientCert_mysql(t *testing.T) {
 func TestAccSqlClientCert_postgres(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlClientCertDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -49,7 +49,7 @@ func TestAccSqlClientCert_postgres(t *testing.T) {
 
 func testAccCheckGoogleSqlClientCertExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Resource not found: %s", n)
@@ -74,7 +74,7 @@ func testAccCheckGoogleSqlClientCertExists(t *testing.T, n string) resource.Test
 func testAccSqlClientCertDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 			if rs.Type != "google_sql_ssl_cert" {
 				continue
 			}

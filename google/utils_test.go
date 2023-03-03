@@ -722,7 +722,7 @@ func TestSnakeToPascalCase(t *testing.T) {
 }
 
 func TestCheckGCSName(t *testing.T) {
-	valid63 := randString(t, 63)
+	valid63 := RandString(t, 63)
 	cases := map[string]bool{
 		// Valid
 		"foobar":       true,
@@ -748,7 +748,7 @@ func TestCheckGCSName(t *testing.T) {
 		"fo":              false,
 		"foo$bar":         false,
 		"foo..bar":        false,
-		randString(t, 64): false,
+		RandString(t, 64): false,
 		fmt.Sprintf("%s.%s.%s.%s", valid63, valid63, valid63, valid63): false,
 	}
 

@@ -13,20 +13,20 @@ import (
 func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	projectId := GetTestProjectFromEnv()
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirStoreAdmin"
-	datasetName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	datasetId := &healthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	fhirStoreName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
@@ -62,20 +62,20 @@ func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	projectId := GetTestProjectFromEnv()
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
-	datasetName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	datasetId := &healthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	fhirStoreName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -97,20 +97,20 @@ func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 func TestAccHealthcareFhirStoreIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	projectId := GetTestProjectFromEnv()
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
-	datasetName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	datasetId := &healthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	fhirStoreName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Policy creation (no update for policy, no need to test)
@@ -136,7 +136,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamBindingExists(t *testing.T, binding
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		fhirStoreId, err := parseHealthcareFhirStoreId(bindingRs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
@@ -172,7 +172,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamMemberExists(t *testing.T, n, role,
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		fhirStoreId, err := parseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
@@ -207,7 +207,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamPolicyExists(t *testing.T, n, role,
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		fhirStoreId, err := parseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {

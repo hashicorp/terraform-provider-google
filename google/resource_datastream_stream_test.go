@@ -135,17 +135,17 @@ func TestDatastreamStreamCustomDiff(t *testing.T) {
 
 func TestAccDatastreamStream_update(t *testing.T) {
 	// this test uses the random provider
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":       randString(t, 10),
+		"random_suffix":       RandString(t, 10),
 		"deletion_protection": false,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 		},

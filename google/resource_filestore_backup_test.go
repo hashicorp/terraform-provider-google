@@ -10,12 +10,12 @@ import (
 func TestAccFilestoreBackup_update(t *testing.T) {
 	t.Parallel()
 
-	instName := fmt.Sprintf("tf-fs-inst-%d", randInt(t))
-	bkupName := fmt.Sprintf("tf-fs-bkup-%d", randInt(t))
+	instName := fmt.Sprintf("tf-fs-inst-%d", RandInt(t))
+	bkupName := fmt.Sprintf("tf-fs-bkup-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckFilestoreBackupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

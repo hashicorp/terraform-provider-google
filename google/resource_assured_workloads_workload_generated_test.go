@@ -30,15 +30,15 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"org_id":        getTestOrgFromEnv(t),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+		"billing_acct":  GetTestBillingAccountFromEnv(t),
+		"org_id":        GetTestOrgFromEnv(t),
+		"region":        GetTestRegionFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAssuredWorkloadsWorkloadDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -66,15 +66,15 @@ func TestAccAssuredWorkloadsWorkload_FullHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"org_id":        getTestOrgFromEnv(t),
-		"region":        getTestRegionFromEnv(),
-		"random_suffix": randString(t, 10),
+		"billing_acct":  GetTestBillingAccountFromEnv(t),
+		"org_id":        GetTestOrgFromEnv(t),
+		"region":        GetTestRegionFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAssuredWorkloadsWorkloadDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -165,7 +165,7 @@ func testAccCheckAssuredWorkloadsWorkloadDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

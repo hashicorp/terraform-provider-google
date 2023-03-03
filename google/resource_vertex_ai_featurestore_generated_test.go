@@ -27,15 +27,15 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
 		"kms_key_name":    BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix":   randString(t, 10),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckVertexAIFeaturestoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,15 +74,15 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
 		"kms_key_name":    BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix":   randString(t, 10),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckVertexAIFeaturestoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -130,7 +130,7 @@ func testAccCheckVertexAIFeaturestoreDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 			if err != nil {

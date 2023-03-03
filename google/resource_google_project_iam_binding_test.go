@@ -21,13 +21,13 @@ func projectIamBindingImportStep(resourceName, pid, role string) resource.TestSt
 func TestAccProjectIamBinding_basic(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -49,15 +49,15 @@ func TestAccProjectIamBinding_basic(t *testing.T) {
 func TestAccProjectIamBinding_multiple(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 	member := "user:admin@hashicorptest.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -83,17 +83,17 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 // Test that multiple IAM bindings can be applied to a project all at once
 func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -116,14 +116,14 @@ func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
 func TestAccProjectIamBinding_update(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -156,17 +156,17 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 // Test that an IAM binding can be removed from a project
 func TestAccProjectIamBinding_remove(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -197,12 +197,12 @@ func TestAccProjectIamBinding_remove(t *testing.T) {
 func TestAccProjectIamBinding_noMembers(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -223,13 +223,13 @@ func TestAccProjectIamBinding_noMembers(t *testing.T) {
 func TestAccProjectIamBinding_withCondition(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	conditionTitle := "expires_after_2019_12_31"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -256,12 +256,12 @@ func TestAccProjectIamBinding_withCondition(t *testing.T) {
 func TestAccProjectIamBinding_invalidMembers(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProjectAssociateBindingBasic(pid, pname, org, role, "admin@hashicorptest.com"),

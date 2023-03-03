@@ -27,12 +27,12 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryReservationReservationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,7 +72,7 @@ func testAccCheckBigqueryReservationReservationDestroyProducer(t *testing.T) fun
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 			if err != nil {

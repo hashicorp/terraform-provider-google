@@ -11,12 +11,12 @@ import (
 func TestAccProjectIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
-	project := getTestProjectFromEnv()
-	roleId := "tfIamCustomRole" + randString(t, 10)
+	project := GetTestProjectFromEnv()
+	roleId := "tfIamCustomRole" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -55,11 +55,11 @@ func TestAccProjectIamCustomRole_basic(t *testing.T) {
 func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 	t.Parallel()
 
-	roleId := "tfIamCustomRole" + randString(t, 10)
+	roleId := "tfIamCustomRole" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -95,10 +95,10 @@ func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 func TestAccProjectIamCustomRole_createAfterDestroy(t *testing.T) {
 	t.Parallel()
 
-	roleId := "tfIamCustomRole" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	roleId := "tfIamCustomRole" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -129,7 +129,7 @@ func TestAccProjectIamCustomRole_createAfterDestroy(t *testing.T) {
 
 func testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_project_iam_custom_role" {
@@ -163,7 +163,7 @@ func testAccCheckGoogleProjectIamCustomRoleDeletionStatus(t *testing.T, n string
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		role, err := config.NewIamClient(config.UserAgent).Projects.Roles.Get(rs.Primary.ID).Do()
 
 		if err != nil {

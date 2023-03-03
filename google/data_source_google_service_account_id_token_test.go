@@ -44,7 +44,7 @@ func TestAccDataSourceGoogleServiceAccountIdToken_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleServiceAccountIdToken_basic(targetAudience),
@@ -70,12 +70,12 @@ func TestAccDataSourceGoogleServiceAccountIdToken_impersonation(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "data.google_service_account_id_token.default"
-	serviceAccount := getTestServiceAccountFromEnv(t)
-	targetServiceAccountEmail := BootstrapServiceAccount(t, getTestProjectFromEnv(), serviceAccount)
+	serviceAccount := GetTestServiceAccountFromEnv(t)
+	targetServiceAccountEmail := BootstrapServiceAccount(t, GetTestProjectFromEnv(), serviceAccount)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleServiceAccountIdToken_impersonation_datasource(targetAudience, targetServiceAccountEmail),

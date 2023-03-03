@@ -52,14 +52,14 @@ func TestProjectServiceServiceValidateFunc(t *testing.T) {
 func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_basic(services, pid, pname, org),
@@ -106,17 +106,17 @@ func TestAccProjectService_basic(t *testing.T) {
 
 func TestAccProjectService_disableDependentServices(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	billingId := getTestBillingAccountFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_disableDependentServices(services, pid, pname, org, billingId, "false"),
@@ -151,12 +151,12 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 func TestAccProjectService_handleNotFound(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	service := "iam.googleapis.com"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_handleNotFound(service, pid, pname, org),
@@ -185,11 +185,11 @@ func TestAccProjectService_renamedService(t *testing.T) {
 		newName = new
 	}
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_single(newName, pid, pname, org),
@@ -206,7 +206,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 
 func testAccCheckProjectService(t *testing.T, services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		currentlyEnabled, err := ListCurrentlyEnabledServices(pid, "", config.UserAgent, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)

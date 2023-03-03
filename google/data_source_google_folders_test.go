@@ -10,13 +10,13 @@ import (
 func TestAccDataSourceGoogleFolders_basic(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "tf-test-" + randString(t, 10)
+	displayName := "tf-test-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleFoldersConfig(parent, displayName),

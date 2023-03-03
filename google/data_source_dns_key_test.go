@@ -11,11 +11,11 @@ import (
 func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 	t.Parallel()
 
-	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", randString(t, 10))
+	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -35,11 +35,11 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
 	t.Parallel()
 
-	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", randString(t, 10))
+	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

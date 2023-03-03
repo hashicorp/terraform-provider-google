@@ -10,14 +10,14 @@ func TestAccDataSourceGoogleLoggingSink_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name": getTestProjectFromEnv(),
-		"sink_name":    "tf-test-sink-ds-" + randString(t, 10),
-		"bucket_name":  "tf-test-sink-ds-bucket-" + randString(t, 10),
+		"project_name": GetTestProjectFromEnv(),
+		"sink_name":    "tf-test-sink-ds-" + RandString(t, 10),
+		"bucket_name":  "tf-test-sink-ds-bucket-" + RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleLoggingSink_basic(context),

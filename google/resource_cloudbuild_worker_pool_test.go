@@ -13,13 +13,13 @@ func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"project":       getTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+		"project":       GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
 		Steps: []resource.TestStep{
 			{
@@ -91,13 +91,13 @@ func TestAccCloudbuildWorkerPool_withNetwork(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"project":       getTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+		"project":       GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
 		Steps: []resource.TestStep{
 			{
@@ -167,7 +167,7 @@ func funcAccTestCloudbuildWorkerPoolCheckDestroy(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
 			if err != nil {

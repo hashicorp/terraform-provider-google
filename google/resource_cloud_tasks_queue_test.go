@@ -10,11 +10,11 @@ import (
 func TestAccCloudTasksQueue_update(t *testing.T) {
 	t.Parallel()
 
-	name := "cloudtasksqueuetest-" + randString(t, 10)
+	name := "cloudtasksqueuetest-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudTasksQueue_full(name),
@@ -41,11 +41,11 @@ func TestAccCloudTasksQueue_update(t *testing.T) {
 func TestAccCloudTasksQueue_update2Basic(t *testing.T) {
 	t.Parallel()
 
-	name := "cloudtasksqueuetest-" + randString(t, 10)
+	name := "cloudtasksqueuetest-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudTasksQueue_full(name),
@@ -71,11 +71,11 @@ func TestAccCloudTasksQueue_update2Basic(t *testing.T) {
 
 func TestAccCloudTasksQueue_MaxRetryDiffSuppress0s(t *testing.T) {
 	t.Parallel()
-	testID := randString(t, 10)
+	testID := RandString(t, 10)
 	cloudTaskName := fmt.Sprintf("tf-test-%s", testID)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudtasksQueueMaxRetry0s(cloudTaskName),

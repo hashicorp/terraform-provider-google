@@ -27,12 +27,12 @@ func TestAccAlloydbCluster_alloydbClusterBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAlloydbClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -68,12 +68,12 @@ func TestAccAlloydbCluster_alloydbClusterFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAlloydbClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -149,7 +149,7 @@ func testAccCheckAlloydbClusterDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 			if err != nil {

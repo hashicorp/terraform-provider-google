@@ -13,15 +13,15 @@ import (
 func TestAccFolder_rename(t *testing.T) {
 	t.Parallel()
 
-	folderDisplayName := "tf-test-" + randString(t, 10)
-	newFolderDisplayName := "tf-test-renamed-" + randString(t, 10)
-	org := getTestOrgFromEnv(t)
+	folderDisplayName := "tf-test-" + RandString(t, 10)
+	newFolderDisplayName := "tf-test-renamed-" + RandString(t, 10)
+	org := GetTestOrgFromEnv(t)
 	parent := "organizations/" + org
 	folder := resourceManagerV3.Folder{}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckGoogleFolderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -51,16 +51,16 @@ func TestAccFolder_rename(t *testing.T) {
 func TestAccFolder_moveParent(t *testing.T) {
 	t.Parallel()
 
-	folder1DisplayName := "tf-test-" + randString(t, 10)
-	folder2DisplayName := "tf-test-" + randString(t, 10)
-	org := getTestOrgFromEnv(t)
+	folder1DisplayName := "tf-test-" + RandString(t, 10)
+	folder2DisplayName := "tf-test-" + RandString(t, 10)
+	org := GetTestOrgFromEnv(t)
 	parent := "organizations/" + org
 	folder1 := resourceManagerV3.Folder{}
 	folder2 := resourceManagerV3.Folder{}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckGoogleFolderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -87,7 +87,7 @@ func TestAccFolder_moveParent(t *testing.T) {
 
 func testAccCheckGoogleFolderDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_folder" {
@@ -115,7 +115,7 @@ func testAccCheckGoogleFolderExists(t *testing.T, n string, folder *resourceMana
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		found, err := config.NewResourceManagerV3Client(config.UserAgent).Folders.Get(rs.Primary.ID).Do()
 		if err != nil {

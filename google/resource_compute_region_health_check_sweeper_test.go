@@ -35,7 +35,7 @@ func testSweepComputeRegionHealthCheck(region string) error {
 	resourceName := "ComputeRegionHealthCheck"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -48,7 +48,7 @@ func testSweepComputeRegionHealthCheck(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := getTestBillingAccountFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
 	d := &ResourceDataMock{
@@ -94,7 +94,7 @@ func testSweepComputeRegionHealthCheck(region string) error {
 
 		name := GetResourceNameFromSelfLink(obj["name"].(string))
 		// Skip resources that shouldn't be sweeped
-		if !isSweepableTestResource(name) {
+		if !IsSweepableTestResource(name) {
 			nonPrefixCount++
 			continue
 		}

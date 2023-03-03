@@ -25,21 +25,21 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       getTestProjectFromEnv(),
+		"project":       GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGKEBackupBackupPlanIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +49,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -61,14 +61,14 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       getTestProjectFromEnv(),
+		"project":       GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -76,7 +76,7 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -88,21 +88,21 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       getTestProjectFromEnv(),
+		"project":       GetTestProjectFromEnv(),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGKEBackupBackupPlanIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,7 +111,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

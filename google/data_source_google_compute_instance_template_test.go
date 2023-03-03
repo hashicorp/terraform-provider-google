@@ -9,12 +9,12 @@ import (
 func TestAccInstanceTemplateDatasource_name(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceTemplate_name(getTestProjectFromEnv(), randString(t, 10)),
+				Config: testAccInstanceTemplate_name(GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_instance_template.default",
@@ -30,12 +30,12 @@ func TestAccInstanceTemplateDatasource_name(t *testing.T) {
 func TestAccInstanceTemplateDatasource_filter(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceTemplate_filter(getTestProjectFromEnv(), randString(t, 10)),
+				Config: testAccInstanceTemplate_filter(GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_instance_template.default",
@@ -51,12 +51,12 @@ func TestAccInstanceTemplateDatasource_filter(t *testing.T) {
 func TestAccInstanceTemplateDatasource_filter_mostRecent(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceTemplate_filter_mostRecent(getTestProjectFromEnv(), randString(t, 10)),
+				Config: testAccInstanceTemplate_filter_mostRecent(GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_instance_template.default",

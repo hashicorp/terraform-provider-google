@@ -27,12 +27,12 @@ func TestAccComputeHaVpnGateway_haVpnGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,7 +73,7 @@ func testAccCheckComputeHaVpnGatewayDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}")
 			if err != nil {
